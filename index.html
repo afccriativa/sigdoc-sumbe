@@ -679,14 +679,14 @@
       <div class="cartao-indicador">
         <div class="icone-indicador" style="background:#fef9e7;">🏥</div>
         <div>
-          <div class="numero">16</div>
+          <div class="numero" id="total-unidades">—</div>
           <div class="rotulo">Unidades Sanitárias</div>
         </div>
       </div>
       <div class="cartao-indicador">
         <div class="icone-indicador" style="background:#fdecea;">👨‍💼</div>
         <div>
-          <div class="numero">200+</div>
+          <div class="numero" id="total-funcionarios">—</div>
           <div class="rotulo">Funcionários Totais</div>
         </div>
       </div>
@@ -731,7 +731,7 @@
           <div class="desc-modulo">Histórico completo de todos os documentos emitidos e acções no sistema.</div>
           <span class="estado-modulo estado-disponivel">✅ Disponível</span>
           <span class="canto-seta">→</span>
-        </a>
+        </div>
 
         <!-- Painel de Gestão — Director e Admin -->
         <a href="painel.html" class="cartao-modulo modulo-director" id="mod-painel">
@@ -740,7 +740,7 @@
           <div class="desc-modulo">Indicadores executivos e relatórios para a direcção municipal.</div>
           <span class="estado-modulo estado-disponivel">✅ Disponível</span>
           <span class="canto-seta">→</span>
-        </a>
+        </div>
 
         <!-- Gestão de Utilizadores — apenas Admin (redireciona para o painel actual) -->
         <div class="cartao-modulo modulo-admin" id="mod-utilizadores-card" onclick="document.getElementById('secção-utilizadores').scrollIntoView({behavior:'smooth'})">
@@ -1097,15 +1097,31 @@
 
   // ===== INDICADORES =====
   async function carregarIndicadores() {
+    // Utilizadores
     try {
       const snap = await getDocs(collection(db, "utilizadores"));
-      const total = snap.size;
       let activos = 0;
       snap.forEach(d => { if (d.data().activo) activos++; });
-      document.getElementById("total-utilizadores").textContent = total;
+      document.getElementById("total-utilizadores").textContent = snap.size;
       document.getElementById("total-activos").textContent = activos;
     } catch(e) {
-      console.error("Erro indicadores:", e);
+      console.error("Erro indicadores utilizadores:", e);
+    }
+
+    // Funcionarios e Unidades — lidos da coleccao "funcionarios"
+    try {
+      const snapF = await getDocs(collection(db, "funcionarios"));
+      const unidades = new Set();
+      snapF.forEach(d => {
+        const u = d.data().unidade;
+        if (u) unidades.add(u);
+      });
+      document.getElementById("total-funcionarios").textContent = snapF.size;
+      document.getElementById("total-unidades").textContent = unidades.size;
+    } catch(e) {
+      console.error("Erro indicadores funcionarios:", e);
+      document.getElementById("total-funcionarios").textContent = "—";
+      document.getElementById("total-unidades").textContent = "—";
     }
   }
 
