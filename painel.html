@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIGDOC-SUMBE — Painel de Gestão</title>
+  <meta name="theme-color" content="#0d2137"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --azul-escuro: #0d2137;
+      --azul: #1a4f7a;
+      --azul-claro: #2471a3;
+      --azul-vivo: #3498db;
+      --verde: #1e8449;
+      --verde-claro: #27ae60;
+      --vermelho: #c0392b;
+      --laranja: #e67e22;
+      --amarelo: #f39c12;
+      --roxo: #8e44ad;
+      --cinza-fundo: #f0f3f7;
+      --branco: #ffffff;
+      --texto: #1a2332;
+      --texto-suave: #6b7a8d;
+      --borda: #e2e8f0;
+      --sombra-card: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+      --sombra-hover: 0 8px 32px rgba(0,0,0,0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cinza-fundo);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    /* ── ECRÃS DE ESTADO ── */
+    #ecra-carregando {
+      min-height: 100vh; display: flex; align-items: center;
+      justify-content: center; flex-direction: column; gap: 20px;
+      background: var(--azul-escuro);
+    }
+    .logo-carregando { font-size: 48px; animation: pulsar 1.5s ease-in-out infinite; }
+    @keyframes pulsar { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.95)} }
+    .texto-carregando { color: rgba(255,255,255,0.7); font-size: 14px; letter-spacing: 0.5px; }
+    .barra-progresso { width: 200px; height: 3px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden; }
+    .barra-progresso-fill { height: 100%; background: var(--azul-vivo); border-radius: 2px; animation: progresso 2s ease-in-out infinite; }
+    @keyframes progresso { 0%{width:0;margin-left:0} 50%{width:60%;margin-left:20%} 100%{width:0;margin-left:100%} }
+
+    #ecra-negado { min-height:100vh; display:none; align-items:center; justify-content:center; flex-direction:column; gap:16px; text-align:center; padding:20px; background: var(--azul-escuro); color: white; }
+
+    /* ── PAINEL PRINCIPAL ── */
+    #ecra-principal { display: none; }
+
+    /* ── BARRA TOPO ── */
+    .barra-topo {
+      background: var(--azul-escuro);
+      color: white;
+      padding: 0 28px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+    }
+
+    .topo-esquerda { display: flex; align-items: center; gap: 20px; }
+    .btn-voltar {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.8);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-voltar:hover { background: rgba(255,255,255,0.15); color: white; }
+
+    .titulo-painel { }
+    .titulo-painel h1 { font-size: 16px; font-weight: 600; letter-spacing: 0.2px; }
+    .titulo-painel p { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 1px; }
+
+    .topo-direita { display: flex; align-items: center; gap: 16px; }
+    .data-hora { text-align: right; }
+    .data-hora .hora { font-size: 18px; font-weight: 700; font-family: 'DM Mono', monospace; letter-spacing: 1px; }
+    .data-hora .data { font-size: 11px; color: rgba(255,255,255,0.5); }
+    .utilizador-topo { display: flex; align-items: center; gap: 10px; }
+    .utilizador-topo .info { text-align: right; }
+    .utilizador-topo .nome { font-size: 13px; font-weight: 600; }
+    .utilizador-topo .cargo { font-size: 10px; color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 10px; }
+    .avatar-topo { width: 36px; height: 36px; background: linear-gradient(135deg, var(--azul-vivo), var(--azul-claro)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+
+    /* ── HERO STRIP ── */
+    .hero-strip {
+      background: linear-gradient(135deg, var(--azul-escuro) 0%, #1a3a5c 50%, var(--azul) 100%);
+      padding: 28px 28px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-strip::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(52,152,219,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-strip::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; left: 30%;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(39,174,96,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-titulo { color: white; font-size: 13px; font-weight: 500; opacity: 0.6; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+    .hero-subtitulo { color: white; font-size: 22px; font-weight: 700; }
+    .hero-sub2 { color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 4px; }
+    .hero-ponto { display: inline-block; width: 8px; height: 8px; background: #27ae60; border-radius: 50%; margin-right: 6px; animation: piscar 2s ease-in-out infinite; }
+    @keyframes piscar { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── KPI CARDS SOBREPOSTOS ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      padding: 0 28px;
+      margin-top: -36px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .kpi-card {
+      background: white;
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: var(--sombra-card);
+      border-top: 3px solid transparent;
+      transition: all 0.25s ease;
+      cursor: default;
+      animation: subirCard 0.5s ease both;
+    }
+    .kpi-card:nth-child(1){animation-delay:0.05s; border-top-color: var(--azul-vivo);}
+    .kpi-card:nth-child(2){animation-delay:0.1s; border-top-color: var(--verde-claro);}
+    .kpi-card:nth-child(3){animation-delay:0.15s; border-top-color: var(--amarelo);}
+    .kpi-card:nth-child(4){animation-delay:0.2s; border-top-color: var(--roxo);}
+    .kpi-card:nth-child(5){animation-delay:0.25s; border-top-color: var(--vermelho);}
+    @keyframes subirCard { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    .kpi-card:hover { box-shadow: var(--sombra-hover); transform: translateY(-2px); }
+
+    .kpi-icone { font-size: 22px; margin-bottom: 12px; display: block; }
+    .kpi-num {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1;
+      font-family: 'DM Mono', monospace;
+      color: var(--texto);
+    }
+    .kpi-label { font-size: 12px; color: var(--texto-suave); margin-top: 5px; font-weight: 500; }
+    .kpi-delta { font-size: 11px; margin-top: 6px; padding: 2px 8px; border-radius: 20px; display: inline-block; font-weight: 600; }
+    .delta-positivo { background: #e8f8f0; color: var(--verde); }
+    .delta-neutro { background: #f0f3f7; color: var(--texto-suave); }
+    .delta-negativo { background: #fdecea; color: var(--vermelho); }
+
+    /* ── CONTEÚDO PRINCIPAL ── */
+    .conteudo { padding: 24px 28px 40px; }
+
+    /* ── SECÇÃO DE GRÁFICOS ── */
+    .secao-titulo {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--texto-suave);
+      margin-bottom: 14px;
+      margin-top: 28px;
+    }
+
+    .grid-graficos-principal { display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
+    .grid-graficos-secundario { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 20px; }
+    .grid-graficos-terceiro { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+
+    .card-grafico {
+      background: white;
+      border-radius: 14px;
+      box-shadow: var(--sombra-card);
+      overflow: hidden;
+      animation: fadeIn 0.6s ease both;
+    }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    .card-cabecalho {
+      padding: 18px 22px 14px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    .card-cabecalho h3 { font-size: 14px; font-weight: 600; color: var(--texto); }
+    .card-cabecalho p { font-size: 11px; color: var(--texto-suave); margin-top: 2px; }
+    .badge-live {
+      font-size: 10px; font-weight: 700;
+      background: #e8f8f0; color: var(--verde);
+      padding: 3px 10px; border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    /* ── GRÁFICO DE BARRAS SVG ── */
+    .svg-wrap { padding: 0 22px 18px; }
+    .svg-eixo-x { display: flex; justify-content: space-between; padding: 6px 0 0; }
+    .svg-eixo-x span { font-size: 10px; color: var(--texto-suave); font-weight: 500; text-align: center; flex: 1; }
+
+    /* ── DONUT ── */
+    .donut-wrap { display: flex; align-items: center; justify-content: center; gap: 24px; padding: 10px 22px 22px; }
+    .donut-legenda { display: flex; flex-direction: column; gap: 10px; }
+    .legenda-item { display: flex; align-items: center; gap: 8px; }
+    .legenda-cor { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .legenda-texto { font-size: 12px; color: var(--texto); }
+    .legenda-num { font-size: 12px; font-weight: 700; color: var(--texto); margin-left: auto; padding-left: 16px; font-family: 'DM Mono', monospace; }
+
+    /* ── BARRAS HORIZONTAIS ── */
+    .barras-h-wrap { padding: 8px 22px 18px; display: flex; flex-direction: column; gap: 10px; }
+    .barra-h-item { }
+    .barra-h-topo { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .barra-h-label { font-size: 12px; color: var(--texto); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%; }
+    .barra-h-val { font-size: 12px; font-weight: 700; color: var(--texto); font-family: 'DM Mono', monospace; }
+    .barra-h-track { height: 7px; background: #f0f3f7; border-radius: 4px; overflow: hidden; }
+    .barra-h-fill { height: 100%; border-radius: 4px; transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+
+    /* ── MINI ESTAT ── */
+    .mini-estat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px 22px 18px; }
+    .mini-estat { background: var(--cinza-fundo); border-radius: 10px; padding: 14px; }
+    .mini-estat .num { font-size: 24px; font-weight: 700; font-family: 'DM Mono', monospace; line-height: 1; }
+    .mini-estat .lbl { font-size: 11px; color: var(--texto-suave); margin-top: 4px; font-weight: 500; }
+
+    /* ── FEED DE ACTIVIDADE ── */
+    .feed-wrap { padding: 0 0 4px; }
+    .feed-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 22px;
+      border-bottom: 1px solid var(--borda);
+      transition: background 0.15s;
+    }
+    .feed-item:last-child { border-bottom: none; }
+    .feed-item:hover { background: #fafbfc; }
+    .feed-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+    .feed-corpo { flex: 1; min-width: 0; }
+    .feed-titulo { font-size: 13px; font-weight: 600; color: var(--texto); }
+    .feed-sub { font-size: 11px; color: var(--texto-suave); margin-top: 2px; }
+    .feed-hora { font-size: 10px; color: #bbb; white-space: nowrap; font-family: 'DM Mono', monospace; }
+
+    /* ── TABELA UNIDADES ── */
+    .tabela-simples { width: 100%; border-collapse: collapse; }
+    .tabela-simples th { padding: 10px 22px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--texto-suave); text-align: left; background: #fafbfc; border-bottom: 1px solid var(--borda); }
+    .tabela-simples td { padding: 12px 22px; font-size: 13px; border-bottom: 1px solid #f5f7fa; vertical-align: middle; }
+    .tabela-simples tr:last-child td { border-bottom: none; }
+    .tabela-simples tr:hover td { background: #fafbfc; }
+
+    .pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .pill-verde { background: #e8f8f0; color: var(--verde); }
+    .pill-amarelo { background: #fef9e7; color: #7d6608; }
+    .pill-cinza { background: #f0f3f7; color: var(--texto-suave); }
+
+    .barra-mini-track { height: 5px; background: #f0f3f7; border-radius: 3px; overflow: hidden; width: 80px; display: inline-block; vertical-align: middle; }
+    .barra-mini-fill { height: 100%; background: linear-gradient(90deg, var(--azul), var(--azul-vivo)); border-radius: 3px; }
+
+    /* ── RODAPÉ ── */
+    .rodape { text-align: center; padding: 20px; font-size: 11px; color: var(--texto-suave); }
+
+    /* ── RESPONSIVO ── */
+    @media (max-width: 1100px) {
+      .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+      .grid-graficos-principal { grid-template-columns: 1fr; }
+      .grid-graficos-secundario { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 700px) {
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .grid-graficos-secundario, .grid-graficos-terceiro { grid-template-columns: 1fr; }
+      .barra-topo { padding: 0 16px; }
+      .kpi-grid, .conteudo { padding-left: 16px; padding-right: 16px; }
+      .data-hora { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- CARREGANDO -->
+<div id="ecra-carregando">
+  <div class="logo-carregando">📊</div>
+  <div class="texto-carregando">A carregar dados do sistema…</div>
+  <div class="barra-progresso"><div class="barra-progresso-fill"></div></div>
+</div>
+
+<!-- ACESSO NEGADO -->
+<div id="ecra-negado">
+  <div style="font-size:56px">🔒</div>
+  <h2 style="color:white;font-size:22px">Acesso Restrito</h2>
+  <p style="color:rgba(255,255,255,0.6)">Este painel é exclusivo para o Director Municipal e Administradores.</p>
+  <a href="index.html" style="margin-top:12px;background:var(--azul-vivo);color:white;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-family:'DM Sans',sans-serif">← Voltar ao Painel</a>
+</div>
+
+<!-- PAINEL PRINCIPAL -->
+<div id="ecra-principal">
+
+  <!-- BARRA TOPO -->
+  <div class="barra-topo">
+    <div class="topo-esquerda">
+      <a href="index.html" class="btn-voltar">← Painel</a>
+      <div class="titulo-painel">
+        <h1>Painel de Gestão</h1>
+        <p>Módulo 6 — SIGDOC-SUMBE · Direcção Municipal da Saúde do Sumbe</p>
+      </div>
+    </div>
+    <div class="topo-direita">
+      <div class="data-hora">
+        <div class="hora" id="relogio">00:00</div>
+        <div class="data" id="data-topo">—</div>
+      </div>
+      <div class="utilizador-topo">
+        <div class="info">
+          <div class="nome" id="nome-topo">—</div>
+          <div class="cargo" id="cargo-topo">—</div>
+        </div>
+        <div class="avatar-topo" id="avatar-topo">?</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero-strip">
+    <div class="hero-titulo">Visão Executiva</div>
+    <div class="hero-subtitulo" id="hero-saudacao">Bom dia, Director</div>
+    <div class="hero-sub2"><span class="hero-ponto"></span><span id="hero-sub">Dados em tempo real — Firebase Firestore</span></div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <span class="kpi-icone">👥</span>
+      <div class="kpi-num" id="kpi-funcionarios">—</div>
+      <div class="kpi-label">Funcionários Activos</div>
+      <div class="kpi-delta delta-neutro" id="kpi-func-delta">A carregar…</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-icone">📄</span>
+      <div class="kpi-num" id="kpi-docs-mes">—</div>
+      <div class="kpi-label">Documentos Este Mês</div>
+      <div class="kpi-delta delta-neutro" id="kpi-docs-delta">A carregar…</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-icone">✅</span>
+      <div class="kpi-num" id="kpi-taxa">—</div>
+      <div class="kpi-label">Taxa de Aprovação</div>
+      <div class="kpi-delta delta-neutro" id="kpi-taxa-delta">A carregar…</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-icone">🏥</span>
+      <div class="kpi-num" id="kpi-unidades">—</div>
+      <div class="kpi-label">Unidades Sanitárias</div>
+      <div class="kpi-delta delta-neutro" id="kpi-unid-delta">A carregar…</div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-icone">⏳</span>
+      <div class="kpi-num" id="kpi-pendentes">—</div>
+      <div class="kpi-label">Pendentes de Aprovação</div>
+      <div class="kpi-delta delta-neutro" id="kpi-pend-delta">A carregar…</div>
+    </div>
+  </div>
+
+  <!-- CONTEÚDO -->
+  <div class="conteudo">
+
+    <!-- LINHA 1 — GRÁFICO BARRAS + DONUT -->
+    <div class="secao-titulo">Actividade Documental</div>
+    <div class="grid-graficos-principal">
+
+      <!-- Documentos por mês -->
+      <div class="card-grafico">
+        <div class="card-cabecalho">
+          <div>
+            <h3>📈 Documentos por Mês</h3>
+            <p>Últimos 6 meses — todos os tipos</p>
+          </div>
+          <span class="badge-live">● Ao vivo</span>
+        </div>
+        <div class="svg-wrap" id="grafico-mensal-wrap">
+          <svg id="svg-mensal" width="100%" height="180" viewBox="0 0 600 180" preserveAspectRatio="none"></svg>
+          <div class="svg-eixo-x" id="eixo-x-mensal"></div>
+        </div>
+      </div>
+
+      <!-- Donut tipos de documento -->
+      <div class="card-grafico">
+        <div class="card-cabecalho">
+          <div>
+            <h3>🍩 Tipos de Documento</h3>
+            <p>Distribuição total acumulada</p>
+          </div>
+        </div>
+        <div class="donut-wrap" id="donut-wrap">
+          <svg id="svg-donut" width="130" height="130" viewBox="0 0 130 130"></svg>
+          <div class="donut-legenda" id="donut-legenda"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- LINHA 2 — 3 MINI CARDS -->
+    <div class="grid-graficos-secundario">
+
+      <!-- Top Unidades -->
+      <div class="card-grafico">
+        <div class="card-cabecalho">
+          <div>
+            <h3>🏥 Top Unidades</h3>
+            <p>Documentos gerados</p>
+          </div>
+        </div>
+        <div class="barras-h-wrap" id="barras-unidades"></div>
+      </div>
+
+      <!-- Funcionários por categoria -->
+      <div class="card-grafico">
+        <div class="card-cabecalho">
+          <div>
+            <h3>👨‍⚕️ Por Categoria</h3>
+            <p>Corpo clínico e administrativo</p>
+          </div>
+        </div>
+        <div class="barras-h-wrap" id="barras-categorias"></div>
+      </div>
+
+      <!-- Mini estatísticas -->
+      <div class="card-grafico">
+        <div class="card-cabecalho">
+          <div>
+            <h3>📊 Resumo Geral</h3>
+            <p>Indicadores consolidados</p>
+          </div>
+        </div>
+        <div class="mini-estat-grid" id="mini-estat"></div>
+      </div>
+
+    </div>
+
+    <!-- LINHA 3 — TABELA UNIDADES + FEED -->
+    <div class="secao-titulo" style="margin-top:28px">Operações e Actividade Recente</div>
+    <div class="grid-graficos-terceiro">
+
+      <!-- Tabela unidades detalhada -->
+      <div class="card-grafico">
+        <div class="card-cabecalho">
+          <div>
+            <h3>🗂 Unidades Sanitárias — Detalhe</h3>
+            <p>Funcionários e documentos por unidade</p>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tabela-simples" id="tabela-unidades">
+            <thead>
+              <tr>
+                <th>Unidade</th>
+                <th>Funcionários</th>
+                <th>Docs.</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-unidades">
+              <tr><td colspan="4" style="text-align:center;padding:30px;color:#aaa">A carregar…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Feed de actividade recente -->
+      <div class="card-grafico">
+        <div class="card-cabecalho">
+          <div>
+            <h3>⚡ Actividade Recente</h3>
+            <p>Últimas acções no sistema</p>
+          </div>
+          <span class="badge-live">● Ao vivo</span>
+        </div>
+        <div class="feed-wrap" id="feed-actividade">
+          <div style="text-align:center;padding:30px;color:#aaa">A carregar…</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="rodape">SIGDOC-SUMBE · Direcção Municipal da Saúde do Sumbe · Módulo 6 — Painel de Gestão</div>
+
+</div><!-- fim ecra-principal -->
+
+
+<script type="module">
+  import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import {
+    getFirestore, collection, getDocs, query,
+    orderBy, limit, doc, getDoc
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
+    authDomain: "sigdoc-sumbe.firebaseapp.com",
+    projectId: "sigdoc-sumbe",
+    storageBucket: "sigdoc-sumbe.firebasestorage.app",
+    messagingSenderId: "323467521938",
+    appId: "1:323467521938:web:1e8170bfd3961784241b4b"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  const PERFIS_ACESSO = ["admin", "director"];
+
+  const LABELS_TIPO = {
+    "guia-ferias": "Guia de Férias",
+    "declaracao-servico": "Declaração de Serviço",
+    "guia-medica": "Guia Médica",
+    "oficio": "Ofício",
+    "nota": "Nota Interna",
+    "relatorio": "Relatório"
+  };
+  const CORES_TIPO = ["#3498db","#27ae60","#e67e22","#8e44ad","#e74c3c","#1abc9c"];
+  const CORES_BARRA = ["#3498db","#27ae60","#e67e22","#8e44ad","#e74c3c","#1abc9c","#f39c12","#16a085"];
+
+  // ── RELÓGIO ──
+  function actualizarRelogio() {
+    const agora = new Date();
+    document.getElementById("relogio").textContent =
+      String(agora.getHours()).padStart(2,"0") + ":" + String(agora.getMinutes()).padStart(2,"0");
+    document.getElementById("data-topo").textContent = agora.toLocaleDateString("pt-AO", { weekday:"short", day:"2-digit", month:"short", year:"numeric" });
+  }
+  actualizarRelogio();
+  setInterval(actualizarRelogio, 10000);
+
+  // ── SAUDAÇÃO ──
+  function saudacao(nome) {
+    const h = new Date().getHours();
+    const s = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+    document.getElementById("hero-saudacao").textContent = s + ", " + nome.split(" ")[0];
+  }
+
+  // ── AUTENTICAÇÃO ──
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "index.html"; return; }
+    try {
+      const snap = await getDoc(doc(db, "utilizadores", user.uid));
+      const dados = snap.exists() ? snap.data() : {};
+      const perfil = dados.perfil || "funcionario";
+
+      if (!PERFIS_ACESSO.includes(perfil)) {
+        document.getElementById("ecra-carregando").style.display = "none";
+        document.getElementById("ecra-negado").style.display = "flex";
+        return;
+      }
+
+      const nome = dados.nome || user.email;
+      const inic = nome.split(" ").slice(0,2).map(p=>p[0]).join("").toUpperCase();
+      const etqPerfil = { admin:"Administrador", director:"Director Municipal" };
+      document.getElementById("nome-topo").textContent = nome;
+      document.getElementById("cargo-topo").textContent = etqPerfil[perfil] || perfil;
+      document.getElementById("avatar-topo").textContent = inic;
+      saudacao(nome);
+
+      await carregarTudo();
+
+      document.getElementById("ecra-carregando").style.display = "none";
+      document.getElementById("ecra-principal").style.display = "block";
+    } catch(e) {
+      console.error(e);
+      document.getElementById("ecra-carregando").style.display = "none";
+      document.getElementById("ecra-negado").style.display = "flex";
+    }
+  });
+
+  // ── CARREGAR TUDO ──
+  async function carregarTudo() {
+    const [funcionarios, documentos, sessoes] = await Promise.all([
+      fetchColeccao("funcionarios"),
+      fetchColeccao("documentos", "geradoEm"),
+      fetchColeccao("sessoes",    "timestamp")
+    ]);
+    calcularKPIs(funcionarios, documentos);
+    renderGraficoMensal(documentos);
+    renderDonut(documentos);
+    renderBarrasUnidades(documentos);
+    renderBarrasCategorias(funcionarios);
+    renderMiniEstat(funcionarios, documentos, sessoes);
+    renderTabelaUnidades(funcionarios, documentos);
+    renderFeed(documentos, sessoes);
+    document.getElementById("hero-sub").textContent =
+      `${documentos.length} documentos · ${funcionarios.length} funcionários · Firebase Firestore`;
+  }
+
+  async function fetchColeccao(nome, campoOrdem) {
+    try {
+      const q = campoOrdem
+        ? query(collection(db, nome), orderBy(campoOrdem, "desc"), limit(500))
+        : collection(db, nome);
+      const snap = await getDocs(q);
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(e) { console.error("Erro " + nome, e); return []; }
+  }
+
+  function toDate(ts) {
+    if (!ts) return null;
+    if (ts.toDate) return ts.toDate();
+    if (ts.seconds) return new Date(ts.seconds * 1000);
+    return new Date(ts);
+  }
+
+  function fmtHora(d) {
+    if (!d) return "—";
+    return d.toLocaleTimeString("pt-AO", { hour:"2-digit", minute:"2-digit" });
+  }
+  function fmtDataCurta(d) {
+    if (!d) return "—";
+    return d.toLocaleDateString("pt-AO", { day:"2-digit", month:"short" });
+  }
+
+  // ── KPIs ──
+  function calcularKPIs(funcs, docs) {
+    // Funcionários activos
+    const funcActivos = funcs.filter(f => f.estado === "activo" || !f.estado).length;
+    document.getElementById("kpi-funcionarios").textContent = funcActivos;
+    const funcInactivos = funcs.filter(f => f.estado === "inactivo").length;
+    document.getElementById("kpi-func-delta").textContent = funcInactivos > 0 ? funcInactivos + " inactivos" : "Todos activos";
+    document.getElementById("kpi-func-delta").className = "kpi-delta " + (funcInactivos > 0 ? "delta-negativo" : "delta-positivo");
+
+    // Documentos este mês
+    const agora = new Date();
+    const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+    const docsMes = docs.filter(d => { const t = toDate(d.geradoEm); return t && t >= inicioMes; });
+    document.getElementById("kpi-docs-mes").textContent = docsMes.length;
+    const mesPassado = new Date(agora.getFullYear(), agora.getMonth() - 1, 1);
+    const fimMesPassado = new Date(agora.getFullYear(), agora.getMonth(), 0);
+    const docsMesPassado = docs.filter(d => { const t = toDate(d.geradoEm); return t && t >= mesPassado && t <= fimMesPassado; }).length;
+    const diffDocs = docsMes.length - docsMesPassado;
+    document.getElementById("kpi-docs-delta").textContent = diffDocs >= 0 ? "+" + diffDocs + " vs mês anterior" : diffDocs + " vs mês anterior";
+    document.getElementById("kpi-docs-delta").className = "kpi-delta " + (diffDocs >= 0 ? "delta-positivo" : "delta-negativo");
+
+    // Taxa aprovação
+    const comDecisao = docs.filter(d => d.estado === "aprovado" || d.estado === "rejeitado");
+    const aprovados = docs.filter(d => d.estado === "aprovado").length;
+    const taxa = comDecisao.length > 0 ? Math.round((aprovados / comDecisao.length) * 100) : 0;
+    document.getElementById("kpi-taxa").textContent = taxa + "%";
+    document.getElementById("kpi-taxa-delta").textContent = aprovados + " aprovados de " + comDecisao.length;
+    document.getElementById("kpi-taxa-delta").className = "kpi-delta " + (taxa >= 80 ? "delta-positivo" : taxa >= 50 ? "delta-neutro" : "delta-negativo");
+
+    // Unidades
+    const unidades = new Set(docs.map(d => d.localColocacao).filter(Boolean));
+    document.getElementById("kpi-unidades").textContent = unidades.size || "—";
+    document.getElementById("kpi-unid-delta").textContent = unidades.size + " unidades com actividade";
+    document.getElementById("kpi-unid-delta").className = "kpi-delta delta-neutro";
+
+    // Pendentes
+    const pendentes = docs.filter(d => d.estado === "pendente").length;
+    document.getElementById("kpi-pendentes").textContent = pendentes;
+    document.getElementById("kpi-pend-delta").textContent = pendentes === 0 ? "Nenhum pendente" : pendentes + " a aguardar decisão";
+    document.getElementById("kpi-pend-delta").className = "kpi-delta " + (pendentes === 0 ? "delta-positivo" : "delta-negativo");
+  }
+
+  // ── GRÁFICO BARRAS MENSAL (SVG) ──
+  function renderGraficoMensal(docs) {
+    const agora = new Date();
+    const meses = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+      meses.push({
+        ano: d.getFullYear(), mes: d.getMonth(),
+        label: d.toLocaleDateString("pt-AO", { month:"short" }),
+        total: 0
+      });
+    }
+    docs.forEach(d => {
+      const t = toDate(d.geradoEm);
+      if (!t) return;
+      const idx = meses.findIndex(m => m.ano === t.getFullYear() && m.mes === t.getMonth());
+      if (idx !== -1) meses[idx].total++;
+    });
+
+    const max = Math.max(...meses.map(m => m.total), 1);
+    const svgW = 600; const svgH = 180;
+    const padL = 30; const padR = 10; const padT = 10; const padB = 30;
+    const barW = Math.floor((svgW - padL - padR) / meses.length);
+    const gap = 10;
+
+    let svgContent = "";
+    // Linhas guia
+    for (let i = 0; i <= 4; i++) {
+      const y = padT + (svgH - padT - padB) * i / 4;
+      svgContent += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="#f0f3f7" stroke-width="1"/>`;
+      const val = Math.round(max * (4 - i) / 4);
+      svgContent += `<text x="${padL - 4}" y="${y + 4}" text-anchor="end" font-size="9" fill="#aaa" font-family="DM Mono,monospace">${val}</text>`;
+    }
+
+    meses.forEach((m, i) => {
+      const pct = max > 0 ? m.total / max : 0;
+      const barH = Math.max(pct * (svgH - padT - padB), m.total > 0 ? 4 : 0);
+      const x = padL + i * barW + gap / 2;
+      const y = padT + (svgH - padT - padB) - barH;
+      const esteM = m.mes === agora.getMonth() && m.ano === agora.getFullYear();
+      const cor = esteM ? "#3498db" : "#c8dff0";
+
+      svgContent += `<rect x="${x}" y="${y}" width="${barW - gap}" height="${barH}" rx="4" fill="${cor}"/>`;
+      if (m.total > 0) {
+        svgContent += `<text x="${x + (barW - gap)/2}" y="${y - 5}" text-anchor="middle" font-size="10" fill="${esteM ? '#1a4f7a' : '#6b7a8d'}" font-weight="${esteM ? '700' : '500'}" font-family="DM Mono,monospace">${m.total}</text>`;
+      }
+    });
+
+    document.getElementById("svg-mensal").innerHTML = svgContent;
+    document.getElementById("eixo-x-mensal").innerHTML = meses.map(m =>
+      `<span style="${m.mes === agora.getMonth() && m.ano === agora.getFullYear() ? 'font-weight:700;color:#1a4f7a' : ''}">${m.label}</span>`
+    ).join("");
+  }
+
+  // ── DONUT (SVG) ──
+  function renderDonut(docs) {
+    const contagem = {};
+    docs.forEach(d => { const k = d.tipo || "outro"; contagem[k] = (contagem[k] || 0) + 1; });
+    const total = Object.values(contagem).reduce((a,b) => a+b, 0) || 1;
+    const entries = Object.entries(contagem).sort((a,b) => b[1]-a[1]).slice(0,6);
+
+    const cx = 65; const cy = 65; const R = 50; const r = 30;
+    let angulo = -Math.PI / 2;
+    let paths = "";
+
+    entries.forEach(([tipo, qtd], i) => {
+      const pct = qtd / total;
+      const angFim = angulo + pct * 2 * Math.PI;
+      const x1 = cx + R * Math.cos(angulo); const y1 = cy + R * Math.sin(angulo);
+      const x2 = cx + R * Math.cos(angFim);  const y2 = cy + R * Math.sin(angFim);
+      const ix1= cx + r * Math.cos(angulo); const iy1= cy + r * Math.sin(angulo);
+      const ix2= cx + r * Math.cos(angFim);  const iy2= cy + r * Math.sin(angFim);
+      const grande = pct > 0.5 ? 1 : 0;
+      const cor = CORES_TIPO[i % CORES_TIPO.length];
+      paths += `<path d="M${x1},${y1} A${R},${R} 0 ${grande},1 ${x2},${y2} L${ix2},${iy2} A${r},${r} 0 ${grande},0 ${ix1},${iy1} Z" fill="${cor}" opacity="0.9"/>`;
+      angulo = angFim;
+    });
+
+    paths += `<circle cx="${cx}" cy="${cy}" r="20" fill="white"/><text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="13" font-weight="700" fill="#1a2332" font-family="DM Mono,monospace">${total}</text>`;
+
+    document.getElementById("svg-donut").innerHTML = paths;
+
+    document.getElementById("donut-legenda").innerHTML = entries.map(([tipo, qtd], i) => {
+      const pct = Math.round((qtd/total)*100);
+      return `<div class="legenda-item">
+        <div class="legenda-cor" style="background:${CORES_TIPO[i%CORES_TIPO.length]}"></div>
+        <span class="legenda-texto">${LABELS_TIPO[tipo] || tipo}</span>
+        <span class="legenda-num">${qtd} <span style="font-size:10px;color:#aaa;font-weight:400">(${pct}%)</span></span>
+      </div>`;
+    }).join("");
+  }
+
+  // ── BARRAS HORIZONTAIS — UNIDADES ──
+  function renderBarrasUnidades(docs) {
+    const cont = {};
+    docs.forEach(d => { if (d.localColocacao) cont[d.localColocacao] = (cont[d.localColocacao]||0)+1; });
+    const entries = Object.entries(cont).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    const max = Math.max(...entries.map(e=>e[1]),1);
+    document.getElementById("barras-unidades").innerHTML = entries.map(([unid, qtd], i) => `
+      <div class="barra-h-item">
+        <div class="barra-h-topo">
+          <span class="barra-h-label" title="${unid}">${unid}</span>
+          <span class="barra-h-val">${qtd}</span>
+        </div>
+        <div class="barra-h-track"><div class="barra-h-fill" style="width:${Math.round(qtd/max*100)}%;background:${CORES_BARRA[i%CORES_BARRA.length]}"></div></div>
+      </div>`).join("") || '<p style="color:#aaa;font-size:13px;padding:8px 0">Sem dados</p>';
+  }
+
+  // ── BARRAS HORIZONTAIS — CATEGORIAS ──
+  function renderBarrasCategorias(funcs) {
+    const cont = {};
+    funcs.forEach(f => { if (f.categoria) cont[f.categoria] = (cont[f.categoria]||0)+1; });
+    const entries = Object.entries(cont).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    const max = Math.max(...entries.map(e=>e[1]),1);
+    document.getElementById("barras-categorias").innerHTML = entries.map(([cat, qtd], i) => `
+      <div class="barra-h-item">
+        <div class="barra-h-topo">
+          <span class="barra-h-label" title="${cat}">${cat}</span>
+          <span class="barra-h-val">${qtd}</span>
+        </div>
+        <div class="barra-h-track"><div class="barra-h-fill" style="width:${Math.round(qtd/max*100)}%;background:${CORES_BARRA[(i+3)%CORES_BARRA.length]}"></div></div>
+      </div>`).join("") || '<p style="color:#aaa;font-size:13px;padding:8px 0">Sem dados</p>';
+  }
+
+  // ── MINI ESTATÍSTICAS ──
+  function renderMiniEstat(funcs, docs, sessoes) {
+    const quadro = funcs.filter(f => f.vinculo === "quadro").length;
+    const prov   = funcs.filter(f => f.vinculo === "provisorio").length;
+    const rejei  = docs.filter(d => d.estado === "rejeitado").length;
+    const logins = sessoes.filter(s => s.tipo === "entrada").length;
+    document.getElementById("mini-estat").innerHTML = `
+      <div class="mini-estat"><div class="num" style="color:#3498db">${quadro}</div><div class="lbl">Pessoal do Quadro</div></div>
+      <div class="mini-estat"><div class="num" style="color:#e67e22">${prov}</div><div class="lbl">Prov. Provisório</div></div>
+      <div class="mini-estat"><div class="num" style="color:#c0392b">${rejei}</div><div class="lbl">Docs. Rejeitados</div></div>
+      <div class="mini-estat"><div class="num" style="color:#27ae60">${logins}</div><div class="lbl">Logins Registados</div></div>`;
+  }
+
+  // ── TABELA UNIDADES ──
+  function renderTabelaUnidades(funcs, docs) {
+    const unidades = {};
+    funcs.forEach(f => {
+      const u = f.unidade || "Não especificada";
+      if (!unidades[u]) unidades[u] = { funcs: 0, docs: 0 };
+      if (!f.estado || f.estado === "activo") unidades[u].funcs++;
+    });
+    docs.forEach(d => {
+      const u = d.localColocacao || "Não especificada";
+      if (!unidades[u]) unidades[u] = { funcs: 0, docs: 0 };
+      unidades[u].docs++;
+    });
+
+    const maxDocs = Math.max(...Object.values(unidades).map(u => u.docs), 1);
+    const entries = Object.entries(unidades).sort((a,b)=>b[1].docs-a[1].docs);
+
+    document.getElementById("tbody-unidades").innerHTML = entries.map(([nome, u]) => {
+      const pct = Math.round((u.docs / maxDocs) * 100);
+      return `<tr>
+        <td style="font-weight:600;font-size:13px">${nome}</td>
+        <td><span class="pill pill-verde">${u.funcs}</span></td>
+        <td style="font-family:'DM Mono',monospace;font-weight:700">${u.docs}</td>
+        <td><div class="barra-mini-track"><div class="barra-mini-fill" style="width:${pct}%"></div></div></td>
+      </tr>`;
+    }).join("") || '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px">Sem dados</td></tr>';
+  }
+
+  // ── FEED DE ACTIVIDADE ──
+  function renderFeed(docs, sessoes) {
+    // Juntar eventos recentes
+    const eventos = [];
+    docs.slice(0, 15).forEach(d => {
+      const ts = toDate(d.geradoEm);
+      if (ts) eventos.push({
+        ts, tipo: d.estado === "aprovado" ? "APROVAR" : d.estado === "rejeitado" ? "REJEITAR" : "GERAR",
+        texto: d.estado === "aprovado"
+          ? `Aprovado — ${LABELS_TIPO[d.tipo]||d.tipo} de ${d.funcionarioNome||"—"}`
+          : d.estado === "rejeitado"
+          ? `Rejeitado — ${LABELS_TIPO[d.tipo]||d.tipo} de ${d.funcionarioNome||"—"}`
+          : `Gerado — ${LABELS_TIPO[d.tipo]||d.tipo} para ${d.funcionarioNome||"—"}`,
+        sub: d.geradoPorEmail || "—"
+      });
+    });
+    sessoes.slice(0, 6).forEach(s => {
+      const ts = toDate(s.timestamp);
+      if (ts) eventos.push({
+        ts, tipo: s.tipo === "saida" ? "LOGOUT" : "LOGIN",
+        texto: (s.tipo === "saida" ? "Sessão encerrada" : "Sessão iniciada") + " — " + (s.nome || s.email || "—"),
+        sub: s.email || "—"
+      });
+    });
+    eventos.sort((a,b) => b.ts - a.ts);
+
+    const cfg = {
+      GERAR:   { bg:"#e8f4f8", emoji:"📄" },
+      APROVAR: { bg:"#e8f8f0", emoji:"✅" },
+      REJEITAR:{ bg:"#fdecea", emoji:"❌" },
+      LOGIN:   { bg:"#f4ecf7", emoji:"🔑" },
+      LOGOUT:  { bg:"#f0f3f7", emoji:"🚪" }
+    };
+
+    document.getElementById("feed-actividade").innerHTML = eventos.slice(0,10).map(e => {
+      const c = cfg[e.tipo] || cfg.GERAR;
+      return `<div class="feed-item">
+        <div class="feed-dot" style="background:${c.bg}">${c.emoji}</div>
+        <div class="feed-corpo">
+          <div class="feed-titulo">${e.texto}</div>
+          <div class="feed-sub">${e.sub}</div>
+        </div>
+        <div class="feed-hora">${fmtDataCurta(e.ts)}<br>${fmtHora(e.ts)}</div>
+      </div>`;
+    }).join("") || '<div style="text-align:center;padding:30px;color:#aaa">Sem actividade recente.</div>';
+  }
+</script>
+</body>
+</html>
