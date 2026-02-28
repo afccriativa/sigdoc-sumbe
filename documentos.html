@@ -372,7 +372,7 @@
 <script type="module">
   import { initializeApp }                                          from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, collection, getDocs, doc, getDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
@@ -701,7 +701,7 @@
     btnSub.textContent = "A submeter...";
 
     try {
-      await addDoc(collection(db, "documentos"), {
+      const docRef = await addDoc(collection(db, "documentos"), {
         ...dadosUltimoDocumento,
         estado: "pendente",
         geradoPor: utilizadorActual.uid,
@@ -721,6 +721,32 @@
       badge.style.display = "flex";
 
       mostrarNotificacao("✅ Documento submetido! O Chefe será notificado.");
+
+      // Listener em tempo real — actualiza o estado assim que o Chefe decidir
+      onSnapshot(doc(db, "documentos", docRef.id), (snap) => {
+        if (!snap.exists()) return;
+        const dados = snap.data();
+
+        if (dados.estado === "aprovado") {
+          badge.className = "badge-estado badge-aprovado";
+          badge.style.cssText = "";
+          const obs = dados.observacao ? ` — <em style="font-weight:400">"${dados.observacao}"</em>` : "";
+          badge.innerHTML = `✅ Aprovado pelo Chefe de Secção${obs}`;
+          badge.style.display = "flex";
+          mostrarNotificacao("✅ O seu documento foi aprovado pelo Chefe!");
+
+        } else if (dados.estado === "rejeitado") {
+          badge.className = "badge-estado";
+          badge.style.background = "#fdecea";
+          badge.style.color = "#c0392b";
+          badge.style.border = "1.5px solid #e74c3c";
+          badge.style.display = "flex";
+          const obs = dados.observacao ? ` — <em style="font-weight:400">"${dados.observacao}"</em>` : "";
+          badge.innerHTML = `❌ Rejeitado pelo Chefe de Secção${obs}`;
+          mostrarNotificacao("❌ O seu documento foi rejeitado. Verifique a observação.");
+        }
+      });
+
     } catch(e) {
       console.error("Erro ao submeter:", e);
       mostrarNotificacao("❌ Erro ao submeter. Tente novamente.");
