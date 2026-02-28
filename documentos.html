@@ -475,7 +475,19 @@
     const feriados2027 = feriados(d.getFullYear() + 1);
     const todosFeriados = new Set([...feriados2026, ...feriados2027]);
 
+    // O dia de início conta como dia 1 se for dia útil.
+    // Se cair em fim-de-semana ou feriado, não conta — o ciclo avança
+    // até encontrar o primeiro dia útil e começa a contagem aí.
     let contagem = 0;
+    const diaSemanaInicio = d.getDay();
+    if (diaSemanaInicio !== 0 && diaSemanaInicio !== 6) {
+      if (eFeriado(d, todosFeriados)) {
+        feriadosEncontrados.push(chaveData(d)); // início em feriado: regista mas não conta
+      } else {
+        contagem = 1; // início em dia útil: conta como dia 1
+      }
+    }
+
     while (contagem < numDias) {
       d.setDate(d.getDate() + 1);
       const diaSemana = d.getDay();
@@ -487,7 +499,7 @@
       contagem++;
     }
 
-    // Avançar para o 1º dia útil após o fim das férias
+    // Avançar para o 1º dia útil após o fim das férias (data de apresentação)
     d.setDate(d.getDate() + 1);
     while (d.getDay() === 0 || d.getDay() === 6 || eFeriado(d, todosFeriados)) {
       d.setDate(d.getDate() + 1);
