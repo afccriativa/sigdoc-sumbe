@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIGDOC-SUMBE — Autenticação</title>
+  <meta name="theme-color" content="#1a4f7a"/>
+  <link rel="manifest" href="#"/>
+  <style>
+    :root {
+      --azul: #1a4f7a;
+      --azul-claro: #2471a3;
+      --verde: #1e8449;
+      --vermelho: #c0392b;
+      --cinza: #f4f6f8;
+      --branco: #ffffff;
+      --texto: #2c3e50;
+      --sombra: 0 4px 20px rgba(0,0,0,0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--cinza);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    /* ===== ECRÃ DE LOGIN ===== */
+    #ecrã-login {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1a4f7a 0%, #2471a3 50%, #1a6b3a 100%);
+      padding: 20px;
+    }
+
+    .caixa-login {
+      background: var(--branco);
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--sombra);
+    }
+
+    .logo-topo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .logo-topo .emblema {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, var(--azul), var(--azul-claro));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 28px;
+    }
+
+    .logo-topo h1 {
+      font-size: 22px;
+      color: var(--azul);
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .logo-topo p {
+      font-size: 12px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .campo-grupo {
+      margin-bottom: 18px;
+    }
+
+    .campo-grupo label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--texto);
+      margin-bottom: 6px;
+    }
+
+    .campo-grupo input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #dde3ea;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    .campo-grupo input:focus {
+      border-color: var(--azul-claro);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--azul), var(--azul-claro));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      margin-top: 6px;
+    }
+
+    .btn-login:hover { opacity: 0.9; }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .msg-erro {
+      background: #fdecea;
+      color: var(--vermelho);
+      border: 1px solid #f5c6cb;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-top: 14px;
+      display: none;
+    }
+
+    .rodape-login {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 11px;
+      color: #aaa;
+    }
+
+    /* ===== PAINEL PRINCIPAL ===== */
+    #ecrã-painel { display: none; }
+
+    .barra-topo {
+      background: linear-gradient(135deg, var(--azul), var(--azul-claro));
+      color: white;
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .barra-topo .marca {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .barra-topo .marca span {
+      font-size: 11px;
+      font-weight: 400;
+      opacity: 0.8;
+      display: block;
+      letter-spacing: 0;
+    }
+
+    .info-utilizador {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .info-utilizador .detalhes { text-align: right; }
+    .info-utilizador .nome { font-size: 13px; font-weight: 600; }
+    .info-utilizador .perfil-badge {
+      font-size: 10px;
+      background: rgba(255,255,255,0.2);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .btn-sair {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-sair:hover { background: rgba(255,255,255,0.25); }
+
+    .conteudo-principal {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 20px;
+    }
+
+    /* ===== CARTÕES DE BOAS-VINDAS ===== */
+    .bem-vindo {
+      background: white;
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--sombra);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .bem-vindo h2 { font-size: 20px; color: var(--azul); }
+    .bem-vindo p { font-size: 13px; color: #888; margin-top: 4px; }
+
+    .indicadores {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .cartao-indicador {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--sombra);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .icone-indicador {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .cartao-indicador .numero { font-size: 26px; font-weight: 700; color: var(--azul); }
+    .cartao-indicador .rotulo { font-size: 12px; color: #888; margin-top: 2px; }
+
+    /* ===== SECÇÃO DE GESTÃO DE UTILIZADORES ===== */
+    .secção {
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--sombra);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .secção-cabecalho {
+      padding: 18px 24px;
+      border-bottom: 1px solid #eef0f3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .secção-cabecalho h3 { font-size: 16px; color: var(--azul); }
+
+    .btn-primario {
+      background: var(--azul);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primario:hover { background: var(--azul-claro); }
+
+    .tabela-utilizadores {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .tabela-utilizadores th {
+      background: #f8f9fa;
+      padding: 12px 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tabela-utilizadores td {
+      padding: 14px 20px;
+      border-top: 1px solid #f0f2f4;
+      font-size: 13px;
+    }
+
+    .tabela-utilizadores tr:hover td { background: #fafbfc; }
+
+    .badge-perfil {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .perfil-admin { background: #fdecea; color: #c0392b; }
+    .perfil-director { background: #e8f4f8; color: #1a4f7a; }
+    .perfil-chefe { background: #e8f8f0; color: #1e8449; }
+    .perfil-tecnico { background: #fef9e7; color: #d4a017; }
+    .perfil-funcionario { background: #f4f4f4; color: #666; }
+
+    .estado-activo { color: #1e8449; font-weight: 600; }
+    .estado-inactivo { color: #c0392b; }
+
+    .acoes-linha { display: flex; gap: 8px; }
+
+    .btn-acao {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.2s;
+    }
+
+    .btn-acao:hover { opacity: 0.8; }
+    .btn-editar { background: #e8f4f8; color: #1a4f7a; }
+    .btn-desactivar { background: #fdecea; color: #c0392b; }
+
+    /* ===== MODAL ===== */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .overlay.activo { display: flex; }
+
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .modal h3 {
+      font-size: 18px;
+      color: var(--azul);
+      margin-bottom: 20px;
+    }
+
+    .modal select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #dde3ea;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      background: white;
+    }
+
+    .modal select:focus { border-color: var(--azul-claro); }
+
+    .acoes-modal {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      justify-content: flex-end;
+    }
+
+    .btn-cancelar {
+      background: #f0f2f4;
+      color: var(--texto);
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-guardar {
+      background: var(--azul);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ===== REGISTO DE SESSÕES ===== */
+    .lista-sessoes { padding: 0; }
+
+    .item-sessao {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 24px;
+      border-top: 1px solid #f0f2f4;
+    }
+
+    .item-sessao:first-child { border-top: none; }
+
+    .ponto-sessao {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .ponto-verde { background: var(--verde); }
+    .ponto-cinza { background: #ccc; }
+
+    .info-sessao { flex: 1; }
+    .info-sessao .utilizador-nome { font-size: 13px; font-weight: 600; }
+    .info-sessao .detalhe { font-size: 11px; color: #888; margin-top: 2px; }
+
+    .hora-sessao { font-size: 11px; color: #aaa; }
+
+    /* ===== NOTIFICAÇÃO ===== */
+    .notificacao {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--verde);
+      color: white;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 500;
+      max-width: 300px;
+    }
+
+    /* ===== CARREGAMENTO ===== */
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== PERMISSÕES ===== */
+    .secção-restrita { display: none; }
+
+    /* ===== RESPONSIVO ===== */
+    @media (max-width: 600px) {
+      .barra-topo { padding: 0 14px; }
+      .bem-vindo { flex-direction: column; }
+      .tabela-utilizadores th:nth-child(3),
+      .tabela-utilizadores td:nth-child(3) { display: none; }
+    }
+
+    /* ===== ECRÃ VAZIO ===== */
+    .vazio {
+      text-align: center;
+      padding: 40px 20px;
+      color: #aaa;
+    }
+    .vazio .icone { font-size: 40px; margin-bottom: 10px; }
+    .vazio p { font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<!-- ==================== ECRÃ DE LOGIN ==================== -->
+<div id="ecrã-login">
+  <div class="caixa-login">
+    <div class="logo-topo">
+      <div class="emblema">🏥</div>
+      <h1>SIGDOC-SUMBE</h1>
+      <p>Direcção Municipal da Saúde — Sumbe, Kwanza Sul</p>
+    </div>
+
+    <div class="campo-grupo">
+      <label for="email-login">Endereço de E-mail</label>
+      <input type="email" id="email-login" placeholder="utilizador@saude.gov.ao" autocomplete="email"/>
+    </div>
+
+    <div class="campo-grupo">
+      <label for="senha-login">Senha</label>
+      <input type="password" id="senha-login" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+
+    <button class="btn-login" id="btn-entrar" onclick="fazerLogin()">
+      Entrar no Sistema
+    </button>
+
+    <div class="msg-erro" id="msg-erro"></div>
+
+    <div class="rodape-login">
+      Sistema Integrado de Gestão Documental e Recursos Humanos<br>
+      © 2026 — Kwanza Sul, Angola
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAINEL PRINCIPAL ==================== -->
+<div id="ecrã-painel">
+
+  <!-- Barra de Topo -->
+  <div class="barra-topo">
+    <div class="marca">
+      SIGDOC-SUMBE
+      <span>Sistema de Gestão Documental e RH</span>
+    </div>
+    <div class="info-utilizador">
+      <div class="detalhes">
+        <div class="nome" id="nome-utilizador-topo">—</div>
+        <div class="perfil-badge" id="perfil-utilizador-topo">—</div>
+      </div>
+      <div class="avatar" id="avatar-utilizador">?</div>
+      <button class="btn-sair" onclick="fazerLogout()">Sair</button>
+    </div>
+  </div>
+
+  <!-- Conteúdo -->
+  <div class="conteudo-principal">
+
+    <!-- Boas-vindas -->
+    <div class="bem-vindo">
+      <div>
+        <h2 id="msg-boas-vindas">Bem-vindo ao SIGDOC-SUMBE</h2>
+        <p id="data-hora-actual">—</p>
+      </div>
+      <div style="font-size: 36px;">🏥</div>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="indicadores" id="indicadores">
+      <div class="cartao-indicador">
+        <div class="icone-indicador" style="background:#e8f4f8;">👥</div>
+        <div>
+          <div class="numero" id="total-utilizadores">—</div>
+          <div class="rotulo">Utilizadores Registados</div>
+        </div>
+      </div>
+      <div class="cartao-indicador">
+        <div class="icone-indicador" style="background:#e8f8f0;">✅</div>
+        <div>
+          <div class="numero" id="total-activos">—</div>
+          <div class="rotulo">Utilizadores Activos</div>
+        </div>
+      </div>
+      <div class="cartao-indicador">
+        <div class="icone-indicador" style="background:#fef9e7;">🏥</div>
+        <div>
+          <div class="numero">16</div>
+          <div class="rotulo">Unidades Sanitárias</div>
+        </div>
+      </div>
+      <div class="cartao-indicador">
+        <div class="icone-indicador" style="background:#fdecea;">👨‍💼</div>
+        <div>
+          <div class="numero">200+</div>
+          <div class="rotulo">Funcionários Totais</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gestão de Utilizadores (apenas Admin) -->
+    <div class="secção secção-restrita" id="secção-utilizadores">
+      <div class="secção-cabecalho">
+        <h3>👤 Gestão de Utilizadores do Sistema</h3>
+        <button class="btn-primario" onclick="abrirModalNovoUtilizador()">+ Novo Utilizador</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="tabela-utilizadores">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Perfil</th>
+              <th>Estado</th>
+              <th>Último Acesso</th>
+              <th>Acções</th>
+            </tr>
+          </thead>
+          <tbody id="corpo-tabela-utilizadores">
+            <tr>
+              <td colspan="6">
+                <div class="vazio">
+                  <div class="icone">👥</div>
+                  <p>A carregar utilizadores...</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Registo de Sessões (Admin e Chefe) -->
+    <div class="secção secção-restrita" id="secção-sessoes">
+      <div class="secção-cabecalho">
+        <h3>📋 Registo de Acessos Recentes</h3>
+      </div>
+      <div class="lista-sessoes" id="lista-sessoes">
+        <div class="vazio">
+          <div class="icone">📋</div>
+          <p>A carregar registos de acesso...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Painel do Funcionário -->
+    <div class="secção" id="secção-funcionario">
+      <div class="secção-cabecalho">
+        <h3>📄 Os Meus Documentos</h3>
+      </div>
+      <div class="vazio" style="padding: 48px 20px;">
+        <div class="icone">📂</div>
+        <p>Os seus documentos aparecerão aqui.<br>
+        <strong>Módulo 3 — Geração de Documentos</strong> em desenvolvimento.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== MODAL NOVO UTILIZADOR ==================== -->
+<div class="overlay" id="overlay-novo-utilizador">
+  <div class="modal">
+    <h3>➕ Registar Novo Utilizador</h3>
+
+    <div class="campo-grupo">
+      <label>Nome Completo</label>
+      <input type="text" id="novo-nome" placeholder="Ex: João Manuel da Silva"/>
+    </div>
+
+    <div class="campo-grupo">
+      <label>Endereço de E-mail</label>
+      <input type="email" id="novo-email" placeholder="joao.silva@saude.gov.ao"/>
+    </div>
+
+    <div class="campo-grupo">
+      <label>Senha Provisória</label>
+      <input type="text" id="novo-senha" placeholder="Mínimo 6 caracteres" value="Sumbe2026!"/>
+    </div>
+
+    <div class="campo-grupo">
+      <label>Perfil de Acesso</label>
+      <select id="novo-perfil">
+        <option value="funcionario">Funcionário de Unidade Sanitária</option>
+        <option value="tecnico">Técnico de RH</option>
+        <option value="chefe">Chefe de Secção</option>
+        <option value="director">Director Municipal</option>
+        <option value="admin">Administrador do Sistema</option>
+      </select>
+    </div>
+
+    <div class="campo-grupo">
+      <label>Unidade Sanitária / Secção</label>
+      <select id="novo-unidade">
+        <option value="Direcção Municipal">Direcção Municipal (Sede)</option>
+        <option value="CS Sumbe">CS Sumbe</option>
+        <option value="CS Conda">CS Conda</option>
+        <option value="CS Seles">CS Seles</option>
+        <option value="CS Gabela">CS Gabela</option>
+        <option value="PS Quibala">PS Quibala</option>
+        <option value="PS Cassongue">PS Cassongue</option>
+        <option value="PS Waku-Kungo">PS Waku-Kungo</option>
+        <option value="Outro">Outra Unidade</option>
+      </select>
+    </div>
+
+    <div class="acoes-modal">
+      <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-guardar" onclick="criarNovoUtilizador()">Registar Utilizador</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notificação -->
+<div class="notificacao" id="notificacao"></div>
+
+<!-- ==================== FIREBASE + LÓGICA ==================== -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    signOut,
+    createUserWithEmailAndPassword,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    getDocs,
+    collection,
+    updateDoc,
+    serverTimestamp,
+    query,
+    orderBy,
+    limit,
+    where
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  // ===== CONFIGURAÇÃO FIREBASE =====
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCgn960JulWh-xhj0jE8y-Lt08uEqwdEE",
+    authDomain: "sigdoc-sumbe.firebaseapp.com",
+    projectId: "sigdoc-sumbe",
+    storageBucket: "sigdoc-sumbe.firebasestorage.app",
+    messagingSenderId: "323467521938",
+    appId: "1:323467521938:web:1e8178bfd3961784241b4b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // ===== ETIQUETAS DOS PERFIS =====
+  const etiquetasPerfil = {
+    admin: "Administrador do Sistema",
+    director: "Director Municipal",
+    chefe: "Chefe de Secção",
+    tecnico: "Técnico de RH",
+    funcionario: "Funcionário de Unidade"
+  };
+
+  // ===== ESTADO GLOBAL =====
+  let utilizadorActual = null;
+  let perfilActual = null;
+
+  // ===== OBSERVADOR DE AUTENTICAÇÃO =====
+  onAuthStateChanged(auth, async (utilizador) => {
+    if (utilizador) {
+      utilizadorActual = utilizador;
+      await carregarPerfilUtilizador(utilizador);
+    } else {
+      mostrarEcrãLogin();
+    }
+  });
+
+  // ===== LOGIN =====
+  window.fazerLogin = async function() {
+    const email = document.getElementById("email-login").value.trim();
+    const senha = document.getElementById("senha-login").value;
+    const btn = document.getElementById("btn-entrar");
+    const msgErro = document.getElementById("msg-erro");
+
+    if (!email || !senha) {
+      mostrarErro("Por favor, preencha o e-mail e a senha.");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> A entrar...';
+    msgErro.style.display = "none";
+
+    try {
+      await signInWithEmailAndPassword(auth, email, senha);
+    } catch (erro) {
+      btn.disabled = false;
+      btn.innerHTML = "Entrar no Sistema";
+      let mensagem = "Erro ao entrar. Verifique as suas credenciais.";
+      if (erro.code === "auth/user-not-found" || erro.code === "auth/wrong-password" || erro.code === "auth/invalid-credential") {
+        mensagem = "E-mail ou senha incorrectos.";
+      } else if (erro.code === "auth/too-many-requests") {
+        mensagem = "Muitas tentativas. Tente novamente mais tarde.";
+      } else if (erro.code === "auth/network-request-failed") {
+        mensagem = "Sem conexão à Internet. Verifique a sua rede.";
+      }
+      mostrarErro(mensagem);
+    }
+  };
+
+  // Entrar com a tecla Enter
+  document.getElementById("senha-login").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") window.fazerLogin();
+  });
+  document.getElementById("email-login").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("senha-login").focus();
+  });
+
+  // ===== LOGOUT =====
+  window.fazerLogout = async function() {
+    if (!confirm("Tem a certeza que deseja sair do sistema?")) return;
+    if (utilizadorActual && perfilActual) {
+      await registarSessao(utilizadorActual, perfilActual, "saída");
+    }
+    await signOut(auth);
+  };
+
+  // ===== CARREGAR PERFIL =====
+  async function carregarPerfilUtilizador(utilizador) {
+    try {
+      const docRef = doc(db, "utilizadores", utilizador.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const dados = docSnap.data();
+        perfilActual = dados;
+        await registarSessao(utilizador, dados, "entrada");
+        await updateDoc(docRef, { ultimoAcesso: serverTimestamp() });
+        mostrarPainel(utilizador, dados);
+      } else {
+        // Primeiro utilizador — torna-se admin automaticamente
+        const dadosAdmin = {
+          nome: utilizador.email.split("@")[0],
+          email: utilizador.email,
+          perfil: "admin",
+          unidade: "Direcção Municipal",
+          activo: true,
+          criadoEm: serverTimestamp(),
+          ultimoAcesso: serverTimestamp()
+        };
+        await setDoc(docRef, dadosAdmin);
+        perfilActual = dadosAdmin;
+        await registarSessao(utilizador, dadosAdmin, "entrada");
+        mostrarPainel(utilizador, dadosAdmin);
+        mostrarNotificacao("✅ Conta de administrador criada automaticamente!");
+      }
+    } catch (erro) {
+      console.error("Erro ao carregar perfil:", erro);
+      mostrarErro("Erro ao carregar perfil. Verifique a conexão.");
+      await signOut(auth);
+    }
+  }
+
+  // ===== MOSTRAR PAINEL =====
+  function mostrarPainel(utilizador, dados) {
+    document.getElementById("ecrã-login").style.display = "none";
+    document.getElementById("ecrã-painel").style.display = "block";
+
+    const inicial = (dados.nome || utilizador.email)[0].toUpperCase();
+    document.getElementById("avatar-utilizador").textContent = inicial;
+    document.getElementById("nome-utilizador-topo").textContent = dados.nome || utilizador.email;
+    document.getElementById("perfil-utilizador-topo").textContent = etiquetasPerfil[dados.perfil] || dados.perfil;
+    document.getElementById("msg-boas-vindas").textContent = `Bem-vindo, ${dados.nome || "Utilizador"}`;
+
+    actualizarDataHora();
+    setInterval(actualizarDataHora, 60000);
+
+    // Mostrar secções conforme perfil
+    const secçãoUtilizadores = document.getElementById("secção-utilizadores");
+    const secçãoSessoes = document.getElementById("secção-sessoes");
+    const secçãoFuncionario = document.getElementById("secção-funcionario");
+
+    if (dados.perfil === "admin") {
+      secçãoUtilizadores.style.display = "block";
+      secçãoSessoes.style.display = "block";
+      secçãoFuncionario.style.display = "none";
+      carregarUtilizadores();
+      carregarSessoes();
+      carregarIndicadores();
+    } else if (dados.perfil === "chefe" || dados.perfil === "director") {
+      secçãoSessoes.style.display = "block";
+      secçãoFuncionario.style.display = "none";
+      carregarSessoes();
+      carregarIndicadores();
+    } else {
+      secçãoFuncionario.style.display = "block";
+    }
+  }
+
+  function mostrarEcrãLogin() {
+    document.getElementById("ecrã-painel").style.display = "none";
+    document.getElementById("ecrã-login").style.display = "flex";
+    document.getElementById("btn-entrar").disabled = false;
+    document.getElementById("btn-entrar").innerHTML = "Entrar no Sistema";
+    utilizadorActual = null;
+    perfilActual = null;
+  }
+
+  // ===== INDICADORES =====
+  async function carregarIndicadores() {
+    try {
+      const snap = await getDocs(collection(db, "utilizadores"));
+      const total = snap.size;
+      let activos = 0;
+      snap.forEach(d => { if (d.data().activo) activos++; });
+      document.getElementById("total-utilizadores").textContent = total;
+      document.getElementById("total-activos").textContent = activos;
+    } catch(e) {
+      console.error("Erro indicadores:", e);
+    }
+  }
+
+  // ===== CARREGAR UTILIZADORES =====
+  async function carregarUtilizadores() {
+    const tbody = document.getElementById("corpo-tabela-utilizadores");
+    tbody.innerHTML = `<tr><td colspan="6"><div class="vazio"><p>A carregar...</p></div></td></tr>`;
+
+    try {
+      const snap = await getDocs(collection(db, "utilizadores"));
+      if (snap.empty) {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="vazio"><div class="icone">👥</div><p>Nenhum utilizador registado.</p></div></td></tr>`;
+        return;
+      }
+
+      let html = "";
+      snap.forEach(d => {
+        const u = d.data();
+        const uid = d.id;
+        const clssePerfil = `perfil-${u.perfil || "funcionario"}`;
+        const estadoHtml = u.activo
+          ? `<span class="estado-activo">● Activo</span>`
+          : `<span class="estado-inactivo">○ Inactivo</span>`;
+        const ultimoAcesso = u.ultimoAcesso?.toDate
+          ? formatarData(u.ultimoAcesso.toDate())
+          : "—";
+        const podeDesactivar = u.perfil !== "admin";
+
+        html += `
+          <tr>
+            <td><strong>${u.nome || "—"}</strong><br><small style="color:#aaa">${u.unidade || ""}</small></td>
+            <td>${u.email || "—"}</td>
+            <td><span class="badge-perfil ${clssePerfil}">${etiquetasPerfil[u.perfil] || u.perfil}</span></td>
+            <td>${estadoHtml}</td>
+            <td>${ultimoAcesso}</td>
+            <td>
+              <div class="acoes-linha">
+                ${podeDesactivar ? `<button class="btn-acao ${u.activo ? "btn-desactivar" : "btn-editar"}"
+                  onclick="toggleEstadoUtilizador('${uid}', ${u.activo})">
+                  ${u.activo ? "Desactivar" : "Activar"}
+                </button>` : `<span style="font-size:11px;color:#aaa">Admin</span>`}
+              </div>
+            </td>
+          </tr>`;
+      });
+      tbody.innerHTML = html;
+    } catch(e) {
+      console.error("Erro ao carregar utilizadores:", e);
+      tbody.innerHTML = `<tr><td colspan="6"><div class="vazio"><p>Erro ao carregar. Verifique a conexão.</p></div></td></tr>`;
+    }
+  }
+
+  // ===== ACTIVAR / DESACTIVAR =====
+  window.toggleEstadoUtilizador = async function(uid, estadoActual) {
+    const novoEstado = !estadoActual;
+    const confirmMsg = novoEstado ? "Activar este utilizador?" : "Desactivar este utilizador?";
+    if (!confirm(confirmMsg)) return;
+    try {
+      await updateDoc(doc(db, "utilizadores", uid), { activo: novoEstado });
+      mostrarNotificacao(novoEstado ? "✅ Utilizador activado!" : "🔴 Utilizador desactivado!");
+      carregarUtilizadores();
+      carregarIndicadores();
+    } catch(e) {
+      mostrarNotificacao("Erro ao actualizar estado.");
+    }
+  };
+
+  // ===== NOVO UTILIZADOR =====
+  window.abrirModalNovoUtilizador = function() {
+    document.getElementById("overlay-novo-utilizador").classList.add("activo");
+  };
+
+  window.fecharModal = function() {
+    document.getElementById("overlay-novo-utilizador").classList.remove("activo");
+  };
+
+  window.criarNovoUtilizador = async function() {
+    const nome = document.getElementById("novo-nome").value.trim();
+    const email = document.getElementById("novo-email").value.trim();
+    const senha = document.getElementById("novo-senha").value.trim();
+    const perfil = document.getElementById("novo-perfil").value;
+    const unidade = document.getElementById("novo-unidade").value;
+
+    if (!nome || !email || !senha) {
+      alert("Por favor, preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    if (senha.length < 6) {
+      alert("A senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
+
+    try {
+      // Criar utilizador na autenticação Firebase
+      const credencial = await createUserWithEmailAndPassword(auth, email, senha);
+      const novoUid = credencial.user.uid;
+
+      // Guardar perfil no Firestore
+      await setDoc(doc(db, "utilizadores", novoUid), {
+        nome,
+        email,
+        perfil,
+        unidade,
+        activo: true,
+        criadoEm: serverTimestamp(),
+        ultimoAcesso: null,
+        criadoPor: utilizadorActual.uid
+      });
+
+      fecharModal();
+      mostrarNotificacao(`✅ Utilizador "${nome}" registado com sucesso!`);
+      carregarUtilizadores();
+      carregarIndicadores();
+
+      // Limpar campos
+      document.getElementById("novo-nome").value = "";
+      document.getElementById("novo-email").value = "";
+      document.getElementById("novo-senha").value = "Sumbe2026!";
+
+    } catch(e) {
+      console.error("Erro ao criar utilizador:", e);
+      let msg = "Erro ao criar utilizador.";
+      if (e.code === "auth/email-already-in-use") msg = "Este e-mail já está registado.";
+      if (e.code === "auth/invalid-email") msg = "E-mail inválido.";
+      alert(msg);
+    }
+  };
+
+  // ===== REGISTAR SESSÃO =====
+  async function registarSessao(utilizador, dados, tipo) {
+    try {
+      const idSessao = `${utilizador.uid}_${Date.now()}`;
+      await setDoc(doc(db, "sessoes", idSessao), {
+        uid: utilizador.uid,
+        nome: dados.nome || utilizador.email,
+        perfil: dados.perfil,
+        email: utilizador.email,
+        tipo,
+        timestamp: serverTimestamp()
+      });
+    } catch(e) {
+      console.error("Erro ao registar sessão:", e);
+    }
+  }
+
+  // ===== CARREGAR SESSÕES =====
+  async function carregarSessoes() {
+    const lista = document.getElementById("lista-sessoes");
+    try {
+      const q = query(collection(db, "sessoes"), orderBy("timestamp", "desc"), limit(15));
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        lista.innerHTML = `<div class="vazio"><div class="icone">📋</div><p>Nenhum registo de acesso ainda.</p></div>`;
+        return;
+      }
+
+      let html = "";
+      snap.forEach(d => {
+        const s = d.data();
+        const entrada = s.tipo === "entrada";
+        const hora = s.timestamp?.toDate ? formatarData(s.timestamp.toDate()) : "Agora";
+        html += `
+          <div class="item-sessao">
+            <div class="ponto-sessao ${entrada ? "ponto-verde" : "ponto-cinza"}"></div>
+            <div class="info-sessao">
+              <div class="utilizador-nome">${s.nome || s.email}</div>
+              <div class="detalhe">${etiquetasPerfil[s.perfil] || s.perfil} · ${entrada ? "Entrou" : "Saiu"} do sistema</div>
+            </div>
+            <div class="hora-sessao">${hora}</div>
+          </div>`;
+      });
+      lista.innerHTML = html;
+    } catch(e) {
+      console.error("Erro ao carregar sessões:", e);
+      lista.innerHTML = `<div class="vazio"><p>Erro ao carregar registos.</p></div>`;
+    }
+  }
+
+  // ===== AUXILIARES =====
+  function mostrarErro(msg) {
+    const el = document.getElementById("msg-erro");
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+
+  function mostrarNotificacao(msg) {
+    const el = document.getElementById("notificacao");
+    el.textContent = msg;
+    el.style.display = "block";
+    setTimeout(() => { el.style.display = "none"; }, 4000);
+  }
+
+  function formatarData(data) {
+    if (!data) return "—";
+    return data.toLocaleDateString("pt-AO", {
+      day: "2-digit", month: "short", year: "numeric",
+      hour: "2-digit", minute: "2-digit"
+    });
+  }
+
+  function actualizarDataHora() {
+    const agora = new Date();
+    document.getElementById("data-hora-actual").textContent =
+      agora.toLocaleDateString("pt-AO", {
+        weekday: "long", day: "2-digit", month: "long", year: "numeric"
+      }) + " · " +
+      agora.toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  // Fechar modal ao clicar fora
+  document.getElementById("overlay-novo-utilizador").addEventListener("click", function(e) {
+    if (e.target === this) window.fecharModal();
+  });
+
+</script>
+</body>
+</html>
