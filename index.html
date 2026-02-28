@@ -744,12 +744,12 @@
 
   // ===== CONFIGURAÇÃO FIREBASE =====
   const firebaseConfig = {
-    apiKey: "AIzaSyCCgn960JulWh-xhj0jE8y-Lt08uEqwdEE",
+    apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
     authDomain: "sigdoc-sumbe.firebaseapp.com",
     projectId: "sigdoc-sumbe",
     storageBucket: "sigdoc-sumbe.firebasestorage.app",
     messagingSenderId: "323467521938",
-    appId: "1:323467521938:web:1e8178bfd3961784241b4b"
+    appId: "1:323467521938:web:1e8170bfd3961784241b4b"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -800,7 +800,14 @@
     } catch (erro) {
       btn.disabled = false;
       btn.innerHTML = "Entrar no Sistema";
-      let mensagem = `Erro: ${erro.code} — ${erro.message}`;
+      let mensagem = "Erro ao entrar. Verifique as suas credenciais.";
+      if (erro.code === "auth/user-not-found" || erro.code === "auth/wrong-password" || erro.code === "auth/invalid-credential") {
+        mensagem = "E-mail ou senha incorrectos.";
+      } else if (erro.code === "auth/too-many-requests") {
+        mensagem = "Muitas tentativas. Tente novamente mais tarde.";
+      } else if (erro.code === "auth/network-request-failed") {
+        mensagem = "Sem conexão à Internet. Verifique a sua rede.";
+      }
       mostrarErro(mensagem);
     }
   };
