@@ -52,19 +52,23 @@
     .painel-preview { }
     .preview-cabecalho { background: white; border-radius: 12px 12px 0 0; padding: 14px 20px; border-bottom: 1px solid #eef0f3; font-size: 14px; font-weight: 700; color: var(--azul); display: flex; align-items: center; justify-content: space-between; box-shadow: var(--sombra); }
     .badge-preview { font-size: 11px; background: #e8f4f8; color: var(--azul); padding: 3px 10px; border-radius: 10px; font-weight: 600; }
-    .area-preview { background: #b0b3b8; border-radius: 0 0 12px 12px; padding: 20px 12px; display: flex; align-items: flex-start; justify-content: center; min-height: 560px; overflow: hidden; }
+    .area-preview { background: #b0b3b8; border-radius: 0 0 12px 12px; padding: 20px 12px; display: flex; align-items: flex-start; justify-content: center; min-height: 560px; overflow: visible; }
     .vazio-preview { text-align: center; color: #777; padding: 80px 20px; }
     .vazio-preview .icone { font-size: 48px; margin-bottom: 12px; }
     .vazio-preview p { font-size: 13px; }
 
     /* Wrapper escalado */
     .doc-wrapper {
-      transform-origin: top center;
+      transform-origin: top left;
       transform: scale(0.67);
       width: 1122px;
-      margin: 0 auto;
       display: none;
       margin-bottom: -258px;
+    }
+    .doc-wrapper-centrado {
+      width: 752px;   /* 1122 × 0.67 ≈ 752 */
+      margin: 0 auto;
+      overflow: visible;
     }
 
     /* ================================================
@@ -164,6 +168,7 @@
       border-left: 1px solid #444;
       padding-left: 14px;
       margin-left: 10px;
+      align-items: center;
     }
 
     .doc-ass-titulo {
@@ -180,7 +185,7 @@
 
     .doc-ass-linha {
       border-bottom: 1px solid #333;
-      width: 80%;
+      width: 90%;
       margin: 20px 0 3px;
     }
 
@@ -204,6 +209,7 @@
     @media (max-width: 1000px) {
       .layout { grid-template-columns: 1fr; }
       .doc-wrapper { transform: scale(0.34); margin-bottom: -520px; }
+      .doc-wrapper-centrado { width: 382px; }  /* 1122 × 0.34 ≈ 382 */
     }
 
     /* ================================================
@@ -230,7 +236,7 @@
       #area-impressao .doc-corpo { font-size: 9pt; line-height: 1.75; }
       #area-impressao .doc-local-data { font-size: 8pt; margin-bottom: 10pt; }
       #area-impressao .doc-assinaturas { font-size: 8pt; }
-      #area-impressao .doc-ass-col.direita { padding-left: 8pt; margin-left: 6pt; }
+      #area-impressao .doc-ass-col.direita { padding-left: 8pt; margin-left: 6pt; align-items: center; }
       #area-impressao .doc-ass-linha { margin: 14pt 0 3pt; }
       #area-impressao .doc-ass-data { font-size: 8.5pt; }
     }
@@ -631,7 +637,7 @@
     });
 
     document.getElementById("area-preview").innerHTML =
-      '<div class="doc-wrapper" style="display:block">' + htmlDoc + '</div>';
+      '<div class="doc-wrapper-centrado"><div class="doc-wrapper" style="display:block">' + htmlDoc + '</div></div>';
     document.getElementById("area-impressao").innerHTML = htmlDoc;
     document.getElementById("btn-imprimir").disabled = false;
     documentoGerado = true;
