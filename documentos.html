@@ -48,6 +48,12 @@
     .btn-imprimir { background: var(--verde); color: white; border: none; padding: 13px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-imprimir:hover { opacity: 0.9; }
     .btn-imprimir:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-submeter { background: linear-gradient(135deg, #7d3c98, #9b59b6); color: white; border: none; padding: 13px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 2px; }
+    .btn-submeter:hover { opacity: 0.9; }
+    .btn-submeter:disabled { opacity: 0.4; cursor: not-allowed; }
+    .badge-estado { display: none; text-align: center; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; margin-top: 4px; }
+    .badge-pendente { background: #fef9e7; color: #7d6608; border: 1.5px solid #f0c030; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .badge-aprovado { background: #e8f8f0; color: #1e8449; border: 1.5px solid #27ae60; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
     .painel-preview { }
     .preview-cabecalho { background: white; border-radius: 12px 12px 0 0; padding: 14px 20px; border-bottom: 1px solid #eef0f3; font-size: 14px; font-weight: 700; color: var(--azul); display: flex; align-items: center; justify-content: space-between; box-shadow: var(--sombra); }
@@ -338,7 +344,9 @@
     </div>
 
     <button class="btn-gerar" onclick="gerarDocumento()">&#128065; Gerar Pré-visualização</button>
+    <button class="btn-submeter" id="btn-submeter" onclick="submeterDocumento()" disabled>&#128228; Submeter para Aprovação</button>
     <button class="btn-imprimir" id="btn-imprimir" onclick="imprimirDocumento()" disabled>&#128424; Imprimir / Exportar PDF</button>
+    <div class="badge-estado" id="badge-estado"></div>
 
   </div>
 
@@ -362,9 +370,9 @@
 <div class="notificacao" id="notificacao"></div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { initializeApp }                                          from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
@@ -511,9 +519,13 @@
   let todosFuncionarios = [];
   let funcionarioSeleccionado = null;
   let documentoGerado = false;
+  let dadosUltimoDocumento = null; // guarda os dados para submissão
+  let utilizadorActual = null;     // utilizador autenticado
+  let documentoSubmetido = false;  // evita dupla submissão
 
   onAuthStateChanged(auth, async (u) => {
     if (!u) { window.location.href = "index.html"; return; }
+    utilizadorActual = u;
     await carregarFuncionarios();
     document.getElementById("data-emissao").value = new Date().toISOString().split("T")[0];
   });
@@ -653,7 +665,67 @@
     document.getElementById("area-impressao").innerHTML = htmlDoc;
     document.getElementById("btn-imprimir").disabled = false;
     documentoGerado = true;
-    if (!silencioso) mostrarNotificacao("✅ Documento gerado com sucesso!");
+
+    // Guardar dados para submissão posterior
+    dadosUltimoDocumento = {
+      tipo: "guia-ferias",
+      numGuia, anoGuia,
+      funcionarioId: funcionarioSeleccionado ? funcionarioSeleccionado.id : null,
+      funcionarioNome: nomeFuncionario,
+      categoria, localColocacao, numDias,
+      dataInicio, dataEmissao, dataApresentacao, nomeChefe, sexo,
+      htmlConteudo: htmlDoc
+    };
+
+    // Activar botão de submissão se ainda não foi submetido
+    if (!documentoSubmetido) {
+      document.getElementById("btn-submeter").disabled = false;
+    }
+
+    if (!silencioso) mostrarNotificacao("✅ Documento gerado! Clique em 'Submeter para Aprovação' para enviar ao Chefe.");
+  };
+
+  window.submeterDocumento = async function() {
+    if (!dadosUltimoDocumento || !utilizadorActual) {
+      mostrarNotificacao("⚠️ Gere o documento antes de submeter.");
+      return;
+    }
+    if (documentoSubmetido) {
+      mostrarNotificacao("⚠️ Este documento já foi submetido.");
+      return;
+    }
+
+    const btnSub = document.getElementById("btn-submeter");
+    btnSub.disabled = true;
+    btnSub.textContent = "A submeter...";
+
+    try {
+      await addDoc(collection(db, "documentos"), {
+        ...dadosUltimoDocumento,
+        estado: "pendente",
+        geradoPor: utilizadorActual.uid,
+        geradoPorEmail: utilizadorActual.email,
+        geradoEm: serverTimestamp(),
+        aprovadoPor: null,
+        aprovadoEm: null,
+        observacao: ""
+      });
+
+      documentoSubmetido = true;
+      btnSub.style.display = "none";
+
+      const badge = document.getElementById("badge-estado");
+      badge.className = "badge-estado badge-pendente";
+      badge.innerHTML = "⏳ Aguarda aprovação do Chefe de Secção";
+      badge.style.display = "flex";
+
+      mostrarNotificacao("✅ Documento submetido! O Chefe será notificado.");
+    } catch(e) {
+      console.error("Erro ao submeter:", e);
+      mostrarNotificacao("❌ Erro ao submeter. Tente novamente.");
+      btnSub.disabled = false;
+      btnSub.innerHTML = "&#128228; Submeter para Aprovação";
+    }
   };
 
   window.imprimirDocumento = function() { window.print(); };
