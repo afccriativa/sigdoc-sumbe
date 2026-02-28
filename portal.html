@@ -944,6 +944,7 @@
   import {
     getAuth, signInWithEmailAndPassword, signOut,
     createUserWithEmailAndPassword, onAuthStateChanged,
+    signInAnonymously, linkWithCredential, EmailAuthProvider,
     setPersistence, browserLocalPersistence
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import {
@@ -989,6 +990,7 @@
   // ── OBSERVADOR DE SESSÃO ──
   onAuthStateChanged(auth, async (user) => {
     if (!user) return; // utilizador não logado — manter ecrã actual
+    if (user.isAnonymous) return; // sessão anónima de verificação — não abrir portal
     _utilizador = user;
 
     // Verificar se é funcionário
@@ -1041,6 +1043,11 @@
     btn.innerHTML = '<span class="spinner"></span> A verificar…';
 
     try {
+      // Autenticar anonimamente para passar nas regras do Firestore
+      if (!auth.currentUser) {
+        await signInAnonymously(auth);
+      }
+
       // Pesquisar por número de agente
       let encontrado = null;
       let encontradoId = null;
@@ -1165,10 +1172,22 @@
     msg.innerHTML = "";
 
     try {
-      // Criar conta Firebase Auth
-      const cred = await createUserWithEmailAndPassword(auth, email, senha);
-      const uid  = cred.user.uid;
-      _utilizador = cred.user;
+      // Converter sessão anónima em conta permanente (linkWithCredential)
+      let uid, userFinal;
+      const credential = EmailAuthProvider.credential(email, senha);
+
+      if (auth.currentUser && auth.currentUser.isAnonymous) {
+        // Ligar credenciais à sessão anónima existente
+        const linked = await linkWithCredential(auth.currentUser, credential);
+        uid = linked.user.uid;
+        userFinal = linked.user;
+      } else {
+        // Criar conta nova normalmente (fallback)
+        const cred = await createUserWithEmailAndPassword(auth, email, senha);
+        uid = cred.user.uid;
+        userFinal = cred.user;
+      }
+      _utilizador = userFinal;
 
       // Criar documento em "utilizadores" com perfil funcionario
       await updateDoc(doc(db, "utilizadores", uid), {}).catch(async () => {
@@ -1511,7 +1530,7 @@
   window.fazerLogoutFuncionario = async function() {
     if (!confirm("Tem a certeza que deseja sair?")) return;
     await signOut(auth);
-    _funcDoc = null; _funcDocId = null; _utilizador = null;
+    _funcDoc = null; _funcDocId = null; _utilizador = null; _tipoSel = null;
     mostrarEcra("ecra-entrada");
   };
 
