@@ -800,14 +800,7 @@
     } catch (erro) {
       btn.disabled = false;
       btn.innerHTML = "Entrar no Sistema";
-      let mensagem = "Erro ao entrar. Verifique as suas credenciais.";
-      if (erro.code === "auth/user-not-found" || erro.code === "auth/wrong-password" || erro.code === "auth/invalid-credential") {
-        mensagem = "E-mail ou senha incorrectos.";
-      } else if (erro.code === "auth/too-many-requests") {
-        mensagem = "Muitas tentativas. Tente novamente mais tarde.";
-      } else if (erro.code === "auth/network-request-failed") {
-        mensagem = "Sem conexão à Internet. Verifique a sua rede.";
-      }
+      let mensagem = `Erro: ${erro.code} — ${erro.message}`;
       mostrarErro(mensagem);
     }
   };
