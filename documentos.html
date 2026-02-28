@@ -667,14 +667,15 @@
     documentoGerado = true;
 
     // Guardar dados para submissão posterior
+    // NOTA: htmlConteudo NÃO é guardado no Firestore (limite de 1MB).
+    // O HTML é regenerado a partir dos campos de dados quando necessário.
     dadosUltimoDocumento = {
       tipo: "guia-ferias",
       numGuia, anoGuia,
       funcionarioId: funcionarioSeleccionado ? funcionarioSeleccionado.id : null,
       funcionarioNome: nomeFuncionario,
       categoria, localColocacao, numDias,
-      dataInicio, dataEmissao, dataApresentacao, nomeChefe, sexo,
-      htmlConteudo: htmlDoc
+      dataInicio, dataEmissao, dataApresentacao, nomeChefe, sexo
     };
 
     // Activar botão de submissão se ainda não foi submetido
