@@ -643,7 +643,7 @@
         <div class="nome" id="nome-utilizador-topo">—</div>
         <div class="perfil-badge" id="perfil-utilizador-topo">—</div>
       </div>
-      <div class="avatar" id="avatar-utilizador">?</div>
+      <div class="avatar" id="avatar-utilizador" onclick="abrirModalPerfil()" title="Ver perfil" style="cursor:pointer;">?</div>
       <button class="btn-sair" onclick="fazerLogout()">Sair</button>
     </div>
   </div>
@@ -731,7 +731,7 @@
           <div class="desc-modulo">Histórico completo de todos os documentos emitidos e acções no sistema.</div>
           <span class="estado-modulo estado-disponivel">✅ Disponível</span>
           <span class="canto-seta">→</span>
-        </div>
+        </a>
 
         <!-- Painel de Gestão — Director e Admin -->
         <a href="painel.html" class="cartao-modulo modulo-director" id="mod-painel">
@@ -740,7 +740,7 @@
           <div class="desc-modulo">Indicadores executivos e relatórios para a direcção municipal.</div>
           <span class="estado-modulo estado-disponivel">✅ Disponível</span>
           <span class="canto-seta">→</span>
-        </div>
+        </a>
 
         <!-- Gestão de Utilizadores — apenas Admin (redireciona para o painel actual) -->
         <div class="cartao-modulo modulo-admin" id="mod-utilizadores-card" onclick="document.getElementById('secção-utilizadores').scrollIntoView({behavior:'smooth'})">
@@ -814,6 +814,38 @@
   </div>
 </div>
 
+
+<!-- ==================== MODAL PERFIL ==================== -->
+<div class="overlay" id="overlay-perfil" style="display:none; align-items:center; justify-content:center;">
+  <div class="modal" style="max-width:420px;">
+    <div style="background:linear-gradient(135deg,#1a4f7a,#2471a3);border-radius:12px 12px 0 0;padding:28px;text-align:center;color:white;">
+      <div id="perfil-avatar-grande" style="width:64px;height:64px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;margin:0 auto 12px;border:3px solid rgba(255,255,255,0.3);">?</div>
+      <div id="perfil-nome-modal" style="font-size:18px;font-weight:700;">—</div>
+      <div id="perfil-cargo-modal" style="font-size:12px;opacity:0.8;margin-top:4px;">—</div>
+    </div>
+    <div style="padding:20px;">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="background:#f8f9fa;border-radius:8px;padding:12px 14px;">
+          <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">E-mail</div>
+          <div id="perfil-email-modal" style="font-size:13px;font-weight:600;color:#2c3e50;">—</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:12px 14px;">
+          <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Unidade / Secção</div>
+          <div id="perfil-unidade-modal" style="font-size:13px;font-weight:600;color:#2c3e50;">—</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:8px;padding:12px 14px;">
+          <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Nível de Acesso</div>
+          <div id="perfil-nivel-modal" style="font-size:13px;font-weight:600;color:#2c3e50;">—</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button onclick="fecharModalPerfil()" style="flex:1;background:#f0f2f4;color:#2c3e50;border:none;padding:11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Fechar</button>
+        <button onclick="fazerLogout()" style="flex:1;background:#fdecea;color:#c0392b;border:none;padding:11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Sair do Sistema</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== MODAL NOVO UTILIZADOR ==================== -->
 <div class="overlay" id="overlay-novo-utilizador">
   <div class="modal">
@@ -878,7 +910,9 @@
     signInWithEmailAndPassword,
     signOut,
     createUserWithEmailAndPassword,
-    onAuthStateChanged
+    onAuthStateChanged,
+    setPersistence,
+    browserLocalPersistence
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import {
     getFirestore,
@@ -909,6 +943,9 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  // Persistência local — sessão mantém-se entre navegações e recarregamentos
+  setPersistence(auth, browserLocalPersistence).catch(e => console.warn("Persistência:", e));
+
   // ===== ETIQUETAS DOS PERFIS =====
   const etiquetasPerfil = {
     admin: "Administrador do Sistema",
@@ -921,6 +958,7 @@
   // ===== ESTADO GLOBAL =====
   let utilizadorActual = null;
   let perfilActual = null;
+  let _primeiraVez = true; // evitar duplo registo de sessão
 
   // ===== OBSERVADOR DE AUTENTICAÇÃO =====
   onAuthStateChanged(auth, async (utilizador) => {
@@ -1188,6 +1226,30 @@
       mostrarNotificacao("Erro ao actualizar estado.");
     }
   };
+
+
+  // ===== MODAL DE PERFIL =====
+  window.abrirModalPerfil = function() {
+    if (!utilizadorActual || !perfilActual) return;
+    const dados = perfilActual;
+    const nome = dados.nome || utilizadorActual.email;
+    const inicial = nome[0].toUpperCase();
+    document.getElementById("perfil-avatar-grande").textContent = inicial;
+    document.getElementById("perfil-nome-modal").textContent = nome;
+    document.getElementById("perfil-cargo-modal").textContent = etiquetasPerfil[dados.perfil] || dados.perfil;
+    document.getElementById("perfil-email-modal").textContent = utilizadorActual.email;
+    document.getElementById("perfil-unidade-modal").textContent = dados.unidade || dados.seccao || "—";
+    document.getElementById("perfil-nivel-modal").textContent = etiquetasPerfil[dados.perfil] || dados.perfil;
+    document.getElementById("overlay-perfil").style.display = "flex";
+  };
+
+  window.fecharModalPerfil = function() {
+    document.getElementById("overlay-perfil").style.display = "none";
+  };
+
+  document.getElementById("overlay-perfil").addEventListener("click", function(e) {
+    if (e.target === this) window.fecharModalPerfil();
+  });
 
   // ===== NOVO UTILIZADOR =====
   window.abrirModalNovoUtilizador = function() {
