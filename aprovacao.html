@@ -410,10 +410,11 @@
     `;
 
     // Pré-visualização do documento
-    document.getElementById("preview-doc-html").innerHTML = d.htmlConteudo || "<p style='padding:20px;color:#999'>Sem pré-visualização</p>";
+    const htmlDoc = d.htmlConteudo || reconstruirHtml(d);
+    document.getElementById("preview-doc-html").innerHTML = htmlDoc;
 
     // Área de impressão
-    document.getElementById("area-impressao").innerHTML = d.htmlConteudo || "";
+    document.getElementById("area-impressao").innerHTML = htmlDoc;
 
     // Painel de acção
     const painelAccao = document.getElementById("painel-accao");
@@ -543,6 +544,66 @@
     el.textContent = msg;
     el.style.display = "block";
     setTimeout(() => { el.style.display = "none"; }, 4500);
+  }
+  // ============================================================
+  // RECONSTRUIR HTML DO DOCUMENTO A PARTIR DOS CAMPOS FIRESTORE
+  // (fallback quando htmlConteudo não está guardado por limite 1 MB)
+  // ============================================================
+  function reconstruirHtml(d) {
+    const dataInicioFmt   = fmtData(d.dataInicio)  || "—";
+    const numGuia         = d.numGuia              || "___";
+    const anoGuia         = d.anoGuia              || "____";
+    const funcionario     = d.funcionarioNome      || "—";
+    const categoria       = d.categoria            || "—";
+    const local           = d.localColocacao       || "—";
+    const numDias         = d.numDias              || "—";
+    const bi              = d.bi                   || "—";
+    const cargo           = d.cargo                || categoria;
+    const dataEmissaoLocal = d.dataEmissao
+      ? (() => { const [a,m,dia] = d.dataEmissao.split("-"); return `${dia} de ${nomeMes(m)} de ${a}`; })()
+      : "—";
+
+    const corpo = `O Director Municipal da Saúde do Sumbe, no uso das suas competências e nos \
+termos da legislação em vigor, <strong>AUTORIZA</strong> o gozo de férias do(a) funcionário(a) \
+<strong>${funcionario}</strong>, portador(a) do B.I. nº <strong>${bi}</strong>, que exerce as \
+funções de <strong>${cargo}</strong>, colocado(a) em <strong>${local}</strong>, \
+pelo período de <strong>${numDias} (${numDias}) dias úteis</strong>, com início no dia \
+<strong>${dataInicioFmt}</strong>, nos termos do Estatuto do Funcionalismo Público.`;
+
+    const metade = `
+      <div class="doc-metade">
+        <div class="doc-cabecalho">
+          <img src="insignia.png" class="doc-insignia" alt=""/>
+          <p class="negrito">REPÚBLICA DE ANGOLA</p>
+          <p class="negrito">GOVERNO PROVINCIAL DO KWANZA SUL</p>
+          <p class="negrito">DIRECÇÃO MUNICIPAL DA SAÚDE DO SUMBE</p>
+        </div>
+        <div class="doc-titulo">GUIA DE FÉRIAS Nº ${numGuia}/${anoGuia}</div>
+        <div class="doc-corpo">${corpo}</div>
+        <div class="doc-rodape">
+          <div class="doc-local-data">Sumbe, ${dataEmissaoLocal}</div>
+          <div class="doc-assinaturas">
+            <div class="doc-ass-col">
+              <div class="doc-ass-titulo">O Director Municipal da Saúde</div>
+              <div class="doc-ass-linha"></div>
+              <div class="doc-ass-nome">(assinatura)</div>
+            </div>
+            <div class="doc-ass-col direita">
+              <div class="doc-ass-titulo">Recebido em:</div>
+              <div class="doc-ass-data">___/___/______</div>
+              <div class="doc-ass-linha"></div>
+              <div class="doc-ass-nome">O(A) Funcionário(a)</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    return `<div class="documento-oficial">${metade}${metade}</div>`;
+  }
+
+  function nomeMes(m) {
+    return ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+            "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"][parseInt(m,10)-1] || m;
   }
 </script>
 </body>
