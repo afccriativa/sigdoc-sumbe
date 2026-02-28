@@ -767,14 +767,24 @@
     const div = document.getElementById("ficha-historico");
     div.innerHTML = `<div class="historico-vazio"><div style="font-size:32px;margin-bottom:8px;">⏳</div><p style="color:var(--texto-suave)">A carregar histórico...</p></div>`;
     try {
+      // Sem orderBy no Firestore para evitar índice composto obrigatório.
+      // A ordenação é feita em JavaScript após receber os dados.
       const q = query(
         collection(db, "documentos"),
-        where("funcionarioId", "==", funcionarioId),
-        orderBy("geradoEm", "desc")
+        where("funcionarioId", "==", funcionarioId)
       );
       const snap = await getDocs(q);
 
-      if (snap.empty) {
+      // Recolher e ordenar por data decrescente
+      const docs = [];
+      snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
+      docs.sort((a, b) => {
+        const ta = a.geradoEm?.toDate ? a.geradoEm.toDate().getTime() : 0;
+        const tb = b.geradoEm?.toDate ? b.geradoEm.toDate().getTime() : 0;
+        return tb - ta;
+      });
+
+      if (docs.length === 0) {
         div.innerHTML = `
           <div class="historico-vazio">
             <div style="font-size:40px;margin-bottom:10px;">📂</div>
@@ -791,10 +801,9 @@
         rejeitado: { cor: "#c0392b",  fundo: "#fdecea", icone: "❌", texto: "Rejeitado" }
       };
 
-      let html = `<div style="padding:12px 16px;font-size:12px;color:var(--texto-suave);border-bottom:1px solid #eef0f3;font-weight:600;">${snap.size} documento(s) no histórico</div>`;
+      let html = `<div style="padding:12px 16px;font-size:12px;color:var(--texto-suave);border-bottom:1px solid #eef0f3;font-weight:600;">${docs.length} documento(s) no histórico</div>`;
 
-      snap.forEach(d => {
-        const doc = d.data();
+      docs.forEach(doc => {
         const numFmt = doc.numGuia && doc.anoGuia ? `Nº ${doc.numGuia}/${doc.anoGuia}` : "";
         const tipo = tiposLabel[doc.tipo] || doc.tipo || "Documento";
         const ts = doc.geradoEm?.toDate ? doc.geradoEm.toDate() : null;
@@ -804,6 +813,7 @@
         const icone = icones[doc.tipo] || "📄";
         const diasInfo = doc.numDias ? `· ${doc.numDias} dias úteis` : "";
         const inicioInfo = doc.dataInicio ? `· Início: ${fmtDataSimples(doc.dataInicio)}` : "";
+        const obsInfo = doc.observacao ? `<div class="hist-detalhe" style="margin-top:3px;font-style:italic;">💬 "${doc.observacao}"</div>` : "";
 
         html += `
           <div class="item-historico">
@@ -817,6 +827,7 @@
                 </span>
               </div>
               <div class="hist-detalhe" style="margin-top:3px;">Por: ${doc.geradoPorEmail || "—"}</div>
+              ${obsInfo}
             </div>
             <div class="hist-data">${dataFmt}<br><span style="color:#bbb">${horaFmt}</span></div>
           </div>`;
