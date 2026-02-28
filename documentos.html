@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIGDOC-SUMBE — Geração de Documentos</title>
+  <meta name="theme-color" content="#1a4f7a"/>
+  <style>
+    :root {
+      --azul: #1a4f7a;
+      --azul-claro: #2471a3;
+      --verde: #1e8449;
+      --vermelho: #c0392b;
+      --cinza-fundo: #f0f2f5;
+      --branco: #ffffff;
+      --texto: #2c3e50;
+      --borda: #dde3ea;
+      --sombra: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--cinza-fundo); color: var(--texto); min-height: 100vh; }
+
+    /* BARRA DE TOPO */
+    .barra-topo {
+      background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%);
+      color: white; padding: 0 24px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .barra-esquerda { display: flex; align-items: center; gap: 16px; }
+    .btn-voltar {
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+      color: white; padding: 6px 14px; border-radius: 6px; font-size: 12px;
+      cursor: pointer; text-decoration: none; transition: background 0.2s;
+    }
+    .btn-voltar:hover { background: rgba(255,255,255,0.25); }
+    .titulo-pagina { font-size: 16px; font-weight: 700; }
+    .titulo-pagina span { font-size: 11px; font-weight: 400; opacity: 0.8; display: block; }
+
+    /* LAYOUT PRINCIPAL */
+    .layout { display: grid; grid-template-columns: 400px 1fr; gap: 24px; padding: 24px 20px; max-width: 1400px; margin: 0 auto; }
+
+    /* PAINEL DO FORMULÁRIO */
+    .painel-form { display: flex; flex-direction: column; gap: 16px; }
+
+    .cartao {
+      background: white; border-radius: 12px; box-shadow: var(--sombra); overflow: hidden;
+    }
+    .cartao-cabecalho {
+      padding: 16px 20px; border-bottom: 1px solid #eef0f3;
+      font-size: 14px; font-weight: 700; color: var(--azul);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .cartao-corpo { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+
+    label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px; }
+    input, select, textarea {
+      width: 100%; padding: 10px 12px; border: 2px solid var(--borda);
+      border-radius: 8px; font-size: 13px; outline: none;
+      font-family: inherit; transition: border-color 0.2s; background: white;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--azul-claro); }
+    input:read-only { background: #f8f9fa; color: #666; }
+
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Pesquisa de funcionário */
+    .campo-pesquisa-func { position: relative; }
+    .campo-pesquisa-func input { padding-right: 36px; }
+    .resultados-pesquisa {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: white; border: 2px solid var(--azul-claro); border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 50; max-height: 200px; overflow-y: auto;
+      display: none;
+    }
+    .resultado-item {
+      padding: 10px 14px; cursor: pointer; font-size: 13px;
+      border-bottom: 1px solid #f0f2f4; transition: background 0.15s;
+    }
+    .resultado-item:hover { background: #e8f4f8; }
+    .resultado-item:last-child { border-bottom: none; }
+    .resultado-item .func-nome { font-weight: 600; color: var(--azul); }
+    .resultado-item .func-info { font-size: 11px; color: #888; margin-top: 2px; }
+
+    /* Botões */
+    .btn-gerar {
+      background: linear-gradient(135deg, var(--azul), var(--azul-claro));
+      color: white; border: none; padding: 13px; border-radius: 10px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s; width: 100%; display: flex;
+      align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-gerar:hover { opacity: 0.9; }
+    .btn-imprimir {
+      background: var(--verde); color: white; border: none; padding: 13px;
+      border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s; width: 100%; display: flex;
+      align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-imprimir:hover { opacity: 0.9; }
+    .btn-imprimir:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ÁREA DE PRÉ-VISUALIZAÇÃO */
+    .painel-preview { min-height: 400px; }
+    .preview-cabecalho {
+      background: white; border-radius: 12px 12px 0 0; padding: 14px 20px;
+      border-bottom: 1px solid #eef0f3; font-size: 14px; font-weight: 700;
+      color: var(--azul); display: flex; align-items: center; justify-content: space-between;
+      box-shadow: var(--sombra);
+    }
+    .badge-preview {
+      font-size: 11px; background: #e8f4f8; color: var(--azul);
+      padding: 3px 10px; border-radius: 10px; font-weight: 600;
+    }
+    .area-preview {
+      background: #d0d3d8; border-radius: 0 0 12px 12px;
+      padding: 24px; display: flex; align-items: center; justify-content: center;
+      min-height: 500px;
+    }
+    .vazio-preview {
+      text-align: center; color: #888; padding: 60px 20px;
+    }
+    .vazio-preview .icone { font-size: 48px; margin-bottom: 12px; }
+    .vazio-preview p { font-size: 13px; }
+
+    /* WRAPPER DO DOCUMENTO A4 PAISAGEM ESCALADO */
+    .doc-wrapper {
+      transform-origin: top center;
+      transform: scale(0.72);
+      width: 1122px; /* 297mm at 96dpi */
+      margin: 0 auto;
+      display: none;
+    }
+
+    /* ==================================================
+       ESTILOS DO DOCUMENTO OFICIAL (A4 Paisagem)
+       ================================================== */
+    .documento-oficial {
+      width: 1122px;
+      height: 794px; /* 210mm at 96dpi */
+      background: white;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid #ccc;
+      font-family: 'Times New Roman', Times, serif;
+      overflow: hidden;
+    }
+
+    .doc-metade {
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-right: 1px solid #888;
+    }
+    .doc-metade:last-child { border-right: none; }
+
+    .doc-cabecalho {
+      text-align: center;
+      margin-bottom: 14px;
+      line-height: 1.35;
+    }
+    .doc-insignia {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 6px;
+    }
+    .doc-cabecalho p {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .doc-cabecalho .bold { font-weight: bold; }
+
+    .doc-titulo {
+      text-align: center;
+      font-size: 12px;
+      font-weight: bold;
+      text-decoration: underline;
+      text-transform: uppercase;
+      margin: 10px 0 18px;
+      letter-spacing: 0.5px;
+    }
+
+    .doc-corpo {
+      font-size: 11.5px;
+      text-align: justify;
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    .doc-rodape {
+      margin-top: 18px;
+    }
+    .doc-local-data {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      font-weight: bold;
+      margin-bottom: 22px;
+      line-height: 1.4;
+    }
+    .doc-assinaturas {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      font-size: 10.5px;
+    }
+    .doc-assinatura-col { }
+    .doc-assinatura-titulo { font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
+    .doc-assinatura-data { font-weight: bold; font-size: 11px; }
+    .doc-assinatura-linha {
+      border-bottom: 1px solid #333;
+      width: 80%;
+      margin: 18px 0 4px;
+    }
+    .doc-assinatura-nome { font-size: 10.5px; }
+
+    .divisor-vertical { border-left: 1px solid #888; }
+
+    /* NOTIFICAÇÃO */
+    .notificacao {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--verde); color: white;
+      padding: 14px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2); display: none; z-index: 500;
+    }
+
+    /* SPINNER */
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4); border-top-color: white;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* RESPONSIVO */
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .doc-wrapper { transform: scale(0.38); }
+      .area-preview { min-height: 320px; }
+    }
+
+    /* =============================================
+       ESTILOS DE IMPRESSÃO — apenas o documento
+       ============================================= */
+    @media print {
+      @page { size: A4 landscape; margin: 8mm; }
+      body > * { display: none !important; }
+      #area-impressao { display: block !important; }
+      #area-impressao .documento-oficial {
+        width: 277mm;
+        height: 190mm;
+        border: none;
+        page-break-after: avoid;
+      }
+      #area-impressao .doc-metade { padding: 8mm 10mm; }
+      #area-impressao .doc-insignia { width: 18mm; height: 18mm; }
+      #area-impressao .doc-cabecalho p { font-size: 8.5pt; }
+      #area-impressao .doc-titulo { font-size: 9.5pt; }
+      #area-impressao .doc-corpo { font-size: 9pt; line-height: 1.65; }
+      #area-impressao .doc-local-data { font-size: 8.5pt; }
+      #area-impressao .doc-assinaturas { font-size: 8.5pt; }
+      #area-impressao .doc-assinatura-nome { font-size: 8.5pt; }
+    }
+    #area-impressao { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- BARRA DE TOPO -->
+<div class="barra-topo">
+  <div class="barra-esquerda">
+    <a href="index.html" class="btn-voltar">← Voltar</a>
+    <div class="titulo-pagina">
+      📄 Geração de Documentos
+      <span>Direcção Municipal da Saúde do Sumbe</span>
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT PRINCIPAL -->
+<div class="layout">
+
+  <!-- PAINEL DO FORMULÁRIO -->
+  <div class="painel-form">
+
+    <!-- Tipo de Documento -->
+    <div class="cartao">
+      <div class="cartao-cabecalho">📋 Tipo de Documento</div>
+      <div class="cartao-corpo">
+        <div>
+          <label>Seleccione o documento a gerar</label>
+          <select id="tipo-documento" onchange="trocarTipoDoc()">
+            <option value="guia-ferias">Guia de Férias</option>
+            <option value="declaracao" disabled>Declaração de Serviço (em breve)</option>
+            <option value="guia-medica" disabled>Guia Médica (em breve)</option>
+            <option value="oficio" disabled>Ofício (em breve)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulário Guia de Férias -->
+    <div class="cartao" id="form-guia-ferias">
+      <div class="cartao-cabecalho">🏖️ Dados da Guia de Férias</div>
+      <div class="cartao-corpo">
+
+        <div>
+          <label>Número da Guia</label>
+          <div class="row2">
+            <div>
+              <input type="number" id="num-guia" placeholder="Ex: 12" min="1" oninput="actualizarPreview()"/>
+            </div>
+            <div>
+              <input type="number" id="ano-guia" placeholder="Ex: 2026" value="2026" oninput="actualizarPreview()"/>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label>Funcionário</label>
+          <div class="campo-pesquisa-func">
+            <input type="text" id="pesquisa-func" placeholder="Escreva o nome ou número do funcionário..."
+              oninput="pesquisarFuncionario(this.value)" autocomplete="off"/>
+            <div class="resultados-pesquisa" id="resultados-pesquisa"></div>
+          </div>
+        </div>
+
+        <div>
+          <label>Categoria / Cargo</label>
+          <input type="text" id="categoria-func" placeholder="Preenchido automaticamente" readonly/>
+        </div>
+
+        <div class="row2">
+          <div>
+            <label>Dias úteis de férias</label>
+            <input type="number" id="num-dias" placeholder="Ex: 22" min="1" max="60" oninput="actualizarPreview()"/>
+          </div>
+          <div>
+            <label>Data de início das férias</label>
+            <input type="date" id="data-inicio" oninput="actualizarPreview()"/>
+          </div>
+        </div>
+
+        <div>
+          <label>Data de emissão do documento</label>
+          <input type="date" id="data-emissao" oninput="actualizarPreview()"/>
+        </div>
+
+        <div>
+          <label>Data de apresentação</label>
+          <input type="date" id="data-apresentacao" oninput="actualizarPreview()"/>
+        </div>
+
+        <div>
+          <label>Nome do Chefe de Secção</label>
+          <input type="text" id="nome-chefe" placeholder="Ex: Hildebrando M.T. Cassacula"
+            value="Hildebrando M.T. Cassacula" oninput="actualizarPreview()"/>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Botões -->
+    <button class="btn-gerar" onclick="gerarDocumento()">
+      👁️ Gerar Pré-visualização
+    </button>
+    <button class="btn-imprimir" id="btn-imprimir" onclick="imprimirDocumento()" disabled>
+      🖨️ Imprimir / Exportar PDF
+    </button>
+
+  </div>
+
+  <!-- PAINEL DE PRÉ-VISUALIZAÇÃO -->
+  <div class="painel-preview">
+    <div class="preview-cabecalho">
+      🗂️ Pré-visualização do Documento
+      <span class="badge-preview" id="badge-doc">Guia de Férias</span>
+    </div>
+    <div class="area-preview" id="area-preview">
+      <div class="vazio-preview">
+        <div class="icone">📄</div>
+        <p>Preencha o formulário e clique em<br><strong>"Gerar Pré-visualização"</strong> para ver o documento.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ÁREA DE IMPRESSÃO (invisível na tela, usada na impressão) -->
+<div id="area-impressao"></div>
+
+<!-- NOTIFICAÇÃO -->
+<div class="notificacao" id="notificacao"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import {
+    getAuth, onAuthStateChanged, signOut
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import {
+    getFirestore, collection, getDocs, addDoc, serverTimestamp, query, orderBy, doc, getDoc
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
+    authDomain: "sigdoc-sumbe.firebaseapp.com",
+    projectId: "sigdoc-sumbe",
+    storageBucket: "sigdoc-sumbe.firebasestorage.app",
+    messagingSenderId: "323467521938",
+    appId: "1:323467521938:web:1e8170bfd3961784241b4b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let utilizadorActual = null;
+  let perfilActual = null;
+  let todosFuncionarios = [];
+  let funcionarioSeleccionado = null;
+
+  // Verificar autenticação
+  onAuthStateChanged(auth, async (u) => {
+    if (!u) { window.location.href = "index.html"; return; }
+    utilizadorActual = u;
+    const snap = await getDoc(doc(db, "utilizadores", u.uid));
+    if (snap.exists()) perfilActual = snap.data();
+    await carregarFuncionarios();
+    preencherDataHoje();
+  });
+
+  // Carregar todos os funcionários do Firestore
+  async function carregarFuncionarios() {
+    try {
+      const snap = await getDocs(collection(db, "funcionarios"));
+      todosFuncionarios = [];
+      snap.forEach(d => {
+        todosFuncionarios.push({ id: d.id, ...d.data() });
+      });
+    } catch(e) {
+      console.error("Erro ao carregar funcionários:", e);
+    }
+  }
+
+  // Preencher a data de hoje nos campos de data
+  function preencherDataHoje() {
+    const hoje = new Date().toISOString().split("T")[0];
+    document.getElementById("data-emissao").value = hoje;
+    window.actualizarPreview();
+  }
+
+  // Pesquisa de funcionário
+  window.pesquisarFuncionario = function(termo) {
+    const div = document.getElementById("resultados-pesquisa");
+    if (!termo || termo.length < 2) { div.style.display = "none"; return; }
+
+    const resultados = todosFuncionarios.filter(f => {
+      const nome = (f.nome || "").toLowerCase();
+      const num = (f.numero || "").toLowerCase();
+      const t = termo.toLowerCase();
+      return nome.includes(t) || num.includes(t);
+    }).slice(0, 6);
+
+    if (resultados.length === 0) {
+      div.innerHTML = `<div class="resultado-item"><span style="color:#aaa">Nenhum funcionário encontrado.</span></div>`;
+      div.style.display = "block";
+      return;
+    }
+
+    div.innerHTML = resultados.map(f => `
+      <div class="resultado-item" onclick="seleccionarFuncionario('${f.id}')">
+        <div class="func-nome">${f.nome || "—"}</div>
+        <div class="func-info">${f.categoria || f.cargo || "—"} · ${f.unidade || "—"}</div>
+      </div>
+    `).join("");
+    div.style.display = "block";
+  };
+
+  window.seleccionarFuncionario = function(id) {
+    funcionarioSeleccionado = todosFuncionarios.find(f => f.id === id);
+    if (!funcionarioSeleccionado) return;
+
+    document.getElementById("pesquisa-func").value = funcionarioSeleccionado.nome || "";
+    document.getElementById("categoria-func").value =
+      funcionarioSeleccionado.categoria || funcionarioSeleccionado.cargo || "";
+    document.getElementById("resultados-pesquisa").style.display = "none";
+    window.actualizarPreview();
+  };
+
+  // Fechar resultados ao clicar fora
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".campo-pesquisa-func")) {
+      document.getElementById("resultados-pesquisa").style.display = "none";
+    }
+  });
+
+  // Trocar tipo de documento
+  window.trocarTipoDoc = function() {
+    const tipo = document.getElementById("tipo-documento").value;
+    document.getElementById("badge-doc").textContent =
+      tipo === "guia-ferias" ? "Guia de Férias" : tipo;
+  };
+
+  // Actualizar preview ao digitar
+  window.actualizarPreview = function() {
+    // preview só actualiza automaticamente se já foi gerado uma vez
+    if (document.getElementById("btn-imprimir").disabled === false) {
+      window.gerarDocumento(true);
+    }
+  };
+
+  // Gerar documento
+  window.gerarDocumento = function(silencioso = false) {
+    const numGuia = document.getElementById("num-guia").value.trim();
+    const anoGuia = document.getElementById("ano-guia").value.trim();
+    const nomeFuncionario = document.getElementById("pesquisa-func").value.trim();
+    const categoria = document.getElementById("categoria-func").value.trim();
+    const numDias = document.getElementById("num-dias").value.trim();
+    const dataInicio = document.getElementById("data-inicio").value;
+    const dataEmissao = document.getElementById("data-emissao").value;
+    const dataApresentacao = document.getElementById("data-apresentacao").value;
+    const nomeChefe = document.getElementById("nome-chefe").value.trim();
+
+    if (!silencioso) {
+      if (!numGuia || !nomeFuncionario || !numDias || !dataInicio || !dataEmissao) {
+        mostrarNotificacao("⚠️ Preencha todos os campos obrigatórios.");
+        return;
+      }
+    }
+
+    const htmlDoc = construirDocumento({
+      numGuia, anoGuia, nomeFuncionario, categoria, numDias,
+      dataInicio, dataEmissao, dataApresentacao, nomeChefe
+    });
+
+    // Mostrar na área de preview
+    const areaPreview = document.getElementById("area-preview");
+    areaPreview.innerHTML = `
+      <div class="doc-wrapper" id="doc-wrapper-preview">
+        ${htmlDoc}
+      </div>
+    `;
+    document.querySelector(".doc-wrapper").style.display = "block";
+
+    // Colocar também na área de impressão
+    document.getElementById("area-impressao").innerHTML = htmlDoc;
+
+    // Activar botão imprimir
+    document.getElementById("btn-imprimir").disabled = false;
+
+    if (!silencioso) mostrarNotificacao("✅ Documento gerado com sucesso!");
+  };
+
+  // Imprimir
+  window.imprimirDocumento = function() {
+    window.print();
+  };
+
+  // Construir HTML do documento
+  function construirDocumento(d) {
+    const numFormatado = d.numGuia && d.anoGuia ? `${d.numGuia}/${d.anoGuia}` : "___/____";
+    const nomeFunc = d.nomeFuncionario || "___________________________";
+    const cat = d.categoria || "___________________________";
+    const dias = d.numDias || "___";
+    const dataInicioFmt = d.dataInicio ? formatarDataSimples(d.dataInicio) : "__.__.____";
+    const dataEmissaoExt = d.dataEmissao ? formatarDataExtenso(d.dataEmissao) : "___ DE __________ DE ____";
+    const dataApresentacaoFmt = d.dataApresentacao ? formatarDataSimples(d.dataApresentacao) : "__/__/____";
+    const chefe = d.nomeChefe || "___________________________";
+
+    const metade = `
+      <div class="doc-metade">
+        <div class="doc-cabecalho">
+          <img class="doc-insignia" src="insignia.png" alt="Insígnia de Angola"/>
+          <p>REPÚBLICA DE ANGOLA</p>
+          <p>GOVERNO PROVINCIAL DO CUANZA – SUL</p>
+          <p>ADMINISTRAÇÃO MUNICIPAL DO SUMBE</p>
+          <p class="bold">DIRECÇÃO DA SAÚDE</p>
+          <p>SECÇÃO DE PLANEAMENTO, ESTATÍSTICA E RECURSOS HUMANOS</p>
+        </div>
+
+        <div class="doc-titulo">GUIA DE FÉRIAS Nº ${numFormatado}</div>
+
+        <div class="doc-corpo">
+          <p>Por esta Direcção Municipal se faz constar às autoridades a quem o conhecimento desta competir que o senhor <strong>${nomeFunc}</strong>, Funcionário desta Direcção, com a categoria de <strong>${cat}</strong>, está autorizado a ausentar-se por um período de <strong>${dias}</strong> (dias úteis) em gozo de suas férias anuais que tem direito nos termos do artigo 79º, <strong>da Lei nº 26/22, de 22 de Agosto</strong>, com início dia <strong>${dataInicioFmt}</strong>.</p>
+        </div>
+
+        <div class="doc-rodape">
+          <div class="doc-local-data">
+            SECÇÃO DE PLANEAMENTO, ESTATÍSTICA E RECURSOS HUMANOS, ${dataEmissaoExt}.
+          </div>
+          <div class="doc-assinaturas">
+            <div class="doc-assinatura-col">
+              <div class="doc-assinatura-titulo">APRESENTAÇÃO</div>
+              <div class="doc-assinatura-data">${dataApresentacaoFmt}</div>
+            </div>
+            <div class="doc-assinatura-col">
+              <div class="doc-assinatura-titulo">O CHEFE DE SECÇÃO</div>
+              <div class="doc-assinatura-linha"></div>
+              <div class="doc-assinatura-nome">${chefe}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    return `
+      <div class="documento-oficial">
+        ${metade}
+        ${metade}
+      </div>
+    `;
+  }
+
+  // Formatar data simples: dd.mm.aaaa
+  function formatarDataSimples(dataStr) {
+    const d = new Date(dataStr + "T12:00:00");
+    const dia = String(d.getDate()).padStart(2, "0");
+    const mes = String(d.getMonth() + 1).padStart(2, "0");
+    const ano = d.getFullYear();
+    return `${dia}.${mes}.${ano}`;
+  }
+
+  // Formatar data por extenso: 29 DE JANEIRO DE 2026
+  function formatarDataExtenso(dataStr) {
+    const meses = [
+      "JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO",
+      "JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"
+    ];
+    const d = new Date(dataStr + "T12:00:00");
+    return `${d.getDate()} DE ${meses[d.getMonth()]} DE ${d.getFullYear()}`;
+  }
+
+  // Notificação
+  function mostrarNotificacao(msg) {
+    const el = document.getElementById("notificacao");
+    el.textContent = msg;
+    el.style.display = "block";
+    setTimeout(() => { el.style.display = "none"; }, 4000);
+  }
+</script>
+</body>
+</html>
