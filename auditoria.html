@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIGDOC-SUMBE — Auditoria e Rastreabilidade</title>
+  <meta name="theme-color" content="#1a4f7a"/>
+  <style>
+    :root {
+      --azul: #1a4f7a; --azul-claro: #2471a3; --verde: #1e8449;
+      --vermelho: #c0392b; --laranja: #d35400; --roxo: #7d3c98;
+      --cinza-fundo: #f0f2f5; --branco: #ffffff; --texto: #2c3e50;
+      --texto-suave: #7f8c8d; --borda: #dde3ea;
+      --sombra: 0 2px 12px rgba(0,0,0,0.08);
+      --sombra-hover: 0 6px 24px rgba(0,0,0,0.14);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: var(--cinza-fundo); color: var(--texto); min-height: 100vh; }
+
+    /* ACESSO NEGADO */
+    #ecra-negado { min-height: 100vh; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 16px; text-align: center; padding: 20px; }
+    #ecra-negado .icone { font-size: 64px; }
+    #ecra-negado h2 { font-size: 22px; color: var(--vermelho); }
+    #ecra-negado p { font-size: 14px; color: var(--texto-suave); }
+
+    /* CARREGAMENTO */
+    #ecra-carregando { min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+    .spinner-grande { width: 48px; height: 48px; border: 4px solid #dde3ea; border-top-color: var(--azul); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* CONTEÚDO PRINCIPAL */
+    #ecra-principal { display: none; }
+
+    /* BARRA TOPO */
+    .barra-topo { background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%); color: white; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .barra-esquerda { display: flex; align-items: center; gap: 16px; }
+    .btn-voltar { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+    .btn-voltar:hover { background: rgba(255,255,255,0.25); }
+    .titulo-pagina { font-size: 16px; font-weight: 700; }
+    .titulo-pagina span { font-size: 11px; font-weight: 400; opacity: 0.8; display: block; }
+    .info-utilizador { display: flex; align-items: center; gap: 10px; }
+    .nome-topo { font-size: 13px; font-weight: 600; }
+    .perfil-topo { font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; }
+    .avatar { width: 34px; height: 34px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+
+    /* CONTEÚDO */
+    .conteudo { max-width: 1300px; margin: 0 auto; padding: 24px 20px; }
+
+    /* AVISO DE DADOS AO VIVO */
+    .aviso-live { background: #e8f8f0; border: 1px solid #b8e8cc; border-radius: 8px; padding: 10px 16px; margin-bottom: 18px; font-size: 13px; color: #1e6e3a; display: flex; align-items: center; gap: 8px; }
+    .ponto-verde { width: 8px; height: 8px; background: #27ae60; border-radius: 50%; flex-shrink: 0; animation: pulsar 1.5s ease-in-out infinite; }
+    @keyframes pulsar { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* INDICADORES */
+    .indicadores-rapidos { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .ind-card { background: white; border-radius: 12px; padding: 16px 18px; box-shadow: var(--sombra); display: flex; align-items: center; gap: 12px; }
+    .ind-icone { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .ind-bg-azul { background: #e8f4f8; } .ind-bg-verde { background: #e8f8f0; }
+    .ind-bg-laranja { background: #fef0e6; } .ind-bg-roxo { background: #f4ecf7; }
+    .ind-bg-vermelho { background: #fdecea; }
+    .ind-num { font-size: 24px; font-weight: 700; color: var(--azul); line-height: 1; }
+    .ind-label { font-size: 11px; color: var(--texto-suave); margin-top: 3px; }
+
+    /* FILTROS */
+    .painel-filtros { background: white; border-radius: 12px; box-shadow: var(--sombra); padding: 16px 20px; margin-bottom: 18px; }
+    .filtros-titulo { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--azul); margin-bottom: 12px; }
+    .filtros-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; align-items: end; }
+    .filtro-campo label { font-size: 11px; font-weight: 600; color: var(--texto-suave); display: block; margin-bottom: 5px; }
+    .filtro-campo input, .filtro-campo select { width: 100%; padding: 9px 12px; border: 2px solid var(--borda); border-radius: 8px; font-size: 13px; outline: none; background: white; color: var(--texto); font-family: inherit; transition: border-color 0.2s; }
+    .filtro-campo input:focus, .filtro-campo select:focus { border-color: var(--azul-claro); }
+    .filtros-acoes { display: flex; gap: 8px; }
+    .btn-filtrar { background: var(--azul); color: white; border: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-filtrar:hover { background: var(--azul-claro); }
+    .btn-limpar { background: #f0f2f4; color: var(--texto); border: none; padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+    /* ABAS */
+    .abas-container { background: white; border-radius: 12px; box-shadow: var(--sombra); overflow: hidden; }
+    .abas-nav { display: flex; border-bottom: 2px solid #eef0f3; padding: 0 20px; gap: 4px; overflow-x: auto; }
+    .aba-btn { padding: 14px 18px; border: none; background: none; font-size: 13px; font-weight: 600; color: var(--texto-suave); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; white-space: nowrap; }
+    .aba-btn.activa { color: var(--azul); border-bottom-color: var(--azul); }
+    .aba-btn:hover:not(.activa) { color: var(--texto); background: #f8f9fa; }
+    .aba-conteudo { display: none; }
+    .aba-conteudo.activa { display: block; }
+
+    /* CABEÇALHO TABELA */
+    .cabecalho-painel { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .cabecalho-painel h3 { font-size: 15px; color: var(--azul); font-weight: 700; }
+    .cabecalho-acoes { display: flex; gap: 8px; align-items: center; }
+    .contagem { font-size: 12px; color: var(--texto-suave); background: #f0f2f4; padding: 3px 10px; border-radius: 10px; }
+    .btn-exportar { background: #e8f8f0; color: var(--verde); border: 2px solid #c8f0da; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .btn-exportar:hover { background: #d0f0e0; }
+    .btn-recarregar { background: #e8f4f8; color: var(--azul); border: 2px solid #c0dcf0; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+    /* TABELA */
+    .tabela-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: #f8f9fa; padding: 10px 16px; font-size: 11px; font-weight: 700; color: #666; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+    tbody td { padding: 12px 16px; border-top: 1px solid #f0f2f4; font-size: 13px; vertical-align: middle; }
+    tbody tr:hover td { background: #fafbfc; }
+    tbody tr { cursor: pointer; }
+
+    .timestamp { font-family: monospace; font-size: 12px; color: var(--texto-suave); white-space: nowrap; }
+    .timestamp strong { display: block; color: var(--texto); font-size: 13px; }
+
+    .utilizador-linha { display: flex; align-items: center; gap: 8px; }
+    .mini-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; color: white; flex-shrink: 0; }
+
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+    .badge-GERAR { background: #e8f4f8; color: #1a4f7a; }
+    .badge-APROVAR { background: #e8f8f0; color: #1e8449; }
+    .badge-REJEITAR { background: #fdecea; color: #c0392b; }
+    .badge-LOGIN { background: #f4ecf7; color: #7d3c98; }
+    .badge-LOGOUT { background: #f8f9fa; color: #666; }
+
+    .utilizador-nome { font-weight: 600; font-size: 13px; }
+    .utilizador-perfil { font-size: 11px; color: var(--texto-suave); }
+    .doc-tipo { font-size: 12px; }
+    .doc-secundario { font-size: 11px; color: var(--texto-suave); margin-top: 2px; }
+    .btn-detalhe { background: #e8f4f8; color: var(--azul); border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+
+    /* RELATÓRIO POR UTILIZADOR */
+    .grafico-barras { padding: 20px; }
+    .grafico-titulo { font-size: 13px; font-weight: 700; color: var(--azul); margin-bottom: 14px; }
+    .barra-item { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .barra-label { font-size: 12px; color: var(--texto); width: 140px; flex-shrink: 0; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .barra-track { flex: 1; background: #f0f2f4; border-radius: 4px; height: 22px; overflow: hidden; }
+    .barra-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; font-weight: 700; color: white; transition: width 0.8s ease; min-width: 4px; }
+    .barra-azul { background: linear-gradient(90deg, var(--azul), var(--azul-claro)); }
+    .barra-verde { background: linear-gradient(90deg, #1e8449, #27ae60); }
+    .barra-laranja { background: linear-gradient(90deg, #d35400, #e67e22); }
+    .barra-roxo { background: linear-gradient(90deg, #7d3c98, #9b59b6); }
+    .barra-valor { font-size: 12px; font-weight: 700; color: var(--texto); width: 30px; flex-shrink: 0; }
+
+    .relatorio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; padding: 0 20px 20px; }
+    .card-utilizador { background: #f8f9fa; border-radius: 10px; padding: 16px; border: 2px solid transparent; transition: all 0.2s; }
+    .card-utilizador:hover { border-color: var(--azul); background: white; }
+    .card-util-topo { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .card-util-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; color: white; flex-shrink: 0; }
+    .card-util-nome { font-size: 14px; font-weight: 700; }
+    .card-util-sub { font-size: 11px; color: var(--texto-suave); margin-top: 2px; }
+    .card-util-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .stat-item { background: white; border-radius: 7px; padding: 8px; text-align: center; border: 1px solid #eee; }
+    .stat-num { font-size: 18px; font-weight: 700; color: var(--azul); }
+    .stat-label { font-size: 10px; color: var(--texto-suave); margin-top: 2px; }
+    .card-util-ultima { font-size: 11px; color: var(--texto-suave); margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
+
+    /* TIMELINE */
+    .timeline-container { padding: 20px; }
+    .timeline-item { display: flex; gap: 14px; margin-bottom: 0; position: relative; }
+    .timeline-item::before { content: ''; position: absolute; left: 18px; top: 36px; bottom: -8px; width: 2px; background: #eef0f3; }
+    .timeline-item:last-child::before { display: none; }
+    .timeline-dot { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; z-index: 1; }
+    .tl-azul { background: #e8f4f8; } .tl-verde { background: #e8f8f0; }
+    .tl-vermelho { background: #fdecea; } .tl-roxo { background: #f4ecf7; }
+    .timeline-corpo { flex: 1; background: #f8f9fa; border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
+    .tl-titulo { font-size: 13px; font-weight: 600; }
+    .tl-sub { font-size: 11px; color: var(--texto-suave); margin-top: 3px; }
+    .tl-hora { font-size: 11px; color: #aaa; float: right; }
+
+    /* MODAL */
+    .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: 200; align-items: flex-start; justify-content: center; padding: 20px; overflow-y: auto; }
+    .overlay.activo { display: flex; }
+    .modal { background: white; border-radius: 16px; width: 100%; max-width: 560px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); margin: auto; overflow: hidden; }
+    .modal-cabecalho { background: linear-gradient(135deg, var(--azul), var(--azul-claro)); color: white; padding: 20px 24px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .modal-cabecalho h3 { font-size: 17px; }
+    .modal-cabecalho p { font-size: 12px; opacity: 0.8; margin-top: 3px; }
+    .btn-fechar { background: rgba(255,255,255,0.2); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .modal-corpo { padding: 24px; }
+    .detalhe-linha { display: flex; padding: 10px 0; border-bottom: 1px solid #f0f2f4; gap: 12px; }
+    .detalhe-linha:last-child { border-bottom: none; }
+    .detalhe-icone { font-size: 16px; width: 24px; flex-shrink: 0; text-align: center; margin-top: 1px; }
+    .detalhe-rotulo { font-size: 11px; color: var(--texto-suave); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .detalhe-valor { font-size: 14px; font-weight: 600; color: var(--texto); margin-top: 2px; }
+    .detalhe-valor.mono { font-family: monospace; font-size: 12px; }
+    .imutavel-aviso { background: #fef9e7; border: 1px solid #fce08a; border-radius: 8px; padding: 10px 14px; margin-top: 16px; font-size: 12px; color: #7d5a00; display: flex; gap: 8px; }
+
+    /* ESTADO VAZIO */
+    .vazio { text-align: center; padding: 60px 20px; color: var(--texto-suave); }
+    .vazio .icone-vazio { font-size: 52px; margin-bottom: 14px; }
+    .vazio p { font-size: 14px; }
+    .vazio small { font-size: 12px; color: #aaa; }
+
+    /* NOTIFICAÇÃO */
+    .notificacao { position: fixed; bottom: 24px; right: 24px; padding: 14px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; color: white; display: none; z-index: 500; max-width: 320px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+    .notif-sucesso { background: var(--verde); }
+    .notif-info { background: var(--azul); }
+    .notif-erro { background: var(--vermelho); }
+
+    @media (max-width: 640px) {
+      .filtros-grid { grid-template-columns: 1fr 1fr; }
+      .barra-label { width: 90px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ECRÃ DE CARREGAMENTO -->
+<div id="ecra-carregando">
+  <div class="spinner-grande"></div>
+  <p style="color:#888;font-size:14px;">A verificar autenticação…</p>
+</div>
+
+<!-- ECRÃ DE ACESSO NEGADO -->
+<div id="ecra-negado" style="display:none;">
+  <div class="icone">🔒</div>
+  <h2>Acesso Restrito</h2>
+  <p>Não tem permissão para aceder ao módulo de Auditoria.<br>Este módulo é exclusivo para Administradores, Chefes de Secção e Directores.</p>
+  <a href="index.html" style="margin-top:8px; background:var(--azul); color:white; padding:10px 24px; border-radius:8px; text-decoration:none; font-weight:600;">← Voltar ao Painel</a>
+</div>
+
+<!-- CONTEÚDO PRINCIPAL -->
+<div id="ecra-principal">
+
+  <div class="barra-topo">
+    <div class="barra-esquerda">
+      <a href="index.html" class="btn-voltar">← Painel</a>
+      <div class="titulo-pagina">
+        Auditoria e Rastreabilidade
+        <span>Módulo 5 — SIGDOC-SUMBE</span>
+      </div>
+    </div>
+    <div class="info-utilizador">
+      <div style="text-align:right;">
+        <div class="nome-topo" id="nome-topo">—</div>
+        <div class="perfil-topo" id="perfil-topo">—</div>
+      </div>
+      <div class="avatar" id="avatar-topo">?</div>
+    </div>
+  </div>
+
+  <div class="conteudo">
+
+    <!-- AVISO DADOS AO VIVO -->
+    <div class="aviso-live">
+      <div class="ponto-verde"></div>
+      <span>Dados em tempo real — a leitura é feita directamente das colecções <strong>documentos</strong> e <strong>sessoes</strong> do Firebase.</span>
+    </div>
+
+    <!-- INDICADORES -->
+    <div class="indicadores-rapidos">
+      <div class="ind-card"><div class="ind-icone ind-bg-azul">📋</div><div><div class="ind-num" id="ind-total">—</div><div class="ind-label">Total de Eventos</div></div></div>
+      <div class="ind-card"><div class="ind-icone ind-bg-verde">📄</div><div><div class="ind-num" id="ind-docs">—</div><div class="ind-label">Documentos Gerados</div></div></div>
+      <div class="ind-card"><div class="ind-icone ind-bg-laranja">✅</div><div><div class="ind-num" id="ind-aprovados">—</div><div class="ind-label">Aprovações</div></div></div>
+      <div class="ind-card"><div class="ind-icone ind-bg-vermelho">❌</div><div><div class="ind-num" id="ind-rejeicoes">—</div><div class="ind-label">Rejeições</div></div></div>
+      <div class="ind-card"><div class="ind-icone ind-bg-roxo">🔑</div><div><div class="ind-num" id="ind-logins">—</div><div class="ind-label">Sessões Iniciadas</div></div></div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="painel-filtros">
+      <div class="filtros-titulo">🔍 Filtrar Registos</div>
+      <div class="filtros-grid">
+        <div class="filtro-campo">
+          <label>Data Inicial</label>
+          <input type="date" id="filtro-data-ini"/>
+        </div>
+        <div class="filtro-campo">
+          <label>Data Final</label>
+          <input type="date" id="filtro-data-fim"/>
+        </div>
+        <div class="filtro-campo">
+          <label>Utilizador (email)</label>
+          <select id="filtro-utilizador"><option value="">Todos</option></select>
+        </div>
+        <div class="filtro-campo">
+          <label>Tipo de Evento</label>
+          <select id="filtro-accao">
+            <option value="">Todos</option>
+            <option value="GERAR">📄 Gerar Documento</option>
+            <option value="APROVAR">✅ Aprovar</option>
+            <option value="REJEITAR">❌ Rejeitar</option>
+            <option value="LOGIN">🔑 Login</option>
+            <option value="LOGOUT">🚪 Logout</option>
+          </select>
+        </div>
+        <div class="filtro-campo" style="display:flex;flex-direction:column;justify-content:flex-end;">
+          <div class="filtros-acoes">
+            <button class="btn-filtrar" onclick="aplicarFiltros()">Filtrar</button>
+            <button class="btn-limpar" onclick="limparFiltros()">Limpar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABAS -->
+    <div class="abas-container">
+      <div class="abas-nav">
+        <button class="aba-btn activa" onclick="mudarAba('log',this)">📋 Registo de Actividade</button>
+        <button class="aba-btn" onclick="mudarAba('utilizadores',this)">👥 Por Utilizador</button>
+        <button class="aba-btn" onclick="mudarAba('documentos',this)">📄 Por Tipo de Documento</button>
+        <button class="aba-btn" onclick="mudarAba('timeline',this)">⏱ Linha do Tempo</button>
+      </div>
+
+      <!-- ABA: LOG PRINCIPAL -->
+      <div id="aba-log" class="aba-conteudo activa">
+        <div class="cabecalho-painel">
+          <h3>📋 Registo Completo de Eventos</h3>
+          <div class="cabecalho-acoes">
+            <span class="contagem" id="contagem-log">— registos</span>
+            <button class="btn-recarregar" onclick="carregarTudo()">↺ Actualizar</button>
+            <button class="btn-exportar" onclick="exportarCSV()">⬇ Exportar CSV</button>
+          </div>
+        </div>
+        <div class="tabela-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Data / Hora</th>
+                <th>Utilizador</th>
+                <th>Evento</th>
+                <th>Funcionário / Documento</th>
+                <th>Detalhes</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-log">
+              <tr><td colspan="6"><div class="vazio"><div class="icone-vazio">⏳</div><p>A carregar dados do Firebase…</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ABA: POR UTILIZADOR -->
+      <div id="aba-utilizadores" class="aba-conteudo">
+        <div class="cabecalho-painel"><h3>👥 Actividade por Utilizador</h3></div>
+        <div class="grafico-barras">
+          <div class="grafico-titulo">📊 Documentos Gerados por Utilizador</div>
+          <div id="grafico-utilizadores"></div>
+        </div>
+        <div class="relatorio-grid" id="cards-utilizadores"></div>
+      </div>
+
+      <!-- ABA: POR TIPO DE DOCUMENTO -->
+      <div id="aba-documentos" class="aba-conteudo">
+        <div class="cabecalho-painel"><h3>📄 Documentos por Tipo e Estado</h3></div>
+        <div class="grafico-barras">
+          <div class="grafico-titulo">📊 Volume por Tipo de Documento</div>
+          <div id="grafico-tipos"></div>
+        </div>
+        <div class="grafico-barras" style="padding-top:0">
+          <div class="grafico-titulo">📈 Taxa de Aprovação vs Rejeição</div>
+          <div id="grafico-estados"></div>
+        </div>
+      </div>
+
+      <!-- ABA: LINHA DO TEMPO -->
+      <div id="aba-timeline" class="aba-conteudo">
+        <div class="cabecalho-painel"><h3>⏱ Últimos 20 Eventos</h3></div>
+        <div class="timeline-container" id="timeline-container">
+          <div class="vazio"><div class="icone-vazio">⏳</div><p>A carregar…</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL DETALHE -->
+<div class="overlay" id="overlay-detalhe" onclick="fecharModalFora(event)">
+  <div class="modal">
+    <div class="modal-cabecalho">
+      <div>
+        <h3 id="modal-titulo">Detalhe do Evento</h3>
+        <p id="modal-subtitulo">—</p>
+      </div>
+      <button class="btn-fechar" onclick="fecharModal()">×</button>
+    </div>
+    <div class="modal-corpo" id="modal-corpo"></div>
+  </div>
+</div>
+
+<div class="notificacao" id="notificacao"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import {
+    getFirestore, collection, getDocs, query, orderBy, limit, doc, getDoc
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  // ── CONFIGURAÇÃO FIREBASE (mesma dos outros módulos) ──
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
+    authDomain: "sigdoc-sumbe.firebaseapp.com",
+    projectId: "sigdoc-sumbe",
+    storageBucket: "sigdoc-sumbe.firebasestorage.app",
+    messagingSenderId: "323467521938",
+    appId: "1:323467521938:web:1e8170bfd3961784241b4b"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // ── PERFIS COM ACESSO A ESTE MÓDULO ──
+  const PERFIS_COM_ACESSO = ["admin", "chefe", "director"];
+
+  const etiquetasPerfil = {
+    admin: "Administrador", chefe: "Chefe de Secção",
+    tecnico: "Técnico de RH", director: "Director Municipal",
+    funcionario: "Funcionário de Unidade"
+  };
+
+  const coresPerfil = {
+    admin: "#d35400", chefe: "#1e8449", tecnico: "#1a4f7a",
+    director: "#7d3c98", funcionario: "#7f8c8d"
+  };
+
+  // ── ESTADO GLOBAL ──
+  let _todosEventos = [];
+  let _eventosFiltrados = [];
+  let _mapaUtilizadores = {}; // uid → { nome, perfil }
+
+  // ── AUTENTICAÇÃO ──
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "index.html"; return; }
+
+    // Verificar perfil no Firestore
+    try {
+      const snap = await getDoc(doc(db, "utilizadores", user.uid));
+      const dados = snap.exists() ? snap.data() : {};
+      const perfil = dados.perfil || "funcionario";
+
+      if (!PERFIS_COM_ACESSO.includes(perfil)) {
+        document.getElementById("ecra-carregando").style.display = "none";
+        document.getElementById("ecra-negado").style.display = "flex";
+        return;
+      }
+
+      // Preencher barra topo
+      const nome = dados.nome || user.email;
+      const iniciais = nome.split(" ").slice(0,2).map(p=>p[0]).join("").toUpperCase();
+      document.getElementById("nome-topo").textContent = nome;
+      document.getElementById("perfil-topo").textContent = etiquetasPerfil[perfil] || perfil;
+      document.getElementById("avatar-topo").textContent = iniciais;
+
+      // Mostrar painel
+      document.getElementById("ecra-carregando").style.display = "none";
+      document.getElementById("ecra-principal").style.display = "block";
+
+      // Carregar dados
+      await carregarUtilizadoresMap();
+      await carregarTudo();
+
+    } catch(e) {
+      console.error("Erro de autenticação:", e);
+      document.getElementById("ecra-carregando").style.display = "none";
+      document.getElementById("ecra-negado").style.display = "flex";
+    }
+  });
+
+  // ── MAPA DE UTILIZADORES (uid → nome/perfil) ──
+  async function carregarUtilizadoresMap() {
+    try {
+      const snap = await getDocs(collection(db, "utilizadores"));
+      snap.forEach(d => {
+        _mapaUtilizadores[d.id] = { nome: d.data().nome || d.data().email || d.id, perfil: d.data().perfil || "funcionario" };
+      });
+    } catch(e) { console.error("Erro mapa utilizadores:", e); }
+  }
+
+  // ── CARREGAR TUDO ──
+  window.carregarTudo = async function() {
+    mostrarNotif("A carregar dados…", "notif-info");
+    try {
+      const [eventosDocumentos, eventosSessoes] = await Promise.all([
+        carregarEventosDocumentos(),
+        carregarEventosSessoes()
+      ]);
+
+      // Juntar e ordenar por data (mais recente primeiro)
+      _todosEventos = [...eventosDocumentos, ...eventosSessoes].sort((a, b) => b.timestamp - a.timestamp);
+      _eventosFiltrados = [..._todosEventos];
+
+      popularFiltroEmail();
+      actualizarIndicadores(_todosEventos);
+      renderTabela(_todosEventos);
+      renderRelatorioUtilizadores(_todosEventos);
+      renderRelatorioDocumentos(_todosEventos);
+      renderTimeline(_todosEventos);
+      mostrarNotif("✅ " + _todosEventos.length + " eventos carregados.", "notif-sucesso");
+    } catch(e) {
+      console.error("Erro ao carregar:", e);
+      mostrarNotif("❌ Erro ao carregar dados. Verifique a conexão.", "notif-erro");
+    }
+  };
+
+  // ── EVENTOS DA COLECÇÃO "documentos" ──
+  async function carregarEventosDocumentos() {
+    const eventos = [];
+    try {
+      const snap = await getDocs(query(collection(db, "documentos"), orderBy("geradoEm", "desc"), limit(200)));
+      snap.forEach(d => {
+        const doc = d.data();
+        const tipoDoc = labelTipoDoc(doc.tipo);
+        const funcionario = doc.funcionarioNome || "—";
+        const numRef = doc.numGuia && doc.anoGuia ? `Nº ${doc.numGuia}/${doc.anoGuia}` : "";
+
+        // Evento: GERAR
+        if (doc.geradoEm) {
+          const ts = toDate(doc.geradoEm);
+          const nomeUtil = obterNomeEmail(doc.geradoPor, doc.geradoPorEmail);
+          const perfilUtil = obterPerfilEmail(doc.geradoPor);
+          eventos.push({
+            id: d.id + "_gerar",
+            docId: d.id,
+            timestamp: ts,
+            accao: "GERAR",
+            emailUtilizador: doc.geradoPorEmail || "—",
+            nomeUtilizador: nomeUtil,
+            perfilUtilizador: perfilUtil,
+            tipoDocumento: tipoDoc,
+            funcionarioVisado: funcionario,
+            referencia: numRef,
+            observacao: `Documento ${tipoDoc} ${numRef} gerado para ${funcionario}.`,
+            estado: doc.estado || "pendente"
+          });
+        }
+
+        // Evento: APROVAR ou REJEITAR
+        if (doc.aprovadoEm && (doc.estado === "aprovado" || doc.estado === "rejeitado")) {
+          const ts = toDate(doc.aprovadoEm);
+          const nomeUtil = obterNomeEmail(doc.aprovadoPor, doc.aprovadoPorEmail);
+          const perfilUtil = obterPerfilEmail(doc.aprovadoPor);
+          const accao = doc.estado === "aprovado" ? "APROVAR" : "REJEITAR";
+          eventos.push({
+            id: d.id + "_" + accao.toLowerCase(),
+            docId: d.id,
+            timestamp: ts,
+            accao,
+            emailUtilizador: doc.aprovadoPorEmail || "—",
+            nomeUtilizador: nomeUtil,
+            perfilUtilizador: perfilUtil,
+            tipoDocumento: tipoDoc,
+            funcionarioVisado: funcionario,
+            referencia: numRef,
+            observacao: accao === "APROVAR"
+              ? `${tipoDoc} ${numRef} de ${funcionario} aprovado.`
+              : `${tipoDoc} ${numRef} de ${funcionario} rejeitado. Motivo: ${doc.observacao || "não especificado"}.`,
+            motivoRejeicao: doc.observacao || ""
+          });
+        }
+      });
+    } catch(e) { console.error("Erro documentos:", e); }
+    return eventos;
+  }
+
+  // ── EVENTOS DA COLECÇÃO "sessoes" ──
+  async function carregarEventosSessoes() {
+    const eventos = [];
+    try {
+      const snap = await getDocs(query(collection(db, "sessoes"), orderBy("timestamp", "desc"), limit(100)));
+      snap.forEach(d => {
+        const s = d.data();
+        const ts = toDate(s.timestamp);
+        const accao = s.tipo === "saida" ? "LOGOUT" : "LOGIN";
+        const nomeUtil = s.nome || s.email || "—";
+        const perfilUtil = etiquetasPerfil[s.perfil] || s.perfil || "—";
+        eventos.push({
+          id: d.id,
+          timestamp: ts,
+          accao,
+          emailUtilizador: s.email || "—",
+          nomeUtilizador: nomeUtil,
+          perfilUtilizador: perfilUtil,
+          tipoDocumento: "—",
+          funcionarioVisado: "—",
+          referencia: "",
+          observacao: accao === "LOGIN"
+            ? `${nomeUtil} (${perfilUtil}) iniciou sessão no sistema.`
+            : `${nomeUtil} (${perfilUtil}) encerrou a sessão.`
+        });
+      });
+    } catch(e) { console.error("Erro sessoes:", e); }
+    return eventos;
+  }
+
+  // ── MAPEAMENTO DE TIPOS DE DOCUMENTO ──
+  const etiquetasTipoDoc = {
+    "guia-ferias": "Guia de Férias",
+    "declaracao-servico": "Declaração de Serviço",
+    "guia-medica": "Guia Médica",
+    "oficio": "Ofício",
+    "nota": "Nota Interna",
+    "relatorio": "Relatório"
+  };
+
+  function labelTipoDoc(tipo) {
+    if (!tipo || tipo === "—") return "—";
+    return etiquetasTipoDoc[tipo] || tipo;
+  }
+
+  // ── AUXILIARES ──
+  function toDate(ts) {
+    if (!ts) return new Date(0);
+    if (ts.toDate) return ts.toDate();
+    if (ts.seconds) return new Date(ts.seconds * 1000);
+    return new Date(ts);
+  }
+
+  function obterNomeEmail(uid, email) {
+    if (uid && _mapaUtilizadores[uid]) return _mapaUtilizadores[uid].nome;
+    return email || "—";
+  }
+
+  function obterPerfilEmail(uid) {
+    if (uid && _mapaUtilizadores[uid]) return etiquetasPerfil[_mapaUtilizadores[uid].perfil] || _mapaUtilizadores[uid].perfil;
+    return "—";
+  }
+
+  function fmtData(d) {
+    if (!d || d.getTime() === 0) return "—";
+    return d.toLocaleDateString("pt-AO", { day:"2-digit", month:"2-digit", year:"numeric" });
+  }
+
+  function fmtHora(d) {
+    if (!d || d.getTime() === 0) return "—";
+    return d.toLocaleTimeString("pt-AO", { hour:"2-digit", minute:"2-digit", second:"2-digit" });
+  }
+
+  function corAccao(accao) {
+    return { GERAR:"#1a4f7a", APROVAR:"#1e8449", REJEITAR:"#c0392b", LOGIN:"#7d3c98", LOGOUT:"#7f8c8d" }[accao] || "#888";
+  }
+
+  function emojiAccao(accao) {
+    return { GERAR:"📄", APROVAR:"✅", REJEITAR:"❌", LOGIN:"🔑", LOGOUT:"🚪" }[accao] || "📋";
+  }
+
+  function labelAccao(accao) {
+    return { GERAR:"📄 Gerar", APROVAR:"✅ Aprovar", REJEITAR:"❌ Rejeitar", LOGIN:"🔑 Login", LOGOUT:"🚪 Logout" }[accao] || accao;
+  }
+
+  function iniciaisNome(nome) {
+    return (nome || "?").split(" ").filter(Boolean).slice(0,2).map(p=>p[0]).join("").toUpperCase();
+  }
+
+  // ── POPULAR FILTRO EMAIL ──
+  function popularFiltroEmail(eventos) {
+    const sel = document.getElementById("filtro-utilizador");
+    // Limpar (excepto primeiro)
+    while (sel.options.length > 1) sel.remove(1);
+    const emails = [...new Set(_todosEventos.map(e => e.emailUtilizador).filter(e => e !== "—"))].sort();
+    emails.forEach(email => {
+      const opt = document.createElement("option");
+      opt.value = email;
+      opt.textContent = _todosEventos.find(e => e.emailUtilizador === email)?.nomeUtilizador || email;
+      sel.appendChild(opt);
+    });
+  }
+
+  // ── INDICADORES ──
+  function actualizarIndicadores(eventos) {
+    document.getElementById("ind-total").textContent = eventos.length;
+    document.getElementById("ind-docs").textContent = eventos.filter(e => e.accao === "GERAR").length;
+    document.getElementById("ind-aprovados").textContent = eventos.filter(e => e.accao === "APROVAR").length;
+    document.getElementById("ind-rejeicoes").textContent = eventos.filter(e => e.accao === "REJEITAR").length;
+    document.getElementById("ind-logins").textContent = eventos.filter(e => e.accao === "LOGIN").length;
+  }
+
+  // ── RENDER TABELA ──
+  function renderTabela(eventos) {
+    document.getElementById("contagem-log").textContent = eventos.length + " registos";
+    const tbody = document.getElementById("tbody-log");
+
+    if (eventos.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6"><div class="vazio"><div class="icone-vazio">🔍</div><p>Nenhum evento encontrado.</p><small>Ajuste os filtros e tente novamente.</small></div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = eventos.map(e => {
+      const cor = corAccao(e.accao);
+      const inic = iniciaisNome(e.nomeUtilizador);
+      return `<tr onclick="abrirDetalhe('${e.id}')">
+        <td><div class="timestamp"><strong>${fmtData(e.timestamp)}</strong>${fmtHora(e.timestamp)}</div></td>
+        <td>
+          <div class="utilizador-linha">
+            <div class="mini-avatar" style="background:${cor}">${inic}</div>
+            <div>
+              <div class="utilizador-nome">${e.nomeUtilizador}</div>
+              <div class="utilizador-perfil">${e.perfilUtilizador}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="badge badge-${e.accao}">${labelAccao(e.accao)}</span></td>
+        <td>
+          <div class="doc-tipo">${e.tipoDocumento !== "—" ? e.tipoDocumento : '<span style="color:#aaa">—</span>'}</div>
+          ${e.funcionarioVisado !== "—" ? `<div class="doc-secundario">${e.funcionarioVisado}${e.referencia ? " · " + e.referencia : ""}</div>` : ""}
+        </td>
+        <td><div class="doc-tipo" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#666;">${e.observacao}</div></td>
+        <td><button class="btn-detalhe" onclick="event.stopPropagation();abrirDetalhe('${e.id}')">Detalhes</button></td>
+      </tr>`;
+    }).join("");
+  }
+
+  // ── RENDER RELATÓRIO UTILIZADORES ──
+  function renderRelatorioUtilizadores(eventos) {
+    // Agrupar por email
+    const porEmail = {};
+    eventos.forEach(e => {
+      const chave = e.emailUtilizador;
+      if (!porEmail[chave]) porEmail[chave] = { nome: e.nomeUtilizador, perfil: e.perfilUtilizador, total: 0, docs: 0, aprovacoes: 0, rejeicoes: 0, logins: 0, ultima: e.timestamp };
+      porEmail[chave].total++;
+      if (e.accao === "GERAR") porEmail[chave].docs++;
+      if (e.accao === "APROVAR") porEmail[chave].aprovacoes++;
+      if (e.accao === "REJEITAR") porEmail[chave].rejeicoes++;
+      if (e.accao === "LOGIN") porEmail[chave].logins++;
+      if (e.timestamp > porEmail[chave].ultima) porEmail[chave].ultima = e.timestamp;
+    });
+
+    // Gráfico de barras (docs gerados)
+    const entries = Object.entries(porEmail).sort((a,b) => b[1].docs - a[1].docs);
+    const max = Math.max(...entries.map(([,u]) => u.docs), 1);
+    const coresBarra = ["barra-azul","barra-verde","barra-laranja","barra-roxo"];
+    let htmlGrafico = entries.map(([email, u], i) => {
+      const pct = Math.round((u.docs / max) * 100);
+      const nomeAbrev = u.nome.split(" ").slice(0,2).join(" ");
+      return `<div class="barra-item">
+        <div class="barra-label" title="${u.nome}">${nomeAbrev}</div>
+        <div class="barra-track"><div class="barra-fill ${coresBarra[i%4]}" style="width:${Math.max(pct,2)}%">${u.docs > 2 ? u.docs : ""}</div></div>
+        <div class="barra-valor">${u.docs}</div>
+      </div>`;
+    }).join("");
+    document.getElementById("grafico-utilizadores").innerHTML = htmlGrafico || '<p style="color:#aaa;font-size:13px;">Sem documentos gerados.</p>';
+
+    // Cards
+    const htmlCards = entries.map(([email, u]) => {
+      const inic = iniciaisNome(u.nome);
+      return `<div class="card-utilizador">
+        <div class="card-util-topo">
+          <div class="card-util-avatar" style="background:${corAccao("GERAR")}">${inic}</div>
+          <div>
+            <div class="card-util-nome">${u.nome}</div>
+            <div class="card-util-sub">${u.perfil}</div>
+            <div class="card-util-sub" style="font-size:10px">${email}</div>
+          </div>
+        </div>
+        <div class="card-util-stats">
+          <div class="stat-item"><div class="stat-num">${u.docs}</div><div class="stat-label">Gerados</div></div>
+          <div class="stat-item"><div class="stat-num">${u.aprovacoes}</div><div class="stat-label">Aprovados</div></div>
+          <div class="stat-item"><div class="stat-num">${u.logins}</div><div class="stat-label">Logins</div></div>
+        </div>
+        <div class="card-util-ultima">⏱ Última actividade: ${fmtData(u.ultima)} ${fmtHora(u.ultima)}</div>
+      </div>`;
+    }).join("");
+    document.getElementById("cards-utilizadores").innerHTML = htmlCards || '<p style="padding:20px;color:#aaa;">Sem dados.</p>';
+  }
+
+  // ── RENDER RELATÓRIO DOCUMENTOS ──
+  function renderRelatorioDocumentos(eventos) {
+    const docsGerados = eventos.filter(e => e.accao === "GERAR");
+
+    // Por tipo
+    const porTipo = {};
+    docsGerados.forEach(e => {
+      porTipo[e.tipoDocumento] = (porTipo[e.tipoDocumento] || 0) + 1;
+    });
+    const maxTipo = Math.max(...Object.values(porTipo), 1);
+    const coresBarra = ["barra-azul","barra-verde","barra-laranja","barra-roxo"];
+    let htmlTipos = Object.entries(porTipo).sort((a,b) => b[1]-a[1]).map(([tipo,qtd], i) => {
+      const pct = Math.round((qtd/maxTipo)*100);
+      return `<div class="barra-item">
+        <div class="barra-label">${tipo}</div>
+        <div class="barra-track"><div class="barra-fill ${coresBarra[i%4]}" style="width:${Math.max(pct,2)}%">${qtd > 1 ? qtd : ""}</div></div>
+        <div class="barra-valor">${qtd}</div>
+      </div>`;
+    }).join("");
+    document.getElementById("grafico-tipos").innerHTML = htmlTipos || '<p style="color:#aaa;font-size:13px;">Sem documentos gerados.</p>';
+
+    // Estados
+    const aprov = eventos.filter(e => e.accao === "APROVAR").length;
+    const rejei = eventos.filter(e => e.accao === "REJEITAR").length;
+    const total = aprov + rejei || 1;
+    document.getElementById("grafico-estados").innerHTML = `
+      <div class="barra-item">
+        <div class="barra-label">✅ Aprovados</div>
+        <div class="barra-track"><div class="barra-fill barra-verde" style="width:${Math.max(Math.round(aprov/total*100),2)}%">${aprov > 0 ? aprov : ""}</div></div>
+        <div class="barra-valor">${aprov}</div>
+      </div>
+      <div class="barra-item">
+        <div class="barra-label">❌ Rejeitados</div>
+        <div class="barra-track"><div class="barra-fill" style="width:${Math.max(Math.round(rejei/total*100),2)}%;background:linear-gradient(90deg,#c0392b,#e74c3c)">${rejei > 0 ? rejei : ""}</div></div>
+        <div class="barra-valor">${rejei}</div>
+      </div>`;
+  }
+
+  // ── RENDER TIMELINE ──
+  function renderTimeline(eventos) {
+    const ultimos = eventos.slice(0, 20);
+    const dotClasse = { GERAR:"tl-azul", APROVAR:"tl-verde", REJEITAR:"tl-vermelho", LOGIN:"tl-roxo", LOGOUT:"tl-azul" };
+    const accaoTexto = { GERAR:"Documento gerado", APROVAR:"Documento aprovado", REJEITAR:"Documento rejeitado", LOGIN:"Sessão iniciada", LOGOUT:"Sessão encerrada" };
+
+    let html = ultimos.map(e => `
+      <div class="timeline-item">
+        <div class="timeline-dot ${dotClasse[e.accao]||'tl-azul'}">${emojiAccao(e.accao)}</div>
+        <div class="timeline-corpo">
+          <span class="tl-hora">${fmtData(e.timestamp)} ${fmtHora(e.timestamp)}</span>
+          <div class="tl-titulo">${accaoTexto[e.accao]||e.accao}${e.tipoDocumento !== "—" ? ` — <em>${e.tipoDocumento}</em>` : ""}</div>
+          <div class="tl-sub">Por <strong>${e.nomeUtilizador}</strong>${e.funcionarioVisado !== "—" ? ` · ${e.funcionarioVisado}` : ""}${e.referencia ? ` · ${e.referencia}` : ""}</div>
+        </div>
+      </div>`).join("");
+
+    document.getElementById("timeline-container").innerHTML = html || '<div class="vazio"><div class="icone-vazio">📋</div><p>Sem eventos registados.</p></div>';
+  }
+
+  // ── FILTROS ──
+  window.aplicarFiltros = function() {
+    const dataIni = document.getElementById("filtro-data-ini").value;
+    const dataFim = document.getElementById("filtro-data-fim").value;
+    const email   = document.getElementById("filtro-utilizador").value;
+    const accao   = document.getElementById("filtro-accao").value;
+
+    let f = [..._todosEventos];
+    if (dataIni) { const d = new Date(dataIni); f = f.filter(e => e.timestamp >= d); }
+    if (dataFim) { const d = new Date(dataFim); d.setHours(23,59,59); f = f.filter(e => e.timestamp <= d); }
+    if (email) f = f.filter(e => e.emailUtilizador === email);
+    if (accao) f = f.filter(e => e.accao === accao);
+
+    _eventosFiltrados = f;
+    renderTabela(f);
+    mostrarNotif("Filtros aplicados — " + f.length + " resultado(s)", "notif-info");
+  };
+
+  window.limparFiltros = function() {
+    document.getElementById("filtro-data-ini").value = "";
+    document.getElementById("filtro-data-fim").value = "";
+    document.getElementById("filtro-utilizador").value = "";
+    document.getElementById("filtro-accao").value = "";
+    _eventosFiltrados = [..._todosEventos];
+    renderTabela(_todosEventos);
+  };
+
+  // ── DETALHE ──
+  window.abrirDetalhe = function(id) {
+    const e = _todosEventos.find(x => x.id === id);
+    if (!e) return;
+    document.getElementById("modal-titulo").textContent = emojiAccao(e.accao) + " " + (
+      { GERAR:"Documento Gerado", APROVAR:"Documento Aprovado", REJEITAR:"Documento Rejeitado", LOGIN:"Sessão Iniciada", LOGOUT:"Sessão Encerrada" }[e.accao] || e.accao
+    );
+    document.getElementById("modal-subtitulo").textContent = fmtData(e.timestamp) + " às " + fmtHora(e.timestamp);
+
+    let extraHtml = "";
+    if (e.accao === "REJEITAR" && e.motivoRejeicao) {
+      extraHtml = `<div class="detalhe-linha">
+        <div class="detalhe-icone">⚠️</div>
+        <div><div class="detalhe-rotulo">Motivo da Rejeição</div><div class="detalhe-valor" style="color:var(--vermelho)">${e.motivoRejeicao}</div></div>
+      </div>`;
+    }
+
+    document.getElementById("modal-corpo").innerHTML = `
+      <div class="detalhe-linha">
+        <div class="detalhe-icone">📅</div>
+        <div><div class="detalhe-rotulo">Data e Hora</div><div class="detalhe-valor mono">${fmtData(e.timestamp)} ${fmtHora(e.timestamp)}</div></div>
+      </div>
+      <div class="detalhe-linha">
+        <div class="detalhe-icone">👤</div>
+        <div><div class="detalhe-rotulo">Utilizador</div><div class="detalhe-valor">${e.nomeUtilizador} <span style="color:#888;font-size:12px;">(${e.emailUtilizador})</span></div></div>
+      </div>
+      <div class="detalhe-linha">
+        <div class="detalhe-icone">🏷</div>
+        <div><div class="detalhe-rotulo">Perfil</div><div class="detalhe-valor">${e.perfilUtilizador}</div></div>
+      </div>
+      <div class="detalhe-linha">
+        <div class="detalhe-icone">📄</div>
+        <div><div class="detalhe-rotulo">Tipo de Documento</div><div class="detalhe-valor">${e.tipoDocumento}</div></div>
+      </div>
+      <div class="detalhe-linha">
+        <div class="detalhe-icone">🧑‍💼</div>
+        <div><div class="detalhe-rotulo">Funcionário Visado</div><div class="detalhe-valor">${e.funcionarioVisado}${e.referencia ? " — " + e.referencia : ""}</div></div>
+      </div>
+      ${extraHtml}
+      <div class="detalhe-linha">
+        <div class="detalhe-icone">📝</div>
+        <div><div class="detalhe-rotulo">Descrição</div><div class="detalhe-valor">${e.observacao}</div></div>
+      </div>
+      <div class="detalhe-linha">
+        <div class="detalhe-icone">🔑</div>
+        <div><div class="detalhe-rotulo">ID do Evento</div><div class="detalhe-valor mono" style="font-size:11px">${e.id}</div></div>
+      </div>
+      <div class="imutavel-aviso">
+        🔒 <span>Este registo é <strong>imutável</strong>. Reflecte dados gravados em tempo real no Firebase — não pode ser alterado pelo sistema.</span>
+      </div>`;
+
+    document.getElementById("overlay-detalhe").classList.add("activo");
+  };
+
+  window.fecharModal = function() { document.getElementById("overlay-detalhe").classList.remove("activo"); };
+  window.fecharModalFora = function(e) { if (e.target.id === "overlay-detalhe") window.fecharModal(); };
+
+  // ── EXPORTAR CSV ──
+  window.exportarCSV = function() {
+    const lista = _eventosFiltrados.length > 0 ? _eventosFiltrados : _todosEventos;
+    if (lista.length === 0) { mostrarNotif("Nenhum dado para exportar.", "notif-erro"); return; }
+    const linhas = [["Data","Hora","Utilizador","Email","Perfil","Evento","Tipo Documento","Funcionário Visado","Referência","Descrição"]];
+    lista.forEach(e => linhas.push([
+      fmtData(e.timestamp), fmtHora(e.timestamp), e.nomeUtilizador, e.emailUtilizador,
+      e.perfilUtilizador, e.accao, e.tipoDocumento, e.funcionarioVisado, e.referencia, e.observacao
+    ]));
+    const csv = linhas.map(l => l.map(c => `"${(c||"").replace(/"/g,'""')}"`).join(";")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url;
+    a.download = "auditoria_sigdoc_" + new Date().toISOString().slice(0,10) + ".csv";
+    a.click(); URL.revokeObjectURL(url);
+    mostrarNotif("✅ Ficheiro CSV exportado!", "notif-sucesso");
+  };
+
+  // ── MUDAR ABA ──
+  window.mudarAba = function(id, btn) {
+    document.querySelectorAll(".aba-conteudo").forEach(el => el.classList.remove("activa"));
+    document.querySelectorAll(".aba-btn").forEach(el => el.classList.remove("activa"));
+    document.getElementById("aba-" + id).classList.add("activa");
+    btn.classList.add("activa");
+  };
+
+  // ── NOTIFICAÇÃO ──
+  function mostrarNotif(msg, cls) {
+    const el = document.getElementById("notificacao");
+    el.textContent = msg; el.className = "notificacao " + cls;
+    el.style.display = "block";
+    setTimeout(() => { el.style.display = "none"; }, 3500);
+  }
+</script>
+</body>
+</html>
