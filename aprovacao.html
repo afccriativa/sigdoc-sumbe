@@ -147,6 +147,50 @@
       #area-impressao .doc-ass-linha { margin: 14pt 0 3pt; }
     }
     #area-impressao { display: none; }
+
+    /* ===== ABAS PRINCIPAIS ===== */
+    .abas-principais { display: flex; border-bottom: 2px solid var(--borda); background: white; border-radius: 12px 12px 0 0; overflow: hidden; margin-bottom: -2px; }
+    .aba-btn { flex: 1; padding: 13px 10px; border: none; background: none; font-size: 13px; font-weight: 600; color: #888; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .aba-btn.activa { color: var(--roxo); border-bottom-color: var(--roxo); background: #fdf8ff; }
+    .aba-btn:hover:not(.activa) { background: #f8f4fc; color: var(--texto); }
+    .badge-aba { background: #e74c3c; color: white; border-radius: 10px; padding: 1px 7px; font-size: 10px; font-weight: 700; }
+
+    /* ===== SOLICITAÇÕES ===== */
+    .item-sol { padding: 14px 16px; border-bottom: 1px solid #f0f2f4; cursor: pointer; transition: background 0.15s; }
+    .item-sol:hover { background: #f8f4fc; }
+    .item-sol.seleccionada { background: #f0e6fa; border-left: 3px solid var(--roxo); }
+    .item-sol-tipo { font-size: 13px; font-weight: 700; color: var(--azul); margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
+    .item-sol-meta { font-size: 11px; color: #888; }
+    .estado-nova        { background: #ede9fe; color: #5b21b6; }
+    .estado-processando { background: #dbeafe; color: #1e40af; }
+    .estado-concluida   { background: #e8f8f0; color: #1e8449; }
+    .estado-rejeitada   { background: #fde8e8; color: #c0392b; }
+
+    /* Detalhe solicitação */
+    .sol-detalhe-wrap { background: white; border-radius: 12px; box-shadow: var(--sombra); padding: 22px; display: none; }
+    .sol-detalhe-cabec { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
+    .sol-detalhe-titulo { font-size: 17px; font-weight: 700; color: var(--azul); }
+    .sol-detalhe-sub { font-size: 12px; color: #888; margin-top: 4px; }
+    .sol-dados-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 18px; }
+    .sol-dado { background: #f8f9fa; border-radius: 8px; padding: 11px 13px; }
+    .sol-dado .lbl { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 3px; }
+    .sol-dado .val { font-size: 13px; font-weight: 700; color: var(--texto); }
+    .sol-motivo-box { background: #f8f9fa; border-radius: 8px; padding: 13px; margin-bottom: 16px; font-size: 13px; color: var(--texto); line-height: 1.6; }
+    .sol-accoes { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-processar { background: #dbeafe; color: #1e40af; border: none; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-concluir  { background: var(--verde); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-rejeitar-sol { background: #fde8e8; color: var(--vermelho); border: none; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .sol-campo-rejeicao { display: none; margin-top: 12px; }
+    .sol-campo-rejeicao textarea { width: 100%; padding: 10px; border: 2px solid var(--borda); border-radius: 8px; font-size: 13px; font-family: inherit; resize: vertical; }
+    .sol-campo-rejeicao button { margin-top: 8px; background: var(--vermelho); color: white; border: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .sol-estado-final { margin-top: 14px; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; display: none; }
+    .sol-estado-final.processando { background: #dbeafe; color: #1e40af; }
+    .sol-estado-final.concluida   { background: #e8f8f0; color: #1e8449; }
+    .sol-estado-final.rejeitada   { background: #fde8e8; color: var(--vermelho); }
+
+    /* Filtros solicitações */
+    .filtros-sol { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+
   </style>
 </head>
 <body>
@@ -164,6 +208,14 @@
 
   <!-- PAINEL ESQUERDO — LISTA -->
   <div class="painel-lista">
+    <!-- ABAS PRINCIPAIS -->
+    <div class="abas-principais">
+      <button class="aba-btn activa" id="aba-btn-docs" onclick="mudarAba('docs')">📋 Documentos</button>
+      <button class="aba-btn" id="aba-btn-sol" onclick="mudarAba('sol')">📩 Solicitações <span class="badge-aba" id="badge-sol" style="display:none">0</span></button>
+    </div>
+
+    <!-- PAINEL DOCUMENTOS -->
+    <div id="painel-docs-lista">
     <div class="cartao">
       <div class="cartao-cabecalho">
         &#128193; Documentos
@@ -189,10 +241,49 @@
         </div>
       </div>
     </div>
-  </div>
+  </div><!-- fim painel-docs-lista -->
+
+    <!-- PAINEL SOLICITAÇÕES DO PORTAL -->
+    <div id="painel-sol-lista" style="display:none;">
+      <div class="cartao">
+        <div class="cartao-cabecalho">📩 Solicitações do Portal</div>
+        <div class="filtros-sol">
+          <button class="filtro-btn activo" id="fsol-nova" onclick="filtrarSol('nova')">🆕 Novas <span class="conta" id="conta-sol-nova">0</span></button>
+          <button class="filtro-btn" id="fsol-processando" onclick="filtrarSol('processando')">🔄 A processar <span class="conta" id="conta-sol-proc">0</span></button>
+          <button class="filtro-btn" id="fsol-concluida" onclick="filtrarSol('concluida')">✅ Concluídas <span class="conta" id="conta-sol-conc">0</span></button>
+          <button class="filtro-btn" id="fsol-rejeitada" onclick="filtrarSol('rejeitada')">❌ Rejeitadas <span class="conta" id="conta-sol-rej">0</span></button>
+        </div>
+      </div>
+      <div class="cartao">
+        <div class="lista-documentos" id="lista-solicitacoes">
+          <div class="vazio-lista"><div class="icone">⏳</div><p>A carregar solicitações...</p></div>
+        </div>
+      </div>
+    </div><!-- fim painel-sol-lista -->
+
+  </div><!-- fim painel-lista -->
 
   <!-- PAINEL DIREITO — DETALHE -->
   <div class="painel-detalhe" id="painel-detalhe">
+    <!-- DETALHE SOLICITAÇÃO DO PORTAL -->
+    <div class="sol-detalhe-wrap" id="sol-detalhe-wrap">
+      <div class="sol-detalhe-cabec">
+        <div>
+          <div class="sol-detalhe-titulo" id="sol-det-titulo">—</div>
+          <div class="sol-detalhe-sub" id="sol-det-sub">—</div>
+        </div>
+        <span id="sol-det-estado-badge" class="item-doc-estado">—</span>
+      </div>
+      <div class="sol-dados-grid" id="sol-dados-grid"></div>
+      <div class="sol-motivo-box" id="sol-motivo-box" style="display:none"></div>
+      <div class="sol-accoes" id="sol-accoes"></div>
+      <div class="sol-campo-rejeicao" id="sol-campo-rej">
+        <textarea id="sol-obs-rej" rows="3" placeholder="Motivo da rejeição (obrigatório)..."></textarea>
+        <button onclick="confirmarRejeitarSol()">❌ Confirmar Rejeição</button>
+      </div>
+      <div class="sol-estado-final" id="sol-estado-final"></div>
+    </div>
+
 
     <div class="placeholder-detalhe" id="placeholder-detalhe">
       <div class="icone">📋</div>
@@ -252,8 +343,8 @@
   import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import {
-    getFirestore, collection, query, orderBy,
-    onSnapshot, doc, updateDoc, serverTimestamp
+    getFirestore, collection, query, orderBy, where,
+    onSnapshot, getDocs, doc, updateDoc, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   // ============================================================
@@ -372,6 +463,257 @@
     window._docs = {};
     filtrados.forEach(d => { window._docs[d.id] = d; });
   }
+
+
+  // ============================================================
+  // SOLICITAÇÕES DO PORTAL
+  // ============================================================
+  let todasSolicitacoes  = [];
+  let filtroSolActual    = "nova";
+  let solSeleccionada    = null;
+
+  const TIPOS_SOL = {
+    "guia-ferias":        { nome:"Guia de Férias",        icone:"🏖️" },
+    "declaracao-servico": { nome:"Declaração de Serviço", icone:"📜" },
+    "guia-medica":        { nome:"Guia Médica",            icone:"🏥" },
+    "oficio":             { nome:"Ofício / Nota",          icone:"📋" },
+  };
+
+  const ESTADOS_SOL = {
+    nova:        { txt:"🆕 Nova",           cls:"estado-nova" },
+    processando: { txt:"🔄 A processar",    cls:"estado-processando" },
+    concluida:   { txt:"✅ Concluída",      cls:"estado-concluida" },
+    rejeitada:   { txt:"❌ Rejeitada",      cls:"estado-rejeitada" },
+  };
+
+  async function carregarSolicitacoes() {
+    try {
+      // Sem orderBy para evitar índice composto
+      const snap = await getDocs(collection(db, "solicitacoes"));
+      todasSolicitacoes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Ordenar no cliente
+      todasSolicitacoes.sort((a, b) => {
+        const ta = a.criadaEm?.toDate ? a.criadaEm.toDate() : new Date(0);
+        const tb = b.criadaEm?.toDate ? b.criadaEm.toDate() : new Date(0);
+        return tb - ta;
+      });
+      actualizarContadoresSol();
+      renderizarSolicitacoes();
+    } catch(e) {
+      console.error("Erro ao carregar solicitações:", e);
+      document.getElementById("lista-solicitacoes").innerHTML =
+        '<div class="vazio-lista"><div class="icone">⚠️</div><p>Erro ao carregar solicitações.</p></div>';
+    }
+  }
+
+  function actualizarContadoresSol() {
+    const contagem = { nova:0, processando:0, concluida:0, rejeitada:0 };
+    todasSolicitacoes.forEach(s => {
+      if (contagem[s.estado] !== undefined) contagem[s.estado]++;
+    });
+    document.getElementById("conta-sol-nova").textContent = contagem.nova;
+    document.getElementById("conta-sol-proc").textContent = contagem.processando;
+    document.getElementById("conta-sol-conc").textContent = contagem.concluida;
+    document.getElementById("conta-sol-rej").textContent  = contagem.rejeitada;
+
+    const badgeSol = document.getElementById("badge-sol");
+    const total = contagem.nova + contagem.processando;
+    if (total > 0) { badgeSol.textContent = total; badgeSol.style.display = "inline"; }
+    else badgeSol.style.display = "none";
+  }
+
+  function renderizarSolicitacoes() {
+    const lista = document.getElementById("lista-solicitacoes");
+    const filtradas = todasSolicitacoes.filter(s => s.estado === filtroSolActual);
+
+    if (filtradas.length === 0) {
+      const msgs = { nova:"Nenhuma solicitação nova", processando:"Nenhuma em processamento", concluida:"Nenhuma concluída", rejeitada:"Nenhuma rejeitada" };
+      lista.innerHTML = `<div class="vazio-lista"><div class="icone">📩</div><p>${msgs[filtroSolActual]}</p></div>`;
+      return;
+    }
+
+    window._sols = {};
+    lista.innerHTML = filtradas.map(s => {
+      window._sols[s.id] = s;
+      const tipo = TIPOS_SOL[s.tipo] || { nome: s.tipo || "Documento", icone: "📄" };
+      const est  = ESTADOS_SOL[s.estado] || { txt: s.estado, cls: "" };
+      const ts   = s.criadaEm?.toDate ? s.criadaEm.toDate() : null;
+      const data = ts ? ts.toLocaleDateString("pt-AO", { day:"2-digit", month:"short", year:"numeric" }) : "—";
+      const selCls = solSeleccionada && solSeleccionada.id === s.id ? " seleccionada" : "";
+      return `<div class="item-sol${selCls}" onclick="seleccionarSol(window._sols['${s.id}'])">
+        <div class="item-sol-tipo">${tipo.icone} ${tipo.nome}</div>
+        <div class="item-sol-meta">👤 ${s.funcionarioNome || "—"} · ${s.unidade || "—"}</div>
+        <div class="item-sol-meta">📅 ${data}</div>
+        <div class="item-doc-estado ${est.cls}" style="margin-top:5px">${est.txt}</div>
+      </div>`;
+    }).join("");
+  }
+
+  window.filtrarSol = function(estado) {
+    filtroSolActual = estado;
+    ["nova","processando","concluida","rejeitada"].forEach(e => {
+      document.getElementById("fsol-" + e)?.classList.toggle("activo", e === estado);
+    });
+    renderizarSolicitacoes();
+    esconderDetalheSol();
+  };
+
+  window.seleccionarSol = function(s) {
+    solSeleccionada = s;
+    renderizarSolicitacoes();
+
+    const tipo = TIPOS_SOL[s.tipo] || { nome: s.tipo || "Documento", icone: "📄" };
+    const est  = ESTADOS_SOL[s.estado] || { txt: s.estado, cls: "" };
+    const ts   = s.criadaEm?.toDate ? s.criadaEm.toDate() : null;
+    const data = ts ? ts.toLocaleDateString("pt-AO", { day:"2-digit", month:"long", year:"numeric" }) : "—";
+
+    document.getElementById("sol-det-titulo").textContent = tipo.icone + " " + tipo.nome;
+    document.getElementById("sol-det-sub").textContent = "Enviado em " + data;
+    const badgeEl = document.getElementById("sol-det-estado-badge");
+    badgeEl.textContent = est.txt;
+    badgeEl.className = "item-doc-estado " + est.cls;
+
+    document.getElementById("sol-dados-grid").innerHTML = [
+      { l:"Funcionário",    v: s.funcionarioNome || "—" },
+      { l:"Unidade",        v: s.unidade || "—" },
+      { l:"Categoria",      v: s.categoria || "—" },
+      { l:"E-mail",         v: s.funcionarioEmail || "—" },
+    ].map(d => `<div class="sol-dado"><div class="lbl">${d.l}</div><div class="val">${d.v}</div></div>`).join("");
+
+    const mBox = document.getElementById("sol-motivo-box");
+    if (s.motivo) { mBox.innerHTML = "💬 <strong>Motivo / Finalidade:</strong> " + s.motivo; mBox.style.display = "block"; }
+    else mBox.style.display = "none";
+
+    // Botões de acção conforme estado
+    const accoes = document.getElementById("sol-accoes");
+    const sfinal = document.getElementById("sol-estado-final");
+    const srej   = document.getElementById("sol-campo-rej");
+    srej.style.display = "none";
+    sfinal.style.display = "none";
+    sfinal.className = "sol-estado-final";
+
+    if (s.estado === "nova") {
+      accoes.innerHTML = `
+        <button class="btn-processar" onclick="processarSol()">🔄 Marcar como "A Processar"</button>
+        <button class="btn-rejeitar-sol" onclick="mostrarRejeitarSol()">❌ Rejeitar</button>`;
+    } else if (s.estado === "processando") {
+      accoes.innerHTML = `
+        <button class="btn-concluir" onclick="concluirSol()">✅ Marcar como Concluída</button>
+        <button class="btn-rejeitar-sol" onclick="mostrarRejeitarSol()">❌ Rejeitar</button>`;
+    } else if (s.estado === "concluida") {
+      accoes.innerHTML = "";
+      sfinal.className = "sol-estado-final concluida";
+      sfinal.innerHTML = "✅ Solicitação concluída.";
+      sfinal.style.display = "block";
+    } else if (s.estado === "rejeitada") {
+      accoes.innerHTML = "";
+      sfinal.className = "sol-estado-final rejeitada";
+      sfinal.innerHTML = "❌ Rejeitada." + (s.motivoRejeicao ? " Motivo: " + s.motivoRejeicao : "");
+      sfinal.style.display = "block";
+    }
+
+    // Mostrar placeholder de docs — esconder detalhe de docs
+    document.getElementById("placeholder-detalhe").style.display = "none";
+    document.getElementById("detalhe-cabecalho").style.display = "none";
+    document.getElementById("preview-doc-area").style.display = "none";
+    document.getElementById("painel-accao").style.display = "none";
+    document.getElementById("sol-detalhe-wrap").style.display = "block";
+  };
+
+  function esconderDetalheSol() {
+    solSeleccionada = null;
+    document.getElementById("sol-detalhe-wrap").style.display = "none";
+    document.getElementById("placeholder-detalhe").style.display = "flex";
+  }
+
+  window.processarSol = async function() {
+    if (!solSeleccionada) return;
+    try {
+      await updateDoc(doc(db, "solicitacoes", solSeleccionada.id), {
+        estado: "processando",
+        processadoPor: utilizadorActual.uid,
+        processadoPorEmail: utilizadorActual.email,
+        processadoEm: serverTimestamp()
+      });
+      mostrarNotificacao("🔄 Solicitação marcada como 'A Processar'.");
+      await carregarSolicitacoes();
+      esconderDetalheSol();
+    } catch(e) {
+      console.error(e);
+      mostrarNotificacao("❌ Erro ao actualizar. Verifique a ligação.");
+    }
+  };
+
+  window.concluirSol = async function() {
+    if (!solSeleccionada) return;
+    try {
+      await updateDoc(doc(db, "solicitacoes", solSeleccionada.id), {
+        estado: "concluida",
+        concluidoPor: utilizadorActual.uid,
+        concluidoPorEmail: utilizadorActual.email,
+        concluidoEm: serverTimestamp()
+      });
+      mostrarNotificacao("✅ Solicitação marcada como Concluída! O funcionário foi notificado no portal.");
+      await carregarSolicitacoes();
+      esconderDetalheSol();
+    } catch(e) {
+      console.error(e);
+      mostrarNotificacao("❌ Erro ao actualizar.");
+    }
+  };
+
+  window.mostrarRejeitarSol = function() {
+    document.getElementById("sol-campo-rej").style.display = "block";
+    document.getElementById("sol-accoes").innerHTML = "";
+  };
+
+  window.confirmarRejeitarSol = async function() {
+    if (!solSeleccionada) return;
+    const motivo = document.getElementById("sol-obs-rej").value.trim();
+    if (!motivo) { alert("Por favor, indique o motivo da rejeição."); return; }
+    try {
+      await updateDoc(doc(db, "solicitacoes", solSeleccionada.id), {
+        estado: "rejeitada",
+        motivoRejeicao: motivo,
+        rejeitadoPor: utilizadorActual.uid,
+        rejeitadoPorEmail: utilizadorActual.email,
+        rejeitadoEm: serverTimestamp()
+      });
+      mostrarNotificacao("❌ Solicitação rejeitada.");
+      await carregarSolicitacoes();
+      esconderDetalheSol();
+    } catch(e) {
+      console.error(e);
+      mostrarNotificacao("❌ Erro ao rejeitar.");
+    }
+  };
+
+  // ============================================================
+  // TROCA DE ABAS
+  // ============================================================
+  window.mudarAba = function(aba) {
+    const eDoc = aba === "docs";
+    document.getElementById("painel-docs-lista").style.display  = eDoc ? "block" : "none";
+    document.getElementById("painel-sol-lista").style.display   = eDoc ? "none"  : "block";
+    document.getElementById("aba-btn-docs").classList.toggle("activa", eDoc);
+    document.getElementById("aba-btn-sol").classList.toggle("activa", !eDoc);
+
+    if (eDoc) {
+      // Voltar ao placeholder de documentos
+      document.getElementById("sol-detalhe-wrap").style.display = "none";
+      if (!docSeleccionado) {
+        document.getElementById("placeholder-detalhe").style.display = "flex";
+        document.getElementById("detalhe-cabecalho").style.display = "none";
+        document.getElementById("preview-doc-area").style.display = "none";
+        document.getElementById("painel-accao").style.display = "none";
+      }
+    } else {
+      // Carregar solicitações ao mudar para esta aba
+      carregarSolicitacoes();
+      esconderDetalheSol();
+    }
+  };
+
 
   function fmtTimestamp(ts) {
     if (!ts) return "—";
