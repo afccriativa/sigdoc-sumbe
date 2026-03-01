@@ -809,6 +809,14 @@
     <p><span class="portal-ponto"></span>Os seus documentos e solicitações actualizados em tempo real</p>
   </div>
 
+  <!-- Banner completar perfil -->
+  <div id="banner-completar" style="display:none;max-width:900px;margin:16px auto 0;padding:0 20px;">
+    <div style="background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:12px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div><div style="color:white;font-size:14px;font-weight:700;">⚠️ O seu perfil está incompleto</div><div style="color:rgba(255,255,255,0.85);font-size:12px;margin-top:3px;">Preencha o formulário profissional para que a equipa de RH possa processar os seus documentos correctamente.</div></div>
+      <a href="formulario.html" style="background:white;color:#d97706;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;">📋 Completar agora →</a>
+    </div>
+  </div>
+
   <!-- KPIs -->
   <div class="portal-kpis">
     <div class="pkpi">
@@ -917,12 +925,15 @@
         </div>
       </div>
 
-      <div style="margin-top:16px;">
+      <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
+        <a href="formulario.html" style="display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,var(--verde),var(--verde-claro));color:white;border-radius:10px;padding:14px;font-size:14px;font-weight:700;text-decoration:none;text-align:center;">
+          📋 Completar / Actualizar Formulário Profissional
+        </a>
         <div class="campo-grupo">
-          <label>Telefone de contacto</label>
+          <label>Telefone de contacto (actualização rápida)</label>
           <input type="tel" id="perf-telefone-edit" class="campo-input" placeholder="900 000 000"/>
         </div>
-        <button class="btn btn-primario" onclick="guardarPerfil()">💾 Guardar alterações</button>
+        <button class="btn btn-secundario btn-full" onclick="guardarPerfil()" style="justify-content:center;">💾 Guardar telefone</button>
       </div>
     </div>
 
@@ -1311,6 +1322,13 @@
   // ════════════════════════════════
   function mostrarPortal(user, dados) {
     const nome = dados.nome || user.email;
+    // Verificar se perfil está incompleto (faltam dados essenciais)
+    setTimeout(() => {
+      const f = _funcDoc || {};
+      const incompleto = !f.bi || !f.nascimento || !f.nomePai || !f.nomeMae || !f.morada;
+      const banner = document.getElementById('banner-completar');
+      if (banner && incompleto) banner.style.display = 'block';
+    }, 1000);
     const hora = new Date().getHours();
     const saud = hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
     const inic = nome.split(" ").filter(Boolean).slice(0,2).map(p=>p[0]).join("").toUpperCase();
