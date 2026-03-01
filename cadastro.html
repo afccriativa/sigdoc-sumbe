@@ -388,6 +388,30 @@
             </select>
             <span class="campo-seccao-info">ℹ️ Obrigatório para funcionários da Direcção Municipal</span>
           </div>
+          <!-- Campo Área — só aparece se Local = Centro de Saúde -->
+          <div class="campo col-span-2 campo-oculto" id="campo-area-wrap">
+            <label>Área / Serviço no Centro de Saúde</label>
+            <select id="f-area">
+              <option value="">Seleccione a área...</option>
+              <option value="Consulta Externa / Triagem">Consulta Externa / Triagem</option>
+              <option value="Consultório de Medicina Geral">Consultório de Medicina Geral</option>
+              <option value="Consultório de Pediatria">Consultório de Pediatria</option>
+              <option value="Consultório de Ginecologia e Obstetrícia">Consultório de Ginecologia e Obstetrícia</option>
+              <option value="CPN — Consultas Pré-Natais">CPN — Consultas Pré-Natais</option>
+              <option value="PAV — Programa Alargado de Vacinação">PAV — Programa Alargado de Vacinação</option>
+              <option value="Sala de Partos">Sala de Partos</option>
+              <option value="Sala de Internamento">Sala de Internamento</option>
+              <option value="Sala de Planificação Familiar">Sala de Planificação Familiar</option>
+              <option value="Sala de Pensos / Tratamentos">Sala de Pensos / Tratamentos</option>
+              <option value="Farmácia">Farmácia</option>
+              <option value="Laboratório">Laboratório</option>
+              <option value="Radiologia / Ecografia">Radiologia / Ecografia</option>
+              <option value="Urgências">Urgências</option>
+              <option value="Administração / Secretaria">Administração / Secretaria</option>
+              <option value="Outro">Outro</option>
+            </select>
+            <span class="campo-seccao-info">ℹ️ Indique a área onde desempenha funções no centro de saúde.</span>
+          </div>
           <div class="campo campo-obrigatorio">
             <label>Tipo de Vínculo</label>
             <select id="f-vinculo">
@@ -419,12 +443,16 @@
             <label>Nível de Escolaridade</label>
             <select id="f-escolaridade">
               <option value="">Seleccione...</option>
-              <option>Ensino Primário</option>
-              <option>Ensino Médio</option>
-              <option>Bacharel</option>
-              <option>Licenciatura</option>
-              <option>Mestrado</option>
-              <option>Doutoramento</option>
+              <option value="Ensino Primário (4ª Classe)">Ensino Primário (4ª Classe)</option>
+              <option value="Ensino Básico (6ª Classe)">Ensino Básico (6ª Classe)</option>
+              <option value="1º Ciclo do Secundário (9ª Classe)">1º Ciclo do Secundário (9ª Classe)</option>
+              <option value="2º Ciclo do Secundário (12ª/13ª Classe)">2º Ciclo do Secundário (12ª/13ª Classe)</option>
+              <option value="Ensino Médio Técnico (IMPS ou equiv.)">Ensino Médio Técnico (IMPS ou equiv.)</option>
+              <option value="Bacharel">Bacharel</option>
+              <option value="Licenciatura">Licenciatura</option>
+              <option value="Pós-Graduação">Pós-Graduação</option>
+              <option value="Mestrado">Mestrado</option>
+              <option value="Doutoramento">Doutoramento</option>
             </select>
           </div>
           <div class="campo col-span-2">
@@ -456,10 +484,14 @@
     <div class="ficha-corpo">
       <div class="ficha-tabs">
         <button class="tab-btn activo" onclick="mudarTab('dados', this)">📋 Dados</button>
-        <button class="tab-btn" onclick="mudarTab('historico', this)">📄 Histórico Documental</button>
+        <button class="tab-btn" onclick="mudarTab('historico', this)">📄 Documentos</button>
+        <button class="tab-btn" onclick="mudarTab('solicitacoes', this)">📩 Solicitações <span id="badge-sol-ficha" style="background:#e74c3c;color:white;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700;display:none;margin-left:3px;">0</span></button>
       </div>
       <div class="tab-conteudo activo" id="tab-dados">
         <div class="ficha-grid" id="ficha-grid-dados"></div>
+      </div>
+      <div class="tab-conteudo" id="tab-solicitacoes">
+        <div id="ficha-solicitacoes"><div class="historico-vazio"><div style="font-size:32px;margin-bottom:8px;">⏳</div><p style="color:var(--texto-suave)">A carregar solicitações...</p></div></div>
       </div>
       <div class="tab-conteudo" id="tab-historico">
         <div id="ficha-historico">
@@ -606,13 +638,15 @@
   // Mostrar/ocultar campo Secção
   window.verificarDireccao = function() {
     const val = document.getElementById("f-unidade").value;
-    const wrap = document.getElementById("campo-seccao-wrap");
-    if (val === "Direcção Municipal de Saúde do Sumbe") {
-      wrap.classList.remove("campo-oculto");
-    } else {
-      wrap.classList.add("campo-oculto");
-      document.getElementById("f-seccao").value = "";
-    }
+    const wrapSec  = document.getElementById("campo-seccao-wrap");
+    const wrapArea = document.getElementById("campo-area-wrap");
+    const eDir    = val === "Direcção Municipal de Saúde do Sumbe";
+    const eCentro = val.startsWith("Centro de Saúde");
+
+    wrapSec.classList.toggle("campo-oculto",  !eDir);
+    wrapArea.classList.toggle("campo-oculto", !eCentro);
+    if (!eDir)    document.getElementById("f-seccao").value = "";
+    if (!eCentro) document.getElementById("f-area").value   = "";
   };
 
   window.abrirFormulario = function() {
@@ -639,6 +673,7 @@
     document.getElementById("f-unidade").value = f.unidade || "";
     verificarDireccao();
     document.getElementById("f-seccao").value = f.seccao || "";
+    document.getElementById("f-area").value   = f.area   || "";
     document.getElementById("f-vinculo").value = f.vinculo || "";
     document.getElementById("f-admissao").value = f.admissao || "";
     document.getElementById("f-estado").value = f.estado || "activo";
@@ -656,7 +691,7 @@
     ["f-nome","f-bi","f-telefone","f-numero","f-admissao","f-observacoes","f-nascimento"].forEach(id => {
       document.getElementById(id).value = "";
     });
-    ["f-sexo","f-categoria","f-unidade","f-vinculo","f-escolaridade","f-seccao"].forEach(id => {
+    ["f-sexo","f-categoria","f-unidade","f-vinculo","f-escolaridade","f-seccao","f-area"].forEach(id => {
       document.getElementById(id).value = "";
     });
     document.getElementById("f-estado").value = "activo";
@@ -728,37 +763,68 @@
     document.getElementById("ficha-numero").textContent = "Agente Nº " + (f.numero || "—") + " · BI: " + (f.bi || "—");
     const lv = f.vinculo === "quadro" ? "Pessoal do Quadro" : f.vinculo === "provisorio" ? "Provimento Provisório" : f.vinculo || "—";
     const grid = document.getElementById("ficha-grid-dados");
+    // ─── Determinar sub-localização ────────────────────────────
+    const subLocal = f.unidade === "Direcção Municipal de Saúde do Sumbe"
+      ? (f.seccao || "Secção não especificada")
+      : f.unidade?.startsWith("Centro de Saúde") && f.area
+        ? "Área: " + f.area
+        : null;
+
+    // ─── Estado académico ────────────────────────────────────
+    const acadInfo = f.estudando
+      ? `Sim — ${f.curso || ""}${f.anoCurso ? " (" + f.anoCurso + "º ano)" : ""}${f.instituicao ? ", " + f.instituicao : ""}`
+      : (f.estudando === false ? "Não" : "—");
+
+    // ─── Tem documentos do formulário? ───────────────────────
+    const temDocs = f.urlBI || f.urlCert;
+
     const campos = [
-      { r: "Nome Completo", v: f.nome, span2: true },
-      { r: "Número de Agente", v: f.numero },
-      { r: "Sexo", v: f.sexo },
-      { r: "Bilhete de Identidade", v: f.bi },
-      { r: "Data de Nascimento", v: f.nascimento ? formatarData(f.nascimento) : null },
-      { r: "Telefone", v: f.telefone },
-      { r: "Categoria / Cargo", v: f.categoria, span2: true },
-      { r: "Local de Colocação", v: f.unidade, span2: true },
-      { r: "Secção", v: f.seccao || (f.unidade === "Direcção Municipal de Saúde do Sumbe" ? "Não especificada" : "N/A") },
-      { r: "Tipo de Vínculo", v: lv },
-      { r: "Data de Admissão", v: f.admissao ? formatarData(f.admissao) : null },
-      { r: "Anos de Serviço", v: anos !== null ? anos + " anos" : "—", badge: true, bval: anos },
+      // Identificação
+      { r: "Nome Completo",              v: f.nome, span2: true },
+      { r: "Nº de Agente",               v: f.numero },
+      { r: "Sexo",                       v: f.sexo },
+      { r: "Bilhete de Identidade",      v: f.bi },
+      { r: "Data de Emissão do BI",      v: f.biEmissao ? formatarData(f.biEmissao) : null },
+      { r: "Data de Nascimento",         v: f.nascimento ? formatarData(f.nascimento) : null },
+      { r: "Estado Civil",               v: f.estadoCivil },
+      { r: "Nome do Pai",                v: f.nomePai },
+      { r: "Nome da Mãe",                v: f.nomeMae },
+      { r: "Morada",                     v: f.morada, span2: true },
+      { r: "Telefone",                   v: f.telefone },
+      { r: "E-mail",                     v: f.email },
+      // Profissional
+      { r: "Categoria / Cargo",          v: f.categoria, span2: true },
+      { r: "Local de Colocação",         v: f.unidade, span2: true },
+      ...(subLocal ? [{ r: f.unidade === "Direcção Municipal de Saúde do Sumbe" ? "Secção" : "Área / Serviço", v: subLocal, span2: true }] : []),
+      { r: "Tipo de Vínculo",            v: lv },
+      { r: "Data de Admissão",           v: f.admissao ? formatarData(f.admissao) : null },
+      { r: "Anos de Serviço",            v: anos !== null ? anos + " anos" : "—", badge: true, bval: anos },
       { r: "Dias de Férias com Direito", v: dias + " dias úteis" },
-      { r: "Estado Actual", v: { activo:"Em Serviço Activo", inactivo:"Inactivo", licenca:"De Licença" }[f.estado] || f.estado },
-      { r: "Escolaridade", v: f.escolaridade },
-      { r: "Observações", v: f.observacoes, span2: true },
+      { r: "Estado Actual",              v: { activo:"Em Serviço Activo", inactivo:"Inactivo", licenca:"De Licença" }[f.estado] || f.estado },
+      // Formação
+      { r: "Escolaridade",               v: f.escolaridade },
+      { r: "A frequentar curso?",        v: acadInfo },
+      // Documentos
+      ...(temDocs ? [{ r: "Documentos do formulário", v:
+        (f.urlBI   ? `<a href="${f.urlBI}"   target="_blank" style="color:var(--azul);font-weight:600;">🪪 Ver BI</a>  ` : "") +
+        (f.urlCert ? `<a href="${f.urlCert}" target="_blank" style="color:var(--azul);font-weight:600;">🎓 Ver Certificado</a>` : ""),
+        span2: true, html: true }] : []),
+      { r: "Observações",                v: f.observacoes, span2: true },
     ];
     grid.innerHTML = campos.map(c => `
       <div class="ficha-campo${c.span2 ? " destaque" : ""}">
         <div class="rotulo">${c.r}</div>
-        <div class="valor">${c.badge && c.bval !== null ? `<span class="anos-servico-badge">${c.v}</span>` : (c.v || "—")}</div>
-      </div>`).join("");
+        <div class="valor">${c.badge && c.bval !== null ? `<span class="anos-servico-badge">${c.v}</span>` : c.html ? (c.v || "—") : (c.v ? c.v.replace(/</g,"&lt;").replace(/>/g,"&gt;") : "—")}</div>
+      </div>`).join("").replace(/&lt;a /g,"<a ").replace(/&lt;\/a&gt;/g,"<\/a>").replace(/href=&quot;/g,'href="').replace(/&quot; target/g,'" target').replace(/&quot;&gt;/g,'">')
 
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("activo"));
     document.querySelectorAll(".tab-conteudo").forEach(t => t.classList.remove("activo"));
     document.querySelector(".tab-btn").classList.add("activo");
     document.getElementById("tab-dados").classList.add("activo");
 
-    // Carregar histórico documental em segundo plano
+    // Carregar histórico documental e solicitações em segundo plano
     carregarHistorico(f.id, f.nome);
+    carregarSolicitacoesFicha(f.id, f.nome);
 
     document.getElementById("overlay-ficha").classList.add("activo");
   };
@@ -853,6 +919,60 @@
     btn.classList.add("activo");
     document.getElementById(`tab-${tab}`).classList.add("activo");
   };
+
+  async function carregarSolicitacoesFicha(funcionarioId, nomeFuncionario) {
+    const div = document.getElementById("ficha-solicitacoes");
+    const badge = document.getElementById("badge-sol-ficha");
+    try {
+      const q = query(collection(db, "solicitacoes"), where("funcionarioId", "==", funcionarioId));
+      const snap = await getDocs(q);
+      const sols = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      sols.sort((a, b) => {
+        const ta = a.criadaEm?.toDate ? a.criadaEm.toDate().getTime() : 0;
+        const tb = b.criadaEm?.toDate ? b.criadaEm.toDate().getTime() : 0;
+        return tb - ta;
+      });
+      if (sols.length === 0) {
+        div.innerHTML = `<div class="historico-vazio"><div style="font-size:36px;margin-bottom:10px;">📩</div><p style="color:var(--texto-suave)">Nenhuma solicitação enviada pelo funcionário ainda.</p></div>`;
+        if (badge) badge.style.display = "none";
+        return;
+      }
+      const pendentes = sols.filter(s => s.estado === "nova" || s.estado === "processando").length;
+      if (badge && pendentes > 0) { badge.textContent = pendentes; badge.style.display = "inline"; }
+      else if (badge) badge.style.display = "none";
+
+      const TIPOS = { "guia-ferias":"🏖️ Guia de Férias", "declaracao-servico":"📜 Declaração de Serviço", "guia-medica":"🏥 Guia Médica", "oficio":"📋 Ofício / Nota" };
+      const ESTADOS = { nova:"🆕 Nova", processando:"🔄 A processar", concluida:"✅ Concluída", rejeitada:"❌ Rejeitada" };
+      const COR_EST = { nova:"#ede9fe", processando:"#dbeafe", concluida:"#d1fae5", rejeitada:"#fee2e2" };
+      const COR_TXT = { nova:"#5b21b6", processando:"#1e40af", concluida:"#065f46", rejeitada:"#991b1b" };
+
+      let html = `<div style="padding:12px 16px;font-size:12px;color:var(--texto-suave);border-bottom:1px solid #eef0f3;font-weight:600;">${sols.length} solicitação(ões) encontrada(s)</div>`;
+      sols.forEach(s => {
+        const ts = s.criadaEm?.toDate ? s.criadaEm.toDate() : null;
+        const data = ts ? ts.toLocaleDateString("pt-AO", { day:"2-digit", month:"short", year:"numeric" }) : "—";
+        const tipo = TIPOS[s.tipo] || s.tipo || "Documento";
+        const estado = ESTADOS[s.estado] || s.estado;
+        const bg = COR_EST[s.estado] || "#f3f4f6";
+        const tc = COR_TXT[s.estado] || "#374151";
+        const dataFerias = s.dataInicioFerias
+          ? `<div style="font-size:11px;color:#888;margin-top:2px;">📅 Início férias: ${fmtDataSimples(s.dataInicioFerias)}</div>` : "";
+        const motivo = s.motivo ? `<div style="font-size:11px;color:#888;margin-top:2px;">💬 ${s.motivo}</div>` : "";
+        html += `<div class="item-historico">
+          <div class="hist-icone" style="background:${bg}">${tipo.split(' ')[0]}</div>
+          <div class="hist-info">
+            <div class="hist-nome">${tipo.substring(tipo.indexOf(' ') + 1)}</div>
+            <div class="hist-detalhe">Enviado em ${data}</div>
+            ${dataFerias}${motivo}
+          </div>
+          <div class="hist-estado" style="background:${bg};color:${tc}">${estado}</div>
+        </div>`;
+      });
+      div.innerHTML = html;
+    } catch(e) {
+      console.warn("Solicitações:", e);
+      div.innerHTML = `<div class="historico-vazio"><div style="font-size:32px">⚠️</div><p style="color:var(--texto-suave)">Sem acesso às solicitações.</p></div>`;
+    }
+  }
 
   function mostrarNotificacao(msg, tipo = "sucesso") {
     const el = document.getElementById("notificacao");
