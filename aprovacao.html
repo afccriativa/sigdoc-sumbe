@@ -578,6 +578,7 @@
       { l:"Unidade",        v: s.unidade || "—" },
       { l:"Categoria",      v: s.categoria || "—" },
       { l:"E-mail",         v: s.funcionarioEmail || "—" },
+      ...(s.dataInicioFerias ? [{ l:"📅 Início das Férias", v: (() => { const [a,m,d] = s.dataInicioFerias.split('-'); return d+'/'+m+'/'+a; })() }] : []),
     ].map(d => `<div class="sol-dado"><div class="lbl">${d.l}</div><div class="val">${d.v}</div></div>`).join("");
 
     const mBox = document.getElementById("sol-motivo-box");
@@ -636,6 +637,27 @@
         processadoEm: serverTimestamp()
       });
       mostrarNotificacao("🔄 Solicitação marcada como 'A Processar'.");
+
+      // Para guia de férias: abrir documentos.html com dados pré-preenchidos
+      if (solSeleccionada.tipo === 'guia-ferias') {
+        const params = new URLSearchParams({
+          sol:    solSeleccionada.id,
+          func:   solSeleccionada.funcionarioId || '',
+          nome:   solSeleccionada.funcionarioNome || '',
+          inicio: solSeleccionada.dataInicioFerias || '',
+          unid:   solSeleccionada.unidade || '',
+          cat:    solSeleccionada.categoria || '',
+          adm:    solSeleccionada.admissao || '',
+          sexo:   solSeleccionada.sexo || '',
+          origem: 'portal'
+        });
+        setTimeout(() => {
+          window.location.href = 'documentos.html?' + params.toString();
+        }, 800);
+        mostrarNotificacao('📄 A abrir geração de guia de férias...');
+        return;
+      }
+
       await carregarSolicitacoes();
       esconderDetalheSol();
     } catch(e) {
