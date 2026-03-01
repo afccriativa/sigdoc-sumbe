@@ -873,8 +873,19 @@
       </div>
 
       <div id="form-solicitacao-extra" style="display:none; margin-top:20px;">
+
+        <!-- Campo data de início — apenas para guia de férias -->
+        <div class="campo-grupo" id="campo-data-inicio-wrap" style="display:none;">
+          <label>Data de Início das Férias <span style="color:var(--vermelho)">*</span></label>
+          <input type="date" id="sol-data-inicio" class="campo-input"
+            style="font-size:15px;font-family:'DM Mono',monospace;"
+            oninput="validarDataInicio()"/>
+          <div class="campo-hint">📅 Este dado é essencial — a Secção de RH irá calcular os dias de férias com base nesta data.</div>
+          <div id="erro-data-inicio" style="font-size:12px;color:var(--vermelho);margin-top:5px;font-weight:600;display:none;"></div>
+        </div>
+
         <div class="campo-grupo">
-          <label>Finalidade / Motivo</label>
+          <label>Finalidade / Motivo <span style="font-size:10px;font-weight:400;color:var(--texto-suave)">(opcional)</span></label>
           <textarea id="sol-motivo" class="campo-input" rows="3" placeholder="Descreva brevemente o motivo ou finalidade do documento solicitado…" style="resize:vertical;"></textarea>
           <div class="campo-hint">Este campo é opcional mas ajuda a Secção de RH a processar mais rapidamente.</div>
         </div>
@@ -1448,6 +1459,24 @@
     _tipoSel = tipo;
     document.getElementById("form-solicitacao-extra").style.display = "block";
     document.getElementById("msg-solicitacao").innerHTML = "";
+    // Mostrar campo de data apenas para guia de férias
+    const campoData = document.getElementById("campo-data-inicio-wrap");
+    campoData.style.display = (tipo === 'guia-ferias') ? 'block' : 'none';
+    if (tipo !== 'guia-ferias') document.getElementById("sol-data-inicio").value = '';
+  };
+
+  window.validarDataInicio = function() {
+    const val = document.getElementById("sol-data-inicio").value;
+    const err = document.getElementById("erro-data-inicio");
+    if (!val) { err.style.display = 'none'; return; }
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const data = new Date(val + 'T12:00:00');
+    if (data < hoje) {
+      err.textContent = '⚠️ A data de início não pode ser no passado.';
+      err.style.display = 'block';
+    } else {
+      err.style.display = 'none';
+    }
   };
 
   window.submeterSolicitacao = async function() {
@@ -1460,17 +1489,35 @@
     btn.innerHTML = '<span class="spinner"></span> A enviar…';
 
     try {
+      // Recolher data de início se for guia de férias
+      const dataInicio = _tipoSel === 'guia-ferias'
+        ? document.getElementById('sol-data-inicio').value
+        : '';
+
+      // Validar data obrigatória para guia de férias
+      if (_tipoSel === 'guia-ferias' && !dataInicio) {
+        msg.innerHTML = `<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>data de início das férias</strong>.</div>`;
+        btn.disabled = false;
+        btn.innerHTML = '📤 Enviar solicitação';
+        return;
+      }
+
       await addDoc(collection(db, "solicitacoes"), {
-        funcionarioId:   _funcDocId   || null,
-        funcionarioNome: _funcDoc?.nome || _utilizador.email,
-        funcionarioEmail:_utilizador.email,
-        funcionarioUid:  _utilizador.uid,
-        tipo:            _tipoSel,
-        motivo:          motivo || "",
-        estado:          "nova",
-        criadaEm:        serverTimestamp(),
-        unidade:         _funcDoc?.unidade || "",
-        categoria:       _funcDoc?.categoria || "",
+        funcionarioId:      _funcDocId   || null,
+        funcionarioNome:    _funcDoc?.nome || _utilizador.email,
+        funcionarioEmail:   _utilizador.email,
+        funcionarioUid:     _utilizador.uid,
+        tipo:               _tipoSel,
+        motivo:             motivo || "",
+        dataInicioFerias:   dataInicio,
+        estado:             "nova",
+        criadaEm:           serverTimestamp(),
+        unidade:            _funcDoc?.unidade || "",
+        categoria:          _funcDoc?.categoria || "",
+        admissao:           _funcDoc?.admissao || "",
+        numero:             _funcDoc?.numero || "",
+        bi:                 _funcDoc?.bi || "",
+        sexo:               _funcDoc?.sexo || "",
       });
 
       msg.innerHTML = `<div class="alerta alerta-sucesso">✅ <strong>Solicitação enviada!</strong> A Secção de RH irá processar o seu pedido brevemente. Pode acompanhar o estado na aba "Os meus documentos".</div>`;
