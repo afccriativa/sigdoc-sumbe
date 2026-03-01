@@ -247,6 +247,31 @@
       #area-impressao .doc-ass-data { font-size: 8.5pt; }
     }
     #area-impressao { display: none; }
+
+    /* ===== BANNER ORIGEM PORTAL ===== */
+    .banner-portal-origem {
+      display: none;
+      background: linear-gradient(135deg, #1e8449, #27ae60);
+      border-radius: 10px;
+      padding: 14px 18px;
+      color: white;
+      margin-bottom: 4px;
+    }
+    .banner-portal-origem .bp-titulo { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .banner-portal-origem .bp-info { font-size: 12px; opacity: 0.85; line-height: 1.6; }
+    .banner-portal-origem .bp-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px; padding: 3px 10px;
+      font-size: 11px; font-weight: 700; margin-top: 6px;
+    }
+    .campo-preenchido {
+      background: #f0fdf4 !important;
+      border-color: #86efac !important;
+      color: #166534 !important;
+      font-weight: 600 !important;
+    }
+
   </style>
 </head>
 <body>
@@ -263,6 +288,13 @@
 
   <!-- FORMULÁRIO -->
   <div class="painel-form">
+
+    <!-- Banner aparece quando vem do portal -->
+    <div class="banner-portal-origem" id="banner-portal-origem">
+      <div class="bp-titulo">📩 Solicitação do Portal do Funcionário</div>
+      <div class="bp-info" id="bp-info-texto">Os dados foram importados automaticamente da solicitação do funcionário.</div>
+      <div class="bp-badge">✅ Dados pré-preenchidos — apenas insira o Nº da Guia e gere</div>
+    </div>
 
     <div class="cartao">
       <div class="cartao-cabecalho">&#128203; Tipo de Documento</div>
@@ -372,7 +404,7 @@
 <script type="module">
   import { initializeApp }                                          from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, collection, getDocs, doc, getDoc, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, addDoc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
@@ -528,6 +560,7 @@
     utilizadorActual = u;
     await carregarFuncionarios();
     document.getElementById("data-emissao").value = new Date().toISOString().split("T")[0];
+    await verificarParamsPortal(); // preencher a partir da URL se vier do portal
   });
 
   async function carregarFuncionarios() {
@@ -536,6 +569,123 @@
       todosFuncionarios = [];
       snap.forEach(d => todosFuncionarios.push({ id: d.id, ...d.data() }));
     } catch(e) { console.error("Erro:", e); }
+  }
+
+
+  // ============================================================
+  // LER PARÂMETROS DA URL (quando vem do portal via aprovação)
+  // ============================================================
+  async function verificarParamsPortal() {
+    const params = new URLSearchParams(window.location.search);
+    const origem = params.get('origem');
+    if (origem !== 'portal') return;
+
+    const solId  = params.get('sol')   || '';
+    const funcId = params.get('func')  || '';
+    const nome   = params.get('nome')  || '';
+    const inicio = params.get('inicio')|| '';
+    const cat    = params.get('cat')   || '';
+    const unid   = params.get('unid')  || '';
+    const adm    = params.get('adm')   || '';
+    const sexo   = params.get('sexo')  || '';
+
+    // Mostrar banner
+    const banner = document.getElementById('banner-portal-origem');
+    const infoTxt = document.getElementById('bp-info-texto');
+    if (banner) {
+      banner.style.display = 'block';
+      if (nome) {
+        const dataFmt = inicio
+          ? (() => { const [a,m,dd] = inicio.split('-'); return dd+'/'+m+'/'+a; })()
+          : '(não indicada)';
+        infoTxt.textContent =
+          `Funcionário: ${nome} · Data de início das férias: ${dataFmt}. `+
+          `Campos preenchidos automaticamente. Apenas insira o Nº da Guia e clique em Gerar.`;
+      }
+    }
+
+    // Aguardar que os funcionários sejam carregados
+    let tentativas = 0;
+    while (todosFuncionarios.length === 0 && tentativas < 20) {
+      await new Promise(r => setTimeout(r, 200));
+      tentativas++;
+    }
+
+    // Preencher campos do formulário
+    if (nome) {
+      const campoNome = document.getElementById('pesquisa-func');
+      campoNome.value = nome;
+      campoNome.classList.add('campo-preenchido');
+    }
+    if (cat) {
+      const campoCat = document.getElementById('categoria-func');
+      campoCat.value = cat;
+      campoCat.classList.add('campo-preenchido');
+    }
+    if (unid) {
+      const campoLoc = document.getElementById('local-func');
+      campoLoc.value = unid;
+      campoLoc.classList.add('campo-preenchido');
+    }
+    if (inicio) {
+      const campoInicio = document.getElementById('data-inicio');
+      campoInicio.value = inicio;
+      campoInicio.classList.add('campo-preenchido');
+    }
+
+    // Seleccionar funcionário na memória para calcular dias de férias
+    let funcObj = null;
+    if (funcId && todosFuncionarios.length > 0) {
+      funcObj = todosFuncionarios.find(f => f.id === funcId);
+    }
+    // Fallback por nome se ID não encontrar
+    if (!funcObj && nome) {
+      funcObj = todosFuncionarios.find(f =>
+        (f.nome||'').toLowerCase() === nome.toLowerCase()
+      );
+    }
+
+    if (funcObj) {
+      funcionarioSeleccionado = funcObj;
+      const anos = calcularAnos(funcObj.admissao || adm);
+      const dias = calcularDiasDireito(anos);
+      document.getElementById('num-dias').value = dias;
+      document.getElementById('num-dias').classList.add('campo-preenchido');
+
+      const infoEl = document.getElementById('info-dias');
+      if (anos !== null) {
+        let msg = '';
+        if (anos >= 30) msg = anos + ' anos → 22 + 9 = 31 dias úteis';
+        else if (anos >= 20) msg = anos + ' anos → 22 + 6 = 28 dias úteis';
+        else if (anos >= 10) msg = anos + ' anos → 22 + 3 = 25 dias úteis';
+        else msg = anos + ' anos → 22 dias úteis';
+        infoEl.textContent = '✅ ' + msg;
+        infoEl.style.display = 'block';
+      }
+    } else if (adm) {
+      // Calcular mesmo sem encontrar o funcionário, usando data de admissão da URL
+      const anos = calcularAnos(adm);
+      const dias = calcularDiasDireito(anos);
+      document.getElementById('num-dias').value = dias;
+    }
+
+    // Calcular data de apresentação automaticamente
+    if (inicio) {
+      calcularApresentacao();
+      document.getElementById('data-apresentacao').classList.add('campo-preenchido');
+    }
+
+    // Guardar ID da solicitação para actualizar estado depois de submeter
+    window._solicitacaoOrigemId = solId;
+
+    // Focar no campo do número da guia (único que falta preencher)
+    setTimeout(() => {
+      const numGuia = document.getElementById('num-guia');
+      numGuia.focus();
+      numGuia.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      numGuia.style.border = '2px solid #f59e0b';
+      numGuia.placeholder = '← Insira aqui o número da guia';
+    }, 300);
   }
 
   function calcularAnos(admissao) {
@@ -721,6 +871,20 @@
       badge.style.display = "flex";
 
       mostrarNotificacao("✅ Documento submetido! O Chefe será notificado.");
+
+      // Se veio de solicitação do portal → marcar solicitação como "concluida"
+      if (window._solicitacaoOrigemId) {
+        try {
+          await updateDoc(doc(db, "solicitacoes", window._solicitacaoOrigemId), {
+            estado: "concluida",
+            concluidoPor: utilizadorActual.uid,
+            concluidoPorEmail: utilizadorActual.email,
+            concluidoEm: serverTimestamp(),
+            documentoGeradoId: docRef.id
+          });
+          window._solicitacaoOrigemId = null;
+        } catch(eUpd) { console.warn("Não actualizou solicitação:", eUpd); }
+      }
 
       // Listener em tempo real — actualiza o estado assim que o Chefe decidir
       onSnapshot(doc(db, "documentos", docRef.id), (snap) => {
