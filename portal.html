@@ -949,7 +949,7 @@
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import {
     getFirestore, collection, getDocs, getDoc, addDoc,
-    updateDoc, doc, query, where, orderBy, serverTimestamp
+    updateDoc, doc, query, where, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -1000,14 +1000,31 @@
       const dados = snapU.data();
       if (dados.perfil !== "funcionario") return; // não é funcionário do portal
 
-      // Carregar doc do funcionário
+      // Carregar doc do funcionário pelo ID guardado em utilizadores
       if (dados.funcionarioId) {
-        const snapF = await getDoc(doc(db, "funcionarios", dados.funcionarioId));
-        if (snapF.exists()) {
-          _funcDoc   = snapF.data();
-          _funcDocId = snapF.id;
-        }
+        try {
+          const snapF = await getDoc(doc(db, "funcionarios", dados.funcionarioId));
+          if (snapF.exists()) {
+            _funcDoc   = snapF.data();
+            _funcDocId = snapF.id;
+          }
+        } catch(ef) { console.warn("Não foi possível carregar ficha do funcionário:", ef); }
       }
+
+      // Fallback: pesquisar por portalUid se não tiver funcionarioId
+      if (!_funcDoc) {
+        try {
+          const qf = query(collection(db, "funcionarios"), where("portalUid", "==", user.uid));
+          const sf = await getDocs(qf);
+          if (!sf.empty) {
+            _funcDoc   = sf.docs[0].data();
+            _funcDocId = sf.docs[0].id;
+            // Corrigir o campo em utilizadores para futuras sessões
+            await updateDoc(doc(db, "utilizadores", user.uid), { funcionarioId: _funcDocId });
+          }
+        } catch(ef2) { console.warn("Fallback funcionário falhou:", ef2); }
+      }
+
       mostrarPortal(user, dados);
     } catch(e) { console.error(e); }
   });
@@ -1309,21 +1326,27 @@
       const solicitacoes = [];
 
       if (funcionarioId) {
+        // Sem orderBy para evitar índice composto — ordenação feita no cliente
         const q = query(collection(db, "solicitacoes"),
-          where("funcionarioId", "==", funcionarioId),
-          orderBy("criadaEm", "desc"));
+          where("funcionarioId", "==", funcionarioId));
         const snap = await getDocs(q);
         snap.forEach(d => solicitacoes.push({ id: d.id, ...d.data(), _origem: "solicitacao" }));
       }
 
-      // Buscar também na colecção documentos (para docs gerados directamente)
+      // Buscar também na colecção documentos (para docs gerados directamente pelo RH)
       if (funcionarioId) {
         const q2 = query(collection(db, "documentos"),
-          where("funcionarioId", "==", funcionarioId),
-          orderBy("geradoEm", "desc"));
+          where("funcionarioId", "==", funcionarioId));
         const snap2 = await getDocs(q2);
         snap2.forEach(d => solicitacoes.push({ id: d.id, ...d.data(), _origem: "documento" }));
       }
+
+      // Ordenar no cliente por data decrescente
+      solicitacoes.sort((a, b) => {
+        const ta = a.criadaEm?.toDate ? a.criadaEm.toDate() : (a.geradoEm?.toDate ? a.geradoEm.toDate() : new Date(0));
+        const tb = b.criadaEm?.toDate ? b.criadaEm.toDate() : (b.geradoEm?.toDate ? b.geradoEm.toDate() : new Date(0));
+        return tb - ta;
+      });
 
       // Actualizar KPIs
       const total    = solicitacoes.length;
@@ -1462,8 +1485,14 @@
       setTimeout(() => carregarMinhasSolicitacoes(_utilizador.uid, _funcDocId), 1500);
 
     } catch(e) {
-      console.error(e);
-      msg.innerHTML = `<div class="alerta alerta-erro">❌ Erro ao enviar. Verifique a ligação e tente novamente.</div>`;
+      console.error("Erro ao submeter solicitação:", e);
+      let erroMsg = "Erro ao enviar. Verifique a ligação e tente novamente.";
+      if (e.code === "permission-denied") {
+        erroMsg = "Sem permissão para enviar. Por favor, feche a sessão, entre novamente e tente outra vez.";
+      } else if (e.code === "unavailable" || e.message?.includes("network")) {
+        erroMsg = "Sem ligação ao servidor. Verifique a sua internet.";
+      }
+      msg.innerHTML = `<div class="alerta alerta-erro">❌ ${erroMsg}</div>`;
       btn.disabled = false;
       btn.innerHTML = "📤 Enviar solicitação";
     }
