@@ -1,895 +1,606 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SIGDOC-SUMBE — Autenticação</title>
-  <meta name="theme-color" content="#1a4f7a"/>
-  <link rel="manifest" href="#"/>
+  <title>SIGDOC-SUMBE — Sistema de Gestão</title>
+  <meta name="theme-color" content="#0b4f3a"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --azul: #1a4f7a;
-      --azul-claro: #2471a3;
-      --verde: #1e8449;
-      --vermelho: #c0392b;
-      --cinza: #f4f6f8;
-      --branco: #ffffff;
-      --texto: #2c3e50;
-      --sombra: 0 4px 20px rgba(0,0,0,0.12);
+      --c-900:#052e1c; --c-800:#0b4f3a; --c-700:#0d6e4f; --c-600:#12a372; --c-500:#10c886;
+      --c-100:#d1fae5; --c-50:#f0fdf4;
+      --b-800:#1e3a5f; --b-600:#2563eb; --b-100:#dbeafe;
+      --r-600:#dc2626; --r-100:#fee2e2;
+      --a-500:#f59e0b; --a-100:#fef3c7;
+      --neu-900:#0f172a; --neu-700:#334155; --neu-600:#475569; --neu-500:#64748b;
+      --neu-400:#94a3b8; --neu-300:#cbd5e1; --neu-200:#e2e8f0;
+      --neu-100:#f1f5f9; --neu-50:#f8fafc; --white:#ffffff;
+      --r-sm:8px; --r-md:14px; --r-lg:20px; --r-xl:28px; --r-full:999px;
+      --sh-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+      --sh-md:0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.05);
+      --sh-lg:0 12px 40px rgba(0,0,0,.12),0 4px 12px rgba(0,0,0,.06);
+      --glow:0 0 0 4px rgba(16,200,134,.18);
+      --font:'Plus Jakarta Sans',sans-serif;
+      --mono:'DM Mono',monospace;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--neu-50);color:var(--neu-900);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+    /* ── LOGIN ── */
+    #ecrã-login{
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
+      padding:20px;position:relative;overflow:hidden;background:var(--c-900);
+    }
+    #ecrã-login::before{
+      content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 80% 60% at 20% 0%,rgba(16,200,134,.22) 0%,transparent 60%),
+                 radial-gradient(ellipse 60% 80% at 80% 100%,rgba(37,99,235,.18) 0%,transparent 60%);
+      animation:pulseGlow 8s ease-in-out infinite alternate;
+    }
+    #ecrã-login::after{
+      content:'';position:absolute;inset:0;
+      background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+                       linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+      background-size:48px 48px;pointer-events:none;
+    }
+    @keyframes pulseGlow{from{opacity:.7}to{opacity:1}}
+
+    .login-card{
+      background:var(--white);border-radius:var(--r-xl);
+      padding:44px 40px;width:100%;max-width:420px;
+      box-shadow:var(--sh-lg);position:relative;z-index:1;
+      animation:slideUp .5s cubic-bezier(.16,1,.3,1);
+    }
+    @keyframes slideUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+    .login-emblema{
+      width:64px;height:64px;
+      background:linear-gradient(135deg,var(--c-700),var(--c-600));
+      border-radius:var(--r-md);display:flex;align-items:center;
+      justify-content:center;font-size:28px;margin:0 auto 20px;
+      box-shadow:0 8px 24px rgba(13,110,79,.3);
+    }
+    .login-titulo{text-align:center;margin-bottom:32px}
+    .login-titulo h1{font-size:22px;font-weight:800;letter-spacing:-.3px;color:var(--neu-900)}
+    .login-titulo p{font-size:12px;color:var(--neu-500);margin-top:5px;line-height:1.5}
+
+    .campo-login{margin-bottom:16px}
+    .campo-login label{display:block;font-size:12px;font-weight:700;color:var(--neu-700);margin-bottom:7px;letter-spacing:.2px}
+    .input-wrap{position:relative}
+    .input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;color:var(--neu-400)}
+    .campo-login input{
+      width:100%;padding:13px 14px 13px 40px;
+      border:2px solid var(--neu-200);border-radius:var(--r-sm);
+      font-size:14px;font-family:var(--font);outline:none;
+      transition:all .2s;color:var(--neu-900);background:var(--neu-50);
+    }
+    .campo-login input:focus{border-color:var(--c-600);background:var(--white);box-shadow:var(--glow)}
+    .toggle-senha{
+      position:absolute;right:12px;top:50%;transform:translateY(-50%);
+      background:none;border:none;cursor:pointer;font-size:14px;
+      color:var(--neu-400);padding:4px;
+    }
+    .btn-entrar{
+      width:100%;padding:14px;
+      background:linear-gradient(135deg,var(--c-700) 0%,var(--c-600) 100%);
+      color:var(--white);border:none;border-radius:var(--r-sm);
+      font-size:15px;font-weight:700;font-family:var(--font);
+      cursor:pointer;transition:all .2s;margin-top:8px;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      box-shadow:0 4px 16px rgba(13,110,79,.3);letter-spacing:.2px;
+    }
+    .btn-entrar:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(13,110,79,.4)}
+    .btn-entrar:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+    .msg-erro-login{
+      display:none;margin-top:14px;
+      background:var(--r-100);color:var(--r-600);
+      border:1px solid #fca5a5;border-radius:var(--r-sm);
+      padding:10px 14px;font-size:13px;font-weight:500;
+    }
+    .rodape-login{
+      text-align:center;margin-top:28px;font-size:11px;
+      color:var(--neu-400);line-height:1.6;
+      border-top:1px solid var(--neu-100);padding-top:20px;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ── PAINEL ── */
+    #ecrã-painel{display:none;min-height:100vh}
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--cinza);
-      color: var(--texto);
-      min-height: 100vh;
+    .topbar{
+      background:linear-gradient(135deg,var(--c-900) 0%,var(--c-800) 60%,var(--c-700) 100%);
+      padding:0 28px;height:64px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:100;
+      box-shadow:0 2px 20px rgba(0,0,0,.25);
     }
-
-    /* ===== ECRÃ DE LOGIN ===== */
-    #ecrã-login {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #1a4f7a 0%, #2471a3 50%, #1a6b3a 100%);
-      padding: 20px;
+    .topbar-marca{display:flex;align-items:center;gap:12px}
+    .topbar-emblema{
+      width:36px;height:36px;background:rgba(255,255,255,.12);
+      border-radius:var(--r-sm);display:flex;align-items:center;
+      justify-content:center;font-size:18px;
+      border:1px solid rgba(255,255,255,.15);
     }
-
-    .caixa-login {
-      background: var(--branco);
-      border-radius: 16px;
-      padding: 40px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: var(--sombra);
+    .topbar-nome{font-size:15px;font-weight:800;color:var(--white);letter-spacing:.5px}
+    .topbar-nome span{display:block;font-size:10px;font-weight:400;opacity:.55;margin-top:1px;letter-spacing:0}
+    .topbar-direita{display:flex;align-items:center;gap:12px}
+    .topbar-info{text-align:right}
+    .topbar-info-nome{font-size:13px;font-weight:700;color:var(--white)}
+    .topbar-info-perfil{font-size:10px;color:rgba(255,255,255,.55);margin-top:1px}
+    .topbar-avatar{
+      width:38px;height:38px;
+      background:linear-gradient(135deg,var(--c-600),var(--c-500));
+      border-radius:var(--r-full);display:flex;align-items:center;
+      justify-content:center;font-size:15px;font-weight:800;
+      color:var(--white);border:2px solid rgba(255,255,255,.25);flex-shrink:0;
     }
-
-    .logo-topo {
-      text-align: center;
-      margin-bottom: 28px;
+    .btn-sair{
+      background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+      color:var(--white);padding:7px 14px;border-radius:var(--r-sm);
+      font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;transition:all .2s;
     }
+    .btn-sair:hover{background:rgba(255,255,255,.2)}
 
-    .logo-topo .emblema {
-      width: 70px;
-      height: 70px;
-      background: linear-gradient(135deg, var(--azul), var(--azul-claro));
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 12px;
-      font-size: 28px;
+    .painel-hero{
+      background:linear-gradient(135deg,var(--c-900) 0%,var(--c-800) 60%,var(--c-700) 100%);
+      padding:32px 28px 80px;position:relative;overflow:hidden;
     }
-
-    .logo-topo h1 {
-      font-size: 22px;
-      color: var(--azul);
-      font-weight: 700;
-      letter-spacing: 1px;
+    .painel-hero::before{
+      content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 50% 80% at 90% 50%,rgba(16,200,134,.12) 0%,transparent 60%),
+                 radial-gradient(ellipse 30% 40% at 10% 100%,rgba(37,99,235,.1) 0%,transparent 60%);
     }
-
-    .logo-topo p {
-      font-size: 12px;
-      color: #888;
-      margin-top: 4px;
+    .painel-hero::after{
+      content:'';position:absolute;inset:0;
+      background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),
+                       linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+      background-size:40px 40px;
     }
-
-    .campo-grupo {
-      margin-bottom: 18px;
+    .hero-conteudo{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+    .hero-texto h2{font-size:22px;font-weight:800;color:var(--white);line-height:1.2}
+    .hero-texto p{font-size:13px;color:rgba(255,255,255,.55);margin-top:6px}
+    .hero-data{
+      background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);
+      border-radius:var(--r-sm);padding:10px 14px;text-align:right;flex-shrink:0;
     }
+    .hero-data-txt{font-size:11px;color:rgba(255,255,255,.6);font-weight:500}
 
-    .campo-grupo label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--texto);
-      margin-bottom: 6px;
+    .conteudo{max-width:1100px;margin:-44px auto 0;padding:0 20px 40px;position:relative;z-index:10}
+
+    /* KPIs */
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+    .kpi-card{
+      background:var(--white);border-radius:var(--r-md);padding:20px;
+      box-shadow:var(--sh-md);display:flex;align-items:center;gap:14px;
+      border:1px solid var(--neu-100);transition:transform .2s;
     }
+    .kpi-card:hover{transform:translateY(-2px)}
+    .kpi-icon{width:48px;height:48px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+    .kpi-num{font-size:26px;font-weight:800;color:var(--neu-900);line-height:1;font-family:var(--mono)}
+    .kpi-label{font-size:11px;color:var(--neu-500);margin-top:4px;font-weight:500}
 
-    .campo-grupo input {
-      width: 100%;
-      padding: 12px 14px;
-      border: 2px solid #dde3ea;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: border-color 0.2s;
-      outline: none;
+    /* Módulos */
+    .secção-titulo{
+      font-size:11px;font-weight:700;color:var(--neu-400);
+      text-transform:uppercase;letter-spacing:1.2px;margin-bottom:16px;
+      display:flex;align-items:center;gap:8px;
     }
+    .secção-titulo::after{content:'';flex:1;height:1px;background:var(--neu-200)}
 
-    .campo-grupo input:focus {
-      border-color: var(--azul-claro);
+    .modulos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:32px}
+    .modulo-card{
+      background:var(--white);border-radius:var(--r-md);padding:24px 22px;
+      box-shadow:var(--sh-sm);text-decoration:none;color:inherit;
+      display:flex;flex-direction:column;gap:12px;
+      transition:all .2s;border:1.5px solid var(--neu-100);
+      position:relative;overflow:hidden;cursor:pointer;
     }
-
-    .btn-login {
-      width: 100%;
-      padding: 13px;
-      background: linear-gradient(135deg, var(--azul), var(--azul-claro));
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s;
-      margin-top: 6px;
+    .modulo-card::before{
+      content:'';position:absolute;left:0;top:0;bottom:0;
+      width:4px;background:transparent;transition:background .2s;
     }
+    .modulo-card:hover{transform:translateY(-3px);box-shadow:var(--sh-md);border-color:var(--c-600)}
+    .modulo-card:hover::before{background:var(--c-600)}
+    .modulo-card.desactivado{opacity:.5;cursor:not-allowed;pointer-events:none}
+    .modulo-icon{width:48px;height:48px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:22px}
+    .modulo-nome{font-size:15px;font-weight:700;color:var(--neu-900)}
+    .modulo-desc{font-size:12px;color:var(--neu-500);line-height:1.6;flex:1}
+    .modulo-footer{display:flex;align-items:center;justify-content:space-between}
+    .modulo-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:var(--r-full);letter-spacing:.3px}
+    .badge-ok{background:var(--c-100);color:var(--c-700)}
+    .badge-breve{background:var(--a-100);color:#92400e}
+    .modulo-seta{color:var(--neu-300);font-size:16px;transition:all .2s}
+    .modulo-card:hover .modulo-seta{color:var(--c-600);transform:translateX(3px)}
 
-    .btn-login:hover { opacity: 0.9; }
-    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    .msg-erro {
-      background: #fdecea;
-      color: var(--vermelho);
-      border: 1px solid #f5c6cb;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      margin-top: 14px;
-      display: none;
+    /* Portal Banner */
+    .portal-banner{
+      background:linear-gradient(135deg,var(--c-800),var(--c-600));
+      border-radius:var(--r-md);padding:20px 24px;
+      display:flex;align-items:center;justify-content:space-between;
+      gap:16px;margin-bottom:32px;flex-wrap:wrap;
+      box-shadow:0 4px 20px rgba(13,110,79,.25);
     }
-
-    .rodape-login {
-      text-align: center;
-      margin-top: 24px;
-      font-size: 11px;
-      color: #aaa;
+    .portal-banner h4{font-size:14px;font-weight:700;color:var(--white)}
+    .portal-banner p{font-size:12px;color:rgba(255,255,255,.7);margin-top:3px}
+    .portal-banner-url{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.5);margin-top:6px}
+    .portal-banner-acoes{display:flex;gap:8px;flex-shrink:0}
+    .btn-pb-copiar{
+      padding:8px 16px;border-radius:var(--r-sm);font-size:12px;font-weight:700;
+      cursor:pointer;font-family:var(--font);
+      background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+      color:var(--white);transition:all .2s;
     }
-
-    /* ===== PAINEL PRINCIPAL ===== */
-    #ecrã-painel { display: none; }
-
-    .barra-topo {
-      background: linear-gradient(135deg, var(--azul), var(--azul-claro));
-      color: white;
-      padding: 0 24px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      position: sticky;
-      top: 0;
-      z-index: 100;
+    .btn-pb-copiar:hover{background:rgba(255,255,255,.25)}
+    .btn-pb-abrir{
+      padding:8px 16px;border-radius:var(--r-sm);font-size:12px;font-weight:700;
+      cursor:pointer;font-family:var(--font);
+      background:var(--white);border:none;color:var(--c-800);
+      text-decoration:none;display:inline-flex;align-items:center;
+      transition:all .2s;
     }
+    .btn-pb-abrir:hover{transform:translateY(-1px)}
 
-    .barra-topo .marca {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 1px;
+    /* Painel Card */
+    .painel-card{
+      background:var(--white);border-radius:var(--r-md);
+      box-shadow:var(--sh-sm);border:1px solid var(--neu-100);
+      overflow:hidden;margin-bottom:20px;
     }
-
-    .barra-topo .marca span {
-      font-size: 11px;
-      font-weight: 400;
-      opacity: 0.8;
-      display: block;
-      letter-spacing: 0;
+    .painel-card-header{
+      padding:18px 24px;border-bottom:1px solid var(--neu-100);
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
     }
+    .painel-card-titulo{font-size:14px;font-weight:700;color:var(--neu-900);display:flex;align-items:center;gap:8px}
 
-    .info-utilizador {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    /* Tabela */
+    .tabela-modern{width:100%;border-collapse:collapse}
+    .tabela-modern thead th{
+      padding:12px 20px;font-size:10px;font-weight:700;
+      text-transform:uppercase;letter-spacing:.8px;color:var(--neu-400);
+      background:var(--neu-50);text-align:left;border-bottom:1px solid var(--neu-100);
     }
+    .tabela-modern tbody tr{border-bottom:1px solid var(--neu-50);transition:background .15s}
+    .tabela-modern tbody tr:hover{background:var(--neu-50)}
+    .tabela-modern tbody tr:last-child{border-bottom:none}
+    .tabela-modern tbody td{padding:14px 20px;font-size:13px;color:var(--neu-700);vertical-align:middle}
 
-    .avatar {
-      width: 36px;
-      height: 36px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 700;
+    /* Badges */
+    .badge-perfil{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:var(--r-full);letter-spacing:.2px}
+    .perfil-admin{background:#fef3c7;color:#92400e}
+    .perfil-director{background:#ede9fe;color:#5b21b6}
+    .perfil-chefe{background:var(--b-100);color:var(--b-800)}
+    .perfil-tecnico{background:var(--c-100);color:var(--c-800)}
+    .perfil-funcionario{background:var(--neu-100);color:var(--neu-600)}
+    .b-activo{color:var(--c-700);font-weight:700;font-size:12px}
+    .b-inactivo{color:var(--neu-400);font-weight:600;font-size:12px}
+
+    .btn-acao-ln{
+      padding:5px 12px;border-radius:var(--r-sm);
+      font-size:11px;font-weight:700;font-family:var(--font);
+      cursor:pointer;border:none;transition:all .15s;
     }
+    .btn-desat{background:var(--r-100);color:var(--r-600)}
+    .btn-ativar{background:var(--c-100);color:var(--c-700)}
 
-    .info-utilizador .detalhes { text-align: right; }
-    .info-utilizador .nome { font-size: 13px; font-weight: 600; }
-    .info-utilizador .perfil-badge {
-      font-size: 10px;
-      background: rgba(255,255,255,0.2);
-      padding: 2px 8px;
-      border-radius: 10px;
+    /* Sessões */
+    .sessao-item{display:flex;align-items:center;gap:14px;padding:14px 24px;border-bottom:1px solid var(--neu-50)}
+    .sessao-item:last-child{border-bottom:none}
+    .sessao-dot{width:9px;height:9px;border-radius:var(--r-full);flex-shrink:0}
+    .dot-in{background:var(--c-600);box-shadow:0 0 0 3px var(--c-100)}
+    .dot-out{background:var(--neu-300)}
+    .sessao-info{flex:1}
+    .sessao-nome{font-size:13px;font-weight:600;color:var(--neu-900)}
+    .sessao-det{font-size:11px;color:var(--neu-400);margin-top:2px}
+    .sessao-hora{font-size:11px;color:var(--neu-400);font-family:var(--mono)}
+
+    /* Botões gerais */
+    .btn-primario{
+      background:var(--c-700);color:var(--white);border:none;
+      padding:9px 18px;border-radius:var(--r-sm);
+      font-size:13px;font-weight:700;font-family:var(--font);
+      cursor:pointer;transition:all .2s;
     }
+    .btn-primario:hover{background:var(--c-600);transform:translateY(-1px)}
 
-    .btn-sair {
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.3);
-      color: white;
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: background 0.2s;
+    /* Overlay / Modal */
+    .overlay{
+      position:fixed;inset:0;background:rgba(15,23,42,.65);
+      display:none;align-items:center;justify-content:center;
+      z-index:500;padding:20px;backdrop-filter:blur(4px);
     }
+    .overlay.activo{display:flex;animation:fadeIn .2s ease}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-    .btn-sair:hover { background: rgba(255,255,255,0.25); }
-
-    .conteudo-principal {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 28px 20px;
+    .modal-card{
+      background:var(--white);border-radius:var(--r-lg);
+      padding:32px;width:100%;max-width:440px;
+      box-shadow:var(--sh-lg);
+      animation:slideUp .3s cubic-bezier(.16,1,.3,1);
     }
-
-    /* ===== CARTÕES DE BOAS-VINDAS ===== */
-    .bem-vindo {
-      background: white;
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: var(--sombra);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
+    .modal-titulo{font-size:17px;font-weight:800;color:var(--neu-900);margin-bottom:24px}
+    .campo-modal{margin-bottom:16px}
+    .campo-modal label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--neu-500);margin-bottom:6px}
+    .campo-modal input,.campo-modal select{
+      width:100%;padding:11px 14px;border:2px solid var(--neu-200);
+      border-radius:var(--r-sm);font-size:14px;font-family:var(--font);
+      outline:none;color:var(--neu-900);transition:border-color .2s;
     }
-
-    .bem-vindo h2 { font-size: 20px; color: var(--azul); }
-    .bem-vindo p { font-size: 13px; color: #888; margin-top: 4px; }
-
-    .indicadores {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
+    .campo-modal input:focus,.campo-modal select:focus{border-color:var(--c-600)}
+    .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}
+    .btn-cancelar{
+      background:var(--neu-100);color:var(--neu-700);border:none;
+      padding:10px 20px;border-radius:var(--r-sm);
+      font-size:13px;font-weight:700;font-family:var(--font);cursor:pointer;
     }
-
-    .cartao-indicador {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: var(--sombra);
-      display: flex;
-      align-items: center;
-      gap: 16px;
+    .btn-cancelar:hover{background:var(--neu-200)}
+    .btn-guardar{
+      background:var(--c-700);color:var(--white);border:none;
+      padding:10px 20px;border-radius:var(--r-sm);
+      font-size:13px;font-weight:700;font-family:var(--font);cursor:pointer;
     }
+    .btn-guardar:hover{background:var(--c-600)}
 
-    .icone-indicador {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
+    /* Toast */
+    .toast{
+      position:fixed;bottom:28px;right:28px;
+      padding:14px 20px;border-radius:var(--r-md);
+      font-size:13px;font-weight:600;display:none;
+      z-index:1000;max-width:340px;box-shadow:var(--sh-lg);
     }
+    .toast-sucesso{background:var(--c-800);color:var(--white);border-left:4px solid var(--c-500)}
+    .toast-erro{background:#1f0a0a;color:#fca5a5;border-left:4px solid var(--r-600)}
 
-    .cartao-indicador .numero { font-size: 26px; font-weight: 700; color: var(--azul); }
-    .cartao-indicador .rotulo { font-size: 12px; color: #888; margin-top: 2px; }
+    /* Spinner */
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+    @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ===== SECÇÃO DE GESTÃO DE UTILIZADORES ===== */
-    .secção {
-      background: white;
-      border-radius: 12px;
-      box-shadow: var(--sombra);
-      margin-bottom: 24px;
-      overflow: hidden;
+    /* Vazio */
+    .vazio-estado{text-align:center;padding:48px 20px;color:var(--neu-400)}
+    .vazio-estado .icone{font-size:40px;margin-bottom:12px}
+    .vazio-estado p{font-size:13px}
+
+    .secção-restrita{display:none}
+    .tabela-scroll{overflow-x:auto}
+
+    @media(max-width:768px){
+      .kpi-grid{grid-template-columns:repeat(2,1fr)}
+      .topbar{padding:0 16px}
+      .conteudo{padding:0 14px 40px}
+      .painel-hero{padding:24px 16px 70px}
+      .hero-data{display:none}
+      .topbar-info{display:none}
     }
-
-    .secção-cabecalho {
-      padding: 18px 24px;
-      border-bottom: 1px solid #eef0f3;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    @media(max-width:480px){
+      .modulos-grid{grid-template-columns:1fr}
+      .login-card{padding:32px 24px}
     }
-
-    .secção-cabecalho h3 { font-size: 16px; color: var(--azul); }
-
-    .btn-primario {
-      background: var(--azul);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .btn-primario:hover { background: var(--azul-claro); }
-
-    .tabela-utilizadores {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .tabela-utilizadores th {
-      background: #f8f9fa;
-      padding: 12px 20px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #666;
-      text-align: left;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .tabela-utilizadores td {
-      padding: 14px 20px;
-      border-top: 1px solid #f0f2f4;
-      font-size: 13px;
-    }
-
-    .tabela-utilizadores tr:hover td { background: #fafbfc; }
-
-    .badge-perfil {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .perfil-admin { background: #fdecea; color: #c0392b; }
-    .perfil-director { background: #e8f4f8; color: #1a4f7a; }
-    .perfil-chefe { background: #e8f8f0; color: #1e8449; }
-    .perfil-tecnico { background: #fef9e7; color: #d4a017; }
-    .perfil-funcionario { background: #f4f4f4; color: #666; }
-
-    .estado-activo { color: #1e8449; font-weight: 600; }
-    .estado-inactivo { color: #c0392b; }
-
-    .acoes-linha { display: flex; gap: 8px; }
-
-    .btn-acao {
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: opacity 0.2s;
-    }
-
-    .btn-acao:hover { opacity: 0.8; }
-    .btn-editar { background: #e8f4f8; color: #1a4f7a; }
-    .btn-desactivar { background: #fdecea; color: #c0392b; }
-
-    /* ===== MODAL ===== */
-    .overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .overlay.activo { display: flex; }
-
-    .modal {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      width: 100%;
-      max-width: 480px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-
-    .modal h3 {
-      font-size: 18px;
-      color: var(--azul);
-      margin-bottom: 20px;
-    }
-
-    .modal select {
-      width: 100%;
-      padding: 12px 14px;
-      border: 2px solid #dde3ea;
-      border-radius: 8px;
-      font-size: 14px;
-      outline: none;
-      background: white;
-    }
-
-    .modal select:focus { border-color: var(--azul-claro); }
-
-    .acoes-modal {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-      justify-content: flex-end;
-    }
-
-    .btn-cancelar {
-      background: #f0f2f4;
-      color: var(--texto);
-      border: none;
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .btn-guardar {
-      background: var(--azul);
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    /* ===== REGISTO DE SESSÕES ===== */
-    .lista-sessoes { padding: 0; }
-
-    .item-sessao {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 14px 24px;
-      border-top: 1px solid #f0f2f4;
-    }
-
-    .item-sessao:first-child { border-top: none; }
-
-    .ponto-sessao {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .ponto-verde { background: var(--verde); }
-    .ponto-cinza { background: #ccc; }
-
-    .info-sessao { flex: 1; }
-    .info-sessao .utilizador-nome { font-size: 13px; font-weight: 600; }
-    .info-sessao .detalhe { font-size: 11px; color: #888; margin-top: 2px; }
-
-    .hora-sessao { font-size: 11px; color: #aaa; }
-
-    /* ===== NOTIFICAÇÃO ===== */
-    .notificacao {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: var(--verde);
-      color: white;
-      padding: 14px 20px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      display: none;
-      z-index: 500;
-      max-width: 300px;
-    }
-
-    /* ===== CARREGAMENTO ===== */
-    .spinner {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(255,255,255,0.4);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ===== PERMISSÕES ===== */
-    .secção-restrita { display: none; }
-
-    /* ===== RESPONSIVO ===== */
-    @media (max-width: 600px) {
-      .barra-topo { padding: 0 14px; }
-      .bem-vindo { flex-direction: column; }
-      .tabela-utilizadores th:nth-child(3),
-      .tabela-utilizadores td:nth-child(3) { display: none; }
-    }
-
-    /* ===== ECRÃ VAZIO ===== */
-    .vazio {
-      text-align: center;
-      padding: 40px 20px;
-      color: #aaa;
-    }
-    .vazio .icone { font-size: 40px; margin-bottom: 10px; }
-    .vazio p { font-size: 13px; }
-
-    /* ===== MENU DE MÓDULOS ===== */
-    .menu-modulos-titulo {
-      font-size: 13px;
-      font-weight: 700;
-      color: #999;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 14px;
-    }
-
-    .grelha-modulos {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-
-    .cartao-modulo {
-      background: white;
-      border-radius: 14px;
-      padding: 22px 20px;
-      box-shadow: var(--sombra);
-      text-decoration: none;
-      color: var(--texto);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      transition: transform 0.15s, box-shadow 0.15s;
-      cursor: pointer;
-      border: 2px solid transparent;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cartao-modulo:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 28px rgba(0,0,0,0.14);
-      border-color: var(--azul-claro);
-    }
-
-    .cartao-modulo.desactivado {
-      opacity: 0.55;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-
-    .cartao-modulo .icone-modulo {
-      width: 46px;
-      height: 46px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-    }
-
-    .cartao-modulo .nome-modulo {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--azul);
-    }
-
-    .cartao-modulo .desc-modulo {
-      font-size: 12px;
-      color: #888;
-      line-height: 1.5;
-    }
-
-    .cartao-modulo .estado-modulo {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 10px;
-      display: inline-block;
-      width: fit-content;
-      margin-top: 4px;
-    }
-
-    .estado-disponivel { background: #e8f8f0; color: #1e8449; }
-    .estado-breve { background: #fef9e7; color: #b7950b; }
-
-    .canto-seta {
-      position: absolute;
-      bottom: 14px;
-      right: 16px;
-      font-size: 18px;
-      color: #dde3ea;
-    }
-
-    .cartao-modulo:hover .canto-seta { color: var(--azul-claro); }
   </style>
 </head>
 <body>
 
-<!-- ==================== ECRÃ DE LOGIN ==================== -->
+<!-- LOGIN -->
 <div id="ecrã-login">
-  <div class="caixa-login">
-    <div class="logo-topo">
-      <div class="emblema">🏥</div>
+  <div class="login-card">
+    <div class="login-emblema">🏥</div>
+    <div class="login-titulo">
       <h1>SIGDOC-SUMBE</h1>
       <p>Direcção Municipal da Saúde — Sumbe, Kwanza Sul</p>
     </div>
-
-    <div class="campo-grupo">
+    <div class="campo-login">
       <label for="email-login">Endereço de E-mail</label>
-      <input type="email" id="email-login" placeholder="utilizador@saude.gov.ao" autocomplete="email"/>
+      <div class="input-wrap">
+        <span class="input-icon">✉</span>
+        <input type="email" id="email-login" placeholder="utilizador@saude.gov.ao" autocomplete="email"/>
+      </div>
     </div>
-
-    <div class="campo-grupo">
+    <div class="campo-login">
       <label for="senha-login">Senha</label>
-      <input type="password" id="senha-login" placeholder="••••••••" autocomplete="current-password"/>
+      <div class="input-wrap">
+        <span class="input-icon">🔒</span>
+        <input type="password" id="senha-login" placeholder="••••••••" autocomplete="current-password"/>
+        <button class="toggle-senha" type="button" onclick="toggleSenha()">👁</button>
+      </div>
     </div>
-
-    <button class="btn-login" id="btn-entrar" onclick="fazerLogin()">
-      Entrar no Sistema
-    </button>
-
-    <div class="msg-erro" id="msg-erro"></div>
-
+    <button class="btn-entrar" id="btn-entrar" onclick="fazerLogin()">Entrar no Sistema →</button>
+    <div class="msg-erro-login" id="msg-erro"></div>
     <div class="rodape-login">
       Sistema Integrado de Gestão Documental e Recursos Humanos<br>
-      © 2026 — Kwanza Sul, Angola
+      © 2026 · Kwanza Sul, Angola
     </div>
   </div>
 </div>
 
-<!-- ==================== PAINEL PRINCIPAL ==================== -->
+<!-- PAINEL -->
 <div id="ecrã-painel">
-
-  <!-- Barra de Topo -->
-  <div class="barra-topo">
-    <div class="marca">
-      SIGDOC-SUMBE
-      <span>Sistema de Gestão Documental e RH</span>
+  <div class="topbar">
+    <div class="topbar-marca">
+      <div class="topbar-emblema">🏥</div>
+      <div class="topbar-nome">SIGDOC-SUMBE<span>Gestão Documental e RH</span></div>
     </div>
-    <div class="info-utilizador">
-      <div class="detalhes">
-        <div class="nome" id="nome-utilizador-topo">—</div>
-        <div class="perfil-badge" id="perfil-utilizador-topo">—</div>
+    <div class="topbar-direita">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="topbar-info">
+          <div class="topbar-info-nome" id="nome-utilizador-topo">—</div>
+          <div class="topbar-info-perfil" id="perfil-utilizador-topo">—</div>
+        </div>
+        <div class="topbar-avatar" id="avatar-utilizador">?</div>
       </div>
-      <div class="avatar" id="avatar-utilizador" onclick="abrirModalPerfil()" title="Ver perfil" style="cursor:pointer;">?</div>
       <button class="btn-sair" onclick="fazerLogout()">Sair</button>
     </div>
   </div>
 
-  <!-- Conteúdo -->
-  <div class="conteudo-principal">
-
-    <!-- Boas-vindas -->
-    <div class="bem-vindo">
-      <div>
+  <div class="painel-hero">
+    <div class="hero-conteudo">
+      <div class="hero-texto">
         <h2 id="msg-boas-vindas">Bem-vindo ao SIGDOC-SUMBE</h2>
-        <p id="data-hora-actual">—</p>
+        <p>Direcção Municipal da Saúde do Sumbe</p>
       </div>
-      <div style="font-size: 36px;">🏥</div>
+      <div class="hero-data"><div class="hero-data-txt" id="data-hora-actual">—</div></div>
     </div>
+  </div>
 
-    <!-- Indicadores -->
-    <div class="indicadores" id="indicadores">
-      <div class="cartao-indicador">
-        <div class="icone-indicador" style="background:#e8f4f8;">👥</div>
-        <div>
-          <div class="numero" id="total-utilizadores">—</div>
-          <div class="rotulo">Utilizadores Registados</div>
-        </div>
+  <div class="conteudo">
+
+    <!-- KPIs -->
+    <div class="kpi-grid" id="indicadores">
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:#e0f2fe;">👥</div>
+        <div><div class="kpi-num" id="total-utilizadores">—</div><div class="kpi-label">Utilizadores</div></div>
       </div>
-      <div class="cartao-indicador">
-        <div class="icone-indicador" style="background:#e8f8f0;">✅</div>
-        <div>
-          <div class="numero" id="total-activos">—</div>
-          <div class="rotulo">Utilizadores Activos</div>
-        </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--c-100);">✅</div>
+        <div><div class="kpi-num" id="total-activos">—</div><div class="kpi-label">Activos</div></div>
       </div>
-      <div class="cartao-indicador">
-        <div class="icone-indicador" style="background:#fef9e7;">🏥</div>
-        <div>
-          <div class="numero" id="total-unidades">—</div>
-          <div class="rotulo">Unidades Sanitárias</div>
-        </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--a-100);">🏥</div>
+        <div><div class="kpi-num" id="total-unidades">16</div><div class="kpi-label">Unidades Sanitárias</div></div>
       </div>
-      <div class="cartao-indicador">
-        <div class="icone-indicador" style="background:#fdecea;">👨‍💼</div>
-        <div>
-          <div class="numero" id="total-funcionarios">—</div>
-          <div class="rotulo">Funcionários Totais</div>
-        </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:#ede9fe;">👨‍💼</div>
+        <div><div class="kpi-num" id="total-funcionarios">200+</div><div class="kpi-label">Funcionários</div></div>
       </div>
     </div>
 
-    <!-- ===== MENU DE MÓDULOS ===== -->
-    <div id="menu-modulos">
-      <div class="menu-modulos-titulo">📂 Módulos do Sistema</div>
-      <div class="grelha-modulos">
-
-        <!-- Cadastro de Funcionários — Tecnico, Chefe, Admin -->
-        <a href="cadastro.html" class="cartao-modulo modulo-rh" id="mod-cadastro">
-          <div class="icone-modulo" style="background:#e8f4f8;">👨‍💼</div>
-          <div class="nome-modulo">Cadastro de Funcionários</div>
-          <div class="desc-modulo">Registe, pesquise e gira os funcionários das unidades sanitárias.</div>
-          <span class="estado-modulo estado-disponivel">✅ Disponível</span>
-          <span class="canto-seta">→</span>
-        </a>
-
-        <!-- Geração de Documentos — Tecnico, Chefe, Admin -->
-        <a href="documentos.html" class="cartao-modulo modulo-rh" id="mod-documentos">
-          <div class="icone-modulo" style="background:#fef9e7;">📄</div>
-          <div class="nome-modulo">Geração de Documentos</div>
-          <div class="desc-modulo">Guias de férias, declarações, guias médicas e ofícios automáticos.</div>
-          <span class="estado-modulo estado-disponivel">✅ Disponível</span>
-          <span class="canto-seta">→</span>
-        </a>
-
-        <!-- Aprovação — Chefe e Director -->
-        <a href="aprovacao.html" class="cartao-modulo modulo-chefe" id="mod-aprovacao">
-          <div class="icone-modulo" style="background:#e8f8f0;">✅</div>
-          <div class="nome-modulo">Aprovação de Documentos</div>
-          <div class="desc-modulo">Valide e aprove os documentos gerados pela equipa técnica.</div>
-          <span class="estado-modulo estado-disponivel">✅ Disponível</span>
-          <span class="canto-seta">→</span>
-        </a>
-
-        <!-- Auditoria — Admin, Chefe, Director -->
-        <a href="auditoria.html" class="cartao-modulo modulo-chefe" id="mod-auditoria">
-          <div class="icone-modulo" style="background:#f4edf9;">🔍</div>
-          <div class="nome-modulo">Auditoria e Rastreabilidade</div>
-          <div class="desc-modulo">Histórico completo de todos os documentos emitidos e acções no sistema.</div>
-          <span class="estado-modulo estado-disponivel">✅ Disponível</span>
-          <span class="canto-seta">→</span>
-        </a>
-
-        <!-- Painel de Gestão — Director e Admin -->
-        <a href="painel.html" class="cartao-modulo modulo-director" id="mod-painel">
-          <div class="icone-modulo" style="background:#fdecea;">📊</div>
-          <div class="nome-modulo">Painel de Gestão</div>
-          <div class="desc-modulo">Indicadores executivos e relatórios para a direcção municipal.</div>
-          <span class="estado-modulo estado-disponivel">✅ Disponível</span>
-          <span class="canto-seta">→</span>
-        </a>
-
-        <!-- Portal do Funcionário — visível para Admin e Chefe -->
-        <a href="portal.html" class="cartao-modulo modulo-chefe" id="mod-portal" target="_blank">
-          <div class="icone-modulo" style="background:#e8f8f0;">🏠</div>
-          <div class="nome-modulo">Portal do Funcionário</div>
-          <div class="desc-modulo">Acesso dos funcionários das unidades para consultar e solicitar documentos.</div>
-          <span class="estado-modulo estado-disponivel">✅ Disponível</span>
-          <span class="canto-seta">↗</span>
-        </a>
-
-        <!-- Gestão de Utilizadores — apenas Admin (redireciona para o painel actual) -->
-        <div class="cartao-modulo modulo-admin" id="mod-utilizadores-card" onclick="document.getElementById('secção-utilizadores').scrollIntoView({behavior:'smooth'})">
-          <div class="icone-modulo" style="background:#fff0e6;">⚙️</div>
-          <div class="nome-modulo">Gestão de Utilizadores</div>
-          <div class="desc-modulo">Crie e gira as contas de acesso ao sistema.</div>
-          <span class="estado-modulo estado-disponivel">✅ Disponível</span>
-          <span class="canto-seta">→</span>
-        </div>
-
-      </div>
-    </div>
-
-
-    <!-- Banner link do Portal -->
-    <div id="banner-portal" class="secção secção-restrita" style="background:linear-gradient(135deg,#1e8449,#27ae60);border-radius:12px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:0;">
+    <!-- Banner Portal -->
+    <div class="portal-banner secção-restrita" id="banner-portal" style="display:none;">
       <div>
-        <div style="color:white;font-size:15px;font-weight:700;">🏠 Portal do Funcionário</div>
-        <div style="color:rgba(255,255,255,0.8);font-size:13px;margin-top:4px;">Partilhe este link com os funcionários das unidades sanitárias:</div>
-        <div id="link-portal-texto" style="color:white;font-size:13px;font-weight:700;font-family:monospace;background:rgba(0,0,0,0.2);padding:6px 12px;border-radius:6px;margin-top:8px;display:inline-block;letter-spacing:0.3px;"></div>
+        <h4>📱 Portal do Funcionário</h4>
+        <p>Partilhe com os funcionários das unidades sanitárias</p>
+        <div class="portal-banner-url" id="link-portal-texto">—</div>
       </div>
-      <div style="display:flex;gap:10px;">
-        <button onclick="copiarLinkPortal()" style="background:white;color:#1e8449;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">📋 Copiar link</button>
-        <a href="portal.html" target="_blank" style="background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.4);padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;">↗ Abrir portal</a>
-      </div>
-    </div>
-
-    <!-- Gestão de Utilizadores (apenas Admin) -->
-    <div class="secção secção-restrita" id="secção-utilizadores">
-      <div class="secção-cabecalho">
-        <h3>👤 Gestão de Utilizadores do Sistema</h3>
-        <button class="btn-primario" onclick="abrirModalNovoUtilizador()">+ Novo Utilizador</button>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="tabela-utilizadores">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>E-mail</th>
-              <th>Perfil</th>
-              <th>Estado</th>
-              <th>Último Acesso</th>
-              <th>Acções</th>
-            </tr>
-          </thead>
-          <tbody id="corpo-tabela-utilizadores">
-            <tr>
-              <td colspan="6">
-                <div class="vazio">
-                  <div class="icone">👥</div>
-                  <p>A carregar utilizadores...</p>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="portal-banner-acoes">
+        <button class="btn-pb-copiar" onclick="copiarLinkPortal()">📋 Copiar link</button>
+        <a href="portal.html" target="_blank" class="btn-pb-abrir">↗ Abrir portal</a>
       </div>
     </div>
 
-    <!-- Registo de Sessões (Admin e Chefe) -->
-    <div class="secção secção-restrita" id="secção-sessoes">
-      <div class="secção-cabecalho">
-        <h3>📋 Registo de Acessos Recentes</h3>
+    <!-- Módulos -->
+    <div id="menu-modulos">
+      <div class="secção-titulo">Módulos do Sistema</div>
+      <div class="modulos-grid">
+        <a href="cadastro.html" class="modulo-card modulo-rh" id="mod-cadastro">
+          <div class="modulo-icon" style="background:#e0f2fe;">👨‍💼</div>
+          <div class="modulo-nome">Cadastro de Funcionários</div>
+          <div class="modulo-desc">Registe, pesquise e gira os funcionários das unidades sanitárias.</div>
+          <div class="modulo-footer"><span class="modulo-badge badge-ok">✅ Disponível</span><span class="modulo-seta">→</span></div>
+        </a>
+        <a href="documentos.html" class="modulo-card modulo-rh" id="mod-documentos">
+          <div class="modulo-icon" style="background:var(--a-100);">📄</div>
+          <div class="modulo-nome">Geração de Documentos</div>
+          <div class="modulo-desc">Guias de férias, declarações, guias médicas e ofícios automáticos.</div>
+          <div class="modulo-footer"><span class="modulo-badge badge-ok">✅ Disponível</span><span class="modulo-seta">→</span></div>
+        </a>
+        <a href="aprovacao.html" class="modulo-card modulo-chefe" id="mod-aprovacao">
+          <div class="modulo-icon" style="background:var(--c-100);">✅</div>
+          <div class="modulo-nome">Aprovação e Solicitações</div>
+          <div class="modulo-desc">Valide documentos e responda às solicitações do portal do funcionário.</div>
+          <div class="modulo-footer"><span class="modulo-badge badge-ok">✅ Disponível</span><span class="modulo-seta">→</span></div>
+        </a>
+        <a href="auditoria.html" class="modulo-card modulo-chefe" id="mod-auditoria">
+          <div class="modulo-icon" style="background:#ede9fe;">🔍</div>
+          <div class="modulo-nome">Auditoria e Rastreabilidade</div>
+          <div class="modulo-desc">Histórico completo de todos os documentos e acções no sistema.</div>
+          <div class="modulo-footer"><span class="modulo-badge badge-ok">✅ Disponível</span><span class="modulo-seta">→</span></div>
+        </a>
+        <a href="painel.html" class="modulo-card modulo-director" id="mod-painel">
+          <div class="modulo-icon" style="background:var(--r-100);">📊</div>
+          <div class="modulo-nome">Painel de Gestão</div>
+          <div class="modulo-desc">Indicadores executivos e relatórios para a direcção municipal.</div>
+          <div class="modulo-footer"><span class="modulo-badge badge-ok">✅ Disponível</span><span class="modulo-seta">→</span></div>
+        </a>
+        <div class="modulo-card modulo-admin" id="mod-utilizadores-card" onclick="document.getElementById('secção-utilizadores').scrollIntoView({behavior:'smooth'})">
+          <div class="modulo-icon" style="background:#fef3c7;">⚙️</div>
+          <div class="modulo-nome">Gestão de Utilizadores</div>
+          <div class="modulo-desc">Crie e gira as contas de acesso e permissões do sistema.</div>
+          <div class="modulo-footer"><span class="modulo-badge badge-ok">✅ Disponível</span><span class="modulo-seta">→</span></div>
+        </div>
+        <a href="portal.html" target="_blank" class="modulo-card modulo-rh" id="mod-portal" style="background:linear-gradient(135deg,var(--c-900),var(--c-800));border-color:var(--c-700);">
+          <div class="modulo-icon" style="background:rgba(255,255,255,.1);">📱</div>
+          <div class="modulo-nome" style="color:white;">Portal do Funcionário</div>
+          <div class="modulo-desc" style="color:rgba(255,255,255,.6);">Acesso para os funcionários solicitarem documentos e consultarem o perfil.</div>
+          <div class="modulo-footer"><span class="modulo-badge" style="background:rgba(255,255,255,.15);color:white;">↗ Abrir portal</span></div>
+        </a>
       </div>
-      <div class="lista-sessoes" id="lista-sessoes">
-        <div class="vazio">
-          <div class="icone">📋</div>
-          <p>A carregar registos de acesso...</p>
+    </div>
+
+    <!-- Gestão de Utilizadores -->
+    <div class="secção-restrita" id="secção-utilizadores">
+      <div class="secção-titulo" style="margin-top:8px;">Gestão de Utilizadores</div>
+      <div class="painel-card">
+        <div class="painel-card-header">
+          <div class="painel-card-titulo">👤 Utilizadores do Sistema</div>
+          <button class="btn-primario" onclick="abrirModalNovoUtilizador()">+ Novo Utilizador</button>
+        </div>
+        <div class="tabela-scroll">
+          <table class="tabela-modern">
+            <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Estado</th><th>Último Acesso</th><th>Acções</th></tr></thead>
+            <tbody id="corpo-tabela-utilizadores">
+              <tr><td colspan="6"><div class="vazio-estado"><div class="icone">👥</div><p>A carregar...</p></div></td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
 
-    <!-- Painel do Funcionário -->
-    <div class="secção" id="secção-funcionario">
-      <div class="secção-cabecalho">
-        <h3>📄 Os Meus Documentos</h3>
+    <!-- Sessões -->
+    <div class="secção-restrita" id="secção-sessoes">
+      <div class="secção-titulo" style="margin-top:8px;">Acessos Recentes</div>
+      <div class="painel-card">
+        <div class="painel-card-header"><div class="painel-card-titulo">📋 Registo de Acessos</div></div>
+        <div id="lista-sessoes"><div class="vazio-estado"><div class="icone">📋</div><p>A carregar...</p></div></div>
       </div>
-      <div class="vazio" style="padding: 48px 20px;">
-        <div class="icone">📂</div>
-        <p>Os seus documentos aparecerão aqui.<br>
-        <strong>Módulo 3 — Geração de Documentos</strong> em desenvolvimento.</p>
+    </div>
+
+    <!-- Funcionário -->
+    <div class="secção" id="secção-funcionario" style="display:none;">
+      <div class="secção-titulo">O Meu Espaço</div>
+      <div class="painel-card">
+        <div class="painel-card-header"><div class="painel-card-titulo">📄 Os Meus Documentos</div></div>
+        <div class="vazio-estado" style="padding:48px 20px;">
+          <div class="icone">📱</div>
+          <p>Para solicitar documentos e consultar o seu perfil,<br>aceda ao <strong><a href="portal.html" style="color:var(--c-700);">Portal do Funcionário</a></strong></p>
+        </div>
       </div>
     </div>
 
   </div>
 </div>
 
-
-<!-- ==================== MODAL PERFIL ==================== -->
-<div class="overlay" id="overlay-perfil" style="display:none; align-items:center; justify-content:center;">
-  <div class="modal" style="max-width:420px;">
-    <div style="background:linear-gradient(135deg,#1a4f7a,#2471a3);border-radius:12px 12px 0 0;padding:28px;text-align:center;color:white;">
-      <div id="perfil-avatar-grande" style="width:64px;height:64px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;margin:0 auto 12px;border:3px solid rgba(255,255,255,0.3);">?</div>
-      <div id="perfil-nome-modal" style="font-size:18px;font-weight:700;">—</div>
-      <div id="perfil-cargo-modal" style="font-size:12px;opacity:0.8;margin-top:4px;">—</div>
+<!-- MODAL PERFIL (preservado) -->
+<div class="overlay" id="overlay-perfil" style="display:none;align-items:center;justify-content:center;">
+  <div class="modal-card" style="max-width:400px;">
+    <div style="background:linear-gradient(135deg,var(--c-800),var(--c-600));border-radius:var(--r-md) var(--r-md) 0 0;padding:28px;text-align:center;color:white;margin:-32px -32px 24px;">
+      <div id="perfil-avatar-grande" style="width:60px;height:60px;background:rgba(255,255,255,.2);border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;margin:0 auto 12px;border:3px solid rgba(255,255,255,.3);">?</div>
+      <div id="perfil-nome-modal" style="font-size:17px;font-weight:800;">—</div>
+      <div id="perfil-cargo-modal" style="font-size:12px;opacity:.8;margin-top:4px;">—</div>
     </div>
-    <div style="padding:20px;">
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div style="background:#f8f9fa;border-radius:8px;padding:12px 14px;">
-          <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">E-mail</div>
-          <div id="perfil-email-modal" style="font-size:13px;font-weight:600;color:#2c3e50;">—</div>
-        </div>
-        <div style="background:#f8f9fa;border-radius:8px;padding:12px 14px;">
-          <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Unidade / Secção</div>
-          <div id="perfil-unidade-modal" style="font-size:13px;font-weight:600;color:#2c3e50;">—</div>
-        </div>
-        <div style="background:#f8f9fa;border-radius:8px;padding:12px 14px;">
-          <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Nível de Acesso</div>
-          <div id="perfil-nivel-modal" style="font-size:13px;font-weight:600;color:#2c3e50;">—</div>
-        </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+      <div style="background:var(--neu-50);border-radius:var(--r-sm);padding:12px 14px;">
+        <div style="font-size:10px;font-weight:700;color:var(--neu-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">E-mail</div>
+        <div id="perfil-email-modal" style="font-size:13px;font-weight:600;">—</div>
       </div>
-      <div style="display:flex;gap:10px;margin-top:16px;">
-        <button onclick="fecharModalPerfil()" style="flex:1;background:#f0f2f4;color:#2c3e50;border:none;padding:11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Fechar</button>
-        <button onclick="fazerLogout()" style="flex:1;background:#fdecea;color:#c0392b;border:none;padding:11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Sair do Sistema</button>
+      <div style="background:var(--neu-50);border-radius:var(--r-sm);padding:12px 14px;">
+        <div style="font-size:10px;font-weight:700;color:var(--neu-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Unidade / Secção</div>
+        <div id="perfil-unidade-modal" style="font-size:13px;font-weight:600;">—</div>
       </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="fecharModalPerfil()" class="btn-cancelar" style="flex:1;">Fechar</button>
+      <button onclick="fazerLogout()" style="flex:1;background:var(--r-100);color:var(--r-600);border:none;padding:10px;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Sair do Sistema</button>
     </div>
   </div>
 </div>
 
-<!-- ==================== MODAL NOVO UTILIZADOR ==================== -->
+<!-- MODAL NOVO UTILIZADOR -->
 <div class="overlay" id="overlay-novo-utilizador">
-  <div class="modal">
-    <h3>➕ Registar Novo Utilizador</h3>
-
-    <div class="campo-grupo">
-      <label>Nome Completo</label>
-      <input type="text" id="novo-nome" placeholder="Ex: João Manuel da Silva"/>
-    </div>
-
-    <div class="campo-grupo">
-      <label>Endereço de E-mail</label>
-      <input type="email" id="novo-email" placeholder="joao.silva@saude.gov.ao"/>
-    </div>
-
-    <div class="campo-grupo">
-      <label>Senha Provisória</label>
-      <input type="text" id="novo-senha" placeholder="Mínimo 6 caracteres" value="Sumbe2026!"/>
-    </div>
-
-    <div class="campo-grupo">
+  <div class="modal-card">
+    <div class="modal-titulo">➕ Registar Novo Utilizador</div>
+    <div class="campo-modal"><label>Nome Completo</label><input type="text" id="novo-nome" placeholder="Ex: João Manuel da Silva"/></div>
+    <div class="campo-modal"><label>Endereço de E-mail</label><input type="email" id="novo-email" placeholder="joao.silva@saude.gov.ao"/></div>
+    <div class="campo-modal"><label>Senha Provisória</label><input type="text" id="novo-senha" value="Sumbe2026!"/></div>
+    <div class="campo-modal">
       <label>Perfil de Acesso</label>
       <select id="novo-perfil">
         <option value="funcionario">Funcionário de Unidade Sanitária</option>
@@ -899,60 +610,45 @@
         <option value="admin">Administrador do Sistema</option>
       </select>
     </div>
-
-    <div class="campo-grupo">
+    <div class="campo-modal">
       <label>Unidade Sanitária / Secção</label>
       <select id="novo-unidade">
-        <option value="Direcção Municipal">Direcção Municipal (Sede)</option>
-        <option value="CS Sumbe">CS Sumbe</option>
-        <option value="CS Conda">CS Conda</option>
-        <option value="CS Seles">CS Seles</option>
-        <option value="CS Gabela">CS Gabela</option>
-        <option value="PS Quibala">PS Quibala</option>
-        <option value="PS Cassongue">PS Cassongue</option>
-        <option value="PS Waku-Kungo">PS Waku-Kungo</option>
-        <option value="Outro">Outra Unidade</option>
+        <option value="Direcção Municipal de Saúde do Sumbe">Direcção Municipal de Saúde do Sumbe</option>
+        <optgroup label="Centros de Saúde">
+          <option>Centro de Saúde da Pedra 1</option>
+          <option>Centro de Saúde da Assaca</option>
+          <option>Centro de Saúde do Chingo</option>
+        </optgroup>
+        <optgroup label="Postos de Saúde">
+          <option>Posto de Saúde do Atuco</option><option>Posto de Saúde da Bumba</option>
+          <option>Posto de Saúde da Canguanja</option><option>Posto de Saúde do Cangulo</option>
+          <option>Posto de Saúde da Casa Branca</option><option>Posto de Saúde Firmar/Praia</option>
+          <option>Posto de Saúde do Mercado da Feira</option><option>Posto de Saúde da Njata</option>
+          <option>Posto de Saúde do Pindo</option><option>Posto de Saúde da Pomba Nova</option>
+          <option>Posto de Saúde das Salinas</option><option>Posto de Saúde do Quicombo</option>
+          <option>Posto de Saúde da Santa Cruz</option>
+        </optgroup>
       </select>
     </div>
-
-    <div class="acoes-modal">
+    <div class="modal-footer">
       <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
-      <button class="btn-guardar" onclick="criarNovoUtilizador()">Registar Utilizador</button>
+      <button class="btn-guardar" onclick="criarNovoUtilizador()">💾 Registar Utilizador</button>
     </div>
   </div>
 </div>
 
-<!-- Notificação -->
-<div class="notificacao" id="notificacao"></div>
+<div class="toast" id="notificacao"></div>
 
-<!-- ==================== FIREBASE + LÓGICA ==================== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import {
-    getAuth,
-    signInWithEmailAndPassword,
-    signOut,
-    createUserWithEmailAndPassword,
-    onAuthStateChanged,
-    setPersistence,
-    browserLocalPersistence
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import {
-    getFirestore,
-    doc,
-    setDoc,
-    getDoc,
-    getDocs,
-    collection,
-    updateDoc,
-    serverTimestamp,
-    query,
-    orderBy,
-    limit,
-    where
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, signOut,
+           createUserWithEmailAndPassword, onAuthStateChanged,
+           setPersistence, browserLocalPersistence }
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, getDocs, collection,
+           updateDoc, serverTimestamp, query, orderBy, limit }
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  // ===== CONFIGURAÇÃO FIREBASE =====
   const firebaseConfig = {
     apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
     authDomain: "sigdoc-sumbe.firebaseapp.com",
@@ -962,483 +658,274 @@
     appId: "1:323467521938:web:1e8170bfd3961784241b4b"
   };
 
-  const app = initializeApp(firebaseConfig);
+  const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const db = getFirestore(app);
+  const db   = getFirestore(app);
 
-  // Persistência local — sessão mantém-se entre navegações e recarregamentos
-  setPersistence(auth, browserLocalPersistence).catch(e => console.warn("Persistência:", e));
+  setPersistence(auth, browserLocalPersistence).catch(console.warn);
 
-  // ===== ETIQUETAS DOS PERFIS =====
   const etiquetasPerfil = {
-    admin: "Administrador do Sistema",
-    director: "Director Municipal",
-    chefe: "Chefe de Secção",
-    tecnico: "Técnico de RH",
-    funcionario: "Funcionário de Unidade"
+    admin:"Administrador do Sistema", director:"Director Municipal",
+    chefe:"Chefe de Secção", tecnico:"Técnico de RH", funcionario:"Funcionário de Unidade"
   };
 
-  // ===== ESTADO GLOBAL =====
-  let utilizadorActual = null;
-  let perfilActual = null;
-  let _primeiraVez = true; // evitar duplo registo de sessão
+  let utilizadorActual = null, perfilActual = null;
 
-  // ===== OBSERVADOR DE AUTENTICAÇÃO =====
-  onAuthStateChanged(auth, async (utilizador) => {
-    if (utilizador) {
-      utilizadorActual = utilizador;
-      await carregarPerfilUtilizador(utilizador);
-    } else {
-      mostrarEcrãLogin();
-    }
+  window.toggleSenha = function() {
+    const i = document.getElementById("senha-login");
+    i.type = i.type === "password" ? "text" : "password";
+  };
+
+  onAuthStateChanged(auth, async u => {
+    if (u) { utilizadorActual = u; await carregarPerfil(u); }
+    else    { mostrarLogin(); }
   });
 
-  // ===== LOGIN =====
   window.fazerLogin = async function() {
     const email = document.getElementById("email-login").value.trim();
     const senha = document.getElementById("senha-login").value;
-    const btn = document.getElementById("btn-entrar");
-    const msgErro = document.getElementById("msg-erro");
-
-    if (!email || !senha) {
-      mostrarErro("Por favor, preencha o e-mail e a senha.");
-      return;
-    }
-
+    const btn   = document.getElementById("btn-entrar");
+    const err   = document.getElementById("msg-erro");
+    if (!email || !senha) { mostrarErro("Preencha o e-mail e a senha."); return; }
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> A entrar...';
-    msgErro.style.display = "none";
-
+    err.style.display = "none";
     try {
       await signInWithEmailAndPassword(auth, email, senha);
-    } catch (erro) {
-      btn.disabled = false;
-      btn.innerHTML = "Entrar no Sistema";
-      let mensagem = "Erro ao entrar. Verifique as suas credenciais.";
-      if (erro.code === "auth/user-not-found" || erro.code === "auth/wrong-password" || erro.code === "auth/invalid-credential") {
-        mensagem = "E-mail ou senha incorrectos.";
-      } else if (erro.code === "auth/too-many-requests") {
-        mensagem = "Muitas tentativas. Tente novamente mais tarde.";
-      } else if (erro.code === "auth/network-request-failed") {
-        mensagem = "Sem conexão à Internet. Verifique a sua rede.";
-      }
-      mostrarErro(mensagem);
+    } catch(e) {
+      btn.disabled = false; btn.innerHTML = "Entrar no Sistema →";
+      const m = { "auth/user-not-found":"E-mail ou senha incorrectos.",
+                  "auth/wrong-password":"E-mail ou senha incorrectos.",
+                  "auth/invalid-credential":"E-mail ou senha incorrectos.",
+                  "auth/too-many-requests":"Muitas tentativas. Aguarde.",
+                  "auth/network-request-failed":"Sem ligação à Internet." };
+      mostrarErro(m[e.code] || "Erro ao entrar. Verifique as credenciais.");
     }
   };
 
-  // Entrar com a tecla Enter
-  document.getElementById("senha-login").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") window.fazerLogin();
-  });
-  document.getElementById("email-login").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") document.getElementById("senha-login").focus();
-  });
+  document.getElementById("senha-login").addEventListener("keydown", e => { if(e.key==="Enter") window.fazerLogin(); });
+  document.getElementById("email-login").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("senha-login").focus(); });
 
-  // ===== LOGOUT =====
   window.fazerLogout = async function() {
-    if (!confirm("Tem a certeza que deseja sair do sistema?")) return;
-    if (utilizadorActual && perfilActual) {
-      await registarSessao(utilizadorActual, perfilActual, "saída");
-    }
+    if (!confirm("Tem a certeza que deseja sair?")) return;
+    if (utilizadorActual && perfilActual) await registarSessao(utilizadorActual, perfilActual, "saída");
     await signOut(auth);
   };
 
-  // ===== CARREGAR PERFIL =====
-  async function carregarPerfilUtilizador(utilizador) {
+  async function carregarPerfil(u) {
     try {
-      const docRef = doc(db, "utilizadores", utilizador.uid);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const dados = docSnap.data();
-        perfilActual = dados;
-        await registarSessao(utilizador, dados, "entrada");
-        await updateDoc(docRef, { ultimoAcesso: serverTimestamp() });
-        mostrarPainel(utilizador, dados);
+      const snap = await getDoc(doc(db, "utilizadores", u.uid));
+      if (snap.exists()) {
+        const d = snap.data(); perfilActual = d;
+        await registarSessao(u, d, "entrada");
+        await updateDoc(doc(db,"utilizadores",u.uid), { ultimoAcesso: serverTimestamp() });
+        mostrarPainel(u, d);
       } else {
-        // Primeiro utilizador — torna-se admin automaticamente
-        const dadosAdmin = {
-          nome: utilizador.email.split("@")[0],
-          email: utilizador.email,
-          perfil: "admin",
-          unidade: "Direcção Municipal",
-          activo: true,
-          criadoEm: serverTimestamp(),
-          ultimoAcesso: serverTimestamp()
-        };
-        await setDoc(docRef, dadosAdmin);
-        perfilActual = dadosAdmin;
-        await registarSessao(utilizador, dadosAdmin, "entrada");
-        mostrarPainel(utilizador, dadosAdmin);
-        mostrarNotificacao("✅ Conta de administrador criada automaticamente!");
+        const d = { nome: u.email.split("@")[0], email: u.email, perfil:"admin",
+                    unidade:"Direcção Municipal", activo:true,
+                    criadoEm: serverTimestamp(), ultimoAcesso: serverTimestamp() };
+        await setDoc(doc(db,"utilizadores",u.uid), d);
+        perfilActual = d;
+        await registarSessao(u, d, "entrada");
+        mostrarPainel(u, d);
+        mostrarNotif("✅ Conta de administrador criada automaticamente!");
       }
-    } catch (erro) {
-      console.error("Erro ao carregar perfil:", erro);
-      mostrarErro("Erro ao carregar perfil. Verifique a conexão.");
-      await signOut(auth);
-    }
+    } catch(e) { console.error(e); mostrarErro("Erro ao carregar perfil."); await signOut(auth); }
   }
 
-  // ===== MOSTRAR PAINEL =====
-  function mostrarPainel(utilizador, dados) {
+  function mostrarPainel(u, d) {
     document.getElementById("ecrã-login").style.display = "none";
     document.getElementById("ecrã-painel").style.display = "block";
+    document.getElementById("avatar-utilizador").textContent = (d.nome||u.email)[0].toUpperCase();
+    document.getElementById("nome-utilizador-topo").textContent = d.nome || u.email;
+    document.getElementById("perfil-utilizador-topo").textContent = etiquetasPerfil[d.perfil] || d.perfil;
+    document.getElementById("msg-boas-vindas").textContent = `Bem-vindo, ${d.nome || "Utilizador"}`;
+    actualizarDataHora(); setInterval(actualizarDataHora, 60000);
 
-    const inicial = (dados.nome || utilizador.email)[0].toUpperCase();
-    document.getElementById("avatar-utilizador").textContent = inicial;
-    document.getElementById("nome-utilizador-topo").textContent = dados.nome || utilizador.email;
-    document.getElementById("perfil-utilizador-topo").textContent = etiquetasPerfil[dados.perfil] || dados.perfil;
-    document.getElementById("msg-boas-vindas").textContent = `Bem-vindo, ${dados.nome || "Utilizador"}`;
-
-    actualizarDataHora();
-    setInterval(actualizarDataHora, 60000);
-
-    // Mostrar secções conforme perfil
-    const secçãoUtilizadores = document.getElementById("secção-utilizadores");
-    const secçãoSessoes = document.getElementById("secção-sessoes");
-    const secçãoFuncionario = document.getElementById("secção-funcionario");
-
-    const bannerPortal = document.getElementById("banner-portal");
+    const p = d.perfil;
+    const seUtil = document.getElementById("secção-utilizadores");
+    const seSes  = document.getElementById("secção-sessoes");
+    const seFun  = document.getElementById("secção-funcionario");
+    const banPor = document.getElementById("banner-portal");
     const linkEl = document.getElementById("link-portal-texto");
     if (linkEl) linkEl.textContent = window.location.origin + window.location.pathname.replace("index.html","") + "portal.html";
 
-    if (dados.perfil === "admin") {
-      secçãoUtilizadores.style.display = "block";
-      secçãoSessoes.style.display = "block";
-      secçãoFuncionario.style.display = "none";
-      if (bannerPortal) bannerPortal.style.display = "flex";
-      carregarUtilizadores();
-      carregarSessoes();
-      carregarIndicadores();
-    } else if (dados.perfil === "chefe" || dados.perfil === "director") {
-      secçãoSessoes.style.display = "block";
-      secçãoFuncionario.style.display = "none";
-      if (bannerPortal) bannerPortal.style.display = "flex";
-      carregarSessoes();
-      carregarIndicadores();
+    if (p==="admin") {
+      seUtil.style.display="block"; seSes.style.display="block"; seFun.style.display="none";
+      if(banPor) banPor.style.display="flex";
+      carregarUtilizadores(); carregarSessoes(); carregarIndicadores();
+    } else if (p==="chefe"||p==="director") {
+      seSes.style.display="block"; seFun.style.display="none";
+      if(banPor) banPor.style.display = p==="chefe"?"flex":"none";
+      carregarSessoes(); carregarIndicadores();
     } else {
-      secçãoFuncionario.style.display = "block";
+      seFun.style.display="block";
     }
 
-    // ===== VISIBILIDADE DOS MÓDULOS CONFORME PERFIL =====
-    const perfil = dados.perfil;
-
-    // Módulos disponíveis para cada perfil
-    const acessoModulos = {
-      admin:       ["mod-cadastro", "mod-documentos", "mod-aprovacao", "mod-auditoria", "mod-painel", "mod-portal", "mod-utilizadores-card"],
-      chefe:       ["mod-cadastro", "mod-documentos", "mod-aprovacao", "mod-auditoria", "mod-portal"],
-      tecnico:     ["mod-cadastro", "mod-documentos"],
-      director:    ["mod-aprovacao", "mod-auditoria", "mod-painel"],
+    const acesso = {
+      admin:       ["mod-cadastro","mod-documentos","mod-aprovacao","mod-auditoria","mod-painel","mod-portal","mod-utilizadores-card"],
+      chefe:       ["mod-cadastro","mod-documentos","mod-aprovacao","mod-auditoria","mod-portal"],
+      tecnico:     ["mod-cadastro","mod-documentos"],
+      director:    ["mod-aprovacao","mod-auditoria","mod-painel"],
       funcionario: []
     };
-
-    const modulosVisiveis = acessoModulos[perfil] || [];
-
-    // Esconder todos os módulos que o perfil não deve ver
-    const todosModulos = [
-      "mod-cadastro", "mod-documentos", "mod-aprovacao",
-      "mod-auditoria", "mod-painel", "mod-portal", "mod-utilizadores-card"
-    ];
-
-    todosModulos.forEach(id => {
+    const vis = acesso[p] || [];
+    ["mod-cadastro","mod-documentos","mod-aprovacao","mod-auditoria","mod-painel","mod-portal","mod-utilizadores-card"].forEach(id => {
       const el = document.getElementById(id);
-      if (el) {
-        el.style.display = modulosVisiveis.includes(id) ? "" : "none";
-      }
+      if(el) el.style.display = vis.includes(id) ? "" : "none";
     });
-
-    // Se o perfil for funcionário, esconder todo o menu de módulos
-    if (perfil === "funcionario") {
-      document.getElementById("menu-modulos").style.display = "none";
-    }
+    if (p==="funcionario") document.getElementById("menu-modulos").style.display="none";
   }
 
-  function mostrarEcrãLogin() {
-    document.getElementById("ecrã-painel").style.display = "none";
-    document.getElementById("ecrã-login").style.display = "flex";
-    document.getElementById("btn-entrar").disabled = false;
-    document.getElementById("btn-entrar").innerHTML = "Entrar no Sistema";
-    utilizadorActual = null;
-    perfilActual = null;
+  function mostrarLogin() {
+    document.getElementById("ecrã-painel").style.display="none";
+    document.getElementById("ecrã-login").style.display="flex";
+    const b = document.getElementById("btn-entrar");
+    b.disabled=false; b.innerHTML="Entrar no Sistema →";
+    utilizadorActual=null; perfilActual=null;
   }
 
-  // ===== INDICADORES =====
+  window.copiarLinkPortal = function() {
+    const url = document.getElementById("link-portal-texto")?.textContent;
+    if(!url) return;
+    navigator.clipboard.writeText(url).then(()=>mostrarNotif("📋 Link copiado!")).catch(()=>prompt("Copie o link:",url));
+  };
+
   async function carregarIndicadores() {
-    // Utilizadores
     try {
-      const snap = await getDocs(collection(db, "utilizadores"));
+      const snap = await getDocs(collection(db,"utilizadores"));
       let activos = 0;
-      snap.forEach(d => { if (d.data().activo) activos++; });
+      snap.forEach(d=>{ if(d.data().activo) activos++; });
       document.getElementById("total-utilizadores").textContent = snap.size;
       document.getElementById("total-activos").textContent = activos;
-    } catch(e) {
-      console.error("Erro indicadores utilizadores:", e);
-    }
-
-    // Funcionarios e Unidades — lidos da coleccao "funcionarios"
+    } catch(e) { console.error(e); }
     try {
-      const snapF = await getDocs(collection(db, "funcionarios"));
-      const unidades = new Set();
-      snapF.forEach(d => {
-        const u = d.data().unidade;
-        if (u) unidades.add(u);
-      });
+      const snapF = await getDocs(collection(db,"funcionarios"));
+      const uns = new Set();
+      snapF.forEach(d=>{ const u=d.data().unidade; if(u) uns.add(u); });
       document.getElementById("total-funcionarios").textContent = snapF.size;
-      document.getElementById("total-unidades").textContent = unidades.size;
-    } catch(e) {
-      console.error("Erro indicadores funcionarios:", e);
-      document.getElementById("total-funcionarios").textContent = "—";
-      document.getElementById("total-unidades").textContent = "—";
-    }
+      document.getElementById("total-unidades").textContent = uns.size || 16;
+    } catch(e) {}
   }
 
-  // ===== CARREGAR UTILIZADORES =====
   async function carregarUtilizadores() {
-    const tbody = document.getElementById("corpo-tabela-utilizadores");
-    tbody.innerHTML = `<tr><td colspan="6"><div class="vazio"><p>A carregar...</p></div></td></tr>`;
-
+    const tb = document.getElementById("corpo-tabela-utilizadores");
+    tb.innerHTML=`<tr><td colspan="6"><div class="vazio-estado"><p>A carregar...</p></div></td></tr>`;
     try {
-      const snap = await getDocs(collection(db, "utilizadores"));
-      if (snap.empty) {
-        tbody.innerHTML = `<tr><td colspan="6"><div class="vazio"><div class="icone">👥</div><p>Nenhum utilizador registado.</p></div></td></tr>`;
-        return;
-      }
-
-      let html = "";
-      snap.forEach(d => {
-        const u = d.data();
-        const uid = d.id;
-        const clssePerfil = `perfil-${u.perfil || "funcionario"}`;
-        const estadoHtml = u.activo
-          ? `<span class="estado-activo">● Activo</span>`
-          : `<span class="estado-inactivo">○ Inactivo</span>`;
-        const ultimoAcesso = u.ultimoAcesso?.toDate
-          ? formatarData(u.ultimoAcesso.toDate())
-          : "—";
-        const podeDesactivar = u.perfil !== "admin";
-
-        html += `
-          <tr>
-            <td><strong>${u.nome || "—"}</strong><br><small style="color:#aaa">${u.unidade || ""}</small></td>
-            <td>${u.email || "—"}</td>
-            <td><span class="badge-perfil ${clssePerfil}">${etiquetasPerfil[u.perfil] || u.perfil}</span></td>
-            <td>${estadoHtml}</td>
-            <td>${ultimoAcesso}</td>
-            <td>
-              <div class="acoes-linha">
-                ${podeDesactivar ? `<button class="btn-acao ${u.activo ? "btn-desactivar" : "btn-editar"}"
-                  onclick="toggleEstadoUtilizador('${uid}', ${u.activo})">
-                  ${u.activo ? "Desactivar" : "Activar"}
-                </button>` : `<span style="font-size:11px;color:#aaa">Admin</span>`}
-              </div>
-            </td>
-          </tr>`;
+      const snap = await getDocs(collection(db,"utilizadores"));
+      if(snap.empty){ tb.innerHTML=`<tr><td colspan="6"><div class="vazio-estado"><div class="icone">👥</div><p>Nenhum utilizador.</p></div></td></tr>`; return; }
+      let html="";
+      snap.forEach(d=>{
+        const u=d.data(), uid=d.id;
+        const bge = u.activo?`<span class="b-activo">● Activo</span>`:`<span class="b-inactivo">○ Inactivo</span>`;
+        const acs = u.ultimoAcesso?.toDate ? fmtData(u.ultimoAcesso.toDate()) : "—";
+        const btn = u.perfil!=="admin"
+          ? `<button class="btn-acao-ln ${u.activo?"btn-desat":"btn-ativar"}" onclick="toggleUser('${uid}',${u.activo})">${u.activo?"Desactivar":"Activar"}</button>`
+          : `<span style="font-size:11px;color:var(--neu-300)">—</span>`;
+        html+=`<tr>
+          <td><strong>${u.nome||"—"}</strong><br><small style="color:var(--neu-400)">${u.unidade||""}</small></td>
+          <td style="font-family:var(--mono);font-size:12px">${u.email||"—"}</td>
+          <td><span class="badge-perfil perfil-${u.perfil||"funcionario"}">${etiquetasPerfil[u.perfil]||u.perfil}</span></td>
+          <td>${bge}</td>
+          <td style="font-size:12px;color:var(--neu-400)">${acs}</td>
+          <td>${btn}</td>
+        </tr>`;
       });
-      tbody.innerHTML = html;
-    } catch(e) {
-      console.error("Erro ao carregar utilizadores:", e);
-      tbody.innerHTML = `<tr><td colspan="6"><div class="vazio"><p>Erro ao carregar. Verifique a conexão.</p></div></td></tr>`;
-    }
+      tb.innerHTML=html;
+    } catch(e){ tb.innerHTML=`<tr><td colspan="6"><div class="vazio-estado"><p>Erro ao carregar.</p></div></td></tr>`; }
   }
 
-  // ===== ACTIVAR / DESACTIVAR =====
-  window.toggleEstadoUtilizador = async function(uid, estadoActual) {
-    const novoEstado = !estadoActual;
-    const confirmMsg = novoEstado ? "Activar este utilizador?" : "Desactivar este utilizador?";
-    if (!confirm(confirmMsg)) return;
-    try {
-      await updateDoc(doc(db, "utilizadores", uid), { activo: novoEstado });
-      mostrarNotificacao(novoEstado ? "✅ Utilizador activado!" : "🔴 Utilizador desactivado!");
-      carregarUtilizadores();
-      carregarIndicadores();
-    } catch(e) {
-      mostrarNotificacao("Erro ao actualizar estado.");
-    }
+  window.toggleUser = async function(uid, actual) {
+    if(!confirm(actual?"Desactivar?":"Activar?")) return;
+    try{
+      await updateDoc(doc(db,"utilizadores",uid),{activo:!actual});
+      mostrarNotif(!actual?"✅ Utilizador activado!":"🔴 Utilizador desactivado.");
+      carregarUtilizadores(); carregarIndicadores();
+    }catch(e){ mostrarNotif("Erro ao actualizar."); }
   };
 
+  // Manter compatibilidade com chamadas antigas
+  window.toggleEstadoUtilizador = window.toggleUser;
 
-  // ===== LINK DO PORTAL =====
-  window.copiarLinkPortal = function() {
-    const link = window.location.origin + window.location.pathname.replace('index.html','') + 'portal.html';
-    navigator.clipboard.writeText(link).then(() => {
-      mostrarNotificacao('✅ Link copiado! Partilhe com os funcionários.');
-    }).catch(() => {
-      mostrarNotificacao('Link: ' + link);
-    });
-  };
-
-  // ===== MODAL DE PERFIL =====
-  window.abrirModalPerfil = function() {
-    if (!utilizadorActual || !perfilActual) return;
-    const dados = perfilActual;
-    const nome = dados.nome || utilizadorActual.email;
-    const inicial = nome[0].toUpperCase();
-    document.getElementById("perfil-avatar-grande").textContent = inicial;
-    document.getElementById("perfil-nome-modal").textContent = nome;
-    document.getElementById("perfil-cargo-modal").textContent = etiquetasPerfil[dados.perfil] || dados.perfil;
-    document.getElementById("perfil-email-modal").textContent = utilizadorActual.email;
-    document.getElementById("perfil-unidade-modal").textContent = dados.unidade || dados.seccao || "—";
-    document.getElementById("perfil-nivel-modal").textContent = etiquetasPerfil[dados.perfil] || dados.perfil;
-    document.getElementById("overlay-perfil").style.display = "flex";
-  };
-
-  window.fecharModalPerfil = function() {
-    document.getElementById("overlay-perfil").style.display = "none";
-  };
-
-  document.getElementById("overlay-perfil").addEventListener("click", function(e) {
-    if (e.target === this) window.fecharModalPerfil();
-  });
-
-  // ===== NOVO UTILIZADOR =====
-  window.abrirModalNovoUtilizador = function() {
-    document.getElementById("overlay-novo-utilizador").classList.add("activo");
-  };
-
-  window.fecharModal = function() {
-    document.getElementById("overlay-novo-utilizador").classList.remove("activo");
-  };
+  window.abrirModalNovoUtilizador = ()=>document.getElementById("overlay-novo-utilizador").classList.add("activo");
+  window.fecharModal = ()=>document.getElementById("overlay-novo-utilizador").classList.remove("activo");
 
   window.criarNovoUtilizador = async function() {
-    const nome = document.getElementById("novo-nome").value.trim();
-    const email = document.getElementById("novo-email").value.trim();
-    const senha = document.getElementById("novo-senha").value.trim();
-    const perfil = document.getElementById("novo-perfil").value;
-    const unidade = document.getElementById("novo-unidade").value;
-
-    if (!nome || !email || !senha) {
-      alert("Por favor, preencha todos os campos obrigatórios.");
-      return;
-    }
-
-    if (senha.length < 6) {
-      alert("A senha deve ter pelo menos 6 caracteres.");
-      return;
-    }
-
-    try {
-      // Criar utilizador na autenticação Firebase
-      const credencial = await createUserWithEmailAndPassword(auth, email, senha);
-      const novoUid = credencial.user.uid;
-
-      // Guardar perfil no Firestore
-      await setDoc(doc(db, "utilizadores", novoUid), {
-        nome,
-        email,
-        perfil,
-        unidade,
-        activo: true,
-        criadoEm: serverTimestamp(),
-        ultimoAcesso: null,
-        criadoPor: utilizadorActual.uid
-      });
-
-      fecharModal();
-      mostrarNotificacao(`✅ Utilizador "${nome}" registado com sucesso!`);
-      carregarUtilizadores();
-      carregarIndicadores();
-
-      // Limpar campos
-      document.getElementById("novo-nome").value = "";
-      document.getElementById("novo-email").value = "";
-      document.getElementById("novo-senha").value = "Sumbe2026!";
-
-    } catch(e) {
-      console.error("Erro ao criar utilizador:", e);
-      let msg = "Erro ao criar utilizador.";
-      if (e.code === "auth/email-already-in-use") msg = "Este e-mail já está registado.";
-      if (e.code === "auth/invalid-email") msg = "E-mail inválido.";
-      alert(msg);
+    const nome=document.getElementById("novo-nome").value.trim();
+    const email=document.getElementById("novo-email").value.trim();
+    const senha=document.getElementById("novo-senha").value.trim();
+    const perfil=document.getElementById("novo-perfil").value;
+    const unidade=document.getElementById("novo-unidade").value;
+    if(!nome||!email||!senha){alert("Preencha todos os campos.");return;}
+    if(senha.length<6){alert("Senha com mínimo 6 caracteres.");return;}
+    try{
+      const cred=await createUserWithEmailAndPassword(auth,email,senha);
+      await setDoc(doc(db,"utilizadores",cred.user.uid),{nome,email,perfil,unidade,activo:true,criadoEm:serverTimestamp(),ultimoAcesso:null,criadoPor:utilizadorActual.uid});
+      fecharModal(); mostrarNotif(`✅ Utilizador "${nome}" registado!`);
+      carregarUtilizadores(); carregarIndicadores();
+      document.getElementById("novo-nome").value="";
+      document.getElementById("novo-email").value="";
+      document.getElementById("novo-senha").value="Sumbe2026!";
+    }catch(e){
+      const m={"auth/email-already-in-use":"E-mail já registado.","auth/invalid-email":"E-mail inválido."};
+      alert(m[e.code]||"Erro ao criar utilizador.");
     }
   };
 
-  // ===== REGISTAR SESSÃO =====
-  async function registarSessao(utilizador, dados, tipo) {
-    try {
-      const idSessao = `${utilizador.uid}_${Date.now()}`;
-      await setDoc(doc(db, "sessoes", idSessao), {
-        uid: utilizador.uid,
-        nome: dados.nome || utilizador.email,
-        perfil: dados.perfil,
-        email: utilizador.email,
-        tipo,
-        timestamp: serverTimestamp()
+  async function registarSessao(u,d,tipo){
+    try{ await setDoc(doc(db,"sessoes",`${u.uid}_${Date.now()}`),{uid:u.uid,nome:d.nome||u.email,perfil:d.perfil,email:u.email,tipo,timestamp:serverTimestamp()}); }catch(e){}
+  }
+
+  async function carregarSessoes(){
+    const lista=document.getElementById("lista-sessoes");
+    try{
+      const q=query(collection(db,"sessoes"),orderBy("timestamp","desc"),limit(15));
+      const snap=await getDocs(q);
+      if(snap.empty){lista.innerHTML=`<div class="vazio-estado"><div class="icone">📋</div><p>Nenhum registo.</p></div>`;return;}
+      let html="";
+      snap.forEach(d=>{
+        const s=d.data(), ent=s.tipo==="entrada";
+        const h=s.timestamp?.toDate?fmtData(s.timestamp.toDate()):"—";
+        html+=`<div class="sessao-item">
+          <div class="sessao-dot ${ent?"dot-in":"dot-out"}"></div>
+          <div class="sessao-info">
+            <div class="sessao-nome">${s.nome||s.email}</div>
+            <div class="sessao-det">${etiquetasPerfil[s.perfil]||s.perfil} · ${ent?"Entrou":"Saiu"}</div>
+          </div>
+          <div class="sessao-hora">${h}</div>
+        </div>`;
       });
-    } catch(e) {
-      console.error("Erro ao registar sessão:", e);
-    }
+      lista.innerHTML=html;
+    }catch(e){lista.innerHTML=`<div class="vazio-estado"><p>Erro.</p></div>`;}
   }
 
-  // ===== CARREGAR SESSÕES =====
-  async function carregarSessoes() {
-    const lista = document.getElementById("lista-sessoes");
-    try {
-      const q = query(collection(db, "sessoes"), orderBy("timestamp", "desc"), limit(15));
-      const snap = await getDocs(q);
+  window.abrirModalPerfil=function(){
+    if(!utilizadorActual||!perfilActual) return;
+    const d=perfilActual, nome=d.nome||utilizadorActual.email;
+    document.getElementById("perfil-avatar-grande").textContent=nome[0].toUpperCase();
+    document.getElementById("perfil-nome-modal").textContent=nome;
+    document.getElementById("perfil-cargo-modal").textContent=etiquetasPerfil[d.perfil]||d.perfil;
+    document.getElementById("perfil-email-modal").textContent=utilizadorActual.email;
+    document.getElementById("perfil-unidade-modal").textContent=d.unidade||d.seccao||"—";
+    document.getElementById("overlay-perfil").style.display="flex";
+  };
+  window.fecharModalPerfil=()=>{document.getElementById("overlay-perfil").style.display="none";};
+  document.getElementById("overlay-perfil").addEventListener("click",function(e){if(e.target===this)window.fecharModalPerfil();});
+  document.getElementById("overlay-novo-utilizador").addEventListener("click",function(e){if(e.target===this)window.fecharModal();});
 
-      if (snap.empty) {
-        lista.innerHTML = `<div class="vazio"><div class="icone">📋</div><p>Nenhum registo de acesso ainda.</p></div>`;
-        return;
-      }
-
-      let html = "";
-      snap.forEach(d => {
-        const s = d.data();
-        const entrada = s.tipo === "entrada";
-        const hora = s.timestamp?.toDate ? formatarData(s.timestamp.toDate()) : "Agora";
-        html += `
-          <div class="item-sessao">
-            <div class="ponto-sessao ${entrada ? "ponto-verde" : "ponto-cinza"}"></div>
-            <div class="info-sessao">
-              <div class="utilizador-nome">${s.nome || s.email}</div>
-              <div class="detalhe">${etiquetasPerfil[s.perfil] || s.perfil} · ${entrada ? "Entrou" : "Saiu"} do sistema</div>
-            </div>
-            <div class="hora-sessao">${hora}</div>
-          </div>`;
-      });
-      lista.innerHTML = html;
-    } catch(e) {
-      console.error("Erro ao carregar sessões:", e);
-      lista.innerHTML = `<div class="vazio"><p>Erro ao carregar registos.</p></div>`;
-    }
+  function mostrarErro(msg){const e=document.getElementById("msg-erro");e.textContent=msg;e.style.display="block";}
+  function mostrarNotif(msg,tipo="sucesso"){
+    const e=document.getElementById("notificacao");
+    e.textContent=msg; e.className=`toast toast-${tipo}`; e.style.display="block";
+    setTimeout(()=>e.style.display="none",4000);
   }
-
-  // ===== AUXILIARES =====
-  function mostrarErro(msg) {
-    const el = document.getElementById("msg-erro");
-    el.textContent = msg;
-    el.style.display = "block";
+  function fmtData(d){if(!d)return"—";return d.toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});}
+  function actualizarDataHora(){
+    const a=new Date();
+    document.getElementById("data-hora-actual").textContent=
+      a.toLocaleDateString("pt-AO",{weekday:"long",day:"2-digit",month:"long",year:"numeric"})+" · "+
+      a.toLocaleTimeString("pt-AO",{hour:"2-digit",minute:"2-digit"});
   }
-
-  function mostrarNotificacao(msg) {
-    const el = document.getElementById("notificacao");
-    el.textContent = msg;
-    el.style.display = "block";
-    setTimeout(() => { el.style.display = "none"; }, 4000);
-  }
-
-  function formatarData(data) {
-    if (!data) return "—";
-    return data.toLocaleDateString("pt-AO", {
-      day: "2-digit", month: "short", year: "numeric",
-      hour: "2-digit", minute: "2-digit"
-    });
-  }
-
-  function actualizarDataHora() {
-    const agora = new Date();
-    document.getElementById("data-hora-actual").textContent =
-      agora.toLocaleDateString("pt-AO", {
-        weekday: "long", day: "2-digit", month: "long", year: "numeric"
-      }) + " · " +
-      agora.toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" });
-  }
-
-  // Fechar modal ao clicar fora
-  document.getElementById("overlay-novo-utilizador").addEventListener("click", function(e) {
-    if (e.target === this) window.fecharModal();
-  });
-
 </script>
 </body>
 </html>
