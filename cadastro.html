@@ -4,225 +4,435 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SIGDOC-SUMBE — Cadastro de Funcionários</title>
-  <meta name="theme-color" content="#1a4f7a"/>
+  <meta name="theme-color" content="#0b4f3a"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --azul: #1a4f7a; --azul-claro: #2471a3; --verde: #1e8449;
-      --vermelho: #c0392b; --laranja: #d35400; --cinza-fundo: #f0f2f5;
-      --branco: #ffffff; --texto: #2c3e50; --texto-suave: #7f8c8d;
-      --borda: #dde3ea; --sombra: 0 2px 12px rgba(0,0,0,0.08);
-      --sombra-hover: 0 6px 24px rgba(0,0,0,0.14);
+      --c-900:#052e1c;--c-800:#0b4f3a;--c-700:#0d6e4f;--c-600:#12a372;--c-500:#10c886;
+      --c-100:#d1fae5;--c-50:#f0fdf4;
+      --b-800:#1e3a5f;--b-600:#2563eb;--b-100:#dbeafe;
+      --r-600:#dc2626;--r-100:#fee2e2;
+      --a-500:#f59e0b;--a-100:#fef3c7;
+      --neu-900:#0f172a;--neu-700:#334155;--neu-600:#475569;--neu-500:#64748b;
+      --neu-400:#94a3b8;--neu-300:#cbd5e1;--neu-200:#e2e8f0;
+      --neu-100:#f1f5f9;--neu-50:#f8fafc;--white:#ffffff;
+      --r-sm:8px;--r-md:14px;--r-lg:20px;--r-xl:28px;--r-full:999px;
+      --sh-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+      --sh-md:0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.05);
+      --sh-lg:0 20px 60px rgba(0,0,0,.15),0 8px 20px rgba(0,0,0,.08);
+      --glow:0 0 0 4px rgba(16,200,134,.18);
+      --font:'Plus Jakarta Sans',sans-serif;--mono:'DM Mono',monospace;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: var(--cinza-fundo); color: var(--texto); min-height: 100vh; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--neu-50);color:var(--neu-900);min-height:100vh;-webkit-font-smoothing:antialiased}
 
-    .barra-topo { background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%); color: white; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-    .barra-esquerda { display: flex; align-items: center; gap: 16px; }
-    .btn-voltar { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; text-decoration: none; transition: background 0.2s; }
-    .btn-voltar:hover { background: rgba(255,255,255,0.25); }
-    .titulo-pagina { font-size: 16px; font-weight: 700; }
-    .titulo-pagina span { font-size: 11px; font-weight: 400; opacity: 0.8; display: block; }
-    .info-utilizador { display: flex; align-items: center; gap: 10px; }
-    .nome-topo { font-size: 13px; font-weight: 600; }
-    .perfil-topo { font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; }
-    .avatar { width: 34px; height: 34px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    /* ── TOPBAR ── */
+    .topbar{
+      background:linear-gradient(135deg,var(--c-900) 0%,var(--c-800) 60%,var(--c-700) 100%);
+      padding:0 28px;height:64px;display:flex;align-items:center;
+      justify-content:space-between;position:sticky;top:0;z-index:100;
+      box-shadow:0 2px 20px rgba(0,0,0,.25);
+    }
+    .topbar-esq{display:flex;align-items:center;gap:14px}
+    .btn-voltar{
+      background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+      color:var(--white);padding:7px 14px;border-radius:var(--r-sm);
+      font-size:12px;font-weight:600;font-family:var(--font);
+      cursor:pointer;text-decoration:none;transition:all .2s;
+      display:flex;align-items:center;gap:6px;
+    }
+    .btn-voltar:hover{background:rgba(255,255,255,.2)}
+    .topbar-titulo{font-size:15px;font-weight:800;color:var(--white);letter-spacing:.3px}
+    .topbar-titulo span{display:block;font-size:10px;font-weight:400;opacity:.55;margin-top:1px;letter-spacing:0}
+    .topbar-dir{display:flex;align-items:center;gap:10px}
+    .topbar-nome{font-size:13px;font-weight:700;color:var(--white)}
+    .topbar-perfil{font-size:10px;color:rgba(255,255,255,.55)}
+    .topbar-avatar{
+      width:36px;height:36px;
+      background:linear-gradient(135deg,var(--c-600),var(--c-500));
+      border-radius:var(--r-full);display:flex;align-items:center;
+      justify-content:center;font-size:14px;font-weight:800;
+      color:var(--white);border:2px solid rgba(255,255,255,.25);
+    }
 
-    .conteudo { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+    /* ── HERO STRIP ── */
+    .hero-strip{
+      background:linear-gradient(135deg,var(--c-900) 0%,var(--c-800) 60%,var(--c-700) 100%);
+      padding:24px 28px 72px;position:relative;overflow:hidden;
+    }
+    .hero-strip::before{
+      content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 50% 100% at 100% 50%,rgba(16,200,134,.12) 0%,transparent 60%);
+    }
+    .hero-strip::after{
+      content:'';position:absolute;inset:0;
+      background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),
+                       linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+      background-size:40px 40px;
+    }
+    .hero-inner{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .hero-txt h2{font-size:20px;font-weight:800;color:var(--white)}
+    .hero-txt p{font-size:12px;color:rgba(255,255,255,.55);margin-top:4px}
 
-    .barra-acoes { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-    .campo-pesquisa { display: flex; align-items: center; background: white; border: 2px solid var(--borda); border-radius: 10px; padding: 0 14px; gap: 8px; flex: 1; max-width: 420px; transition: border-color 0.2s; }
-    .campo-pesquisa:focus-within { border-color: var(--azul-claro); }
-    .campo-pesquisa input { border: none; outline: none; font-size: 14px; padding: 11px 0; width: 100%; background: transparent; }
-    .campo-pesquisa .icone-pesquisa { color: var(--texto-suave); font-size: 16px; }
-    .acoes-direita { display: flex; gap: 10px; align-items: center; }
-    .filtro-local { padding: 10px 14px; border: 2px solid var(--borda); border-radius: 10px; font-size: 13px; background: white; outline: none; cursor: pointer; color: var(--texto); }
-    .btn-primario { background: var(--azul); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
-    .btn-primario:hover { background: var(--azul-claro); }
+    /* ── CONTEÚDO ── */
+    .conteudo{max-width:1200px;margin:-48px auto 0;padding:0 20px 48px;position:relative;z-index:10}
 
-    .indicadores-rapidos { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }
-    .ind-card { background: white; border-radius: 10px; padding: 16px; box-shadow: var(--sombra); display: flex; align-items: center; gap: 12px; }
-    .ind-icone { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-    .ind-num { font-size: 22px; font-weight: 700; color: var(--azul); }
-    .ind-label { font-size: 11px; color: var(--texto-suave); margin-top: 2px; }
+    /* ── KPI CARDS ── */
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+    .kpi-card{
+      background:var(--white);border-radius:var(--r-md);padding:18px 20px;
+      box-shadow:var(--sh-md);display:flex;align-items:center;gap:14px;
+      border:1px solid var(--neu-100);transition:transform .2s;
+    }
+    .kpi-card:hover{transform:translateY(-2px)}
+    .kpi-icon{width:44px;height:44px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+    .kpi-num{font-size:24px;font-weight:800;color:var(--neu-900);line-height:1;font-family:var(--mono)}
+    .kpi-lbl{font-size:11px;color:var(--neu-500);margin-top:3px;font-weight:500}
 
-    .painel-tabela { background: white; border-radius: 12px; box-shadow: var(--sombra); overflow: hidden; }
-    .cabecalho-tabela { padding: 16px 20px; border-bottom: 1px solid #eef0f3; display: flex; align-items: center; justify-content: space-between; }
-    .cabecalho-tabela h3 { font-size: 15px; color: var(--azul); }
-    .contagem-resultado { font-size: 12px; color: var(--texto-suave); }
-    .tabela-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; }
-    thead th { background: #f8f9fa; padding: 11px 16px; font-size: 11px; font-weight: 700; color: #666; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-    tbody td { padding: 13px 16px; border-top: 1px solid #f0f2f4; font-size: 13px; vertical-align: middle; }
-    tbody tr:hover td { background: #fafbfc; }
-    tbody tr { cursor: pointer; }
-    .nome-funcionario { font-weight: 600; color: var(--texto); }
-    .numero-func { font-size: 11px; color: var(--texto-suave); margin-top: 2px; font-family: monospace; }
-    .badge { display: inline-block; padding: 3px 9px; border-radius: 10px; font-size: 11px; font-weight: 600; }
-    .badge-quadro { background: #e8f8f0; color: #1e8449; }
-    .badge-provisorio { background: #fef9e7; color: #d4a017; }
-    .badge-activo { background: #e8f8f0; color: #1e8449; }
-    .badge-inactivo { background: #fdecea; color: #c0392b; }
-    .badge-licenca { background: #fef9e7; color: #d4a017; }
-    .acoes-linha { display: flex; gap: 6px; }
-    .btn-ver { background: #e8f4f8; color: #1a4f7a; border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
-    .btn-editar-linha { background: #fef9e7; color: #d4a017; border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
-    .vazio { text-align: center; padding: 50px 20px; color: var(--texto-suave); }
-    .vazio .icone-vazio { font-size: 48px; margin-bottom: 12px; }
-    .vazio p { font-size: 14px; }
-    .vazio small { font-size: 12px; color: #aaa; }
+    /* ── BARRA DE ACÇÕES ── */
+    .barra-acoes{
+      background:var(--white);border-radius:var(--r-md);
+      padding:14px 18px;margin-bottom:16px;
+      display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+      box-shadow:var(--sh-sm);border:1px solid var(--neu-100);
+    }
+    .pesquisa-wrap{
+      display:flex;align-items:center;gap:10px;
+      flex:1;min-width:200px;
+      background:var(--neu-50);border:2px solid var(--neu-200);
+      border-radius:var(--r-sm);padding:0 14px;transition:all .2s;
+    }
+    .pesquisa-wrap:focus-within{border-color:var(--c-600);background:var(--white);box-shadow:var(--glow)}
+    .pesquisa-wrap input{
+      border:none;outline:none;font-size:14px;font-family:var(--font);
+      padding:10px 0;width:100%;background:transparent;color:var(--neu-900);
+    }
+    .pesquisa-wrap input::placeholder{color:var(--neu-400)}
+    .pesquisa-icone{color:var(--neu-400);font-size:15px;flex-shrink:0}
+    .filtro-select{
+      padding:10px 14px;border:2px solid var(--neu-200);border-radius:var(--r-sm);
+      font-size:13px;font-family:var(--font);background:var(--neu-50);
+      color:var(--neu-700);outline:none;cursor:pointer;transition:all .2s;
+    }
+    .filtro-select:focus{border-color:var(--c-600)}
+    .btn-novo{
+      background:linear-gradient(135deg,var(--c-700),var(--c-600));
+      color:var(--white);border:none;padding:10px 20px;
+      border-radius:var(--r-sm);font-size:13px;font-weight:700;
+      font-family:var(--font);cursor:pointer;transition:all .2s;
+      white-space:nowrap;box-shadow:0 2px 8px rgba(13,110,79,.25);
+    }
+    .btn-novo:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(13,110,79,.35)}
 
-    /* MODAL */
-    .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: 200; align-items: flex-start; justify-content: center; padding: 20px; overflow-y: auto; }
-    .overlay.activo { display: flex; }
-    .modal { background: white; border-radius: 16px; width: 100%; max-width: 700px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); margin: auto; overflow: hidden; }
-    .modal-cabecalho { background: linear-gradient(135deg, var(--azul), var(--azul-claro)); color: white; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
-    .modal-cabecalho h3 { font-size: 17px; }
-    .modal-cabecalho p { font-size: 12px; opacity: 0.8; margin-top: 2px; }
-    .btn-fechar { background: rgba(255,255,255,0.2); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .modal-corpo { padding: 24px; }
-    .secao-form { margin-bottom: 20px; }
-    .secao-form-titulo { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--azul); margin-bottom: 14px; padding-bottom: 6px; border-bottom: 2px solid #eef0f3; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-    .col-span-2 { grid-column: span 2; }
-    .campo { display: flex; flex-direction: column; gap: 5px; }
-    .campo label { font-size: 12px; font-weight: 600; color: var(--texto); }
-    .campo input, .campo select, .campo textarea { padding: 10px 12px; border: 2px solid var(--borda); border-radius: 8px; font-size: 13px; outline: none; transition: border-color 0.2s; background: white; color: var(--texto); font-family: inherit; }
-    .campo input:focus, .campo select:focus, .campo textarea:focus { border-color: var(--azul-claro); }
-    .campo textarea { resize: vertical; min-height: 70px; }
-    .campo-obrigatorio label::after { content: " *"; color: var(--vermelho); }
-    .campo-oculto { display: none; }
-    .campo-seccao-info { font-size: 11px; color: var(--azul); background: #e8f4f8; padding: 6px 10px; border-radius: 6px; margin-top: 4px; }
+    /* ── TABELA CARD ── */
+    .tabela-card{
+      background:var(--white);border-radius:var(--r-md);
+      box-shadow:var(--sh-sm);border:1px solid var(--neu-100);overflow:hidden;
+    }
+    .tabela-header{
+      padding:16px 22px;border-bottom:1px solid var(--neu-100);
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .tabela-header-titulo{font-size:14px;font-weight:700;color:var(--neu-900)}
+    .tabela-contagem{font-size:12px;color:var(--neu-400);font-family:var(--mono)}
+    .tabela-scroll{overflow-x:auto}
+    table{width:100%;border-collapse:collapse}
+    thead th{
+      padding:11px 18px;font-size:10px;font-weight:700;
+      text-transform:uppercase;letter-spacing:.8px;color:var(--neu-400);
+      background:var(--neu-50);text-align:left;border-bottom:1px solid var(--neu-100);
+      white-space:nowrap;
+    }
+    tbody tr{border-bottom:1px solid var(--neu-50);cursor:pointer;transition:background .12s}
+    tbody tr:hover td{background:var(--c-50)}
+    tbody tr:last-child{border-bottom:none}
+    tbody td{padding:14px 18px;font-size:13px;color:var(--neu-700);vertical-align:middle}
+    .func-nome{font-weight:700;color:var(--neu-900)}
+    .func-num{font-size:11px;color:var(--neu-400);margin-top:2px;font-family:var(--mono)}
 
-    .modal-rodape { padding: 16px 24px; border-top: 1px solid #eef0f3; display: flex; justify-content: flex-end; gap: 10px; }
-    .btn-cancelar { background: #f0f2f4; color: var(--texto); border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
-    .btn-guardar { background: var(--verde); color: white; border: none; padding: 10px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
-    .btn-guardar:hover { opacity: 0.9; }
-    .btn-guardar:disabled { opacity: 0.6; cursor: not-allowed; }
+    /* Badges */
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:var(--r-full);font-size:11px;font-weight:700;letter-spacing:.2px}
+    .badge-quadro   {background:var(--c-100);color:var(--c-700)}
+    .badge-provisorio{background:var(--a-100);color:#92400e}
+    .badge-activo   {background:var(--c-100);color:var(--c-700)}
+    .badge-inactivo {background:var(--r-100);color:var(--r-600)}
+    .badge-licenca  {background:var(--a-100);color:#92400e}
 
-    /* FICHA */
-    .ficha-cabecalho { background: linear-gradient(135deg, var(--azul), var(--azul-claro)); color: white; padding: 24px; display: flex; align-items: center; gap: 18px; }
-    .ficha-avatar { width: 64px; height: 64px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; flex-shrink: 0; border: 3px solid rgba(255,255,255,0.4); }
-    .ficha-nome { font-size: 20px; font-weight: 700; }
-    .ficha-cargo { font-size: 13px; opacity: 0.85; margin-top: 3px; }
-    .ficha-numero { font-size: 12px; opacity: 0.7; margin-top: 2px; font-family: monospace; }
-    .ficha-fechar { margin-left: auto; }
-    .ficha-corpo { padding: 24px; }
-    .ficha-tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 2px solid #eef0f3; }
-    .tab-btn { padding: 8px 16px; border: none; background: none; font-size: 13px; font-weight: 600; color: var(--texto-suave); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
-    .tab-btn.activo { color: var(--azul); border-bottom-color: var(--azul); }
-    .tab-conteudo { display: none; }
-    .tab-conteudo.activo { display: block; }
-    .ficha-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .ficha-campo { padding: 12px; background: #f8f9fa; border-radius: 8px; }
-    .ficha-campo .rotulo { font-size: 11px; color: var(--texto-suave); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-    .ficha-campo .valor { font-size: 14px; font-weight: 600; color: var(--texto); }
-    .ficha-campo.destaque { grid-column: span 2; background: #e8f4f8; }
-    .anos-servico-badge { display: inline-block; background: var(--azul); color: white; padding: 2px 10px; border-radius: 10px; font-size: 12px; }
-    .historico-vazio { text-align: center; padding: 40px; color: var(--texto-suave); }
-    .item-historico { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 8px; background: #f8f9fa; margin-bottom: 8px; }
-    .hist-icone { width: 36px; height: 36px; background: var(--azul); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; flex-shrink: 0; }
-    .hist-info { flex: 1; }
-    .hist-tipo { font-size: 13px; font-weight: 600; }
-    .hist-detalhe { font-size: 11px; color: var(--texto-suave); margin-top: 2px; }
-    .hist-data { font-size: 11px; color: #aaa; white-space: nowrap; }
+    .acoes-linha{display:flex;gap:6px}
+    .btn-ver-linha,.btn-editar-linha{
+      padding:5px 12px;border-radius:var(--r-sm);font-size:11px;
+      font-weight:700;font-family:var(--font);cursor:pointer;border:none;transition:all .15s;
+    }
+    .btn-ver-linha{background:var(--b-100);color:var(--b-800)}
+    .btn-ver-linha:hover{background:#bfdbfe}
+    .btn-editar-linha{background:var(--a-100);color:#92400e}
+    .btn-editar-linha:hover{background:#fde68a}
 
-    .notificacao { position: fixed; bottom: 24px; right: 24px; padding: 14px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; color: white; display: none; z-index: 500; max-width: 320px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-    .notif-sucesso { background: var(--verde); }
-    .notif-erro { background: var(--vermelho); }
+    .vazio-tabela{text-align:center;padding:60px 20px;color:var(--neu-400)}
+    .vazio-tabela .icone{font-size:44px;margin-bottom:14px}
+    .vazio-tabela p{font-size:14px;font-weight:500;color:var(--neu-600)}
+    .vazio-tabela small{font-size:12px;color:var(--neu-400);display:block;margin-top:4px}
 
-    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── OVERLAY / MODAL ── */
+    .overlay{
+      display:none;position:fixed;inset:0;
+      background:rgba(15,23,42,.65);z-index:200;
+      align-items:flex-start;justify-content:center;
+      padding:24px 20px;overflow-y:auto;backdrop-filter:blur(4px);
+    }
+    .overlay.activo{display:flex;animation:fadeIn .2s ease}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-    #ecrã-negado { min-height: 100vh; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 16px; text-align: center; padding: 20px; }
+    .modal{
+      background:var(--white);border-radius:var(--r-xl);
+      width:100%;max-width:700px;
+      box-shadow:var(--sh-lg);margin:auto;overflow:hidden;
+      animation:slideUp .35s cubic-bezier(.16,1,.3,1);
+    }
+    @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 
-    @media (max-width: 600px) {
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
-      .col-span-2 { grid-column: span 1; }
-      .ficha-grid { grid-template-columns: 1fr; }
+    .modal-head{
+      background:linear-gradient(135deg,var(--c-900),var(--c-700));
+      padding:22px 26px;display:flex;align-items:center;justify-content:space-between;
+    }
+    .modal-head-titulo{font-size:17px;font-weight:800;color:var(--white)}
+    .modal-head-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:3px}
+    .btn-fechar{
+      background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);
+      color:var(--white);width:32px;height:32px;border-radius:var(--r-full);
+      font-size:16px;cursor:pointer;display:flex;align-items:center;
+      justify-content:center;transition:background .2s;flex-shrink:0;
+    }
+    .btn-fechar:hover{background:rgba(255,255,255,.28)}
+
+    .modal-corpo{padding:26px}
+    .secao-form{margin-bottom:22px}
+    .secao-titulo{
+      font-size:11px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.8px;color:var(--c-700);margin-bottom:14px;
+      padding-bottom:8px;border-bottom:2px solid var(--neu-100);
+      display:flex;align-items:center;gap:6px;
+    }
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+    .col-2{grid-column:span 2}
+    .campo{display:flex;flex-direction:column;gap:5px}
+    .campo label{font-size:11px;font-weight:700;color:var(--neu-600);text-transform:uppercase;letter-spacing:.3px}
+    .campo input,.campo select,.campo textarea{
+      padding:10px 13px;border:2px solid var(--neu-200);border-radius:var(--r-sm);
+      font-size:13px;font-family:var(--font);outline:none;
+      color:var(--neu-900);background:var(--white);transition:border-color .2s;
+    }
+    .campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--c-600);box-shadow:var(--glow)}
+    .campo textarea{resize:vertical;min-height:72px}
+    .campo-obrig label::after{content:" *";color:var(--r-600)}
+    .campo-oculto{display:none!important}
+    .campo-hint{font-size:11px;color:var(--c-700);background:var(--c-50);border:1px solid var(--c-100);padding:6px 10px;border-radius:var(--r-sm);margin-top:4px}
+
+    .modal-foot{
+      padding:16px 26px;border-top:1px solid var(--neu-100);
+      display:flex;justify-content:flex-end;gap:10px;
+      background:var(--neu-50);
+    }
+    .btn-cancelar{
+      background:var(--white);color:var(--neu-700);
+      border:1.5px solid var(--neu-200);padding:10px 20px;
+      border-radius:var(--r-sm);font-size:13px;font-weight:700;
+      font-family:var(--font);cursor:pointer;transition:all .2s;
+    }
+    .btn-cancelar:hover{border-color:var(--neu-300);background:var(--neu-100)}
+    .btn-guardar{
+      background:linear-gradient(135deg,var(--c-700),var(--c-600));
+      color:var(--white);border:none;padding:10px 24px;
+      border-radius:var(--r-sm);font-size:13px;font-weight:700;
+      font-family:var(--font);cursor:pointer;transition:all .2s;
+      box-shadow:0 2px 8px rgba(13,110,79,.25);
+    }
+    .btn-guardar:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(13,110,79,.35)}
+    .btn-guardar:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+    /* ── FICHA ── */
+    .ficha-head{
+      background:linear-gradient(135deg,var(--c-900),var(--c-700));
+      padding:26px;display:flex;align-items:center;gap:18px;
+    }
+    .ficha-avatar{
+      width:64px;height:64px;
+      background:rgba(255,255,255,.15);border-radius:var(--r-full);
+      display:flex;align-items:center;justify-content:center;
+      font-size:26px;font-weight:800;color:var(--white);
+      border:3px solid rgba(255,255,255,.3);flex-shrink:0;
+    }
+    .ficha-nome{font-size:20px;font-weight:800;color:var(--white)}
+    .ficha-cargo{font-size:12px;color:rgba(255,255,255,.7);margin-top:4px}
+    .ficha-numero{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;font-family:var(--mono)}
+    .ficha-fechar{margin-left:auto;flex-shrink:0}
+
+    .ficha-corpo{padding:0}
+    .ficha-tabs{
+      display:flex;gap:0;border-bottom:2px solid var(--neu-100);
+      padding:0 22px;background:var(--white);
+    }
+    .tab-btn{
+      padding:14px 18px;border:none;background:none;
+      font-size:13px;font-weight:600;color:var(--neu-400);
+      cursor:pointer;border-bottom:2.5px solid transparent;
+      margin-bottom:-2px;transition:all .2s;font-family:var(--font);
+    }
+    .tab-btn.activo{color:var(--c-700);border-bottom-color:var(--c-600)}
+    .tab-btn:hover:not(.activo){color:var(--neu-700)}
+    .tab-conteudo{display:none;padding:22px}
+    .tab-conteudo.activo{display:block}
+
+    .ficha-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .ficha-campo{
+      padding:12px 14px;background:var(--neu-50);
+      border-radius:var(--r-sm);border:1px solid var(--neu-100);
+    }
+    .ficha-campo .rotulo{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--neu-400);margin-bottom:4px}
+    .ficha-campo .valor{font-size:13px;font-weight:600;color:var(--neu-900)}
+    .ficha-campo.destaque{grid-column:span 2;background:var(--c-50);border-color:var(--c-100)}
+    .badge-anos{background:var(--c-700);color:var(--white);padding:3px 10px;border-radius:var(--r-full);font-size:12px;font-weight:700}
+
+    /* histórico */
+    .hist-vazio{text-align:center;padding:40px 20px;color:var(--neu-400)}
+    .hist-item{
+      display:flex;align-items:flex-start;gap:12px;padding:14px;
+      border-radius:var(--r-sm);background:var(--neu-50);
+      margin-bottom:8px;border:1px solid var(--neu-100);
+    }
+    .hist-icon{
+      width:38px;height:38px;background:var(--c-700);border-radius:var(--r-sm);
+      display:flex;align-items:center;justify-content:center;
+      color:var(--white);font-size:16px;flex-shrink:0;
+    }
+    .hist-info{flex:1}
+    .hist-tipo{font-size:13px;font-weight:700;color:var(--neu-900)}
+    .hist-det{font-size:11px;color:var(--neu-400);margin-top:3px}
+    .hist-data{font-size:11px;color:var(--neu-400);white-space:nowrap;font-family:var(--mono)}
+
+    /* Toast */
+    .toast{
+      position:fixed;bottom:28px;right:28px;padding:14px 20px;
+      border-radius:var(--r-md);font-size:13px;font-weight:600;
+      display:none;z-index:600;max-width:340px;box-shadow:var(--sh-lg);
+    }
+    .toast-sucesso{background:var(--c-800);color:var(--white);border-left:4px solid var(--c-500)}
+    .toast-erro{background:#1f0a0a;color:#fca5a5;border-left:4px solid var(--r-600)}
+
+    .spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:5px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    #ecrã-negado{min-height:100vh;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:20px}
+
+    @media(max-width:768px){
+      .kpi-row{grid-template-columns:repeat(2,1fr)}
+      .hero-strip{padding:20px 16px 68px}
+      .conteudo{padding:0 14px 40px}
+      .topbar{padding:0 16px}
+    }
+    @media(max-width:560px){
+      .grid-2,.grid-3{grid-template-columns:1fr}
+      .col-2{grid-column:span 1}
+      .ficha-grid{grid-template-columns:1fr}
+      .ficha-campo.destaque{grid-column:span 1}
     }
   </style>
 </head>
 <body>
 
-<div class="barra-topo">
-  <div class="barra-esquerda">
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-esq">
     <a href="index.html" class="btn-voltar">← Painel</a>
-    <div class="titulo-pagina">
+    <div class="topbar-titulo">
       Cadastro de Funcionários
       <span>Módulo 2 — SIGDOC-SUMBE</span>
     </div>
   </div>
-  <div class="info-utilizador">
+  <div class="topbar-dir">
     <div style="text-align:right;">
-      <div class="nome-topo" id="nome-topo">—</div>
-      <div class="perfil-topo" id="perfil-topo">—</div>
+      <div class="topbar-nome" id="nome-topo">—</div>
+      <div class="topbar-perfil" id="perfil-topo">—</div>
     </div>
-    <div class="avatar" id="avatar-topo">?</div>
+    <div class="topbar-avatar" id="avatar-topo">?</div>
   </div>
 </div>
 
+<!-- HERO -->
+<div class="hero-strip">
+  <div class="hero-inner">
+    <div class="hero-txt">
+      <h2>👨‍💼 Gestão de Pessoal</h2>
+      <p>Administração Municipal de Saúde do Sumbe</p>
+    </div>
+  </div>
+</div>
+
+<!-- CONTEÚDO -->
 <div class="conteudo" id="conteudo-principal" style="display:none;">
 
-  <div class="indicadores-rapidos">
-    <div class="ind-card">
-      <div class="ind-icone" style="background:#e8f4f8;">👥</div>
-      <div><div class="ind-num" id="ind-total">—</div><div class="ind-label">Total de Funcionários</div></div>
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#e0f2fe;">👥</div>
+      <div><div class="kpi-num" id="ind-total">—</div><div class="kpi-lbl">Total de Funcionários</div></div>
     </div>
-    <div class="ind-card">
-      <div class="ind-icone" style="background:#e8f8f0;">✅</div>
-      <div><div class="ind-num" id="ind-activos">—</div><div class="ind-label">Em Serviço Activo</div></div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:var(--c-100);">✅</div>
+      <div><div class="kpi-num" id="ind-activos">—</div><div class="kpi-lbl">Em Serviço Activo</div></div>
     </div>
-    <div class="ind-card">
-      <div class="ind-icone" style="background:#e8f8f0;">📋</div>
-      <div><div class="ind-num" id="ind-quadro">—</div><div class="ind-label">Pessoal do Quadro</div></div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:var(--c-100);">📋</div>
+      <div><div class="kpi-num" id="ind-quadro">—</div><div class="kpi-lbl">Pessoal do Quadro</div></div>
     </div>
-    <div class="ind-card">
-      <div class="ind-icone" style="background:#fef9e7;">🔄</div>
-      <div><div class="ind-num" id="ind-provisorio">—</div><div class="ind-label">Provimento Provisório</div></div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:var(--a-100);">🔄</div>
+      <div><div class="kpi-num" id="ind-provisorio">—</div><div class="kpi-lbl">Provimento Provisório</div></div>
     </div>
   </div>
 
+  <!-- Barra de Acções -->
   <div class="barra-acoes">
-    <div class="campo-pesquisa">
-      <span class="icone-pesquisa">🔍</span>
-      <input type="text" id="campo-pesquisa" placeholder="Pesquisar por nome ou número de agente..." oninput="pesquisar()"/>
+    <div class="pesquisa-wrap">
+      <span class="pesquisa-icone">🔍</span>
+      <input type="text" id="campo-pesquisa" placeholder="Pesquisar por nome, número de agente..." oninput="pesquisar()"/>
     </div>
-    <div class="acoes-direita">
-      <select class="filtro-local" id="filtro-local" onchange="pesquisar()">
-        <option value="">Todos os Locais</option>
-        <option value="Direcção Municipal de Saúde do Sumbe">Direcção Municipal de Saúde do Sumbe</option>
-        <optgroup label="Centros de Saúde">
-          <option value="Centro de Saúde da Pedra 1">Centro de Saúde da Pedra 1</option>
-          <option value="Centro de Saúde da Assaca">Centro de Saúde da Assaca</option>
-          <option value="Centro de Saúde do Chingo">Centro de Saúde do Chingo</option>
-        </optgroup>
-        <optgroup label="Postos de Saúde">
-          <option value="Posto de Saúde do Atuco">Posto de Saúde do Atuco</option>
-          <option value="Posto de Saúde da Bumba">Posto de Saúde da Bumba</option>
-          <option value="Posto de Saúde da Canguanja">Posto de Saúde da Canguanja</option>
-          <option value="Posto de Saúde do Cangulo">Posto de Saúde do Cangulo</option>
-          <option value="Posto de Saúde da Casa Branca">Posto de Saúde da Casa Branca</option>
-          <option value="Posto de Saúde Firmar/Praia">Posto de Saúde Firmar/Praia</option>
-          <option value="Posto de Saúde do Mercado da Feira">Posto de Saúde do Mercado da Feira</option>
-          <option value="Posto de Saúde da Njata">Posto de Saúde da Njata</option>
-          <option value="Posto de Saúde do Pindo">Posto de Saúde do Pindo</option>
-          <option value="Posto de Saúde da Pomba Nova">Posto de Saúde da Pomba Nova</option>
-          <option value="Posto de Saúde das Salinas">Posto de Saúde das Salinas</option>
-          <option value="Posto de Saúde do Quicombo">Posto de Saúde do Quicombo</option>
-          <option value="Posto de Saúde da Santa Cruz">Posto de Saúde da Santa Cruz</option>
-        </optgroup>
-      </select>
-      <button class="btn-primario" onclick="abrirFormulario()">+ Novo Funcionário</button>
-    </div>
+    <select class="filtro-select" id="filtro-local" onchange="pesquisar()">
+      <option value="">Todos os Locais</option>
+      <option value="Direcção Municipal de Saúde do Sumbe">Direcção Municipal</option>
+      <optgroup label="Centros de Saúde">
+        <option value="Centro de Saúde da Pedra 1">CS Pedra 1</option>
+        <option value="Centro de Saúde da Assaca">CS Assaca</option>
+        <option value="Centro de Saúde do Chingo">CS Chingo</option>
+      </optgroup>
+      <optgroup label="Postos de Saúde">
+        <option value="Posto de Saúde do Atuco">PS Atuco</option>
+        <option value="Posto de Saúde da Bumba">PS Bumba</option>
+        <option value="Posto de Saúde da Canguanja">PS Canguanja</option>
+        <option value="Posto de Saúde do Cangulo">PS Cangulo</option>
+        <option value="Posto de Saúde da Casa Branca">PS Casa Branca</option>
+        <option value="Posto de Saúde Firmar/Praia">PS Firmar/Praia</option>
+        <option value="Posto de Saúde do Mercado da Feira">PS Mercado Feira</option>
+        <option value="Posto de Saúde da Njata">PS Njata</option>
+        <option value="Posto de Saúde do Pindo">PS Pindo</option>
+        <option value="Posto de Saúde da Pomba Nova">PS Pomba Nova</option>
+        <option value="Posto de Saúde das Salinas">PS Salinas</option>
+        <option value="Posto de Saúde do Quicombo">PS Quicombo</option>
+        <option value="Posto de Saúde da Santa Cruz">PS Santa Cruz</option>
+      </optgroup>
+    </select>
+    <button class="btn-novo" onclick="abrirFormulario()">+ Novo Funcionário</button>
   </div>
 
-  <div class="painel-tabela">
-    <div class="cabecalho-tabela">
-      <h3>👤 Lista de Funcionários Cadastrados</h3>
-      <span class="contagem-resultado" id="contagem-resultado">A carregar...</span>
+  <!-- Tabela -->
+  <div class="tabela-card">
+    <div class="tabela-header">
+      <div class="tabela-header-titulo">Lista de Funcionários Cadastrados</div>
+      <div class="tabela-contagem" id="contagem-resultado">A carregar...</div>
     </div>
-    <div class="tabela-wrap">
+    <div class="tabela-scroll">
       <table>
         <thead>
           <tr>
@@ -235,27 +445,28 @@
           </tr>
         </thead>
         <tbody id="corpo-tabela">
-          <tr><td colspan="6"><div class="vazio"><div class="icone-vazio">⏳</div><p>A carregar funcionários...</p></div></td></tr>
+          <tr><td colspan="6"><div class="vazio-tabela"><div class="icone">⏳</div><p>A carregar funcionários...</p></div></td></tr>
         </tbody>
       </table>
     </div>
   </div>
 </div>
 
+<!-- ACESSO NEGADO -->
 <div id="ecrã-negado">
-  <div style="font-size:60px;">🔒</div>
-  <h2 style="color:var(--azul)">Acesso Restrito</h2>
-  <p>Não tem permissão para aceder a esta página.</p>
-  <a href="index.html" class="btn-primario" style="margin-top:10px;">Voltar ao Painel</a>
+  <div style="font-size:56px;">🔒</div>
+  <h2 style="color:var(--c-800)">Acesso Restrito</h2>
+  <p style="color:var(--neu-500)">Não tem permissão para aceder a esta página.</p>
+  <a href="index.html" class="btn-novo" style="margin-top:8px;text-decoration:none;">← Voltar ao Painel</a>
 </div>
 
 <!-- MODAL FORMULÁRIO -->
 <div class="overlay" id="overlay-formulario">
   <div class="modal">
-    <div class="modal-cabecalho">
+    <div class="modal-head">
       <div>
-        <h3 id="titulo-modal">➕ Registar Novo Funcionário</h3>
-        <p>Preencha todos os campos obrigatórios (*)</p>
+        <div class="modal-head-titulo" id="titulo-modal">➕ Registar Novo Funcionário</div>
+        <div class="modal-head-sub">Preencha todos os campos obrigatórios (*)</div>
       </div>
       <button class="btn-fechar" onclick="fecharFormulario()">✕</button>
     </div>
@@ -264,13 +475,13 @@
 
       <!-- Dados Pessoais -->
       <div class="secao-form">
-        <div class="secao-form-titulo">📋 Dados Pessoais</div>
+        <div class="secao-titulo">📋 Dados Pessoais</div>
         <div class="grid-2">
-          <div class="campo campo-obrigatorio col-span-2">
+          <div class="campo campo-obrig col-2">
             <label>Nome Completo</label>
             <input type="text" id="f-nome" placeholder="Ex: João Manuel da Silva"/>
           </div>
-          <div class="campo campo-obrigatorio">
+          <div class="campo campo-obrig">
             <label>Sexo</label>
             <select id="f-sexo">
               <option value="">Seleccione...</option>
@@ -295,28 +506,25 @@
 
       <!-- Dados Profissionais -->
       <div class="secao-form">
-        <div class="secao-form-titulo">💼 Dados Profissionais</div>
+        <div class="secao-titulo">💼 Dados Profissionais</div>
         <div class="grid-2">
-          <div class="campo campo-obrigatorio">
+          <div class="campo campo-obrig">
             <label>Número de Agente</label>
             <input type="text" id="f-numero" placeholder="Ex: 00456"/>
           </div>
-          <div class="campo campo-obrigatorio">
+          <div class="campo campo-obrig">
             <label>Categoria / Cargo</label>
             <select id="f-categoria">
               <option value="">Seleccione...</option>
               <optgroup label="Pessoal Médico">
-                <option>Médico Geral</option>
-                <option>Médico Especialista</option>
-                <option>Médico Director</option>
+                <option>Médico Geral</option><option>Médico Especialista</option><option>Médico Director</option>
               </optgroup>
               <optgroup label="Pessoal de Enfermagem">
                 <option>Técnico Superior de Enfermagem</option>
                 <option>Técnico Médio de Enfermagem de 1ª Classe</option>
                 <option>Técnico Médio de Enfermagem de 2ª Classe</option>
                 <option>Técnico Médio de Enfermagem de 3ª Classe</option>
-                <option>Auxiliar de Enfermagem</option>
-                <option>Parteira</option>
+                <option>Auxiliar de Enfermagem</option><option>Parteira</option>
               </optgroup>
               <optgroup label="Técnicos de Saúde">
                 <option>Técnico Superior de Análises Clínicas</option>
@@ -329,26 +537,17 @@
               <optgroup label="Pessoal Administrativo">
                 <option>Técnico Superior de Administração</option>
                 <option>Técnico Médio de Administração</option>
-                <option>Estatístico de 1ª Classe</option>
-                <option>Estatístico de 2ª Classe</option>
-                <option>Estatístico de 3ª Classe</option>
+                <option>Estatístico de 1ª Classe</option><option>Estatístico de 2ª Classe</option><option>Estatístico de 3ª Classe</option>
                 <option>Técnico de Recursos Humanos</option>
-                <option>Secretário Clínico de 1ª Classe</option>
-                <option>Secretário Clínico de 2ª Classe</option>
-                <option>Secretário Clínico de 3ª Classe</option>
-                <option>Agente Administrativo de 1ª Classe</option>
-                <option>Agente Administrativo de 2ª Classe</option>
-                <option>Agente Administrativo de 3ª Classe</option>
+                <option>Secretário Clínico de 1ª Classe</option><option>Secretário Clínico de 2ª Classe</option><option>Secretário Clínico de 3ª Classe</option>
+                <option>Agente Administrativo de 1ª Classe</option><option>Agente Administrativo de 2ª Classe</option><option>Agente Administrativo de 3ª Classe</option>
               </optgroup>
               <optgroup label="Pessoal Auxiliar">
-                <option>Motorista</option>
-                <option>Segurança</option>
-                <option>Contínuo</option>
-                <option>Auxiliar de Serviços Gerais</option>
+                <option>Motorista</option><option>Segurança</option><option>Contínuo</option><option>Auxiliar de Serviços Gerais</option>
               </optgroup>
             </select>
           </div>
-          <div class="campo campo-obrigatorio col-span-2">
+          <div class="campo campo-obrig col-2">
             <label>Local de Colocação</label>
             <select id="f-unidade" onchange="verificarDireccao()">
               <option value="">Seleccione...</option>
@@ -375,8 +574,7 @@
               </optgroup>
             </select>
           </div>
-          <!-- Campo Secção — só aparece se Local = Direcção Municipal -->
-          <div class="campo campo-obrigatorio col-span-2 campo-oculto" id="campo-seccao-wrap">
+          <div class="campo campo-obrig col-2 campo-oculto" id="campo-seccao-wrap">
             <label>Secção na Direcção Municipal</label>
             <select id="f-seccao">
               <option value="">Seleccione a Secção...</option>
@@ -386,10 +584,9 @@
               <option value="Secção de Logística Hospitalar e Medicamentos">Secção de Logística Hospitalar e Medicamentos</option>
               <option value="Secretaria">Secretaria</option>
             </select>
-            <span class="campo-seccao-info">ℹ️ Obrigatório para funcionários da Direcção Municipal</span>
+            <span class="campo-hint">ℹ️ Obrigatório para funcionários da Direcção Municipal</span>
           </div>
-          <!-- Campo Área — só aparece se Local = Centro de Saúde -->
-          <div class="campo col-span-2 campo-oculto" id="campo-area-wrap">
+          <div class="campo col-2 campo-oculto" id="campo-area-wrap">
             <label>Área / Serviço no Centro de Saúde</label>
             <select id="f-area">
               <option value="">Seleccione a área...</option>
@@ -410,9 +607,9 @@
               <option value="Administração / Secretaria">Administração / Secretaria</option>
               <option value="Outro">Outro</option>
             </select>
-            <span class="campo-seccao-info">ℹ️ Indique a área onde desempenha funções no centro de saúde.</span>
+            <span class="campo-hint">ℹ️ Indique a área onde desempenha funções no centro de saúde.</span>
           </div>
-          <div class="campo campo-obrigatorio">
+          <div class="campo campo-obrig">
             <label>Tipo de Vínculo</label>
             <select id="f-vinculo">
               <option value="">Seleccione...</option>
@@ -420,7 +617,7 @@
               <option value="provisorio">Provimento Provisório</option>
             </select>
           </div>
-          <div class="campo campo-obrigatorio">
+          <div class="campo campo-obrig">
             <label>Data de Admissão</label>
             <input type="date" id="f-admissao"/>
           </div>
@@ -429,7 +626,7 @@
 
       <!-- Estado e Observações -->
       <div class="secao-form">
-        <div class="secao-form-titulo">📌 Estado e Observações</div>
+        <div class="secao-titulo">📌 Estado e Observações</div>
         <div class="grid-2">
           <div class="campo">
             <label>Estado Actual</label>
@@ -455,14 +652,14 @@
               <option value="Doutoramento">Doutoramento</option>
             </select>
           </div>
-          <div class="campo col-span-2">
+          <div class="campo col-2">
             <label>Observações</label>
             <textarea id="f-observacoes" placeholder="Informações adicionais relevantes..."></textarea>
           </div>
         </div>
       </div>
     </div>
-    <div class="modal-rodape">
+    <div class="modal-foot">
       <button class="btn-cancelar" onclick="fecharFormulario()">Cancelar</button>
       <button class="btn-guardar" id="btn-guardar" onclick="guardarFuncionario()">💾 Guardar Funcionário</button>
     </div>
@@ -472,7 +669,7 @@
 <!-- MODAL FICHA -->
 <div class="overlay" id="overlay-ficha">
   <div class="modal">
-    <div class="ficha-cabecalho">
+    <div class="ficha-head">
       <div class="ficha-avatar" id="ficha-avatar">?</div>
       <div>
         <div class="ficha-nome" id="ficha-nome">—</div>
@@ -483,517 +680,370 @@
     </div>
     <div class="ficha-corpo">
       <div class="ficha-tabs">
-        <button class="tab-btn activo" onclick="mudarTab('dados', this)">📋 Dados</button>
-        <button class="tab-btn" onclick="mudarTab('historico', this)">📄 Documentos</button>
-        <button class="tab-btn" onclick="mudarTab('solicitacoes', this)">📩 Solicitações <span id="badge-sol-ficha" style="background:#e74c3c;color:white;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700;display:none;margin-left:3px;">0</span></button>
+        <button class="tab-btn activo" onclick="mudarTab('dados',this)">📋 Dados</button>
+        <button class="tab-btn" onclick="mudarTab('historico',this)">📄 Documentos</button>
+        <button class="tab-btn" onclick="mudarTab('solicitacoes',this)">
+          📩 Solicitações
+          <span id="badge-sol-ficha" style="background:var(--r-600);color:white;border-radius:var(--r-full);padding:1px 7px;font-size:10px;font-weight:700;display:none;margin-left:4px;">0</span>
+        </button>
       </div>
       <div class="tab-conteudo activo" id="tab-dados">
         <div class="ficha-grid" id="ficha-grid-dados"></div>
       </div>
       <div class="tab-conteudo" id="tab-solicitacoes">
-        <div id="ficha-solicitacoes"><div class="historico-vazio"><div style="font-size:32px;margin-bottom:8px;">⏳</div><p style="color:var(--texto-suave)">A carregar solicitações...</p></div></div>
+        <div id="ficha-solicitacoes"><div class="hist-vazio"><div style="font-size:32px;margin-bottom:8px;">⏳</div><p>A carregar solicitações...</p></div></div>
       </div>
       <div class="tab-conteudo" id="tab-historico">
-        <div id="ficha-historico">
-          <div class="historico-vazio">
-            <div style="font-size:40px;margin-bottom:10px;">📂</div>
-            <p style="color:var(--texto-suave)">Seleccione um funcionário para ver o histórico.</p>
-          </div>
-        </div>
+        <div id="ficha-historico"><div class="hist-vazio"><div style="font-size:40px;margin-bottom:10px;">📂</div><p>Seleccione um funcionário para ver o histórico.</p></div></div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="notificacao" id="notificacao"></div>
+<div class="toast" id="notificacao"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import {
-    getFirestore, collection, doc, getDoc, getDocs,
-    addDoc, updateDoc, serverTimestamp, query, orderBy, where
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getFirestore, collection, doc, getDoc, getDocs,
+           addDoc, updateDoc, serverTimestamp, query, orderBy, where }
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
-    apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
-    authDomain: "sigdoc-sumbe.firebaseapp.com",
-    projectId: "sigdoc-sumbe",
-    storageBucket: "sigdoc-sumbe.firebasestorage.app",
-    messagingSenderId: "323467521938",
-    appId: "1:323467521938:web:1e8170bfd3961784241b4b"
+    apiKey:"AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",authDomain:"sigdoc-sumbe.firebaseapp.com",
+    projectId:"sigdoc-sumbe",storageBucket:"sigdoc-sumbe.firebasestorage.app",
+    messagingSenderId:"323467521938",appId:"1:323467521938:web:1e8170bfd3961784241b4b"
   };
+  const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app);
+  const etiquetasPerfil={admin:"Administrador do Sistema",director:"Director Municipal",chefe:"Chefe de Secção",tecnico:"Técnico de RH",funcionario:"Funcionário de Unidade"};
+  const perfisPermitidos=["admin","tecnico","chefe","director"];
+  let todosOsFuncionarios=[], utilizadorActual=null, funcionarioEmEdicao=null;
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  const etiquetasPerfil = {
-    admin: "Administrador do Sistema", director: "Director Municipal",
-    chefe: "Chefe de Secção", tecnico: "Técnico de RH", funcionario: "Funcionário de Unidade"
-  };
-  const perfisPermitidos = ["admin", "tecnico", "chefe", "director"];
-
-  let todosOsFuncionarios = [];
-  let utilizadorActual = null;
-  let funcionarioEmEdicao = null;
-
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = "index.html"; return; }
-    utilizadorActual = user;
-    const docSnap = await getDoc(doc(db, "utilizadores", user.uid));
-    if (!docSnap.exists()) { window.location.href = "index.html"; return; }
-    const dados = docSnap.data();
-    if (!perfisPermitidos.includes(dados.perfil)) {
-      document.getElementById("ecrã-negado").style.display = "flex"; return;
-    }
-    document.getElementById("nome-topo").textContent = dados.nome || user.email;
-    document.getElementById("perfil-topo").textContent = etiquetasPerfil[dados.perfil] || dados.perfil;
-    document.getElementById("avatar-topo").textContent = (dados.nome || user.email)[0].toUpperCase();
-    document.getElementById("conteudo-principal").style.display = "block";
+  onAuthStateChanged(auth, async u=>{
+    if(!u){window.location.href="index.html";return;}
+    utilizadorActual=u;
+    const snap=await getDoc(doc(db,"utilizadores",u.uid));
+    if(!snap.exists()){window.location.href="index.html";return;}
+    const d=snap.data();
+    if(!perfisPermitidos.includes(d.perfil)){document.getElementById("ecrã-negado").style.display="flex";return;}
+    document.getElementById("nome-topo").textContent=d.nome||u.email;
+    document.getElementById("perfil-topo").textContent=etiquetasPerfil[d.perfil]||d.perfil;
+    document.getElementById("avatar-topo").textContent=(d.nome||u.email)[0].toUpperCase();
+    document.getElementById("conteudo-principal").style.display="block";
     carregarFuncionarios();
   });
 
-  async function carregarFuncionarios() {
-    try {
-      const q = query(collection(db, "funcionarios"), orderBy("nome"));
-      const snap = await getDocs(q);
-      todosOsFuncionarios = [];
-      snap.forEach(d => todosOsFuncionarios.push({ id: d.id, ...d.data() }));
-      actualizarIndicadores();
-      renderizarTabela(todosOsFuncionarios);
-    } catch(e) {
-      console.error("Erro:", e);
-      mostrarNotificacao("Erro ao carregar funcionários.", "erro");
-    }
+  async function carregarFuncionarios(){
+    try{
+      const q=query(collection(db,"funcionarios"),orderBy("nome"));
+      const snap=await getDocs(q);
+      todosOsFuncionarios=[];
+      snap.forEach(d=>todosOsFuncionarios.push({id:d.id,...d.data()}));
+      actualizarIndicadores(); renderizarTabela(todosOsFuncionarios);
+    }catch(e){console.error(e);notif("Erro ao carregar funcionários.","erro");}
   }
 
-  function actualizarIndicadores() {
-    const total = todosOsFuncionarios.length;
-    const activos = todosOsFuncionarios.filter(f => f.estado === "activo").length;
-    const quadro = todosOsFuncionarios.filter(f => f.vinculo === "quadro").length;
-    const provisorio = todosOsFuncionarios.filter(f => f.vinculo === "provisorio").length;
-    document.getElementById("ind-total").textContent = total;
-    document.getElementById("ind-activos").textContent = activos;
-    document.getElementById("ind-quadro").textContent = quadro;
-    document.getElementById("ind-provisorio").textContent = provisorio;
+  function actualizarIndicadores(){
+    document.getElementById("ind-total").textContent=todosOsFuncionarios.length;
+    document.getElementById("ind-activos").textContent=todosOsFuncionarios.filter(f=>f.estado==="activo").length;
+    document.getElementById("ind-quadro").textContent=todosOsFuncionarios.filter(f=>f.vinculo==="quadro").length;
+    document.getElementById("ind-provisorio").textContent=todosOsFuncionarios.filter(f=>f.vinculo==="provisorio").length;
   }
 
-  function calcularAnosServico(admissao) {
-    if (!admissao) return null;
-    const adm = new Date(admissao + "T12:00:00");
-    const hoje = new Date();
-    let anos = hoje.getFullYear() - adm.getFullYear();
-    const m = hoje.getMonth() - adm.getMonth();
-    if (m < 0 || (m === 0 && hoje.getDate() < adm.getDate())) anos--;
-    return anos >= 0 ? anos : 0;
+  function calcularAnos(admissao){
+    if(!admissao)return null;
+    const adm=new Date(admissao+"T12:00:00"),hoje=new Date();
+    let anos=hoje.getFullYear()-adm.getFullYear();
+    const m=hoje.getMonth()-adm.getMonth();
+    if(m<0||(m===0&&hoje.getDate()<adm.getDate()))anos--;
+    return anos>=0?anos:0;
+  }
+  function calcularDias(anos){
+    if(anos===null)return 22;
+    if(anos>=30)return 31; if(anos>=20)return 28; if(anos>=10)return 25; return 22;
   }
 
-  function calcularDiasDireito(anos) {
-    if (anos === null) return 22;
-    if (anos >= 30) return 31;
-    if (anos >= 20) return 28;
-    if (anos >= 10) return 25;
-    return 22;
-  }
-
-  function renderizarTabela(lista) {
-    const tbody = document.getElementById("corpo-tabela");
-    document.getElementById("contagem-resultado").textContent = lista.length + " funcionário(s) encontrado(s)";
-    if (lista.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6"><div class="vazio"><div class="icone-vazio">👥</div><p>Nenhum funcionário encontrado.</p><small>Clique em "+ Novo Funcionário" para começar.</small></div></td></tr>`;
+  function renderizarTabela(lista){
+    const tb=document.getElementById("corpo-tabela");
+    document.getElementById("contagem-resultado").textContent=lista.length+" funcionário(s)";
+    if(lista.length===0){
+      tb.innerHTML=`<tr><td colspan="6"><div class="vazio-tabela"><div class="icone">👥</div><p>Nenhum funcionário encontrado.</p><small>Clique em "+ Novo Funcionário" para começar.</small></div></td></tr>`;
       return;
     }
-    tbody.innerHTML = lista.map(f => {
-      const bv = f.vinculo === "quadro" ? "badge-quadro" : "badge-provisorio";
-      const lv = f.vinculo === "quadro" ? "Pessoal do Quadro" : f.vinculo === "provisorio" ? "Provimento Provisório" : f.vinculo || "—";
-      const be = { activo:"badge-activo", inactivo:"badge-inactivo", licenca:"badge-licenca" }[f.estado] || "badge-activo";
-      const le = { activo:"● Em Serviço", inactivo:"○ Inactivo", licenca:"◐ De Licença" }[f.estado] || f.estado || "—";
-      const localCurto = (f.unidade || "—").replace("Direcção Municipal de Saúde do Sumbe", "Dir. Municipal").replace("Centro de Saúde", "CS").replace("Posto de Saúde", "PS");
+    tb.innerHTML=lista.map(f=>{
+      const bv=f.vinculo==="quadro"?"badge-quadro":"badge-provisorio";
+      const lv=f.vinculo==="quadro"?"Pessoal do Quadro":f.vinculo==="provisorio"?"Provimento Provisório":f.vinculo||"—";
+      const be={activo:"badge-activo",inactivo:"badge-inactivo",licenca:"badge-licenca"}[f.estado]||"badge-activo";
+      const le={activo:"● Em Serviço",inactivo:"○ Inactivo",licenca:"◐ De Licença"}[f.estado]||f.estado||"—";
+      const localCurto=(f.unidade||"—").replace("Direcção Municipal de Saúde do Sumbe","Dir. Municipal").replace("Centro de Saúde","CS").replace("Posto de Saúde","PS");
       return `<tr onclick="verFicha('${f.id}')">
-        <td><div class="nome-funcionario">${f.nome || "—"}</div><div class="numero-func">Agente Nº ${f.numero || "—"}</div></td>
-        <td>${f.categoria || "—"}</td>
-        <td>${localCurto}${f.seccao ? "<br><small style='color:#888;font-size:11px'>" + f.seccao + "</small>" : ""}</td>
+        <td><div class="func-nome">${f.nome||"—"}</div><div class="func-num">Agente Nº ${f.numero||"—"}</div></td>
+        <td>${f.categoria||"—"}</td>
+        <td>${localCurto}${f.seccao?`<br><small style="color:var(--neu-400);font-size:11px">${f.seccao}</small>`:""}</td>
         <td><span class="badge ${bv}">${lv}</span></td>
         <td><span class="badge ${be}">${le}</span></td>
-        <td onclick="event.stopPropagation()"><div class="acoes-linha">
-          <button class="btn-ver" onclick="verFicha('${f.id}')">Ver</button>
-          <button class="btn-editar-linha" onclick="editarFuncionario('${f.id}')">Editar</button>
-        </div></td>
+        <td onclick="event.stopPropagation()">
+          <div class="acoes-linha">
+            <button class="btn-ver-linha" onclick="verFicha('${f.id}')">Ver</button>
+            <button class="btn-editar-linha" onclick="editarFuncionario('${f.id}')">Editar</button>
+          </div>
+        </td>
       </tr>`;
     }).join("");
   }
 
-  window.pesquisar = function() {
-    const termo = document.getElementById("campo-pesquisa").value.toLowerCase().trim();
-    const local = document.getElementById("filtro-local").value;
-    const filtrados = todosOsFuncionarios.filter(f => {
-      const matchTexto = !termo || (f.nome||"").toLowerCase().includes(termo) || (f.numero||"").toLowerCase().includes(termo) || (f.categoria||"").toLowerCase().includes(termo);
-      const matchLocal = !local || f.unidade === local;
-      return matchTexto && matchLocal;
-    });
-    renderizarTabela(filtrados);
+  window.pesquisar=function(){
+    const t=document.getElementById("campo-pesquisa").value.toLowerCase().trim();
+    const l=document.getElementById("filtro-local").value;
+    renderizarTabela(todosOsFuncionarios.filter(f=>{
+      const mt=!t||(f.nome||"").toLowerCase().includes(t)||(f.numero||"").toLowerCase().includes(t)||(f.categoria||"").toLowerCase().includes(t);
+      const ml=!l||f.unidade===l;
+      return mt&&ml;
+    }));
   };
 
-  // Mostrar/ocultar campo Secção
-  window.verificarDireccao = function() {
-    const val = document.getElementById("f-unidade").value;
-    const wrapSec  = document.getElementById("campo-seccao-wrap");
-    const wrapArea = document.getElementById("campo-area-wrap");
-    const eDir    = val === "Direcção Municipal de Saúde do Sumbe";
-    const eCentro = val.startsWith("Centro de Saúde");
-
-    wrapSec.classList.toggle("campo-oculto",  !eDir);
-    wrapArea.classList.toggle("campo-oculto", !eCentro);
-    if (!eDir)    document.getElementById("f-seccao").value = "";
-    if (!eCentro) document.getElementById("f-area").value   = "";
+  window.verificarDireccao=function(){
+    const v=document.getElementById("f-unidade").value;
+    const eDir=v==="Direcção Municipal de Saúde do Sumbe";
+    const eCentro=v.startsWith("Centro de Saúde");
+    document.getElementById("campo-seccao-wrap").classList.toggle("campo-oculto",!eDir);
+    document.getElementById("campo-area-wrap").classList.toggle("campo-oculto",!eCentro);
+    if(!eDir)document.getElementById("f-seccao").value="";
+    if(!eCentro)document.getElementById("f-area").value="";
   };
 
-  window.abrirFormulario = function() {
-    funcionarioEmEdicao = null;
-    document.getElementById("titulo-modal").textContent = "➕ Registar Novo Funcionário";
-    document.getElementById("funcionario-id").value = "";
-    limparFormulario();
+  window.abrirFormulario=function(){
+    funcionarioEmEdicao=null;
+    document.getElementById("titulo-modal").textContent="➕ Registar Novo Funcionário";
+    document.getElementById("funcionario-id").value="";
+    limparForm();
     document.getElementById("overlay-formulario").classList.add("activo");
   };
 
-  window.editarFuncionario = function(id) {
-    const f = todosOsFuncionarios.find(x => x.id === id);
-    if (!f) return;
-    funcionarioEmEdicao = id;
-    document.getElementById("titulo-modal").textContent = "✏️ Editar Funcionário";
-    document.getElementById("funcionario-id").value = id;
-    document.getElementById("f-nome").value = f.nome || "";
-    document.getElementById("f-sexo").value = f.sexo || "";
-    document.getElementById("f-nascimento").value = f.nascimento || "";
-    document.getElementById("f-bi").value = f.bi || "";
-    document.getElementById("f-telefone").value = f.telefone || "";
-    document.getElementById("f-numero").value = f.numero || "";
-    document.getElementById("f-categoria").value = f.categoria || "";
-    document.getElementById("f-unidade").value = f.unidade || "";
+  window.editarFuncionario=function(id){
+    const f=todosOsFuncionarios.find(x=>x.id===id);if(!f)return;
+    funcionarioEmEdicao=id;
+    document.getElementById("titulo-modal").textContent="✏️ Editar Funcionário";
+    document.getElementById("funcionario-id").value=id;
+    ["nome","sexo","nascimento","bi","telefone","numero","categoria","unidade","vinculo","admissao","escolaridade","observacoes"].forEach(k=>{
+      const el=document.getElementById("f-"+k); if(el) el.value=f[k]||"";
+    });
+    document.getElementById("f-estado").value=f.estado||"activo";
     verificarDireccao();
-    document.getElementById("f-seccao").value = f.seccao || "";
-    document.getElementById("f-area").value   = f.area   || "";
-    document.getElementById("f-vinculo").value = f.vinculo || "";
-    document.getElementById("f-admissao").value = f.admissao || "";
-    document.getElementById("f-estado").value = f.estado || "activo";
-    document.getElementById("f-escolaridade").value = f.escolaridade || "";
-    document.getElementById("f-observacoes").value = f.observacoes || "";
+    document.getElementById("f-seccao").value=f.seccao||"";
+    document.getElementById("f-area").value=f.area||"";
     document.getElementById("overlay-formulario").classList.add("activo");
   };
 
-  window.fecharFormulario = function() {
-    document.getElementById("overlay-formulario").classList.remove("activo");
-    limparFormulario();
+  window.fecharFormulario=function(){
+    document.getElementById("overlay-formulario").classList.remove("activo");limparForm();
   };
 
-  function limparFormulario() {
-    ["f-nome","f-bi","f-telefone","f-numero","f-admissao","f-observacoes","f-nascimento"].forEach(id => {
-      document.getElementById(id).value = "";
-    });
-    ["f-sexo","f-categoria","f-unidade","f-vinculo","f-escolaridade","f-seccao","f-area"].forEach(id => {
-      document.getElementById(id).value = "";
-    });
-    document.getElementById("f-estado").value = "activo";
+  function limparForm(){
+    ["f-nome","f-bi","f-telefone","f-numero","f-admissao","f-observacoes","f-nascimento"].forEach(id=>document.getElementById(id).value="");
+    ["f-sexo","f-categoria","f-unidade","f-vinculo","f-escolaridade","f-seccao","f-area"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("f-estado").value="activo";
     document.getElementById("campo-seccao-wrap").classList.add("campo-oculto");
+    document.getElementById("campo-area-wrap").classList.add("campo-oculto");
   }
 
-  window.guardarFuncionario = async function() {
-    const nome = document.getElementById("f-nome").value.trim();
-    const sexo = document.getElementById("f-sexo").value;
-    const numero = document.getElementById("f-numero").value.trim();
-    const categoria = document.getElementById("f-categoria").value;
-    const unidade = document.getElementById("f-unidade").value;
-    const vinculo = document.getElementById("f-vinculo").value;
-    const admissao = document.getElementById("f-admissao").value;
-    const seccao = document.getElementById("f-seccao").value;
-
-    if (!nome || !sexo || !numero || !categoria || !unidade || !vinculo || !admissao) {
-      mostrarNotificacao("Preencha todos os campos obrigatórios (*)", "erro"); return;
+  window.guardarFuncionario=async function(){
+    const nome=document.getElementById("f-nome").value.trim();
+    const sexo=document.getElementById("f-sexo").value;
+    const numero=document.getElementById("f-numero").value.trim();
+    const categoria=document.getElementById("f-categoria").value;
+    const unidade=document.getElementById("f-unidade").value;
+    const vinculo=document.getElementById("f-vinculo").value;
+    const admissao=document.getElementById("f-admissao").value;
+    const seccao=document.getElementById("f-seccao").value;
+    if(!nome||!sexo||!numero||!categoria||!unidade||!vinculo||!admissao){
+      notif("Preencha todos os campos obrigatórios (*)","erro");return;
     }
-    if (unidade === "Direcção Municipal de Saúde do Sumbe" && !seccao) {
-      mostrarNotificacao("Indique a Secção da Direcção Municipal.", "erro"); return;
+    if(unidade==="Direcção Municipal de Saúde do Sumbe"&&!seccao){
+      notif("Indique a Secção da Direcção Municipal.","erro");return;
     }
-
-    const btn = document.getElementById("btn-guardar");
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> A guardar...';
-
-    const dados = {
-      nome, sexo, numero, categoria, unidade, vinculo, admissao, seccao,
-      nascimento: document.getElementById("f-nascimento").value,
-      bi: document.getElementById("f-bi").value.trim(),
-      telefone: document.getElementById("f-telefone").value.trim(),
-      estado: document.getElementById("f-estado").value,
-      escolaridade: document.getElementById("f-escolaridade").value,
-      observacoes: document.getElementById("f-observacoes").value.trim(),
-      actualizadoEm: serverTimestamp(),
-      actualizadoPor: utilizadorActual.uid
+    const btn=document.getElementById("btn-guardar");
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A guardar...';
+    const dados={
+      nome,sexo,numero,categoria,unidade,vinculo,admissao,seccao,
+      area:document.getElementById("f-area").value,
+      nascimento:document.getElementById("f-nascimento").value,
+      bi:document.getElementById("f-bi").value.trim(),
+      telefone:document.getElementById("f-telefone").value.trim(),
+      estado:document.getElementById("f-estado").value,
+      escolaridade:document.getElementById("f-escolaridade").value,
+      observacoes:document.getElementById("f-observacoes").value.trim(),
+      actualizadoEm:serverTimestamp(),actualizadoPor:utilizadorActual.uid
     };
-
-    try {
-      if (funcionarioEmEdicao) {
-        await updateDoc(doc(db, "funcionarios", funcionarioEmEdicao), dados);
-        mostrarNotificacao(`✅ Funcionário "${nome}" actualizado!`);
-      } else {
-        dados.criadoEm = serverTimestamp();
-        dados.criadoPor = utilizadorActual.uid;
-        await addDoc(collection(db, "funcionarios"), dados);
-        mostrarNotificacao(`✅ Funcionário "${nome}" registado com sucesso!`);
+    try{
+      if(funcionarioEmEdicao){
+        await updateDoc(doc(db,"funcionarios",funcionarioEmEdicao),dados);
+        notif(`✅ Funcionário "${nome}" actualizado!`);
+      }else{
+        dados.criadoEm=serverTimestamp(); dados.criadoPor=utilizadorActual.uid;
+        await addDoc(collection(db,"funcionarios"),dados);
+        notif(`✅ Funcionário "${nome}" registado com sucesso!`);
       }
-      fecharFormulario();
-      carregarFuncionarios();
-    } catch(e) {
-      console.error("Erro:", e);
-      mostrarNotificacao("Erro ao guardar. Verifique a conexão.", "erro");
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = "💾 Guardar Funcionário";
-    }
+      fecharFormulario(); carregarFuncionarios();
+    }catch(e){console.error(e);notif("Erro ao guardar. Verifique a conexão.","erro");}
+    finally{btn.disabled=false;btn.innerHTML="💾 Guardar Funcionário";}
   };
 
-  window.verFicha = function(id) {
-    const f = todosOsFuncionarios.find(x => x.id === id);
-    if (!f) return;
-    const anos = calcularAnosServico(f.admissao);
-    const dias = calcularDiasDireito(anos);
-    document.getElementById("ficha-avatar").textContent = (f.nome || "?")[0].toUpperCase();
-    document.getElementById("ficha-nome").textContent = f.nome || "—";
-    document.getElementById("ficha-cargo").textContent = (f.categoria || "—") + " · " + (f.unidade || "—");
-    document.getElementById("ficha-numero").textContent = "Agente Nº " + (f.numero || "—") + " · BI: " + (f.bi || "—");
-    const lv = f.vinculo === "quadro" ? "Pessoal do Quadro" : f.vinculo === "provisorio" ? "Provimento Provisório" : f.vinculo || "—";
-    const grid = document.getElementById("ficha-grid-dados");
-    // ─── Determinar sub-localização ────────────────────────────
-    const subLocal = f.unidade === "Direcção Municipal de Saúde do Sumbe"
-      ? (f.seccao || "Secção não especificada")
-      : f.unidade?.startsWith("Centro de Saúde") && f.area
-        ? "Área: " + f.area
-        : null;
-
-    // ─── Estado académico ────────────────────────────────────
-    const acadInfo = f.estudando
-      ? `Sim — ${f.curso || ""}${f.anoCurso ? " (" + f.anoCurso + "º ano)" : ""}${f.instituicao ? ", " + f.instituicao : ""}`
-      : (f.estudando === false ? "Não" : "—");
-
-    // ─── Tem documentos do formulário? ───────────────────────
-    const temDocs = f.urlBI || f.urlCert;
-
-    const campos = [
-      // Identificação
-      { r: "Nome Completo",              v: f.nome, span2: true },
-      { r: "Nº de Agente",               v: f.numero },
-      { r: "Sexo",                       v: f.sexo },
-      { r: "Bilhete de Identidade",      v: f.bi },
-      { r: "Data de Emissão do BI",      v: f.biEmissao ? formatarData(f.biEmissao) : null },
-      { r: "Data de Nascimento",         v: f.nascimento ? formatarData(f.nascimento) : null },
-      { r: "Estado Civil",               v: f.estadoCivil },
-      { r: "Nome do Pai",                v: f.nomePai },
-      { r: "Nome da Mãe",                v: f.nomeMae },
-      { r: "Morada",                     v: f.morada, span2: true },
-      { r: "Telefone",                   v: f.telefone },
-      { r: "E-mail",                     v: f.email },
-      // Profissional
-      { r: "Categoria / Cargo",          v: f.categoria, span2: true },
-      { r: "Local de Colocação",         v: f.unidade, span2: true },
-      ...(subLocal ? [{ r: f.unidade === "Direcção Municipal de Saúde do Sumbe" ? "Secção" : "Área / Serviço", v: subLocal, span2: true }] : []),
-      { r: "Tipo de Vínculo",            v: lv },
-      { r: "Data de Admissão",           v: f.admissao ? formatarData(f.admissao) : null },
-      { r: "Anos de Serviço",            v: anos !== null ? anos + " anos" : "—", badge: true, bval: anos },
-      { r: "Dias de Férias com Direito", v: dias + " dias úteis" },
-      { r: "Estado Actual",              v: { activo:"Em Serviço Activo", inactivo:"Inactivo", licenca:"De Licença" }[f.estado] || f.estado },
-      // Formação
-      { r: "Escolaridade",               v: f.escolaridade },
-      { r: "A frequentar curso?",        v: acadInfo },
-      // Documentos
-      ...(temDocs ? [{ r: "Documentos do formulário", v:
-        (f.urlBI   ? `<a href="${f.urlBI}"   target="_blank" style="color:var(--azul);font-weight:600;">🪪 Ver BI</a>  ` : "") +
-        (f.urlCert ? `<a href="${f.urlCert}" target="_blank" style="color:var(--azul);font-weight:600;">🎓 Ver Certificado</a>` : ""),
-        span2: true, html: true }] : []),
-      { r: "Observações",                v: f.observacoes, span2: true },
+  window.verFicha=function(id){
+    const f=todosOsFuncionarios.find(x=>x.id===id);if(!f)return;
+    const anos=calcularAnos(f.admissao), dias=calcularDias(anos);
+    document.getElementById("ficha-avatar").textContent=(f.nome||"?")[0].toUpperCase();
+    document.getElementById("ficha-nome").textContent=f.nome||"—";
+    document.getElementById("ficha-cargo").textContent=(f.categoria||"—")+" · "+(f.unidade||"—");
+    document.getElementById("ficha-numero").textContent="Agente Nº "+(f.numero||"—")+" · BI: "+(f.bi||"—");
+    const lv=f.vinculo==="quadro"?"Pessoal do Quadro":f.vinculo==="provisorio"?"Provimento Provisório":f.vinculo||"—";
+    const subLocal=f.unidade==="Direcção Municipal de Saúde do Sumbe"
+      ?(f.seccao||"Secção não especificada")
+      :f.unidade?.startsWith("Centro de Saúde")&&f.area?"Área: "+f.area:null;
+    const acadInfo=f.estudando
+      ?`Sim — ${f.curso||""}${f.anoCurso?" ("+f.anoCurso+"º ano)":""}${f.instituicao?", "+f.instituicao:""}`
+      :(f.estudando===false?"Não":"—");
+    const temDocs=f.urlBI||f.urlCert;
+    const campos=[
+      {r:"Nome Completo",v:f.nome,span2:true},
+      {r:"Nº de Agente",v:f.numero},{r:"Sexo",v:f.sexo},
+      {r:"Bilhete de Identidade",v:f.bi},
+      {r:"Data de Emissão do BI",v:f.biEmissao?fmtData(f.biEmissao):null},
+      {r:"Data de Nascimento",v:f.nascimento?fmtData(f.nascimento):null},
+      {r:"Estado Civil",v:f.estadoCivil},{r:"Nome do Pai",v:f.nomePai},
+      {r:"Nome da Mãe",v:f.nomeMae},{r:"Morada",v:f.morada,span2:true},
+      {r:"Telefone",v:f.telefone},{r:"E-mail",v:f.email},
+      {r:"Categoria / Cargo",v:f.categoria,span2:true},
+      {r:"Local de Colocação",v:f.unidade,span2:true},
+      ...(subLocal?[{r:f.unidade==="Direcção Municipal de Saúde do Sumbe"?"Secção":"Área / Serviço",v:subLocal,span2:true}]:[]),
+      {r:"Tipo de Vínculo",v:lv},
+      {r:"Data de Admissão",v:f.admissao?fmtData(f.admissao):null},
+      {r:"Anos de Serviço",v:anos!==null?anos+" anos":"—",badge:true,bval:anos},
+      {r:"Dias de Férias com Direito",v:dias+" dias úteis"},
+      {r:"Estado Actual",v:{activo:"Em Serviço Activo",inactivo:"Inactivo",licenca:"De Licença"}[f.estado]||f.estado},
+      {r:"Escolaridade",v:f.escolaridade},{r:"A frequentar curso?",v:acadInfo},
+      ...(temDocs?[{r:"Documentos do Formulário",v:
+        (f.urlBI?`<a href="${f.urlBI}" target="_blank" style="color:var(--c-700);font-weight:700;">🪪 Ver BI</a>  `:"") +
+        (f.urlCert?`<a href="${f.urlCert}" target="_blank" style="color:var(--c-700);font-weight:700;">🎓 Ver Certificado</a>`:""),
+        span2:true,html:true}]:[]),
+      {r:"Observações",v:f.observacoes,span2:true},
     ];
-    grid.innerHTML = campos.map(c => `
-      <div class="ficha-campo${c.span2 ? " destaque" : ""}">
+    const grid=document.getElementById("ficha-grid-dados");
+    grid.innerHTML=campos.map(c=>`
+      <div class="ficha-campo${c.span2?" destaque":""}">
         <div class="rotulo">${c.r}</div>
-        <div class="valor">${c.badge && c.bval !== null ? `<span class="anos-servico-badge">${c.v}</span>` : c.html ? (c.v || "—") : (c.v ? c.v.replace(/</g,"&lt;").replace(/>/g,"&gt;") : "—")}</div>
-      </div>`).join("").replace(/&lt;a /g,"<a ").replace(/&lt;\/a&gt;/g,"<\/a>").replace(/href=&quot;/g,'href="').replace(/&quot; target/g,'" target').replace(/&quot;&gt;/g,'">')
-
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("activo"));
-    document.querySelectorAll(".tab-conteudo").forEach(t => t.classList.remove("activo"));
+        <div class="valor">${
+          c.html?(c.v||"—"):
+          c.badge&&c.bval!==null?`<span class="badge-anos">${c.v}</span>`:
+          (c.v||"—")
+        }</div>
+      </div>`).join("");
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("activo"));
+    document.querySelectorAll(".tab-conteudo").forEach(t=>t.classList.remove("activo"));
     document.querySelector(".tab-btn").classList.add("activo");
     document.getElementById("tab-dados").classList.add("activo");
-
-    // Carregar histórico documental e solicitações em segundo plano
-    carregarHistorico(f.id, f.nome);
-    carregarSolicitacoesFicha(f.id, f.nome);
-
+    carregarHistorico(f.id,f.nome);
+    carregarSolicitacoesFicha(f.id,f.nome);
     document.getElementById("overlay-ficha").classList.add("activo");
   };
 
-  async function carregarHistorico(funcionarioId, nomeFuncionario) {
-    const div = document.getElementById("ficha-historico");
-    div.innerHTML = `<div class="historico-vazio"><div style="font-size:32px;margin-bottom:8px;">⏳</div><p style="color:var(--texto-suave)">A carregar histórico...</p></div>`;
-    try {
-      // Sem orderBy no Firestore para evitar índice composto obrigatório.
-      // A ordenação é feita em JavaScript após receber os dados.
-      const q = query(
-        collection(db, "documentos"),
-        where("funcionarioId", "==", funcionarioId)
-      );
-      const snap = await getDocs(q);
-
-      // Recolher e ordenar por data decrescente
-      const docs = [];
-      snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
-      docs.sort((a, b) => {
-        const ta = a.geradoEm?.toDate ? a.geradoEm.toDate().getTime() : 0;
-        const tb = b.geradoEm?.toDate ? b.geradoEm.toDate().getTime() : 0;
-        return tb - ta;
-      });
-
-      if (docs.length === 0) {
-        div.innerHTML = `
-          <div class="historico-vazio">
-            <div style="font-size:40px;margin-bottom:10px;">📂</div>
-            <p style="color:var(--texto-suave)">Nenhum documento emitido ainda para <strong>${nomeFuncionario}</strong>.</p>
-          </div>`;
-        return;
-      }
-
-      const icones = { "guia-ferias": "🏖️", "declaracao": "📜", "guia-medica": "🏥", "oficio": "📋" };
-      const tiposLabel = { "guia-ferias": "Guia de Férias", "declaracao": "Declaração de Serviço", "guia-medica": "Guia Médica", "oficio": "Ofício" };
-      const estadoStyles = {
-        pendente:  { cor: "#7d6608",  fundo: "#fef9e7", icone: "⏳", texto: "Aguarda Aprovação" },
-        aprovado:  { cor: "#1e8449",  fundo: "#e8f8f0", icone: "✅", texto: "Aprovado" },
-        rejeitado: { cor: "#c0392b",  fundo: "#fdecea", icone: "❌", texto: "Rejeitado" }
-      };
-
-      let html = `<div style="padding:12px 16px;font-size:12px;color:var(--texto-suave);border-bottom:1px solid #eef0f3;font-weight:600;">${docs.length} documento(s) no histórico</div>`;
-
-      docs.forEach(doc => {
-        const numFmt = doc.numGuia && doc.anoGuia ? `Nº ${doc.numGuia}/${doc.anoGuia}` : "";
-        const tipo = tiposLabel[doc.tipo] || doc.tipo || "Documento";
-        const ts = doc.geradoEm?.toDate ? doc.geradoEm.toDate() : null;
-        const dataFmt = ts ? ts.toLocaleDateString("pt-AO", { day:"2-digit", month:"short", year:"numeric" }) : "—";
-        const horaFmt = ts ? ts.toLocaleTimeString("pt-AO", { hour:"2-digit", minute:"2-digit" }) : "";
-        const est = estadoStyles[doc.estado] || estadoStyles.pendente;
-        const icone = icones[doc.tipo] || "📄";
-        const diasInfo = doc.numDias ? `· ${doc.numDias} dias úteis` : "";
-        const inicioInfo = doc.dataInicio ? `· Início: ${fmtDataSimples(doc.dataInicio)}` : "";
-        const obsInfo = doc.observacao ? `<div class="hist-detalhe" style="margin-top:3px;font-style:italic;">💬 "${doc.observacao}"</div>` : "";
-
-        html += `
-          <div class="item-historico">
-            <div class="hist-icone">${icone}</div>
-            <div class="hist-info">
-              <div class="hist-tipo">${tipo} ${numFmt}</div>
-              <div class="hist-detalhe">
-                ${diasInfo} ${inicioInfo}
-                <span style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;background:${est.fundo};color:${est.cor}">
-                  ${est.icone} ${est.texto}
-                </span>
-              </div>
-              <div class="hist-detalhe" style="margin-top:3px;">Por: ${doc.geradoPorEmail || "—"}</div>
-              ${obsInfo}
-            </div>
-            <div class="hist-data">${dataFmt}<br><span style="color:#bbb">${horaFmt}</span></div>
-          </div>`;
-      });
-
-      div.innerHTML = html;
-    } catch(e) {
-      console.error("Erro ao carregar histórico:", e);
-      div.innerHTML = `<div class="historico-vazio"><p style="color:var(--vermelho)">⚠️ Erro ao carregar histórico documental.</p></div>`;
-    }
-  }
-
-  function fmtDataSimples(str) {
-    if (!str) return "—";
-    const [a, m, d] = str.split("-");
-    return `${d}/${m}/${a}`;
-  }
-
-  window.fecharFicha = function() { document.getElementById("overlay-ficha").classList.remove("activo"); };
-  window.mudarTab = function(tab, btn) {
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("activo"));
-    document.querySelectorAll(".tab-conteudo").forEach(t => t.classList.remove("activo"));
-    btn.classList.add("activo");
-    document.getElementById(`tab-${tab}`).classList.add("activo");
-  };
-
-  async function carregarSolicitacoesFicha(funcionarioId, nomeFuncionario) {
-    const div = document.getElementById("ficha-solicitacoes");
-    const badge = document.getElementById("badge-sol-ficha");
-    try {
-      const q = query(collection(db, "solicitacoes"), where("funcionarioId", "==", funcionarioId));
-      const snap = await getDocs(q);
-      const sols = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      sols.sort((a, b) => {
-        const ta = a.criadaEm?.toDate ? a.criadaEm.toDate().getTime() : 0;
-        const tb = b.criadaEm?.toDate ? b.criadaEm.toDate().getTime() : 0;
-        return tb - ta;
-      });
-      if (sols.length === 0) {
-        div.innerHTML = `<div class="historico-vazio"><div style="font-size:36px;margin-bottom:10px;">📩</div><p style="color:var(--texto-suave)">Nenhuma solicitação enviada pelo funcionário ainda.</p></div>`;
-        if (badge) badge.style.display = "none";
-        return;
-      }
-      const pendentes = sols.filter(s => s.estado === "nova" || s.estado === "processando").length;
-      if (badge && pendentes > 0) { badge.textContent = pendentes; badge.style.display = "inline"; }
-      else if (badge) badge.style.display = "none";
-
-      const TIPOS = { "guia-ferias":"🏖️ Guia de Férias", "declaracao-servico":"📜 Declaração de Serviço", "guia-medica":"🏥 Guia Médica", "oficio":"📋 Ofício / Nota" };
-      const ESTADOS = { nova:"🆕 Nova", processando:"🔄 A processar", concluida:"✅ Concluída", rejeitada:"❌ Rejeitada" };
-      const COR_EST = { nova:"#ede9fe", processando:"#dbeafe", concluida:"#d1fae5", rejeitada:"#fee2e2" };
-      const COR_TXT = { nova:"#5b21b6", processando:"#1e40af", concluida:"#065f46", rejeitada:"#991b1b" };
-
-      let html = `<div style="padding:12px 16px;font-size:12px;color:var(--texto-suave);border-bottom:1px solid #eef0f3;font-weight:600;">${sols.length} solicitação(ões) encontrada(s)</div>`;
-      sols.forEach(s => {
-        const ts = s.criadaEm?.toDate ? s.criadaEm.toDate() : null;
-        const data = ts ? ts.toLocaleDateString("pt-AO", { day:"2-digit", month:"short", year:"numeric" }) : "—";
-        const tipo = TIPOS[s.tipo] || s.tipo || "Documento";
-        const estado = ESTADOS[s.estado] || s.estado;
-        const bg = COR_EST[s.estado] || "#f3f4f6";
-        const tc = COR_TXT[s.estado] || "#374151";
-        const dataFerias = s.dataInicioFerias
-          ? `<div style="font-size:11px;color:#888;margin-top:2px;">📅 Início férias: ${fmtDataSimples(s.dataInicioFerias)}</div>` : "";
-        const motivo = s.motivo ? `<div style="font-size:11px;color:#888;margin-top:2px;">💬 ${s.motivo}</div>` : "";
-        html += `<div class="item-historico">
-          <div class="hist-icone" style="background:${bg}">${tipo.split(' ')[0]}</div>
+  async function carregarHistorico(funcId,nome){
+    const div=document.getElementById("ficha-historico");
+    div.innerHTML=`<div class="hist-vazio"><div style="font-size:32px;margin-bottom:8px;">⏳</div><p>A carregar histórico...</p></div>`;
+    try{
+      const snap=await getDocs(query(collection(db,"documentos"),where("funcionarioId","==",funcId)));
+      const docs=snap.docs.map(d=>({id:d.id,...d.data()}));
+      docs.sort((a,b)=>(b.geradoEm?.toDate?.().getTime()||0)-(a.geradoEm?.toDate?.().getTime()||0));
+      if(docs.length===0){div.innerHTML=`<div class="hist-vazio"><div style="font-size:40px;margin-bottom:10px;">📂</div><p>Nenhum documento emitido ainda para <strong>${nome}</strong>.</p></div>`;return;}
+      const icones={"guia-ferias":"🏖️","declaracao":"📜","guia-medica":"🏥","oficio":"📋"};
+      const tipos={"guia-ferias":"Guia de Férias","declaracao":"Declaração de Serviço","guia-medica":"Guia Médica","oficio":"Ofício"};
+      const estSt={pendente:{cor:"#92400e",fundo:var_a100,icone:"⏳",txt:"Aguarda Aprovação"},aprovado:{cor:"var(--c-700)",fundo:var_c100,icone:"✅",txt:"Aprovado"},rejeitado:{cor:"var(--r-600)",fundo:var_r100,icone:"❌",txt:"Rejeitado"}};
+      let html=`<div style="padding:12px 16px;font-size:12px;color:var(--neu-400);border-bottom:1px solid var(--neu-100);font-weight:600;">${docs.length} documento(s) no histórico</div>`;
+      docs.forEach(d=>{
+        const ts=d.geradoEm?.toDate?.();
+        const dataFmt=ts?ts.toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric"}):"—";
+        const horaFmt=ts?ts.toLocaleTimeString("pt-AO",{hour:"2-digit",minute:"2-digit"}):"";
+        const tipo=tipos[d.tipo]||d.tipo||"Documento";
+        const icone=icones[d.tipo]||"📄";
+        const numFmt=d.numGuia&&d.anoGuia?`Nº ${d.numGuia}/${d.anoGuia}`:"";
+        const dias=d.numDias?`· ${d.numDias} dias`:"";
+        const inicio=d.dataInicio?`· Início: ${fmtDataSim(d.dataInicio)}`:"";
+        const estCores={pendente:{c:"#92400e",bg:"var(--a-100)"},aprovado:{c:"var(--c-700)",bg:"var(--c-100)"},rejeitado:{c:"var(--r-600)",bg:"var(--r-100)"}};
+        const est=estCores[d.estado]||estCores.pendente;
+        const estTxt={pendente:"⏳ Aguarda",aprovado:"✅ Aprovado",rejeitado:"❌ Rejeitado"}[d.estado]||d.estado;
+        html+=`<div class="hist-item">
+          <div class="hist-icon">${icone}</div>
           <div class="hist-info">
-            <div class="hist-nome">${tipo.substring(tipo.indexOf(' ') + 1)}</div>
-            <div class="hist-detalhe">Enviado em ${data}</div>
-            ${dataFerias}${motivo}
+            <div class="hist-tipo">${tipo} ${numFmt}</div>
+            <div class="hist-det">${dias} ${inicio} <span style="margin-left:4px;padding:2px 8px;border-radius:var(--r-full);font-size:10px;font-weight:700;background:${est.bg};color:${est.c}">${estTxt}</span></div>
+            <div class="hist-det" style="margin-top:2px;">Por: ${d.geradoPorEmail||"—"}</div>
+            ${d.observacao?`<div class="hist-det" style="font-style:italic;">💬 "${d.observacao}"</div>`:""}
           </div>
-          <div class="hist-estado" style="background:${bg};color:${tc}">${estado}</div>
+          <div class="hist-data">${dataFmt}<br><span style="color:var(--neu-300)">${horaFmt}</span></div>
         </div>`;
       });
-      div.innerHTML = html;
-    } catch(e) {
-      console.warn("Solicitações:", e);
-      div.innerHTML = `<div class="historico-vazio"><div style="font-size:32px">⚠️</div><p style="color:var(--texto-suave)">Sem acesso às solicitações.</p></div>`;
-    }
+      div.innerHTML=html;
+    }catch(e){div.innerHTML=`<div class="hist-vazio"><p style="color:var(--r-600)">⚠️ Erro ao carregar histórico.</p></div>`;}
   }
 
-  function mostrarNotificacao(msg, tipo = "sucesso") {
-    const el = document.getElementById("notificacao");
-    el.textContent = msg;
-    el.className = `notificacao notif-${tipo}`;
-    el.style.display = "block";
-    setTimeout(() => { el.style.display = "none"; }, 4000);
-  }
-  function formatarData(str) {
-    if (!str) return "—";
-    const [a, m, d] = str.split("-");
-    const meses = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
-    return `${d} de ${meses[parseInt(m)-1]} de ${a}`;
+  async function carregarSolicitacoesFicha(funcId,nome){
+    const div=document.getElementById("ficha-solicitacoes");
+    const badge=document.getElementById("badge-sol-ficha");
+    try{
+      const snap=await getDocs(query(collection(db,"solicitacoes"),where("funcionarioId","==",funcId)));
+      const sols=snap.docs.map(d=>({id:d.id,...d.data()}));
+      sols.sort((a,b)=>(b.criadaEm?.toDate?.().getTime()||0)-(a.criadaEm?.toDate?.().getTime()||0));
+      if(sols.length===0){div.innerHTML=`<div class="hist-vazio"><div style="font-size:36px;margin-bottom:10px;">📩</div><p>Nenhuma solicitação enviada ainda.</p></div>`;if(badge)badge.style.display="none";return;}
+      const pend=sols.filter(s=>s.estado==="nova"||s.estado==="processando").length;
+      if(badge&&pend>0){badge.textContent=pend;badge.style.display="inline";}else if(badge)badge.style.display="none";
+      const TIPOS={"guia-ferias":"🏖️ Guia de Férias","declaracao-servico":"📜 Declaração","guia-medica":"🏥 Guia Médica","oficio":"📋 Ofício"};
+      const ESTADOS={nova:"🆕 Nova",processando:"🔄 A processar",concluida:"✅ Concluída",rejeitada:"❌ Rejeitada"};
+      const COR={nova:{bg:"#ede9fe",c:"#5b21b6"},processando:{bg:"var(--b-100)",c:"var(--b-800)"},concluida:{bg:"var(--c-100)",c:"var(--c-700)"},rejeitada:{bg:"var(--r-100)",c:"var(--r-600)"}};
+      let html=`<div style="padding:12px 16px;font-size:12px;color:var(--neu-400);border-bottom:1px solid var(--neu-100);font-weight:600;">${sols.length} solicitação(ões)</div>`;
+      sols.forEach(s=>{
+        const ts=s.criadaEm?.toDate?.();
+        const data=ts?ts.toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric"}):"—";
+        const tipo=TIPOS[s.tipo]||s.tipo||"Documento";
+        const cor=COR[s.estado]||COR.nova;
+        html+=`<div class="hist-item">
+          <div class="hist-icon" style="background:${cor.bg};color:${cor.c}">${tipo.split(" ")[0]}</div>
+          <div class="hist-info">
+            <div class="hist-tipo">${tipo.substring(tipo.indexOf(" ")+1)}</div>
+            <div class="hist-det">Enviado em ${data}</div>
+            ${s.dataInicioFerias?`<div class="hist-det">📅 Início férias: ${fmtDataSim(s.dataInicioFerias)}</div>`:""}
+            ${s.motivo?`<div class="hist-det">💬 ${s.motivo}</div>`:""}
+          </div>
+          <span style="padding:3px 10px;border-radius:var(--r-full);font-size:10px;font-weight:700;background:${cor.bg};color:${cor.c};white-space:nowrap;align-self:flex-start;">${ESTADOS[s.estado]||s.estado}</span>
+        </div>`;
+      });
+      div.innerHTML=html;
+    }catch(e){div.innerHTML=`<div class="hist-vazio"><div style="font-size:32px">⚠️</div><p>Sem acesso às solicitações.</p></div>`;}
   }
 
-  document.getElementById("overlay-formulario").addEventListener("click", e => {
-    if (e.target === document.getElementById("overlay-formulario")) window.fecharFormulario();
-  });
-  document.getElementById("overlay-ficha").addEventListener("click", e => {
-    if (e.target === document.getElementById("overlay-ficha")) window.fecharFicha();
-  });
+  window.fecharFicha=()=>document.getElementById("overlay-ficha").classList.remove("activo");
+  window.mudarTab=function(tab,btn){
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("activo"));
+    document.querySelectorAll(".tab-conteudo").forEach(t=>t.classList.remove("activo"));
+    btn.classList.add("activo");
+    document.getElementById("tab-"+tab).classList.add("activo");
+  };
+
+  function notif(msg,tipo="sucesso"){
+    const el=document.getElementById("notificacao");
+    el.textContent=msg; el.className=`toast toast-${tipo}`; el.style.display="block";
+    setTimeout(()=>el.style.display="none",4000);
+  }
+  function fmtData(str){
+    if(!str)return"—";const [a,m,d]=str.split("-");
+    const ms=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+    return`${d} de ${ms[parseInt(m)-1]} de ${a}`;
+  }
+  function fmtDataSim(str){
+    if(!str)return"—";const[a,m,d]=str.split("-");return`${d}/${m}/${a}`;
+  }
+
+  document.getElementById("overlay-formulario").addEventListener("click",e=>{if(e.target===document.getElementById("overlay-formulario"))window.fecharFormulario();});
+  document.getElementById("overlay-ficha").addEventListener("click",e=>{if(e.target===document.getElementById("overlay-ficha"))window.fecharFicha();});
 </script>
 </body>
 </html>
