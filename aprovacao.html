@@ -4,971 +4,757 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SIGDOC-SUMBE — Aprovação de Documentos</title>
-  <meta name="theme-color" content="#1a4f7a"/>
+  <meta name="theme-color" content="#0b4f3a"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --azul: #1a4f7a; --azul-claro: #2471a3;
-      --verde: #1e8449; --vermelho: #c0392b;
-      --roxo: #7d3c98; --laranja: #d35400;
-      --cinza-fundo: #f0f2f5; --texto: #2c3e50;
-      --borda: #dde3ea; --sombra: 0 2px 12px rgba(0,0,0,0.08);
+      --c-900:#052e1c;--c-800:#0b4f3a;--c-700:#0d6e4f;--c-600:#12a372;--c-500:#10c886;
+      --c-100:#d1fae5;--c-50:#f0fdf4;
+      --b-800:#1e3a5f;--b-600:#2563eb;--b-100:#dbeafe;
+      --r-600:#dc2626;--r-100:#fee2e2;
+      --p-600:#7c3aed;--p-100:#ede9fe;
+      --a-500:#f59e0b;--a-100:#fef3c7;
+      --neu-900:#0f172a;--neu-700:#334155;--neu-600:#475569;--neu-500:#64748b;
+      --neu-400:#94a3b8;--neu-300:#cbd5e1;--neu-200:#e2e8f0;
+      --neu-100:#f1f5f9;--neu-50:#f8fafc;--white:#ffffff;
+      --r-sm:8px;--r-md:14px;--r-lg:20px;--r-xl:28px;--r-full:999px;
+      --sh-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+      --sh-md:0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.05);
+      --sh-lg:0 20px 60px rgba(0,0,0,.15),0 8px 20px rgba(0,0,0,.08);
+      --glow:0 0 0 4px rgba(16,200,134,.18);
+      --font:'Plus Jakarta Sans',sans-serif;--mono:'DM Mono',monospace;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: var(--cinza-fundo); color: var(--texto); min-height: 100vh; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--neu-50);color:var(--neu-900);min-height:100vh;-webkit-font-smoothing:antialiased}
 
-    /* ===== BARRA TOPO ===== */
-    .barra-topo { background: linear-gradient(135deg, var(--roxo) 0%, #9b59b6 100%); color: white; padding: 0 24px; height: 60px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-    .btn-voltar { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; text-decoration: none; }
-    .btn-voltar:hover { background: rgba(255,255,255,0.25); }
-    .titulo-pagina { font-size: 16px; font-weight: 700; flex: 1; }
-    .titulo-pagina span { font-size: 11px; font-weight: 400; opacity: 0.8; display: block; }
-    .badge-contador { background: #e74c3c; color: white; border-radius: 12px; padding: 3px 10px; font-size: 12px; font-weight: 700; display: none; }
+    /* ── TOPBAR ── */
+    .topbar{
+      background:linear-gradient(135deg,var(--c-900) 0%,var(--c-800) 60%,var(--c-700) 100%);
+      padding:0 24px;height:64px;display:flex;align-items:center;gap:14px;
+      position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(0,0,0,.25);
+    }
+    .btn-voltar{
+      background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+      color:var(--white);padding:7px 14px;border-radius:var(--r-sm);
+      font-size:12px;font-weight:600;font-family:var(--font);
+      cursor:pointer;text-decoration:none;transition:all .2s;
+    }
+    .btn-voltar:hover{background:rgba(255,255,255,.2)}
+    .topbar-titulo{font-size:15px;font-weight:800;color:var(--white);flex:1;letter-spacing:.3px}
+    .topbar-titulo span{display:block;font-size:10px;font-weight:400;opacity:.55;margin-top:1px;letter-spacing:0}
+    .badge-pend{
+      background:var(--r-600);color:var(--white);
+      border-radius:var(--r-full);padding:4px 12px;
+      font-size:12px;font-weight:700;display:none;
+      animation:pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
 
-    /* ===== LAYOUT ===== */
-    .layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; padding: 20px; max-width: 1400px; margin: 0 auto; }
+    /* ── LAYOUT ── */
+    .layout{display:grid;grid-template-columns:320px 1fr;gap:18px;padding:18px;max-width:1400px;margin:0 auto}
 
-    /* ===== PAINEL ESQUERDO — LISTA ===== */
-    .painel-lista { display: flex; flex-direction: column; gap: 12px; }
-    .cartao { background: white; border-radius: 12px; box-shadow: var(--sombra); overflow: hidden; }
-    .cartao-cabecalho { padding: 14px 18px; border-bottom: 1px solid #eef0f3; font-size: 13px; font-weight: 700; color: var(--azul); display: flex; align-items: center; justify-content: space-between; }
+    /* ── PAINEL ESQUERDO ── */
+    .painel-esq{display:flex;flex-direction:column;gap:12px}
 
-    .filtros { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
-    .filtro-btn { padding: 8px 14px; border-radius: 20px; border: 2px solid var(--borda); background: white; cursor: pointer; font-size: 12px; font-weight: 600; color: #555; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s; }
-    .filtro-btn.activo { border-color: var(--roxo); background: #f5eef8; color: var(--roxo); }
-    .filtro-btn .conta { background: #eee; border-radius: 10px; padding: 1px 7px; font-size: 11px; }
-    .filtro-btn.activo .conta { background: var(--roxo); color: white; }
-
-    .lista-documentos { max-height: calc(100vh - 240px); overflow-y: auto; }
-    .item-doc { padding: 14px 16px; border-bottom: 1px solid #f0f2f4; cursor: pointer; transition: background 0.15s; }
-    .item-doc:hover { background: #f8f4fc; }
-    .item-doc.seleccionado { background: #f0e6fa; border-left: 3px solid var(--roxo); }
-    .item-doc-nome { font-size: 13px; font-weight: 700; color: var(--azul); margin-bottom: 3px; }
-    .item-doc-meta { font-size: 11px; color: #888; }
-    .item-doc-estado { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-top: 5px; }
-    .estado-pendente { background: #fef9e7; color: #7d6608; }
-    .estado-aprovado { background: #e8f8f0; color: #1e8449; }
-    .estado-rejeitado { background: #fde8e8; color: #c0392b; }
-
-    .vazio-lista { padding: 40px 20px; text-align: center; color: #aaa; font-size: 13px; }
-    .vazio-lista .icone { font-size: 36px; margin-bottom: 8px; }
-
-    /* ===== PAINEL DIREITO — DETALHE ===== */
-    .painel-detalhe { display: flex; flex-direction: column; gap: 16px; }
-
-    .placeholder-detalhe { background: white; border-radius: 12px; box-shadow: var(--sombra); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 500px; color: #aaa; gap: 12px; }
-    .placeholder-detalhe .icone { font-size: 56px; }
-    .placeholder-detalhe p { font-size: 14px; }
-
-    .detalhe-cabecalho { background: white; border-radius: 12px; box-shadow: var(--sombra); padding: 18px 22px; display: none; }
-    .detalhe-titulo { font-size: 16px; font-weight: 700; color: var(--azul); margin-bottom: 6px; }
-    .detalhe-meta { font-size: 12px; color: #888; display: flex; gap: 16px; flex-wrap: wrap; }
-    .detalhe-meta span { display: flex; align-items: center; gap: 4px; }
-
-    /* Grelha de dados do documento */
-    .dados-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
-    .dado-item { background: #f8f9fa; border-radius: 8px; padding: 10px 12px; }
-    .dado-label { font-size: 10px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.3px; }
-    .dado-valor { font-size: 13px; font-weight: 700; color: var(--texto); margin-top: 2px; }
-
-    /* Pré-visualização documento */
-    .preview-doc-area { background: white; border-radius: 12px; box-shadow: var(--sombra); overflow: hidden; display: none; }
-    .preview-doc-cabecalho { padding: 14px 18px; border-bottom: 1px solid #eef0f3; font-size: 13px; font-weight: 700; color: var(--azul); display: flex; align-items: center; justify-content: space-between; }
-    .preview-doc-scroll { background: #b0b3b8; padding: 20px 12px; display: flex; align-items: flex-start; justify-content: center; min-height: 420px; }
-
-    /* Documento escalado */
-    .doc-wrapper { transform-origin: top left; transform: scale(0.55); width: 1122px; margin-bottom: -500px; }
-    .doc-wrapper-centrado { width: 617px; margin: 0 auto; overflow: visible; }
-
-    /* ===== PAINEL DE ACÇÃO ===== */
-    .painel-accao { background: white; border-radius: 12px; box-shadow: var(--sombra); padding: 18px 22px; display: none; }
-    .accao-titulo { font-size: 13px; font-weight: 700; color: var(--texto); margin-bottom: 14px; }
-    .accao-botoes { display: flex; gap: 10px; }
-    .btn-aprovar { background: linear-gradient(135deg, var(--verde), #27ae60); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-aprovar:hover { opacity: 0.9; }
-    .btn-rejeitar { background: linear-gradient(135deg, var(--vermelho), #e74c3c); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-rejeitar:hover { opacity: 0.9; }
-    .btn-aprovar:disabled, .btn-rejeitar:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .campo-obs { margin-top: 14px; display: none; }
-    .campo-obs label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; }
-    .campo-obs textarea { width: 100%; padding: 10px 12px; border: 2px solid var(--borda); border-radius: 8px; font-size: 13px; outline: none; font-family: inherit; resize: vertical; min-height: 80px; }
-    .campo-obs textarea:focus { border-color: var(--vermelho); }
-    .btn-confirmar-rejeicao { background: var(--vermelho); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 8px; width: 100%; }
-    .btn-confirmar-rejeicao:hover { opacity: 0.9; }
-
-    /* Estado aprovado/rejeitado */
-    .estado-final { padding: 14px; border-radius: 8px; font-size: 13px; font-weight: 600; display: none; margin-top: 10px; }
-    .estado-final.aprovado { background: #e8f8f0; color: #1e8449; border: 1.5px solid #27ae60; }
-    .estado-final.rejeitado { background: #fde8e8; color: #c0392b; border: 1.5px solid #e74c3c; }
-
-    /* ===== NOTIFICAÇÃO ===== */
-    .notificacao { position: fixed; bottom: 24px; right: 24px; background: var(--verde); color: white; padding: 14px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.2); display: none; z-index: 500; max-width: 340px; }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 900px) {
-      .layout { grid-template-columns: 1fr; }
-      .lista-documentos { max-height: 300px; }
-      .doc-wrapper { transform: scale(0.30); margin-bottom: -780px; }
-      .doc-wrapper-centrado { width: 337px; }
+    /* Abas */
+    .abas-card{
+      background:var(--white);border-radius:var(--r-md);
+      box-shadow:var(--sh-sm);border:1px solid var(--neu-100);
+      overflow:hidden;display:flex;
+    }
+    .aba-btn{
+      flex:1;padding:14px 8px;border:none;background:none;
+      font-size:13px;font-weight:600;color:var(--neu-400);
+      cursor:pointer;border-bottom:2.5px solid transparent;
+      transition:all .2s;font-family:var(--font);
+      display:flex;align-items:center;justify-content:center;gap:6px;
+    }
+    .aba-btn.activa{color:var(--c-700);border-bottom-color:var(--c-600);background:var(--c-50)}
+    .aba-btn:hover:not(.activa){background:var(--neu-50);color:var(--neu-700)}
+    .badge-aba{
+      background:var(--r-600);color:var(--white);
+      border-radius:var(--r-full);padding:1px 7px;
+      font-size:10px;font-weight:700;display:none;
     }
 
-    /* ===== DOCUMENTO OFICIAL (mesmo estilo do documentos.html) ===== */
-    .documento-oficial { width: 1122px; background: #d8d8d8; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; font-family: Arial, Helvetica, sans-serif; }
-    .doc-metade { background: white; border: 2px solid #333; padding: 16px 18px; display: flex; flex-direction: column; }
-    .doc-cabecalho { text-align: center; margin-bottom: 8px; line-height: 1.30; }
-    .doc-insignia { width: 52px; height: 52px; object-fit: contain; display: block; margin: 0 auto 5px; }
-    .doc-cabecalho p { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.1px; font-family: Arial, Helvetica, sans-serif; }
-    .doc-cabecalho .negrito { font-weight: bold; }
-    .doc-titulo { text-align: center; font-size: 11px; font-weight: bold; text-decoration: underline; text-transform: uppercase; margin: 7px 0 13px; letter-spacing: 0.2px; font-family: Arial, Helvetica, sans-serif; }
-    .doc-corpo { font-size: 12px; text-align: justify; line-height: 1.80; font-family: Arial, Helvetica, sans-serif; }
-    .doc-rodape { margin-top: 20px; }
-    .doc-local-data { font-size: 10px; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; line-height: 1.4; font-family: Arial, Helvetica, sans-serif; }
-    .doc-assinaturas { display: flex; align-items: flex-start; font-size: 10.5px; font-family: Arial, Helvetica, sans-serif; }
-    .doc-ass-col { display: flex; flex-direction: column; align-items: flex-start; flex: 1; }
-    .doc-ass-col.direita { border-left: 1px solid #444; padding-left: 14px; margin-left: 10px; align-items: center; }
-    .doc-ass-titulo { font-weight: bold; text-transform: uppercase; font-size: 10.5px; margin-bottom: 3px; }
-    .doc-ass-data { font-weight: bold; font-size: 11px; }
-    .doc-ass-linha { border-bottom: 1px solid #333; width: 90%; margin: 20px 0 3px; }
-    .doc-ass-nome { font-size: 10.5px; }
-
-    @media print {
-      @page { size: A4 landscape; margin: 3mm; }
-      body > * { display: none !important; }
-      #area-impressao { display: block !important; }
-      #area-impressao .documento-oficial { width: 291mm; height: 204mm; gap: 3mm; background: white; font-family: Arial, Helvetica, sans-serif; }
-      #area-impressao .doc-metade { border: 1.5pt solid #333; padding: 5mm; }
-      #area-impressao .doc-insignia { width: 14mm; height: 14mm; }
-      #area-impressao .doc-cabecalho p { font-size: 7.5pt; }
-      #area-impressao .doc-titulo { font-size: 9pt; margin: 5pt 0 9pt; }
-      #area-impressao .doc-corpo { font-size: 9pt; line-height: 1.75; }
-      #area-impressao .doc-local-data { font-size: 8pt; margin-bottom: 10pt; }
-      #area-impressao .doc-assinaturas { font-size: 8pt; }
-      #area-impressao .doc-ass-col.direita { padding-left: 8pt; margin-left: 6pt; align-items: center; }
-      #area-impressao .doc-ass-linha { margin: 14pt 0 3pt; }
+    /* Filtros */
+    .filtros-card{background:var(--white);border-radius:var(--r-md);box-shadow:var(--sh-sm);border:1px solid var(--neu-100);overflow:hidden}
+    .filtros-header{padding:12px 16px;border-bottom:1px solid var(--neu-100);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--neu-400)}
+    .filtros-body{padding:10px}
+    .filtro-btn{
+      width:100%;padding:9px 12px;border-radius:var(--r-sm);
+      border:1.5px solid var(--neu-100);background:var(--neu-50);
+      cursor:pointer;font-size:12px;font-weight:600;color:var(--neu-600);
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:6px;transition:all .2s;font-family:var(--font);
     }
-    #area-impressao { display: none; }
+    .filtro-btn:last-child{margin-bottom:0}
+    .filtro-btn:hover{border-color:var(--neu-200);background:var(--white)}
+    .filtro-btn.activo{border-color:var(--c-600);background:var(--c-50);color:var(--c-700)}
+    .filtro-conta{
+      background:var(--neu-200);color:var(--neu-600);
+      border-radius:var(--r-full);padding:2px 9px;
+      font-size:11px;font-weight:700;font-family:var(--mono);
+    }
+    .filtro-btn.activo .filtro-conta{background:var(--c-700);color:var(--white)}
 
-    /* ===== ABAS PRINCIPAIS ===== */
-    .abas-principais { display: flex; border-bottom: 2px solid var(--borda); background: white; border-radius: 12px 12px 0 0; overflow: hidden; margin-bottom: -2px; }
-    .aba-btn { flex: 1; padding: 13px 10px; border: none; background: none; font-size: 13px; font-weight: 600; color: #888; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .aba-btn.activa { color: var(--roxo); border-bottom-color: var(--roxo); background: #fdf8ff; }
-    .aba-btn:hover:not(.activa) { background: #f8f4fc; color: var(--texto); }
-    .badge-aba { background: #e74c3c; color: white; border-radius: 10px; padding: 1px 7px; font-size: 10px; font-weight: 700; }
+    /* Lista */
+    .lista-card{background:var(--white);border-radius:var(--r-md);box-shadow:var(--sh-sm);border:1px solid var(--neu-100);overflow:hidden}
+    .lista-scroll{max-height:calc(100vh - 300px);overflow-y:auto}
+    .item-doc{
+      padding:14px 16px;border-bottom:1px solid var(--neu-50);
+      cursor:pointer;transition:all .15s;position:relative;
+    }
+    .item-doc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;transition:background .15s}
+    .item-doc:hover{background:var(--neu-50)}
+    .item-doc:hover::before{background:var(--neu-200)}
+    .item-doc.sel{background:var(--c-50)}
+    .item-doc.sel::before{background:var(--c-600)}
+    .item-doc:last-child{border-bottom:none}
+    .item-nome{font-size:13px;font-weight:700;color:var(--neu-900);margin-bottom:3px}
+    .item-meta{font-size:11px;color:var(--neu-400);margin-top:2px}
+    .item-badge{display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:3px 9px;border-radius:var(--r-full);font-size:10px;font-weight:700}
+    .b-pend{background:var(--a-100);color:#92400e}
+    .b-aprov{background:var(--c-100);color:var(--c-700)}
+    .b-rej{background:var(--r-100);color:var(--r-600)}
+    .b-nova{background:var(--p-100);color:var(--p-600)}
+    .b-proc{background:var(--b-100);color:var(--b-800)}
+    .b-conc{background:var(--c-100);color:var(--c-700)}
 
-    /* ===== SOLICITAÇÕES ===== */
-    .item-sol { padding: 14px 16px; border-bottom: 1px solid #f0f2f4; cursor: pointer; transition: background 0.15s; }
-    .item-sol:hover { background: #f8f4fc; }
-    .item-sol.seleccionada { background: #f0e6fa; border-left: 3px solid var(--roxo); }
-    .item-sol-tipo { font-size: 13px; font-weight: 700; color: var(--azul); margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
-    .item-sol-meta { font-size: 11px; color: #888; }
-    .estado-nova        { background: #ede9fe; color: #5b21b6; }
-    .estado-processando { background: #dbeafe; color: #1e40af; }
-    .estado-concluida   { background: #e8f8f0; color: #1e8449; }
-    .estado-rejeitada   { background: #fde8e8; color: #c0392b; }
+    .vazio-lista{text-align:center;padding:40px 20px;color:var(--neu-400)}
+    .vazio-lista .icone{font-size:36px;margin-bottom:8px}
+    .vazio-lista p{font-size:13px}
 
-    /* Detalhe solicitação */
-    .sol-detalhe-wrap { background: white; border-radius: 12px; box-shadow: var(--sombra); padding: 22px; display: none; }
-    .sol-detalhe-cabec { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
-    .sol-detalhe-titulo { font-size: 17px; font-weight: 700; color: var(--azul); }
-    .sol-detalhe-sub { font-size: 12px; color: #888; margin-top: 4px; }
-    .sol-dados-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 18px; }
-    .sol-dado { background: #f8f9fa; border-radius: 8px; padding: 11px 13px; }
-    .sol-dado .lbl { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 3px; }
-    .sol-dado .val { font-size: 13px; font-weight: 700; color: var(--texto); }
-    .sol-motivo-box { background: #f8f9fa; border-radius: 8px; padding: 13px; margin-bottom: 16px; font-size: 13px; color: var(--texto); line-height: 1.6; }
-    .sol-accoes { display: flex; gap: 10px; flex-wrap: wrap; }
-    .btn-processar { background: #dbeafe; color: #1e40af; border: none; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
-    .btn-concluir  { background: var(--verde); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
-    .btn-rejeitar-sol { background: #fde8e8; color: var(--vermelho); border: none; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
-    .sol-campo-rejeicao { display: none; margin-top: 12px; }
-    .sol-campo-rejeicao textarea { width: 100%; padding: 10px; border: 2px solid var(--borda); border-radius: 8px; font-size: 13px; font-family: inherit; resize: vertical; }
-    .sol-campo-rejeicao button { margin-top: 8px; background: var(--vermelho); color: white; border: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
-    .sol-estado-final { margin-top: 14px; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; display: none; }
-    .sol-estado-final.processando { background: #dbeafe; color: #1e40af; }
-    .sol-estado-final.concluida   { background: #e8f8f0; color: #1e8449; }
-    .sol-estado-final.rejeitada   { background: #fde8e8; color: var(--vermelho); }
+    /* ── PAINEL DIREITO ── */
+    .painel-dir{display:flex;flex-direction:column;gap:14px}
 
-    /* Filtros solicitações */
-    .filtros-sol { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+    /* Placeholder */
+    .placeholder{
+      background:var(--white);border-radius:var(--r-md);
+      box-shadow:var(--sh-sm);border:1px solid var(--neu-100);
+      display:flex;flex-direction:column;align-items:center;
+      justify-content:center;min-height:500px;
+      color:var(--neu-300);gap:12px;text-align:center;padding:40px;
+    }
+    .placeholder .icone{font-size:56px}
+    .placeholder p{font-size:14px;color:var(--neu-400)}
 
+    /* Detalhe documento */
+    .detalhe-card{background:var(--white);border-radius:var(--r-md);box-shadow:var(--sh-sm);border:1px solid var(--neu-100);overflow:hidden;display:none}
+    .detalhe-head{
+      background:linear-gradient(135deg,var(--c-900),var(--c-700));
+      padding:18px 22px;
+    }
+    .detalhe-head-titulo{font-size:16px;font-weight:800;color:var(--white);margin-bottom:6px}
+    .detalhe-head-meta{font-size:12px;color:rgba(255,255,255,.6);display:flex;gap:16px;flex-wrap:wrap}
+    .dados-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:18px}
+    .dado-item{background:var(--neu-50);border-radius:var(--r-sm);padding:10px 13px;border:1px solid var(--neu-100)}
+    .dado-label{font-size:10px;font-weight:700;color:var(--neu-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+    .dado-valor{font-size:13px;font-weight:700;color:var(--neu-900)}
+
+    /* Preview */
+    .preview-card{background:var(--white);border-radius:var(--r-md);box-shadow:var(--sh-sm);border:1px solid var(--neu-100);overflow:hidden;display:none}
+    .preview-header{
+      padding:14px 18px;border-bottom:1px solid var(--neu-100);
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .preview-header-titulo{font-size:13px;font-weight:700;color:var(--neu-900)}
+    .btn-imprimir{
+      background:var(--c-700);color:var(--white);border:none;
+      padding:7px 16px;border-radius:var(--r-sm);font-size:12px;
+      font-weight:700;font-family:var(--font);cursor:pointer;transition:all .2s;
+    }
+    .btn-imprimir:hover{background:var(--c-600)}
+    .preview-scroll{background:#9ca3af;padding:20px 12px;display:flex;align-items:flex-start;justify-content:center;min-height:420px}
+    .doc-wrapper{transform-origin:top left;transform:scale(.55);width:1122px;margin-bottom:-500px}
+    .doc-wrapper-centro{width:617px;margin:0 auto;overflow:visible}
+
+    /* Painel de acção */
+    .accao-card{background:var(--white);border-radius:var(--r-md);box-shadow:var(--sh-sm);border:1px solid var(--neu-100);padding:20px 22px;display:none}
+    .accao-titulo{font-size:13px;font-weight:700;color:var(--neu-700);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .accao-titulo::before{content:'';flex:none;width:3px;height:16px;background:var(--c-600);border-radius:var(--r-full)}
+    .accao-botoes{display:flex;gap:10px}
+    .btn-aprovar{
+      flex:1;padding:13px;border:none;border-radius:var(--r-sm);
+      background:linear-gradient(135deg,var(--c-700),var(--c-600));
+      color:var(--white);font-size:14px;font-weight:700;
+      font-family:var(--font);cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      transition:all .2s;box-shadow:0 2px 8px rgba(13,110,79,.25);
+    }
+    .btn-aprovar:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(13,110,79,.35)}
+    .btn-aprovar:disabled{opacity:.4;cursor:not-allowed;transform:none}
+    .btn-rejeitar{
+      flex:1;padding:13px;border:none;border-radius:var(--r-sm);
+      background:var(--r-100);color:var(--r-600);
+      font-size:14px;font-weight:700;font-family:var(--font);cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      border:1.5px solid #fca5a5;transition:all .2s;
+    }
+    .btn-rejeitar:hover{background:#fecaca}
+    .btn-rejeitar:disabled{opacity:.4;cursor:not-allowed}
+    .campo-rejeicao{display:none;margin-top:14px}
+    .campo-rejeicao label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--neu-500);margin-bottom:7px}
+    .campo-rejeicao textarea{
+      width:100%;padding:11px 13px;border:2px solid var(--neu-200);
+      border-radius:var(--r-sm);font-size:13px;font-family:var(--font);
+      outline:none;resize:vertical;min-height:80px;transition:border-color .2s;
+    }
+    .campo-rejeicao textarea:focus{border-color:var(--r-600)}
+    .btn-confirmar-rej{
+      margin-top:10px;width:100%;
+      background:var(--r-600);color:var(--white);border:none;
+      padding:11px;border-radius:var(--r-sm);font-size:13px;
+      font-weight:700;font-family:var(--font);cursor:pointer;transition:all .2s;
+    }
+    .btn-confirmar-rej:hover{background:#b91c1c}
+    .estado-final{padding:14px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:600;display:none;margin-top:12px;border-width:1.5px;border-style:solid}
+    .estado-final.aprovado{background:var(--c-100);color:var(--c-700);border-color:var(--c-600)}
+    .estado-final.rejeitado{background:var(--r-100);color:var(--r-600);border-color:#fca5a5}
+
+    /* Detalhe Solicitação */
+    .sol-card{background:var(--white);border-radius:var(--r-md);box-shadow:var(--sh-sm);border:1px solid var(--neu-100);padding:22px;display:none}
+    .sol-cabec{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+    .sol-titulo{font-size:17px;font-weight:800;color:var(--neu-900)}
+    .sol-sub{font-size:12px;color:var(--neu-400);margin-top:4px}
+    .sol-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+    .sol-dado{background:var(--neu-50);border-radius:var(--r-sm);padding:11px 13px;border:1px solid var(--neu-100)}
+    .sol-dado .lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--neu-400);margin-bottom:3px}
+    .sol-dado .val{font-size:13px;font-weight:700;color:var(--neu-900)}
+    .sol-motivo{background:var(--neu-50);border-radius:var(--r-sm);padding:13px;margin-bottom:16px;font-size:13px;line-height:1.6;border:1px solid var(--neu-100)}
+    .sol-accoes{display:flex;gap:8px;flex-wrap:wrap}
+    .btn-processar{background:var(--b-100);color:var(--b-800);border:none;padding:10px 18px;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s}
+    .btn-processar:hover{background:#bfdbfe}
+    .btn-concluir{background:linear-gradient(135deg,var(--c-700),var(--c-600));color:var(--white);border:none;padding:10px 18px;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)}
+    .btn-rejeitar-sol{background:var(--r-100);color:var(--r-600);border:1.5px solid #fca5a5;padding:10px 18px;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)}
+    .sol-rej-campo{display:none;margin-top:12px}
+    .sol-rej-campo textarea{width:100%;padding:10px;border:2px solid var(--neu-200);border-radius:var(--r-sm);font-size:13px;font-family:var(--font);resize:vertical}
+    .sol-rej-campo button{margin-top:8px;background:var(--r-600);color:var(--white);border:none;padding:9px 18px;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)}
+    .sol-estado-final{margin-top:14px;padding:12px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:600;display:none;border-width:1.5px;border-style:solid}
+    .sol-estado-final.processando{background:var(--b-100);color:var(--b-800);border-color:#93c5fd}
+    .sol-estado-final.concluida{background:var(--c-100);color:var(--c-700);border-color:var(--c-600)}
+    .sol-estado-final.rejeitada{background:var(--r-100);color:var(--r-600);border-color:#fca5a5}
+
+    /* Toast */
+    .toast{position:fixed;bottom:28px;right:28px;padding:14px 20px;border-radius:var(--r-md);font-size:13px;font-weight:600;display:none;z-index:600;max-width:340px;box-shadow:var(--sh-lg)}
+    .toast-ok{background:var(--c-800);color:var(--white);border-left:4px solid var(--c-500)}
+    .toast-err{background:#1f0a0a;color:#fca5a5;border-left:4px solid var(--r-600)}
+
+    .spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:5px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Impressão */
+    #area-impressao{display:none}
+    @media print{
+      @page{size:A4 landscape;margin:3mm}
+      body>*{display:none!important}
+      #area-impressao{display:block!important}
+      #area-impressao .documento-oficial{width:291mm;height:204mm;gap:3mm;background:white;font-family:Arial,Helvetica,sans-serif}
+      #area-impressao .doc-metade{border:1.5pt solid #333;padding:5mm}
+      #area-impressao .doc-insignia{width:14mm;height:14mm}
+      #area-impressao .doc-cabecalho p{font-size:7.5pt}
+      #area-impressao .doc-titulo{font-size:9pt;margin:5pt 0 9pt}
+      #area-impressao .doc-corpo{font-size:9pt;line-height:1.75}
+      #area-impressao .doc-local-data{font-size:8pt;margin-bottom:10pt}
+      #area-impressao .doc-assinaturas{font-size:8pt}
+      #area-impressao .doc-ass-col.direita{padding-left:8pt;margin-left:6pt;align-items:center}
+      #area-impressao .doc-ass-linha{margin:14pt 0 3pt}
+    }
+
+    /* Documento oficial */
+    .documento-oficial{width:1122px;background:#d8d8d8;display:grid;grid-template-columns:1fr 1fr;gap:3px;font-family:Arial,Helvetica,sans-serif}
+    .doc-metade{background:white;border:2px solid #333;padding:16px 18px;display:flex;flex-direction:column}
+    .doc-cabecalho{text-align:center;margin-bottom:8px;line-height:1.30}
+    .doc-insignia{width:52px;height:52px;object-fit:contain;display:block;margin:0 auto 5px}
+    .doc-cabecalho p{font-size:9.5px;text-transform:uppercase;letter-spacing:.1px}
+    .doc-cabecalho .negrito{font-weight:bold}
+    .doc-titulo{text-align:center;font-size:11px;font-weight:bold;text-decoration:underline;text-transform:uppercase;margin:7px 0 13px;letter-spacing:.2px}
+    .doc-corpo{font-size:12px;text-align:justify;line-height:1.80}
+    .doc-rodape{margin-top:20px}
+    .doc-local-data{font-size:10px;text-transform:uppercase;font-weight:bold;margin-bottom:10px;line-height:1.4}
+    .doc-assinaturas{display:flex;align-items:flex-start;font-size:10.5px}
+    .doc-ass-col{display:flex;flex-direction:column;align-items:flex-start;flex:1}
+    .doc-ass-col.direita{border-left:1px solid #444;padding-left:14px;margin-left:10px;align-items:center}
+    .doc-ass-titulo{font-weight:bold;text-transform:uppercase;font-size:10.5px;margin-bottom:3px}
+    .doc-ass-data{font-weight:bold;font-size:11px}
+    .doc-ass-linha{border-bottom:1px solid #333;width:90%;margin:20px 0 3px}
+    .doc-ass-nome{font-size:10.5px}
+
+    @media(max-width:900px){
+      .layout{grid-template-columns:1fr}
+      .lista-scroll{max-height:280px}
+      .doc-wrapper{transform:scale(.30);margin-bottom:-780px}
+      .doc-wrapper-centro{width:337px}
+    }
   </style>
 </head>
 <body>
 
-<div class="barra-topo">
-  <a href="index.html" class="btn-voltar">&#8592; Voltar</a>
-  <div class="titulo-pagina">
-    &#9989; Aprovação de Documentos
-    <span>Chefe de Secção — Direcção Municipal da Saúde do Sumbe</span>
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="index.html" class="btn-voltar">← Painel</a>
+  <div class="topbar-titulo">
+    Aprovação e Solicitações
+    <span>Módulo de Chefe de Secção — SIGDOC-SUMBE</span>
   </div>
-  <div class="badge-contador" id="badge-contador">0 pendentes</div>
+  <div class="badge-pend" id="badge-pend">0 pendentes</div>
 </div>
 
 <div class="layout">
 
-  <!-- PAINEL ESQUERDO — LISTA -->
-  <div class="painel-lista">
-    <!-- ABAS PRINCIPAIS -->
-    <div class="abas-principais">
+  <!-- PAINEL ESQUERDO -->
+  <div class="painel-esq">
+
+    <!-- Abas -->
+    <div class="abas-card">
       <button class="aba-btn activa" id="aba-btn-docs" onclick="mudarAba('docs')">📋 Documentos</button>
-      <button class="aba-btn" id="aba-btn-sol" onclick="mudarAba('sol')">📩 Solicitações <span class="badge-aba" id="badge-sol" style="display:none">0</span></button>
+      <button class="aba-btn" id="aba-btn-sol" onclick="mudarAba('sol')">
+        📩 Solicitações
+        <span class="badge-aba" id="badge-sol">0</span>
+      </button>
     </div>
 
-    <!-- PAINEL DOCUMENTOS -->
+    <!-- ABA DOCUMENTOS -->
     <div id="painel-docs-lista">
-    <div class="cartao">
-      <div class="cartao-cabecalho">
-        &#128193; Documentos
+      <div class="filtros-card">
+        <div class="filtros-header">Filtrar por estado</div>
+        <div class="filtros-body">
+          <button class="filtro-btn activo" id="filtro-pendente" onclick="filtrar('pendente')">
+            ⏳ Pendentes <span class="filtro-conta" id="conta-pendente">0</span>
+          </button>
+          <button class="filtro-btn" id="filtro-aprovado" onclick="filtrar('aprovado')">
+            ✅ Aprovados <span class="filtro-conta" id="conta-aprovado">0</span>
+          </button>
+          <button class="filtro-btn" id="filtro-rejeitado" onclick="filtrar('rejeitado')">
+            ❌ Rejeitados <span class="filtro-conta" id="conta-rejeitado">0</span>
+          </button>
+        </div>
       </div>
-      <div class="filtros">
-        <button class="filtro-btn activo" id="filtro-pendente" onclick="filtrar('pendente')">
-          ⏳ Pendentes <span class="conta" id="conta-pendente">0</span>
-        </button>
-        <button class="filtro-btn" id="filtro-aprovado" onclick="filtrar('aprovado')">
-          ✅ Aprovados <span class="conta" id="conta-aprovado">0</span>
-        </button>
-        <button class="filtro-btn" id="filtro-rejeitado" onclick="filtrar('rejeitado')">
-          ❌ Rejeitados <span class="conta" id="conta-rejeitado">0</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="cartao">
-      <div class="lista-documentos" id="lista-documentos">
-        <div class="vazio-lista">
-          <div class="icone">⏳</div>
-          <p>A carregar documentos...</p>
+      <div class="lista-card">
+        <div class="lista-scroll" id="lista-documentos">
+          <div class="vazio-lista"><div class="icone">⏳</div><p>A carregar documentos...</p></div>
         </div>
       </div>
     </div>
-  </div><!-- fim painel-docs-lista -->
 
-    <!-- PAINEL SOLICITAÇÕES DO PORTAL -->
+    <!-- ABA SOLICITAÇÕES -->
     <div id="painel-sol-lista" style="display:none;">
-      <div class="cartao">
-        <div class="cartao-cabecalho">📩 Solicitações do Portal</div>
-        <div class="filtros-sol">
-          <button class="filtro-btn activo" id="fsol-nova" onclick="filtrarSol('nova')">🆕 Novas <span class="conta" id="conta-sol-nova">0</span></button>
-          <button class="filtro-btn" id="fsol-processando" onclick="filtrarSol('processando')">🔄 A processar <span class="conta" id="conta-sol-proc">0</span></button>
-          <button class="filtro-btn" id="fsol-concluida" onclick="filtrarSol('concluida')">✅ Concluídas <span class="conta" id="conta-sol-conc">0</span></button>
-          <button class="filtro-btn" id="fsol-rejeitada" onclick="filtrarSol('rejeitada')">❌ Rejeitadas <span class="conta" id="conta-sol-rej">0</span></button>
+      <div class="filtros-card">
+        <div class="filtros-header">Filtrar solicitações</div>
+        <div class="filtros-body">
+          <button class="filtro-btn activo" id="fsol-nova" onclick="filtrarSol('nova')">🆕 Novas <span class="filtro-conta" id="conta-sol-nova">0</span></button>
+          <button class="filtro-btn" id="fsol-processando" onclick="filtrarSol('processando')">🔄 A processar <span class="filtro-conta" id="conta-sol-proc">0</span></button>
+          <button class="filtro-btn" id="fsol-concluida" onclick="filtrarSol('concluida')">✅ Concluídas <span class="filtro-conta" id="conta-sol-conc">0</span></button>
+          <button class="filtro-btn" id="fsol-rejeitada" onclick="filtrarSol('rejeitada')">❌ Rejeitadas <span class="filtro-conta" id="conta-sol-rej">0</span></button>
         </div>
       </div>
-      <div class="cartao">
-        <div class="lista-documentos" id="lista-solicitacoes">
+      <div class="lista-card">
+        <div class="lista-scroll" id="lista-solicitacoes">
           <div class="vazio-lista"><div class="icone">⏳</div><p>A carregar solicitações...</p></div>
         </div>
       </div>
-    </div><!-- fim painel-sol-lista -->
+    </div>
 
-  </div><!-- fim painel-lista -->
+  </div>
 
-  <!-- PAINEL DIREITO — DETALHE -->
-  <div class="painel-detalhe" id="painel-detalhe">
-    <!-- DETALHE SOLICITAÇÃO DO PORTAL -->
-    <div class="sol-detalhe-wrap" id="sol-detalhe-wrap">
-      <div class="sol-detalhe-cabec">
-        <div>
-          <div class="sol-detalhe-titulo" id="sol-det-titulo">—</div>
-          <div class="sol-detalhe-sub" id="sol-det-sub">—</div>
-        </div>
-        <span id="sol-det-estado-badge" class="item-doc-estado">—</span>
+  <!-- PAINEL DIREITO -->
+  <div class="painel-dir">
+
+    <!-- Placeholder -->
+    <div class="placeholder" id="placeholder-detalhe">
+      <div class="icone">📋</div>
+      <p>Seleccione um documento ou solicitação para ver os detalhes</p>
+    </div>
+
+    <!-- Detalhe documento -->
+    <div class="detalhe-card" id="detalhe-card">
+      <div class="detalhe-head">
+        <div class="detalhe-head-titulo" id="detalhe-titulo">—</div>
+        <div class="detalhe-head-meta" id="detalhe-meta"></div>
       </div>
-      <div class="sol-dados-grid" id="sol-dados-grid"></div>
-      <div class="sol-motivo-box" id="sol-motivo-box" style="display:none"></div>
+      <div class="dados-grid" id="dados-grid"></div>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-card" id="preview-card">
+      <div class="preview-header">
+        <div class="preview-header-titulo">📄 Pré-visualização do Documento</div>
+        <button class="btn-imprimir" onclick="imprimirDocumento()">🖨 Imprimir</button>
+      </div>
+      <div class="preview-scroll">
+        <div class="doc-wrapper-centro">
+          <div class="doc-wrapper" id="preview-doc-html"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Acção -->
+    <div class="accao-card" id="accao-card">
+      <div class="accao-titulo">Decisão de Aprovação</div>
+      <div class="accao-botoes" id="accao-botoes">
+        <button class="btn-aprovar" id="btn-aprovar" onclick="aprovarDocumento()">✅ Aprovar</button>
+        <button class="btn-rejeitar" id="btn-rejeitar" onclick="mostrarCampoRejeicao()">❌ Rejeitar</button>
+      </div>
+      <div class="campo-rejeicao" id="campo-rejeicao">
+        <label>Motivo da rejeição (obrigatório)</label>
+        <textarea id="obs-rejeicao" placeholder="Descreva o motivo para informar o técnico..."></textarea>
+        <button class="btn-confirmar-rej" onclick="rejeitarDocumento()">❌ Confirmar Rejeição</button>
+      </div>
+      <div class="estado-final" id="estado-final"></div>
+    </div>
+
+    <!-- Detalhe Solicitação -->
+    <div class="sol-card" id="sol-card">
+      <div class="sol-cabec">
+        <div>
+          <div class="sol-titulo" id="sol-det-titulo">—</div>
+          <div class="sol-sub" id="sol-det-sub">—</div>
+        </div>
+        <span id="sol-det-badge" class="item-badge b-nova">—</span>
+      </div>
+      <div class="sol-grid" id="sol-dados-grid"></div>
+      <div class="sol-motivo" id="sol-motivo-box" style="display:none"></div>
       <div class="sol-accoes" id="sol-accoes"></div>
-      <div class="sol-campo-rejeicao" id="sol-campo-rej">
+      <div class="sol-rej-campo" id="sol-campo-rej">
         <textarea id="sol-obs-rej" rows="3" placeholder="Motivo da rejeição (obrigatório)..."></textarea>
         <button onclick="confirmarRejeitarSol()">❌ Confirmar Rejeição</button>
       </div>
       <div class="sol-estado-final" id="sol-estado-final"></div>
     </div>
 
-
-    <div class="placeholder-detalhe" id="placeholder-detalhe">
-      <div class="icone">📋</div>
-      <p>Seleccione um documento na lista para ver os detalhes</p>
-    </div>
-
-    <!-- Cabeçalho do documento seleccionado -->
-    <div class="detalhe-cabecalho cartao" id="detalhe-cabecalho">
-      <div class="detalhe-titulo" id="detalhe-titulo">—</div>
-      <div class="detalhe-meta" id="detalhe-meta"></div>
-      <div class="dados-grid" id="dados-grid"></div>
-    </div>
-
-    <!-- Pré-visualização do documento -->
-    <div class="preview-doc-area" id="preview-doc-area">
-      <div class="preview-doc-cabecalho">
-        &#128196; Pré-visualização do Documento
-        <button onclick="imprimirDocumento()" style="background:var(--azul);color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">&#128424; Imprimir</button>
-      </div>
-      <div class="preview-doc-scroll">
-        <div class="doc-wrapper-centrado">
-          <div class="doc-wrapper" id="preview-doc-html"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Painel de acção (aprovar/rejeitar) -->
-    <div class="painel-accao" id="painel-accao">
-      <div class="accao-titulo">&#9997; Decisão de Aprovação</div>
-
-      <div class="accao-botoes" id="accao-botoes">
-        <button class="btn-aprovar" id="btn-aprovar" onclick="aprovarDocumento()">
-          &#9989; Aprovar
-        </button>
-        <button class="btn-rejeitar" id="btn-rejeitar" onclick="mostrarCampoRejeicao()">
-          &#10060; Rejeitar
-        </button>
-      </div>
-
-      <div class="campo-obs" id="campo-obs">
-        <label>Motivo da rejeição (obrigatório)</label>
-        <textarea id="obs-rejeicao" placeholder="Descreva o motivo da rejeição para informar o técnico..."></textarea>
-        <button class="btn-confirmar-rejeicao" onclick="rejeitarDocumento()">&#10060; Confirmar Rejeição</button>
-      </div>
-
-      <div class="estado-final" id="estado-final"></div>
-    </div>
-
   </div>
-
 </div>
 
 <div id="area-impressao"></div>
-<div class="notificacao" id="notificacao"></div>
+<div class="toast" id="toast"></div>
 
 <script type="module">
-  import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import {
-    getFirestore, collection, query, orderBy, where,
-    onSnapshot, getDocs, doc, updateDoc, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getFirestore, collection, query, orderBy, where,
+           onSnapshot, getDocs, doc, updateDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  // ============================================================
-  // FIREBASE CONFIG — mesma configuração do documentos.html
-  // ============================================================
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
-    authDomain: "sigdoc-sumbe.firebaseapp.com",
-    projectId: "sigdoc-sumbe",
-    storageBucket: "sigdoc-sumbe.firebasestorage.app",
-    messagingSenderId: "323467521938",
-    appId: "1:323467521938:web:1e8170bfd3961784241b4b"
-  };
+  const firebaseConfig={apiKey:"AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",authDomain:"sigdoc-sumbe.firebaseapp.com",projectId:"sigdoc-sumbe",storageBucket:"sigdoc-sumbe.firebasestorage.app",messagingSenderId:"323467521938",appId:"1:323467521938:web:1e8170bfd3961784241b4b"};
+  const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 
-  const app  = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db   = getFirestore(app);
+  let todosDocumentos=[],filtroActual="pendente",docSel=null,utilizadorActual=null;
+  let todasSolicitacoes=[],filtroSolActual="nova",solSel=null;
 
-  // ============================================================
-  // ESTADO
-  // ============================================================
-  let todosDocumentos   = [];
-  let filtroActual      = "pendente";
-  let docSeleccionado   = null;
-  let utilizadorActual  = null;
+  const TIPOS_SOL={"guia-ferias":{nome:"Guia de Férias",icone:"🏖️"},"declaracao-servico":{nome:"Declaração de Serviço",icone:"📜"},"guia-medica":{nome:"Guia Médica",icone:"🏥"},"oficio":{nome:"Ofício / Nota",icone:"📋"}};
+  const ESTADOS_SOL={nova:{txt:"🆕 Nova",cls:"b-nova"},processando:{txt:"🔄 A processar",cls:"b-proc"},concluida:{txt:"✅ Concluída",cls:"b-conc"},rejeitada:{txt:"❌ Rejeitada",cls:"b-rej"}};
 
-  // ============================================================
-  // AUTENTICAÇÃO
-  // ============================================================
-  onAuthStateChanged(auth, (u) => {
-    if (!u) { window.location.href = "index.html"; return; }
-    utilizadorActual = u;
+  onAuthStateChanged(auth,u=>{
+    if(!u){window.location.href="index.html";return;}
+    utilizadorActual=u;
     subscreverDocumentos();
   });
 
-  // ============================================================
-  // SUBSCRIÇÃO EM TEMPO REAL (onSnapshot)
-  // ============================================================
-  function subscreverDocumentos() {
-    const q = query(collection(db, "documentos"), orderBy("geradoEm", "desc"));
-    onSnapshot(q, (snap) => {
-      todosDocumentos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  function subscreverDocumentos(){
+    const q=query(collection(db,"documentos"),orderBy("geradoEm","desc"));
+    onSnapshot(q,snap=>{
+      todosDocumentos=snap.docs.map(d=>({id:d.id,...d.data()}));
       actualizarContadores();
       renderizarLista();
-      // Se havia um documento seleccionado, re-carregar
-      if (docSeleccionado) {
-        const actualizado = todosDocumentos.find(d => d.id === docSeleccionado.id);
-        if (actualizado) seleccionarDocumento(actualizado);
-      }
+      if(docSel){const u=todosDocumentos.find(d=>d.id===docSel.id);if(u)selDoc(u);}
     });
   }
 
-  // ============================================================
-  // CONTADORES
-  // ============================================================
-  function actualizarContadores() {
-    const pend = todosDocumentos.filter(d => d.estado === "pendente").length;
-    const aprov = todosDocumentos.filter(d => d.estado === "aprovado").length;
-    const rejei = todosDocumentos.filter(d => d.estado === "rejeitado").length;
-
-    document.getElementById("conta-pendente").textContent = pend;
-    document.getElementById("conta-aprovado").textContent = aprov;
-    document.getElementById("conta-rejeitado").textContent = rejei;
-
-    const badge = document.getElementById("badge-contador");
-    if (pend > 0) {
-      badge.textContent = pend + (pend === 1 ? " pendente" : " pendentes");
-      badge.style.display = "block";
-    } else {
-      badge.style.display = "none";
-    }
+  function actualizarContadores(){
+    const pend=todosDocumentos.filter(d=>d.estado==="pendente").length;
+    const aprov=todosDocumentos.filter(d=>d.estado==="aprovado").length;
+    const rej=todosDocumentos.filter(d=>d.estado==="rejeitado").length;
+    document.getElementById("conta-pendente").textContent=pend;
+    document.getElementById("conta-aprovado").textContent=aprov;
+    document.getElementById("conta-rejeitado").textContent=rej;
+    const b=document.getElementById("badge-pend");
+    if(pend>0){b.textContent=pend+(pend===1?" pendente":" pendentes");b.style.display="block";}
+    else b.style.display="none";
   }
 
-  // ============================================================
-  // FILTRO
-  // ============================================================
-  window.filtrar = function(estado) {
-    filtroActual = estado;
-    ["pendente","aprovado","rejeitado"].forEach(e => {
-      document.getElementById("filtro-" + e).classList.toggle("activo", e === estado);
-    });
-    renderizarLista();
-    limparDetalhe();
+  window.filtrar=function(estado){
+    filtroActual=estado;
+    ["pendente","aprovado","rejeitado"].forEach(e=>document.getElementById("filtro-"+e).classList.toggle("activo",e===estado));
+    renderizarLista(); limparDetalhe();
   };
 
-  // ============================================================
-  // RENDERIZAR LISTA
-  // ============================================================
-  function renderizarLista() {
-    const lista = document.getElementById("lista-documentos");
-    const filtrados = todosDocumentos.filter(d => d.estado === filtroActual);
-
-    if (filtrados.length === 0) {
-      const msgs = { pendente: "Nenhum documento pendente", aprovado: "Nenhum documento aprovado", rejeitado: "Nenhum documento rejeitado" };
-      const icons = { pendente: "⏳", aprovado: "✅", rejeitado: "❌" };
-      lista.innerHTML = `<div class="vazio-lista"><div class="icone">${icons[filtroActual]}</div><p>${msgs[filtroActual]}</p></div>`;
+  function renderizarLista(){
+    const lista=document.getElementById("lista-documentos");
+    const filtrados=todosDocumentos.filter(d=>d.estado===filtroActual);
+    if(filtrados.length===0){
+      const msgs={pendente:"Nenhum documento pendente",aprovado:"Nenhum documento aprovado",rejeitado:"Nenhum documento rejeitado"};
+      const icons={pendente:"⏳",aprovado:"✅",rejeitado:"❌"};
+      lista.innerHTML=`<div class="vazio-lista"><div class="icone">${icons[filtroActual]}</div><p>${msgs[filtroActual]}</p></div>`;
       return;
     }
-
-    lista.innerHTML = filtrados.map(d => {
-      const numDoc = d.numGuia && d.anoGuia ? `Guia nº ${d.numGuia}/${d.anoGuia}` : "Guia de Férias";
-      const dataFmt = d.geradoEm ? fmtTimestamp(d.geradoEm) : "—";
-      const selClass = docSeleccionado && docSeleccionado.id === d.id ? " seleccionado" : "";
-      const badgeClass = `estado-${d.estado}`;
-      const badgeTexto = { pendente: "⏳ Pendente", aprovado: "✅ Aprovado", rejeitado: "❌ Rejeitado" }[d.estado];
-      return `
-        <div class="item-doc${selClass}" onclick="seleccionarDocumento(window._docs['${d.id}'])">
-          <div class="item-doc-nome">${d.funcionarioNome || "—"}</div>
-          <div class="item-doc-meta">${numDoc} &middot; ${dataFmt}</div>
-          <div class="item-doc-meta" style="margin-top:2px">Por: ${d.geradoPorEmail || "—"}</div>
-          <div class="item-doc-estado ${badgeClass}">${badgeTexto}</div>
-        </div>`;
-    }).join("");
-
-    // Guardar referência rápida para onClick
-    window._docs = {};
-    filtrados.forEach(d => { window._docs[d.id] = d; });
-  }
-
-
-  // ============================================================
-  // SOLICITAÇÕES DO PORTAL
-  // ============================================================
-  let todasSolicitacoes  = [];
-  let filtroSolActual    = "nova";
-  let solSeleccionada    = null;
-
-  const TIPOS_SOL = {
-    "guia-ferias":        { nome:"Guia de Férias",        icone:"🏖️" },
-    "declaracao-servico": { nome:"Declaração de Serviço", icone:"📜" },
-    "guia-medica":        { nome:"Guia Médica",            icone:"🏥" },
-    "oficio":             { nome:"Ofício / Nota",          icone:"📋" },
-  };
-
-  const ESTADOS_SOL = {
-    nova:        { txt:"🆕 Nova",           cls:"estado-nova" },
-    processando: { txt:"🔄 A processar",    cls:"estado-processando" },
-    concluida:   { txt:"✅ Concluída",      cls:"estado-concluida" },
-    rejeitada:   { txt:"❌ Rejeitada",      cls:"estado-rejeitada" },
-  };
-
-  async function carregarSolicitacoes() {
-    try {
-      // Sem orderBy para evitar índice composto
-      const snap = await getDocs(collection(db, "solicitacoes"));
-      todasSolicitacoes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      // Ordenar no cliente
-      todasSolicitacoes.sort((a, b) => {
-        const ta = a.criadaEm?.toDate ? a.criadaEm.toDate() : new Date(0);
-        const tb = b.criadaEm?.toDate ? b.criadaEm.toDate() : new Date(0);
-        return tb - ta;
-      });
-      actualizarContadoresSol();
-      renderizarSolicitacoes();
-    } catch(e) {
-      console.error("Erro ao carregar solicitações:", e);
-      document.getElementById("lista-solicitacoes").innerHTML =
-        '<div class="vazio-lista"><div class="icone">⚠️</div><p>Erro ao carregar solicitações.</p></div>';
-    }
-  }
-
-  function actualizarContadoresSol() {
-    const contagem = { nova:0, processando:0, concluida:0, rejeitada:0 };
-    todasSolicitacoes.forEach(s => {
-      if (contagem[s.estado] !== undefined) contagem[s.estado]++;
-    });
-    document.getElementById("conta-sol-nova").textContent = contagem.nova;
-    document.getElementById("conta-sol-proc").textContent = contagem.processando;
-    document.getElementById("conta-sol-conc").textContent = contagem.concluida;
-    document.getElementById("conta-sol-rej").textContent  = contagem.rejeitada;
-
-    const badgeSol = document.getElementById("badge-sol");
-    const total = contagem.nova + contagem.processando;
-    if (total > 0) { badgeSol.textContent = total; badgeSol.style.display = "inline"; }
-    else badgeSol.style.display = "none";
-  }
-
-  function renderizarSolicitacoes() {
-    const lista = document.getElementById("lista-solicitacoes");
-    const filtradas = todasSolicitacoes.filter(s => s.estado === filtroSolActual);
-
-    if (filtradas.length === 0) {
-      const msgs = { nova:"Nenhuma solicitação nova", processando:"Nenhuma em processamento", concluida:"Nenhuma concluída", rejeitada:"Nenhuma rejeitada" };
-      lista.innerHTML = `<div class="vazio-lista"><div class="icone">📩</div><p>${msgs[filtroSolActual]}</p></div>`;
-      return;
-    }
-
-    window._sols = {};
-    lista.innerHTML = filtradas.map(s => {
-      window._sols[s.id] = s;
-      const tipo = TIPOS_SOL[s.tipo] || { nome: s.tipo || "Documento", icone: "📄" };
-      const est  = ESTADOS_SOL[s.estado] || { txt: s.estado, cls: "" };
-      const ts   = s.criadaEm?.toDate ? s.criadaEm.toDate() : null;
-      const data = ts ? ts.toLocaleDateString("pt-AO", { day:"2-digit", month:"short", year:"numeric" }) : "—";
-      const selCls = solSeleccionada && solSeleccionada.id === s.id ? " seleccionada" : "";
-      return `<div class="item-sol${selCls}" onclick="seleccionarSol(window._sols['${s.id}'])">
-        <div class="item-sol-tipo">${tipo.icone} ${tipo.nome}</div>
-        <div class="item-sol-meta">👤 ${s.funcionarioNome || "—"} · ${s.unidade || "—"}</div>
-        <div class="item-sol-meta">📅 ${data}</div>
-        <div class="item-doc-estado ${est.cls}" style="margin-top:5px">${est.txt}</div>
+    window._docs={};
+    lista.innerHTML=filtrados.map(d=>{
+      window._docs[d.id]=d;
+      const numDoc=d.numGuia&&d.anoGuia?`Guia nº ${d.numGuia}/${d.anoGuia}`:"Guia de Férias";
+      const dataFmt=d.geradoEm?fmtTs(d.geradoEm):"—";
+      const selCls=docSel&&docSel.id===d.id?" sel":"";
+      const bCls={pendente:"b-pend",aprovado:"b-aprov",rejeitado:"b-rej"}[d.estado];
+      const bTxt={pendente:"⏳ Pendente",aprovado:"✅ Aprovado",rejeitado:"❌ Rejeitado"}[d.estado];
+      return `<div class="item-doc${selCls}" onclick="selDoc(window._docs['${d.id}'])">
+        <div class="item-nome">${d.funcionarioNome||"—"}</div>
+        <div class="item-meta">${numDoc} · ${dataFmt}</div>
+        <div class="item-meta">Por: ${d.geradoPorEmail||"—"}</div>
+        <span class="item-badge ${bCls}">${bTxt}</span>
       </div>`;
     }).join("");
   }
 
-  window.filtrarSol = function(estado) {
-    filtroSolActual = estado;
-    ["nova","processando","concluida","rejeitada"].forEach(e => {
-      document.getElementById("fsol-" + e)?.classList.toggle("activo", e === estado);
-    });
-    renderizarSolicitacoes();
-    esconderDetalheSol();
-  };
-
-  window.seleccionarSol = function(s) {
-    solSeleccionada = s;
-    renderizarSolicitacoes();
-
-    const tipo = TIPOS_SOL[s.tipo] || { nome: s.tipo || "Documento", icone: "📄" };
-    const est  = ESTADOS_SOL[s.estado] || { txt: s.estado, cls: "" };
-    const ts   = s.criadaEm?.toDate ? s.criadaEm.toDate() : null;
-    const data = ts ? ts.toLocaleDateString("pt-AO", { day:"2-digit", month:"long", year:"numeric" }) : "—";
-
-    document.getElementById("sol-det-titulo").textContent = tipo.icone + " " + tipo.nome;
-    document.getElementById("sol-det-sub").textContent = "Enviado em " + data;
-    const badgeEl = document.getElementById("sol-det-estado-badge");
-    badgeEl.textContent = est.txt;
-    badgeEl.className = "item-doc-estado " + est.cls;
-
-    document.getElementById("sol-dados-grid").innerHTML = [
-      { l:"Funcionário",    v: s.funcionarioNome || "—" },
-      { l:"Unidade",        v: s.unidade || "—" },
-      { l:"Categoria",      v: s.categoria || "—" },
-      { l:"E-mail",         v: s.funcionarioEmail || "—" },
-      ...(s.dataInicioFerias ? [{ l:"📅 Início das Férias", v: (() => { const [a,m,d] = s.dataInicioFerias.split('-'); return d+'/'+m+'/'+a; })() }] : []),
-    ].map(d => `<div class="sol-dado"><div class="lbl">${d.l}</div><div class="val">${d.v}</div></div>`).join("");
-
-    const mBox = document.getElementById("sol-motivo-box");
-    if (s.motivo) { mBox.innerHTML = "💬 <strong>Motivo / Finalidade:</strong> " + s.motivo; mBox.style.display = "block"; }
-    else mBox.style.display = "none";
-
-    // Botões de acção conforme estado
-    const accoes = document.getElementById("sol-accoes");
-    const sfinal = document.getElementById("sol-estado-final");
-    const srej   = document.getElementById("sol-campo-rej");
-    srej.style.display = "none";
-    sfinal.style.display = "none";
-    sfinal.className = "sol-estado-final";
-
-    if (s.estado === "nova") {
-      accoes.innerHTML = `
-        <button class="btn-processar" onclick="processarSol()">🔄 Marcar como "A Processar"</button>
-        <button class="btn-rejeitar-sol" onclick="mostrarRejeitarSol()">❌ Rejeitar</button>`;
-    } else if (s.estado === "processando") {
-      accoes.innerHTML = `
-        <button class="btn-concluir" onclick="concluirSol()">✅ Marcar como Concluída</button>
-        <button class="btn-rejeitar-sol" onclick="mostrarRejeitarSol()">❌ Rejeitar</button>`;
-    } else if (s.estado === "concluida") {
-      accoes.innerHTML = "";
-      sfinal.className = "sol-estado-final concluida";
-      sfinal.innerHTML = "✅ Solicitação concluída.";
-      sfinal.style.display = "block";
-    } else if (s.estado === "rejeitada") {
-      accoes.innerHTML = "";
-      sfinal.className = "sol-estado-final rejeitada";
-      sfinal.innerHTML = "❌ Rejeitada." + (s.motivoRejeicao ? " Motivo: " + s.motivoRejeicao : "");
-      sfinal.style.display = "block";
+  window.selDoc=function(d){
+    docSel=d; renderizarLista();
+    const numDoc=d.numGuia&&d.anoGuia?`Guia de Férias nº ${d.numGuia}/${d.anoGuia}`:"Guia de Férias";
+    document.getElementById("detalhe-titulo").textContent=numDoc+" — "+(d.funcionarioNome||"—");
+    document.getElementById("detalhe-meta").innerHTML=`<span>📅 Gerado em: <strong>${fmtTs(d.geradoEm)}</strong></span><span>👤 Por: <strong>${d.geradoPorEmail||"—"}</strong></span>`;
+    document.getElementById("dados-grid").innerHTML=[
+      {l:"Funcionário",v:d.funcionarioNome||"—"},{l:"Categoria",v:d.categoria||"—"},
+      {l:"Local",v:d.localColocacao||"—"},{l:"Dias de Férias",v:(d.numDias||"—")+" dias úteis"},
+      {l:"Início das Férias",v:fmtData(d.dataInicio)},{l:"Data de Emissão",v:fmtData(d.dataEmissao)},
+    ].map(x=>`<div class="dado-item"><div class="dado-label">${x.l}</div><div class="dado-valor">${x.v}</div></div>`).join("");
+    const htmlDoc=d.htmlConteudo||reconstruirHtml(d);
+    document.getElementById("preview-doc-html").innerHTML=htmlDoc;
+    document.getElementById("area-impressao").innerHTML=htmlDoc;
+    // reset accao
+    const campoR=document.getElementById("campo-rejeicao");
+    const estadoF=document.getElementById("estado-final");
+    const accBt=document.getElementById("accao-botoes");
+    campoR.style.display="none"; estadoF.style.display="none"; estadoF.className="estado-final";
+    document.getElementById("obs-rejeicao").value="";
+    const bApr=document.getElementById("btn-aprovar"),bRej=document.getElementById("btn-rejeitar");
+    if(d.estado==="pendente"){
+      accBt.style.display="flex"; bApr.disabled=false; bRej.disabled=false; bRej.style.display="flex";
+    }else if(d.estado==="aprovado"){
+      accBt.style.display="none";
+      estadoF.className="estado-final aprovado";
+      estadoF.innerHTML=`✅ Aprovado em ${fmtTs(d.aprovadoEm)} por ${d.aprovadoPorEmail||"—"}`;
+      estadoF.style.display="block";
+    }else if(d.estado==="rejeitado"){
+      accBt.style.display="none";
+      estadoF.className="estado-final rejeitado";
+      estadoF.innerHTML=`❌ Rejeitado em ${fmtTs(d.aprovadoEm)} por ${d.aprovadoPorEmail||"—"}<br><small>Motivo: ${d.observacao||"—"}</small>`;
+      estadoF.style.display="block";
     }
-
-    // Mostrar placeholder de docs — esconder detalhe de docs
-    document.getElementById("placeholder-detalhe").style.display = "none";
-    document.getElementById("detalhe-cabecalho").style.display = "none";
-    document.getElementById("preview-doc-area").style.display = "none";
-    document.getElementById("painel-accao").style.display = "none";
-    document.getElementById("sol-detalhe-wrap").style.display = "block";
+    // mostrar painéis, esconder sol e placeholder
+    document.getElementById("placeholder-detalhe").style.display="none";
+    document.getElementById("sol-card").style.display="none";
+    document.getElementById("detalhe-card").style.display="block";
+    document.getElementById("preview-card").style.display="block";
+    document.getElementById("accao-card").style.display="block";
   };
 
-  function esconderDetalheSol() {
-    solSeleccionada = null;
-    document.getElementById("sol-detalhe-wrap").style.display = "none";
-    document.getElementById("placeholder-detalhe").style.display = "flex";
+  function limparDetalhe(){
+    docSel=null;
+    document.getElementById("placeholder-detalhe").style.display="flex";
+    document.getElementById("detalhe-card").style.display="none";
+    document.getElementById("preview-card").style.display="none";
+    document.getElementById("accao-card").style.display="none";
   }
 
-  window.processarSol = async function() {
-    if (!solSeleccionada) return;
-    try {
-      await updateDoc(doc(db, "solicitacoes", solSeleccionada.id), {
-        estado: "processando",
-        processadoPor: utilizadorActual.uid,
-        processadoPorEmail: utilizadorActual.email,
-        processadoEm: serverTimestamp()
-      });
-      mostrarNotificacao("🔄 Solicitação marcada como 'A Processar'.");
-
-      // Para guia de férias: abrir documentos.html com dados pré-preenchidos
-      if (solSeleccionada.tipo === 'guia-ferias') {
-        const params = new URLSearchParams({
-          sol:    solSeleccionada.id,
-          func:   solSeleccionada.funcionarioId || '',
-          nome:   solSeleccionada.funcionarioNome || '',
-          inicio: solSeleccionada.dataInicioFerias || '',
-          unid:   solSeleccionada.unidade || '',
-          cat:    solSeleccionada.categoria || '',
-          adm:    solSeleccionada.admissao || '',
-          sexo:   solSeleccionada.sexo || '',
-          origem: 'portal'
-        });
-        setTimeout(() => {
-          window.location.href = 'documentos.html?' + params.toString();
-        }, 800);
-        mostrarNotificacao('📄 A abrir geração de guia de férias...');
-        return;
-      }
-
-      await carregarSolicitacoes();
-      esconderDetalheSol();
-    } catch(e) {
-      console.error(e);
-      mostrarNotificacao("❌ Erro ao actualizar. Verifique a ligação.");
-    }
-  };
-
-  window.concluirSol = async function() {
-    if (!solSeleccionada) return;
-    try {
-      await updateDoc(doc(db, "solicitacoes", solSeleccionada.id), {
-        estado: "concluida",
-        concluidoPor: utilizadorActual.uid,
-        concluidoPorEmail: utilizadorActual.email,
-        concluidoEm: serverTimestamp()
-      });
-      mostrarNotificacao("✅ Solicitação marcada como Concluída! O funcionário foi notificado no portal.");
-      await carregarSolicitacoes();
-      esconderDetalheSol();
-    } catch(e) {
-      console.error(e);
-      mostrarNotificacao("❌ Erro ao actualizar.");
-    }
-  };
-
-  window.mostrarRejeitarSol = function() {
-    document.getElementById("sol-campo-rej").style.display = "block";
-    document.getElementById("sol-accoes").innerHTML = "";
-  };
-
-  window.confirmarRejeitarSol = async function() {
-    if (!solSeleccionada) return;
-    const motivo = document.getElementById("sol-obs-rej").value.trim();
-    if (!motivo) { alert("Por favor, indique o motivo da rejeição."); return; }
-    try {
-      await updateDoc(doc(db, "solicitacoes", solSeleccionada.id), {
-        estado: "rejeitada",
-        motivoRejeicao: motivo,
-        rejeitadoPor: utilizadorActual.uid,
-        rejeitadoPorEmail: utilizadorActual.email,
-        rejeitadoEm: serverTimestamp()
-      });
-      mostrarNotificacao("❌ Solicitação rejeitada.");
-      await carregarSolicitacoes();
-      esconderDetalheSol();
-    } catch(e) {
-      console.error(e);
-      mostrarNotificacao("❌ Erro ao rejeitar.");
-    }
-  };
-
-  // ============================================================
-  // TROCA DE ABAS
-  // ============================================================
-  window.mudarAba = function(aba) {
-    const eDoc = aba === "docs";
-    document.getElementById("painel-docs-lista").style.display  = eDoc ? "block" : "none";
-    document.getElementById("painel-sol-lista").style.display   = eDoc ? "none"  : "block";
-    document.getElementById("aba-btn-docs").classList.toggle("activa", eDoc);
-    document.getElementById("aba-btn-sol").classList.toggle("activa", !eDoc);
-
-    if (eDoc) {
-      // Voltar ao placeholder de documentos
-      document.getElementById("sol-detalhe-wrap").style.display = "none";
-      if (!docSeleccionado) {
-        document.getElementById("placeholder-detalhe").style.display = "flex";
-        document.getElementById("detalhe-cabecalho").style.display = "none";
-        document.getElementById("preview-doc-area").style.display = "none";
-        document.getElementById("painel-accao").style.display = "none";
-      }
-    } else {
-      // Carregar solicitações ao mudar para esta aba
-      carregarSolicitacoes();
-      esconderDetalheSol();
-    }
-  };
-
-
-  function fmtTimestamp(ts) {
-    if (!ts) return "—";
-    const d = ts.toDate ? ts.toDate() : new Date(ts.seconds * 1000);
-    return String(d.getDate()).padStart(2,"0") + "/" +
-           String(d.getMonth()+1).padStart(2,"0") + "/" +
-           d.getFullYear() + " " +
-           String(d.getHours()).padStart(2,"0") + ":" +
-           String(d.getMinutes()).padStart(2,"0");
-  }
-
-  // ============================================================
-  // SELECCIONAR DOCUMENTO
-  // ============================================================
-  window.seleccionarDocumento = function(d) {
-    docSeleccionado = d;
-    renderizarLista(); // actualizar selecção visual
-
-    // Mostrar cabeçalho
-    const numDoc = d.numGuia && d.anoGuia ? `Guia de Férias nº ${d.numGuia}/${d.anoGuia}` : "Guia de Férias";
-    document.getElementById("detalhe-titulo").textContent = numDoc + " — " + (d.funcionarioNome || "—");
-
-    const ts = d.geradoEm ? fmtTimestamp(d.geradoEm) : "—";
-    document.getElementById("detalhe-meta").innerHTML = `
-      <span>📅 Gerado em: <strong>${ts}</strong></span>
-      <span>👤 Por: <strong>${d.geradoPorEmail || "—"}</strong></span>
-    `;
-
-    document.getElementById("dados-grid").innerHTML = `
-      <div class="dado-item"><div class="dado-label">Funcionário</div><div class="dado-valor">${d.funcionarioNome || "—"}</div></div>
-      <div class="dado-item"><div class="dado-label">Categoria</div><div class="dado-valor">${d.categoria || "—"}</div></div>
-      <div class="dado-item"><div class="dado-label">Local</div><div class="dado-valor">${d.localColocacao || "—"}</div></div>
-      <div class="dado-item"><div class="dado-label">Dias de Férias</div><div class="dado-valor">${d.numDias || "—"} dias úteis</div></div>
-      <div class="dado-item"><div class="dado-label">Início das Férias</div><div class="dado-valor">${fmtData(d.dataInicio)}</div></div>
-      <div class="dado-item"><div class="dado-label">Data de Emissão</div><div class="dado-valor">${fmtData(d.dataEmissao)}</div></div>
-    `;
-
-    // Pré-visualização do documento
-    const htmlDoc = d.htmlConteudo || reconstruirHtml(d);
-    document.getElementById("preview-doc-html").innerHTML = htmlDoc;
-
-    // Área de impressão
-    document.getElementById("area-impressao").innerHTML = htmlDoc;
-
-    // Painel de acção
-    const painelAccao = document.getElementById("painel-accao");
-    const accaoBotoes = document.getElementById("accao-botoes");
-    const campoObs    = document.getElementById("campo-obs");
-    const estadoFinal = document.getElementById("estado-final");
-
-    campoObs.style.display  = "none";
-    estadoFinal.style.display = "none";
-    estadoFinal.className   = "estado-final";
-
-    if (d.estado === "pendente") {
-      accaoBotoes.style.display = "flex";
-      document.getElementById("btn-aprovar").disabled  = false;
-      document.getElementById("btn-rejeitar").disabled = false;
-      estadoFinal.style.display = "none";
-    } else if (d.estado === "aprovado") {
-      accaoBotoes.style.display = "none";
-      estadoFinal.className = "estado-final aprovado";
-      estadoFinal.innerHTML = `✅ Documento <strong>aprovado</strong> em ${fmtTimestamp(d.aprovadoEm)} por ${d.aprovadoPorEmail || "—"}`;
-      estadoFinal.style.display = "block";
-    } else if (d.estado === "rejeitado") {
-      accaoBotoes.style.display = "none";
-      estadoFinal.className = "estado-final rejeitado";
-      estadoFinal.innerHTML = `❌ Documento <strong>rejeitado</strong> em ${fmtTimestamp(d.aprovadoEm)} por ${d.aprovadoPorEmail || "—"}<br><small>Motivo: ${d.observacao || "—"}</small>`;
-      estadoFinal.style.display = "block";
-    }
-
-    // Mostrar painéis
-    document.getElementById("placeholder-detalhe").style.display = "none";
-    document.getElementById("detalhe-cabecalho").style.display    = "block";
-    document.getElementById("preview-doc-area").style.display      = "block";
-    painelAccao.style.display = "block";
-  };
-
-  function fmtData(str) {
-    if (!str) return "—";
-    const [a, m, d] = str.split("-");
-    return d + "/" + m + "/" + a;
-  }
-
-  function limparDetalhe() {
-    docSeleccionado = null;
-    document.getElementById("placeholder-detalhe").style.display = "flex";
-    document.getElementById("detalhe-cabecalho").style.display    = "none";
-    document.getElementById("preview-doc-area").style.display      = "none";
-    document.getElementById("painel-accao").style.display          = "none";
-  }
-
-  // ============================================================
-  // APROVAR
-  // ============================================================
-  window.aprovarDocumento = async function() {
-    if (!docSeleccionado || !utilizadorActual) return;
-    document.getElementById("btn-aprovar").disabled  = true;
-    document.getElementById("btn-rejeitar").disabled = true;
-    document.getElementById("btn-aprovar").textContent = "A aprovar...";
-
-    try {
-      await updateDoc(doc(db, "documentos", docSeleccionado.id), {
-        estado: "aprovado",
-        aprovadoPor: utilizadorActual.uid,
-        aprovadoPorEmail: utilizadorActual.email,
-        aprovadoEm: serverTimestamp(),
-        observacao: ""
-      });
-      mostrarNotificacao("✅ Documento aprovado com sucesso!");
-    } catch(e) {
-      console.error(e);
-      mostrarNotificacao("❌ Erro ao aprovar. Tente novamente.");
-      document.getElementById("btn-aprovar").disabled  = false;
-      document.getElementById("btn-rejeitar").disabled = false;
-      document.getElementById("btn-aprovar").innerHTML = "&#9989; Aprovar";
-    }
-  };
-
-  // ============================================================
-  // REJEITAR
-  // ============================================================
-  window.mostrarCampoRejeicao = function() {
-    document.getElementById("campo-obs").style.display = "block";
+  window.mostrarCampoRejeicao=function(){
+    document.getElementById("campo-rejeicao").style.display="block";
+    document.getElementById("btn-rejeitar").style.display="none";
     document.getElementById("obs-rejeicao").focus();
-    document.getElementById("btn-rejeitar").style.display = "none";
   };
 
-  window.rejeitarDocumento = async function() {
-    if (!docSeleccionado || !utilizadorActual) return;
-    const obs = document.getElementById("obs-rejeicao").value.trim();
-    if (!obs) {
-      mostrarNotificacao("⚠️ Indique o motivo da rejeição.");
+  window.aprovarDocumento=async function(){
+    if(!docSel||!utilizadorActual)return;
+    const bA=document.getElementById("btn-aprovar"),bR=document.getElementById("btn-rejeitar");
+    bA.disabled=true; bR.disabled=true;
+    bA.innerHTML='<span class="spinner"></span> A aprovar...';
+    try{
+      await updateDoc(doc(db,"documentos",docSel.id),{estado:"aprovado",aprovadoPor:utilizadorActual.uid,aprovadoPorEmail:utilizadorActual.email,aprovadoEm:serverTimestamp(),observacao:""});
+      notif("✅ Documento aprovado com sucesso!");
+    }catch(e){console.error(e);notif("❌ Erro ao aprovar.","err");bA.disabled=false;bR.disabled=false;bA.innerHTML="✅ Aprovar";}
+  };
+
+  window.rejeitarDocumento=async function(){
+    if(!docSel||!utilizadorActual)return;
+    const obs=document.getElementById("obs-rejeicao").value.trim();
+    if(!obs){notif("⚠️ Indique o motivo da rejeição.","err");return;}
+    const btn=document.querySelector(".btn-confirmar-rej");
+    btn.textContent="A rejeitar..."; btn.disabled=true;
+    document.getElementById("btn-aprovar").disabled=true;
+    try{
+      await updateDoc(doc(db,"documentos",docSel.id),{estado:"rejeitado",aprovadoPor:utilizadorActual.uid,aprovadoPorEmail:utilizadorActual.email,aprovadoEm:serverTimestamp(),observacao:obs});
+      document.getElementById("obs-rejeicao").value="";
+      notif("❌ Documento rejeitado.");
+    }catch(e){console.error(e);notif("❌ Erro ao rejeitar.","err");btn.disabled=false;btn.textContent="❌ Confirmar Rejeição";}
+  };
+
+  window.imprimirDocumento=()=>window.print();
+
+  // SOLICITAÇÕES
+  async function carregarSolicitacoes(){
+    try{
+      const snap=await getDocs(collection(db,"solicitacoes"));
+      todasSolicitacoes=snap.docs.map(d=>({id:d.id,...d.data()}));
+      todasSolicitacoes.sort((a,b)=>(b.criadaEm?.toDate?.()?.getTime()||0)-(a.criadaEm?.toDate?.()?.getTime()||0));
+      actualizarContadoresSol(); renderizarSolicitacoes();
+    }catch(e){console.error(e);document.getElementById("lista-solicitacoes").innerHTML='<div class="vazio-lista"><div class="icone">⚠️</div><p>Erro ao carregar.</p></div>';}
+  }
+
+  function actualizarContadoresSol(){
+    const c={nova:0,processando:0,concluida:0,rejeitada:0};
+    todasSolicitacoes.forEach(s=>{if(c[s.estado]!==undefined)c[s.estado]++;});
+    document.getElementById("conta-sol-nova").textContent=c.nova;
+    document.getElementById("conta-sol-proc").textContent=c.processando;
+    document.getElementById("conta-sol-conc").textContent=c.concluida;
+    document.getElementById("conta-sol-rej").textContent=c.rejeitada;
+    const b=document.getElementById("badge-sol"),total=c.nova+c.processando;
+    if(total>0){b.textContent=total;b.style.display="inline";}else b.style.display="none";
+  }
+
+  function renderizarSolicitacoes(){
+    const lista=document.getElementById("lista-solicitacoes");
+    const filtradas=todasSolicitacoes.filter(s=>s.estado===filtroSolActual);
+    if(filtradas.length===0){
+      const msgs={nova:"Nenhuma solicitação nova",processando:"Nenhuma em processamento",concluida:"Nenhuma concluída",rejeitada:"Nenhuma rejeitada"};
+      lista.innerHTML=`<div class="vazio-lista"><div class="icone">📩</div><p>${msgs[filtroSolActual]}</p></div>`;
       return;
     }
+    window._sols={};
+    lista.innerHTML=filtradas.map(s=>{
+      window._sols[s.id]=s;
+      const tipo=TIPOS_SOL[s.tipo]||{nome:s.tipo||"Documento",icone:"📄"};
+      const est=ESTADOS_SOL[s.estado]||{txt:s.estado,cls:""};
+      const ts=s.criadaEm?.toDate?.();
+      const data=ts?ts.toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric"}):"—";
+      const selCls=solSel&&solSel.id===s.id?" sel":"";
+      return `<div class="item-doc${selCls}" onclick="selSol(window._sols['${s.id}'])">
+        <div class="item-nome">${tipo.icone} ${tipo.nome}</div>
+        <div class="item-meta">👤 ${s.funcionarioNome||"—"} · ${s.unidade||"—"}</div>
+        <div class="item-meta">📅 ${data}</div>
+        <span class="item-badge ${est.cls}">${est.txt}</span>
+      </div>`;
+    }).join("");
+  }
 
-    const btnConf = document.querySelector(".btn-confirmar-rejeicao");
-    btnConf.textContent = "A rejeitar...";
-    btnConf.disabled = true;
-    document.getElementById("btn-aprovar").disabled = true;
-
-    try {
-      await updateDoc(doc(db, "documentos", docSeleccionado.id), {
-        estado: "rejeitado",
-        aprovadoPor: utilizadorActual.uid,
-        aprovadoPorEmail: utilizadorActual.email,
-        aprovadoEm: serverTimestamp(),
-        observacao: obs
-      });
-      document.getElementById("obs-rejeicao").value = "";
-      mostrarNotificacao("❌ Documento rejeitado.");
-    } catch(e) {
-      console.error(e);
-      mostrarNotificacao("❌ Erro ao rejeitar. Tente novamente.");
-      btnConf.disabled = false;
-      btnConf.textContent = "❌ Confirmar Rejeição";
-    }
+  window.filtrarSol=function(estado){
+    filtroSolActual=estado;
+    ["nova","processando","concluida","rejeitada"].forEach(e=>document.getElementById("fsol-"+e)?.classList.toggle("activo",e===estado));
+    renderizarSolicitacoes(); esconderSol();
   };
 
-  // ============================================================
-  // IMPRESSÃO
-  // ============================================================
-  window.imprimirDocumento = function() { window.print(); };
+  window.selSol=function(s){
+    solSel=s; renderizarSolicitacoes();
+    const tipo=TIPOS_SOL[s.tipo]||{nome:s.tipo||"Documento",icone:"📄"};
+    const est=ESTADOS_SOL[s.estado]||{txt:s.estado,cls:""};
+    const ts=s.criadaEm?.toDate?.();
+    const data=ts?ts.toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"}):"—";
+    document.getElementById("sol-det-titulo").textContent=tipo.icone+" "+tipo.nome;
+    document.getElementById("sol-det-sub").textContent="Enviado em "+data;
+    const badge=document.getElementById("sol-det-badge");
+    badge.textContent=est.txt; badge.className="item-badge "+est.cls;
+    document.getElementById("sol-dados-grid").innerHTML=[
+      {l:"Funcionário",v:s.funcionarioNome||"—"},{l:"Unidade",v:s.unidade||"—"},
+      {l:"Categoria",v:s.categoria||"—"},{l:"E-mail",v:s.funcionarioEmail||"—"},
+      ...(s.dataInicioFerias?[{l:"📅 Início das Férias",v:fmtData(s.dataInicioFerias)}]:[]),
+    ].map(d=>`<div class="sol-dado"><div class="lbl">${d.l}</div><div class="val">${d.v}</div></div>`).join("");
+    const mBox=document.getElementById("sol-motivo-box");
+    if(s.motivo){mBox.innerHTML="💬 <strong>Motivo:</strong> "+s.motivo;mBox.style.display="block";}
+    else mBox.style.display="none";
+    const accoes=document.getElementById("sol-accoes");
+    const sfinal=document.getElementById("sol-estado-final");
+    const srej=document.getElementById("sol-campo-rej");
+    srej.style.display="none"; sfinal.style.display="none"; sfinal.className="sol-estado-final";
+    if(s.estado==="nova"){
+      accoes.innerHTML=`<button class="btn-processar" onclick="processarSol()">🔄 Marcar como "A Processar"</button><button class="btn-rejeitar-sol" onclick="mostrarRejeitarSol()">❌ Rejeitar</button>`;
+    }else if(s.estado==="processando"){
+      accoes.innerHTML=`<button class="btn-concluir" onclick="concluirSol()">✅ Marcar como Concluída</button><button class="btn-rejeitar-sol" onclick="mostrarRejeitarSol()">❌ Rejeitar</button>`;
+    }else if(s.estado==="concluida"){
+      accoes.innerHTML=""; sfinal.className="sol-estado-final concluida";
+      sfinal.innerHTML="✅ Solicitação concluída."; sfinal.style.display="block";
+    }else if(s.estado==="rejeitada"){
+      accoes.innerHTML=""; sfinal.className="sol-estado-final rejeitada";
+      sfinal.innerHTML="❌ Rejeitada."+(s.motivoRejeicao?" Motivo: "+s.motivoRejeicao:""); sfinal.style.display="block";
+    }
+    document.getElementById("placeholder-detalhe").style.display="none";
+    document.getElementById("detalhe-card").style.display="none";
+    document.getElementById("preview-card").style.display="none";
+    document.getElementById("accao-card").style.display="none";
+    document.getElementById("sol-card").style.display="block";
+  };
 
-  // ============================================================
-  // NOTIFICAÇÃO
-  // ============================================================
-  function mostrarNotificacao(msg) {
-    const el = document.getElementById("notificacao");
-    el.textContent = msg;
-    el.style.display = "block";
-    setTimeout(() => { el.style.display = "none"; }, 4500);
-  }
-  // ============================================================
-  // RECONSTRUIR HTML DO DOCUMENTO A PARTIR DOS CAMPOS FIRESTORE
-  // (fallback quando htmlConteudo não está guardado por limite 1 MB)
-  // ============================================================
-  function reconstruirHtml(d) {
-    const dataInicioFmt   = fmtData(d.dataInicio)  || "—";
-    const numGuia         = d.numGuia              || "___";
-    const anoGuia         = d.anoGuia              || "____";
-    const funcionario     = d.funcionarioNome      || "—";
-    const categoria       = d.categoria            || "—";
-    const local           = d.localColocacao       || "—";
-    const numDias         = d.numDias              || "—";
-    const bi              = d.bi                   || "—";
-    const cargo           = d.cargo                || categoria;
-    const dataEmissaoLocal = d.dataEmissao
-      ? (() => { const [a,m,dia] = d.dataEmissao.split("-"); return `${dia} de ${nomeMes(m)} de ${a}`; })()
-      : "—";
-
-    const corpo = `O Director Municipal da Saúde do Sumbe, no uso das suas competências e nos \
-termos da legislação em vigor, <strong>AUTORIZA</strong> o gozo de férias do(a) funcionário(a) \
-<strong>${funcionario}</strong>, portador(a) do B.I. nº <strong>${bi}</strong>, que exerce as \
-funções de <strong>${cargo}</strong>, colocado(a) em <strong>${local}</strong>, \
-pelo período de <strong>${numDias} (${numDias}) dias úteis</strong>, com início no dia \
-<strong>${dataInicioFmt}</strong>, nos termos do Estatuto do Funcionalismo Público.`;
-
-    const metade = `
-      <div class="doc-metade">
-        <div class="doc-cabecalho">
-          <img src="insignia.png" class="doc-insignia" alt=""/>
-          <p class="negrito">REPÚBLICA DE ANGOLA</p>
-          <p class="negrito">GOVERNO PROVINCIAL DO KWANZA SUL</p>
-          <p class="negrito">DIRECÇÃO MUNICIPAL DA SAÚDE DO SUMBE</p>
-        </div>
-        <div class="doc-titulo">GUIA DE FÉRIAS Nº ${numGuia}/${anoGuia}</div>
-        <div class="doc-corpo">${corpo}</div>
-        <div class="doc-rodape">
-          <div class="doc-local-data">Sumbe, ${dataEmissaoLocal}</div>
-          <div class="doc-assinaturas">
-            <div class="doc-ass-col">
-              <div class="doc-ass-titulo">O Director Municipal da Saúde</div>
-              <div class="doc-ass-linha"></div>
-              <div class="doc-ass-nome">(assinatura)</div>
-            </div>
-            <div class="doc-ass-col direita">
-              <div class="doc-ass-titulo">Recebido em:</div>
-              <div class="doc-ass-data">___/___/______</div>
-              <div class="doc-ass-linha"></div>
-              <div class="doc-ass-nome">O(A) Funcionário(a)</div>
-            </div>
-          </div>
-        </div>
-      </div>`;
-
-    return `<div class="documento-oficial">${metade}${metade}</div>`;
+  function esconderSol(){
+    solSel=null;
+    document.getElementById("sol-card").style.display="none";
+    document.getElementById("placeholder-detalhe").style.display="flex";
   }
 
-  function nomeMes(m) {
-    return ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-            "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"][parseInt(m,10)-1] || m;
+  window.processarSol=async function(){
+    if(!solSel)return;
+    try{
+      await updateDoc(doc(db,"solicitacoes",solSel.id),{estado:"processando",processadoPor:utilizadorActual.uid,processadoPorEmail:utilizadorActual.email,processadoEm:serverTimestamp()});
+      notif("🔄 Marcada como 'A Processar'.");
+      if(solSel.tipo==="guia-ferias"){
+        const p=new URLSearchParams({sol:solSel.id,func:solSel.funcionarioId||"",nome:solSel.funcionarioNome||"",inicio:solSel.dataInicioFerias||"",unid:solSel.unidade||"",cat:solSel.categoria||"",adm:solSel.admissao||"",sexo:solSel.sexo||"",origem:"portal"});
+        setTimeout(()=>{window.location.href="documentos.html?"+p.toString();},800);
+        notif("📄 A abrir geração de guia...");return;
+      }
+      await carregarSolicitacoes(); esconderSol();
+    }catch(e){console.error(e);notif("❌ Erro ao actualizar.","err");}
+  };
+
+  window.concluirSol=async function(){
+    if(!solSel)return;
+    try{
+      await updateDoc(doc(db,"solicitacoes",solSel.id),{estado:"concluida",concluidoPor:utilizadorActual.uid,concluidoPorEmail:utilizadorActual.email,concluidoEm:serverTimestamp()});
+      notif("✅ Solicitação marcada como Concluída!");
+      await carregarSolicitacoes(); esconderSol();
+    }catch(e){console.error(e);notif("❌ Erro ao actualizar.","err");}
+  };
+
+  window.mostrarRejeitarSol=function(){
+    document.getElementById("sol-campo-rej").style.display="block";
+    document.getElementById("sol-accoes").innerHTML="";
+  };
+
+  window.confirmarRejeitarSol=async function(){
+    if(!solSel)return;
+    const motivo=document.getElementById("sol-obs-rej").value.trim();
+    if(!motivo){alert("Por favor, indique o motivo da rejeição.");return;}
+    try{
+      await updateDoc(doc(db,"solicitacoes",solSel.id),{estado:"rejeitada",motivoRejeicao:motivo,rejeitadoPor:utilizadorActual.uid,rejeitadoPorEmail:utilizadorActual.email,rejeitadoEm:serverTimestamp()});
+      notif("❌ Solicitação rejeitada.");
+      await carregarSolicitacoes(); esconderSol();
+    }catch(e){console.error(e);notif("❌ Erro ao rejeitar.","err");}
+  };
+
+  window.mudarAba=function(aba){
+    const eDoc=aba==="docs";
+    document.getElementById("painel-docs-lista").style.display=eDoc?"block":"none";
+    document.getElementById("painel-sol-lista").style.display=eDoc?"none":"block";
+    document.getElementById("aba-btn-docs").classList.toggle("activa",eDoc);
+    document.getElementById("aba-btn-sol").classList.toggle("activa",!eDoc);
+    if(eDoc){
+      document.getElementById("sol-card").style.display="none";
+      if(!docSel){document.getElementById("placeholder-detalhe").style.display="flex";document.getElementById("detalhe-card").style.display="none";document.getElementById("preview-card").style.display="none";document.getElementById("accao-card").style.display="none";}
+    }else{carregarSolicitacoes();esconderSol();}
+  };
+
+  function fmtTs(ts){if(!ts)return"—";const d=ts.toDate?ts.toDate():new Date(ts.seconds*1000);return String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+d.getFullYear()+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
+  function fmtData(str){if(!str)return"—";const[a,m,d]=str.split("-");return d+"/"+m+"/"+a;}
+
+  function notif(msg,tipo="ok"){
+    const el=document.getElementById("toast");
+    el.textContent=msg; el.className=`toast toast-${tipo}`; el.style.display="block";
+    setTimeout(()=>el.style.display="none",4500);
   }
+
+  function reconstruirHtml(d){
+    const dataFmt=fmtData(d.dataInicio)||"—",numGuia=d.numGuia||"___",anoGuia=d.anoGuia||"____";
+    const func=d.funcionarioNome||"—",cat=d.categoria||"—",local=d.localColocacao||"—";
+    const dias=d.numDias||"—",bi=d.bi||"—",cargo=d.cargo||cat;
+    const dataEmissao=d.dataEmissao?(()=>{const[a,m,dia]=d.dataEmissao.split("-");return`${dia} de ${nomeMes(m)} de ${a}`;})():"—";
+    const corpo=`O Director Municipal da Saúde do Sumbe, no uso das suas competências e nos termos da legislação em vigor, <strong>AUTORIZA</strong> o gozo de férias do(a) funcionário(a) <strong>${func}</strong>, portador(a) do B.I. nº <strong>${bi}</strong>, que exerce as funções de <strong>${cargo}</strong>, colocado(a) em <strong>${local}</strong>, pelo período de <strong>${dias} (${dias}) dias úteis</strong>, com início no dia <strong>${dataFmt}</strong>, nos termos do Estatuto do Funcionalismo Público.`;
+    const metade=`<div class="doc-metade"><div class="doc-cabecalho"><img src="insignia.png" class="doc-insignia" alt=""/><p class="negrito">REPÚBLICA DE ANGOLA</p><p class="negrito">GOVERNO PROVINCIAL DO KWANZA SUL</p><p class="negrito">DIRECÇÃO MUNICIPAL DA SAÚDE DO SUMBE</p></div><div class="doc-titulo">GUIA DE FÉRIAS Nº ${numGuia}/${anoGuia}</div><div class="doc-corpo">${corpo}</div><div class="doc-rodape"><div class="doc-local-data">Sumbe, ${dataEmissao}</div><div class="doc-assinaturas"><div class="doc-ass-col"><div class="doc-ass-titulo">O Director Municipal da Saúde</div><div class="doc-ass-linha"></div><div class="doc-ass-nome">(assinatura)</div></div><div class="doc-ass-col direita"><div class="doc-ass-titulo">Recebido em:</div><div class="doc-ass-data">___/___/______</div><div class="doc-ass-linha"></div><div class="doc-ass-nome">O(A) Funcionário(a)</div></div></div></div></div>`;
+    return`<div class="documento-oficial">${metade}${metade}</div>`;
+  }
+  function nomeMes(m){return["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"][parseInt(m,10)-1]||m;}
 </script>
 </body>
 </html>
