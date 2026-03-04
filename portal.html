@@ -4,1657 +4,967 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SIGDOC-SUMBE — Portal do Funcionário</title>
-  <meta name="theme-color" content="#0a6e4f"/>
+  <meta name="theme-color" content="#0b4f3a"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --verde:        #0a6e4f;
-      --verde-claro:  #12a372;
-      --verde-vivo:   #10b981;
-      --verde-suave:  #d1fae5;
-      --azul:         #1a4f7a;
-      --azul-claro:   #2471a3;
-      --vermelho:     #dc2626;
-      --amarelo:      #f59e0b;
-      --cinza-fundo:  #f0f4f3;
-      --branco:       #ffffff;
-      --texto:        #111827;
-      --texto-suave:  #6b7280;
-      --borda:        #e5e7eb;
-      --sombra:       0 1px 3px rgba(0,0,0,0.08), 0 6px 20px rgba(0,0,0,0.06);
-      --sombra-forte: 0 10px 40px rgba(0,0,0,0.15);
+      --c-900:#052e1c;--c-800:#0b4f3a;--c-700:#0d6e4f;--c-600:#12a372;--c-500:#10c886;
+      --c-100:#d1fae5;--c-50:#f0fdf4;
+      --b-800:#1e3a5f;--b-600:#2563eb;--b-100:#dbeafe;
+      --r-600:#dc2626;--r-100:#fee2e2;
+      --a-500:#f59e0b;--a-100:#fef3c7;
+      --p-600:#7c3aed;--p-100:#ede9fe;
+      --neu-900:#0f172a;--neu-700:#334155;--neu-600:#475569;--neu-500:#64748b;
+      --neu-400:#94a3b8;--neu-300:#cbd5e1;--neu-200:#e2e8f0;
+      --neu-100:#f1f5f9;--neu-50:#f8fafc;--white:#ffffff;
+      --r-sm:8px;--r-md:14px;--r-lg:20px;--r-xl:28px;--r-full:999px;
+      --sh-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+      --sh-md:0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.05);
+      --sh-lg:0 20px 60px rgba(0,0,0,.15),0 8px 20px rgba(0,0,0,.08);
+      --glow:0 0 0 4px rgba(16,200,134,.18);
+      --font:'Plus Jakarta Sans',sans-serif;--mono:'DM Mono',monospace;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--cinza-fundo);
-      color: var(--texto);
-      min-height: 100vh;
-    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--neu-50);color:var(--neu-900);min-height:100vh;-webkit-font-smoothing:antialiased}
 
-    /* ════════════════════════════════════
-       ECRÃS — cada um ocupa o ecrã todo
-    ════════════════════════════════════ */
-    .ecra { display: none; min-height: 100vh; }
-    .ecra.activo { display: flex; }
+    /* ── ECRÃS ── */
+    .ecra{display:none;min-height:100vh}
+    .ecra.activo{display:flex}
 
-    /* ════════════════════════════════════
-       ECRÃ DE ENTRADA (landing split)
-    ════════════════════════════════════ */
-    #ecra-entrada {
-      flex-direction: row;
+    /* ══════════════════════════════
+       ECRÃ ENTRADA — SPLIT LANDING
+    ══════════════════════════════ */
+    #ecra-entrada{flex-direction:row}
+    .entrada-esq{
+      flex:1;
+      background:linear-gradient(160deg,var(--c-900) 0%,var(--c-800) 45%,var(--c-700) 100%);
+      display:flex;flex-direction:column;justify-content:center;
+      align-items:flex-start;padding:60px 56px;
+      position:relative;overflow:hidden;
     }
-    .entrada-esquerda {
-      flex: 1;
-      background: linear-gradient(160deg, var(--verde) 0%, #065f46 40%, #0a4f3f 100%);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 60px 56px;
-      position: relative;
-      overflow: hidden;
-    }
-    .entrada-esquerda::before {
-      content: '';
-      position: absolute;
-      top: -80px; right: -80px;
-      width: 360px; height: 360px;
-      background: radial-gradient(circle, rgba(16,185,129,0.18) 0%, transparent 70%);
-      border-radius: 50%;
-    }
-    .entrada-esquerda::after {
-      content: '';
-      position: absolute;
-      bottom: -60px; left: -40px;
-      width: 260px; height: 260px;
-      background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
-      border-radius: 50%;
-    }
-    .entrada-insignia {
-      width: 64px; height: 64px;
-      background: rgba(255,255,255,0.15);
-      border-radius: 16px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 30px;
-      margin-bottom: 32px;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    .entrada-titulo {
-      font-size: 36px;
-      font-weight: 700;
-      color: white;
-      line-height: 1.2;
-      margin-bottom: 16px;
-    }
-    .entrada-titulo span { color: #6ee7b7; }
-    .entrada-sub {
-      font-size: 15px;
-      color: rgba(255,255,255,0.65);
-      line-height: 1.7;
-      max-width: 380px;
-      margin-bottom: 40px;
-    }
-    .entrada-chips { display: flex; flex-direction: column; gap: 10px; }
-    .chip {
-      display: flex; align-items: center; gap: 10px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 10px;
-      padding: 10px 14px;
-      color: rgba(255,255,255,0.85);
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .chip-icone { font-size: 16px; }
-    .entrada-rodape {
-      position: absolute; bottom: 28px; left: 56px;
-      font-size: 11px; color: rgba(255,255,255,0.35);
-    }
+    .entrada-esq::before{content:'';position:absolute;top:-80px;right:-80px;width:360px;height:360px;background:radial-gradient(circle,rgba(16,200,134,.15) 0%,transparent 70%);border-radius:50%}
+    .entrada-esq::after{content:'';position:absolute;bottom:-60px;left:-40px;width:260px;height:260px;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 70%);border-radius:50%}
+    .entrada-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:44px 44px}
+    .entrada-emblema{width:64px;height:64px;background:rgba(255,255,255,.12);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:32px;border:1px solid rgba(255,255,255,.18);position:relative;z-index:1}
+    .entrada-titulo{font-size:36px;font-weight:800;color:var(--white);line-height:1.15;margin-bottom:16px;position:relative;z-index:1}
+    .entrada-titulo em{color:var(--c-500);font-style:normal}
+    .entrada-sub{font-size:15px;color:rgba(255,255,255,.6);line-height:1.75;max-width:380px;margin-bottom:40px;font-weight:400;position:relative;z-index:1}
+    .chips{display:flex;flex-direction:column;gap:10px;position:relative;z-index:1}
+    .chip{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:var(--r-sm);padding:10px 14px;color:rgba(255,255,255,.8);font-size:13px;font-weight:500}
+    .chip-ic{font-size:16px}
+    .entrada-rodape{position:absolute;bottom:28px;left:56px;font-size:11px;color:rgba(255,255,255,.3);z-index:1}
 
-    .entrada-direita {
-      width: 480px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 48px 48px;
-      background: white;
+    .entrada-dir{
+      width:480px;display:flex;flex-direction:column;
+      justify-content:center;align-items:center;
+      padding:48px;background:var(--white);
     }
-    .entrada-logo { text-align: center; margin-bottom: 36px; }
-    .entrada-logo h2 { font-size: 22px; font-weight: 700; color: var(--verde); }
-    .entrada-logo p { font-size: 13px; color: var(--texto-suave); margin-top: 4px; }
+    .entrada-logo{text-align:center;margin-bottom:36px}
+    .entrada-logo-emblema{width:56px;height:56px;background:linear-gradient(135deg,var(--c-800),var(--c-600));border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 14px;box-shadow:0 4px 16px rgba(13,110,79,.3)}
+    .entrada-logo h2{font-size:22px;font-weight:800;color:var(--c-800)}
+    .entrada-logo p{font-size:13px;color:var(--neu-400);margin-top:4px}
 
-    .btn-entrada {
-      width: 100%;
-      padding: 15px;
-      border: none;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      font-family: 'DM Sans', sans-serif;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+    .btn-ent{
+      width:100%;padding:15px;border:none;border-radius:var(--r-md);
+      font-size:15px;font-weight:700;font-family:var(--font);
+      cursor:pointer;transition:all .2s;
+      display:flex;align-items:center;justify-content:center;gap:10px;
     }
-    .btn-verificar {
-      background: linear-gradient(135deg, var(--verde), var(--verde-claro));
-      color: white;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 16px rgba(10,110,79,0.3);
+    .btn-ent-prim{
+      background:linear-gradient(135deg,var(--c-800),var(--c-600));
+      color:var(--white);margin-bottom:12px;
+      box-shadow:0 4px 16px rgba(13,110,79,.3);
     }
-    .btn-verificar:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(10,110,79,0.4); }
-    .btn-entrar-conta {
-      background: #f3f4f6;
-      color: var(--texto);
-    }
-    .btn-entrar-conta:hover { background: #e5e7eb; }
+    .btn-ent-prim:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(13,110,79,.4)}
+    .btn-ent-sec{background:var(--neu-100);color:var(--neu-700)}
+    .btn-ent-sec:hover{background:var(--neu-200)}
 
-    .separador { display: flex; align-items: center; gap: 12px; margin: 20px 0; width: 100%; }
-    .separador::before, .separador::after { content:''; flex:1; height:1px; background: var(--borda); }
-    .separador span { font-size: 12px; color: var(--texto-suave); white-space: nowrap; }
+    .sep{display:flex;align-items:center;gap:12px;margin:20px 0;width:100%}
+    .sep::before,.sep::after{content:'';flex:1;height:1px;background:var(--neu-200)}
+    .sep span{font-size:12px;color:var(--neu-400);white-space:nowrap}
+    .link-admin{text-align:center;font-size:12px;color:var(--neu-400)}
+    .link-admin a{color:var(--c-700);font-weight:700;text-decoration:none}
 
-    .link-admin { text-align: center; font-size: 12px; color: var(--texto-suave); }
-    .link-admin a { color: var(--azul); font-weight: 600; text-decoration: none; }
-
-    /* ════════════════════════════════════
-       ECRÃS DE FLUXO (verificação, etc.)
-    ════════════════════════════════════ */
-    .ecra-fluxo {
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      background: var(--cinza-fundo);
-      padding: 24px;
-    }
-    .caixa-fluxo {
-      background: white;
-      border-radius: 20px;
-      box-shadow: var(--sombra-forte);
-      width: 100%;
-      max-width: 480px;
-      overflow: hidden;
-    }
-    .caixa-topo {
-      background: linear-gradient(135deg, var(--verde), var(--verde-claro));
-      padding: 28px 32px;
-      color: white;
-    }
-    .caixa-topo .passo { font-size: 11px; font-weight: 700; opacity: 0.7; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
-    .caixa-topo h3 { font-size: 20px; font-weight: 700; }
-    .caixa-topo p { font-size: 13px; opacity: 0.8; margin-top: 4px; line-height: 1.5; }
-    .caixa-corpo { padding: 28px 32px; }
-    .caixa-rodape { padding: 16px 32px; border-top: 1px solid var(--borda); display: flex; gap: 10px; justify-content: flex-end; }
+    /* ══════════════════════════════
+       ECRÃS DE FLUXO
+    ══════════════════════════════ */
+    .ecra-fluxo{align-items:center;justify-content:center;flex-direction:column;background:var(--neu-50);padding:24px}
+    .caixa{background:var(--white);border-radius:var(--r-xl);box-shadow:var(--sh-lg);width:100%;max-width:480px;overflow:hidden;animation:slideUp .35s cubic-bezier(.16,1,.3,1)}
+    @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .caixa-topo{background:linear-gradient(135deg,var(--c-900),var(--c-700));padding:28px 32px;color:var(--white)}
+    .caixa-passo{font-size:11px;font-weight:700;opacity:.6;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+    .caixa-titulo{font-size:20px;font-weight:800}
+    .caixa-sub{font-size:13px;opacity:.75;margin-top:5px;line-height:1.55}
+    .caixa-corpo{padding:28px 32px}
+    .caixa-rodape{padding:16px 32px;border-top:1px solid var(--neu-100);display:flex;gap:10px;justify-content:flex-end;background:var(--neu-50)}
 
     /* Indicador de passos */
-    .passos-indicador { display: flex; gap: 6px; margin-bottom: 28px; }
-    .passo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--borda); transition: all 0.3s; }
-    .passo-dot.activo { background: var(--verde); width: 24px; border-radius: 4px; }
-    .passo-dot.feito { background: var(--verde-vivo); }
+    .passos{display:flex;gap:6px;margin-bottom:24px}
+    .passo-dot{width:8px;height:8px;border-radius:50%;background:var(--neu-200);transition:all .3s}
+    .passo-dot.activo{background:var(--c-600);width:24px;border-radius:var(--r-sm)}
+    .passo-dot.feito{background:var(--c-500)}
 
     /* Campos */
-    .campo-grupo { margin-bottom: 18px; }
-    .campo-grupo label {
-      display: block;
-      font-size: 12px; font-weight: 700;
-      color: var(--texto); margin-bottom: 6px;
-      text-transform: uppercase; letter-spacing: 0.5px;
+    .campo-g{margin-bottom:18px}
+    .campo-g label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--neu-600);margin-bottom:6px}
+    .campo-g label em{color:var(--r-600);font-style:normal}
+    .campo-inp{
+      width:100%;padding:13px 16px;border:2px solid var(--neu-200);border-radius:var(--r-sm);
+      font-size:15px;font-family:var(--font);outline:none;transition:all .2s;
+      background:var(--white);color:var(--neu-900);
     }
-    .campo-grupo label span { color: var(--vermelho); }
-    .campo-input {
-      width: 100%; padding: 13px 16px;
-      border: 2px solid var(--borda); border-radius: 10px;
-      font-size: 15px; font-family: 'DM Sans', sans-serif;
-      outline: none; transition: border-color 0.2s;
-      background: white; color: var(--texto);
-    }
-    .campo-input:focus { border-color: var(--verde); }
-    .campo-input.erro { border-color: var(--vermelho); }
-    .campo-input.ok { border-color: var(--verde-vivo); }
-    .campo-mono { font-family: 'DM Mono', monospace; font-size: 18px; letter-spacing: 3px; text-align: center; }
-    .campo-hint { font-size: 11px; color: var(--texto-suave); margin-top: 5px; }
-    .campo-erro-msg { font-size: 12px; color: var(--vermelho); margin-top: 5px; font-weight: 600; display: none; }
+    .campo-inp:focus{border-color:var(--c-600);box-shadow:var(--glow)}
+    .campo-inp.erro{border-color:var(--r-600)}
+    .campo-inp.ok{border-color:var(--c-500)}
+    .campo-mono{font-family:var(--mono);font-size:18px;letter-spacing:3px;text-align:center}
+    .campo-hint{font-size:11px;color:var(--neu-400);margin-top:5px}
+    .campo-err-msg{font-size:12px;color:var(--r-600);margin-top:5px;font-weight:600;display:none}
 
-    /* Separador OU */
-    .ou-separador { text-align: center; margin: 16px 0; font-size: 12px; color: var(--texto-suave); position: relative; }
-    .ou-separador::before, .ou-separador::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:var(--borda); }
-    .ou-separador::before { left:0; }
-    .ou-separador::after { right:0; }
+    .ou-sep{text-align:center;margin:16px 0;font-size:12px;color:var(--neu-400);position:relative}
+    .ou-sep::before,.ou-sep::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--neu-200)}
+    .ou-sep::before{left:0}.ou-sep::after{right:0}
 
-    /* Botões */
-    .btn {
-      padding: 12px 24px; border: none; border-radius: 10px;
-      font-size: 14px; font-weight: 600;
-      font-family: 'DM Sans', sans-serif; cursor: pointer;
-      transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
-    }
-    .btn-primario { background: var(--verde); color: white; }
-    .btn-primario:hover { background: var(--verde-claro); }
-    .btn-primario:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-secundario { background: #f3f4f6; color: var(--texto); }
-    .btn-secundario:hover { background: #e5e7eb; }
-    .btn-full { width: 100%; justify-content: center; padding: 14px; }
+    .btn{padding:11px 22px;border:none;border-radius:var(--r-sm);font-size:14px;font-weight:700;font-family:var(--font);cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+    .btn-prim{background:linear-gradient(135deg,var(--c-800),var(--c-600));color:var(--white);box-shadow:0 2px 8px rgba(13,110,79,.25)}
+    .btn-prim:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(13,110,79,.35)}
+    .btn-prim:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .btn-sec{background:var(--neu-100);color:var(--neu-700);border:1.5px solid var(--neu-200)}
+    .btn-sec:hover{background:var(--neu-200)}
+    .btn-full{width:100%;justify-content:center;padding:14px}
 
-    /* Card de funcionário encontrado */
-    .card-encontrado {
-      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-      border: 2px solid #bbf7d0;
-      border-radius: 12px;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    .func-avatar-grande {
-      width: 56px; height: 56px;
-      background: linear-gradient(135deg, var(--verde), var(--verde-claro));
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; font-weight: 700; color: white;
-      flex-shrink: 0;
-    }
-    .func-info-encontrado .nome { font-size: 17px; font-weight: 700; color: var(--verde); }
-    .func-info-encontrado .sub { font-size: 12px; color: var(--texto-suave); margin-top: 3px; }
-    .badge-verificado {
-      display: inline-flex; align-items: center; gap: 4px;
-      background: #dcfce7; color: #166534;
-      padding: 3px 10px; border-radius: 20px;
-      font-size: 11px; font-weight: 700;
-      margin-top: 6px;
-    }
+    /* Card funcionário encontrado */
+    .card-enc{background:linear-gradient(135deg,var(--c-50),#dcfce7);border:2px solid var(--c-100);border-radius:var(--r-md);padding:20px;display:flex;align-items:center;gap:16px;margin-bottom:20px}
+    .enc-avatar{width:56px;height:56px;background:linear-gradient(135deg,var(--c-800),var(--c-600));border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--white);flex-shrink:0}
+    .enc-nome{font-size:17px;font-weight:800;color:var(--c-700)}
+    .enc-sub{font-size:12px;color:var(--neu-500);margin-top:3px}
+    .badge-verif{display:inline-flex;align-items:center;gap:4px;background:var(--c-100);color:var(--c-700);padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:700;margin-top:6px}
 
-    /* Indicador de força de senha */
-    .forca-senha { margin-top: 8px; }
-    .forca-barras { display: flex; gap: 4px; margin-bottom: 4px; }
-    .forca-barra { flex: 1; height: 4px; background: var(--borda); border-radius: 2px; transition: background 0.3s; }
-    .forca-texto { font-size: 11px; font-weight: 600; }
-    .forca-1 .forca-barra:nth-child(1) { background: var(--vermelho); }
-    .forca-2 .forca-barra:nth-child(-n+2) { background: var(--amarelo); }
-    .forca-3 .forca-barra:nth-child(-n+3) { background: var(--verde-vivo); }
-    .forca-4 .forca-barra { background: var(--verde); }
+    /* Força senha */
+    .forca-senha{margin-top:8px}
+    .forca-barras{display:flex;gap:4px;margin-bottom:4px}
+    .forca-barra{flex:1;height:4px;background:var(--neu-200);border-radius:2px;transition:background .3s}
+    .forca-texto{font-size:11px;font-weight:600}
+    .forca-1 .forca-barra:nth-child(1){background:var(--r-600)}
+    .forca-2 .forca-barra:nth-child(-n+2){background:var(--a-500)}
+    .forca-3 .forca-barra:nth-child(-n+3){background:var(--c-500)}
+    .forca-4 .forca-barra{background:var(--c-700)}
 
-    /* ════════════════════════════════════
-       PORTAL — Dashboard
-    ════════════════════════════════════ */
-    #ecra-portal { flex-direction: column; background: var(--cinza-fundo); }
+    /* Alertas */
+    .alerta{border-radius:var(--r-sm);padding:12px 16px;font-size:13px;line-height:1.6;display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;border-width:1px;border-style:solid}
+    .alerta-info{background:#eff6ff;color:var(--b-800);border-color:#bfdbfe}
+    .alerta-aviso{background:var(--a-100);color:#713f12;border-color:#fde68a}
+    .alerta-sucesso{background:var(--c-50);color:var(--c-700);border-color:var(--c-100)}
+    .alerta-erro{background:var(--r-100);color:#991b1b;border-color:#fecaca}
 
-    .portal-topo {
-      background: linear-gradient(135deg, var(--verde) 0%, #065f46 100%);
-      color: white;
-      padding: 0 24px;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky; top: 0; z-index: 100;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.2);
-    }
-    .portal-topo-marca { font-size: 15px; font-weight: 700; letter-spacing: 0.3px; }
-    .portal-topo-marca span { font-size: 11px; font-weight: 400; opacity: 0.6; display: block; }
-    .portal-topo-util { display: flex; align-items: center; gap: 12px; }
-    .portal-avatar {
-      width: 36px; height: 36px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 15px;
-      cursor: pointer; transition: background 0.2s;
-      border: 2px solid rgba(255,255,255,0.3);
-    }
-    .portal-avatar:hover { background: rgba(255,255,255,0.3); }
-    .portal-nome-topo { text-align: right; }
-    .portal-nome-topo .pnome { font-size: 13px; font-weight: 600; }
-    .portal-nome-topo .pcargo { font-size: 10px; opacity: 0.6; }
-    .btn-sair-portal {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: white; padding: 6px 14px; border-radius: 8px;
-      font-size: 12px; font-weight: 600;
-      font-family: 'DM Sans', sans-serif; cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-sair-portal:hover { background: rgba(255,255,255,0.22); }
+    /* ══════════════════════════════
+       PORTAL DASHBOARD
+    ══════════════════════════════ */
+    #ecra-portal{flex-direction:column;background:var(--neu-50)}
 
-    /* Hero do portal */
-    .portal-hero {
-      background: linear-gradient(135deg, var(--verde) 0%, #065f46 100%);
-      padding: 28px 24px 56px;
-      position: relative; overflow: hidden;
+    .portal-topo{
+      background:linear-gradient(135deg,var(--c-900) 0%,var(--c-800) 60%,var(--c-700) 100%);
+      color:var(--white);padding:0 24px;height:64px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.25);
     }
-    .portal-hero::before {
-      content: '';
-      position: absolute; top: -40px; right: -40px;
-      width: 200px; height: 200px;
-      background: radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%);
-      border-radius: 50%;
-    }
-    .portal-hero h2 { font-size: 22px; font-weight: 700; color: white; }
-    .portal-hero p { font-size: 13px; color: rgba(255,255,255,0.65); margin-top: 4px; }
-    .portal-ponto { display: inline-block; width: 7px; height: 7px; background: #6ee7b7; border-radius: 50%; margin-right: 6px; animation: piscar 2s infinite; }
-    @keyframes piscar { 0%,100%{opacity:1}50%{opacity:0.3} }
+    .portal-marca{font-size:15px;font-weight:800;letter-spacing:.3px}
+    .portal-marca span{display:block;font-size:10px;font-weight:400;opacity:.5;margin-top:1px;letter-spacing:0}
+    .portal-util{display:flex;align-items:center;gap:12px}
+    .portal-nome{text-align:right}
+    .portal-nome .pnome{font-size:13px;font-weight:700}
+    .portal-nome .pcargo{font-size:10px;opacity:.55}
+    .portal-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--c-600),var(--c-500));border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;cursor:pointer;border:2px solid rgba(255,255,255,.25);transition:all .2s}
+    .portal-avatar:hover{background:rgba(255,255,255,.25)}
+    .btn-sair{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:var(--white);padding:6px 14px;border-radius:var(--r-sm);font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;transition:all .2s}
+    .btn-sair:hover{background:rgba(255,255,255,.2)}
 
-    /* KPIs do portal */
-    .portal-kpis {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      padding: 0 20px;
-      margin-top: -32px;
-      position: relative; z-index: 10;
-      max-width: 900px; margin-left: auto; margin-right: auto;
-      padding-left: 20px; padding-right: 20px;
+    /* Hero */
+    .portal-hero{
+      background:linear-gradient(135deg,var(--c-900) 0%,var(--c-800) 60%,var(--c-700) 100%);
+      padding:28px 24px 60px;position:relative;overflow:hidden;
     }
-    .pkpi {
-      background: white;
-      border-radius: 14px;
-      padding: 16px 18px;
-      box-shadow: var(--sombra);
-      text-align: center;
-      border-top: 3px solid var(--borda);
-      cursor: default;
-      transition: box-shadow 0.2s;
-    }
-    .pkpi:nth-child(1) { border-top-color: var(--amarelo); }
-    .pkpi:nth-child(2) { border-top-color: var(--verde-vivo); }
-    .pkpi:nth-child(3) { border-top-color: var(--vermelho); }
-    .pkpi:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.12); }
-    .pkpi .num { font-size: 30px; font-weight: 700; font-family: 'DM Mono', monospace; line-height: 1; }
-    .pkpi .lbl { font-size: 11px; color: var(--texto-suave); margin-top: 4px; font-weight: 500; }
+    .portal-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 100% at 100% 50%,rgba(16,200,134,.12) 0%,transparent 60%)}
+    .portal-hero::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:44px 44px}
+    .portal-hero-inner{position:relative;z-index:1}
+    .portal-hero h2{font-size:20px;font-weight:800;color:var(--white)}
+    .portal-hero p{font-size:13px;color:rgba(255,255,255,.55);margin-top:4px;display:flex;align-items:center;gap:6px}
+    .ponto-vivo{width:7px;height:7px;background:var(--c-500);border-radius:50%;animation:piscar 2s infinite;flex-shrink:0}
+    @keyframes piscar{0%,100%{opacity:1}50%{opacity:.3}}
 
-    /* Navegação por abas do portal */
-    .portal-nav {
-      display: flex;
-      border-bottom: 2px solid var(--borda);
-      background: white;
-      padding: 0 20px;
-      max-width: 900px;
-      margin: 20px auto 0;
-      border-radius: 14px 14px 0 0;
-      box-shadow: 0 -2px 0 0 var(--borda);
-      overflow: hidden;
-    }
-    .portal-nav-btn {
-      padding: 14px 20px; border: none; background: none;
-      font-size: 13px; font-weight: 600; color: var(--texto-suave);
-      cursor: pointer; border-bottom: 3px solid transparent;
-      margin-bottom: -2px; transition: all 0.2s;
-      font-family: 'DM Sans', sans-serif;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .portal-nav-btn.activa { color: var(--verde); border-bottom-color: var(--verde); }
-    .portal-nav-btn:hover:not(.activa) { color: var(--texto); background: #f9fafb; }
-    .badge-nav {
-      background: var(--vermelho); color: white;
-      border-radius: 10px; padding: 1px 7px;
-      font-size: 10px; font-weight: 700;
-    }
+    /* Banner completar */
+    #banner-completar{display:none;max-width:900px;margin:14px auto 0;padding:0 20px}
+    .banner-inner{background:linear-gradient(135deg,var(--a-500),#d97706);border-radius:var(--r-md);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .banner-inner-txt{color:var(--white)}
+    .banner-inner-txt strong{font-size:14px;font-weight:700;display:block}
+    .banner-inner-txt span{font-size:12px;opacity:.85}
+    .btn-banner{background:var(--white);color:#d97706;padding:9px 18px;border-radius:var(--r-sm);font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap}
 
-    .portal-conteudo {
-      max-width: 900px; margin: 0 auto;
-      background: white; border-radius: 0 0 14px 14px;
-      box-shadow: var(--sombra);
-      min-height: 400px;
-      margin-bottom: 32px;
+    /* KPIs */
+    .portal-kpis{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+      padding:0 20px;margin:-40px auto 0;
+      max-width:900px;position:relative;z-index:10;
     }
-    .aba-portal { display: none; padding: 24px; }
-    .aba-portal.activa { display: block; }
+    .pkpi{
+      background:var(--white);border-radius:var(--r-md);padding:16px 18px;
+      box-shadow:var(--sh-md);text-align:center;
+      border-top:3px solid var(--neu-200);transition:all .2s;
+      border:1px solid var(--neu-100);border-top-width:3px;
+    }
+    .pkpi:nth-child(1){border-top-color:var(--a-500)}
+    .pkpi:nth-child(2){border-top-color:var(--c-500)}
+    .pkpi:nth-child(3){border-top-color:var(--r-600)}
+    .pkpi:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+    .pkpi .num{font-size:28px;font-weight:800;font-family:var(--mono);line-height:1;color:var(--neu-900)}
+    .pkpi .lbl{font-size:11px;color:var(--neu-400);margin-top:4px;font-weight:500}
 
-    /* Lista de documentos/solicitações */
-    .lista-docs { display: flex; flex-direction: column; gap: 12px; }
-    .item-doc-portal {
-      background: #f9fafb;
-      border-radius: 12px;
-      padding: 16px 18px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      border: 1px solid var(--borda);
-      transition: all 0.2s;
+    /* Nav tabs */
+    .portal-nav-wrap{max-width:900px;margin:20px auto 0;padding:0 20px}
+    .portal-nav{
+      background:var(--white);border-radius:var(--r-md) var(--r-md) 0 0;
+      display:flex;border-bottom:2px solid var(--neu-100);overflow:hidden;
+      box-shadow:var(--sh-sm);
     }
-    .item-doc-portal:hover { border-color: var(--verde-vivo); background: #f0fdf4; }
-    .doc-icone-portal {
-      width: 44px; height: 44px;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px; flex-shrink: 0;
+    .portal-nav-btn{
+      flex:1;padding:14px 10px;border:none;background:none;
+      font-size:13px;font-weight:600;color:var(--neu-400);
+      cursor:pointer;border-bottom:2.5px solid transparent;
+      margin-bottom:-2px;transition:all .2s;font-family:var(--font);
+      display:flex;align-items:center;justify-content:center;gap:6px;
     }
-    .doc-info-portal { flex: 1; min-width: 0; }
-    .doc-tipo-portal { font-size: 14px; font-weight: 700; color: var(--texto); }
-    .doc-meta-portal { font-size: 12px; color: var(--texto-suave); margin-top: 3px; }
-    .badge-estado-portal {
-      padding: 4px 12px; border-radius: 20px;
-      font-size: 11px; font-weight: 700;
-      white-space: nowrap; flex-shrink: 0;
-    }
-    .estado-pendente { background: #fef9e7; color: #7d6608; }
-    .estado-aprovado { background: #dcfce7; color: #166534; }
-    .estado-rejeitado { background: #fee2e2; color: #991b1b; }
-    .estado-nova { background: #ede9fe; color: #5b21b6; }
-    .estado-processando { background: #dbeafe; color: #1e40af; }
+    .portal-nav-btn.activa{color:var(--c-700);border-bottom-color:var(--c-600);background:var(--c-50)}
+    .portal-nav-btn:hover:not(.activa){background:var(--neu-50);color:var(--neu-700)}
+    .badge-nav{background:var(--r-600);color:var(--white);border-radius:var(--r-full);padding:1px 7px;font-size:10px;font-weight:700}
 
-    /* Formulário de nova solicitação */
-    .form-solicitacao { display: flex; flex-direction: column; gap: 16px; }
-    .tipo-doc-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .tipo-doc-card {
-      border: 2px solid var(--borda);
-      border-radius: 12px; padding: 16px 14px;
-      cursor: pointer; transition: all 0.2s;
-      display: flex; align-items: center; gap: 12px;
-      background: white;
-    }
-    .tipo-doc-card:hover { border-color: var(--verde-vivo); background: #f0fdf4; }
-    .tipo-doc-card.seleccionado { border-color: var(--verde); background: #f0fdf4; }
-    .tipo-doc-card .tdico { font-size: 22px; }
-    .tipo-doc-card .tdnome { font-size: 13px; font-weight: 600; color: var(--texto); }
-    .tipo-doc-card .tdsub { font-size: 11px; color: var(--texto-suave); margin-top: 2px; }
+    /* Conteúdo */
+    .portal-conteudo{max-width:900px;margin:0 auto 32px;background:var(--white);border-radius:0 0 var(--r-md) var(--r-md);box-shadow:var(--sh-sm);min-height:400px;padding:0 20px}
+    .aba-portal{display:none;padding:24px 0}
+    .aba-portal.activa{display:block}
+    .aba-titulo{font-size:15px;font-weight:800;color:var(--c-800);margin-bottom:6px}
+    .aba-sub{font-size:13px;color:var(--neu-400);margin-bottom:20px}
 
-    /* Perfil */
-    .perfil-cabecalho {
-      background: linear-gradient(135deg, var(--verde), var(--verde-claro));
-      border-radius: 12px; padding: 24px;
-      display: flex; align-items: center; gap: 20px;
-      margin-bottom: 20px; color: white;
+    /* Lista documentos */
+    .lista-docs{display:flex;flex-direction:column;gap:10px}
+    .item-doc-portal{
+      background:var(--neu-50);border-radius:var(--r-sm);padding:16px;
+      display:flex;align-items:center;gap:14px;
+      border:1px solid var(--neu-100);transition:all .2s;cursor:pointer;
     }
-    .perfil-avatar-grande {
-      width: 72px; height: 72px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 28px; font-weight: 700;
-      border: 3px solid rgba(255,255,255,0.35);
-      flex-shrink: 0;
-    }
-    .perfil-nome-grande { font-size: 20px; font-weight: 700; }
-    .perfil-sub { font-size: 13px; opacity: 0.8; margin-top: 3px; }
-    .perfil-badges { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-    .perfil-badge {
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.25);
-      border-radius: 20px; padding: 3px 12px;
-      font-size: 11px; font-weight: 600;
-    }
-
-    .perfil-grelha { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .perfil-campo {
-      background: #f9fafb; border-radius: 10px; padding: 14px;
-    }
-    .perfil-campo .rotulo { font-size: 10px; font-weight: 700; color: var(--texto-suave); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-    .perfil-campo .valor { font-size: 14px; font-weight: 600; color: var(--texto); }
-    .perfil-campo.span2 { grid-column: span 2; }
-    .perfil-campo input.campo-input { margin-top: 6px; font-size: 13px; padding: 8px 12px; }
+    .item-doc-portal:hover{border-color:var(--c-500);background:var(--c-50)}
+    .doc-ic-portal{width:44px;height:44px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+    .doc-info-portal{flex:1;min-width:0}
+    .doc-tipo-portal{font-size:14px;font-weight:700;color:var(--neu-900)}
+    .doc-meta-portal{font-size:12px;color:var(--neu-400);margin-top:3px}
+    .badge-est-portal{padding:4px 12px;border-radius:var(--r-full);font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0}
+    .est-pendente{background:var(--a-100);color:#92400e}
+    .est-aprovado{background:var(--c-100);color:var(--c-700)}
+    .est-rejeitado{background:var(--r-100);color:var(--r-600)}
+    .est-nova{background:var(--p-100);color:var(--p-600)}
+    .est-processando{background:var(--b-100);color:var(--b-800)}
 
     /* Vazio */
-    .vazio-portal { text-align: center; padding: 60px 20px; color: var(--texto-suave); }
-    .vazio-portal .vi { font-size: 48px; margin-bottom: 14px; }
-    .vazio-portal p { font-size: 14px; }
-    .vazio-portal small { font-size: 12px; color: #aaa; }
+    .vazio-portal{text-align:center;padding:56px 20px;color:var(--neu-400)}
+    .vazio-portal .vi{font-size:48px;margin-bottom:14px}
+    .vazio-portal p{font-size:14px;font-weight:500;color:var(--neu-500)}
+    .vazio-portal small{font-size:12px;color:var(--neu-400);display:block;margin-top:4px}
 
-    /* Notificação */
-    .notif {
-      position: fixed; bottom: 24px; right: 24px;
-      padding: 14px 20px; border-radius: 12px;
-      font-size: 13px; font-weight: 600; color: white;
-      display: none; z-index: 1000;
-      max-width: 340px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    /* Tipos de doc */
+    .tipo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+    .tipo-card{
+      border:2px solid var(--neu-200);border-radius:var(--r-md);padding:16px;
+      cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;
+      background:var(--white);
     }
-    .notif-ok { background: var(--verde); }
-    .notif-erro { background: var(--vermelho); }
-    .notif-info { background: var(--azul); }
+    .tipo-card:hover{border-color:var(--c-500);background:var(--c-50)}
+    .tipo-card.seleccionado{border-color:var(--c-600);background:var(--c-50)}
+    .tipo-card .tdico{font-size:22px}
+    .tipo-card .tdnome{font-size:13px;font-weight:700;color:var(--neu-900)}
+    .tipo-card .tdsub{font-size:11px;color:var(--neu-400);margin-top:2px}
 
-    /* Spinner */
-    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* Perfil */
+    .perf-cabec{background:linear-gradient(135deg,var(--c-900),var(--c-700));border-radius:var(--r-md);padding:24px;display:flex;align-items:center;gap:20px;margin-bottom:20px;color:var(--white)}
+    .perf-avatar-g{width:72px;height:72px;background:rgba(255,255,255,.15);border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;border:3px solid rgba(255,255,255,.3);flex-shrink:0}
+    .perf-nome-g{font-size:20px;font-weight:800}
+    .perf-sub{font-size:13px;opacity:.75;margin-top:3px}
+    .perf-badges{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+    .perf-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:var(--r-full);padding:3px 12px;font-size:11px;font-weight:600}
+    .perf-grelha{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .perf-campo{background:var(--neu-50);border-radius:var(--r-sm);padding:13px;border:1px solid var(--neu-100)}
+    .perf-campo .rotulo{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--neu-400);margin-bottom:3px}
+    .perf-campo .valor{font-size:13px;font-weight:700;color:var(--neu-900)}
+    .perf-campo.span2{grid-column:span 2}
 
-    /* Alerta informativo */
-    .alerta {
-      border-radius: 10px; padding: 12px 16px;
-      font-size: 13px; line-height: 1.6;
-      display: flex; gap: 10px; align-items: flex-start;
-      margin-bottom: 16px;
-    }
-    .alerta-info { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
-    .alerta-aviso { background: #fefce8; color: #713f12; border: 1px solid #fde68a; }
-    .alerta-sucesso { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-    .alerta-erro { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    /* Docs carregados */
+    .docs-carr{margin-top:20px}
+    .docs-carr-titulo{font-size:13px;font-weight:700;color:var(--neu-900);margin-bottom:12px}
+    .doc-fich{display:flex;align-items:center;gap:14px;background:var(--neu-50);border:1px solid var(--neu-200);border-radius:var(--r-sm);padding:14px;margin-bottom:10px;text-decoration:none;color:var(--neu-900);transition:all .2s}
+    .doc-fich:hover{border-color:var(--c-600);background:var(--c-50)}
+    .doc-fich-ic{width:42px;height:42px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+    .doc-fich-nome{font-size:13px;font-weight:700}
+    .doc-fich-sub{font-size:11px;color:var(--neu-400);margin-top:2px}
+    .doc-fich-vazio{text-align:center;padding:20px;background:var(--neu-50);border:2px dashed var(--neu-200);border-radius:var(--r-sm);font-size:13px;color:var(--neu-400);line-height:1.6}
 
-    /* Modal */
-    .overlay-modal {
-      display: none; position: fixed; top:0;left:0;width:100%;height:100%;
-      background: rgba(0,0,0,0.5); z-index: 500;
-      align-items: center; justify-content: center; padding: 20px;
-    }
-    .overlay-modal.activo { display: flex; }
-    .modal-caixa {
-      background: white; border-radius: 16px;
-      width: 100%; max-width: 440px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      overflow: hidden;
-    }
-    .modal-caixa .caixa-topo { padding: 20px 24px; }
-    .modal-caixa .caixa-corpo { padding: 20px 24px; }
-    .modal-caixa .caixa-rodape { padding: 14px 24px; }
+    /* Modal detalhe */
+    .overlay-modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.65);z-index:500;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+    .overlay-modal.activo{display:flex}
+    .modal-caixa{background:var(--white);border-radius:var(--r-xl);width:100%;max-width:440px;box-shadow:var(--sh-lg);overflow:hidden;animation:slideUp .3s cubic-bezier(.16,1,.3,1)}
+    .modal-caixa .caixa-topo{padding:20px 24px}
+    .modal-caixa .caixa-corpo{padding:20px 24px}
+    .modal-caixa .caixa-rodape{padding:14px 24px}
 
-    /* Responsivo */
-    @media (max-width: 768px) {
-      #ecra-entrada { flex-direction: column; }
-      .entrada-esquerda { padding: 40px 28px; flex: none; min-height: 220px; }
-      .entrada-titulo { font-size: 26px; }
-      .entrada-direita { width: 100%; padding: 32px 24px; }
-      .portal-kpis { grid-template-columns: 1fr 1fr 1fr; }
-      .perfil-grelha { grid-template-columns: 1fr; }
-      .perfil-campo.span2 { grid-column: span 1; }
-      .tipo-doc-grid { grid-template-columns: 1fr; }
-      .portal-nav { overflow-x: auto; }
+    /* Toast */
+    .notif{position:fixed;bottom:24px;right:24px;padding:14px 20px;border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--white);display:none;z-index:1000;max-width:340px;box-shadow:var(--sh-lg)}
+    .notif-ok{background:var(--c-800);border-left:4px solid var(--c-500)}
+    .notif-erro{background:#1f0a0a;border-left:4px solid var(--r-600)}
+    .notif-info{background:var(--b-800)}
+
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    @media(max-width:768px){
+      #ecra-entrada{flex-direction:column}
+      .entrada-esq{padding:40px 28px;flex:none;min-height:220px}
+      .entrada-titulo{font-size:26px}
+      .entrada-dir{width:100%;padding:32px 24px}
+      .portal-kpis{grid-template-columns:1fr 1fr 1fr}
+      .perf-grelha{grid-template-columns:1fr}
+      .perf-campo.span2{grid-column:span 1}
+      .tipo-grid{grid-template-columns:1fr}
+      .portal-nav{overflow-x:auto}
     }
-    @media (max-width: 480px) {
-      .portal-kpis { grid-template-columns: 1fr; }
-      .caixa-corpo { padding: 20px; }
-      .caixa-rodape { padding: 14px 20px; }
+    @media(max-width:480px){
+      .portal-kpis{grid-template-columns:1fr}
+      .caixa-corpo{padding:20px}
+      .caixa-rodape{padding:14px 20px}
     }
   </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════════
-     ECRÃ 0 — ENTRADA (Landing)
-════════════════════════════════════════════════ -->
+<!-- ════ ECRÃ ENTRADA ════ -->
 <div id="ecra-entrada" class="ecra activo">
-  <div class="entrada-esquerda">
-    <div class="entrada-insignia">🏥</div>
-    <div class="entrada-titulo">Portal do<br><span>Funcionário</span></div>
-    <p class="entrada-sub">Acesso exclusivo para os funcionários da Direcção Municipal da Saúde do Sumbe. Consulte e solicite documentos sem se deslocar.</p>
-    <div class="entrada-chips">
-      <div class="chip"><span class="chip-icone">📄</span> Solicitar Guias de Férias e outros documentos</div>
-      <div class="chip"><span class="chip-icone">🔍</span> Acompanhar o estado em tempo real</div>
-      <div class="chip"><span class="chip-icone">👤</span> Consultar e actualizar o seu perfil</div>
+  <div class="entrada-esq">
+    <div class="entrada-grid"></div>
+    <div class="entrada-emblema">🏥</div>
+    <div class="entrada-titulo">Portal do<br><em>Funcionário</em></div>
+    <p class="entrada-sub">Acesso exclusivo aos funcionários da Direcção Municipal da Saúde do Sumbe. Consulte e solicite documentos sem se deslocar.</p>
+    <div class="chips">
+      <div class="chip"><span class="chip-ic">📄</span> Solicitar Guias de Férias e outros documentos</div>
+      <div class="chip"><span class="chip-ic">🔍</span> Acompanhar o estado em tempo real</div>
+      <div class="chip"><span class="chip-ic">👤</span> Consultar e actualizar o seu perfil</div>
     </div>
     <div class="entrada-rodape">SIGDOC-SUMBE · Kwanza Sul, Angola · 2026</div>
   </div>
-  <div class="entrada-direita">
+  <div class="entrada-dir">
     <div class="entrada-logo">
+      <div class="entrada-logo-emblema">🏥</div>
       <h2>SIGDOC-SUMBE</h2>
       <p>Sistema Integrado de Gestão Documental e RH</p>
     </div>
-    <button class="btn-entrada btn-verificar" onclick="mostrarEcra('ecra-verificacao')">
-      🔍 Verificar pré-registo
-    </button>
-    <div class="separador"><span>Já tem conta?</span></div>
-    <button class="btn-entrada btn-entrar-conta" onclick="mostrarEcra('ecra-login-func')">
-      🔑 Entrar com a minha conta
-    </button>
-    <div class="separador" style="margin-top:20px"></div>
+    <button class="btn-ent btn-ent-prim" onclick="mostrarEcra('ecra-verificacao')">🔍 Verificar pré-registo</button>
+    <div class="sep"><span>Já tem conta?</span></div>
+    <button class="btn-ent btn-ent-sec" onclick="mostrarEcra('ecra-login-func')">🔑 Entrar com a minha conta</button>
+    <div class="sep" style="margin-top:20px"></div>
     <p class="link-admin">Administração? <a href="index.html">Aceder ao painel →</a></p>
   </div>
 </div>
 
-
-<!-- ════════════════════════════════════════════════
-     ECRÃ 1 — VERIFICAÇÃO DE PRÉ-REGISTO
-════════════════════════════════════════════════ -->
+<!-- ════ ECRÃ VERIFICAÇÃO ════ -->
 <div id="ecra-verificacao" class="ecra ecra-fluxo">
-  <div class="caixa-fluxo">
+  <div class="caixa">
     <div class="caixa-topo">
-      <div class="passo">Passo 1 de 3</div>
-      <h3>Verificar pré-registo</h3>
-      <p>Introduza o seu Número de Agente ou Número do Bilhete de Identidade para verificar se já está registado no sistema.</p>
+      <div class="caixa-passo">Passo 1 de 3</div>
+      <div class="caixa-titulo">Verificar pré-registo</div>
+      <div class="caixa-sub">Introduza o seu Número de Agente ou BI para verificar se já está registado no sistema.</div>
     </div>
     <div class="caixa-corpo">
-      <div class="passos-indicador">
-        <div class="passo-dot activo"></div>
-        <div class="passo-dot"></div>
-        <div class="passo-dot"></div>
-      </div>
-
-      <div class="alerta alerta-info">
-        ℹ️ Os seus dados foram inseridos pela Secção de RH. Introduza o Nº de Agente <strong>(8 dígitos)</strong> ou o Nº do BI <strong>(14 dígitos)</strong>.
-      </div>
-
-      <div class="campo-grupo">
-        <label>Número de Agente <span>*</span></label>
-        <input type="text" id="input-numero" class="campo-input campo-mono" maxlength="8" placeholder="00000000"
-          oninput="this.value=this.value.replace(/\D/g,''); validarVerificacao()"
-          onkeydown="if(event.key==='Enter') fazerVerificacao()"/>
+      <div class="passos"><div class="passo-dot activo"></div><div class="passo-dot"></div><div class="passo-dot"></div></div>
+      <div class="alerta alerta-info">ℹ️ Os seus dados foram inseridos pela Secção de RH. Introduza o Nº de Agente <strong>(8 dígitos)</strong> ou o Nº do BI <strong>(14 dígitos)</strong>.</div>
+      <div class="campo-g">
+        <label>Número de Agente <em>*</em></label>
+        <input type="text" id="input-numero" class="campo-inp campo-mono" maxlength="8" placeholder="00000000"
+          oninput="this.value=this.value.replace(/\D/g,'');validarVerificacao()"
+          onkeydown="if(event.key==='Enter')fazerVerificacao()"/>
         <div class="campo-hint">8 dígitos numéricos</div>
-        <div class="campo-erro-msg" id="erro-numero"></div>
+        <div class="campo-err-msg" id="erro-numero"></div>
       </div>
-
-      <div class="ou-separador">ou</div>
-
-      <div class="campo-grupo">
-        <label>Número do Bilhete de Identidade <span>*</span></label>
-        <input type="text" id="input-bi" class="campo-input campo-mono" maxlength="14" placeholder="00000000LA000"
+      <div class="ou-sep">ou</div>
+      <div class="campo-g">
+        <label>Número do Bilhete de Identidade <em>*</em></label>
+        <input type="text" id="input-bi" class="campo-inp campo-mono" maxlength="14" placeholder="00000000LA000"
           oninput="validarVerificacao()"
-          onkeydown="if(event.key==='Enter') fazerVerificacao()"/>
+          onkeydown="if(event.key==='Enter')fazerVerificacao()"/>
         <div class="campo-hint">14 caracteres (ex: 00123456LA083)</div>
-        <div class="campo-erro-msg" id="erro-bi"></div>
+        <div class="campo-err-msg" id="erro-bi"></div>
       </div>
-
       <div id="msg-verificacao"></div>
     </div>
     <div class="caixa-rodape">
-      <button class="btn btn-secundario" onclick="mostrarEcra('ecra-entrada')">← Voltar</button>
-      <button class="btn btn-primario" id="btn-verificar" onclick="fazerVerificacao()" disabled>
-        Verificar →
-      </button>
+      <button class="btn btn-sec" onclick="mostrarEcra('ecra-entrada')">← Voltar</button>
+      <button class="btn btn-prim" id="btn-verificar" onclick="fazerVerificacao()" disabled>Verificar →</button>
     </div>
   </div>
 </div>
 
-
-<!-- ════════════════════════════════════════════════
-     ECRÃ 2 — FUNCIONÁRIO ENCONTRADO → CRIAR CONTA
-════════════════════════════════════════════════ -->
+<!-- ════ ECRÃ CRIAR CONTA ════ -->
 <div id="ecra-criar-conta" class="ecra ecra-fluxo">
-  <div class="caixa-fluxo">
-    <div class="caixa-topo" style="background:linear-gradient(135deg,#065f46,#0a6e4f)">
-      <div class="passo">Passo 2 de 3</div>
-      <h3>✅ Pré-registo confirmado!</h3>
-      <p>Encontrámos o seu registo. Crie agora a sua conta de acesso ao portal.</p>
+  <div class="caixa">
+    <div class="caixa-topo">
+      <div class="caixa-passo">Passo 2 de 3</div>
+      <div class="caixa-titulo">✅ Pré-registo confirmado!</div>
+      <div class="caixa-sub">Encontrámos o seu registo. Crie agora a sua conta de acesso ao portal.</div>
     </div>
     <div class="caixa-corpo">
-      <div class="passos-indicador">
-        <div class="passo-dot feito"></div>
-        <div class="passo-dot activo"></div>
-        <div class="passo-dot"></div>
-      </div>
-
-      <div class="card-encontrado">
-        <div class="func-avatar-grande" id="cc-avatar">?</div>
-        <div class="func-info-encontrado">
-          <div class="nome" id="cc-nome">—</div>
-          <div class="sub" id="cc-unidade">—</div>
-          <div class="sub" id="cc-categoria">—</div>
-          <div class="badge-verificado">✅ Identidade verificada</div>
+      <div class="passos"><div class="passo-dot feito"></div><div class="passo-dot activo"></div><div class="passo-dot"></div></div>
+      <div class="card-enc">
+        <div class="enc-avatar" id="cc-avatar">?</div>
+        <div>
+          <div class="enc-nome" id="cc-nome">—</div>
+          <div class="enc-sub" id="cc-unidade">—</div>
+          <div class="enc-sub" id="cc-categoria">—</div>
+          <span class="badge-verif">✅ Identidade verificada</span>
         </div>
       </div>
-
-      <div class="campo-grupo">
-        <label>Endereço de E-mail <span>*</span></label>
-        <input type="email" id="cc-email" class="campo-input" placeholder="o.seu.email@exemplo.com"
-          oninput="validarCriarConta()"/>
+      <div class="campo-g">
+        <label>Endereço de E-mail <em>*</em></label>
+        <input type="email" id="cc-email" class="campo-inp" placeholder="o.seu.email@exemplo.com" oninput="validarCriarConta()"/>
         <div class="campo-hint">Este será o seu e-mail de acesso ao portal</div>
-        <div class="campo-erro-msg" id="erro-email"></div>
+        <div class="campo-err-msg" id="erro-email"></div>
       </div>
-
-      <div class="campo-grupo">
-        <label>Criar Senha <span>*</span></label>
-        <input type="password" id="cc-senha" class="campo-input" placeholder="Mínimo 8 caracteres"
-          oninput="avaliarForca(); validarCriarConta()"/>
+      <div class="campo-g">
+        <label>Criar Senha <em>*</em></label>
+        <input type="password" id="cc-senha" class="campo-inp" placeholder="Mínimo 8 caracteres" oninput="avaliarForca();validarCriarConta()"/>
         <div class="forca-senha" id="forca-wrap" style="display:none">
-          <div class="forca-barras" id="forca-barras">
-            <div class="forca-barra"></div>
-            <div class="forca-barra"></div>
-            <div class="forca-barra"></div>
-            <div class="forca-barra"></div>
-          </div>
+          <div class="forca-barras" id="forca-barras"><div class="forca-barra"></div><div class="forca-barra"></div><div class="forca-barra"></div><div class="forca-barra"></div></div>
           <div class="forca-texto" id="forca-texto"></div>
         </div>
-        <div class="campo-erro-msg" id="erro-senha"></div>
+        <div class="campo-err-msg" id="erro-senha"></div>
       </div>
-
-      <div class="campo-grupo">
-        <label>Confirmar Senha <span>*</span></label>
-        <input type="password" id="cc-senha2" class="campo-input" placeholder="Repita a senha"
-          oninput="validarCriarConta()"/>
-        <div class="campo-erro-msg" id="erro-senha2"></div>
+      <div class="campo-g">
+        <label>Confirmar Senha <em>*</em></label>
+        <input type="password" id="cc-senha2" class="campo-inp" placeholder="Repita a senha" oninput="validarCriarConta()"/>
+        <div class="campo-err-msg" id="erro-senha2"></div>
       </div>
-
       <div id="msg-criar"></div>
     </div>
     <div class="caixa-rodape">
-      <button class="btn btn-secundario" onclick="mostrarEcra('ecra-verificacao')">← Voltar</button>
-      <button class="btn btn-primario" id="btn-criar" onclick="criarConta()" disabled>
-        Criar Conta →
-      </button>
+      <button class="btn btn-sec" onclick="mostrarEcra('ecra-verificacao')">← Voltar</button>
+      <button class="btn btn-prim" id="btn-criar" onclick="criarConta()" disabled>Criar Conta →</button>
     </div>
   </div>
 </div>
 
-
-<!-- ════════════════════════════════════════════════
-     ECRÃ 3 — BEM-VINDO (pós-registo)
-════════════════════════════════════════════════ -->
+<!-- ════ ECRÃ BEM-VINDO ════ -->
 <div id="ecra-bem-vindo" class="ecra ecra-fluxo">
-  <div class="caixa-fluxo">
-    <div class="caixa-topo" style="text-align:center; padding:40px 32px;">
-      <div style="font-size:56px; margin-bottom:16px;">🎉</div>
-      <div class="passo">Passo 3 de 3 — Concluído</div>
-      <h3 id="bv-titulo">Bem-vindo ao Portal!</h3>
-      <p id="bv-sub">A sua conta foi criada com sucesso. Já pode aceder ao seu espaço pessoal.</p>
+  <div class="caixa">
+    <div class="caixa-topo" style="text-align:center;padding:40px 32px">
+      <div style="font-size:56px;margin-bottom:16px">🎉</div>
+      <div class="caixa-passo">Passo 3 de 3 — Concluído</div>
+      <div class="caixa-titulo" id="bv-titulo">Bem-vindo ao Portal!</div>
+      <div class="caixa-sub" id="bv-sub">A sua conta foi criada com sucesso.</div>
     </div>
-    <div class="caixa-corpo" style="text-align:center;">
-      <div class="passos-indicador" style="justify-content:center;">
-        <div class="passo-dot feito"></div>
-        <div class="passo-dot feito"></div>
-        <div class="passo-dot feito"></div>
-      </div>
-      <div class="alerta alerta-sucesso" style="text-align:left;">
-        ✅ Conta criada com sucesso! Utilize o seu e-mail e a senha criada para entrar sempre que precisar.
-      </div>
-      <button class="btn btn-primario btn-full" onclick="entrarNoPortal()">
-        Aceder ao meu portal →
-      </button>
+    <div class="caixa-corpo" style="text-align:center">
+      <div class="passos" style="justify-content:center"><div class="passo-dot feito"></div><div class="passo-dot feito"></div><div class="passo-dot feito"></div></div>
+      <div class="alerta alerta-sucesso" style="text-align:left">✅ Conta criada com sucesso! Use o seu e-mail e senha para entrar sempre que precisar.</div>
+      <button class="btn btn-prim btn-full" onclick="entrarNoPortal()">Aceder ao meu portal →</button>
     </div>
   </div>
 </div>
 
-
-<!-- ════════════════════════════════════════════════
-     ECRÃ — LOGIN DO FUNCIONÁRIO
-════════════════════════════════════════════════ -->
+<!-- ════ ECRÃ LOGIN FUNCIONÁRIO ════ -->
 <div id="ecra-login-func" class="ecra ecra-fluxo">
-  <div class="caixa-fluxo">
+  <div class="caixa">
     <div class="caixa-topo">
-      <div class="passo">Portal do Funcionário</div>
-      <h3>🔑 Entrar na minha conta</h3>
-      <p>Introduza as credenciais que criou durante o registo.</p>
+      <div class="caixa-passo">Portal do Funcionário</div>
+      <div class="caixa-titulo">🔑 Entrar na minha conta</div>
+      <div class="caixa-sub">Introduza as credenciais que criou durante o registo.</div>
     </div>
     <div class="caixa-corpo">
-      <div class="campo-grupo">
+      <div class="campo-g">
         <label>E-mail</label>
-        <input type="email" id="lf-email" class="campo-input" placeholder="o.seu.email@exemplo.com"
-          onkeydown="if(event.key==='Enter') document.getElementById('lf-senha').focus()"/>
+        <input type="email" id="lf-email" class="campo-inp" placeholder="o.seu.email@exemplo.com" onkeydown="if(event.key==='Enter')document.getElementById('lf-senha').focus()"/>
       </div>
-      <div class="campo-grupo">
+      <div class="campo-g">
         <label>Senha</label>
-        <input type="password" id="lf-senha" class="campo-input" placeholder="A sua senha"
-          onkeydown="if(event.key==='Enter') fazerLoginFuncionario()"/>
+        <input type="password" id="lf-senha" class="campo-inp" placeholder="A sua senha" onkeydown="if(event.key==='Enter')fazerLoginFuncionario()"/>
       </div>
       <div id="msg-login-func"></div>
     </div>
     <div class="caixa-rodape">
-      <button class="btn btn-secundario" onclick="mostrarEcra('ecra-entrada')">← Voltar</button>
-      <button class="btn btn-primario" id="btn-login-func" onclick="fazerLoginFuncionario()">
-        Entrar →
-      </button>
+      <button class="btn btn-sec" onclick="mostrarEcra('ecra-entrada')">← Voltar</button>
+      <button class="btn btn-prim" id="btn-login-func" onclick="fazerLoginFuncionario()">Entrar →</button>
     </div>
   </div>
 </div>
 
-
-<!-- ════════════════════════════════════════════════
-     ECRÃ — PORTAL (Dashboard do funcionário)
-════════════════════════════════════════════════ -->
+<!-- ════ ECRÃ PORTAL DASHBOARD ════ -->
 <div id="ecra-portal" class="ecra">
 
-  <!-- Topo -->
   <div class="portal-topo">
-    <div class="portal-topo-marca">
-      Portal do Funcionário
-      <span>SIGDOC-SUMBE · Direcção Municipal da Saúde do Sumbe</span>
-    </div>
-    <div class="portal-topo-util">
-      <div class="portal-nome-topo">
-        <div class="pnome" id="pt-nome">—</div>
-        <div class="pcargo" id="pt-cargo">—</div>
-      </div>
-      <div class="portal-avatar" id="pt-avatar" onclick="abrirAba('aba-perfil', this)">?</div>
-      <button class="btn-sair-portal" onclick="fazerLogoutFuncionario()">Sair</button>
+    <div class="portal-marca">Portal do Funcionário <span>SIGDOC-SUMBE · Direcção Municipal da Saúde do Sumbe</span></div>
+    <div class="portal-util">
+      <div class="portal-nome"><div class="pnome" id="pt-nome">—</div><div class="pcargo" id="pt-cargo">—</div></div>
+      <div class="portal-avatar" id="pt-avatar" onclick="abrirAba('aba-perfil',this)">?</div>
+      <button class="btn-sair" onclick="fazerLogoutFuncionario()">Sair</button>
     </div>
   </div>
 
-  <!-- Hero -->
   <div class="portal-hero">
-    <h2 id="ph-saudacao">Bom dia</h2>
-    <p><span class="portal-ponto"></span>Os seus documentos e solicitações actualizados em tempo real</p>
-  </div>
-
-  <!-- Banner completar perfil -->
-  <div id="banner-completar" style="display:none;max-width:900px;margin:16px auto 0;padding:0 20px;">
-    <div style="background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:12px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-      <div><div style="color:white;font-size:14px;font-weight:700;">⚠️ O seu perfil está incompleto</div><div style="color:rgba(255,255,255,0.85);font-size:12px;margin-top:3px;">Preencha o formulário profissional para que a equipa de RH possa processar os seus documentos correctamente.</div></div>
-      <a href="formulario.html" style="background:white;color:#d97706;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;">📋 Completar agora →</a>
+    <div class="portal-hero-inner">
+      <h2 id="ph-saudacao">Bom dia</h2>
+      <p><span class="ponto-vivo"></span>Documentos e solicitações actualizados em tempo real</p>
     </div>
   </div>
 
-  <!-- KPIs -->
+  <div id="banner-completar">
+    <div class="banner-inner">
+      <div class="banner-inner-txt"><strong>⚠️ O seu perfil está incompleto</strong><span>Preencha o formulário profissional para que os seus documentos sejam processados correctamente.</span></div>
+      <a href="formulario.html" class="btn-banner">📋 Completar agora →</a>
+    </div>
+  </div>
+
   <div class="portal-kpis">
-    <div class="pkpi">
-      <div class="num" id="pk-total">—</div>
-      <div class="lbl">Total de Solicitações</div>
-    </div>
-    <div class="pkpi">
-      <div class="num" id="pk-aprovados">—</div>
-      <div class="lbl">Aprovados</div>
-    </div>
-    <div class="pkpi">
-      <div class="num" id="pk-pendentes">—</div>
-      <div class="lbl">Pendentes</div>
-    </div>
+    <div class="pkpi"><div class="num" id="pk-total">—</div><div class="lbl">Total de Solicitações</div></div>
+    <div class="pkpi"><div class="num" id="pk-aprovados">—</div><div class="lbl">Aprovados</div></div>
+    <div class="pkpi"><div class="num" id="pk-pendentes">—</div><div class="lbl">Pendentes</div></div>
   </div>
 
-  <!-- Navegação -->
-  <div style="max-width:900px;margin:20px auto 0;padding:0 20px;">
+  <div class="portal-nav-wrap">
     <div class="portal-nav">
-      <button class="portal-nav-btn activa" onclick="abrirAba('aba-docs', this)">📄 Os meus documentos <span class="badge-nav" id="badge-pendentes" style="display:none">0</span></button>
-      <button class="portal-nav-btn" onclick="abrirAba('aba-solicitar', this)">➕ Pedir documento</button>
-      <button class="portal-nav-btn" onclick="abrirAba('aba-perfil', this)">👤 O meu perfil</button>
+      <button class="portal-nav-btn activa" onclick="abrirAba('aba-docs',this)">📄 Os meus documentos <span class="badge-nav" id="badge-pendentes" style="display:none">0</span></button>
+      <button class="portal-nav-btn" onclick="abrirAba('aba-solicitar',this)">➕ Pedir documento</button>
+      <button class="portal-nav-btn" onclick="abrirAba('aba-perfil',this)">👤 O meu perfil</button>
     </div>
   </div>
 
-  <!-- Conteúdo das abas -->
   <div class="portal-conteudo">
 
-    <!-- ABA: OS MEUS DOCUMENTOS -->
+    <!-- ABA: DOCUMENTOS -->
     <div id="aba-docs" class="aba-portal activa">
-      <h3 style="font-size:15px;font-weight:700;color:var(--verde);margin-bottom:16px;">📄 Os meus documentos e solicitações</h3>
+      <div class="aba-titulo">📄 Os meus documentos e solicitações</div>
       <div id="lista-docs-portal">
-        <div class="vazio-portal">
-          <div class="vi">⏳</div>
-          <p>A carregar os seus documentos…</p>
-        </div>
+        <div class="vazio-portal"><div class="vi">⏳</div><p>A carregar os seus documentos…</p></div>
       </div>
     </div>
 
     <!-- ABA: PEDIR DOCUMENTO -->
     <div id="aba-solicitar" class="aba-portal">
-      <h3 style="font-size:15px;font-weight:700;color:var(--verde);margin-bottom:6px;">➕ Pedir um novo documento</h3>
-      <p style="font-size:13px;color:var(--texto-suave);margin-bottom:20px;">Seleccione o tipo de documento que pretende solicitar. A Secção de RH receberá a sua solicitação e processará brevemente.</p>
-
-      <div class="tipo-doc-grid" id="tipos-doc-grid">
-        <div class="tipo-doc-card" onclick="seleccionarTipo('guia-ferias', this)">
+      <div class="aba-titulo">➕ Pedir um novo documento</div>
+      <p class="aba-sub">Seleccione o tipo de documento que pretende solicitar. A Secção de RH receberá a sua solicitação e processará brevemente.</p>
+      <div class="tipo-grid" id="tipos-doc-grid">
+        <div class="tipo-card" onclick="seleccionarTipo('guia-ferias',this)">
           <div class="tdico">🏖️</div>
           <div><div class="tdnome">Guia de Férias</div><div class="tdsub">Autorização de gozo de férias anuais</div></div>
         </div>
-        <div class="tipo-doc-card" onclick="seleccionarTipo('declaracao-servico', this)">
+        <div class="tipo-card" onclick="seleccionarTipo('declaracao-servico',this)">
           <div class="tdico">📜</div>
           <div><div class="tdnome">Declaração de Serviço</div><div class="tdsub">Declaração de vínculo institucional</div></div>
         </div>
-        <div class="tipo-doc-card" onclick="seleccionarTipo('guia-medica', this)">
+        <div class="tipo-card" onclick="seleccionarTipo('guia-medica',this)">
           <div class="tdico">🏥</div>
           <div><div class="tdnome">Guia Médica</div><div class="tdsub">Para consultas e tratamentos médicos</div></div>
         </div>
-        <div class="tipo-doc-card" onclick="seleccionarTipo('oficio', this)">
+        <div class="tipo-card" onclick="seleccionarTipo('oficio',this)">
           <div class="tdico">📋</div>
           <div><div class="tdnome">Ofício / Nota</div><div class="tdsub">Comunicação oficial diversa</div></div>
         </div>
       </div>
-
-      <div id="form-solicitacao-extra" style="display:none; margin-top:20px;">
-
-        <!-- Campo data de início — apenas para guia de férias -->
-        <div class="campo-grupo" id="campo-data-inicio-wrap" style="display:none;">
-          <label>Data de Início das Férias <span style="color:var(--vermelho)">*</span></label>
-          <input type="date" id="sol-data-inicio" class="campo-input"
-            style="font-size:15px;font-family:'DM Mono',monospace;"
-            oninput="validarDataInicio()"/>
+      <div id="form-solicitacao-extra" style="display:none;margin-top:20px">
+        <div class="campo-g" id="campo-data-inicio-wrap" style="display:none">
+          <label>Data de Início das Férias <em style="color:var(--r-600)">*</em></label>
+          <input type="date" id="sol-data-inicio" class="campo-inp" style="font-size:15px;font-family:var(--mono)" oninput="validarDataInicio()"/>
           <div class="campo-hint">📅 Este dado é essencial — a Secção de RH irá calcular os dias de férias com base nesta data.</div>
-          <div id="erro-data-inicio" style="font-size:12px;color:var(--vermelho);margin-top:5px;font-weight:600;display:none;"></div>
+          <div id="erro-data-inicio" style="font-size:12px;color:var(--r-600);margin-top:5px;font-weight:600;display:none"></div>
         </div>
-
-        <div class="campo-grupo">
-          <label>Finalidade / Motivo <span style="font-size:10px;font-weight:400;color:var(--texto-suave)">(opcional)</span></label>
-          <textarea id="sol-motivo" class="campo-input" rows="3" placeholder="Descreva brevemente o motivo ou finalidade do documento solicitado…" style="resize:vertical;"></textarea>
+        <div class="campo-g">
+          <label>Finalidade / Motivo <span style="font-size:10px;font-weight:400;color:var(--neu-400)">(opcional)</span></label>
+          <textarea id="sol-motivo" class="campo-inp" rows="3" placeholder="Descreva brevemente o motivo ou finalidade do documento…" style="resize:vertical"></textarea>
           <div class="campo-hint">Este campo é opcional mas ajuda a Secção de RH a processar mais rapidamente.</div>
         </div>
-        <button class="btn btn-primario btn-full" id="btn-submeter-sol" onclick="submeterSolicitacao()">
-          📤 Enviar solicitação
-        </button>
+        <button class="btn btn-prim btn-full" id="btn-submeter-sol" onclick="submeterSolicitacao()">📤 Enviar solicitação</button>
       </div>
-
-      <div id="msg-solicitacao" style="margin-top:12px;"></div>
+      <div id="msg-solicitacao" style="margin-top:12px"></div>
     </div>
 
     <!-- ABA: PERFIL -->
     <div id="aba-perfil" class="aba-portal">
-      <div class="perfil-cabecalho">
-        <div class="perfil-avatar-grande" id="perf-avatar">?</div>
+      <div class="perf-cabec">
+        <div class="perf-avatar-g" id="perf-avatar">?</div>
         <div>
-          <div class="perfil-nome-grande" id="perf-nome">—</div>
-          <div class="perfil-sub" id="perf-sub">—</div>
-          <div class="perfil-badges">
-            <span class="perfil-badge" id="perf-vinculo">—</span>
-            <span class="perfil-badge" id="perf-estado">—</span>
+          <div class="perf-nome-g" id="perf-nome">—</div>
+          <div class="perf-sub" id="perf-sub">—</div>
+          <div class="perf-badges">
+            <span class="perf-badge" id="perf-vinculo">—</span>
+            <span class="perf-badge" id="perf-estado">—</span>
           </div>
         </div>
       </div>
-
-      <div class="perfil-grelha" id="perfil-grelha">
-        <div class="vazio-portal" style="grid-column:span 2;padding:30px">
-          <p>A carregar perfil…</p>
-        </div>
+      <div class="perf-grelha" id="perfil-grelha">
+        <div class="vazio-portal" style="grid-column:span 2;padding:30px"><p>A carregar perfil…</p></div>
       </div>
-
-      <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
-        <a href="formulario.html" style="display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,var(--verde),var(--verde-claro));color:white;border-radius:10px;padding:14px;font-size:14px;font-weight:700;text-decoration:none;text-align:center;">
+      <div class="docs-carr">
+        <div class="docs-carr-titulo">📎 Os meus documentos carregados</div>
+        <div id="zona-docs-carregados"><div class="doc-fich-vazio">A verificar documentos...</div></div>
+      </div>
+      <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px">
+        <a href="formulario.html" style="display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,var(--c-800),var(--c-600));color:white;border-radius:var(--r-sm);padding:14px;font-size:14px;font-weight:700;text-decoration:none;text-align:center">
           📋 Completar / Actualizar Formulário Profissional
         </a>
-        <div class="campo-grupo">
+        <div class="campo-g">
           <label>Telefone de contacto (actualização rápida)</label>
-          <input type="tel" id="perf-telefone-edit" class="campo-input" placeholder="900 000 000"/>
+          <input type="tel" id="perf-telefone-edit" class="campo-inp" placeholder="900 000 000"/>
         </div>
-        <button class="btn btn-secundario btn-full" onclick="guardarPerfil()" style="justify-content:center;">💾 Guardar telefone</button>
+        <button class="btn btn-sec btn-full" onclick="guardarPerfil()" style="justify-content:center">💾 Guardar telefone</button>
       </div>
     </div>
 
-  </div><!-- fim portal-conteudo -->
-
-</div><!-- fim ecra-portal -->
-
-
-<!-- MODAL DETALHE SOLICITAÇÃO -->
-<div class="overlay-modal" id="overlay-detalhe-sol" onclick="if(event.target===this)this.classList.remove('activo')">
-  <div class="modal-caixa">
-    <div class="caixa-topo">
-      <h3 id="modal-sol-titulo">Detalhe da Solicitação</h3>
-      <p id="modal-sol-sub">—</p>
-    </div>
-    <div class="caixa-corpo" id="modal-sol-corpo"></div>
-    <div class="caixa-rodape">
-      <button class="btn btn-secundario" onclick="document.getElementById('overlay-detalhe-sol').classList.remove('activo')">Fechar</button>
-    </div>
   </div>
 </div>
 
-<!-- NOTIFICAÇÃO -->
+<!-- MODAL DETALHE -->
+<div class="overlay-modal" id="overlay-detalhe-sol" onclick="if(event.target===this)this.classList.remove('activo')">
+  <div class="modal-caixa">
+    <div class="caixa-topo"><div class="caixa-titulo" id="modal-sol-titulo">Detalhe</div><div class="caixa-sub" id="modal-sol-sub">—</div></div>
+    <div class="caixa-corpo" id="modal-sol-corpo"></div>
+    <div class="caixa-rodape"><button class="btn btn-sec" onclick="document.getElementById('overlay-detalhe-sol').classList.remove('activo')">Fechar</button></div>
+  </div>
+</div>
+
 <div class="notif" id="notif"></div>
 
-
-<!-- ════════ FIREBASE + LÓGICA ════════ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import {
-    getAuth, signInWithEmailAndPassword, signOut,
-    createUserWithEmailAndPassword, onAuthStateChanged,
-    signInAnonymously, linkWithCredential, EmailAuthProvider,
-    setPersistence, browserLocalPersistence
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import {
-    getFirestore, collection, getDocs, getDoc, addDoc,
-    updateDoc, doc, query, where, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, signOut,
+           createUserWithEmailAndPassword, onAuthStateChanged,
+           signInAnonymously, linkWithCredential, EmailAuthProvider,
+           setPersistence, browserLocalPersistence }
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, collection, getDocs, getDoc, addDoc,
+           updateDoc, doc, query, where, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
-    authDomain: "sigdoc-sumbe.firebaseapp.com",
-    projectId: "sigdoc-sumbe",
-    storageBucket: "sigdoc-sumbe.firebasestorage.app",
-    messagingSenderId: "323467521938",
-    appId: "1:323467521938:web:1e8170bfd3961784241b4b"
-  };
+  const firebaseConfig={apiKey:"AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",authDomain:"sigdoc-sumbe.firebaseapp.com",projectId:"sigdoc-sumbe",storageBucket:"sigdoc-sumbe.firebasestorage.app",messagingSenderId:"323467521938",appId:"1:323467521938:web:1e8170bfd3961784241b4b"};
+  const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+  setPersistence(auth,browserLocalPersistence).catch(e=>console.warn(e));
 
-  const app  = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db   = getFirestore(app);
+  let _funcDoc=null,_funcDocId=null,_utilizador=null,_tipoSel=null;
 
-  setPersistence(auth, browserLocalPersistence).catch(e => console.warn(e));
+  const LABELS_TIPO={"guia-ferias":{nome:"Guia de Férias",icone:"🏖️",bg:"#fef9e7"},"declaracao-servico":{nome:"Declaração de Serviço",icone:"📜",bg:"#eff6ff"},"guia-medica":{nome:"Guia Médica",icone:"🏥",bg:"var(--c-50)"},"oficio":{nome:"Ofício / Nota",icone:"📋",bg:"var(--p-100)"}};
+  const LABELS_ESTADO={nova:{texto:"Nova",classe:"est-nova"},processando:{texto:"Em processamento",classe:"est-processando"},concluida:{texto:"Aprovado ✅",classe:"est-aprovado"},rejeitada:{texto:"Rejeitado ❌",classe:"est-rejeitado"},pendente:{texto:"Pendente ⏳",classe:"est-pendente"}};
 
-  // ── ESTADO GLOBAL ──
-  let _funcDoc      = null; // documento do funcionario no Firestore
-  let _funcDocId    = null; // id do doc na colecção funcionarios
-  let _utilizador   = null; // Firebase Auth user
-  let _tipoSel      = null; // tipo de documento seleccionado
-
-  const LABELS_TIPO = {
-    "guia-ferias":       { nome:"Guia de Férias",       icone:"🏖️", bg:"#fef9e7" },
-    "declaracao-servico":{ nome:"Declaração de Serviço",icone:"📜", bg:"#f0f4ff" },
-    "guia-medica":       { nome:"Guia Médica",           icone:"🏥", bg:"#f0fdf4" },
-    "oficio":            { nome:"Ofício / Nota",         icone:"📋", bg:"#faf5ff" },
-  };
-  const LABELS_ESTADO = {
-    nova:        { texto:"Nova",          classe:"estado-nova" },
-    processando: { texto:"Em processamento", classe:"estado-processando" },
-    concluida:   { texto:"Aprovado ✅",   classe:"estado-aprovado" },
-    rejeitada:   { texto:"Rejeitado ❌",  classe:"estado-rejeitado" },
-    pendente:    { texto:"Pendente ⏳",   classe:"estado-pendente" },
-  };
-
-  // ── OBSERVADOR DE SESSÃO ──
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) return; // utilizador não logado — manter ecrã actual
-    if (user.isAnonymous) return; // sessão anónima de verificação — não abrir portal
-    _utilizador = user;
-
-    // Verificar se é funcionário
-    try {
-      const snapU = await getDoc(doc(db, "utilizadores", user.uid));
-      if (!snapU.exists()) return;
-      const dados = snapU.data();
-      if (dados.perfil !== "funcionario") return; // não é funcionário do portal
-
-      // Carregar doc do funcionário pelo ID guardado em utilizadores
-      if (dados.funcionarioId) {
-        try {
-          const snapF = await getDoc(doc(db, "funcionarios", dados.funcionarioId));
-          if (snapF.exists()) {
-            _funcDoc   = snapF.data();
-            _funcDocId = snapF.id;
-          }
-        } catch(ef) { console.warn("Não foi possível carregar ficha do funcionário:", ef); }
+  onAuthStateChanged(auth,async user=>{
+    if(!user||user.isAnonymous)return;
+    _utilizador=user;
+    try{
+      const snap=await getDoc(doc(db,"utilizadores",user.uid));
+      if(!snap.exists())return;
+      const dados=snap.data();
+      if(dados.perfil!=="funcionario")return;
+      if(dados.funcionarioId){
+        try{const sf=await getDoc(doc(db,"funcionarios",dados.funcionarioId));if(sf.exists()){_funcDoc=sf.data();_funcDocId=sf.id;}}catch(ef){console.warn(ef);}
       }
-
-      // Fallback: pesquisar por portalUid se não tiver funcionarioId
-      if (!_funcDoc) {
-        try {
-          const qf = query(collection(db, "funcionarios"), where("portalUid", "==", user.uid));
-          const sf = await getDocs(qf);
-          if (!sf.empty) {
-            _funcDoc   = sf.docs[0].data();
-            _funcDocId = sf.docs[0].id;
-            // Corrigir o campo em utilizadores para futuras sessões
-            await updateDoc(doc(db, "utilizadores", user.uid), { funcionarioId: _funcDocId });
-          }
-        } catch(ef2) { console.warn("Fallback funcionário falhou:", ef2); }
+      if(!_funcDoc){
+        try{
+          const qf=query(collection(db,"funcionarios"),where("portalUid","==",user.uid));
+          const sf=await getDocs(qf);
+          if(!sf.empty){_funcDoc=sf.docs[0].data();_funcDocId=sf.docs[0].id;await updateDoc(doc(db,"utilizadores",user.uid),{funcionarioId:_funcDocId});}
+        }catch(ef2){console.warn(ef2);}
       }
-
-      mostrarPortal(user, dados);
-    } catch(e) { console.error(e); }
+      mostrarPortal(user,dados);
+    }catch(e){console.error(e);}
   });
 
-  // ════════════════════════════════
-  // NAVEGAÇÃO ENTRE ECRÃS
-  // ════════════════════════════════
-  window.mostrarEcra = function(id) {
-    document.querySelectorAll(".ecra").forEach(e => e.classList.remove("activo"));
-    document.getElementById(id).classList.add("activo");
+  window.mostrarEcra=function(id){document.querySelectorAll(".ecra").forEach(e=>e.classList.remove("activo"));document.getElementById(id).classList.add("activo");};
+
+  // VERIFICAÇÃO
+  window.validarVerificacao=function(){
+    const num=document.getElementById("input-numero").value.trim();
+    const bi=document.getElementById("input-bi").value.trim();
+    document.getElementById("btn-verificar").disabled=!(num.length===8||bi.length>=8);
   };
 
-  // ════════════════════════════════
-  // PASSO 1 — VERIFICAÇÃO
-  // ════════════════════════════════
-  window.validarVerificacao = function() {
-    const num = document.getElementById("input-numero").value.trim();
-    const bi  = document.getElementById("input-bi").value.trim();
-    const ok  = num.length === 8 || bi.length >= 8;
-    document.getElementById("btn-verificar").disabled = !ok;
+  window.fazerVerificacao=async function(){
+    const num=document.getElementById("input-numero").value.trim();
+    const bi=document.getElementById("input-bi").value.trim();
+    const btn=document.getElementById("btn-verificar");
+    const msg=document.getElementById("msg-verificacao");
+    msg.innerHTML="";
+    if(!num&&!bi)return;
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A verificar…';
+    try{
+      if(!auth.currentUser)await signInAnonymously(auth);
+      let enc=null,encId=null;
+      if(num&&num.length===8){const snap=await getDocs(query(collection(db,"funcionarios"),where("numero","==",num)));if(!snap.empty){enc=snap.docs[0].data();encId=snap.docs[0].id;}}
+      if(!enc&&bi&&bi.length>=8){const snap=await getDocs(query(collection(db,"funcionarios"),where("bi","==",bi.toUpperCase())));if(!snap.empty){enc=snap.docs[0].data();encId=snap.docs[0].id;}}
+      if(!enc){msg.innerHTML=`<div class="alerta alerta-erro">❌ <strong>Não encontrado.</strong> Os seus dados não estão no sistema. Por favor, contacte a Secção de RH.</div>`;btn.disabled=false;btn.innerHTML="Verificar →";return;}
+      if(enc.portalUid){msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ <strong>Conta já existe.</strong> Este registo já tem uma conta. Por favor, faça login.</div>`;btn.disabled=false;btn.innerHTML="Verificar →";setTimeout(()=>mostrarEcra("ecra-login-func"),2500);return;}
+      _funcDoc=enc; _funcDocId=encId;
+      preencherCC(enc); mostrarEcra("ecra-criar-conta");
+    }catch(e){console.error(e);msg.innerHTML=`<div class="alerta alerta-erro">❌ Erro de ligação. Verifique a internet e tente novamente.</div>`;btn.disabled=false;btn.innerHTML="Verificar →";}
   };
 
-  window.fazerVerificacao = async function() {
-    const num = document.getElementById("input-numero").value.trim();
-    const bi  = document.getElementById("input-bi").value.trim();
-    const btn = document.getElementById("btn-verificar");
-    const msg = document.getElementById("msg-verificacao");
-    msg.innerHTML = "";
-
-    if (!num && !bi) return;
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> A verificar…';
-
-    try {
-      // Autenticar anonimamente para passar nas regras do Firestore
-      if (!auth.currentUser) {
-        await signInAnonymously(auth);
-      }
-
-      // Pesquisar por número de agente
-      let encontrado = null;
-      let encontradoId = null;
-
-      if (num && num.length === 8) {
-        const q = query(collection(db, "funcionarios"), where("numero", "==", num));
-        const snap = await getDocs(q);
-        if (!snap.empty) {
-          encontrado   = snap.docs[0].data();
-          encontradoId = snap.docs[0].id;
-        }
-      }
-
-      // Se não encontrou por número, tentar por BI
-      if (!encontrado && bi && bi.length >= 8) {
-        const q = query(collection(db, "funcionarios"), where("bi", "==", bi.toUpperCase()));
-        const snap = await getDocs(q);
-        if (!snap.empty) {
-          encontrado   = snap.docs[0].data();
-          encontradoId = snap.docs[0].id;
-        }
-      }
-
-      if (!encontrado) {
-        msg.innerHTML = `<div class="alerta alerta-erro">
-          ❌ <strong>Não encontrado.</strong> Os seus dados não estão no sistema. Por favor, contacte a Secção de RH para ser pré-registado.
-        </div>`;
-        btn.disabled = false;
-        btn.innerHTML = "Verificar →";
-        return;
-      }
-
-      // Verificar se já tem conta criada
-      if (encontrado.portalUid) {
-        msg.innerHTML = `<div class="alerta alerta-aviso">
-          ⚠️ <strong>Conta já existe.</strong> Este registo já tem uma conta associada. Por favor, faça login com as suas credenciais.
-        </div>`;
-        btn.disabled = false;
-        btn.innerHTML = "Verificar →";
-        setTimeout(() => mostrarEcra("ecra-login-func"), 2500);
-        return;
-      }
-
-      // Funcionário encontrado e sem conta — avançar
-      _funcDoc   = encontrado;
-      _funcDocId = encontradoId;
-      preencherCriarConta(encontrado);
-      mostrarEcra("ecra-criar-conta");
-
-    } catch(e) {
-      console.error(e);
-      msg.innerHTML = `<div class="alerta alerta-erro">❌ Erro de ligação. Verifique a sua internet e tente novamente.</div>`;
-      btn.disabled = false;
-      btn.innerHTML = "Verificar →";
-    }
-  };
-
-  function preencherCriarConta(f) {
-    const nome = f.nome || "—";
-    const inicial = nome[0].toUpperCase();
-    document.getElementById("cc-avatar").textContent = inicial;
-    // Mascarar nome parcialmente (privacidade)
-    const partes = nome.split(" ");
-    const nomeMascarado = partes.map((p, i) => {
-      if (i === 0) return p; // primeiro nome visível
-      if (i === partes.length - 1) return p; // último nome visível
-      return p[0] + "*".repeat(Math.max(p.length-1,1)); // outros mascarados
-    }).join(" ");
-    document.getElementById("cc-nome").textContent = nomeMascarado;
-    document.getElementById("cc-unidade").textContent = "📍 " + (f.unidade || "—");
-    document.getElementById("cc-categoria").textContent = "💼 " + (f.categoria || "—");
+  function preencherCC(f){
+    const nome=f.nome||"—",partes=nome.split(" ");
+    const mask=partes.map((p,i)=>i===0||i===partes.length-1?p:p[0]+"*".repeat(Math.max(p.length-1,1))).join(" ");
+    document.getElementById("cc-avatar").textContent=nome[0].toUpperCase();
+    document.getElementById("cc-nome").textContent=mask;
+    document.getElementById("cc-unidade").textContent="📍 "+(f.unidade||"—");
+    document.getElementById("cc-categoria").textContent="💼 "+(f.categoria||"—");
   }
 
-  // ════════════════════════════════
-  // PASSO 2 — CRIAR CONTA
-  // ════════════════════════════════
-  window.avaliarForca = function() {
-    const senha = document.getElementById("cc-senha").value;
-    const wrap  = document.getElementById("forca-wrap");
-    const barras= document.getElementById("forca-barras");
-    const texto = document.getElementById("forca-texto");
-
-    if (!senha) { wrap.style.display = "none"; return; }
-    wrap.style.display = "block";
-
-    let forca = 0;
-    if (senha.length >= 8) forca++;
-    if (/[A-Z]/.test(senha)) forca++;
-    if (/[0-9]/.test(senha)) forca++;
-    if (/[^A-Za-z0-9]/.test(senha)) forca++;
-
-    barras.className = "forca-barras forca-" + forca;
-    const msgs = ["", "Fraca — tente adicionar números ou maiúsculas", "Razoável — pode ser mais forte", "Boa — quase perfeita!", "Excelente — senha muito segura! ✅"];
-    const cores= ["", "#dc2626", "#f59e0b", "#10b981", "#0a6e4f"];
-    texto.textContent = msgs[forca];
-    texto.style.color = cores[forca];
+  // CRIAR CONTA
+  window.avaliarForca=function(){
+    const senha=document.getElementById("cc-senha").value;
+    const wrap=document.getElementById("forca-wrap");
+    if(!senha){wrap.style.display="none";return;}
+    wrap.style.display="block";
+    let f=0;
+    if(senha.length>=8)f++;if(/[A-Z]/.test(senha))f++;if(/[0-9]/.test(senha))f++;if(/[^A-Za-z0-9]/.test(senha))f++;
+    document.getElementById("forca-barras").className="forca-barras forca-"+f;
+    const msgs=["","Fraca — adicione números ou maiúsculas","Razoável — pode ser mais forte","Boa — quase perfeita!","Excelente — senha muito segura! ✅"];
+    const cores=["","var(--r-600)","var(--a-500)","var(--c-500)","var(--c-700)"];
+    const txt=document.getElementById("forca-texto");
+    txt.textContent=msgs[f];txt.style.color=cores[f];
   };
 
-  window.validarCriarConta = function() {
-    const email  = document.getElementById("cc-email").value.trim();
-    const senha  = document.getElementById("cc-senha").value;
-    const senha2 = document.getElementById("cc-senha2").value;
-    const ok = email.includes("@") && senha.length >= 8 && senha === senha2;
-    document.getElementById("btn-criar").disabled = !ok;
-
-    if (senha2 && senha !== senha2) {
-      document.getElementById("erro-senha2").textContent = "As senhas não coincidem.";
-      document.getElementById("erro-senha2").style.display = "block";
-    } else {
-      document.getElementById("erro-senha2").style.display = "none";
-    }
+  window.validarCriarConta=function(){
+    const email=document.getElementById("cc-email").value.trim();
+    const senha=document.getElementById("cc-senha").value;
+    const s2=document.getElementById("cc-senha2").value;
+    document.getElementById("btn-criar").disabled=!(email.includes("@")&&senha.length>=8&&senha===s2);
+    const el=document.getElementById("erro-senha2");
+    if(s2&&senha!==s2){el.textContent="As senhas não coincidem.";el.style.display="block";}else el.style.display="none";
   };
 
-  window.criarConta = async function() {
-    const email  = document.getElementById("cc-email").value.trim();
-    const senha  = document.getElementById("cc-senha").value;
-    const btn    = document.getElementById("btn-criar");
-    const msg    = document.getElementById("msg-criar");
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> A criar conta…';
-    msg.innerHTML = "";
-
-    try {
-      // Converter sessão anónima em conta permanente (linkWithCredential)
-      let uid, userFinal;
-      const credential = EmailAuthProvider.credential(email, senha);
-
-      if (auth.currentUser && auth.currentUser.isAnonymous) {
-        // Ligar credenciais à sessão anónima existente
-        const linked = await linkWithCredential(auth.currentUser, credential);
-        uid = linked.user.uid;
-        userFinal = linked.user;
-      } else {
-        // Criar conta nova normalmente (fallback)
-        const cred = await createUserWithEmailAndPassword(auth, email, senha);
-        uid = cred.user.uid;
-        userFinal = cred.user;
-      }
-      _utilizador = userFinal;
-
-      // Criar documento em "utilizadores" com perfil funcionario
-      await updateDoc(doc(db, "utilizadores", uid), {}).catch(async () => {
-        const { setDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-        await setDoc(doc(db, "utilizadores", uid), {
-          nome:          _funcDoc.nome,
-          email,
-          perfil:        "funcionario",
-          unidade:       _funcDoc.unidade || "",
-          activo:        true,
-          funcionarioId: _funcDocId,
-          criadoEm:      serverTimestamp(),
-          ultimoAcesso:  serverTimestamp()
-        });
-      });
-
-      // Fallback seguro: usar set directo
-      const { setDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-      await setDoc(doc(db, "utilizadores", uid), {
-        nome:          _funcDoc.nome,
-        email,
-        perfil:        "funcionario",
-        unidade:       _funcDoc.unidade || "",
-        activo:        true,
-        funcionarioId: _funcDocId,
-        criadoEm:      serverTimestamp(),
-        ultimoAcesso:  serverTimestamp()
-      });
-
-      // Marcar funcionário como tendo conta criada
-      await updateDoc(doc(db, "funcionarios", _funcDocId), {
-        portalUid:   uid,
-        portalEmail: email,
-        portalCriadoEm: serverTimestamp()
-      });
-
-      // Mostrar ecrã de bem-vindo
-      const nome = (_funcDoc.nome || "").split(" ")[0];
-      document.getElementById("bv-titulo").textContent = "Bem-vindo, " + nome + "!";
-      document.getElementById("bv-sub").textContent = "A sua conta foi criada. Use o e-mail " + email + " para entrar sempre que precisar.";
+  window.criarConta=async function(){
+    const email=document.getElementById("cc-email").value.trim();
+    const senha=document.getElementById("cc-senha").value;
+    const btn=document.getElementById("btn-criar");
+    const msg=document.getElementById("msg-criar");
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A criar conta…'; msg.innerHTML="";
+    try{
+      let uid,userFinal;
+      const cred=EmailAuthProvider.credential(email,senha);
+      if(auth.currentUser&&auth.currentUser.isAnonymous){const linked=await linkWithCredential(auth.currentUser,cred);uid=linked.user.uid;userFinal=linked.user;}
+      else{const c=await createUserWithEmailAndPassword(auth,email,senha);uid=c.user.uid;userFinal=c.user;}
+      _utilizador=userFinal;
+      const{setDoc}=await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+      await setDoc(doc(db,"utilizadores",uid),{nome:_funcDoc.nome,email,perfil:"funcionario",unidade:_funcDoc.unidade||"",activo:true,funcionarioId:_funcDocId,criadoEm:serverTimestamp(),ultimoAcesso:serverTimestamp()});
+      await updateDoc(doc(db,"funcionarios",_funcDocId),{portalUid:uid,portalEmail:email,portalCriadoEm:serverTimestamp()});
+      const nome=(_funcDoc.nome||"").split(" ")[0];
+      document.getElementById("bv-titulo").textContent="Bem-vindo, "+nome+"!";
+      document.getElementById("bv-sub").textContent="A sua conta foi criada. Use o e-mail "+email+" para entrar sempre que precisar.";
       mostrarEcra("ecra-bem-vindo");
-
-    } catch(e) {
+    }catch(e){
       console.error(e);
-      let erroMsg = "Erro ao criar conta. Tente novamente.";
-      if (e.code === "auth/email-already-in-use") erroMsg = "Este e-mail já está em uso. Tente fazer login.";
-      if (e.code === "auth/weak-password") erroMsg = "Senha demasiado fraca. Use pelo menos 8 caracteres.";
-      if (e.code === "auth/invalid-email") erroMsg = "Endereço de e-mail inválido.";
-      msg.innerHTML = `<div class="alerta alerta-erro">❌ ${erroMsg}</div>`;
-      btn.disabled = false;
-      btn.innerHTML = "Criar Conta →";
+      let m="Erro ao criar conta. Tente novamente.";
+      if(e.code==="auth/email-already-in-use")m="Este e-mail já está em uso. Tente fazer login.";
+      if(e.code==="auth/weak-password")m="Senha demasiado fraca. Use pelo menos 8 caracteres.";
+      if(e.code==="auth/invalid-email")m="Endereço de e-mail inválido.";
+      msg.innerHTML=`<div class="alerta alerta-erro">❌ ${m}</div>`;
+      btn.disabled=false; btn.innerHTML="Criar Conta →";
     }
   };
 
-  window.entrarNoPortal = function() {
-    mostrarPortal(_utilizador, { nome: _funcDoc.nome, perfil: "funcionario", unidade: _funcDoc.unidade, funcionarioId: _funcDocId });
+  window.entrarNoPortal=function(){mostrarPortal(_utilizador,{nome:_funcDoc.nome,perfil:"funcionario",unidade:_funcDoc.unidade,funcionarioId:_funcDocId});};
+
+  // LOGIN
+  window.fazerLoginFuncionario=async function(){
+    const email=document.getElementById("lf-email").value.trim();
+    const senha=document.getElementById("lf-senha").value;
+    const btn=document.getElementById("btn-login-func");
+    const msg=document.getElementById("msg-login-func");
+    if(!email||!senha){msg.innerHTML=`<div class="alerta alerta-erro">❌ Preencha o e-mail e a senha.</div>`;return;}
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A entrar…'; msg.innerHTML="";
+    try{const c=await signInWithEmailAndPassword(auth,email,senha);_utilizador=c.user;}
+    catch(e){let m="E-mail ou senha incorrectos.";if(e.code==="auth/too-many-requests")m="Muitas tentativas. Aguarde um momento.";if(e.code==="auth/network-request-failed")m="Sem ligação. Verifique a internet.";msg.innerHTML=`<div class="alerta alerta-erro">❌ ${m}</div>`;btn.disabled=false;btn.innerHTML="Entrar →";}
   };
 
-  // ════════════════════════════════
-  // LOGIN DO FUNCIONÁRIO
-  // ════════════════════════════════
-  window.fazerLoginFuncionario = async function() {
-    const email = document.getElementById("lf-email").value.trim();
-    const senha = document.getElementById("lf-senha").value;
-    const btn   = document.getElementById("btn-login-func");
-    const msg   = document.getElementById("msg-login-func");
-
-    if (!email || !senha) {
-      msg.innerHTML = `<div class="alerta alerta-erro">❌ Preencha o e-mail e a senha.</div>`;
-      return;
-    }
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> A entrar…';
-    msg.innerHTML = "";
-
-    try {
-      const cred = await signInWithEmailAndPassword(auth, email, senha);
-      // onAuthStateChanged vai tratar do resto
-      _utilizador = cred.user;
-    } catch(e) {
-      let erroMsg = "E-mail ou senha incorrectos.";
-      if (e.code === "auth/too-many-requests") erroMsg = "Muitas tentativas. Aguarde um momento.";
-      if (e.code === "auth/network-request-failed") erroMsg = "Sem conexão. Verifique a internet.";
-      msg.innerHTML = `<div class="alerta alerta-erro">❌ ${erroMsg}</div>`;
-      btn.disabled = false;
-      btn.innerHTML = "Entrar →";
-    }
-  };
-
-  // ════════════════════════════════
-  // PORTAL — MOSTRAR DASHBOARD
-  // ════════════════════════════════
-  function mostrarPortal(user, dados) {
-    const nome = dados.nome || user.email;
-    // Verificar se perfil está incompleto (faltam dados essenciais)
-    setTimeout(() => {
-      const f = _funcDoc || {};
-      const incompleto = !f.bi || !f.nascimento || !f.nomePai || !f.nomeMae || !f.morada;
-      const banner = document.getElementById('banner-completar');
-      if (banner && incompleto) banner.style.display = 'block';
-    }, 1000);
-    const hora = new Date().getHours();
-    const saud = hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
-    const inic = nome.split(" ").filter(Boolean).slice(0,2).map(p=>p[0]).join("").toUpperCase();
-
-    document.getElementById("pt-nome").textContent = nome;
-    document.getElementById("pt-cargo").textContent = (dados.unidade || "") + " · Funcionário";
-    document.getElementById("pt-avatar").textContent = inic;
-    document.getElementById("ph-saudacao").textContent = saud + ", " + nome.split(" ")[0] + "!";
-
+  // PORTAL DASHBOARD
+  function mostrarPortal(user,dados){
+    const nome=dados.nome||user.email;
+    setTimeout(()=>{const f=_funcDoc||{};const inc=!f.bi||!f.nascimento||!f.nomePai||!f.nomeMae||!f.morada;const b=document.getElementById("banner-completar");if(b&&inc)b.style.display="block";},1000);
+    const hora=new Date().getHours();
+    const saud=hora<12?"Bom dia":hora<18?"Boa tarde":"Boa noite";
+    const inic=nome.split(" ").filter(Boolean).slice(0,2).map(p=>p[0]).join("").toUpperCase();
+    document.getElementById("pt-nome").textContent=nome;
+    document.getElementById("pt-cargo").textContent=(dados.unidade||"")+" · Funcionário";
+    document.getElementById("pt-avatar").textContent=inic;
+    document.getElementById("ph-saudacao").textContent=saud+", "+nome.split(" ")[0]+"!";
     mostrarEcra("ecra-portal");
-    carregarMinhasSolicitacoes(user.uid, dados.funcionarioId);
-    carregarPerfilPortal(dados);
+    carregarSolicitacoes(user.uid,dados.funcionarioId);
+    carregarPerfil(dados);
   }
 
-  // ════════════════════════════════
-  // CARREGAR SOLICITAÇÕES
-  // ════════════════════════════════
-  async function carregarMinhasSolicitacoes(uid, funcionarioId) {
-    const div = document.getElementById("lista-docs-portal");
-    div.innerHTML = `<div class="vazio-portal"><div class="vi">⏳</div><p>A carregar…</p></div>`;
-
-    try {
-      // Buscar na colecção solicitacoes
-      const solicitacoes = [];
-
-      if (funcionarioId) {
-        // Sem orderBy para evitar índice composto — ordenação feita no cliente
-        const q = query(collection(db, "solicitacoes"),
-          where("funcionarioId", "==", funcionarioId));
-        const snap = await getDocs(q);
-        snap.forEach(d => solicitacoes.push({ id: d.id, ...d.data(), _origem: "solicitacao" }));
+  async function carregarSolicitacoes(uid,funcionarioId){
+    const div=document.getElementById("lista-docs-portal");
+    div.innerHTML=`<div class="vazio-portal"><div class="vi">⏳</div><p>A carregar…</p></div>`;
+    try{
+      const sols=[];
+      if(funcionarioId){
+        const snap=await getDocs(query(collection(db,"solicitacoes"),where("funcionarioId","==",funcionarioId)));
+        snap.forEach(d=>sols.push({id:d.id,...d.data(),_origem:"solicitacao"}));
+        const snap2=await getDocs(query(collection(db,"documentos"),where("funcionarioId","==",funcionarioId)));
+        snap2.forEach(d=>sols.push({id:d.id,...d.data(),_origem:"documento"}));
       }
-
-      // Buscar também na colecção documentos (para docs gerados directamente pelo RH)
-      if (funcionarioId) {
-        const q2 = query(collection(db, "documentos"),
-          where("funcionarioId", "==", funcionarioId));
-        const snap2 = await getDocs(q2);
-        snap2.forEach(d => solicitacoes.push({ id: d.id, ...d.data(), _origem: "documento" }));
-      }
-
-      // Ordenar no cliente por data decrescente
-      solicitacoes.sort((a, b) => {
-        const ta = a.criadaEm?.toDate ? a.criadaEm.toDate() : (a.geradoEm?.toDate ? a.geradoEm.toDate() : new Date(0));
-        const tb = b.criadaEm?.toDate ? b.criadaEm.toDate() : (b.geradoEm?.toDate ? b.geradoEm.toDate() : new Date(0));
-        return tb - ta;
-      });
-
-      // Actualizar KPIs
-      const total    = solicitacoes.length;
-      const aprov    = solicitacoes.filter(s => s.estado === "aprovado" || s.estado === "concluida").length;
-      const pend     = solicitacoes.filter(s => s.estado === "pendente" || s.estado === "nova" || s.estado === "processando").length;
-
-      document.getElementById("pk-total").textContent    = total;
-      document.getElementById("pk-aprovados").textContent = aprov;
-      document.getElementById("pk-pendentes").textContent = pend;
-
-      const badgePend = document.getElementById("badge-pendentes");
-      if (pend > 0) { badgePend.textContent = pend; badgePend.style.display = "inline"; }
-      else badgePend.style.display = "none";
-
-      if (solicitacoes.length === 0) {
-        div.innerHTML = `<div class="vazio-portal">
-          <div class="vi">📂</div>
-          <p>Ainda não tem documentos ou solicitações.</p>
-          <small>Clique em "Pedir documento" para fazer o seu primeiro pedido.</small>
-        </div>`;
-        return;
-      }
-
-      // Renderizar lista
-      div.innerHTML = `<div class="lista-docs">${solicitacoes.map(s => {
-        const tipo  = s.tipo || s.tipoDocumento || "outro";
-        const info  = LABELS_TIPO[tipo] || { nome: tipo, icone: "📄", bg: "#f9fafb" };
-        const est   = s.estado || "nova";
-        const estInfo = LABELS_ESTADO[est] || { texto: est, classe: "estado-nova" };
-        const ts    = s.criadaEm?.toDate ? s.criadaEm.toDate() : (s.geradoEm?.toDate ? s.geradoEm.toDate() : null);
-        const dataFmt = ts ? ts.toLocaleDateString("pt-AO", { day:"2-digit", month:"short", year:"numeric" }) : "—";
-        const numRef = s.numGuia && s.anoGuia ? ` · Nº ${s.numGuia}/${s.anoGuia}` : "";
-
-        return `<div class="item-doc-portal" onclick="abrirDetalheDoc('${s.id}', '${s._origem}')">
-          <div class="doc-icone-portal" style="background:${info.bg}">${info.icone}</div>
+      sols.sort((a,b)=>{const ta=a.criadaEm?.toDate?a.criadaEm.toDate():(a.geradoEm?.toDate?a.geradoEm.toDate():new Date(0));const tb=b.criadaEm?.toDate?b.criadaEm.toDate():(b.geradoEm?.toDate?b.geradoEm.toDate():new Date(0));return tb-ta;});
+      const total=sols.length;
+      const aprov=sols.filter(s=>s.estado==="aprovado"||s.estado==="concluida").length;
+      const pend=sols.filter(s=>s.estado==="pendente"||s.estado==="nova"||s.estado==="processando").length;
+      document.getElementById("pk-total").textContent=total;
+      document.getElementById("pk-aprovados").textContent=aprov;
+      document.getElementById("pk-pendentes").textContent=pend;
+      const bp=document.getElementById("badge-pendentes");
+      if(pend>0){bp.textContent=pend;bp.style.display="inline";}else bp.style.display="none";
+      if(sols.length===0){div.innerHTML=`<div class="vazio-portal"><div class="vi">📂</div><p>Ainda não tem documentos ou solicitações.</p><small>Clique em "Pedir documento" para o seu primeiro pedido.</small></div>`;return;}
+      window._minhasSolicitacoes=sols;
+      div.innerHTML=`<div class="lista-docs">${sols.map(s=>{
+        const tipo=s.tipo||s.tipoDocumento||"outro";
+        const info=LABELS_TIPO[tipo]||{nome:tipo,icone:"📄",bg:"var(--neu-50)"};
+        const estInfo=LABELS_ESTADO[s.estado||"nova"]||{texto:s.estado,classe:"est-nova"};
+        const ts=s.criadaEm?.toDate?s.criadaEm.toDate():(s.geradoEm?.toDate?s.geradoEm.toDate():null);
+        const data=ts?ts.toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric"}):"—";
+        const num=s.numGuia&&s.anoGuia?` · Nº ${s.numGuia}/${s.anoGuia}`:"";
+        return`<div class="item-doc-portal" onclick="abrirDetalheDoc('${s.id}','${s._origem}')">
+          <div class="doc-ic-portal" style="background:${info.bg}">${info.icone}</div>
           <div class="doc-info-portal">
-            <div class="doc-tipo-portal">${info.nome}${numRef}</div>
-            <div class="doc-meta-portal">${dataFmt}${s.motivo ? ' · ' + s.motivo.substring(0,50) + (s.motivo.length>50?'…':'') : ''}</div>
+            <div class="doc-tipo-portal">${info.nome}${num}</div>
+            <div class="doc-meta-portal">${data}${s.motivo?' · '+s.motivo.substring(0,50)+(s.motivo.length>50?'…':''):''}</div>
           </div>
-          <span class="badge-estado-portal ${estInfo.classe}">${estInfo.texto}</span>
+          <span class="badge-est-portal ${estInfo.classe}">${estInfo.texto}</span>
         </div>`;
       }).join("")}</div>`;
-
-      // Guardar para modal
-      window._minhasSolicitacoes = solicitacoes;
-
-    } catch(e) {
-      console.error(e);
-      div.innerHTML = `<div class="vazio-portal"><div class="vi">⚠️</div><p>Erro ao carregar. Verifique a ligação.</p></div>`;
-    }
+    }catch(e){console.error(e);div.innerHTML=`<div class="vazio-portal"><div class="vi">⚠️</div><p>Erro ao carregar. Verifique a ligação.</p></div>`;}
   }
 
-  // ════════════════════════════════
-  // DETALHE DE DOCUMENTO
-  // ════════════════════════════════
-  window.abrirDetalheDoc = function(id, origem) {
-    const s = (window._minhasSolicitacoes || []).find(x => x.id === id);
-    if (!s) return;
-
-    const tipo  = s.tipo || s.tipoDocumento || "outro";
-    const info  = LABELS_TIPO[tipo] || { nome: tipo, icone: "📄" };
-    const est   = s.estado || "nova";
-    const estInfo = LABELS_ESTADO[est] || { texto: est, classe: "estado-nova" };
-    const ts    = s.criadaEm?.toDate ? s.criadaEm.toDate() : (s.geradoEm?.toDate ? s.geradoEm.toDate() : null);
-
-    document.getElementById("modal-sol-titulo").textContent = info.icone + " " + info.nome;
-    document.getElementById("modal-sol-sub").textContent = ts ? ts.toLocaleDateString("pt-AO", { day:"2-digit", month:"long", year:"numeric" }) : "—";
-
-    let extra = "";
-    if (s.observacao) extra += `<div class="alerta alerta-${est === 'rejeitada' || est === 'rejeitado' ? 'erro' : 'sucesso'}" style="margin-top:12px">
-      💬 <strong>Observação da Secção de RH:</strong> ${s.observacao}
+  window.abrirDetalheDoc=function(id,origem){
+    const s=(window._minhasSolicitacoes||[]).find(x=>x.id===id);if(!s)return;
+    const tipo=s.tipo||s.tipoDocumento||"outro";
+    const info=LABELS_TIPO[tipo]||{nome:tipo,icone:"📄"};
+    const estInfo=LABELS_ESTADO[s.estado||"nova"]||{texto:s.estado,classe:"est-nova"};
+    const ts=s.criadaEm?.toDate?s.criadaEm.toDate():(s.geradoEm?.toDate?s.geradoEm.toDate():null);
+    document.getElementById("modal-sol-titulo").textContent=info.icone+" "+info.nome;
+    document.getElementById("modal-sol-sub").textContent=ts?ts.toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"}):"—";
+    let extra="";
+    if(s.observacao)extra+=`<div class="alerta alerta-${s.estado==='rejeitada'||s.estado==='rejeitado'?'erro':'sucesso'}" style="margin-top:12px">💬 <strong>Observação de RH:</strong> ${s.observacao}</div>`;
+    if(s.numGuia)extra+=`<div class="alerta alerta-sucesso" style="margin-top:8px">📄 Referência: Guia Nº ${s.numGuia}/${s.anoGuia}</div>`;
+    document.getElementById("modal-sol-corpo").innerHTML=`<div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--neu-400)">Estado</span><span class="badge-est-portal ${estInfo.classe}">${estInfo.texto}</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--neu-400)">Tipo</span><span style="font-size:13px;font-weight:700">${info.nome}</span></div>
+      ${s.motivo?`<div style="background:var(--neu-50);border-radius:var(--r-sm);padding:12px;font-size:13px"><strong>Motivo:</strong> ${s.motivo}</div>`:""}
+      ${s.dataInicio?`<div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--neu-400)">Início férias</span><span style="font-size:13px;font-weight:700">${s.dataInicio}</span></div>`:""}
+      ${extra}
     </div>`;
-    if (s.numGuia) extra += `<div class="alerta alerta-sucesso" style="margin-top:8px">📄 Referência: Guia Nº ${s.numGuia}/${s.anoGuia}</div>`;
-
-    document.getElementById("modal-sol-corpo").innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:13px;color:var(--texto-suave)">Estado</span>
-          <span class="badge-estado-portal ${estInfo.classe}">${estInfo.texto}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;">
-          <span style="font-size:13px;color:var(--texto-suave)">Tipo</span>
-          <span style="font-size:13px;font-weight:600">${info.nome}</span>
-        </div>
-        ${s.motivo ? `<div style="background:#f9fafb;border-radius:8px;padding:12px;font-size:13px;"><strong>Motivo:</strong> ${s.motivo}</div>` : ""}
-        ${s.dataInicio ? `<div style="display:flex;justify-content:space-between;"><span style="font-size:13px;color:var(--texto-suave)">Início férias</span><span style="font-size:13px;font-weight:600">${s.dataInicio}</span></div>` : ""}
-        ${extra}
-      </div>`;
-
     document.getElementById("overlay-detalhe-sol").classList.add("activo");
   };
 
-  // ════════════════════════════════
-  // SUBMETER SOLICITAÇÃO
-  // ════════════════════════════════
-  window.seleccionarTipo = function(tipo, el) {
-    document.querySelectorAll(".tipo-doc-card").forEach(c => c.classList.remove("seleccionado"));
-    el.classList.add("seleccionado");
-    _tipoSel = tipo;
-    document.getElementById("form-solicitacao-extra").style.display = "block";
-    document.getElementById("msg-solicitacao").innerHTML = "";
-    // Mostrar campo de data apenas para guia de férias
-    const campoData = document.getElementById("campo-data-inicio-wrap");
-    campoData.style.display = (tipo === 'guia-ferias') ? 'block' : 'none';
-    if (tipo !== 'guia-ferias') document.getElementById("sol-data-inicio").value = '';
+  // SOLICITAR
+  window.seleccionarTipo=function(tipo,el){
+    document.querySelectorAll(".tipo-card").forEach(c=>c.classList.remove("seleccionado"));
+    el.classList.add("seleccionado"); _tipoSel=tipo;
+    document.getElementById("form-solicitacao-extra").style.display="block";
+    document.getElementById("msg-solicitacao").innerHTML="";
+    const cd=document.getElementById("campo-data-inicio-wrap");
+    cd.style.display=tipo==="guia-ferias"?"block":"none";
+    if(tipo!=="guia-ferias")document.getElementById("sol-data-inicio").value="";
   };
 
-  window.validarDataInicio = function() {
-    const val = document.getElementById("sol-data-inicio").value;
-    const err = document.getElementById("erro-data-inicio");
-    if (!val) { err.style.display = 'none'; return; }
-    const hoje = new Date(); hoje.setHours(0,0,0,0);
-    const data = new Date(val + 'T12:00:00');
-    if (data < hoje) {
-      err.textContent = '⚠️ A data de início não pode ser no passado.';
-      err.style.display = 'block';
-    } else {
-      err.style.display = 'none';
+  window.validarDataInicio=function(){
+    const val=document.getElementById("sol-data-inicio").value;
+    const err=document.getElementById("erro-data-inicio");
+    if(!val){err.style.display="none";return;}
+    const hoje=new Date();hoje.setHours(0,0,0,0);
+    const d=new Date(val+"T12:00:00");
+    if(d<hoje){err.textContent="⚠️ A data de início não pode ser no passado.";err.style.display="block";}
+    else err.style.display="none";
+  };
+
+  window.submeterSolicitacao=async function(){
+    if(!_tipoSel||!_utilizador)return;
+    const motivo=document.getElementById("sol-motivo").value.trim();
+    const btn=document.getElementById("btn-submeter-sol");
+    const msg=document.getElementById("msg-solicitacao");
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A enviar…';
+    try{
+      const dataInicio=_tipoSel==="guia-ferias"?document.getElementById("sol-data-inicio").value:"";
+      if(_tipoSel==="guia-ferias"&&!dataInicio){msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>data de início das férias</strong>.</div>`;btn.disabled=false;btn.innerHTML="📤 Enviar solicitação";return;}
+      await addDoc(collection(db,"solicitacoes"),{funcionarioId:_funcDocId||null,funcionarioNome:_funcDoc?.nome||_utilizador.email,funcionarioEmail:_utilizador.email,funcionarioUid:_utilizador.uid,tipo:_tipoSel,motivo:motivo||"",dataInicioFerias:dataInicio,estado:"nova",criadaEm:serverTimestamp(),unidade:_funcDoc?.unidade||"",categoria:_funcDoc?.categoria||"",admissao:_funcDoc?.admissao||"",numero:_funcDoc?.numero||"",bi:_funcDoc?.bi||"",sexo:_funcDoc?.sexo||""});
+      msg.innerHTML=`<div class="alerta alerta-sucesso">✅ <strong>Solicitação enviada!</strong> A Secção de RH irá processar o seu pedido brevemente. Pode acompanhar na aba "Os meus documentos".</div>`;
+      btn.innerHTML="📤 Enviar solicitação"; btn.disabled=false;
+      _tipoSel=null;
+      document.querySelectorAll(".tipo-card").forEach(c=>c.classList.remove("seleccionado"));
+      document.getElementById("form-solicitacao-extra").style.display="none";
+      document.getElementById("sol-motivo").value="";
+      setTimeout(()=>carregarSolicitacoes(_utilizador.uid,_funcDocId),1500);
+    }catch(e){
+      console.error(e);
+      let m="Erro ao enviar. Verifique a ligação e tente novamente.";
+      if(e.code==="permission-denied")m="Sem permissão. Feche a sessão, entre novamente e tente outra vez.";
+      msg.innerHTML=`<div class="alerta alerta-erro">❌ ${m}</div>`;
+      btn.disabled=false; btn.innerHTML="📤 Enviar solicitação";
     }
   };
 
-  window.submeterSolicitacao = async function() {
-    if (!_tipoSel || !_utilizador) return;
-    const motivo = document.getElementById("sol-motivo").value.trim();
-    const btn    = document.getElementById("btn-submeter-sol");
-    const msg    = document.getElementById("msg-solicitacao");
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> A enviar…';
-
-    try {
-      // Recolher data de início se for guia de férias
-      const dataInicio = _tipoSel === 'guia-ferias'
-        ? document.getElementById('sol-data-inicio').value
-        : '';
-
-      // Validar data obrigatória para guia de férias
-      if (_tipoSel === 'guia-ferias' && !dataInicio) {
-        msg.innerHTML = `<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>data de início das férias</strong>.</div>`;
-        btn.disabled = false;
-        btn.innerHTML = '📤 Enviar solicitação';
-        return;
-      }
-
-      await addDoc(collection(db, "solicitacoes"), {
-        funcionarioId:      _funcDocId   || null,
-        funcionarioNome:    _funcDoc?.nome || _utilizador.email,
-        funcionarioEmail:   _utilizador.email,
-        funcionarioUid:     _utilizador.uid,
-        tipo:               _tipoSel,
-        motivo:             motivo || "",
-        dataInicioFerias:   dataInicio,
-        estado:             "nova",
-        criadaEm:           serverTimestamp(),
-        unidade:            _funcDoc?.unidade || "",
-        categoria:          _funcDoc?.categoria || "",
-        admissao:           _funcDoc?.admissao || "",
-        numero:             _funcDoc?.numero || "",
-        bi:                 _funcDoc?.bi || "",
-        sexo:               _funcDoc?.sexo || "",
-      });
-
-      msg.innerHTML = `<div class="alerta alerta-sucesso">✅ <strong>Solicitação enviada!</strong> A Secção de RH irá processar o seu pedido brevemente. Pode acompanhar o estado na aba "Os meus documentos".</div>`;
-      btn.innerHTML = "📤 Enviar solicitação";
-      btn.disabled = false;
-      _tipoSel = null;
-      document.querySelectorAll(".tipo-doc-card").forEach(c => c.classList.remove("seleccionado"));
-      document.getElementById("form-solicitacao-extra").style.display = "none";
-      document.getElementById("sol-motivo").value = "";
-
-      // Recarregar lista após breve momento
-      setTimeout(() => carregarMinhasSolicitacoes(_utilizador.uid, _funcDocId), 1500);
-
-    } catch(e) {
-      console.error("Erro ao submeter solicitação:", e);
-      let erroMsg = "Erro ao enviar. Verifique a ligação e tente novamente.";
-      if (e.code === "permission-denied") {
-        erroMsg = "Sem permissão para enviar. Por favor, feche a sessão, entre novamente e tente outra vez.";
-      } else if (e.code === "unavailable" || e.message?.includes("network")) {
-        erroMsg = "Sem ligação ao servidor. Verifique a sua internet.";
-      }
-      msg.innerHTML = `<div class="alerta alerta-erro">❌ ${erroMsg}</div>`;
-      btn.disabled = false;
-      btn.innerHTML = "📤 Enviar solicitação";
-    }
-  };
-
-  // ════════════════════════════════
   // PERFIL
-  // ════════════════════════════════
-  function carregarPerfilPortal(dados) {
-    const f = _funcDoc || {};
-    const nome = f.nome || dados.nome || "—";
-    const inic = nome.split(" ").filter(Boolean).slice(0,2).map(p=>p[0]).join("").toUpperCase();
-
-    document.getElementById("perf-avatar").textContent = inic;
-    document.getElementById("perfil-avatar-grande") &&
-      (document.getElementById("perfil-avatar-grande").textContent = inic);
-    document.getElementById("perf-nome").textContent = nome;
-    document.getElementById("perf-sub").textContent = (f.categoria || "—") + " · " + (f.unidade || "—");
-
-    const vinc = { quadro: "Pessoal do Quadro", provisorio: "Prov. Provisório" };
-    document.getElementById("perf-vinculo").textContent = vinc[f.vinculo] || f.vinculo || "—";
-    const est = { activo: "Em Serviço Activo", inactivo: "Inactivo", licenca: "De Licença" };
-    document.getElementById("perf-estado").textContent = est[f.estado] || f.estado || "—";
-
-    if (f.telefone) document.getElementById("perf-telefone-edit").value = f.telefone;
-
-    const campos = [
-      { r:"Número de Agente",    v: f.numero || "—" },
-      { r:"Bilhete de Identidade", v: f.bi || "—" },
-      { r:"Categoria / Cargo",   v: f.categoria || "—" },
-      { r:"Local de Colocação",  v: f.unidade || "—" },
-      { r:"Tipo de Vínculo",     v: vinc[f.vinculo] || f.vinculo || "—" },
-      { r:"Data de Admissão",    v: f.admissao ? fmtData(f.admissao) : "—" },
-      { r:"Secção",              v: f.seccao || "N/A" },
-      { r:"Escolaridade",        v: f.escolaridade || "—" },
-      { r:"E-mail de Acesso",    v: _utilizador?.email || dados.email || "—", span2: true },
+  function carregarPerfil(dados){
+    mostrarDocsCarregados(_funcDoc);
+    const f=_funcDoc||{};
+    const nome=f.nome||dados.nome||"—";
+    const inic=nome.split(" ").filter(Boolean).slice(0,2).map(p=>p[0]).join("").toUpperCase();
+    document.getElementById("perf-avatar").textContent=inic;
+    document.getElementById("perf-nome").textContent=nome;
+    document.getElementById("perf-sub").textContent=(f.categoria||"—")+" · "+(f.unidade||"—");
+    const vinc={quadro:"Pessoal do Quadro",provisorio:"Prov. Provisório"};
+    const est={activo:"Em Serviço Activo",inactivo:"Inactivo",licenca:"De Licença"};
+    document.getElementById("perf-vinculo").textContent=vinc[f.vinculo]||f.vinculo||"—";
+    document.getElementById("perf-estado").textContent=est[f.estado]||f.estado||"—";
+    if(f.telefone)document.getElementById("perf-telefone-edit").value=f.telefone;
+    const campos=[
+      {r:"Número de Agente",v:f.numero||"—"},{r:"Bilhete de Identidade",v:f.bi||"—"},
+      {r:"Categoria / Cargo",v:f.categoria||"—"},{r:"Local de Colocação",v:f.unidade||"—"},
+      {r:"Tipo de Vínculo",v:vinc[f.vinculo]||f.vinculo||"—"},
+      {r:"Data de Admissão",v:f.admissao?fmtData(f.admissao):"—"},
+      {r:"Secção",v:f.seccao||"N/A"},{r:"Escolaridade",v:f.escolaridade||"—"},
+      {r:"E-mail de Acesso",v:_utilizador?.email||dados.email||"—",span2:true},
     ];
-
-    document.getElementById("perfil-grelha").innerHTML = campos.map(c =>
-      `<div class="perfil-campo${c.span2 ? " span2" : ""}">
-        <div class="rotulo">${c.r}</div>
-        <div class="valor">${c.v}</div>
-      </div>`
-    ).join("");
+    document.getElementById("perfil-grelha").innerHTML=campos.map(c=>`<div class="perf-campo${c.span2?" span2":""}"><div class="rotulo">${c.r}</div><div class="valor">${c.v}</div></div>`).join("");
   }
 
-  window.guardarPerfil = async function() {
-    if (!_funcDocId) return;
-    const tel = document.getElementById("perf-telefone-edit").value.trim();
-    try {
-      await updateDoc(doc(db, "funcionarios", _funcDocId), {
-        telefone: tel,
-        actualizadoEm: serverTimestamp()
-      });
-      mostrarNotif("✅ Perfil actualizado!", "notif-ok");
-    } catch(e) {
-      mostrarNotif("❌ Erro ao guardar.", "notif-erro");
-    }
+  function mostrarDocsCarregados(funcDoc){
+    const zona=document.getElementById("zona-docs-carregados");if(!zona)return;
+    const f=funcDoc||{},docs=[];
+    if(f.urlBI)docs.push({url:f.urlBI,icone:"🪪",nome:"Bilhete de Identidade",sub:"Documento de identificação civil"});
+    if(f.urlCert)docs.push({url:f.urlCert,icone:"🎓",nome:"Certificado / Diploma",sub:"Habilitações académicas"});
+    if(docs.length===0){zona.innerHTML=`<div class="doc-fich-vazio">Ainda não carregou nenhum documento.<br><a href="formulario.html" style="color:var(--c-700);font-weight:700">Preencha o formulário profissional</a> para carregar o seu BI e certificados.</div>`;return;}
+    zona.innerHTML=docs.map(d=>`<a href="${d.url}" target="_blank" class="doc-fich"><div class="doc-fich-ic" style="background:var(--c-100)">${d.icone}</div><div><div class="doc-fich-nome">${d.nome}</div><div class="doc-fich-sub">${d.sub}</div></div><span style="margin-left:auto;color:var(--c-600);font-size:16px">↗</span></a>`).join("");
+  }
+
+  window.guardarPerfil=async function(){
+    if(!_funcDocId)return;
+    const tel=document.getElementById("perf-telefone-edit").value.trim();
+    try{await updateDoc(doc(db,"funcionarios",_funcDocId),{telefone:tel,actualizadoEm:serverTimestamp()});notif("✅ Perfil actualizado!","notif-ok");}
+    catch(e){notif("❌ Erro ao guardar.","notif-erro");}
   };
 
-  // ════════════════════════════════
-  // LOGOUT
-  // ════════════════════════════════
-  window.fazerLogoutFuncionario = async function() {
-    if (!confirm("Tem a certeza que deseja sair?")) return;
+  window.fazerLogoutFuncionario=async function(){
+    if(!confirm("Tem a certeza que deseja sair?"))return;
     await signOut(auth);
-    _funcDoc = null; _funcDocId = null; _utilizador = null; _tipoSel = null;
+    _funcDoc=null;_funcDocId=null;_utilizador=null;_tipoSel=null;
     mostrarEcra("ecra-entrada");
   };
 
-  // ════════════════════════════════
-  // NAVEGAÇÃO ABAS PORTAL
-  // ════════════════════════════════
-  window.abrirAba = function(id, btn) {
-    document.querySelectorAll(".aba-portal").forEach(a => a.classList.remove("activa"));
-    document.querySelectorAll(".portal-nav-btn").forEach(b => b.classList.remove("activa"));
+  window.abrirAba=function(id,btn){
+    document.querySelectorAll(".aba-portal").forEach(a=>a.classList.remove("activa"));
+    document.querySelectorAll(".portal-nav-btn").forEach(b=>b.classList.remove("activa"));
     document.getElementById(id).classList.add("activa");
-    if (btn) btn.classList.add("activa");
+    if(btn)btn.classList.add("activa");
   };
 
-  // ════════════════════════════════
-  // AUXILIARES
-  // ════════════════════════════════
-  function fmtData(str) {
-    if (!str) return "—";
-    const [a, m, d] = str.split("-");
-    const meses = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
-    return `${d} de ${meses[parseInt(m)-1]} de ${a}`;
-  }
+  function fmtData(str){if(!str)return"—";const[a,m,d]=str.split("-");const ms=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];return`${d} de ${ms[parseInt(m)-1]} de ${a}`;}
 
-  function mostrarNotif(msg, cls) {
-    const el = document.getElementById("notif");
-    el.textContent = msg; el.className = "notif " + cls;
-    el.style.display = "block";
-    setTimeout(() => { el.style.display = "none"; }, 3500);
-  }
-  window.mostrarNotif = mostrarNotif;
+  function notif(msg,cls){const el=document.getElementById("notif");el.textContent=msg;el.className="notif "+cls;el.style.display="block";setTimeout(()=>el.style.display="none",3500);}
+  window.mostrarNotif=notif;
 </script>
 </body>
 </html>
