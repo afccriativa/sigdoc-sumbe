@@ -522,6 +522,12 @@
       .modulos-grid{grid-template-columns:1fr}
       .login-card{padding:32px 24px}
     }
+    /* ===== PESQUISA ===== */
+    .modulo-card.pesq-oculto { display: none !important; }
+    .modulo-card.pesq-match  { outline: 2px solid rgba(16,200,134,.5); }
+    .pesq-sem-resultados { display:none; padding:40px 20px; text-align:center; color:var(--neu-400); font-size:14px; }
+    .pesq-sem-resultados.visivel { display:block; }
+    tbody tr.pesq-oculto { display:none; }
   </style>
 </head>
 <body>
@@ -630,7 +636,7 @@
       </div>
       <div class="topbar-search">
         <span class="topbar-search-ic">🔍</span>
-        <input type="text" placeholder="Pesquisar funcionários, documentos…"/>
+        <input type="text" id="pesquisa-global" placeholder="Pesquisar funcionários, documentos…" autocomplete="off"/>
       </div>
       <div class="topbar-direita">
         <div class="topbar-notif">
@@ -747,9 +753,10 @@
                 <div class="modulo-footer"><span class="modulo-badge" style="background:rgba(16,200,134,.2);color:#10c886">↗ Abrir portal</span></div>
               </a>
             </div>
+            <div class="pesq-sem-resultados" id="pesq-sem-resultados">
+              🔍 Nenhum módulo corresponde à pesquisa.
+            </div>
           </div>
-
-          <!-- Painel direito -->
           <div style="display:flex;flex-direction:column;gap:16px">
             <!-- Acções Rápidas -->
             <div class="d-card">
@@ -1215,6 +1222,30 @@
       a.toLocaleDateString("pt-AO",{weekday:"long",day:"2-digit",month:"long",year:"numeric"})+" · "+
       a.toLocaleTimeString("pt-AO",{hour:"2-digit",minute:"2-digit"});
   }
+  // ===== PESQUISA GLOBAL =====
+  document.getElementById("pesquisa-global").addEventListener("input", function() {
+    const termo = this.value.trim().toLowerCase();
+
+    // — Filtrar cards de módulos (secção dashboard) —
+    const cards = document.querySelectorAll(".modulos-grid .modulo-card");
+    let visiveis = 0;
+    cards.forEach(card => {
+      const texto = card.textContent.toLowerCase();
+      const match = !termo || texto.includes(termo);
+      card.classList.toggle("pesq-oculto", !match);
+      card.classList.toggle("pesq-match",  !!(termo && match));
+      if (match) visiveis++;
+    });
+    const semRes = document.getElementById("pesq-sem-resultados");
+    if (semRes) semRes.classList.toggle("visivel", termo.length > 0 && visiveis === 0);
+
+    // — Filtrar tabela de utilizadores (se visível) —
+    const linhas = document.querySelectorAll("#corpo-tabela-utilizadores tr");
+    linhas.forEach(tr => {
+      const match = !termo || tr.textContent.toLowerCase().includes(termo);
+      tr.classList.toggle("pesq-oculto", !match);
+    });
+  });
 </script>
 </body>
 </html>
