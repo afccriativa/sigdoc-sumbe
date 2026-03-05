@@ -6,6 +6,7 @@
   <title>SIGDOC-SUMBE — Painel de Gestão</title>
   <meta name="theme-color" content="#0d1422"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="sigdoc-config.js"></script>
   <script src="sigdoc-nav.js"></script>
   <style>
     :root {
@@ -547,14 +548,7 @@
     orderBy, limit, doc, getDoc
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
-    authDomain: "sigdoc-sumbe.firebaseapp.com",
-    projectId: "sigdoc-sumbe",
-    storageBucket: "sigdoc-sumbe.firebasestorage.app",
-    messagingSenderId: "323467521938",
-    appId: "1:323467521938:web:1e8170bfd3961784241b4b"
-  };
+  const firebaseConfig = window.SIGDOC_CONFIG.config;
 
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
