@@ -1091,10 +1091,34 @@
     const motivo=document.getElementById("sol-motivo").value.trim();
     const btn=document.getElementById("btn-submeter-sol");
     const msg=document.getElementById("msg-solicitacao");
-    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A enviar…';
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A verificar…';
     try{
       const dataInicio=_tipoSel==="guia-ferias"?document.getElementById("sol-data-inicio").value:"";
       if(_tipoSel==="guia-ferias"&&!dataInicio){msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>data de início das férias</strong>.</div>`;btn.disabled=false;btn.innerHTML="📤 Enviar solicitação";return;}
+
+      // ── VALIDAÇÃO DE DUPLICADOS ──
+      // Verificar se já existe uma solicitação activa do mesmo tipo
+      // para este funcionário (estado "nova" ou "processando")
+      if(_funcDocId){
+        const snapDup=await getDocs(query(
+          collection(db,"solicitacoes"),
+          where("funcionarioId","==",_funcDocId),
+          where("tipo","==",_tipoSel),
+          where("estado","in",["nova","processando"])
+        ));
+        if(!snapDup.empty){
+          const NOMES_TIPO={"guia-ferias":"Guia de Férias","declaracao-servico":"Declaração de Serviço","guia-medica":"Guia Médica","oficio":"Ofício"};
+          const nomeTipo=NOMES_TIPO[_tipoSel]||_tipoSel;
+          msg.innerHTML=`<div class="alerta alerta-aviso">
+            ⚠️ <strong>Já tem um pedido activo de ${nomeTipo}.</strong><br>
+            Aguarde o processamento do pedido existente antes de submeter um novo.
+          </div>`;
+          btn.disabled=false; btn.innerHTML="📤 Enviar solicitação";
+          return;
+        }
+      }
+
+      btn.innerHTML='<span class="spinner"></span> A enviar…';
       await addDoc(collection(db,"solicitacoes"),{funcionarioId:_funcDocId||null,funcionarioNome:_funcDoc?.nome||_utilizador.email,funcionarioEmail:_utilizador.email,funcionarioUid:_utilizador.uid,tipo:_tipoSel,motivo:motivo||"",dataInicioFerias:dataInicio,estado:"nova",criadaEm:serverTimestamp(),unidade:_funcDoc?.unidade||"",categoria:_funcDoc?.categoria||"",admissao:_funcDoc?.admissao||"",numero:_funcDoc?.numero||"",bi:_funcDoc?.bi||"",sexo:_funcDoc?.sexo||""});
       msg.innerHTML=`<div class="alerta alerta-sucesso">✅ <strong>Solicitação enviada!</strong> A Secção de RH irá processar o seu pedido brevemente. Pode acompanhar na aba "Os meus documentos".</div>`;
       btn.innerHTML="📤 Enviar solicitação"; btn.disabled=false;
