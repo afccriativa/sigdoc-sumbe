@@ -45,16 +45,6 @@
     .btn-voltar:hover{background:rgba(255,255,255,.2)}
     .topbar-titulo{font-size:15px;font-weight:800;color:var(--white);letter-spacing:.3px}
     .topbar-titulo span{display:block;font-size:10px;font-weight:400;opacity:.55;margin-top:1px;letter-spacing:0}
-    .topbar-dir{display:flex;align-items:center;gap:10px}
-    .topbar-nome{font-size:13px;font-weight:700;color:var(--white)}
-    .topbar-perfil{font-size:10px;color:rgba(255,255,255,.55)}
-    .topbar-avatar{
-      width:36px;height:36px;
-      background:linear-gradient(135deg,var(--c-600),var(--c-500));
-      border-radius:var(--r-full);display:flex;align-items:center;
-      justify-content:center;font-size:14px;font-weight:800;
-      color:var(--white);border:2px solid rgba(255,255,255,.25);
-    }
 
     /* ── HERO STRIP ── */
     .hero-strip{
@@ -173,6 +163,25 @@
     .vazio-tabela .icone{font-size:44px;margin-bottom:14px}
     .vazio-tabela p{font-size:14px;font-weight:500;color:var(--neu-600)}
     .vazio-tabela small{font-size:12px;color:var(--neu-400);display:block;margin-top:4px}
+
+    /* ── PAGINAÇÃO ── */
+    .paginacao{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 18px;border-top:1px solid var(--neu-100);
+      flex-wrap:wrap;gap:10px;
+    }
+    .paginacao-info{font-size:12px;color:var(--neu-400);font-family:var(--mono)}
+    .paginacao-btns{display:flex;gap:6px;align-items:center}
+    .pag-btn{
+      background:var(--white);border:1.5px solid var(--neu-200);
+      color:var(--neu-600);padding:5px 12px;border-radius:7px;
+      font-size:12px;font-weight:600;cursor:pointer;
+      font-family:var(--font);transition:all .15s;
+    }
+    .pag-btn:hover:not(:disabled){background:var(--c-50);border-color:var(--c-600);color:var(--c-700)}
+    .pag-btn:disabled{opacity:.35;cursor:default}
+    .pag-btn.activo{background:var(--c-600);border-color:var(--c-600);color:#fff}
+    .pag-paginas{display:flex;gap:4px}
 
     /* ── OVERLAY / MODAL ── */
     .overlay{
@@ -352,13 +361,7 @@
       <span>Módulo 2 — SIGDOC-SUMBE</span>
     </div>
   </div>
-  <div class="topbar-dir">
-    <div style="text-align:right;">
-      <div class="topbar-nome" id="nome-topo">—</div>
-      <div class="topbar-perfil" id="perfil-topo">—</div>
-    </div>
-    <div class="topbar-avatar" id="avatar-topo">?</div>
-  </div>
+
 </div>
 
 <!-- HERO -->
@@ -449,6 +452,14 @@
           <tr><td colspan="6"><div class="vazio-tabela"><div class="icone">⏳</div><p>A carregar funcionários...</p></div></td></tr>
         </tbody>
       </table>
+    </div>
+    <div class="paginacao" id="paginacao-cadastro">
+      <span class="paginacao-info" id="pag-info-cadastro"></span>
+      <div class="paginacao-btns">
+        <button class="pag-btn" id="pag-prev-cadastro" onclick="mudaPagCadastro(-1)">← Anterior</button>
+        <div class="pag-paginas" id="pag-nums-cadastro"></div>
+        <button class="pag-btn" id="pag-next-cadastro" onclick="mudaPagCadastro(1)">Seguinte →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -714,7 +725,12 @@
   const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app);
   const etiquetasPerfil={admin:"Administrador do Sistema",director:"Director Municipal",chefe:"Chefe de Secção",tecnico:"Técnico de RH",funcionario:"Funcionário de Unidade"};
   const perfisPermitidos=["admin","tecnico","chefe","director"];
-  let todosOsFuncionarios=[], utilizadorActual=null, funcionarioEmEdicao=null;
+  let todosOsFuncionarios=[], utilizadorActual=null, funcionarioEmEdicao=null, _perfilActual=null;
+  function _exigirPerfil(perfisPermitidos) {
+    if (!utilizadorActual) return false;
+    return perfisPermitidos.includes(_perfilActual);
+  }
+
 
   onAuthStateChanged(auth, async u=>{
     if(!u){window.location.href="index.html";return;}
@@ -723,9 +739,7 @@
     if(!snap.exists()){window.location.href="index.html";return;}
     const d=snap.data();
     if(!perfisPermitidos.includes(d.perfil)){document.getElementById("ecrã-negado").style.display="flex";return;}
-    document.getElementById("nome-topo").textContent=d.nome||u.email;
-    document.getElementById("perfil-topo").textContent=etiquetasPerfil[d.perfil]||d.perfil;
-    document.getElementById("avatar-topo").textContent=(d.nome||u.email)[0].toUpperCase();
+    _perfilActual = d.perfil;
     document.getElementById("conteudo-principal").style.display="block";
     carregarFuncionarios();
   });
@@ -760,42 +774,98 @@
     if(anos>=30)return 31; if(anos>=20)return 28; if(anos>=10)return 25; return 22;
   }
 
-  function renderizarTabela(lista){
-    const tb=document.getElementById("corpo-tabela");
-    document.getElementById("contagem-resultado").textContent=lista.length+" funcionário(s)";
-    if(lista.length===0){
-      tb.innerHTML=`<tr><td colspan="6"><div class="vazio-tabela"><div class="icone">👥</div><p>Nenhum funcionário encontrado.</p><small>Clique em "+ Novo Funcionário" para começar.</small></div></td></tr>`;
-      return;
-    }
-    tb.innerHTML=lista.map(f=>{
-      const bv=f.vinculo==="quadro"?"badge-quadro":"badge-provisorio";
-      const lv=f.vinculo==="quadro"?"Pessoal do Quadro":f.vinculo==="provisorio"?"Provimento Provisório":f.vinculo||"—";
-      const be={activo:"badge-activo",inactivo:"badge-inactivo",licenca:"badge-licenca"}[f.estado]||"badge-activo";
-      const le={activo:"● Em Serviço",inactivo:"○ Inactivo",licenca:"◐ De Licença"}[f.estado]||f.estado||"—";
-      const localCurto=(f.unidade||"—").replace("Direcção Municipal de Saúde do Sumbe","Dir. Municipal").replace("Centro de Saúde","CS").replace("Posto de Saúde","PS");
-      return `<tr onclick="verFicha('${f.id}')">
-        <td><div class="func-nome">${f.nome||"—"}</div><div class="func-num">Agente Nº ${f.numero||"—"}</div></td>
-        <td>${f.categoria||"—"}</td>
-        <td>${localCurto}${f.seccao?`<br><small style="color:var(--neu-400);font-size:11px">${f.seccao}</small>`:""}</td>
-        <td><span class="badge ${bv}">${lv}</span></td>
-        <td><span class="badge ${be}">${le}</span></td>
-        <td onclick="event.stopPropagation()">
-          <div class="acoes-linha">
-            <button class="btn-ver-linha" onclick="verFicha('${f.id}')">Ver</button>
-            <button class="btn-editar-linha" onclick="editarFuncionario('${f.id}')">Editar</button>
-          </div>
-        </td>
-      </tr>`;
-    }).join("");
+  // ── PAGINAÇÃO ──
+  const PAG_TAMANHO = 20;
+  let _listaActual = [];
+  let _pagActual   = 1;
+
+  function renderizarTabela(lista) {
+    _listaActual = lista;
+    _pagActual   = 1;
+    _renderPagina();
   }
 
-  window.pesquisar=function(){
-    const t=document.getElementById("campo-pesquisa").value.toLowerCase().trim();
-    const l=document.getElementById("filtro-local").value;
-    renderizarTabela(todosOsFuncionarios.filter(f=>{
-      const mt=!t||(f.nome||"").toLowerCase().includes(t)||(f.numero||"").toLowerCase().includes(t)||(f.categoria||"").toLowerCase().includes(t);
-      const ml=!l||f.unidade===l;
-      return mt&&ml;
+  function _renderPagina() {
+    const total    = _listaActual.length;
+    const totalPag = Math.max(1, Math.ceil(total / PAG_TAMANHO));
+    _pagActual     = Math.min(_pagActual, totalPag);
+    const inicio   = (_pagActual - 1) * PAG_TAMANHO;
+    const fatia    = _listaActual.slice(inicio, inicio + PAG_TAMANHO);
+
+    // Contagem
+    document.getElementById("contagem-resultado").textContent =
+      total + " funcionário(s)";
+
+    // Tabela
+    const tb = document.getElementById("corpo-tabela");
+    if (total === 0) {
+      tb.innerHTML = `<tr><td colspan="6"><div class="vazio-tabela"><div class="icone">👥</div><p>Nenhum funcionário encontrado.</p><small>Clique em "+ Novo Funcionário" para começar.</small></div></td></tr>`;
+    } else {
+      tb.innerHTML = fatia.map(f => {
+        const bv = f.vinculo === "quadro" ? "badge-quadro" : "badge-provisorio";
+        const lv = f.vinculo === "quadro" ? "Pessoal do Quadro" : f.vinculo === "provisorio" ? "Provimento Provisório" : f.vinculo || "—";
+        const be = {activo:"badge-activo",inactivo:"badge-inactivo",licenca:"badge-licenca"}[f.estado] || "badge-activo";
+        const le = {activo:"● Em Serviço",inactivo:"○ Inactivo",licenca:"◐ De Licença"}[f.estado] || f.estado || "—";
+        const localCurto = (f.unidade||"—").replace("Direcção Municipal de Saúde do Sumbe","Dir. Municipal").replace("Centro de Saúde","CS").replace("Posto de Saúde","PS");
+        return `<tr onclick="verFicha('${f.id}')">
+          <td><div class="func-nome">${f.nome||"—"}</div><div class="func-num">Agente Nº ${f.numero||"—"}</div></td>
+          <td>${f.categoria||"—"}</td>
+          <td>${localCurto}${f.seccao?`<br><small style="color:var(--neu-400);font-size:11px">${f.seccao}</small>`:""}</td>
+          <td><span class="badge ${bv}">${lv}</span></td>
+          <td><span class="badge ${be}">${le}</span></td>
+          <td onclick="event.stopPropagation()">
+            <div class="acoes-linha">
+              <button class="btn-ver-linha" onclick="verFicha('${f.id}')">Ver</button>
+              <button class="btn-editar-linha" onclick="editarFuncionario('${f.id}')">Editar</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join("");
+    }
+
+    // Controlos de paginação
+    const pag     = document.getElementById("paginacao-cadastro");
+    const info    = document.getElementById("pag-info-cadastro");
+    const prev    = document.getElementById("pag-prev-cadastro");
+    const next    = document.getElementById("pag-next-cadastro");
+    const nums    = document.getElementById("pag-nums-cadastro");
+
+    pag.style.display = total <= PAG_TAMANHO ? "none" : "flex";
+    info.textContent  = `${inicio + 1}–${Math.min(inicio + PAG_TAMANHO, total)} de ${total}`;
+    prev.disabled     = _pagActual === 1;
+    next.disabled     = _pagActual === totalPag;
+
+    // Números de página (máx 5 visíveis)
+    let html = "";
+    const janela = 2;
+    for (let p = 1; p <= totalPag; p++) {
+      if (p === 1 || p === totalPag || Math.abs(p - _pagActual) <= janela) {
+        html += `<button class="pag-btn${p === _pagActual ? " activo" : ""}" onclick="irParaPagCadastro(${p})">${p}</button>`;
+      } else if (Math.abs(p - _pagActual) === janela + 1) {
+        html += `<span style="padding:0 4px;color:var(--neu-400);font-size:12px;align-self:center">…</span>`;
+      }
+    }
+    nums.innerHTML = html;
+  }
+
+  window.mudaPagCadastro = function(dir) {
+    _pagActual += dir;
+    _renderPagina();
+    document.getElementById("corpo-tabela").closest(".tabela-card").scrollIntoView({behavior:"smooth",block:"start"});
+  };
+
+  window.irParaPagCadastro = function(p) {
+    _pagActual = p;
+    _renderPagina();
+  };
+
+  window.pesquisar = function() {
+    const t = document.getElementById("campo-pesquisa").value.toLowerCase().trim();
+    const l = document.getElementById("filtro-local").value;
+    renderizarTabela(todosOsFuncionarios.filter(f => {
+      const mt = !t || (f.nome||"").toLowerCase().includes(t) || (f.numero||"").toLowerCase().includes(t) || (f.categoria||"").toLowerCase().includes(t);
+      const ml = !l || f.unidade === l;
+      return mt && ml;
     }));
   };
 
@@ -810,6 +880,7 @@
   };
 
   window.abrirFormulario=function(){
+    if(!_exigirPerfil(["admin","chefe","tecnico"])){console.warn("Acesso negado: abrirFormulario");return;}
     funcionarioEmEdicao=null;
     document.getElementById("titulo-modal").textContent="➕ Registar Novo Funcionário";
     document.getElementById("funcionario-id").value="";
@@ -818,6 +889,7 @@
   };
 
   window.editarFuncionario=function(id){
+    if(!_exigirPerfil(["admin","chefe","tecnico"])){console.warn("Acesso negado: editarFuncionario");return;}
     const f=todosOsFuncionarios.find(x=>x.id===id);if(!f)return;
     funcionarioEmEdicao=id;
     document.getElementById("titulo-modal").textContent="✏️ Editar Funcionário";
@@ -845,6 +917,7 @@
   }
 
   window.guardarFuncionario=async function(){
+    if(!_exigirPerfil(["admin","chefe","tecnico"])){console.warn("Acesso negado: guardarFuncionario");return;}
     const nome=document.getElementById("f-nome").value.trim();
     const sexo=document.getElementById("f-sexo").value;
     const numero=document.getElementById("f-numero").value.trim();
