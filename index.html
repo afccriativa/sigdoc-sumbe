@@ -381,16 +381,11 @@
 <body>
 
 <!-- ECRÃ DE CARREGAMENTO -->
-<div id="ecrã-loading" style="
-  position:fixed;inset:0;background:#052e1c;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  z-index:9999;transition:opacity .3s;
-">
+<div id="ecrã-loading" style="position:fixed;inset:0;background:#052e1c;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">
   <div style="font-size:48px;margin-bottom:16px">🏥</div>
-  <div style="color:white;font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:.3px">SIGDOC-SUMBE</div>
-  <div style="color:rgba(255,255,255,0.45);font-size:12px;margin-top:6px;font-family:'Plus Jakarta Sans',sans-serif">A verificar sessão…</div>
-  <div style="margin-top:28px;width:48px;height:3px;background:rgba(255,255,255,0.15);border-radius:2px;overflow:hidden">
+  <div style="color:white;font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif">SIGDOC-SUMBE</div>
+  <div style="color:rgba(255,255,255,0.5);font-size:12px;margin-top:6px;font-family:'Plus Jakarta Sans',sans-serif">A verificar sessão…</div>
+  <div style="margin-top:24px;width:48px;height:3px;background:rgba(255,255,255,0.15);border-radius:2px;overflow:hidden">
     <div style="width:40%;height:100%;background:#10c886;border-radius:2px;animation:lgbar 1.1s ease-in-out infinite"></div>
   </div>
   <style>@keyframes lgbar{0%{transform:translateX(-150%)}100%{transform:translateX(400%)}}</style>
@@ -692,15 +687,12 @@
     i.type = i.type === "password" ? "text" : "password";
   };
 
-  function esconderLoading() {
-    const el = document.getElementById("ecrã-loading");
-    if (el) { el.style.opacity = "0"; setTimeout(() => el.style.display = "none", 300); }
-  }
-
   onAuthStateChanged(auth, async u => {
     if (u) { utilizadorActual = u; await carregarPerfil(u); }
     else    { mostrarLogin(); }
-    esconderLoading();
+    // Esconder loading DEPOIS do conteúdo estar pronto, sem animação
+    const loading = document.getElementById("ecrã-loading");
+    if (loading) loading.style.display = "none";
   });
 
   window.fazerLogin = async function() {
