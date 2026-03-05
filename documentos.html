@@ -273,11 +273,11 @@
     }
 
   </style>
+  <script src="sigdoc-nav.js"></script>
 </head>
 <body>
 
 <div class="barra-topo">
-  <a href="index.html" class="btn-voltar">&#8592; Voltar</a>
   <div class="titulo-pagina">
     &#128196; Geração de Documentos
     <span>Direcção Municipal da Saúde do Sumbe</span>
@@ -558,6 +558,31 @@
   onAuthStateChanged(auth, async (u) => {
     if (!u) { window.location.href = "index.html"; return; }
     utilizadorActual = u;
+
+    // Buscar perfil do utilizador para a sidebar
+    let nomeNav = u.displayName || u.email || "Utilizador";
+    let perfilNav = "tecnico";
+    try {
+      const snapUser = await getDoc(doc(db, "utilizadores", u.uid));
+      if (snapUser.exists()) {
+        const d = snapUser.data();
+        if (d.nome)   nomeNav   = d.nome;
+        if (d.perfil) perfilNav = d.perfil;
+      }
+    } catch(e) { console.warn("Perfil não encontrado, usando padrão.", e); }
+
+    // Montar navegação lateral
+    SIGDOC_NAV.mount({
+      pagina:   "documentos",
+      nome:     nomeNav,
+      perfil:   perfilNav,
+      onLogout: async () => {
+        const { signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
+        await signOut(auth);
+        window.location.href = "index.html";
+      }
+    });
+
     await carregarFuncionarios();
     document.getElementById("data-emissao").value = new Date().toISOString().split("T")[0];
     await verificarParamsPortal(); // preencher a partir da URL se vier do portal
