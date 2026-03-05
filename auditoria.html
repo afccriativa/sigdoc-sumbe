@@ -6,6 +6,7 @@
   <title>SIGDOC-SUMBE — Auditoria e Rastreabilidade</title>
   <meta name="theme-color" content="#0d1422"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="sigdoc-nav.js"></script>
   <style>
     :root {
       --bg:#0d1422; --surface:#111827; --card:#1a2236;
@@ -51,13 +52,6 @@
       justify-content:space-between;position:sticky;top:0;z-index:100
     }
     .barra-esquerda{display:flex;align-items:center;gap:16px}
-    .btn-voltar{
-      background:rgba(255,255,255,.07);border:1px solid var(--border2);
-      color:var(--txt);padding:7px 14px;border-radius:8px;font-size:12px;
-      font-weight:600;cursor:pointer;text-decoration:none;
-      transition:background .2s;font-family:var(--font)
-    }
-    .btn-voltar:hover{background:rgba(255,255,255,.13)}
     .titulo-pagina{font-size:15px;font-weight:800;color:#fff}
     .titulo-pagina span{font-size:10px;font-weight:400;color:var(--txt-muted);display:block;margin-top:1px}
     .info-utilizador{display:flex;align-items:center;gap:10px}
@@ -428,7 +422,6 @@
 
   <div class="barra-topo">
     <div class="barra-esquerda">
-      <a href="index.html" class="btn-voltar">← Painel</a>
       <div class="titulo-pagina">
         Auditoria e Rastreabilidade
         <span>Módulo 5 — SIGDOC-SUMBE</span>
@@ -673,6 +666,18 @@
       // Mostrar painel
       document.getElementById("ecra-carregando").style.display = "none";
       document.getElementById("ecra-principal").style.display = "block";
+
+      // Montar navegação lateral
+      SIGDOC_NAV.mount({
+        pagina:   'auditoria',
+        nome:     nome,
+        perfil:   perfil,
+        onLogout: async () => {
+          const { signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
+          await signOut(auth);
+          window.location.href = "index.html";
+        }
+      });
 
       // Carregar dados
       await carregarUtilizadoresMap();
