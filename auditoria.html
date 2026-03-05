@@ -392,6 +392,25 @@
     .notif-info{background:#2563eb}
     .notif-erro{background:#dc2626}
 
+    /* ── PAGINAÇÃO ── */
+    .paginacao{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 18px;border-top:1px solid var(--border);
+      flex-wrap:wrap;gap:10px;
+    }
+    .paginacao-info{font-size:12px;color:var(--txt-muted);font-family:var(--mono)}
+    .paginacao-btns{display:flex;gap:6px;align-items:center}
+    .pag-btn{
+      background:rgba(255,255,255,.06);border:1px solid var(--border2);
+      color:var(--txt-muted);padding:5px 12px;border-radius:7px;
+      font-size:12px;font-weight:600;cursor:pointer;
+      font-family:var(--font);transition:all .15s;
+    }
+    .pag-btn:hover:not(:disabled){background:rgba(255,255,255,.12);color:var(--txt)}
+    .pag-btn:disabled{opacity:.3;cursor:default}
+    .pag-btn.activo{background:var(--green-dim);border-color:var(--green-border);color:var(--green)}
+    .pag-paginas{display:flex;gap:4px}
+
     @media(max-width:900px){
       .indicadores-rapidos{grid-template-columns:repeat(3,1fr)}
     }
@@ -546,6 +565,14 @@
             </tbody>
           </table>
         </div>
+        <div class="paginacao" id="paginacao-auditoria">
+          <span class="paginacao-info" id="pag-info-auditoria"></span>
+          <div class="paginacao-btns">
+            <button class="pag-btn" id="pag-prev-auditoria" onclick="mudaPagAuditoria(-1)">← Anterior</button>
+            <div class="pag-paginas" id="pag-nums-auditoria"></div>
+            <button class="pag-btn" id="pag-next-auditoria" onclick="mudaPagAuditoria(1)">Seguinte →</button>
+          </div>
+        </div>
       </div>
 
       <!-- ABA: POR UTILIZADOR -->
@@ -691,7 +718,7 @@
       snap.forEach(d => {
         _mapaUtilizadores[d.id] = { nome: d.data().nome || d.data().email || d.id, perfil: d.data().perfil || "funcionario" };
       });
-    } catch(e) { console.error("Erro mapa utilizadores:", e); }
+    } catch(e) { console.error("Erro mapa utilizadores:", e); mostrarNotif("⚠️ Não foi possível carregar o mapa de utilizadores.", "notif-info"); }
   }
 
   // ── CARREGAR TUDO ──
@@ -776,7 +803,7 @@
           });
         }
       });
-    } catch(e) { console.error("Erro documentos:", e); }
+    } catch(e) { console.error("Erro documentos:", e); mostrarNotif("❌ Erro ao carregar eventos de documentos.", "notif-erro"); }
     return eventos;
   }
 
@@ -806,7 +833,7 @@
             : `${nomeUtil} (${perfilUtil}) encerrou a sessão.`
         });
       });
-    } catch(e) { console.error("Erro sessoes:", e); }
+    } catch(e) { console.error("Erro sessoes:", e); mostrarNotif("❌ Erro ao carregar eventos de sessões.", "notif-erro"); }
     return eventos;
   }
 
@@ -892,40 +919,89 @@
     document.getElementById("ind-logins").textContent = eventos.filter(e => e.accao === "LOGIN").length;
   }
 
-  // ── RENDER TABELA ──
-  function renderTabela(eventos) {
-    document.getElementById("contagem-log").textContent = eventos.length + " registos";
-    const tbody = document.getElementById("tbody-log");
+  // ── PAGINAÇÃO ──
+  const PAG_TAMANHO_AUD = 25;
+  let _listaAud  = [];
+  let _pagAud    = 1;
 
-    if (eventos.length === 0) {
+  function renderTabela(eventos) {
+    _listaAud = eventos;
+    _pagAud   = 1;
+    _renderPaginaAud();
+  }
+
+  function _renderPaginaAud() {
+    const total    = _listaAud.length;
+    const totalPag = Math.max(1, Math.ceil(total / PAG_TAMANHO_AUD));
+    _pagAud        = Math.min(_pagAud, totalPag);
+    const inicio   = (_pagAud - 1) * PAG_TAMANHO_AUD;
+    const fatia    = _listaAud.slice(inicio, inicio + PAG_TAMANHO_AUD);
+
+    document.getElementById("contagem-log").textContent = total + " registos";
+
+    const tbody = document.getElementById("tbody-log");
+    if (total === 0) {
       tbody.innerHTML = `<tr><td colspan="6"><div class="vazio"><div class="icone-vazio">🔍</div><p>Nenhum evento encontrado.</p><small>Ajuste os filtros e tente novamente.</small></div></td></tr>`;
-      return;
+    } else {
+      tbody.innerHTML = fatia.map(e => {
+        const cor  = corAccao(e.accao);
+        const inic = iniciaisNome(e.nomeUtilizador);
+        return `<tr onclick="abrirDetalhe('${e.id}')">
+          <td><div class="timestamp"><strong>${fmtData(e.timestamp)}</strong>${fmtHora(e.timestamp)}</div></td>
+          <td>
+            <div class="utilizador-linha">
+              <div class="mini-avatar" style="background:${cor}">${inic}</div>
+              <div>
+                <div class="utilizador-nome">${e.nomeUtilizador}</div>
+                <div class="utilizador-perfil">${e.perfilUtilizador}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-${e.accao}">${labelAccao(e.accao)}</span></td>
+          <td>
+            <div class="doc-tipo">${e.tipoDocumento !== "—" ? e.tipoDocumento : '<span style="color:rgba(255,255,255,.2)">—</span>'}</div>
+            ${e.funcionarioVisado !== "—" ? `<div class="doc-secundario">${e.funcionarioVisado}${e.referencia ? " · " + e.referencia : ""}</div>` : ""}
+          </td>
+          <td><div class="doc-tipo" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:rgba(255,255,255,.4);">${e.observacao}</div></td>
+          <td><button class="btn-detalhe" onclick="event.stopPropagation();abrirDetalhe('${e.id}')">Detalhes</button></td>
+        </tr>`;
+      }).join("");
     }
 
-    tbody.innerHTML = eventos.map(e => {
-      const cor = corAccao(e.accao);
-      const inic = iniciaisNome(e.nomeUtilizador);
-      return `<tr onclick="abrirDetalhe('${e.id}')">
-        <td><div class="timestamp"><strong>${fmtData(e.timestamp)}</strong>${fmtHora(e.timestamp)}</div></td>
-        <td>
-          <div class="utilizador-linha">
-            <div class="mini-avatar" style="background:${cor}">${inic}</div>
-            <div>
-              <div class="utilizador-nome">${e.nomeUtilizador}</div>
-              <div class="utilizador-perfil">${e.perfilUtilizador}</div>
-            </div>
-          </div>
-        </td>
-        <td><span class="badge badge-${e.accao}">${labelAccao(e.accao)}</span></td>
-        <td>
-          <div class="doc-tipo">${e.tipoDocumento !== "—" ? e.tipoDocumento : '<span style="color:rgba(255,255,255,.2)">—</span>'}</div>
-          ${e.funcionarioVisado !== "—" ? `<div class="doc-secundario">${e.funcionarioVisado}${e.referencia ? " · " + e.referencia : ""}</div>` : ""}
-        </td>
-        <td><div class="doc-tipo" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:rgba(255,255,255,.4);">${e.observacao}</div></td>
-        <td><button class="btn-detalhe" onclick="event.stopPropagation();abrirDetalhe('${e.id}')">Detalhes</button></td>
-      </tr>`;
-    }).join("");
+    // Controlos
+    const pag  = document.getElementById("paginacao-auditoria");
+    const info = document.getElementById("pag-info-auditoria");
+    const prev = document.getElementById("pag-prev-auditoria");
+    const next = document.getElementById("pag-next-auditoria");
+    const nums = document.getElementById("pag-nums-auditoria");
+
+    pag.style.display = total <= PAG_TAMANHO_AUD ? "none" : "flex";
+    info.textContent  = `${inicio + 1}–${Math.min(inicio + PAG_TAMANHO_AUD, total)} de ${total}`;
+    prev.disabled     = _pagAud === 1;
+    next.disabled     = _pagAud === totalPag;
+
+    let html = "";
+    const janela = 2;
+    for (let p = 1; p <= totalPag; p++) {
+      if (p === 1 || p === totalPag || Math.abs(p - _pagAud) <= janela) {
+        html += `<button class="pag-btn${p === _pagAud ? " activo" : ""}" onclick="irParaPagAuditoria(${p})">${p}</button>`;
+      } else if (Math.abs(p - _pagAud) === janela + 1) {
+        html += `<span style="padding:0 4px;color:var(--txt-muted);font-size:12px;align-self:center">…</span>`;
+      }
+    }
+    nums.innerHTML = html;
   }
+
+  window.mudaPagAuditoria = function(dir) {
+    _pagAud += dir;
+    _renderPaginaAud();
+    document.getElementById("tbody-log").closest(".tabela-wrap").scrollIntoView({behavior:"smooth",block:"start"});
+  };
+
+  window.irParaPagAuditoria = function(p) {
+    _pagAud = p;
+    _renderPaginaAud();
+  };
 
   // ── RENDER RELATÓRIO UTILIZADORES ──
   function renderRelatorioUtilizadores(eventos) {
