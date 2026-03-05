@@ -342,6 +342,22 @@
 </head>
 <body>
 
+<!-- ECRÃ DE CARREGAMENTO -->
+<div id="ecra-loading" style="
+  position:fixed;inset:0;background:#052e1c;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  z-index:9999;transition:opacity .3s;
+">
+  <div style="font-size:48px;margin-bottom:16px">🏥</div>
+  <div style="color:white;font-size:16px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:.3px">Portal do Funcionário</div>
+  <div style="color:rgba(255,255,255,0.45);font-size:12px;margin-top:6px;font-family:'Plus Jakarta Sans',sans-serif">A verificar sessão…</div>
+  <div style="margin-top:28px;width:48px;height:3px;background:rgba(255,255,255,0.15);border-radius:2px;overflow:hidden">
+    <div style="width:40%;height:100%;background:#10c886;border-radius:2px;animation:lgbar 1.1s ease-in-out infinite"></div>
+  </div>
+  <style>@keyframes lgbar{0%{transform:translateX(-150%)}100%{transform:translateX(400%)}}</style>
+</div>
+
 <!-- ════ ECRÃ ENTRADA ════ -->
 <div id="ecra-entrada" class="ecra activo">
   <div class="entrada-esq">
@@ -653,7 +669,13 @@
   const LABELS_TIPO={"guia-ferias":{nome:"Guia de Férias",icone:"🏖️",bg:"#fef9e7"},"declaracao-servico":{nome:"Declaração de Serviço",icone:"📜",bg:"#eff6ff"},"guia-medica":{nome:"Guia Médica",icone:"🏥",bg:"var(--c-50)"},"oficio":{nome:"Ofício / Nota",icone:"📋",bg:"var(--p-100)"}};
   const LABELS_ESTADO={nova:{texto:"Nova",classe:"est-nova"},processando:{texto:"Em processamento",classe:"est-processando"},concluida:{texto:"Aprovado ✅",classe:"est-aprovado"},rejeitada:{texto:"Rejeitado ❌",classe:"est-rejeitado"},pendente:{texto:"Pendente ⏳",classe:"est-pendente"}};
 
+  function esconderLoading(){
+    const el=document.getElementById("ecra-loading");
+    if(el){el.style.opacity="0";setTimeout(()=>el.style.display="none",300);}
+  }
+
   onAuthStateChanged(auth,async user=>{
+    esconderLoading();
     if(!user||user.isAnonymous)return;
     _utilizador=user;
     try{
