@@ -410,7 +410,7 @@
 <script type="module">
   import { initializeApp }                                          from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, collection, getDocs, doc, getDoc, addDoc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, addDoc, updateDoc, onSnapshot, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
 
@@ -846,9 +846,73 @@
     }
 
     const btnSub = document.getElementById("btn-submeter");
+
+    // Segundo clique após aviso de duplicado — confirmar e prosseguir
+    if (btnSub.dataset.confirmar === "true") {
+      btnSub.dataset.confirmar = "";
+      await _criarDocumento(btnSub);
+      return;
+    }
+
+    // ── VERIFICAÇÃO DE DUPLICADO ──
+    // Bloqueia se já existe documento pendente ou aprovado
+    // para o mesmo funcionário + tipo gerado nos últimos 30 dias.
+    // "Aprovado" é incluído intencionalmente — se já foi aprovado
+    // este mês, o técnico deve ter razão para gerar outro (ex: segunda via),
+    // mas deve ser avisado para confirmar conscientemente.
+    try {
+      if (dadosUltimoDocumento.funcionarioId) {
+        const trintaDiasAtras = new Date();
+        trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
+
+        const qDup = query(
+          collection(db, "documentos"),
+          where("funcionarioId", "==", dadosUltimoDocumento.funcionarioId),
+          where("tipo", "==", dadosUltimoDocumento.tipo),
+          where("estado", "in", ["pendente", "aprovado"])
+        );
+        const snapDup = await getDocs(qDup);
+
+        // Filtrar só os dos últimos 30 dias (Firestore não suporta
+        // dois filtros de range na mesma query sem índice composto)
+        const recentes = snapDup.docs.filter(d => {
+          const ts = d.data().geradoEm?.toDate?.();
+          return ts && ts >= trintaDiasAtras;
+        });
+
+        if (recentes.length > 0) {
+          const d = recentes[0].data();
+          const estadoTxt = d.estado === "pendente" ? "aguarda aprovação" : "já foi aprovado";
+          const dataDoc = d.geradoEm?.toDate?.()
+            ? d.geradoEm.toDate().toLocaleDateString("pt-AO",{day:"2-digit",month:"short"})
+            : "recentemente";
+
+          // Mostrar aviso e pedir confirmação explícita
+          mostrarNotificacao(
+            `⚠️ Já existe um documento deste tipo para ${dadosUltimoDocumento.funcionarioNome} (${estadoTxt} em ${dataDoc}). Submeta novamente para confirmar.`,
+            "aviso"
+          );
+          btnSub.disabled = false;
+          btnSub.innerHTML = "&#128228; Confirmar submissão";
+          // Marcar que o aviso já foi mostrado — próximo clique submete mesmo assim
+          btnSub.dataset.confirmar = "true";
+          return;
+        }
+      }
+    } catch(eDup) {
+      // Se a verificação falhar, deixar prosseguir — não bloquear por erro de rede
+      console.warn("Verificação de duplicado falhou:", eDup);
+    }
+
+    // Se viemos de um aviso de duplicado, limpar o flag antes de prosseguir
+    btnSub.dataset.confirmar = "";
+    await _criarDocumento(btnSub);
+  };
+
+  // Lógica de submissão isolada — chamada após verificação de duplicados
+  async function _criarDocumento(btnSub) {
     btnSub.disabled = true;
     btnSub.textContent = "A submeter...";
-
     try {
       const docRef = await addDoc(collection(db, "documentos"), {
         ...dadosUltimoDocumento,
@@ -862,8 +926,6 @@
       });
 
       // ── ARQUIVO: guardar HTML completo no Firestore ──
-      // O HTML da guia cabe dentro do limite de 1MB por documento.
-      // Isto elimina a necessidade de Firebase Storage.
       try {
         const htmlCompleto = document.getElementById("area-impressao").innerHTML;
         await updateDoc(doc(db, "documentos", docRef.id), {
@@ -871,7 +933,6 @@
           arquivadoEm: serverTimestamp()
         });
       } catch(eArq) {
-        // Arquivo falhou mas submissão continua — não bloqueia o fluxo
         console.warn("Arquivo HTML falhou:", eArq);
       }
 
@@ -930,7 +991,7 @@
       btnSub.disabled = false;
       btnSub.innerHTML = "&#128228; Submeter para Aprovação";
     }
-  };
+  }
 
   window.imprimirDocumento = function() { window.print(); };
 
