@@ -6,6 +6,7 @@
   <title>SIGDOC-SUMBE — Painel de Gestão</title>
   <meta name="theme-color" content="#0d1422"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="sigdoc-nav.js"></script>
   <style>
     :root {
       --bg:       #0d1422;
@@ -72,47 +73,25 @@
     #ecra-principal { display: none; }
 
     /* ══════════════════════════════
-       BARRA TOPO
+       BARRA TOPO — slim (sidebar trata da nav)
     ══════════════════════════════ */
     .barra-topo {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 0 28px; height: 60px;
+      padding: 0 28px; height: 56px;
       display: flex; align-items: center; justify-content: space-between;
       position: sticky; top: 0; z-index: 100;
     }
-    .topo-esquerda { display: flex; align-items: center; gap: 18px; }
-    .btn-voltar {
-      background: rgba(255,255,255,.07); border: 1px solid var(--border2);
-      color: var(--txt); padding: 7px 14px; border-radius: 8px;
-      font-size: 12px; font-weight: 600; font-family: var(--font);
-      cursor: pointer; text-decoration: none; transition: background .2s;
-    }
-    .btn-voltar:hover { background: rgba(255,255,255,.13); }
-    .titulo-painel h1 { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: .1px; }
+    .titulo-painel h1 { font-size: 15px; font-weight: 800; color: #fff; }
     .titulo-painel p  { font-size: 10px; color: var(--muted); margin-top: 1px; }
 
     .topo-direita { display: flex; align-items: center; gap: 18px; }
     .data-hora { text-align: right; }
     .data-hora .hora {
-      font-size: 17px; font-weight: 700;
+      font-size: 16px; font-weight: 700;
       font-family: var(--mono); letter-spacing: 1px; color: #fff;
     }
     .data-hora .data { font-size: 10px; color: var(--muted); }
-    .utilizador-topo { display: flex; align-items: center; gap: 10px; }
-    .utilizador-topo .info { text-align: right; }
-    .utilizador-topo .nome  { font-size: 13px; font-weight: 700; color: #fff; }
-    .utilizador-topo .cargo {
-      font-size: 10px; color: var(--muted);
-      background: rgba(255,255,255,.07); padding: 2px 8px;
-      border-radius: 10px; display: inline-block; margin-top: 2px;
-    }
-    .avatar-topo {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, #0d5c3a, var(--green));
-      border-radius: 50%; display: flex; align-items: center;
-      justify-content: center; font-weight: 800; font-size: 13px; color: #fff;
-    }
 
     /* ══════════════════════════════
        HERO STRIP
@@ -246,15 +225,20 @@
     /* ── DONUT ── */
     .donut-wrap {
       display: flex; align-items: center; justify-content: center;
-      gap: 24px; padding: 16px 20px 20px;
+      gap: 20px; padding: 18px 20px 22px;
     }
-    .donut-legenda { display: flex; flex-direction: column; gap: 9px; }
-    .legenda-item { display: flex; align-items: center; gap: 8px; }
-    .legenda-cor { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
-    .legenda-texto { font-size: 12px; color: var(--txt); }
+    .donut-legenda { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+    .legenda-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 10px; border-radius: 8px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.06);
+    }
+    .legenda-cor { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .legenda-texto { font-size: 11px; color: var(--txt); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .legenda-num {
-      font-size: 12px; font-weight: 700; color: #fff;
-      margin-left: auto; padding-left: 16px; font-family: var(--mono);
+      font-size: 13px; font-weight: 700; color: #fff;
+      font-family: var(--mono); white-space: nowrap;
     }
 
     /* ── BARRAS HORIZONTAIS ── */
@@ -378,24 +362,14 @@
 
   <!-- BARRA TOPO -->
   <div class="barra-topo">
-    <div class="topo-esquerda">
-      <a href="index.html" class="btn-voltar">← Painel</a>
-      <div class="titulo-painel">
-        <h1>Painel de Gestão</h1>
-        <p>Módulo 6 — SIGDOC-SUMBE · Direcção Municipal da Saúde do Sumbe</p>
-      </div>
+    <div class="titulo-painel">
+      <h1>Painel de Gestão</h1>
+      <p>Módulo 6 — SIGDOC-SUMBE · Visão Executiva</p>
     </div>
     <div class="topo-direita">
       <div class="data-hora">
         <div class="hora" id="relogio">00:00</div>
         <div class="data" id="data-topo">—</div>
-      </div>
-      <div class="utilizador-topo">
-        <div class="info">
-          <div class="nome" id="nome-topo">—</div>
-          <div class="cargo" id="cargo-topo">—</div>
-        </div>
-        <div class="avatar-topo" id="avatar-topo">?</div>
       </div>
     </div>
   </div>
@@ -473,7 +447,7 @@
           </div>
         </div>
         <div class="donut-wrap" id="donut-wrap">
-          <svg id="svg-donut" width="130" height="130" viewBox="0 0 130 130"></svg>
+          <svg id="svg-donut" width="120" height="120" viewBox="0 0 120 120"></svg>
           <div class="donut-legenda" id="donut-legenda"></div>
         </div>
       </div>
@@ -631,12 +605,21 @@
       }
 
       const nome = dados.nome || user.email;
-      const inic = nome.split(" ").slice(0,2).map(p=>p[0]).join("").toUpperCase();
       const etqPerfil = { admin:"Administrador", director:"Director Municipal" };
-      document.getElementById("nome-topo").textContent = nome;
-      document.getElementById("cargo-topo").textContent = etqPerfil[perfil] || perfil;
-      document.getElementById("avatar-topo").textContent = inic;
       saudacao(nome);
+
+      // ── Montar navegação lateral partilhada ──
+      window._sigdocAuth = auth; // expõe para o logout do nav
+      SIGDOC_NAV.mount({
+        pagina:   'painel',
+        nome:     nome,
+        perfil:   perfil,
+        onLogout: async () => {
+          const { signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
+          await signOut(auth);
+          window.location.href = "index.html";
+        }
+      });
 
       await carregarTudo();
 
@@ -771,17 +754,18 @@
       const x = padL + i * barW + gap / 2;
       const y = padT + (svgH - padT - padB) - barH;
       const esteM = m.mes === agora.getMonth() && m.ano === agora.getFullYear();
-      const cor = esteM ? "#3b82f6" : "rgba(59,130,246,0.25)";
+      // cor neutra cinza-azulada para meses anteriores, destaque verde para o mês actual
+      const cor = esteM ? "#10c886" : "rgba(255,255,255,0.12)";
 
-      svgContent += `<rect x="${x}" y="${y}" width="${barW - gap}" height="${barH}" rx="4" fill="${cor}"/>`;
+      svgContent += `<rect x="${x}" y="${y}" width="${barW - gap}" height="${barH}" rx="5" fill="${cor}"/>`;
       if (m.total > 0) {
-        svgContent += `<text x="${x + (barW - gap)/2}" y="${y - 5}" text-anchor="middle" font-size="10" fill="${esteM ? '#3b82f6' : 'rgba(255,255,255,0.35)'}" font-weight="${esteM ? '700' : '500'}" font-family="DM Mono,monospace">${m.total}</text>`;
+        svgContent += `<text x="${x + (barW - gap)/2}" y="${y - 6}" text-anchor="middle" font-size="10" fill="${esteM ? '#10c886' : 'rgba(255,255,255,0.45)'}" font-weight="700" font-family="DM Mono,monospace">${m.total}</text>`;
       }
     });
 
     document.getElementById("svg-mensal").innerHTML = svgContent;
     document.getElementById("eixo-x-mensal").innerHTML = meses.map(m =>
-      `<span style="${m.mes === agora.getMonth() && m.ano === agora.getFullYear() ? 'font-weight:700;color:#3b82f6' : ''}">${m.label}</span>`
+      `<span style="${m.mes === agora.getMonth() && m.ano === agora.getFullYear() ? 'font-weight:700;color:#10c886' : 'color:rgba(255,255,255,0.35)'}">${m.label}</span>`
     ).join("");
   }
 
@@ -792,33 +776,45 @@
     const total = Object.values(contagem).reduce((a,b) => a+b, 0) || 1;
     const entries = Object.entries(contagem).sort((a,b) => b[1]-a[1]).slice(0,6);
 
-    const cx = 65; const cy = 65; const R = 50; const r = 30;
-    let angulo = -Math.PI / 2;
+    const cx = 60; const cy = 60; const R = 46; const r = 26;
     let paths = "";
 
-    entries.forEach(([tipo, qtd], i) => {
-      const pct = qtd / total;
-      const angFim = angulo + pct * 2 * Math.PI;
-      const x1 = cx + R * Math.cos(angulo); const y1 = cy + R * Math.sin(angulo);
-      const x2 = cx + R * Math.cos(angFim);  const y2 = cy + R * Math.sin(angFim);
-      const ix1= cx + r * Math.cos(angulo); const iy1= cy + r * Math.sin(angulo);
-      const ix2= cx + r * Math.cos(angFim);  const iy2= cy + r * Math.sin(angFim);
-      const grande = pct > 0.5 ? 1 : 0;
-      const cor = CORES_TIPO[i % CORES_TIPO.length];
-      paths += `<path d="M${x1},${y1} A${R},${R} 0 ${grande},1 ${x2},${y2} L${ix2},${iy2} A${r},${r} 0 ${grande},0 ${ix1},${iy1} Z" fill="${cor}" opacity="0.9"/>`;
-      angulo = angFim;
-    });
+    if (entries.length === 1) {
+      // Caso especial: 100% — desenhar círculo completo
+      const cor = CORES_TIPO[0];
+      paths += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="${cor}" opacity="0.9"/>`;
+      paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#1a2236"/>`;
+    } else {
+      let angulo = -Math.PI / 2;
+      entries.forEach(([tipo, qtd], i) => {
+        const pct = qtd / total;
+        // Evitar arco de 100% que não renderiza — usar 99.99%
+        const pctSafe = Math.min(pct, 0.9999);
+        const angFim = angulo + pctSafe * 2 * Math.PI;
+        const x1  = cx + R * Math.cos(angulo); const y1  = cy + R * Math.sin(angulo);
+        const x2  = cx + R * Math.cos(angFim);  const y2  = cy + R * Math.sin(angFim);
+        const ix1 = cx + r * Math.cos(angulo); const iy1 = cy + r * Math.sin(angulo);
+        const ix2 = cx + r * Math.cos(angFim);  const iy2 = cy + r * Math.sin(angFim);
+        const grande = pct > 0.5 ? 1 : 0;
+        const cor = CORES_TIPO[i % CORES_TIPO.length];
+        paths += `<path d="M${x1.toFixed(2)},${y1.toFixed(2)} A${R},${R} 0 ${grande},1 ${x2.toFixed(2)},${y2.toFixed(2)} L${ix2.toFixed(2)},${iy2.toFixed(2)} A${r},${r} 0 ${grande},0 ${ix1.toFixed(2)},${iy1.toFixed(2)} Z" fill="${cor}" opacity="0.9"/>`;
+        angulo = angFim;
+      });
+      paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#1a2236"/>`;
+    }
 
-    paths += `<circle cx="${cx}" cy="${cy}" r="20" fill="#1a2236"/><text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff" font-family="DM Mono,monospace">${total}</text>`;
+    // Centro: total
+    paths += `<text x="${cx}" y="${cy - 4}" text-anchor="middle" font-size="18" font-weight="800" fill="#ffffff" font-family="DM Mono,monospace">${total}</text>`;
+    paths += `<text x="${cx}" y="${cy + 13}" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.4)" font-family="Plus Jakarta Sans,sans-serif">TOTAL</text>`;
 
     document.getElementById("svg-donut").innerHTML = paths;
 
     document.getElementById("donut-legenda").innerHTML = entries.map(([tipo, qtd], i) => {
       const pct = Math.round((qtd/total)*100);
       return `<div class="legenda-item">
-        <div class="legenda-cor" style="background:${CORES_TIPO[i%CORES_TIPO.length]}"></div>
+        <div class="legenda-cor" style="background:${CORES_TIPO[i%CORES_TIPO.length]};border-radius:3px"></div>
         <span class="legenda-texto">${LABELS_TIPO[tipo] || tipo}</span>
-        <span class="legenda-num">${qtd} <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:400">(${pct}%)</span></span>
+        <span class="legenda-num">${qtd}<span style="font-size:10px;color:rgba(255,255,255,.35);font-weight:400;margin-left:4px">${pct}%</span></span>
       </div>`;
     }).join("");
   }
