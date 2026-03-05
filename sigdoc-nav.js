@@ -3,7 +3,7 @@
  * Inclui este ficheiro em qualquer página e chama:
  *   SIGDOC_NAV.mount({ pagina: 'painel', nome: 'Nome', perfil: 'admin' })
  *
- * Páginas válidas: 'index' | 'cadastro' | 'portal' | 'aprovacoes' |
+ * Páginas válidas: 'index' | 'cadastro' | 'documentos' | 'aprovacoes' |
  *                  'auditoria' | 'painel' | 'utilizadores'
  */
 
@@ -18,7 +18,7 @@ window.SIGDOC_NAV = (function () {
       itens: [
         { id: 'index',       icon: '📊', texto: 'Dashboard',    href: 'index.html',       perfis: ['admin','director','chefe','tecnico','funcionario'] },
         { id: 'cadastro',    icon: '👤', texto: 'Cadastro',     href: 'cadastro.html',    perfis: ['admin','director','chefe','tecnico'] },
-        { id: 'portal',      icon: '📄', texto: 'Documentos',   href: 'portal.html',      perfis: ['admin','director','chefe','tecnico','funcionario'] },
+        { id: 'documentos',  icon: '📄', texto: 'Documentos',   href: 'documentos.html',  perfis: ['admin','director','chefe','tecnico','funcionario'] },
         { id: 'aprovacoes',  icon: '✅', texto: 'Aprovações',   href: 'aprovacao.html',  perfis: ['admin','director','chefe'] },
       ]
     },
@@ -489,7 +489,7 @@ window.SIGDOC_NAV = (function () {
    5. IDs das páginas disponíveis:
       'index'       → index.html        (Dashboard)
       'cadastro'    → cadastro.html     (Cadastro)
-      'portal'      → portal.html       (Documentos)
+      'documentos'  → documentos.html   (Documentos)
       'aprovacoes'  → aprovacao.html    (Aprovações)
       'auditoria'   → auditoria.html    (Auditoria)
       'painel'      → painel.html       (Painel RH)
