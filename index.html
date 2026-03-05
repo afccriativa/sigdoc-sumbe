@@ -232,8 +232,54 @@
     .notif-dot{
       position:absolute;top:7px;right:7px;
       width:7px;height:7px;background:#ef4444;border-radius:50%;
-      border:2px solid #111827;
+      border:2px solid #111827;display:none;
     }
+    .notif-dot.visivel{display:block}
+    /* Badge numérico no sino */
+    .sino-count{
+      position:absolute;top:-5px;right:-5px;
+      min-width:18px;height:18px;background:#ef4444;border-radius:9px;
+      font-size:10px;font-weight:800;color:#fff;
+      display:none;align-items:center;justify-content:center;
+      padding:0 4px;border:2px solid #111827;
+    }
+    .sino-count.visivel{display:flex}
+    /* Dropdown de notificações */
+    .notif-dropdown{
+      position:absolute;top:calc(100% + 10px);right:0;
+      width:320px;background:#1a2332;border:1px solid rgba(255,255,255,.1);
+      border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);
+      z-index:400;display:none;overflow:hidden;
+    }
+    .notif-dropdown.aberto{display:block;animation:fadeInDown .18s ease}
+    @keyframes fadeInDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+    .notif-drop-header{
+      padding:14px 16px 10px;border-bottom:1px solid rgba(255,255,255,.07);
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .notif-drop-header h4{font-size:13px;font-weight:700;color:#fff;margin:0}
+    .notif-drop-header a{font-size:11px;color:var(--c-400);text-decoration:none;font-weight:600}
+    .notif-drop-header a:hover{color:var(--c-300)}
+    .notif-drop-lista{max-height:280px;overflow-y:auto}
+    .notif-item{
+      display:flex;gap:12px;padding:12px 16px;
+      border-bottom:1px solid rgba(255,255,255,.05);
+      transition:background .12s;cursor:pointer;
+      text-decoration:none;
+    }
+    .notif-item:hover{background:rgba(255,255,255,.04)}
+    .notif-item:last-child{border-bottom:none}
+    .notif-ic{
+      width:34px;height:34px;border-radius:9px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:15px;flex-shrink:0;
+    }
+    .notif-ic-pend{background:rgba(245,158,11,.15)}
+    .notif-ic-sol{background:rgba(59,130,246,.15)}
+    .notif-corpo{flex:1;min-width:0}
+    .notif-titulo{font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .notif-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .notif-drop-vazio{padding:28px 16px;text-align:center;color:rgba(255,255,255,.3);font-size:12px}
 
     /* ── CONTEÚDO PRINCIPAL ── */
     .conteudo{padding:28px;flex:1}
@@ -497,6 +543,8 @@
     }
     .toast-sucesso{background:var(--c-800);color:var(--white);border-left:4px solid var(--c-500)}
     .toast-erro{background:#1f0a0a;color:#fca5a5;border-left:4px solid var(--r-600)}
+    .toast-aviso{background:#1c1200;color:#fcd34d;border-left:4px solid #d97706}
+    .toast-info{background:#0c1a2e;color:#93c5fd;border-left:4px solid #2563eb}
 
     /* Spinner */
     .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
@@ -634,9 +682,19 @@
         <input type="text" placeholder="Pesquisar funcionários, documentos…"/>
       </div>
       <div class="topbar-direita">
-        <div class="topbar-notif">
+        <div class="topbar-notif" id="sino-btn" onclick="toggleDropdownNotif(event)">
           🔔
-          <span class="notif-dot"></span>
+          <span class="notif-dot" id="notif-dot"></span>
+          <span class="sino-count" id="sino-count"></span>
+          <div class="notif-dropdown" id="notif-dropdown">
+            <div class="notif-drop-header">
+              <h4>Pendentes</h4>
+              <a href="aprovacao.html">Ver todos →</a>
+            </div>
+            <div class="notif-drop-lista" id="notif-drop-lista">
+              <div class="notif-drop-vazio">Sem itens pendentes</div>
+            </div>
+          </div>
         </div>
         <div class="hero-data"><div class="hero-data-txt" id="data-hora-actual">—</div></div>
         <button class="topbar-btn-new" onclick="mostrarSecção('utilizadores')">+ Novo Registo</button>
@@ -916,7 +974,7 @@
            setPersistence, browserLocalPersistence }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc, getDocs, collection,
-           updateDoc, serverTimestamp, query, orderBy, limit }
+           updateDoc, serverTimestamp, query, orderBy, limit, onSnapshot, where }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
@@ -933,6 +991,14 @@
   };
 
   let utilizadorActual = null, perfilActual = null;
+
+  // Guarda de perfil para funções administrativas expostas no window
+  function _exigirPerfil(perfisPermitidos) {
+    if (!utilizadorActual || !perfilActual) return false;
+    const p = typeof perfilActual === 'string' ? perfilActual : perfilActual.perfil;
+    return perfisPermitidos.includes(p);
+  }
+
 
   window.toggleSenha = function() {
     const i = document.getElementById("senha-login");
@@ -1054,7 +1120,85 @@
       const el = document.getElementById(id);
       if(el) el.style.display = vis.includes(id) ? "" : "none";
     });
+
+    // Activar notificações em tempo real para quem pode aprovar
+    if (["admin","chefe","director"].includes(p)) {
+      iniciarWatcherPendentes();
+    } else {
+      // Esconder sino para perfis sem acesso a aprovações
+      const sino = document.getElementById("sino-btn");
+      if (sino) sino.style.display = "none";
+    }
   }
+
+  // ── NOTIFICAÇÕES EM TEMPO REAL ──
+  let _unsubPendentes = null;
+
+  function iniciarWatcherPendentes() {
+    if (_unsubPendentes) _unsubPendentes(); // cancelar listener anterior
+
+    const q = query(collection(db, "documentos"), where("estado", "==", "pendente"), orderBy("geradoEm", "desc"));
+
+    _unsubPendentes = onSnapshot(q, snap => {
+      const pendentes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      actualizarSino(pendentes);
+    }, err => {
+      console.error("Watcher pendentes:", err);
+    });
+  }
+
+  function actualizarSino(pendentes) {
+    const total  = pendentes.length;
+    const dot    = document.getElementById("notif-dot");
+    const count  = document.getElementById("sino-count");
+    const lista  = document.getElementById("notif-drop-lista");
+
+    // Badge e ponto vermelho
+    if (total > 0) {
+      dot.classList.add("visivel");
+      count.classList.add("visivel");
+      count.textContent = total > 99 ? "99+" : total;
+    } else {
+      dot.classList.remove("visivel");
+      count.classList.remove("visivel");
+    }
+
+    // Actualizar badge da sidebar (módulo aprovações)
+    if (window.SIGDOC_NAV) SIGDOC_NAV.setBadges({ aprovacoes: total });
+
+    // Dropdown com lista dos pendentes
+    if (total === 0) {
+      lista.innerHTML = '<div class="notif-drop-vazio">✅ Sem documentos pendentes</div>';
+      return;
+    }
+
+    lista.innerHTML = pendentes.slice(0, 8).map(d => {
+      const tipo  = d.tipo || d.tipoDocumento || "Documento";
+      const func  = d.funcionarioNome || d.geradoPorEmail || "—";
+      const hora  = d.geradoEm?.toDate
+        ? d.geradoEm.toDate().toLocaleDateString("pt-AO", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" })
+        : "—";
+      return `<a class="notif-item" href="aprovacao.html">
+        <div class="notif-ic notif-ic-pend">📄</div>
+        <div class="notif-corpo">
+          <div class="notif-titulo">${tipo}</div>
+          <div class="notif-sub">${func} · ${hora}</div>
+        </div>
+      </a>`;
+    }).join("") + (total > 8
+      ? `<div class="notif-drop-vazio">+ ${total - 8} mais em aprovação</div>` : "");
+  }
+
+  window.toggleDropdownNotif = function(e) {
+    e.stopPropagation();
+    document.getElementById("notif-dropdown").classList.toggle("aberto");
+  };
+
+  // Fechar dropdown ao clicar fora
+  document.addEventListener("click", () => {
+    const dd = document.getElementById("notif-dropdown");
+    if (dd) dd.classList.remove("aberto");
+  });
 
   function mostrarLogin() {
     document.getElementById("ecrã-painel").style.display="none";
@@ -1077,7 +1221,7 @@
       snap.forEach(d=>{ if(d.data().activo) activos++; });
       document.getElementById("total-utilizadores").textContent = snap.size;
       document.getElementById("total-activos").textContent = activos;
-    } catch(e) { console.error(e); }
+    } catch(e) { console.error(e); mostrarNotif("⚠️ Erro ao carregar indicadores.","aviso"); }
     try {
       const snapF = await getDocs(collection(db,"funcionarios"));
       const uns = new Set();
@@ -1115,28 +1259,30 @@
   }
 
   window.toggleUser = async function(uid, actual) {
+    if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: toggleUser");return;}
     if(!confirm(actual?"Desactivar?":"Activar?")) return;
     try{
       await updateDoc(doc(db,"utilizadores",uid),{activo:!actual});
       mostrarNotif(!actual?"✅ Utilizador activado!":"🔴 Utilizador desactivado.");
       carregarUtilizadores(); carregarIndicadores();
-    }catch(e){ mostrarNotif("Erro ao actualizar."); }
+    }catch(e){ console.error(e); mostrarNotif("❌ Erro ao actualizar o utilizador.","erro"); }
   };
 
   // Manter compatibilidade com chamadas antigas
   window.toggleEstadoUtilizador = window.toggleUser;
 
-  window.abrirModalNovoUtilizador = ()=>document.getElementById("overlay-novo-utilizador").classList.add("activo");
+  window.abrirModalNovoUtilizador = ()=>{ if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: abrirModalNovoUtilizador");return;} document.getElementById("overlay-novo-utilizador").classList.add("activo"); };
   window.fecharModal = ()=>document.getElementById("overlay-novo-utilizador").classList.remove("activo");
 
   window.criarNovoUtilizador = async function() {
+    if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: criarNovoUtilizador");return;}
     const nome=document.getElementById("novo-nome").value.trim();
     const email=document.getElementById("novo-email").value.trim();
     const senha=document.getElementById("novo-senha").value.trim();
     const perfil=document.getElementById("novo-perfil").value;
     const unidade=document.getElementById("novo-unidade").value;
-    if(!nome||!email||!senha){alert("Preencha todos os campos.");return;}
-    if(senha.length<6){alert("Senha com mínimo 6 caracteres.");return;}
+    if(!nome||!email||!senha){mostrarNotif("⚠️ Preencha todos os campos obrigatórios.","aviso");return;}
+    if(senha.length<6){mostrarNotif("⚠️ A senha deve ter pelo menos 6 caracteres.","aviso");return;}
     try{
       const cred=await createUserWithEmailAndPassword(auth,email,senha);
       await setDoc(doc(db,"utilizadores",cred.user.uid),{nome,email,perfil,unidade,activo:true,criadoEm:serverTimestamp(),ultimoAcesso:null,criadoPor:utilizadorActual.uid});
@@ -1146,13 +1292,13 @@
       document.getElementById("novo-email").value="";
       document.getElementById("novo-senha").value="Sumbe2026!";
     }catch(e){
-      const m={"auth/email-already-in-use":"E-mail já registado.","auth/invalid-email":"E-mail inválido."};
-      alert(m[e.code]||"Erro ao criar utilizador.");
+      const m={"auth/email-already-in-use":"❌ E-mail já está registado.","auth/invalid-email":"❌ E-mail inválido."};
+      mostrarNotif(m[e.code]||"❌ Erro ao criar utilizador. Tente novamente.","erro");
     }
   };
 
   async function registarSessao(u,d,tipo){
-    try{ await setDoc(doc(db,"sessoes",`${u.uid}_${Date.now()}`),{uid:u.uid,nome:d.nome||u.email,perfil:d.perfil,email:u.email,tipo,timestamp:serverTimestamp()}); }catch(e){}
+    try{ await setDoc(doc(db,"sessoes",`${u.uid}_${Date.now()}`),{uid:u.uid,nome:d.nome||u.email,perfil:d.perfil,email:u.email,tipo,timestamp:serverTimestamp()}); }catch(e){ console.warn("Sessão não registada:",e); }
   }
 
   async function carregarSessoes(){
@@ -1179,7 +1325,7 @@
       lista.innerHTML=html;
       const mini_el=document.getElementById("lista-sessoes-mini");
       if(mini_el) mini_el.innerHTML=htmlMini;
-    }catch(e){lista.innerHTML=`<div class="vazio-estado"><p>Erro.</p></div>`;}
+    }catch(e){ console.error(e); lista.innerHTML=`<div class="vazio-estado"><p>⚠️ Erro ao carregar sessões.</p></div>`; mostrarNotif("❌ Não foi possível carregar os acessos recentes.","erro"); }
   }
 
   window.abrirModalPerfil=function(){
@@ -1198,6 +1344,7 @@
 
   function mostrarErro(msg){const e=document.getElementById("msg-erro");e.textContent=msg;e.style.display="block";}
   function mostrarNotif(msg,tipo="sucesso"){
+    const tipos={"sucesso":"#059669","aviso":"#d97706","erro":"#dc2626","info":"#2563eb"};
     const e=document.getElementById("notificacao");
     e.textContent=msg; e.className=`toast toast-${tipo}`; e.style.display="block";
     setTimeout(()=>e.style.display="none",4000);
