@@ -447,11 +447,9 @@
   import { getFirestore, collection, query, orderBy, where,
            onSnapshot, getDocs, doc, updateDoc, getDoc, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
   const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
-  const storage = getStorage(app);
 
   let todosDocumentos=[],filtroActual="pendente",docSel=null,utilizadorActual=null,_perfilActual=null;
 
@@ -572,24 +570,14 @@
     badgeArq.style.display  = "none";
     btnSegVia.style.display = "none";
 
-    if (d.htmlArquivoUrl) {
-      // Documento tem arquivo — carregar HTML fiel do Storage
+    if (d.htmlArquivo) {
+      // Documento tem arquivo guardado no Firestore — usar directamente
       badgeArq.style.display  = "inline-flex";
       btnSegVia.style.display = "inline-block";
-      fetch(d.htmlArquivoUrl)
-        .then(r => r.text())
-        .then(html => {
-          document.getElementById("preview-doc-html").innerHTML = html;
-          document.getElementById("area-impressao").innerHTML   = html;
-        })
-        .catch(() => {
-          // Se fetch falhar (ex: Storage offline), cair para reconstituição
-          const htmlDoc = reconstruirHtml(d);
-          document.getElementById("preview-doc-html").innerHTML = htmlDoc;
-          document.getElementById("area-impressao").innerHTML   = htmlDoc;
-        });
+      document.getElementById("preview-doc-html").innerHTML = d.htmlArquivo;
+      document.getElementById("area-impressao").innerHTML   = d.htmlArquivo;
     } else {
-      // Documento sem arquivo — usar reconstituição a partir dos metadados
+      // Documento sem arquivo — reconstituir a partir dos metadados
       const htmlDoc = d.htmlConteudo || reconstruirHtml(d);
       document.getElementById("preview-doc-html").innerHTML = htmlDoc;
       document.getElementById("area-impressao").innerHTML   = htmlDoc;
