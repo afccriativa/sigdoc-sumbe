@@ -489,7 +489,7 @@ window.SIGDOC_NAV = (function () {
    5. IDs das páginas disponíveis:
       'index'       → index.html        (Dashboard)
       'cadastro'    → cadastro.html     (Cadastro)
-      'documentos'  → documentos.html   (Documentos)
+      'documentos'  → documentos.html       (Documentos)
       'aprovacoes'  → aprovacao.html    (Aprovações)
       'auditoria'   → auditoria.html    (Auditoria)
       'painel'      → painel.html       (Painel RH)
