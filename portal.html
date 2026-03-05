@@ -907,7 +907,12 @@
   // PORTAL DASHBOARD
   function mostrarPortal(user,dados){
     const nome=dados.nome||user.email;
-    setTimeout(()=>{const f=_funcDoc||{};const inc=!f.bi||!f.nascimento||!f.nomePai||!f.nomeMae||!f.morada;const b=document.getElementById("banner-completar");if(b&&inc)b.style.display="block";},1000);
+    setTimeout(()=>{
+      const f=_funcDoc||{};
+      const inc=_perfilIncompleto(f);
+      const b=document.getElementById("banner-completar");
+      if(b&&inc) b.style.display="block";
+    },1000);
     const hora=new Date().getHours();
     const saud=hora<12?"Bom dia":hora<18?"Boa tarde":"Boa noite";
     const inic=nome.split(" ").filter(Boolean).slice(0,2).map(p=>p[0]).join("").toUpperCase();
@@ -1065,8 +1070,26 @@
     win.document.close();
   };
 
+  // ── COMPLETUDE DO FORMULÁRIO ──
+  // Campos mínimos obrigatórios para gerar qualquer documento oficial.
+  // Se algum faltar, o funcionário é redirecionado para o formulário.
+  function _perfilIncompleto(f) {
+    return !f || !f.bi || !f.nascimento || !f.nomePai || !f.nomeMae ||
+           !f.morada || !f.nome || !f.numero || !f.categoria;
+  }
+
   // SOLICITAR
   window.seleccionarTipo=function(tipo,el){
+    // Bloquear selecção se perfil incompleto
+    if (_perfilIncompleto(_funcDoc)) {
+      const msg=document.getElementById("msg-solicitacao");
+      msg.innerHTML=`<div class="alerta alerta-aviso">
+        ⚠️ <strong>O seu perfil está incompleto.</strong><br>
+        Preencha o <a href="formulario.html" style="color:var(--c-700);font-weight:700">formulário profissional</a>
+        antes de pedir documentos. Os seus dados são necessários para emitir documentos oficiais.
+      </div>`;
+      return;
+    }
     document.querySelectorAll(".tipo-card").forEach(c=>c.classList.remove("seleccionado"));
     el.classList.add("seleccionado"); _tipoSel=tipo;
     document.getElementById("form-solicitacao-extra").style.display="block";
@@ -1088,6 +1111,16 @@
 
   window.submeterSolicitacao=async function(){
     if(!_tipoSel||!_utilizador)return;
+
+    // Segunda barreira — verificar completude mesmo que seleccionarTipo tenha passado
+    if (_perfilIncompleto(_funcDoc)) {
+      const msg=document.getElementById("msg-solicitacao");
+      msg.innerHTML=`<div class="alerta alerta-aviso">
+        ⚠️ <strong>Perfil incompleto.</strong>
+        <a href="formulario.html" style="color:var(--c-700);font-weight:700">Preencha o formulário</a> antes de continuar.
+      </div>`;
+      return;
+    }
     const motivo=document.getElementById("sol-motivo").value.trim();
     const btn=document.getElementById("btn-submeter-sol");
     const msg=document.getElementById("msg-solicitacao");
