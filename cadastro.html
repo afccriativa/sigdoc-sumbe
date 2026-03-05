@@ -139,6 +139,26 @@
     tbody tr:last-child{border-bottom:none}
     tbody td{padding:14px 18px;font-size:13px;color:var(--neu-700);vertical-align:middle}
     .func-nome{font-weight:700;color:var(--neu-900)}
+    .badge-form-pend{
+      display:inline-flex;align-items:center;gap:4px;
+      background:#fef3c7;color:#92400e;border:1px solid #fcd34d;
+      font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;
+      margin-left:6px;vertical-align:middle;
+    }
+    .btn-rever-form{
+      background:#fffbeb;color:#92400e;border:1px solid #fcd34d;
+      padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;
+      cursor:pointer;font-family:var(--font);transition:all .15s;
+    }
+    .btn-rever-form:hover{background:#fef3c7}
+    .faixa-form-pend{
+      background:linear-gradient(135deg,#fffbeb,#fef9ec);
+      border:1px solid #fcd34d;border-radius:10px;
+      padding:14px 18px;margin-bottom:16px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    .faixa-form-pend-txt{font-size:13px;color:#92400e;font-weight:600}
+    .faixa-form-pend-txt small{display:block;font-weight:400;font-size:11px;margin-top:2px;opacity:.8}
     .func-num{font-size:11px;color:var(--neu-400);margin-top:2px;font-family:var(--mono)}
 
     /* Badges */
@@ -428,6 +448,15 @@
       </optgroup>
     </select>
     <button class="btn-novo" onclick="abrirFormulario()">+ Novo Funcionário</button>
+    <button class="btn-novo" id="btn-filtro-form"
+      onclick="filtrarFormPendente(this)"
+      style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d;position:relative">
+      📋 Formulários por rever
+      <span id="conta-form-pend" style="display:none;position:absolute;top:-6px;right:-6px;
+        background:#ef4444;color:#fff;border-radius:10px;font-size:10px;font-weight:800;
+        min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;
+        padding:0 4px;border:2px solid #fff">0</span>
+    </button>
   </div>
 
   <!-- Tabela -->
@@ -751,6 +780,7 @@
       todosOsFuncionarios=[];
       snap.forEach(d=>todosOsFuncionarios.push({id:d.id,...d.data()}));
       actualizarIndicadores(); renderizarTabela(todosOsFuncionarios);
+      actualizarBadgeFormPend();
     }catch(e){console.error(e);notif("Erro ao carregar funcionários.","erro");}
   }
 
@@ -808,7 +838,7 @@
         const le = {activo:"● Em Serviço",inactivo:"○ Inactivo",licenca:"◐ De Licença"}[f.estado] || f.estado || "—";
         const localCurto = (f.unidade||"—").replace("Direcção Municipal de Saúde do Sumbe","Dir. Municipal").replace("Centro de Saúde","CS").replace("Posto de Saúde","PS");
         return `<tr onclick="verFicha('${f.id}')">
-          <td><div class="func-nome">${f.nome||"—"}</div><div class="func-num">Agente Nº ${f.numero||"—"}</div></td>
+          <td><div class="func-nome">${f.nome||"—"}${f.formularioPendente?'<span class="badge-form-pend">📋 Form. pendente</span>':''}</div><div class="func-num">Agente Nº ${f.numero||"—"}</div></td>
           <td>${f.categoria||"—"}</td>
           <td>${localCurto}${f.seccao?`<br><small style="color:var(--neu-400);font-size:11px">${f.seccao}</small>`:""}</td>
           <td><span class="badge ${bv}">${lv}</span></td>
@@ -867,6 +897,61 @@
       const ml = !l || f.unidade === l;
       return mt && ml;
     }));
+  };
+
+  let _filtrandoFormPend = false;
+
+  window.filtrarFormPendente = function(btn) {
+    _filtrandoFormPend = !_filtrandoFormPend;
+    btn.style.background = _filtrandoFormPend ? "#fcd34d" : "#fef3c7";
+    btn.style.fontWeight  = _filtrandoFormPend ? "800" : "";
+    if (_filtrandoFormPend) {
+      renderizarTabela(todosOsFuncionarios.filter(f => f.formularioPendente));
+    } else {
+      pesquisar();
+    }
+  };
+
+  // Actualizar badge de formulários pendentes sempre que a lista recarrega
+  function actualizarBadgeFormPend() {
+    const total = todosOsFuncionarios.filter(f => f.formularioPendente).length;
+    const span  = document.getElementById("conta-form-pend");
+    if (!span) return;
+    if (total > 0) {
+      span.textContent = total;
+      span.style.display = "flex";
+    } else {
+      span.style.display = "none";
+    }
+  }
+
+  // Marcar formulário como revisto (RH confirma que leu os dados)
+  window.marcarFormRevisto = async function(id, btn) {
+    if (!_exigirPerfil(["admin","chefe","tecnico"])) return;
+    btn.disabled = true;
+    btn.textContent = "A guardar…";
+    try {
+      await updateDoc(doc(db, "funcionarios", id), {
+        formularioPendente: false,
+        formularioRevistoEm: serverTimestamp(),
+        formularioRevistoBy: utilizadorActual.uid
+      });
+      // Remover faixa de aviso e actualizar lista em memória
+      const faixa = document.getElementById("faixa-form-pend");
+      if (faixa) faixa.remove();
+      const idx = todosOsFuncionarios.findIndex(x => x.id === id);
+      if (idx > -1) {
+        todosOsFuncionarios[idx].formularioPendente = false;
+        actualizarBadgeFormPend();
+        renderizarTabela(todosOsFuncionarios);
+      }
+      notif("✅ Formulário marcado como revisto.", "sucesso");
+    } catch(e) {
+      console.error(e);
+      notif("❌ Erro ao guardar. Tente novamente.", "erro");
+      btn.disabled = false;
+      btn.textContent = "✅ Marcar como revisto";
+    }
   };
 
   window.verificarDireccao=function(){
@@ -1008,6 +1093,26 @@
           (c.v||"—")
         }</div>
       </div>`).join("");
+    // Faixa de formulário pendente de revisão
+    const fichaConteudo = document.getElementById("tab-dados");
+    const faixaExist = document.getElementById("faixa-form-pend");
+    if (faixaExist) faixaExist.remove();
+    if (f.formularioPendente) {
+      const ts = f.formularioPreenchidoEm?.toDate
+        ? f.formularioPreenchidoEm.toDate().toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric"})
+        : "recentemente";
+      const faixa = document.createElement("div");
+      faixa.id = "faixa-form-pend";
+      faixa.className = "faixa-form-pend";
+      faixa.innerHTML = `
+        <div class="faixa-form-pend-txt">
+          📋 Formulário profissional submetido pelo funcionário
+          <small>Enviado em ${ts} — reveja os dados e marque como revisto</small>
+        </div>
+        <button class="btn-rever-form" onclick="marcarFormRevisto('${f.id}',this)">✅ Marcar como revisto</button>`;
+      fichaConteudo.insertBefore(faixa, fichaConteudo.firstChild);
+    }
+
     document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("activo"));
     document.querySelectorAll(".tab-conteudo").forEach(t=>t.classList.remove("activo"));
     document.querySelector(".tab-btn").classList.add("activo");
@@ -1092,6 +1197,26 @@
 
   window.fecharFicha=()=>document.getElementById("overlay-ficha").classList.remove("activo");
   window.mudarTab=function(tab,btn){
+    // Faixa de formulário pendente de revisão
+    const fichaConteudo = document.getElementById("tab-dados");
+    const faixaExist = document.getElementById("faixa-form-pend");
+    if (faixaExist) faixaExist.remove();
+    if (f.formularioPendente) {
+      const ts = f.formularioPreenchidoEm?.toDate
+        ? f.formularioPreenchidoEm.toDate().toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric"})
+        : "recentemente";
+      const faixa = document.createElement("div");
+      faixa.id = "faixa-form-pend";
+      faixa.className = "faixa-form-pend";
+      faixa.innerHTML = `
+        <div class="faixa-form-pend-txt">
+          📋 Formulário profissional submetido pelo funcionário
+          <small>Enviado em ${ts} — reveja os dados e marque como revisto</small>
+        </div>
+        <button class="btn-rever-form" onclick="marcarFormRevisto('${f.id}',this)">✅ Marcar como revisto</button>`;
+      fichaConteudo.insertBefore(faixa, fichaConteudo.firstChild);
+    }
+
     document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("activo"));
     document.querySelectorAll(".tab-conteudo").forEach(t=>t.classList.remove("activo"));
     btn.classList.add("activo");
