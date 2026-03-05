@@ -1134,24 +1134,36 @@
   // ── NOTIFICAÇÕES EM TEMPO REAL ──
   let _unsubPendentes = null;
 
+  let _unsubFormsRH = null;
+  let _docsRHPend = [], _formsRHPend = [];
+
   function iniciarWatcherPendentes() {
-    if (_unsubPendentes) _unsubPendentes(); // cancelar listener anterior
+    if (_unsubPendentes) _unsubPendentes();
+    if (_unsubFormsRH)   _unsubFormsRH();
 
+    // Watcher 1 — documentos pendentes de aprovação
     const q = query(collection(db, "documentos"), where("estado", "==", "pendente"), orderBy("geradoEm", "desc"));
-
     _unsubPendentes = onSnapshot(q, snap => {
-      const pendentes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      actualizarSino(pendentes);
-    }, err => {
-      console.error("Watcher pendentes:", err);
-    });
+      _docsRHPend = snap.docs.map(d => ({ id: d.id, ...d.data(), _categoria: "doc" }));
+      actualizarSino();
+    }, err => { console.error("Watcher documentos:", err); });
+
+    // Watcher 2 — formulários submetidos por funcionários mas não revistos
+    const qF = query(collection(db, "funcionarios"), where("formularioPendente", "==", true));
+    _unsubFormsRH = onSnapshot(qF, snap => {
+      _formsRHPend = snap.docs.map(d => ({ id: d.id, ...d.data(), _categoria: "form" }));
+      actualizarSino();
+    }, err => { console.error("Watcher formulários:", err); });
   }
 
-  function actualizarSino(pendentes) {
-    const total  = pendentes.length;
-    const dot    = document.getElementById("notif-dot");
-    const count  = document.getElementById("sino-count");
-    const lista  = document.getElementById("notif-drop-lista");
+  function actualizarSino() {
+    const totalDocs  = _docsRHPend.length;
+    const totalForms = _formsRHPend.length;
+    const total      = totalDocs + totalForms;
+
+    const dot   = document.getElementById("notif-dot");
+    const count = document.getElementById("sino-count");
+    const lista = document.getElementById("notif-drop-lista");
 
     // Badge e ponto vermelho
     if (total > 0) {
@@ -1163,30 +1175,61 @@
       count.classList.remove("visivel");
     }
 
-    // Actualizar badge da sidebar (módulo aprovações)
-    if (window.SIGDOC_NAV) SIGDOC_NAV.setBadges({ aprovacoes: total });
+    // Badge sidebar — só documentos para aprovação
+    if (window.SIGDOC_NAV) SIGDOC_NAV.setBadges({ aprovacoes: totalDocs });
 
-    // Dropdown com lista dos pendentes
+    // Dropdown
     if (total === 0) {
-      lista.innerHTML = '<div class="notif-drop-vazio">✅ Sem documentos pendentes</div>';
+      lista.innerHTML = '<div class="notif-drop-vazio">✅ Sem itens pendentes</div>';
       return;
     }
 
-    lista.innerHTML = pendentes.slice(0, 8).map(d => {
-      const tipo  = d.tipo || d.tipoDocumento || "Documento";
-      const func  = d.funcionarioNome || d.geradoPorEmail || "—";
-      const hora  = d.geradoEm?.toDate
-        ? d.geradoEm.toDate().toLocaleDateString("pt-AO", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" })
-        : "—";
-      return `<a class="notif-item" href="aprovacao.html">
-        <div class="notif-ic notif-ic-pend">📄</div>
-        <div class="notif-corpo">
-          <div class="notif-titulo">${tipo}</div>
-          <div class="notif-sub">${func} · ${hora}</div>
-        </div>
-      </a>`;
-    }).join("") + (total > 8
-      ? `<div class="notif-drop-vazio">+ ${total - 8} mais em aprovação</div>` : "");
+    let html = "";
+
+    // Secção: documentos para aprovação
+    if (totalDocs > 0) {
+      html += `<div style="padding:8px 16px 4px;font-size:10px;font-weight:800;
+        color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px">
+        Documentos para aprovar (${totalDocs})</div>`;
+      html += _docsRHPend.slice(0, 5).map(d => {
+        const tipo = d.tipo || d.tipoDocumento || "Documento";
+        const func = d.funcionarioNome || d.geradoPorEmail || "—";
+        const hora = d.geradoEm?.toDate
+          ? d.geradoEm.toDate().toLocaleDateString("pt-AO", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" })
+          : "—";
+        return `<a class="notif-item" href="aprovacao.html">
+          <div class="notif-ic notif-ic-pend">📄</div>
+          <div class="notif-corpo">
+            <div class="notif-titulo">${tipo}</div>
+            <div class="notif-sub">${func} · ${hora}</div>
+          </div>
+        </a>`;
+      }).join("");
+      if (totalDocs > 5) html += `<div class="notif-drop-vazio">+ ${totalDocs - 5} mais em aprovação</div>`;
+    }
+
+    // Secção: formulários de funcionários por rever
+    if (totalForms > 0) {
+      html += `<div style="padding:8px 16px 4px;font-size:10px;font-weight:800;
+        color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;
+        border-top:1px solid rgba(255,255,255,.06);margin-top:4px">
+        Formulários por rever (${totalForms})</div>`;
+      html += _formsRHPend.slice(0, 3).map(f => {
+        const hora = f.formularioPreenchidoEm?.toDate
+          ? f.formularioPreenchidoEm.toDate().toLocaleDateString("pt-AO", { day:"2-digit", month:"short" })
+          : "—";
+        return `<a class="notif-item" href="cadastro.html">
+          <div class="notif-ic notif-ic-sol">📋</div>
+          <div class="notif-corpo">
+            <div class="notif-titulo">${f.nome || "—"}</div>
+            <div class="notif-sub">Formulário submetido · ${hora}</div>
+          </div>
+        </a>`;
+      }).join("");
+      if (totalForms > 3) html += `<div class="notif-drop-vazio">+ ${totalForms - 3} mais por rever</div>`;
+    }
+
+    lista.innerHTML = html;
   }
 
   window.toggleDropdownNotif = function(e) {
