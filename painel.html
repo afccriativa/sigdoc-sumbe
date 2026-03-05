@@ -6,7 +6,16 @@
   <title>SIGDOC-SUMBE — Painel de Gestão</title>
   <meta name="theme-color" content="#0d1422"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <script src="sigdoc-config.js"></script>
+  <script src="sigdoc-config.js">
+  function mostrarNotif(msg, tipo="sucesso") {
+    const el = document.getElementById("notificacao-painel");
+    el.textContent = msg;
+    el.className = `toast toast-${tipo}`;
+    el.style.display = "block";
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.style.display = "none"; }, 4500);
+  }
+</script>
   <script src="sigdoc-nav.js"></script>
   <style>
     :root {
@@ -339,6 +348,19 @@
       .conteudo { padding-left: 16px; padding-right: 16px; }
       .data-hora { display: none; }
     }
+
+    /* ── NOTIFICAÇÕES ── */
+    .toast{
+      position:fixed;bottom:24px;right:24px;padding:13px 18px;
+      border-radius:10px;font-size:13px;font-weight:600;
+      display:none;z-index:500;max-width:340px;
+      box-shadow:0 4px 20px rgba(0,0,0,.35);
+      font-family:var(--font, 'Plus Jakarta Sans', sans-serif);
+    }
+    .toast-sucesso{background:#064e35;color:#6ee7b7;border-left:4px solid #10c886}
+    .toast-erro{background:#450a0a;color:#fca5a5;border-left:4px solid #ef4444}
+    .toast-aviso{background:#1c1200;color:#fcd34d;border-left:4px solid #d97706}
+    .toast-info{background:#0c1a2e;color:#93c5fd;border-left:4px solid #3b82f6}
   </style>
 </head>
 <body>
@@ -623,11 +645,14 @@
       console.error(e);
       document.getElementById("ecra-carregando").style.display = "none";
       document.getElementById("ecra-negado").style.display = "flex";
+      mostrarNotif("❌ Erro ao verificar autenticação. Tente recarregar.", "erro");
     }
   });
 
   // ── CARREGAR TUDO ──
   async function carregarTudo() {
+    mostrarNotif("A carregar dados do painel…", "info");
+    try {
     const [funcionarios, documentos, sessoes] = await Promise.all([
       fetchColeccao("funcionarios"),
       fetchColeccao("documentos", "geradoEm"),
@@ -643,6 +668,11 @@
     renderFeed(documentos, sessoes);
     document.getElementById("hero-sub").textContent =
       `${documentos.length} documentos · ${funcionarios.length} funcionários · Firebase Firestore`;
+    mostrarNotif(`✅ Painel actualizado — ${documentos.length} docs · ${funcionarios.length} funcionários`, "sucesso");
+    } catch(e) {
+      console.error(e);
+      mostrarNotif("❌ Erro ao carregar o painel. Verifique a ligação.", "erro");
+    }
   }
 
   async function fetchColeccao(nome, campoOrdem) {
@@ -652,7 +682,11 @@
         : collection(db, nome);
       const snap = await getDocs(q);
       return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } catch(e) { console.error("Erro " + nome, e); return []; }
+    } catch(e) {
+      console.error("Erro " + nome, e);
+      mostrarNotif(`❌ Erro ao carregar "${nome}". Verifique a ligação.`, "erro");
+      return [];
+    }
   }
 
   function toDate(ts) {
@@ -932,5 +966,6 @@
     }).join("") || '<div style="text-align:center;padding:30px;color:rgba(255,255,255,.3)">Sem actividade recente.</div>';
   }
 </script>
+<div class="toast" id="notificacao-painel"></div>
 </body>
 </html>
