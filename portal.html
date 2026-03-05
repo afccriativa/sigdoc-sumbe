@@ -359,7 +359,7 @@
 </div>
 
 <!-- ════ ECRÃ ENTRADA ════ -->
-<div id="ecra-entrada" class="ecra activo">
+<div id="ecra-entrada" class="ecra">
   <div class="entrada-esq">
     <div class="entrada-grid"></div>
     <div class="entrada-emblema">🏥</div>
@@ -675,14 +675,17 @@
   }
 
   onAuthStateChanged(auth,async user=>{
-    esconderLoading();
-    if(!user||user.isAnonymous)return;
+    if(!user||user.isAnonymous){
+      mostrarEcra("ecra-entrada");
+      esconderLoading();
+      return;
+    }
     _utilizador=user;
     try{
       const snap=await getDoc(doc(db,"utilizadores",user.uid));
-      if(!snap.exists())return;
+      if(!snap.exists()){mostrarEcra("ecra-entrada");esconderLoading();return;}
       const dados=snap.data();
-      if(dados.perfil!=="funcionario")return;
+      if(dados.perfil!=="funcionario"){mostrarEcra("ecra-entrada");esconderLoading();return;}
       if(dados.funcionarioId){
         try{const sf=await getDoc(doc(db,"funcionarios",dados.funcionarioId));if(sf.exists()){_funcDoc=sf.data();_funcDocId=sf.id;}}catch(ef){console.warn(ef);}
       }
@@ -694,7 +697,8 @@
         }catch(ef2){console.warn(ef2);}
       }
       mostrarPortal(user,dados);
-    }catch(e){console.error(e);}
+      esconderLoading();
+    }catch(e){console.error(e);mostrarEcra("ecra-entrada");esconderLoading();}
   });
 
   window.mostrarEcra=function(id){document.querySelectorAll(".ecra").forEach(e=>e.classList.remove("activo"));document.getElementById(id).classList.add("activo");};
