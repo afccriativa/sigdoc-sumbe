@@ -380,8 +380,19 @@
     <!-- Preview -->
     <div class="preview-card" id="preview-card">
       <div class="preview-header">
-        <div class="preview-header-titulo">📄 Pré-visualização do Documento</div>
-        <button class="btn-imprimir" onclick="imprimirDocumento()">🖨 Imprimir</button>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="preview-header-titulo">📄 Pré-visualização do Documento</div>
+          <span id="badge-arquivo" style="display:none;font-size:10px;font-weight:700;
+            background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:20px;
+            border:1px solid #6ee7b7">✅ Arquivado</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-imprimir" id="btn-segunda-via" onclick="imprimirSegundaVia()"
+            style="display:none;background:#4f46e5">
+            📋 Segunda Via
+          </button>
+          <button class="btn-imprimir" onclick="imprimirDocumento()">🖨 Imprimir</button>
+        </div>
       </div>
       <div class="preview-scroll">
         <div class="doc-wrapper-centro">
@@ -436,11 +447,22 @@
   import { getFirestore, collection, query, orderBy, where,
            onSnapshot, getDocs, doc, updateDoc, getDoc, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
   const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+  const storage = getStorage(app);
 
-  let todosDocumentos=[],filtroActual="pendente",docSel=null,utilizadorActual=null;
+  let todosDocumentos=[],filtroActual="pendente",docSel=null,utilizadorActual=null,_perfilActual=null;
+
+  // Guarda de perfil — bloqueia funções críticas se o perfil não tiver permissão.
+  // O Firestore bloqueia a escrita de qualquer forma, mas esta guarda
+  // impede que a função sequer tente, evitando erros confusos.
+  function _exigirPerfil(perfisPermitidos) {
+    if (!utilizadorActual) return false;
+    return perfisPermitidos.includes(_perfilActual);
+  }
+
   let todasSolicitacoes=[],filtroSolActual="nova",solSel=null;
 
   const TIPOS_SOL={"guia-ferias":{nome:"Guia de Férias",icone:"🏖️"},"declaracao-servico":{nome:"Declaração de Serviço",icone:"📜"},"guia-medica":{nome:"Guia Médica",icone:"🏥"},"oficio":{nome:"Ofício / Nota",icone:"📋"}};
@@ -458,7 +480,7 @@
       if(snap.exists()){
         const d = snap.data();
         if(d.nome) nome = d.nome;
-        if(d.perfil) perfil = d.perfil;
+        if(d.perfil) { perfil = d.perfil; _perfilActual = d.perfil; }
       }
     }catch(e){ console.warn("Perfil não encontrado, usando padrão.", e); }
 
@@ -543,9 +565,36 @@
       {l:"Local",v:d.localColocacao||"—"},{l:"Dias de Férias",v:(d.numDias||"—")+" dias úteis"},
       {l:"Início das Férias",v:fmtData(d.dataInicio)},{l:"Data de Emissão",v:fmtData(d.dataEmissao)},
     ].map(x=>`<div class="dado-item"><div class="dado-label">${x.l}</div><div class="dado-valor">${x.v}</div></div>`).join("");
-    const htmlDoc=d.htmlConteudo||reconstruirHtml(d);
-    document.getElementById("preview-doc-html").innerHTML=htmlDoc;
-    document.getElementById("area-impressao").innerHTML=htmlDoc;
+
+    // ── ARQUIVO: carregar HTML guardado no Storage se disponível ──
+    const badgeArq  = document.getElementById("badge-arquivo");
+    const btnSegVia = document.getElementById("btn-segunda-via");
+    badgeArq.style.display  = "none";
+    btnSegVia.style.display = "none";
+
+    if (d.htmlArquivoUrl) {
+      // Documento tem arquivo — carregar HTML fiel do Storage
+      badgeArq.style.display  = "inline-flex";
+      btnSegVia.style.display = "inline-block";
+      fetch(d.htmlArquivoUrl)
+        .then(r => r.text())
+        .then(html => {
+          document.getElementById("preview-doc-html").innerHTML = html;
+          document.getElementById("area-impressao").innerHTML   = html;
+        })
+        .catch(() => {
+          // Se fetch falhar (ex: Storage offline), cair para reconstituição
+          const htmlDoc = reconstruirHtml(d);
+          document.getElementById("preview-doc-html").innerHTML = htmlDoc;
+          document.getElementById("area-impressao").innerHTML   = htmlDoc;
+        });
+    } else {
+      // Documento sem arquivo — usar reconstituição a partir dos metadados
+      const htmlDoc = d.htmlConteudo || reconstruirHtml(d);
+      document.getElementById("preview-doc-html").innerHTML = htmlDoc;
+      document.getElementById("area-impressao").innerHTML   = htmlDoc;
+    }
+
     // reset accao
     const campoR=document.getElementById("campo-rejeicao");
     const estadoF=document.getElementById("estado-final");
@@ -574,6 +623,24 @@
     document.getElementById("accao-card").style.display="block";
   };
 
+  // Imprimir a partir do HTML arquivado
+  window.imprimirSegundaVia = function() {
+    if (!docSel) return;
+    const html = document.getElementById("area-impressao").innerHTML;
+    if (!html) { notif("❌ Documento não disponível.","err"); return; }
+    // Abrir nova janela com o HTML fiel + estilos de impressão
+    const win = window.open("", "_blank");
+    win.document.write(`<!DOCTYPE html><html><head>
+      <meta charset="UTF-8">
+      <title>Segunda Via — ${document.getElementById("detalhe-titulo").textContent}</title>
+      <style>
+        body{margin:0;padding:0;font-family:Arial,sans-serif}
+        @media print{@page{size:A4 landscape;margin:0}}
+      </style>
+    </head><body>${html}<script>window.onload=function(){window.print();window.close();}<\/script></body></html>`);
+    win.document.close();
+  };
+
   function limparDetalhe(){
     docSel=null;
     document.getElementById("placeholder-detalhe").style.display="flex";
@@ -590,6 +657,7 @@
 
   window.aprovarDocumento=async function(){
     if(!docSel||!utilizadorActual)return;
+    if(!_exigirPerfil(["admin","chefe","director"])){console.warn("Acesso negado: aprovar");return;}
     const bA=document.getElementById("btn-aprovar"),bR=document.getElementById("btn-rejeitar");
     bA.disabled=true; bR.disabled=true;
     bA.innerHTML='<span class="spinner"></span> A aprovar...';
@@ -714,6 +782,7 @@
   }
 
   window.processarSol=async function(){
+    if(!_exigirPerfil(["admin","chefe","director"])){console.warn("Acesso negado: processarSol");return;}
     if(!solSel)return;
     try{
       await updateDoc(doc(db,"solicitacoes",solSel.id),{estado:"processando",processadoPor:utilizadorActual.uid,processadoPorEmail:utilizadorActual.email,processadoEm:serverTimestamp()});
@@ -728,6 +797,7 @@
   };
 
   window.concluirSol=async function(){
+    if(!_exigirPerfil(["admin","chefe","director"])){console.warn("Acesso negado: concluirSol");return;}
     if(!solSel)return;
     try{
       await updateDoc(doc(db,"solicitacoes",solSel.id),{estado:"concluida",concluidoPor:utilizadorActual.uid,concluidoPorEmail:utilizadorActual.email,concluidoEm:serverTimestamp()});
