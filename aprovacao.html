@@ -7,6 +7,7 @@
   <meta name="theme-color" content="#0b4f3a"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="sigdoc-nav.js"></script>
   <style>
     :root {
       --c-900:#052e1c;--c-800:#0b4f3a;--c-700:#0d6e4f;--c-600:#12a372;--c-500:#10c886;
@@ -293,7 +294,6 @@
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <a href="index.html" class="btn-voltar">← Painel</a>
   <div class="topbar-titulo">
     Aprovação e Solicitações
     <span>Módulo de Chefe de Secção — SIGDOC-SUMBE</span>
@@ -433,7 +433,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getFirestore, collection, query, orderBy, where,
-           onSnapshot, getDocs, doc, updateDoc, serverTimestamp }
+           onSnapshot, getDocs, doc, updateDoc, getDoc, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig={apiKey:"AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",authDomain:"sigdoc-sumbe.firebaseapp.com",projectId:"sigdoc-sumbe",storageBucket:"sigdoc-sumbe.firebasestorage.app",messagingSenderId:"323467521938",appId:"1:323467521938:web:1e8170bfd3961784241b4b"};
@@ -445,9 +445,34 @@
   const TIPOS_SOL={"guia-ferias":{nome:"Guia de Férias",icone:"🏖️"},"declaracao-servico":{nome:"Declaração de Serviço",icone:"📜"},"guia-medica":{nome:"Guia Médica",icone:"🏥"},"oficio":{nome:"Ofício / Nota",icone:"📋"}};
   const ESTADOS_SOL={nova:{txt:"🆕 Nova",cls:"b-nova"},processando:{txt:"🔄 A processar",cls:"b-proc"},concluida:{txt:"✅ Concluída",cls:"b-conc"},rejeitada:{txt:"❌ Rejeitada",cls:"b-rej"}};
 
-  onAuthStateChanged(auth,u=>{
+  onAuthStateChanged(auth, async u=>{
     if(!u){window.location.href="index.html";return;}
     utilizadorActual=u;
+
+    // Buscar perfil do utilizador no Firestore
+    let nome = u.displayName || u.email || "Utilizador";
+    let perfil = "chefe";
+    try{
+      const snap = await getDoc(doc(db,"utilizadores",u.uid));
+      if(snap.exists()){
+        const d = snap.data();
+        if(d.nome) nome = d.nome;
+        if(d.perfil) perfil = d.perfil;
+      }
+    }catch(e){ console.warn("Perfil não encontrado, usando padrão.", e); }
+
+    // Montar navegação lateral
+    SIGDOC_NAV.mount({
+      pagina: "aprovacoes",
+      nome,
+      perfil,
+      onLogout: async () => {
+        const { signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
+        await signOut(auth);
+        window.location.href = "index.html";
+      }
+    });
+
     subscreverDocumentos();
   });
 
@@ -471,6 +496,8 @@
     const b=document.getElementById("badge-pend");
     if(pend>0){b.textContent=pend+(pend===1?" pendente":" pendentes");b.style.display="block";}
     else b.style.display="none";
+    // Actualizar badge da sidebar
+    if(window.SIGDOC_NAV) SIGDOC_NAV.setBadges({ aprovacoes: pend });
   }
 
   window.filtrar=function(estado){
