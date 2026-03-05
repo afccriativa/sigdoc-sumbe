@@ -19,7 +19,7 @@ window.SIGDOC_NAV = (function () {
         { id: 'index',       icon: '📊', texto: 'Dashboard',    href: 'index.html',       perfis: ['admin','director','chefe','tecnico','funcionario'] },
         { id: 'cadastro',    icon: '👤', texto: 'Cadastro',     href: 'cadastro.html',    perfis: ['admin','director','chefe','tecnico'] },
         { id: 'portal',      icon: '📄', texto: 'Documentos',   href: 'portal.html',      perfis: ['admin','director','chefe','tecnico','funcionario'] },
-        { id: 'aprovacoes',  icon: '✅', texto: 'Aprovações',   href: 'aprovacoes.html',  perfis: ['admin','director','chefe'] },
+        { id: 'aprovacoes',  icon: '✅', texto: 'Aprovações',   href: 'aprovacao.html',  perfis: ['admin','director','chefe'] },
       ]
     },
     {
@@ -490,7 +490,7 @@ window.SIGDOC_NAV = (function () {
       'index'       → index.html        (Dashboard)
       'cadastro'    → cadastro.html     (Cadastro)
       'portal'      → portal.html       (Documentos)
-      'aprovacoes'  → aprovacoes.html   (Aprovações)
+      'aprovacoes'  → aprovacao.html    (Aprovações)
       'auditoria'   → auditoria.html    (Auditoria)
       'painel'      → painel.html       (Painel RH)
       'utilizadores'→ index.html        (Utilizadores)
