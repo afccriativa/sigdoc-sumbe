@@ -234,6 +234,8 @@
     .badge-REJEITAR{background:var(--red-dim);color:var(--red)}
     .badge-LOGIN{background:var(--purple-dim);color:var(--purple)}
     .badge-LOGOUT{background:rgba(255,255,255,.07);color:var(--txt-muted)}
+    .badge-VER_FICHA{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3)}
+    .badge-VER_DOCUMENTO{background:rgba(245,158,11,.12);color:#d97706;border:1px solid rgba(245,158,11,.25)}
 
     .doc-tipo{font-size:12px;color:var(--txt)}
     .doc-secundario{font-size:11px;color:var(--txt-muted);margin-top:2px}
@@ -491,6 +493,11 @@
         <div class="ind-num" id="ind-logins">—</div>
         <div class="ind-label">Sessões Iniciadas</div>
       </div>
+      <div class="ind-card">
+        <div class="ind-icone" style="background:rgba(245,158,11,.15)">👁️</div>
+        <div class="ind-num" id="ind-leituras">—</div>
+        <div class="ind-label">Consultas de Dados</div>
+      </div>
     </div>
 
     <!-- FILTROS -->
@@ -518,6 +525,8 @@
             <option value="REJEITAR">❌ Rejeitar</option>
             <option value="LOGIN">🔑 Login</option>
             <option value="LOGOUT">🚪 Logout</option>
+            <option value="VER_FICHA">👁️ Consulta de Ficha</option>
+            <option value="VER_DOCUMENTO">📋 Consulta de Documento</option>
           </select>
         </div>
         <div class="filtro-campo" style="display:flex;flex-direction:column;justify-content:flex-end;">
@@ -725,13 +734,15 @@
   window.carregarTudo = async function() {
     mostrarNotif("A carregar dados…", "notif-info");
     try {
-      const [eventosDocumentos, eventosSessoes] = await Promise.all([
+      const [eventosDocumentos, eventosSessoes, eventosAuditoria] = await Promise.all([
         carregarEventosDocumentos(),
-        carregarEventosSessoes()
+        carregarEventosSessoes(),
+        carregarEventosAuditoria()
       ]);
 
       // Juntar e ordenar por data (mais recente primeiro)
-      _todosEventos = [...eventosDocumentos, ...eventosSessoes].sort((a, b) => b.timestamp - a.timestamp);
+      _todosEventos = [...eventosDocumentos, ...eventosSessoes, ...eventosAuditoria]
+        .sort((a, b) => b.timestamp - a.timestamp);
       _eventosFiltrados = [..._todosEventos];
 
       popularFiltroEmail();
@@ -837,6 +848,39 @@
     return eventos;
   }
 
+  // ── EVENTOS DA COLECÇÃO "auditoria" (leituras de fichas e documentos) ──
+  async function carregarEventosAuditoria() {
+    const eventos = [];
+    try {
+      const snap = await getDocs(
+        query(collection(db, "auditoria"), orderBy("timestamp", "desc"), limit(500))
+      );
+      snap.forEach(d => {
+        const e = d.data();
+        const ts = toDate(e.timestamp);
+        eventos.push({
+          id:                d.id,
+          timestamp:         ts,
+          accao:             e.accao || "VER_FICHA",
+          emailUtilizador:   e.emailUtilizador || "—",
+          nomeUtilizador:    e.nomeUtilizador  || "—",
+          perfilUtilizador:  e.perfilUtilizador || "—",
+          tipoDocumento:     e.tipoDocumento   || "—",
+          funcionarioVisado: e.funcionarioVisado || "—",
+          referencia:        e.referencia       || "",
+          observacao:        e.observacao       || "",
+          camposAcedidos:    e.camposAcedidos   || [],
+          docId:             e.docId            || "",
+          estadoDocumento:   e.estadoDocumento  || ""
+        });
+      });
+    } catch(e) {
+      // A coleção pode ainda não existir (sem registos ainda) — não é erro
+      if (e.code !== "not-found") console.warn("Auditoria:", e);
+    }
+    return eventos;
+  }
+
   // ── MAPEAMENTO DE TIPOS DE DOCUMENTO ──
   const etiquetasTipoDoc = {
     "guia-ferias": "Guia de Férias",
@@ -881,15 +925,15 @@
   }
 
   function corAccao(accao) {
-    return { GERAR:"#3b82f6", APROVAR:"#10c886", REJEITAR:"#ef4444", LOGIN:"#a78bfa", LOGOUT:"#6b7280" }[accao] || "#888";
+    return { GERAR:"#3b82f6", APROVAR:"#10c886", REJEITAR:"#ef4444", LOGIN:"#a78bfa", LOGOUT:"#6b7280", VER_FICHA:"#f59e0b", VER_DOCUMENTO:"#d97706" }[accao] || "#888";
   }
 
   function emojiAccao(accao) {
-    return { GERAR:"📄", APROVAR:"✅", REJEITAR:"❌", LOGIN:"🔑", LOGOUT:"🚪" }[accao] || "📋";
+    return { GERAR:"📄", APROVAR:"✅", REJEITAR:"❌", LOGIN:"🔑", LOGOUT:"🚪", VER_FICHA:"👁️", VER_DOCUMENTO:"📋" }[accao] || "📋";
   }
 
   function labelAccao(accao) {
-    return { GERAR:"📄 Gerar", APROVAR:"✅ Aprovar", REJEITAR:"❌ Rejeitar", LOGIN:"🔑 Login", LOGOUT:"🚪 Logout" }[accao] || accao;
+    return { GERAR:"📄 Gerar", APROVAR:"✅ Aprovar", REJEITAR:"❌ Rejeitar", LOGIN:"🔑 Login", LOGOUT:"🚪 Logout", VER_FICHA:"👁️ Ver Ficha", VER_DOCUMENTO:"📋 Ver Documento" }[accao] || accao;
   }
 
   function iniciaisNome(nome) {
@@ -917,6 +961,8 @@
     document.getElementById("ind-aprovados").textContent = eventos.filter(e => e.accao === "APROVAR").length;
     document.getElementById("ind-rejeicoes").textContent = eventos.filter(e => e.accao === "REJEITAR").length;
     document.getElementById("ind-logins").textContent = eventos.filter(e => e.accao === "LOGIN").length;
+    document.getElementById("ind-leituras").textContent =
+      eventos.filter(e => e.accao === "VER_FICHA" || e.accao === "VER_DOCUMENTO").length;
   }
 
   // ── PAGINAÇÃO ──
