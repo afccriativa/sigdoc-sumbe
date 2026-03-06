@@ -17,9 +17,9 @@ window.SIGDOC_NAV = (function () {
       label: 'PRINCIPAL',
       itens: [
         { id: 'index',       icon: '📊', texto: 'Dashboard',    href: 'index.html',       perfis: ['admin','director','chefe','tecnico','funcionario'] },
-        { id: 'cadastro',    icon: '👤', texto: 'Cadastro',     href: 'cadastro.html',    perfis: ['admin','director','chefe','tecnico'] },
-        { id: 'documentos',  icon: '📄', texto: 'Documentos',   href: 'documentos.html',  perfis: ['admin','director','chefe','tecnico','funcionario'] },
-        { id: 'aprovacoes',  icon: '✅', texto: 'Aprovações',   href: 'aprovacao.html',  perfis: ['admin','director','chefe'] },
+        { id: 'cadastro',    icon: '👤', texto: 'Cadastro',     href: 'cadastro.html',    perfis: ['admin','chefe','tecnico'] },
+        { id: 'documentos',  icon: '📄', texto: 'Documentos',   href: 'documentos.html',  perfis: ['admin','chefe','tecnico'] },
+        { id: 'aprovacoes',  icon: '✅', texto: 'Aprovações',   href: 'aprovacao.html',   perfis: ['admin','director','chefe'] },
       ]
     },
     {
