@@ -445,13 +445,32 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getFirestore, collection, query, orderBy, where,
-           onSnapshot, getDocs, doc, updateDoc, getDoc, serverTimestamp }
+           onSnapshot, getDocs, doc, updateDoc, getDoc, addDoc, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
   const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 
   let todosDocumentos=[],filtroActual="pendente",docSel=null,utilizadorActual=null,_perfilActual=null;
+
+  // ── AUDITORIA DE LEITURAS ──
+  async function registarLeitura(accao, dados) {
+    try {
+      const u = utilizadorActual;
+      if (!u) return;
+      const snapU = await getDoc(doc(db, "utilizadores", u.uid));
+      const du = snapU.exists() ? snapU.data() : {};
+      await addDoc(collection(db, "auditoria"), {
+        timestamp:        serverTimestamp(),
+        accao,
+        emailUtilizador:  u.email || "—",
+        nomeUtilizador:   du.nome || u.email || "—",
+        perfilUtilizador: du.perfil || "—",
+        uidUtilizador:    u.uid,
+        ...dados
+      });
+    } catch(e) { console.warn("Auditoria de leitura falhou:", e); }
+  }
 
   // Guarda de perfil — bloqueia funções críticas se o perfil não tiver permissão.
   // O Firestore bloqueia a escrita de qualquer forma, mas esta guarda
@@ -556,6 +575,17 @@
   window.selDoc=function(d){
     docSel=d; renderizarLista();
     const numDoc=d.numGuia&&d.anoGuia?`Guia de Férias nº ${d.numGuia}/${d.anoGuia}`:"Guia de Férias";
+
+    // Registar leitura do documento
+    registarLeitura("VER_DOCUMENTO", {
+      funcionarioVisado: d.funcionarioNome || "—",
+      funcionarioId:     d.funcionarioId   || "—",
+      tipoDocumento:     d.tipo            || "—",
+      referencia:        numDoc,
+      observacao:        `Documento ${numDoc} de ${d.funcionarioNome||"—"} consultado no painel de aprovações.`,
+      docId:             d.id,
+      estadoDocumento:   d.estado          || "—"
+    });
     document.getElementById("detalhe-titulo").textContent=numDoc+" — "+(d.funcionarioNome||"—");
     document.getElementById("detalhe-meta").innerHTML=`<span>📅 Gerado em: <strong>${fmtTs(d.geradoEm)}</strong></span><span>👤 Por: <strong>${d.geradoPorEmail||"—"}</strong></span>`;
     document.getElementById("dados-grid").innerHTML=[
