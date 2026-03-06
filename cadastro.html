@@ -1060,8 +1060,39 @@
     finally{btn.disabled=false;btn.innerHTML="💾 Guardar Funcionário";}
   };
 
+  // ── AUDITORIA DE LEITURAS ──
+  // Regista na colecção 'auditoria' sempre que alguém abre uma ficha ou documento.
+  // Fire-and-forget — não bloqueia o fluxo principal em caso de falha.
+  async function registarLeitura(accao, dados) {
+    try {
+      const u = utilizadorActual;
+      if (!u) return;
+      const snapU = await getDoc(doc(db, "utilizadores", u.uid));
+      const du = snapU.exists() ? snapU.data() : {};
+      await addDoc(collection(db, "auditoria"), {
+        timestamp:          serverTimestamp(),
+        accao,
+        emailUtilizador:    u.email || "—",
+        nomeUtilizador:     du.nome || u.email || "—",
+        perfilUtilizador:   du.perfil || "—",
+        uidUtilizador:      u.uid,
+        ...dados
+      });
+    } catch(e) { console.warn("Auditoria de leitura falhou:", e); }
+  }
+
   window.verFicha=function(id){
     const f=todosOsFuncionarios.find(x=>x.id===id);if(!f)return;
+
+    // Registar leitura — dados mínimos que identificam o acesso
+    registarLeitura("VER_FICHA", {
+      funcionarioVisado: f.nome || "—",
+      funcionarioId:     id,
+      referencia:        "Agente Nº " + (f.numero || "—"),
+      observacao:        `Ficha de ${f.nome||"—"} (BI: ${f.bi||"—"}, ${f.categoria||"—"}) consultada.`,
+      camposAcedidos:    ["nome","bi","nascimento","nomePai","nomeMae","morada","estadoCivil","categoria","vinculo"]
+    });
+
     const anos=calcularAnos(f.admissao), dias=calcularDias(anos);
     document.getElementById("ficha-avatar").textContent=(f.nome||"?")[0].toUpperCase();
     document.getElementById("ficha-nome").textContent=f.nome||"—";
