@@ -1121,6 +1121,22 @@
       if(el) el.style.display = vis.includes(id) ? "" : "none";
     });
 
+    // Controlar os cards do dashboard com a mesma matriz —
+    // cada card tem id = sidebar_id + "-card"
+    // O admin vê tudo, os outros só os seus módulos
+    const acessoCards = {
+      admin:       ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-auditoria-card","mod-painel-card"],
+      chefe:       ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-auditoria-card"],
+      tecnico:     ["mod-cadastro-card","mod-documentos-card"],
+      director:    ["mod-aprovacao-card","mod-auditoria-card","mod-painel-card"],
+      funcionario: []
+    };
+    const visCards = acessoCards[p] || [];
+    ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-auditoria-card","mod-painel-card"].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.display = visCards.includes(id) ? "" : "none";
+    });
+
     // Activar notificações em tempo real para quem pode aprovar
     if (["admin","chefe","director"].includes(p)) {
       iniciarWatcherPendentes();
