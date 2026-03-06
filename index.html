@@ -570,7 +570,83 @@
       .modulos-grid{grid-template-columns:1fr}
       .login-card{padding:32px 24px}
     }
-  </style>
+  
+    /* ═══ PESQUISA GLOBAL ═══ */
+    .sp-overlay {
+      display: none; position: fixed; inset: 0; z-index: 9000;
+      background: rgba(0,0,0,.6); backdrop-filter: blur(6px);
+      align-items: flex-start; justify-content: center;
+      padding-top: 80px;
+    }
+    .sp-overlay.activo { display: flex; }
+    .sp-caixa {
+      background: #1e293b; border: 1px solid rgba(255,255,255,.1);
+      border-radius: 16px; width: 100%; max-width: 640px;
+      box-shadow: 0 24px 60px rgba(0,0,0,.5);
+      overflow: hidden; display: flex; flex-direction: column;
+      max-height: calc(100vh - 120px);
+    }
+    .sp-topo {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,.07);
+      flex-shrink: 0;
+    }
+    .sp-topo-ic { font-size: 16px; opacity: .5; }
+    .sp-input {
+      flex: 1; background: none; border: none; outline: none;
+      color: #fff; font-size: 16px; font-family: var(--font);
+    }
+    .sp-input::placeholder { color: rgba(255,255,255,.3); }
+    .sp-kbd {
+      font-size: 10px; color: rgba(255,255,255,.25); padding: 3px 7px;
+      border: 1px solid rgba(255,255,255,.12); border-radius: 5px;
+      cursor: pointer; font-family: var(--mono);
+    }
+    .sp-kbd:hover { color: rgba(255,255,255,.5); }
+    .sp-resultados { overflow-y: auto; flex: 1; }
+    .sp-grupo-titulo {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.2px; color: rgba(255,255,255,.25);
+      padding: 12px 20px 6px;
+    }
+    .sp-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 11px 20px; cursor: pointer;
+      transition: background .12s; border-radius: 0;
+    }
+    .sp-item:hover, .sp-item.foco { background: rgba(255,255,255,.07); }
+    .sp-item-ic {
+      width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+    .sp-ic-func   { background: rgba(16,200,134,.15); }
+    .sp-ic-doc    { background: rgba(37,99,235,.15); }
+    .sp-ic-sol    { background: rgba(245,158,11,.15); }
+    .sp-ic-util   { background: rgba(139,92,246,.15); }
+    .sp-item-nome { font-size: 14px; font-weight: 600; color: #fff; }
+    .sp-item-sub  { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 1px; }
+    .sp-item-badge {
+      margin-left: auto; font-size: 11px; font-weight: 700;
+      padding: 2px 9px; border-radius: 20px; flex-shrink: 0;
+    }
+    .sp-vazio {
+      text-align: center; padding: 40px 20px;
+      color: rgba(255,255,255,.3); font-size: 14px;
+    }
+    .sp-rodape {
+      display: flex; gap: 16px; padding: 10px 20px;
+      border-top: 1px solid rgba(255,255,255,.07);
+      font-size: 11px; color: rgba(255,255,255,.25); flex-shrink: 0;
+    }
+    .sp-rodape kbd {
+      display: inline-block; padding: 2px 6px;
+      border: 1px solid rgba(255,255,255,.15); border-radius: 4px;
+      font-family: var(--mono); margin-right: 4px; font-size: 10px;
+    }
+    .sp-highlight { color: var(--c-500); font-weight: 700; }
+    .sp-carregando { text-align: center; padding: 24px; color: rgba(255,255,255,.3); font-size: 13px; }
+</style>
   <script src="sigdoc-config.js"></script>
 </head>
 <body>
@@ -677,9 +753,10 @@
       <div class="topbar-marca">
         <div class="topbar-nome" id="topbar-titulo">Dashboard</div>
       </div>
-      <div class="topbar-search">
+      <div class="topbar-search" onclick="abrirPesquisa()" id="topbar-search-bar">
         <span class="topbar-search-ic">🔍</span>
-        <input type="text" placeholder="Pesquisar funcionários, documentos…"/>
+        <input type="text" id="topbar-search-input" placeholder="Pesquisar funcionários, documentos… (/ )" readonly
+               style="cursor:pointer"/>
       </div>
       <div class="topbar-direita">
         <div class="topbar-notif" id="sino-btn" onclick="toggleDropdownNotif(event)">
@@ -1435,6 +1512,254 @@
       a.toLocaleDateString("pt-AO",{weekday:"long",day:"2-digit",month:"long",year:"numeric"})+" · "+
       a.toLocaleTimeString("pt-AO",{hour:"2-digit",minute:"2-digit"});
   }
+
+  // ══════════════════════════════════════════════════════════
+  //  PESQUISA GLOBAL — busca real no Firestore
+  // ══════════════════════════════════════════════════════════
+
+  let _spTimer = null;
+  let _spFocoIdx = -1;
+
+  // Atalho de teclado: / para abrir, Esc para fechar
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
+      e.preventDefault();
+      abrirPesquisa();
+    }
+    if (e.key === 'Escape') fecharPesquisa();
+  });
+
+  window.abrirPesquisa = function() {
+    document.getElementById('sp-overlay').classList.add('activo');
+    const inp = document.getElementById('sp-input');
+    inp.value = '';
+    inp.focus();
+    _spFocoIdx = -1;
+    mostrarEstadoInicial();
+  };
+
+  window.fecharPesquisa = function() {
+    document.getElementById('sp-overlay').classList.remove('activo');
+  };
+
+  function mostrarEstadoInicial() {
+    document.getElementById('sp-resultados').innerHTML =
+      `<div class="sp-vazio" id="sp-estado-inicial">
+        <div style="font-size:32px;margin-bottom:8px">🔍</div>
+        Escreva para pesquisar em <strong style="color:rgba(255,255,255,.5)">funcionários</strong>,
+        <strong style="color:rgba(255,255,255,.5)">documentos</strong> e
+        <strong style="color:rgba(255,255,255,.5)">solicitações</strong>
+      </div>`;
+  }
+
+  window.pesquisarGlobal = function(termo) {
+    clearTimeout(_spTimer);
+    const t = (termo || '').trim().toLowerCase();
+    if (!t) { mostrarEstadoInicial(); return; }
+    if (t.length < 2) return;
+    document.getElementById('sp-resultados').innerHTML =
+      '<div class="sp-carregando">⏳ A pesquisar…</div>';
+    _spTimer = setTimeout(() => executarPesquisa(t), 280);
+  };
+
+  async function executarPesquisa(termo) {
+    const resultados = { funcionarios: [], documentos: [], solicitacoes: [] };
+
+    try {
+      // ── Funcionários: pesquisa local por nome, número, BI, unidade, categoria ──
+      const snapF = await getDocs(collection(db, 'funcionarios'));
+      snapF.forEach(d => {
+        const f = d.data();
+        const campos = [f.nome, f.numero, f.bi, f.unidade, f.categoria, f.email].join(' ').toLowerCase();
+        if (campos.includes(termo)) resultados.funcionarios.push({ id: d.id, ...f });
+      });
+    } catch(e) { console.warn('Pesquisa funcionarios:', e); }
+
+    try {
+      // ── Documentos: pesquisa por tipo, referência, nome do funcionário, estado ──
+      const snapD = await getDocs(collection(db, 'documentos'));
+      snapD.forEach(d => {
+        const doc = d.data();
+        const campos = [doc.tipo, doc.referencia, doc.nomeFuncionario, doc.estado, doc.unidade].join(' ').toLowerCase();
+        if (campos.includes(termo)) resultados.documentos.push({ id: d.id, ...doc });
+      });
+    } catch(e) { console.warn('Pesquisa documentos:', e); }
+
+    try {
+      // ── Solicitações: pesquisa por tipo, estado, nome ──
+      const snapS = await getDocs(collection(db, 'solicitacoes'));
+      snapS.forEach(d => {
+        const s = d.data();
+        const campos = [s.tipo, s.estado, s.nomeFuncionario, s.numero].join(' ').toLowerCase();
+        if (campos.includes(termo)) resultados.solicitacoes.push({ id: d.id, ...s });
+      });
+    } catch(e) { console.warn('Pesquisa solicitacoes:', e); }
+
+    renderResultados(resultados, termo);
+  }
+
+  function highlight(texto, termo) {
+    if (!texto || !termo) return texto || '—';
+    const re = new RegExp('(' + termo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    return String(texto).replace(re, '<span class="sp-highlight">$1</span>');
+  }
+
+  function renderResultados(res, termo) {
+    const total = res.funcionarios.length + res.documentos.length + res.solicitacoes.length;
+    const el = document.getElementById('sp-resultados');
+
+    if (total === 0) {
+      el.innerHTML = `<div class="sp-vazio">
+        <div style="font-size:32px;margin-bottom:8px">😶</div>
+        Sem resultados para <strong style="color:rgba(255,255,255,.5)">"${termo}"</strong>
+      </div>`;
+      return;
+    }
+
+    let html = '';
+
+    if (res.funcionarios.length) {
+      html += `<div class="sp-grupo-titulo">👨‍💼 Funcionários (${res.funcionarios.length})</div>`;
+      res.funcionarios.slice(0, 6).forEach(f => {
+        const sub = [f.categoria, f.unidade, f.numero ? 'Nº '+f.numero : ''].filter(Boolean).join(' · ');
+        const est = f.estado === 'activo'
+          ? `<span class="sp-item-badge" style="background:rgba(16,200,134,.15);color:var(--c-500)">Activo</span>`
+          : `<span class="sp-item-badge" style="background:rgba(148,163,184,.1);color:var(--neu-400)">${f.estado||'—'}</span>`;
+        html += `<div class="sp-item" onclick="abrirFicha('${f.id}','funcionario')" data-sp-item>
+          <div class="sp-item-ic sp-ic-func">👨‍💼</div>
+          <div>
+            <div class="sp-item-nome">${highlight(f.nome, termo)}</div>
+            <div class="sp-item-sub">${highlight(sub, termo)}</div>
+          </div>
+          ${est}
+        </div>`;
+      });
+    }
+
+    if (res.documentos.length) {
+      html += `<div class="sp-grupo-titulo">📄 Documentos (${res.documentos.length})</div>`;
+      res.documentos.slice(0, 6).forEach(d => {
+        const sub = [d.nomeFuncionario, d.referencia ? 'Ref: '+d.referencia : ''].filter(Boolean).join(' · ');
+        const estadoCor = {
+          'aprovado':'rgba(16,200,134,.15);color:var(--c-500)',
+          'pendente':'rgba(245,158,11,.15);color:var(--a-500)',
+          'rejeitado':'rgba(220,38,38,.15);color:var(--r-600)',
+          'processando':'rgba(37,99,235,.15);color:#60a5fa'
+        }[d.estado] || 'rgba(148,163,184,.1);color:var(--neu-400)';
+        html += `<div class="sp-item" onclick="abrirFicha('${d.id}','documento')" data-sp-item>
+          <div class="sp-item-ic sp-ic-doc">📄</div>
+          <div>
+            <div class="sp-item-nome">${highlight(d.tipo||d.referencia||'Documento', termo)}</div>
+            <div class="sp-item-sub">${highlight(sub, termo)}</div>
+          </div>
+          <span class="sp-item-badge" style="background:${estadoCor}">${d.estado||'—'}</span>
+        </div>`;
+      });
+    }
+
+    if (res.solicitacoes.length) {
+      html += `<div class="sp-grupo-titulo">📋 Solicitações (${res.solicitacoes.length})</div>`;
+      res.solicitacoes.slice(0, 6).forEach(s => {
+        const sub = [s.nomeFuncionario, s.numero ? 'Nº '+s.numero : ''].filter(Boolean).join(' · ');
+        const estadoCor = {
+          'aprovado':'rgba(16,200,134,.15);color:var(--c-500)',
+          'pendente':'rgba(245,158,11,.15);color:var(--a-500)',
+          'nova':'rgba(37,99,235,.15);color:#60a5fa',
+          'rejeitado':'rgba(220,38,38,.15);color:var(--r-600)'
+        }[s.estado] || 'rgba(148,163,184,.1);color:var(--neu-400)';
+        html += `<div class="sp-item" onclick="abrirFicha('${s.id}','solicitacao')" data-sp-item>
+          <div class="sp-item-ic sp-ic-sol">📋</div>
+          <div>
+            <div class="sp-item-nome">${highlight(s.tipo||'Solicitação', termo)}</div>
+            <div class="sp-item-sub">${highlight(sub, termo)}</div>
+          </div>
+          <span class="sp-item-badge" style="background:${estadoCor}">${s.estado||'—'}</span>
+        </div>`;
+      });
+    }
+
+    el.innerHTML = html;
+    _spFocoIdx = -1;
+  }
+
+  // Navegação por teclado nos resultados
+  window.navegarResultados = function(e) {
+    const items = document.querySelectorAll('[data-sp-item]');
+    if (!items.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      _spFocoIdx = Math.min(_spFocoIdx + 1, items.length - 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      _spFocoIdx = Math.max(_spFocoIdx - 1, 0);
+    } else if (e.key === 'Enter' && _spFocoIdx >= 0) {
+      e.preventDefault();
+      items[_spFocoIdx]?.click();
+      return;
+    } else { return; }
+    items.forEach((el, i) => el.classList.toggle('foco', i === _spFocoIdx));
+    items[_spFocoIdx]?.scrollIntoView({ block: 'nearest' });
+  };
+
+  // Abrir ficha do resultado seleccionado
+  window.abrirFicha = async function(id, tipo) {
+    fecharPesquisa();
+    if (tipo === 'funcionario') {
+      // Navegar para secção utilizadores e abrir perfil
+      mostrarSecção('utilizadores');
+      await carregarUtilizadores();
+      // Tentar abrir o modal de perfil se existir
+      if (typeof abrirModalPerfil === 'function') {
+        try {
+          const snap = await getDoc(doc(db, 'funcionarios', id));
+          if (snap.exists()) abrirModalPerfil(id, snap.data());
+        } catch(e) {}
+      } else {
+        mostrarNotif('📌 A mostrar secção de utilizadores — registo: ' + id, 'info');
+      }
+    } else if (tipo === 'documento' || tipo === 'solicitacao') {
+      const col = tipo === 'documento' ? 'documentos' : 'solicitacoes';
+      mostrarSecção('dashboard');
+      try {
+        const snap = await getDoc(doc(db, col, id));
+        if (snap.exists()) {
+          const d = snap.data();
+          const label = tipo === 'documento'
+            ? (d.tipo || 'Documento') + (d.referencia ? ' — Ref: ' + d.referencia : '')
+            : (d.tipo || 'Solicitação') + ' — ' + (d.nomeFuncionario || '');
+          mostrarNotif('📌 ' + label + ' → estado: ' + (d.estado || '—'), 'info');
+        }
+      } catch(e) { mostrarNotif('❌ Erro ao abrir registo.', 'erro'); }
+    }
+  };
+
 </script>
+
+<!-- ════ OVERLAY PESQUISA GLOBAL ════ -->
+<div class="sp-overlay" id="sp-overlay" onclick="if(event.target===this)fecharPesquisa()">
+  <div class="sp-caixa" id="sp-caixa">
+    <div class="sp-topo">
+      <span class="sp-topo-ic">🔍</span>
+      <input class="sp-input" id="sp-input"
+             placeholder="Pesquisar funcionários, documentos, solicitações…"
+             oninput="pesquisarGlobal(this.value)"
+             onkeydown="navegarResultados(event)"/>
+      <span class="sp-kbd" onclick="fecharPesquisa()">Esc</span>
+    </div>
+    <div class="sp-resultados" id="sp-resultados">
+      <div class="sp-vazio" id="sp-estado-inicial">
+        <div style="font-size:32px;margin-bottom:8px">🔍</div>
+        Escreva para pesquisar em <strong style="color:rgba(255,255,255,.5)">funcionários</strong>,
+        <strong style="color:rgba(255,255,255,.5)">documentos</strong> e
+        <strong style="color:rgba(255,255,255,.5)">solicitações</strong>
+      </div>
+    </div>
+    <div class="sp-rodape">
+      <span><kbd>↑↓</kbd> Navegar</span>
+      <span><kbd>Enter</kbd> Abrir</span>
+      <span><kbd>Esc</kbd> Fechar</span>
+    </div>
+  </div>
+</div>
 </body>
 </html>
