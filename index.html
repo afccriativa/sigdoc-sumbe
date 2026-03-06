@@ -646,6 +646,34 @@
     }
     .sp-highlight { color: var(--c-500); font-weight: 700; }
     .sp-carregando { text-align: center; padding: 24px; color: rgba(255,255,255,.3); font-size: 13px; }
+
+    /* Sessões activas */
+    .sa-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 22px; border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .sa-item:last-child { border-bottom: none; }
+    .sa-pulse {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+      background: #10c886;
+      box-shadow: 0 0 0 0 rgba(16,200,134,.6);
+      animation: pulse-verde 1.8s infinite;
+    }
+    @keyframes pulse-verde {
+      0%   { box-shadow: 0 0 0 0 rgba(16,200,134,.6); }
+      70%  { box-shadow: 0 0 0 7px rgba(16,200,134,0); }
+      100% { box-shadow: 0 0 0 0 rgba(16,200,134,0); }
+    }
+    .sa-info { flex: 1; }
+    .sa-nome { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.85); }
+    .sa-det  { font-size: 11px; color: rgba(255,255,255,.35); margin-top: 2px; }
+    .btn-expulsar {
+      padding: 5px 12px; border-radius: 7px; border: 1px solid rgba(220,38,38,.4);
+      background: rgba(220,38,38,.1); color: #f87171;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-expulsar:hover { background: rgba(220,38,38,.25); }
 </style>
   <script src="sigdoc-config.js"></script>
 </head>
@@ -947,7 +975,20 @@
 
       <!-- ══ SECÇÃO SESSÕES ══ -->
       <div id="secção-sessoes" class="secção-restrita" style="display:none;">
-        <div class="secção-titulo" style="margin-bottom:20px">Acessos Recentes</div>
+        <div class="secção-titulo" style="margin-bottom:20px">Acessos &amp; Sessões</div>
+
+        <!-- Sessões activas agora -->
+        <div class="painel-card" style="margin-bottom:24px">
+          <div class="painel-card-header">
+            <div class="painel-card-titulo">🟢 Sessões Activas</div>
+            <button class="btn-primario" style="font-size:12px;padding:7px 14px" onclick="carregarSessoesActivas()">↺ Actualizar</button>
+          </div>
+          <div id="lista-sessoes-activas">
+            <div class="vazio-estado"><div class="icone">🟢</div><p>A carregar…</p></div>
+          </div>
+        </div>
+
+        <!-- Registo histórico -->
         <div class="painel-card">
           <div class="painel-card-header"><div class="painel-card-titulo">📋 Registo de Acessos</div></div>
           <div id="lista-sessoes"><div class="vazio-estado"><div class="icone">📋</div><p>A carregar...</p></div></div>
@@ -1157,7 +1198,7 @@
     // Mostrar/ocultar secções conforme perfil
     if (p==="admin") {
       if(banPor) banPor.style.display="flex";
-      carregarUtilizadores(); carregarSessoes(); carregarIndicadores();
+      carregarUtilizadores(); carregarSessoes(); carregarSessoesActivas(); carregarIndicadores();
     } else if (p==="chefe"||p==="director") {
       if(banPor) banPor.style.display = p==="chefe"?"flex":"none";
       carregarSessoes(); carregarIndicadores();
@@ -1730,6 +1771,65 @@
           mostrarNotif('📌 ' + label + ' → estado: ' + (d.estado || '—'), 'info');
         }
       } catch(e) { mostrarNotif('❌ Erro ao abrir registo.', 'erro'); }
+    }
+  };
+
+
+  // ══════════════════════════════════════════════════════════
+  //  SESSÕES ACTIVAS — leitura e expulsão remota
+  // ══════════════════════════════════════════════════════════
+  window.carregarSessoesActivas = async function() {
+    if (!_exigirPerfil(['admin','chefe','director'])) return;
+    const el = document.getElementById('lista-sessoes-activas');
+    el.innerHTML = '<div class="vazio-estado"><p>⏳ A carregar…</p></div>';
+    try {
+      // Utilizadores com sessaoToken definido (não null) = sessão activa
+      const snap = await getDocs(query(
+        collection(db,'utilizadores'),
+        where('sessaoToken','!=',null)
+      ));
+      if (snap.empty) {
+        el.innerHTML = '<div class="vazio-estado"><div class="icone">🟢</div><p>Nenhuma sessão activa.</p></div>';
+        return;
+      }
+      let html = '';
+      snap.forEach(d => {
+        const u = d.data(), uid = d.id;
+        const acesso = u.ultimoAcesso?.toDate ? fmtData(u.ultimoAcesso.toDate()) : '—';
+        const disp = u.dispositivo
+          ? u.dispositivo.includes('Mobile') ? '📱 Móvel' : '🖥️ Computador'
+          : '—';
+        const isSelf = uid === _userActual?.uid;
+        const btnExpulsar = isSelf
+          ? `<span style="font-size:11px;color:var(--neu-400)">Tu</span>`
+          : `<button class="btn-expulsar" onclick="expulsarSessao('${uid}','${(u.nome||u.email||'').replace(/'/g,"\'")}')">⏏ Expulsar</button>`;
+        html += `<div class="sa-item">
+          <div class="sa-pulse"></div>
+          <div class="sa-info">
+            <div class="sa-nome">${u.nome||u.email||uid}</div>
+            <div class="sa-det">${etiquetasPerfil[u.perfil]||u.perfil} · ${disp} · ${acesso}</div>
+          </div>
+          ${btnExpulsar}
+        </div>`;
+      });
+      el.innerHTML = html;
+    } catch(e) {
+      console.error(e);
+      el.innerHTML = '<div class="vazio-estado"><p>⚠️ Erro ao carregar sessões activas.</p></div>';
+    }
+  };
+
+  window.expulsarSessao = async function(uid, nome) {
+    if (!_exigirPerfil(['admin','chefe','director'])) return;
+    if (!confirm(`Expulsar a sessão de ${nome}?\nO utilizador será desligado em segundos.`)) return;
+    try {
+      // Anular o sessaoToken — o listener no portal detecta e faz logout
+      await updateDoc(doc(db,'utilizadores',uid), { sessaoToken: null });
+      mostrarNotif(`⏏ Sessão de ${nome} encerrada.`, 'sucesso');
+      setTimeout(carregarSessoesActivas, 1500);
+    } catch(e) {
+      console.error(e);
+      mostrarNotif('❌ Erro ao expulsar sessão.', 'erro');
     }
   };
 
