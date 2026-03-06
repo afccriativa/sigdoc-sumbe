@@ -287,7 +287,8 @@
     .bn-badge.visivel { display:flex; }
 
     /* elementos desktop — escondidos em mobile */
-    .desk-sidebar,.desk-topbar { display:none; }
+    .desk-sidebar, .desk-topbar,
+    .desk-kpi-row, .desk-docs-section, .desk-col-dir { display:none; }
 
     /* modal mobile */
     .overlay-modal { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:500;align-items:flex-end;justify-content:center; }
@@ -1261,30 +1262,28 @@
     const hora=new Date().getHours();
     const saud=hora<12?"Bom dia":hora<18?"Boa tarde":"Boa noite";
     const inic=nome.split(" ").filter(Boolean).slice(0,2).map(p=>p[0]).join("").toUpperCase();
-    // Header
-    document.getElementById("pt-avatar").textContent=inic;
-    document.getElementById("ph-saudacao").textContent=saud+", "+primeiroNome+"! 👋";
-    // desktop
-    const dtSaud = document.getElementById("dt-saudacao");
-    if (dtSaud) dtSaud.innerHTML = saud+", <em>"+primeiroNome+"!</em>";
-    const dsAv = document.getElementById("ds-av");
-    if (dsAv) dsAv.textContent = inic;
-    const dtAv = document.getElementById("dt-avatar");
-    if (dtAv) dtAv.textContent = inic;
-    const dsNome = document.getElementById("ds-nome");
-    if (dsNome) dsNome.textContent = nome;
-    const dsCargo = document.getElementById("ds-cargo");
-    if (dsCargo) dsCargo.textContent = f.categoria||"Funcionário";
-    // Card verde no início
-    document.getElementById("pcv-avatar").textContent=inic;
-    document.getElementById("pcv-nome").textContent=nome;
-    // Campos do card verde
+    // Preencher elementos de UI — com null checks para segurança
     const f=_funcDoc||{};
-    document.getElementById("pcv-cargo").textContent=(f.categoria||"—");
-    document.getElementById("pcv-numero").textContent=f.numero||"—";
-    document.getElementById("pcv-bi").textContent=f.bi||"—";
-    document.getElementById("pcv-categoria").textContent=f.categoria||"—";
-    document.getElementById("pcv-unidade").textContent=f.unidade||"—";
+    const _set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+    const _html= (id, val) => { const el=document.getElementById(id); if(el) el.innerHTML=val; };
+    // header mobile
+    _set("pt-avatar",  inic);
+    _set("ph-saudacao", saud+", "+primeiroNome+"! 👋");
+    // topbar desktop
+    _html("dt-saudacao", saud+", <em>"+primeiroNome+"!</em>");
+    _set("dt-avatar", inic);
+    // sidebar desktop
+    _set("ds-av",    inic);
+    _set("ds-nome",  nome);
+    _set("ds-cargo", f.categoria||"Funcionário");
+    // card verde (início)
+    _set("pcv-avatar",    inic);
+    _set("pcv-nome",      nome);
+    _set("pcv-cargo",     f.categoria||"—");
+    _set("pcv-numero",    f.numero||"—");
+    _set("pcv-bi",        f.bi||"—");
+    _set("pcv-categoria", f.categoria||"—");
+    _set("pcv-unidade",   f.unidade||"—");
     mostrarEcra("ecra-portal");
     carregarSolicitacoes(user.uid,dados.funcionarioId);
     carregarPerfil(dados);
