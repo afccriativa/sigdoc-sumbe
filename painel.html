@@ -625,7 +625,7 @@
       saudacao(nome);
 
       // ── Montar navegação lateral partilhada ──
-      window._sigdocAuth = auth; // expõe para o logout do nav
+      window._sigdocAuth = auth;
       SIGDOC_NAV.mount({
         pagina:   'painel',
         nome:     nome,
@@ -637,15 +637,26 @@
         }
       });
 
-      await carregarTudo();
-
+      // Mostrar painel antes de carregar dados — evita ecrã em branco
       document.getElementById("ecra-carregando").style.display = "none";
       document.getElementById("ecra-principal").style.display = "block";
+
+      // Carregar dados — erros aqui são de rede/Firestore, não de acesso
+      // carregarTudo() tem o seu próprio try/catch e mostra notificações
+      await carregarTudo();
+
     } catch(e) {
-      console.error(e);
+      // Só chega aqui se falhar a leitura de /utilizadores — erro real de auth
+      console.error("Erro de autenticação:", e);
       document.getElementById("ecra-carregando").style.display = "none";
-      document.getElementById("ecra-negado").style.display = "flex";
-      mostrarNotif("❌ Erro ao verificar autenticação. Tente recarregar.", "erro");
+      // Se o utilizador existe mas /utilizadores falhou, mostrar painel vazio
+      // em vez de ecrã negado — pode ser erro de rede temporário
+      if (e.code === "permission-denied") {
+        document.getElementById("ecra-negado").style.display = "flex";
+      } else {
+        document.getElementById("ecra-principal").style.display = "block";
+        mostrarNotif("❌ Erro ao carregar o perfil. Tente recarregar a página.", "erro");
+      }
     }
   });
 
