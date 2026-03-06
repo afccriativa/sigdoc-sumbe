@@ -363,7 +363,38 @@
     .toast-erro{background:#450a0a;color:#fca5a5;border-left:4px solid #ef4444}
     .toast-aviso{background:#1c1200;color:#fcd34d;border-left:4px solid #d97706}
     .toast-info{background:#0c1a2e;color:#93c5fd;border-left:4px solid #3b82f6}
-  </style>
+  
+    /* ═══ SELECTOR DE PERÍODO ═══ */
+    .periodo-bar {
+      display: flex; align-items: center; gap: 12px;
+      margin-top: 18px; flex-wrap: wrap;
+    }
+    .periodo-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 1px; color: rgba(255,255,255,.35);
+    }
+    .periodo-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .p-btn {
+      padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05); color: rgba(255,255,255,.5);
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: all .15s; font-family: var(--font, inherit);
+    }
+    .p-btn:hover { background: rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+    .p-btn-activo {
+      background: rgba(16,200,134,.2) !important;
+      border-color: rgba(16,200,134,.5) !important;
+      color: #10c886 !important;
+    }
+    .hero-carregando {
+      display: inline-block; margin-left: 8px;
+      font-size: 11px; color: rgba(255,255,255,.35);
+      animation: fade-in-out 1s infinite;
+    }
+    @keyframes fade-in-out {
+      0%,100% { opacity:.3 } 50% { opacity:1 }
+    }
+</style>
 </head>
 <body>
 
@@ -406,6 +437,16 @@
     <div class="hero-sub2">
       <span class="hero-ponto"></span>
       <span id="hero-sub">Dados em tempo real — Firebase Firestore</span>
+    </div>
+    <div class="periodo-bar">
+      <span class="periodo-label">Período:</span>
+      <div class="periodo-btns" id="periodo-btns">
+        <button class="p-btn" data-dias="30"  onclick="selecionarPeriodo(30)">30 dias</button>
+        <button class="p-btn p-btn-activo" data-dias="90"  onclick="selecionarPeriodo(90)">90 dias</button>
+        <button class="p-btn" data-dias="180" onclick="selecionarPeriodo(180)">6 meses</button>
+        <button class="p-btn" data-dias="365" onclick="selecionarPeriodo(365)">1 ano</button>
+        <button class="p-btn" data-dias="0"   onclick="selecionarPeriodo(0)">Tudo</button>
+      </div>
     </div>
   </div>
 
@@ -569,7 +610,7 @@
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import {
     getFirestore, collection, getDocs, query,
-    orderBy, limit, doc, getDoc
+    orderBy, limit, where, Timestamp, doc, getDoc
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
@@ -663,35 +704,74 @@
   });
 
   // ── CARREGAR TUDO ──
+  let _periodoActual = 90; // dias — padrão 90 dias
+
+  window.selecionarPeriodo = function(dias) {
+    _periodoActual = dias;
+    // Actualizar botões
+    document.querySelectorAll('.p-btn').forEach(b => {
+      b.classList.toggle('p-btn-activo', parseInt(b.dataset.dias) === dias);
+    });
+    carregarTudo();
+  };
+
   async function carregarTudo() {
-    mostrarNotif("A carregar dados do painel…", "info");
+    // Calcular janela temporal
+    const fim   = new Date();
+    const inicio = _periodoActual > 0
+      ? new Date(fim.getTime() - _periodoActual * 24 * 60 * 60 * 1000)
+      : null;
+    const opcoes = inicio ? { inicio, fim } : {};
+    const labelPeriodo = _periodoActual > 0
+      ? `últimos ${_periodoActual} dias`
+      : `todos os registos`;
+
+    // Indicador de carregamento na hero
+    const heroSub = document.getElementById("hero-sub");
+    heroSub.innerHTML = `A carregar… <span class="hero-carregando">⏳</span>`;
+
     try {
-    const [funcionarios, documentos, sessoes] = await Promise.all([
-      fetchColeccao("funcionarios"),
-      fetchColeccao("documentos", "geradoEm"),
-      fetchColeccao("sessoes",    "timestamp")
-    ]);
-    calcularKPIs(funcionarios, documentos);
-    renderGraficoMensal(documentos);
-    renderDonut(documentos);
-    renderBarrasUnidades(documentos);
-    renderBarrasCategorias(funcionarios);
-    renderMiniEstat(funcionarios, documentos, sessoes);
-    renderTabelaUnidades(funcionarios, documentos);
-    renderFeed(documentos, sessoes);
-    document.getElementById("hero-sub").textContent =
-      `${documentos.length} documentos · ${funcionarios.length} funcionários · Firebase Firestore`;
-    mostrarNotif(`✅ Painel actualizado — ${documentos.length} docs · ${funcionarios.length} funcionários`, "sucesso");
+      // funcionarios: sem filtro temporal (dados mestres — não crescem como docs)
+      // documentos e sessoes: filtrados pelo período seleccionado
+      const [funcionarios, documentos, sessoes] = await Promise.all([
+        fetchColeccao("funcionarios"),
+        fetchColeccao("documentos", "geradoEm",  opcoes),
+        fetchColeccao("sessoes",    "timestamp", opcoes)
+      ]);
+
+      calcularKPIs(funcionarios, documentos);
+      renderGraficoMensal(documentos, inicio);
+      renderDonut(documentos);
+      renderBarrasUnidades(documentos);
+      renderBarrasCategorias(funcionarios);
+      renderMiniEstat(funcionarios, documentos, sessoes);
+      renderTabelaUnidades(funcionarios, documentos);
+      renderFeed(documentos, sessoes);
+
+      heroSub.textContent =
+        `${documentos.length} docs · ${funcionarios.length} funcionários · ${labelPeriodo}`;
+      mostrarNotif(
+        `✅ Painel actualizado — ${documentos.length} docs (${labelPeriodo})`,
+        "sucesso"
+      );
     } catch(e) {
       console.error(e);
       mostrarNotif("❌ Erro ao carregar o painel. Verifique a ligação.", "erro");
     }
   }
 
-  async function fetchColeccao(nome, campoOrdem) {
+  async function fetchColeccao(nome, campoOrdem, opcoes = {}) {
     try {
+      const { inicio, fim, maxDocs = 500 } = opcoes;
+      let filtros = [];
+      if (campoOrdem && inicio) {
+        filtros.push(where(campoOrdem, ">=", Timestamp.fromDate(inicio)));
+      }
+      if (campoOrdem && fim) {
+        filtros.push(where(campoOrdem, "<=", Timestamp.fromDate(fim)));
+      }
       const q = campoOrdem
-        ? query(collection(db, nome), orderBy(campoOrdem, "desc"), limit(500))
+        ? query(collection(db, nome), ...filtros, orderBy(campoOrdem, "desc"), limit(maxDocs))
         : collection(db, nome);
       const snap = await getDocs(q);
       return snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -756,10 +836,15 @@
   }
 
   // ── GRÁFICO BARRAS MENSAL (SVG) ──
-  function renderGraficoMensal(docs) {
+  function renderGraficoMensal(docs, inicio) {
     const agora = new Date();
     const meses = [];
-    for (let i = 5; i >= 0; i--) {
+    // Janela dinâmica: se inicio definido, mostrar meses desde inicio; senão 6 meses
+    const mesesAtras = inicio
+      ? Math.max(1, Math.ceil((agora - inicio) / (30 * 24 * 60 * 60 * 1000)))
+      : 6;
+    const janelaM = Math.min(mesesAtras, 12); // máx 12 meses no gráfico
+    for (let i = janelaM - 1; i >= 0; i--) {
       const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
       meses.push({
         ano: d.getFullYear(), mes: d.getMonth(),
