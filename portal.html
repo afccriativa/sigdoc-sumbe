@@ -1057,6 +1057,7 @@
   setPersistence(auth,browserLocalPersistence).catch(e=>console.warn(e));
 
   let _funcDoc=null,_funcDocId=null,_utilizador=null,_tipoSel=null;
+  let _sessaoToken=null,_unsubSessao=null;
 
   const LABELS_TIPO={"guia-ferias":{nome:"Guia de Férias",icone:"🏖️",bg:"#fef9e7"},"declaracao-servico":{nome:"Declaração de Serviço",icone:"📜",bg:"#eff6ff"},"guia-medica":{nome:"Guia Médica",icone:"🏥",bg:"var(--c-50)"},"oficio":{nome:"Ofício / Nota",icone:"📋",bg:"var(--p-100)"}};
   const LABELS_ESTADO={nova:{texto:"Nova",classe:"est-nova"},processando:{texto:"Em processamento",classe:"est-processando"},concluida:{texto:"Aprovado ✅",classe:"est-aprovado"},rejeitada:{texto:"Rejeitado ❌",classe:"est-rejeitado"},pendente:{texto:"Pendente ⏳",classe:"est-pendente"}};
@@ -1090,6 +1091,8 @@
       }
       mostrarPortal(user,dados);
       esconderLoading();
+      // ── Sessão activa: gerar token + listener de expulsão ──
+      iniciarSessaoActiva(user);
     }catch(e){console.error(e);mostrarEcra("ecra-entrada");esconderLoading();}
   });
 
@@ -1584,13 +1587,18 @@
     catch(e){notif("❌ Erro ao guardar.","notif-erro");}
   };
 
-  window.fazerLogoutFuncionario=async function(){
-    if(!confirm("Tem a certeza que deseja sair?"))return;
+  window.fazerLogoutFuncionario=async function(silencioso=false){
+    if(!silencioso && !confirm("Tem a certeza que deseja sair?"))return;
     // Cancelar listeners em tempo real
-    if (_unsubSols) { _unsubSols(); _unsubSols = null; }
-    if (_unsubDocs) { _unsubDocs(); _unsubDocs = null; }
+    if (_unsubSols)  { _unsubSols();  _unsubSols  = null; }
+    if (_unsubDocs)  { _unsubDocs();  _unsubDocs  = null; }
+    if (_unsubSessao){ _unsubSessao(); _unsubSessao = null; }
+    // Apagar token de sessão no Firestore (não bloqueia o logout)
+    if (_utilizador && _sessaoToken) {
+      try { await updateDoc(doc(db,"utilizadores",_utilizador.uid),{sessaoToken:null}); } catch(_){}
+    }
     await signOut(auth);
-    _funcDoc=null;_funcDocId=null;_utilizador=null;_tipoSel=null;
+    _funcDoc=null;_funcDocId=null;_utilizador=null;_tipoSel=null;_sessaoToken=null;
     mostrarEcra("ecra-entrada");
   };
 
@@ -1631,6 +1639,68 @@
     if (main) main.scrollTo({ top: 0, behavior: "smooth" });
   };
   window.abrirAba = function(id) { navegarAba(id); };
+
+  // ══════════════════════════════════════════════════════════
+  //  GESTÃO DE SESSÃO ACTIVA — token + listener de expulsão
+  // ══════════════════════════════════════════════════════════
+  async function iniciarSessaoActiva(user) {
+    // Gerar token único para esta sessão
+    _sessaoToken = crypto.randomUUID ? crypto.randomUUID()
+                 : (Math.random().toString(36)+Date.now().toString(36)).slice(2,18);
+
+    // Escrever token no documento do utilizador
+    try {
+      await updateDoc(doc(db,"utilizadores",user.uid), {
+        sessaoToken:  _sessaoToken,
+        ultimoAcesso: serverTimestamp(),
+        dispositivo:  navigator.userAgent.slice(0,120)
+      });
+    } catch(e) { console.warn("Não foi possível registar sessão activa:", e); return; }
+
+    // Ouvir o documento em tempo real
+    _unsubSessao = onSnapshot(
+      doc(db,"utilizadores",user.uid),
+      (snap) => {
+        if (!snap.exists()) { _forcarLogout("conta removida"); return; }
+        const d = snap.data();
+        // Conta desactivada pelo admin
+        if (d.activo === false) { _forcarLogout("conta desactivada"); return; }
+        // Token anulado ou substituído pelo admin (expulsão remota)
+        if (d.sessaoToken !== _sessaoToken) { _forcarLogout("sessao_expirada"); return; }
+      },
+      (err) => { console.warn("Listener sessão:", err); }
+    );
+  }
+
+  function _forcarLogout(motivo) {
+    if (_unsubSessao) { _unsubSessao(); _unsubSessao = null; }
+    if (_unsubSols)   { _unsubSols();   _unsubSols   = null; }
+    if (_unsubDocs)   { _unsubDocs();   _unsubDocs   = null; }
+    _sessaoToken = null;
+    signOut(auth).catch(()=>{});
+    _funcDoc=null; _funcDocId=null; _utilizador=null; _tipoSel=null;
+    // Mostrar mensagem adequada
+    const msgs = {
+      "conta desactivada": "A sua conta foi desactivada. Contacte o administrador.",
+      "sessao_expirada":   "A sua sessão foi encerrada remotamente pelo administrador.",
+      "conta removida":    "A sua conta foi removida do sistema."
+    };
+    const msg = msgs[motivo] || "A sua sessão foi encerrada.";
+    mostrarEcra("ecra-entrada");
+    // Injectar alerta no ecrã de entrada
+    setTimeout(() => {
+      const zona = document.querySelector("#ecra-entrada .entrada-dir");
+      if (zona) {
+        const alerta = document.createElement("div");
+        alerta.className = "alerta alerta-" + (motivo === "sessao_expirada" ? "aviso" : "erro");
+        alerta.style.cssText = "margin-bottom:16px;max-width:360px;width:100%";
+        alerta.textContent = msg;
+        zona.insertBefore(alerta, zona.firstChild);
+        setTimeout(() => alerta.remove(), 10000);
+      }
+    }, 200);
+  }
+
 </script>
 </body>
 </html>
