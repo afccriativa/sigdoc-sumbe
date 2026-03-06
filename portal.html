@@ -139,83 +139,85 @@
     .forca-barras.forca-4 .forca-barra { background:var(--primary); }
     .forca-texto { font-size:11px;font-weight:600; }
 
-    /* ═══ PORTAL MOBILE ═══ */
-    #ecra-portal.activo { display:block;background:var(--bg);min-height:100dvh;padding-bottom:calc(var(--nav-h) + var(--safe-b)); }
-    @media(min-width:640px){
-      #ecra-portal.activo { display:flex;flex-direction:column;align-items:center; }
-      .portal-header,.portal-abas-content { width:100%;max-width:480px; }
-      .modal-caixa { border-radius:20px;margin:auto;max-height:80dvh; }
-      .overlay-modal { align-items:center; }
+    /* ═══════════════════════════════════════════════════════
+       PORTAL — MOBILE BASE  (<1024px)
+    ═══════════════════════════════════════════════════════ */
+    #ecra-portal.activo {
+      display: block;
+      background: var(--bg);
+      min-height: 100dvh;
+      padding-bottom: calc(var(--nav-h) + var(--safe-b));
     }
 
-    /* Header */
+    /* header hero */
     .portal-header { background:var(--primary);border-radius:0 0 28px 28px;padding:52px 20px 32px;position:relative;overflow:hidden; }
     .portal-header::before { content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 80% 20%,rgba(16,200,134,.2) 0%,transparent 60%),radial-gradient(circle at 10% 80%,rgba(255,255,255,.05) 0%,transparent 50%); }
     .portal-header-top { position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px; }
     .portal-header-marca h1 { font-size:17px;font-weight:800;color:white;line-height:1.1; }
-    .portal-header-marca p { font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;max-width:160px;line-height:1.3; }
-    .portal-header-actions { display:flex;align-items:center;gap:10px; }
+    .portal-header-marca p  { font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;max-width:160px;line-height:1.3; }
+    .portal-header-actions  { display:flex;align-items:center;gap:10px; }
     .ph-avatar { width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:white;cursor:pointer;backdrop-filter:blur(4px); }
     .ph-sair-btn { padding:8px 16px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:20px;color:white;font-size:13px;font-weight:700;cursor:pointer;backdrop-filter:blur(4px);transition:background .18s; }
     .ph-sair-btn:hover { background:rgba(255,255,255,.22); }
     .portal-header-hero { position:relative;z-index:1; }
     .ph-saudacao { font-size:30px;font-weight:800;color:white;letter-spacing:-1px;line-height:1.15;margin-bottom:10px; }
-    .ph-status { display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.08);padding:6px 12px;border-radius:20px;font-size:12px;color:rgba(255,255,255,.8);font-weight:500;backdrop-filter:blur(4px); }
+    .ph-status { display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.08);padding:6px 12px;border-radius:20px;font-size:12px;color:rgba(255,255,255,.8);font-weight:500; }
     .ph-status-dot { width:7px;height:7px;border-radius:50%;background:var(--primary-l);box-shadow:0 0 8px rgba(16,200,134,.8);animation:pulse-dot 2s ease-in-out infinite; }
 
-    /* Banner incompleto */
-    .banner-perfil-inc { display:none;margin:-12px 16px 0;position:relative;z-index:10;background:white;border:1.5px solid #fde68a;border-radius:18px;padding:18px 18px 16px;box-shadow:0 8px 24px rgba(245,158,11,.15);overflow:hidden; }
+    /* banner incompleto */
+    .banner-perfil-inc { display:none;margin:-12px 16px 0;position:relative;z-index:10;background:white;border:1.5px solid #fde68a;border-radius:18px;padding:18px;overflow:hidden;box-shadow:0 8px 24px rgba(245,158,11,.15); }
     .banner-perfil-inc::before { content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(245,158,11,.1);border-radius:50%;animation:pulse-warn 3s ease-in-out infinite; }
     .bpi-topo { display:flex;align-items:center;gap:10px;margin-bottom:10px;position:relative;z-index:1; }
     .bpi-icone { width:22px;height:22px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative; }
     .bpi-icone::after { content:'';position:absolute;inset:-3px;border-radius:50%;border:2px solid rgba(245,158,11,.3);animation:ping-warn 1.5s ease-in-out infinite; }
     .bpi-icone .material-symbols-outlined { font-size:13px;color:white;font-variation-settings:'FILL' 1,'wght' 700; }
     .bpi-titulo { font-size:15px;font-weight:800;color:#92400e; }
-    .bpi-texto { font-size:13px;color:#a16207;line-height:1.5;margin-bottom:14px;position:relative;z-index:1; }
+    .bpi-texto  { font-size:13px;color:#a16207;line-height:1.5;margin-bottom:14px;position:relative;z-index:1; }
     .bpi-btn { width:100%;padding:13px;border-radius:12px;background:var(--amber);color:white;border:none;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 12px rgba(245,158,11,.3);transition:background .18s;position:relative;z-index:1; }
     .bpi-btn .material-symbols-outlined { font-size:16px; }
     .bpi-btn:hover { background:var(--amber-d); }
 
-    /* Abas conteúdo */
+    /* abas */
     .portal-abas-content { padding:20px 16px 0; }
     .aba-portal { display:none; }
     .aba-portal.activa { display:block; }
 
     /* KPIs */
-    .kpi-total-card { background:white;border-radius:18px;padding:24px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px;position:relative;overflow:hidden; }
+    .kpi-total-card { background:white;border-radius:18px;padding:24px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px; }
     .kpi-total-icon .material-symbols-outlined { font-size:40px;color:#3b82f6;font-variation-settings:'FILL' 1,'wght' 400; }
     .kpi-total-num { font-size:36px;font-weight:800;color:var(--txt);letter-spacing:-1.5px;margin:4px 0;font-family:var(--mono); }
     .kpi-total-lbl { font-size:13px;font-weight:500;color:var(--txt-3); }
     .kpi-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px; }
     .kpi-mini { background:white;border-radius:18px;padding:22px 16px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06); }
     .kpi-mini .material-symbols-outlined { font-size:36px;font-variation-settings:'FILL' 1,'wght' 400; }
-    .kpi-mini.kpi-verde .material-symbols-outlined { color:#10b981; }
+    .kpi-mini.kpi-verde   .material-symbols-outlined { color:#10b981; }
     .kpi-mini.kpi-laranja .material-symbols-outlined { color:#f97316; }
     .kpi-mini-num { font-size:32px;font-weight:800;color:var(--txt);letter-spacing:-1px;margin:4px 0;font-family:var(--mono); }
     .kpi-mini-lbl { font-size:12px;font-weight:500;color:var(--txt-3); }
 
-    /* Perfil card verde */
+    /* card perfil verde */
     .perfil-card-verde { background:var(--primary);border-radius:18px;padding:22px;position:relative;overflow:hidden;margin-bottom:12px;box-shadow:0 8px 24px rgba(6,95,70,.25); }
     .perfil-card-verde::after { content:'';position:absolute;bottom:-20px;right:-20px;width:120px;height:120px;background:rgba(255,255,255,.04);border-radius:50%;filter:blur(20px); }
     .perfil-card-topo { display:flex;align-items:center;gap:14px;margin-bottom:16px; }
-    .perfil-card-av { width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:white;flex-shrink:0; }
-    .perfil-card-nome { font-size:18px;font-weight:800;color:white;line-height:1.2; }
+    .perfil-card-av   { width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:white;flex-shrink:0; }
+    .perfil-card-nome  { font-size:18px;font-weight:800;color:white;line-height:1.2; }
     .perfil-card-cargo { font-size:13px;color:rgba(255,255,255,.65);margin-top:3px;font-weight:500; }
     .perfil-card-acoes { display:flex;gap:10px; }
     .perfil-card-btn { width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .18s;color:white; }
     .perfil-card-btn .material-symbols-outlined { font-size:17px; }
     .perfil-card-btn:hover { background:rgba(255,255,255,.22); }
 
-    /* Campos de perfil no início */
+    /* campos */
     .perfil-campos-lista { display:flex;flex-direction:column;gap:10px;margin-bottom:20px; }
     .perfil-campo-card { background:white;border-radius:14px;padding:14px 16px;box-shadow:0 1px 6px rgba(0,0,0,.06);border:1px solid var(--border); }
     .perfil-campo-rotulo { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt-4);margin-bottom:4px; }
-    .perfil-campo-valor { font-size:15px;font-weight:600;color:var(--txt); }
+    .perfil-campo-valor  { font-size:15px;font-weight:600;color:var(--txt); }
 
-    /* Aba Docs */
+    /* lista docs */
     .aba-titulo-pg { font-size:18px;font-weight:800;color:var(--txt);letter-spacing:-.4px;margin-bottom:16px; }
     .lista-docs { display:flex;flex-direction:column;gap:10px; }
     .item-doc-portal { background:white;border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 6px rgba(0,0,0,.06);border:1px solid var(--border);cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent; }
+    .item-doc-portal:hover { border-color:var(--primary-l);box-shadow:0 4px 16px rgba(16,200,134,.1); }
     .item-doc-portal:active { transform:scale(.98); }
     .item-actualizado { animation:flash-verde .6s ease; }
     .doc-ic-portal { width:44px;height:44px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px; }
@@ -231,47 +233,50 @@
     .est-concluida   { background:var(--primary-xl);color:var(--primary); }
     .vazio-portal { text-align:center;padding:48px 20px;color:var(--txt-3);display:flex;flex-direction:column;align-items:center;gap:12px; }
     .vazio-portal .vi { font-size:44px; }
-    .vazio-portal p { font-size:14px;font-weight:600; }
+    .vazio-portal p   { font-size:14px;font-weight:600; }
     .vazio-portal small { font-size:12px;color:var(--txt-4); }
     .btn-segunda-via-portal { padding:4px 8px;border-radius:8px;border:1.5px solid var(--border);background:white;font-size:11px;font-weight:700;color:var(--txt-2);cursor:pointer;transition:all .15s;white-space:nowrap; }
     .btn-segunda-via-portal:hover { background:var(--primary-xl);border-color:var(--primary-l);color:var(--primary); }
 
-    /* Aba Pedir */
+    /* pedir */
     .pedir-titulo { font-size:18px;font-weight:800;color:var(--txt);margin-bottom:6px; }
-    .pedir-sub { font-size:13px;color:var(--txt-3);line-height:1.5;margin-bottom:20px; }
+    .pedir-sub    { font-size:13px;color:var(--txt-3);line-height:1.5;margin-bottom:20px; }
     .tipo-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px; }
     .tipo-card { background:white;border-radius:16px;padding:16px;text-align:center;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.06);border:2px solid transparent;transition:all .18s;-webkit-tap-highlight-color:transparent; }
+    .tipo-card:hover { border-color:rgba(16,200,134,.4);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1); }
     .tipo-card:active { transform:scale(.97); }
     .tipo-card.seleccionado { border-color:var(--primary-l);background:var(--primary-xl);box-shadow:0 4px 16px rgba(16,200,134,.2); }
-    .tdico { font-size:32px;margin-bottom:8px; }
+    .tdico  { font-size:32px;margin-bottom:8px; }
     .tdnome { font-size:13px;font-weight:700;color:var(--txt); }
     .tdsub  { font-size:11px;color:var(--txt-3);margin-top:3px;line-height:1.3; }
     .form-extra { background:white;border-radius:16px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,.06); }
+    .campo-hint { font-size:11px;color:var(--txt-4);margin-top:5px; }
     #erro-data-inicio { font-size:11px;color:var(--red);font-weight:600;margin-top:4px;display:none; }
     .btn-submeter { width:100%;padding:15px;border-radius:14px;background:var(--primary);color:white;border:none;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(6,95,70,.3);transition:all .18s;margin-top:16px; }
+    .btn-submeter:hover:not(:disabled) { background:var(--primary-d);transform:translateY(-1px); }
     .btn-submeter:disabled { opacity:.5;cursor:not-allowed; }
     .btn-submeter .material-symbols-outlined { font-size:18px;font-variation-settings:'FILL' 1; }
 
-    /* Aba Perfil */
+    /* perfil aba */
     .perfil-header-aba { background:var(--primary);border-radius:18px;padding:22px;margin-bottom:16px;position:relative;overflow:hidden;box-shadow:0 8px 24px rgba(6,95,70,.25); }
     .perfil-aba-badges { display:flex;gap:8px;margin-top:12px;flex-wrap:wrap; }
     .perfil-aba-badge { padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.15);color:white;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.2); }
     .perfil-grelha { display:flex;flex-direction:column;gap:10px;margin-bottom:16px; }
     .perf-campo { background:white;border-radius:14px;padding:14px 16px;box-shadow:0 1px 6px rgba(0,0,0,.06);border:1px solid var(--border); }
     .perf-campo .rotulo { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt-4);margin-bottom:4px; }
-    .perf-campo .valor { font-size:15px;font-weight:600;color:var(--txt); }
+    .perf-campo .valor  { font-size:15px;font-weight:600;color:var(--txt); }
     .docs-carr { background:white;border-radius:14px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,.06);border:1px solid var(--border);margin-bottom:12px; }
     .docs-carr-titulo { font-size:13px;font-weight:700;color:var(--txt);margin-bottom:12px; }
     .doc-fich { display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:background .18s; }
     .doc-fich:hover { background:var(--primary-xl); }
-    .doc-fich-ic { width:36px;height:36px;border-radius:8px;background:white;display:flex;align-items:center;justify-content:center;font-size:18px; }
+    .doc-fich-ic   { width:36px;height:36px;border-radius:8px;background:white;display:flex;align-items:center;justify-content:center;font-size:18px; }
     .doc-fich-nome { font-size:13px;font-weight:700;color:var(--txt); }
-    .doc-fich-sub { font-size:11px;color:var(--txt-3);margin-top:2px; }
+    .doc-fich-sub  { font-size:11px;color:var(--txt-3);margin-top:2px; }
     .doc-fich-vazio { font-size:13px;color:var(--txt-3);text-align:center;padding:12px 0; }
     .perfil-edit-sec { background:white;border-radius:14px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,.06);border:1px solid var(--border); }
     .perfil-edit-titulo { font-size:13px;font-weight:700;color:var(--txt);margin-bottom:12px; }
 
-    /* Bottom nav */
+    /* bottom nav mobile */
     .bottom-nav { position:fixed;bottom:0;left:0;right:0;height:calc(var(--nav-h) + var(--safe-b));background:white;border-top:1px solid var(--border);padding-bottom:var(--safe-b);display:flex;align-items:flex-start;justify-content:space-around;padding-top:8px;box-shadow:0 -8px 20px rgba(0,0,0,.06);z-index:200; }
     .bn-btn { flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:4px 0;color:var(--txt-4);transition:color .18s;-webkit-tap-highlight-color:transparent;position:relative; }
     .bn-btn .material-symbols-outlined { font-size:24px;transition:all .18s;font-variation-settings:'FILL' 0,'wght' 400; }
@@ -281,17 +286,262 @@
     .bn-badge { position:absolute;top:2px;right:calc(50% - 18px);background:var(--red);color:white;font-size:9px;font-weight:800;width:16px;height:16px;border-radius:50%;display:none;align-items:center;justify-content:center;border:2px solid white; }
     .bn-badge.visivel { display:flex; }
 
-    /* Modal */
+    /* elementos desktop — escondidos em mobile */
+    .desk-sidebar,.desk-topbar { display:none; }
+
+    /* modal mobile */
     .overlay-modal { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:500;align-items:flex-end;justify-content:center; }
     .overlay-modal.activo { display:flex; }
     .modal-caixa { background:white;border-radius:24px 24px 0 0;width:100%;max-width:520px;max-height:90dvh;overflow-y:auto;animation:slide-up .3s cubic-bezier(.16,1,.3,1); }
     .modal-caixa::before { content:'';display:block;width:36px;height:4px;border-radius:2px;background:var(--border);margin:12px auto 8px; }
 
-    /* Toast */
-    .notif { position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 12px);left:50%;transform:translateX(-50%);padding:12px 20px;border-radius:12px;font-size:13px;font-weight:700;color:white;display:none;z-index:600;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:slide-notif .3s cubic-bezier(.16,1,.3,1); }
+    /* toast mobile */
+    .notif { position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 12px);left:50%;transform:translateX(-50%);padding:12px 20px;border-radius:12px;font-size:13px;font-weight:700;color:white;display:none;z-index:600;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.2); }
     .notif-ok   { background:var(--primary); }
     .notif-erro { background:#991b1b; }
     .notif-info { background:#1e40af; }
+
+    /* tablet (640–1023): centrar coluna */
+    @media(min-width:640px) and (max-width:1023px) {
+      #ecra-portal.activo { display:flex;flex-direction:column;align-items:center; }
+      .portal-header      { width:100%;max-width:540px;border-radius:0 0 24px 24px; }
+      .banner-perfil-inc  { max-width:calc(540px - 32px); }
+      .portal-abas-content{ width:100%;max-width:540px; }
+      .tipo-grid          { grid-template-columns:repeat(4,1fr); }
+      .overlay-modal      { align-items:center; }
+      .modal-caixa        { border-radius:20px;max-height:80dvh; }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       DESKTOP  ≥ 1024px — layout app: sidebar + topbar + main
+    ═══════════════════════════════════════════════════════ */
+    @media(min-width:1024px) {
+
+      /* root: variáveis desktop */
+      :root { --sidebar-w:260px; --topbar-h:64px; }
+
+      /* container principal → grid */
+      #ecra-portal.activo {
+        display: grid;
+        grid-template-columns: var(--sidebar-w) 1fr;
+        grid-template-rows: var(--topbar-h) 1fr;
+        grid-template-areas: "sidebar topbar" "sidebar main";
+        min-height: 100vh;
+        padding-bottom: 0;
+        background: #eef0f3;
+      }
+
+      /* esconder componentes mobile */
+      .portal-header, .bottom-nav { display:none; }
+      .banner-perfil-inc { margin:0 0 24px;border-radius:14px; }
+
+      /* ── SIDEBAR ── */
+      .desk-sidebar {
+        display: flex; flex-direction: column;
+        grid-area: sidebar;
+        background: var(--primary);
+        height: 100vh; position: sticky; top: 0; overflow-y: auto;
+        scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.1) transparent;
+      }
+      /* marca */
+      .ds-marca {
+        padding: 28px 22px 22px;
+        border-bottom: 1px solid rgba(255,255,255,.1);
+      }
+      .ds-marca-logo {
+        width: 42px; height: 42px; border-radius: 11px;
+        background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.18);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; margin-bottom: 12px;
+      }
+      .ds-marca-nome { font-size: 15px; font-weight: 800; color: white; line-height: 1.1; }
+      .ds-marca-sub  { font-size: 10px; color: rgba(255,255,255,.4); margin-top: 4px; line-height: 1.4; }
+      .ds-online {
+        display: flex; align-items: center; gap: 6px; margin-top: 10px;
+        font-size: 11px; color: rgba(255,255,255,.5);
+      }
+      .ds-online-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: var(--primary-l); box-shadow: 0 0 6px rgba(16,200,134,.8);
+        animation: pulse-dot 2s ease-in-out infinite;
+      }
+      /* nav */
+      .ds-nav { flex: 1; padding: 14px 12px; }
+      .ds-nav-grupo { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.22); padding: 12px 12px 5px; }
+      .ds-nav-btn {
+        display: flex; align-items: center; gap: 11px;
+        width: 100%; padding: 10px 13px; border-radius: 9px;
+        background: none; border: none; cursor: pointer;
+        color: rgba(255,255,255,.55); font-size: 14px; font-weight: 600;
+        font-family: var(--font); text-align: left; margin-bottom: 2px;
+        transition: all .18s; position: relative;
+      }
+      .ds-nav-btn .material-symbols-outlined {
+        font-size: 19px; flex-shrink: 0;
+        font-variation-settings: 'FILL' 0, 'wght' 300; transition: all .18s;
+      }
+      .ds-nav-btn:hover { background: rgba(255,255,255,.08); color: white; }
+      .ds-nav-btn.activo {
+        background: rgba(255,255,255,.14); color: white; font-weight: 700;
+      }
+      .ds-nav-btn.activo .material-symbols-outlined {
+        font-variation-settings: 'FILL' 1, 'wght' 600; color: var(--primary-l);
+      }
+      .ds-nav-badge {
+        margin-left: auto; background: var(--red); color: white;
+        font-size: 10px; font-weight: 800; min-width: 18px; height: 18px;
+        border-radius: 9px; display: none; align-items: center; justify-content: center;
+        padding: 0 5px;
+      }
+      .ds-nav-badge.visivel { display: flex; }
+      /* rodapé sidebar */
+      .ds-rodape {
+        padding: 14px;
+        border-top: 1px solid rgba(255,255,255,.1);
+      }
+      .ds-rodape-inner {
+        display: flex; align-items: center; gap: 10px;
+        background: rgba(255,255,255,.08); border-radius: 11px;
+        padding: 10px 12px; border: 1px solid rgba(255,255,255,.1);
+        cursor: pointer; transition: background .18s;
+      }
+      .ds-rodape-inner:hover { background: rgba(255,255,255,.13); }
+      .ds-rodape-av {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: rgba(255,255,255,.2); border: 1.5px solid rgba(255,255,255,.3);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 12px; font-weight: 800; color: white; flex-shrink: 0;
+      }
+      .ds-rodape-nome  { font-size: 12px; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+      .ds-rodape-cargo { font-size: 10px; color: rgba(255,255,255,.4); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+      .ds-logout {
+        margin-left: auto; flex-shrink: 0; background: none; border: none;
+        cursor: pointer; color: rgba(255,255,255,.3); padding: 4px;
+        transition: color .18s; border-radius: 6px;
+      }
+      .ds-logout:hover { color: #f87171; }
+      .ds-logout .material-symbols-outlined { font-size: 17px; }
+
+      /* ── TOPBAR ── */
+      .desk-topbar {
+        display: flex; align-items: center; gap: 20px;
+        grid-area: topbar;
+        background: white; border-bottom: 1px solid var(--border);
+        padding: 0 32px;
+        position: sticky; top: 0; z-index: 100;
+        box-shadow: 0 1px 0 var(--border);
+      }
+      .dt-saudacao {
+        flex: 1; font-size: 20px; font-weight: 800; color: var(--txt); letter-spacing: -.4px;
+      }
+      .dt-saudacao em { font-style: normal; color: var(--primary); }
+      .dt-live {
+        display: flex; align-items: center; gap: 7px;
+        font-size: 12px; color: var(--txt-3); font-weight: 500;
+        background: var(--bg); padding: 6px 12px; border-radius: 20px;
+        border: 1px solid var(--border);
+      }
+      .dt-live-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: var(--primary-l); box-shadow: 0 0 6px rgba(16,200,134,.7);
+        animation: pulse-dot 2s ease-in-out infinite;
+      }
+      .dt-avatar {
+        width: 36px; height: 36px; border-radius: 50%;
+        background: var(--primary); color: white;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 800; cursor: pointer;
+        transition: transform .18s; flex-shrink: 0;
+      }
+      .dt-avatar:hover { transform: scale(1.1); }
+
+      /* ── MAIN ÁREA ── */
+      .portal-abas-content {
+        grid-area: main;
+        padding: 28px 32px 40px;
+        overflow-y: auto; height: calc(100vh - var(--topbar-h));
+      }
+
+      /* ── ABA INÍCIO — grid 2 colunas ── */
+      #aba-docs.activa {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        grid-template-rows: auto;
+        gap: 0 24px;
+        align-items: start;
+      }
+      /* esconder KPIs mobile, mostrar row desktop */
+      .kpi-total-card, .kpi-grid { display: none; }
+      /* coluna esquerda abrange banner + kpi-row + docs */
+      .desk-kpi-row {
+        display: grid; grid-template-columns: repeat(3,1fr); gap: 14px;
+        margin-bottom: 22px; grid-column: 1;
+      }
+      .desk-kpi-card {
+        background: white; border-radius: 14px; padding: 18px 20px;
+        display: flex; align-items: center; gap: 14px;
+        box-shadow: 0 1px 4px rgba(0,0,0,.06);
+        border: 1px solid var(--border); transition: all .2s; cursor: default;
+      }
+      .desk-kpi-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.09); transform: translateY(-2px); }
+      .desk-kpi-icon {
+        width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .desk-kpi-icon .material-symbols-outlined { font-size: 24px; font-variation-settings: 'FILL' 1; }
+      .desk-kpi-icon.azul  { background: #eff6ff; } .desk-kpi-icon.azul  .material-symbols-outlined { color: #3b82f6; }
+      .desk-kpi-icon.verde { background: var(--primary-xl); } .desk-kpi-icon.verde .material-symbols-outlined { color: var(--primary); }
+      .desk-kpi-icon.amber { background: #fef3c7; } .desk-kpi-icon.amber .material-symbols-outlined { color: var(--amber); }
+      .desk-kpi-num { font-size: 26px; font-weight: 800; color: var(--txt); letter-spacing: -1px; font-family: var(--mono); }
+      .desk-kpi-lbl { font-size: 12px; color: var(--txt-3); font-weight: 500; margin-top: 2px; }
+      /* secção docs desktop */
+      .desk-docs-section {
+        background: white; border-radius: 14px; padding: 20px;
+        box-shadow: 0 1px 4px rgba(0,0,0,.06); border: 1px solid var(--border);
+        grid-column: 1;
+      }
+      .desk-sec-titulo {
+        font-size: 14px; font-weight: 800; color: var(--txt); margin-bottom: 14px;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .desk-sec-badge {
+        font-size: 11px; font-weight: 700; padding: 3px 9px;
+        background: var(--primary-xl); color: var(--primary); border-radius: 20px;
+      }
+      /* coluna direita: card perfil + campos */
+      .desk-col-dir {
+        grid-column: 2; grid-row: 1 / 10;
+        display: flex; flex-direction: column; gap: 14px;
+      }
+      .perfil-card-verde { margin-bottom: 0; }
+      .perfil-campos-lista { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 0; }
+
+      /* ── ABA MEUS DOCS desktop ── */
+      #aba-meus-docs.activa { display: block; }
+      .aba-titulo-pg { font-size: 20px; margin-bottom: 20px; }
+
+      /* ── ABA PEDIR desktop — 2 col ── */
+      #aba-solicitar.activa {
+        display: grid; grid-template-columns: 1fr 400px; gap: 32px; align-items: start;
+      }
+      .tipo-grid { grid-template-columns: repeat(2,1fr); }
+      .btn-submeter { margin-top: 0; }
+
+      /* ── ABA PERFIL desktop — 2 col ── */
+      #aba-perfil.activa {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;
+      }
+      .perfil-header-aba { grid-column: span 2; }
+      .perfil-grelha { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .perf-campo.span2 { grid-column: span 2; }
+
+      /* modal desktop centrado */
+      .overlay-modal { align-items: center; }
+      .modal-caixa { border-radius: 20px; max-height: 80vh; }
+
+      /* toast desktop — canto inferior direito */
+      .notif { bottom: 28px; right: 28px; left: auto; transform: none; }
+    }
   </style>
 </head>
 <body>
@@ -496,9 +746,56 @@
 </div>
 
 
-<!-- ════ ECRÃ PORTAL — LAYOUT MOBILE-FIRST ════ -->
+<!-- ════ ECRÃ PORTAL ════ -->
 <div id="ecra-portal" class="ecra">
 
+  <!-- ── SIDEBAR DESKTOP (display:none em mobile) ── -->
+  <aside class="desk-sidebar">
+    <div class="ds-marca">
+      <div class="ds-marca-logo">🏥</div>
+      <div class="ds-marca-nome">Portal do<br>Funcionário</div>
+      <div class="ds-marca-sub">SIGDOC-SUMBE · Direcção Municipal da Saúde do Sumbe</div>
+      <div class="ds-online"><span class="ds-online-dot"></span> Em linha — dados em tempo real</div>
+    </div>
+    <nav class="ds-nav">
+      <div class="ds-nav-grupo">Menu Principal</div>
+      <button class="ds-nav-btn activo" id="dsn-inicio" onclick="navegarAba('aba-docs',this)">
+        <span class="material-symbols-outlined">home</span> Início
+      </button>
+      <button class="ds-nav-btn" id="dsn-docs" onclick="navegarAba('aba-meus-docs',this)">
+        <span class="material-symbols-outlined">description</span> Os meus documentos
+        <span class="ds-nav-badge" id="ds-badge-pendentes">0</span>
+      </button>
+      <div class="ds-nav-grupo">Acções</div>
+      <button class="ds-nav-btn" id="dsn-pedir" onclick="navegarAba('aba-solicitar',this)">
+        <span class="material-symbols-outlined">add_circle</span> Pedir documento
+      </button>
+      <button class="ds-nav-btn" id="dsn-perfil" onclick="navegarAba('aba-perfil',this)">
+        <span class="material-symbols-outlined">person</span> O meu perfil
+      </button>
+    </nav>
+    <div class="ds-rodape">
+      <div class="ds-rodape-inner" onclick="navegarAba('aba-perfil')">
+        <div class="ds-rodape-av" id="ds-av">?</div>
+        <div>
+          <div class="ds-rodape-nome"  id="ds-nome">—</div>
+          <div class="ds-rodape-cargo" id="ds-cargo">—</div>
+        </div>
+        <button class="ds-logout" onclick="event.stopPropagation();fazerLogoutFuncionario()" title="Sair">
+          <span class="material-symbols-outlined">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── TOPBAR DESKTOP ── -->
+  <header class="desk-topbar">
+    <div class="dt-saudacao" id="dt-saudacao">Bom dia, <em>—</em></div>
+    <div class="dt-live"><span class="dt-live-dot"></span> Documentos actualizados em tempo real</div>
+    <div class="dt-avatar" id="dt-avatar" onclick="navegarAba('aba-perfil')">?</div>
+  </header>
+
+  <!-- ── HEADER MOBILE ── -->
   <header class="portal-header">
     <div class="portal-header-top">
       <div class="portal-header-marca">
@@ -512,13 +809,11 @@
     </div>
     <div class="portal-header-hero">
       <div class="ph-saudacao" id="ph-saudacao">Bom dia!</div>
-      <div class="ph-status">
-        <span class="ph-status-dot"></span>
-        <span>Documentos actualizados em tempo real</span>
-      </div>
+      <div class="ph-status"><span class="ph-status-dot"></span><span>Documentos actualizados em tempo real</span></div>
     </div>
   </header>
 
+  <!-- ── BANNER PERFIL INCOMPLETO ── -->
   <div class="banner-perfil-inc" id="banner-completar">
     <div class="bpi-topo">
       <div class="bpi-icone"><span class="material-symbols-outlined">priority_high</span></div>
@@ -526,15 +821,17 @@
     </div>
     <div class="bpi-texto">Preencha o formulário profissional para que os seus documentos sejam processados correctamente.</div>
     <button class="bpi-btn" onclick="window.location.href='formulario.html'">
-      <span class="material-symbols-outlined">edit_document</span>
-      Completar Perfil
+      <span class="material-symbols-outlined">edit_document</span> Completar Perfil
     </button>
   </div>
 
+  <!-- ── CONTEÚDO DAS ABAS ── -->
   <div class="portal-abas-content">
 
-    <!-- INÍCIO -->
+    <!-- ABA INÍCIO -->
     <div id="aba-docs" class="aba-portal activa">
+
+      <!-- KPIs mobile (escondidos no desktop) -->
       <div class="kpi-total-card">
         <div class="kpi-total-icon"><span class="material-symbols-outlined">file_copy</span></div>
         <div class="kpi-total-num" id="pk-total">—</div>
@@ -552,102 +849,128 @@
           <div class="kpi-mini-lbl">Pendentes</div>
         </div>
       </div>
-      <div class="perfil-card-verde">
-        <div class="perfil-card-topo">
-          <div class="perfil-card-av" id="pcv-avatar">?</div>
-          <div>
-            <div class="perfil-card-nome" id="pcv-nome">—</div>
-            <div class="perfil-card-cargo" id="pcv-cargo">—</div>
-          </div>
+
+      <!-- KPIs desktop (escondidos em mobile via CSS) -->
+      <div class="desk-kpi-row">
+        <div class="desk-kpi-card">
+          <div class="desk-kpi-icon azul"><span class="material-symbols-outlined">file_copy</span></div>
+          <div><div class="desk-kpi-num" id="dk-total">—</div><div class="desk-kpi-lbl">Total de Solicitações</div></div>
         </div>
-        <div class="perfil-card-acoes">
-          <button class="perfil-card-btn" onclick="navegarAba('aba-perfil')" title="Ver perfil">
-            <span class="material-symbols-outlined">badge</span>
-          </button>
-          <button class="perfil-card-btn" onclick="navegarAba('aba-solicitar')" title="Pedir documento">
-            <span class="material-symbols-outlined">add_circle</span>
-          </button>
+        <div class="desk-kpi-card">
+          <div class="desk-kpi-icon verde"><span class="material-symbols-outlined">check_circle</span></div>
+          <div><div class="desk-kpi-num" id="dk-aprovados">—</div><div class="desk-kpi-lbl">Aprovados</div></div>
+        </div>
+        <div class="desk-kpi-card">
+          <div class="desk-kpi-icon amber"><span class="material-symbols-outlined">schedule</span></div>
+          <div><div class="desk-kpi-num" id="dk-pendentes">—</div><div class="desk-kpi-lbl">Pendentes</div></div>
         </div>
       </div>
-      <div class="perfil-campos-lista">
-        <div class="perfil-campo-card">
-          <div class="perfil-campo-rotulo">Número de Agente</div>
-          <div class="perfil-campo-valor" id="pcv-numero">—</div>
+
+      <!-- Documentos recentes (desktop: secção com título; mobile: usa lista-docs) -->
+      <div class="desk-docs-section">
+        <div class="desk-sec-titulo">
+          Documentos e solicitações
+          <span class="desk-sec-badge" id="dk-total-badge">—</span>
         </div>
-        <div class="perfil-campo-card">
-          <div class="perfil-campo-rotulo">Bilhete de Identidade</div>
-          <div class="perfil-campo-valor" id="pcv-bi">—</div>
+        <div id="lista-docs-portal">
+          <div class="vazio-portal"><div class="vi">⏳</div><p>A carregar os seus documentos…</p></div>
         </div>
-        <div class="perfil-campo-card">
-          <div class="perfil-campo-rotulo">Categoria / Cargo</div>
-          <div class="perfil-campo-valor" id="pcv-categoria">—</div>
+      </div>
+
+      <!-- Coluna direita desktop: card perfil + campos -->
+      <div class="desk-col-dir">
+        <div class="perfil-card-verde">
+          <div class="perfil-card-topo">
+            <div class="perfil-card-av" id="pcv-avatar">?</div>
+            <div>
+              <div class="perfil-card-nome"  id="pcv-nome">—</div>
+              <div class="perfil-card-cargo" id="pcv-cargo">—</div>
+            </div>
+          </div>
+          <div class="perfil-card-acoes">
+            <button class="perfil-card-btn" onclick="navegarAba('aba-perfil')" title="Ver perfil">
+              <span class="material-symbols-outlined">badge</span>
+            </button>
+            <button class="perfil-card-btn" onclick="navegarAba('aba-solicitar')" title="Pedir documento">
+              <span class="material-symbols-outlined">add_circle</span>
+            </button>
+          </div>
         </div>
-        <div class="perfil-campo-card">
-          <div class="perfil-campo-rotulo">Local de Colocação</div>
-          <div class="perfil-campo-valor" id="pcv-unidade">—</div>
+        <div class="perfil-campos-lista">
+          <div class="perfil-campo-card">
+            <div class="perfil-campo-rotulo">Número de Agente</div>
+            <div class="perfil-campo-valor" id="pcv-numero">—</div>
+          </div>
+          <div class="perfil-campo-card">
+            <div class="perfil-campo-rotulo">Bilhete de Identidade</div>
+            <div class="perfil-campo-valor" id="pcv-bi">—</div>
+          </div>
+          <div class="perfil-campo-card">
+            <div class="perfil-campo-rotulo">Categoria / Cargo</div>
+            <div class="perfil-campo-valor" id="pcv-categoria">—</div>
+          </div>
+          <div class="perfil-campo-card">
+            <div class="perfil-campo-rotulo">Local de Colocação</div>
+            <div class="perfil-campo-valor" id="pcv-unidade">—</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- MEUS DOCS -->
+    <!-- ABA MEUS DOCS -->
     <div id="aba-meus-docs" class="aba-portal">
       <div class="aba-titulo-pg">Os meus documentos</div>
-      <div id="lista-docs-portal">
-        <div class="vazio-portal"><div class="vi">⏳</div><p>A carregar os seus documentos…</p></div>
+      <div id="lista-docs-meus">
+        <div class="vazio-portal"><div class="vi">⏳</div><p>A carregar…</p></div>
       </div>
     </div>
 
-    <!-- PEDIR -->
+    <!-- ABA PEDIR -->
     <div id="aba-solicitar" class="aba-portal">
-      <div class="pedir-titulo">Pedir documento</div>
-      <div class="pedir-sub">Seleccione o tipo de documento que pretende solicitar. A Secção de RH receberá e processará brevemente.</div>
-      <div class="tipo-grid" id="tipos-doc-grid">
-        <div class="tipo-card" onclick="seleccionarTipo('guia-ferias',this)">
-          <div class="tdico">🏖️</div>
-          <div class="tdnome">Guia de Férias</div>
-          <div class="tdsub">Autorização de férias anuais</div>
-        </div>
-        <div class="tipo-card" onclick="seleccionarTipo('declaracao-servico',this)">
-          <div class="tdico">📜</div>
-          <div class="tdnome">Declaração de Serviço</div>
-          <div class="tdsub">Declaração de vínculo</div>
-        </div>
-        <div class="tipo-card" onclick="seleccionarTipo('guia-medica',this)">
-          <div class="tdico">🏥</div>
-          <div class="tdnome">Guia Médica</div>
-          <div class="tdsub">Para consultas médicas</div>
-        </div>
-        <div class="tipo-card" onclick="seleccionarTipo('oficio',this)">
-          <div class="tdico">📋</div>
-          <div class="tdnome">Ofício / Nota</div>
-          <div class="tdsub">Comunicação oficial</div>
-        </div>
-      </div>
-      <div id="form-solicitacao-extra" style="display:none">
-        <div class="form-extra">
-          <div class="campo-g" id="campo-data-inicio-wrap" style="display:none">
-            <label>Data de Início das Férias <em style="color:var(--red)">*</em></label>
-            <input type="date" id="sol-data-inicio" class="campo-inp campo-mono" oninput="validarDataInicio()"/>
-            <div class="campo-hint">📅 Essencial — RH calcula os dias de férias com base nesta data.</div>
-            <div id="erro-data-inicio"></div>
+      <div>
+        <div class="pedir-titulo">Pedir documento</div>
+        <div class="pedir-sub">Seleccione o tipo de documento que pretende solicitar. A Secção de RH receberá e processará brevemente.</div>
+        <div class="tipo-grid" id="tipos-doc-grid">
+          <div class="tipo-card" onclick="seleccionarTipo('guia-ferias',this)">
+            <div class="tdico">🏖️</div><div class="tdnome">Guia de Férias</div><div class="tdsub">Autorização de férias anuais</div>
           </div>
-          <div class="campo-g">
-            <label>Finalidade / Motivo <span style="font-size:10px;font-weight:400;color:var(--txt-4)">(opcional)</span></label>
-            <textarea id="sol-motivo" class="campo-inp" rows="3" placeholder="Descreva brevemente o motivo…" style="resize:vertical"></textarea>
-            <div class="campo-hint">Opcional — ajuda a RH a processar mais rapidamente.</div>
+          <div class="tipo-card" onclick="seleccionarTipo('declaracao-servico',this)">
+            <div class="tdico">📜</div><div class="tdnome">Declaração de Serviço</div><div class="tdsub">Declaração de vínculo</div>
+          </div>
+          <div class="tipo-card" onclick="seleccionarTipo('guia-medica',this)">
+            <div class="tdico">🏥</div><div class="tdnome">Guia Médica</div><div class="tdsub">Para consultas médicas</div>
+          </div>
+          <div class="tipo-card" onclick="seleccionarTipo('oficio',this)">
+            <div class="tdico">📋</div><div class="tdnome">Ofício / Nota</div><div class="tdsub">Comunicação oficial</div>
           </div>
         </div>
-        <button class="btn-submeter" id="btn-submeter-sol" onclick="submeterSolicitacao()">
-          <span class="material-symbols-outlined">send</span>
-          Enviar solicitação
-        </button>
       </div>
-      <div id="msg-solicitacao" style="margin-top:12px"></div>
+      <div>
+        <div id="form-solicitacao-extra" style="display:none">
+          <div class="form-extra">
+            <div class="campo-g" id="campo-data-inicio-wrap" style="display:none">
+              <label>Data de Início das Férias <em style="color:var(--red)">*</em></label>
+              <input type="date" id="sol-data-inicio" class="campo-inp campo-mono" oninput="validarDataInicio()"/>
+              <div class="campo-hint">📅 Essencial — RH calcula os dias de férias com base nesta data.</div>
+              <div id="erro-data-inicio"></div>
+            </div>
+            <div class="campo-g">
+              <label>Finalidade / Motivo <span style="font-size:10px;font-weight:400;color:var(--txt-4)">(opcional)</span></label>
+              <textarea id="sol-motivo" class="campo-inp" rows="4" placeholder="Descreva brevemente o motivo…" style="resize:vertical"></textarea>
+              <div class="campo-hint">Opcional — ajuda a RH a processar mais rapidamente.</div>
+            </div>
+          </div>
+          <button class="btn-submeter" id="btn-submeter-sol" onclick="submeterSolicitacao()">
+            <span class="material-symbols-outlined">send</span> Enviar solicitação
+          </button>
+        </div>
+        <div id="msg-solicitacao" style="margin-top:12px"></div>
+      </div>
     </div>
 
-    <!-- PERFIL -->
+    <!-- ABA PERFIL -->
     <div id="aba-perfil" class="aba-portal">
-      <div class="perfil-header-aba">
+      <div class="perfil-header-aba" style="grid-column:span 2">
         <div class="perfil-card-topo">
           <div class="perfil-card-av" id="perf-avatar">?</div>
           <div>
@@ -660,52 +983,51 @@
           <span class="perfil-aba-badge" id="perf-estado">—</span>
         </div>
       </div>
-      <div class="perfil-grelha" id="perfil-grelha">
-        <div class="perf-campo"><div class="rotulo">A carregar</div><div class="valor">—</div></div>
-      </div>
-      <div class="docs-carr">
-        <div class="docs-carr-titulo">📎 Os meus documentos carregados</div>
-        <div id="zona-docs-carregados"><div class="doc-fich-vazio">A verificar documentos...</div></div>
-      </div>
-      <div class="perfil-edit-sec">
-        <div class="perfil-edit-titulo">⚙️ Edição rápida</div>
-        <a href="formulario.html" style="display:flex;align-items:center;justify-content:center;gap:10px;background:var(--primary);color:white;border-radius:12px;padding:14px;font-size:14px;font-weight:700;text-decoration:none;text-align:center;margin-bottom:12px">
-          <span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:'FILL' 1">edit_document</span>
-          Completar / Actualizar Formulário
-        </a>
-        <div class="campo-g">
-          <label>Telefone de contacto</label>
-          <input type="tel" id="perf-telefone-edit" class="campo-inp" placeholder="900 000 000"/>
+      <div>
+        <div class="perfil-grelha" id="perfil-grelha">
+          <div class="perf-campo"><div class="rotulo">A carregar</div><div class="valor">—</div></div>
         </div>
-        <button class="btn btn-prim btn-full" onclick="guardarPerfil()">💾 Guardar telefone</button>
+      </div>
+      <div>
+        <div class="docs-carr">
+          <div class="docs-carr-titulo">📎 Os meus documentos carregados</div>
+          <div id="zona-docs-carregados"><div class="doc-fich-vazio">A verificar documentos...</div></div>
+        </div>
+        <div class="perfil-edit-sec" style="margin-top:12px">
+          <div class="perfil-edit-titulo">⚙️ Edição rápida</div>
+          <a href="formulario.html" style="display:flex;align-items:center;justify-content:center;gap:10px;background:var(--primary);color:white;border-radius:12px;padding:14px;font-size:14px;font-weight:700;text-decoration:none;margin-bottom:12px">
+            <span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:'FILL' 1">edit_document</span>
+            Completar / Actualizar Formulário
+          </a>
+          <div class="campo-g">
+            <label>Telefone de contacto</label>
+            <input type="tel" id="perf-telefone-edit" class="campo-inp" placeholder="900 000 000"/>
+          </div>
+          <button class="btn btn-prim btn-full" onclick="guardarPerfil()">💾 Guardar telefone</button>
+        </div>
       </div>
     </div>
 
-  </div>
+  </div><!-- /portal-abas-content -->
 
-  <!-- BOTTOM NAV -->
+  <!-- ── BOTTOM NAV MOBILE ── -->
   <nav class="bottom-nav">
     <button class="bn-btn activo" id="bn-inicio" onclick="navegarAba('aba-docs',this)">
-      <span class="material-symbols-outlined">home</span>
-      <span class="bn-lbl">Início</span>
+      <span class="material-symbols-outlined">home</span><span class="bn-lbl">Início</span>
     </button>
     <button class="bn-btn" id="bn-docs" onclick="navegarAba('aba-meus-docs',this)">
-      <span class="material-symbols-outlined">description</span>
-      <span class="bn-lbl">Meus Docs</span>
+      <span class="material-symbols-outlined">description</span><span class="bn-lbl">Meus Docs</span>
       <span class="bn-badge" id="badge-pendentes">0</span>
     </button>
     <button class="bn-btn" id="bn-pedir" onclick="navegarAba('aba-solicitar',this)">
-      <span class="material-symbols-outlined">add_circle</span>
-      <span class="bn-lbl">Pedir</span>
+      <span class="material-symbols-outlined">add_circle</span><span class="bn-lbl">Pedir</span>
     </button>
     <button class="bn-btn" id="bn-perfil" onclick="navegarAba('aba-perfil',this)">
-      <span class="material-symbols-outlined">person</span>
-      <span class="bn-lbl">Perfil</span>
+      <span class="material-symbols-outlined">person</span><span class="bn-lbl">Perfil</span>
     </button>
   </nav>
 
-</div>
-
+</div><!-- /ecra-portal -->
 <!-- MODAL DETALHE -->
 <div class="overlay-modal" id="overlay-detalhe-sol" onclick="if(event.target===this)this.classList.remove('activo')">
   <div class="modal-caixa">
@@ -942,6 +1264,17 @@
     // Header
     document.getElementById("pt-avatar").textContent=inic;
     document.getElementById("ph-saudacao").textContent=saud+", "+primeiroNome+"! 👋";
+    // desktop
+    const dtSaud = document.getElementById("dt-saudacao");
+    if (dtSaud) dtSaud.innerHTML = saud+", <em>"+primeiroNome+"!</em>";
+    const dsAv = document.getElementById("ds-av");
+    if (dsAv) dsAv.textContent = inic;
+    const dtAv = document.getElementById("dt-avatar");
+    if (dtAv) dtAv.textContent = inic;
+    const dsNome = document.getElementById("ds-nome");
+    if (dsNome) dsNome.textContent = nome;
+    const dsCargo = document.getElementById("ds-cargo");
+    if (dsCargo) dsCargo.textContent = f.categoria||"Funcionário";
     // Card verde no início
     document.getElementById("pcv-avatar").textContent=inic;
     document.getElementById("pcv-nome").textContent=nome;
@@ -991,6 +1324,16 @@
       document.getElementById("pk-total").textContent = total;
       document.getElementById("pk-aprovados").textContent = aprov;
       document.getElementById("pk-pendentes").textContent = pend;
+      // KPIs desktop
+      ["dk-total","dk-aprovados","dk-pendentes"].forEach((id,i)=>{
+        const el=document.getElementById(id);
+        if(el) el.textContent=[total,aprov,pend][i];
+      });
+      const dkBadge=document.getElementById("dk-total-badge");
+      if(dkBadge) dkBadge.textContent=total;
+      // badge sidebar
+      const dsBadge=document.getElementById("ds-badge-pendentes");
+      if(dsBadge){ dsBadge.textContent=pend; dsBadge.classList.toggle("visivel",pend>0); }
       const bp = document.getElementById("badge-pendentes");
       if (pend > 0) { bp.textContent = pend; bp.style.display = "inline"; } else bp.style.display = "none";
 
@@ -1264,28 +1607,30 @@
   function notif(msg,cls){const el=document.getElementById("notif");el.textContent=msg;el.className="notif "+cls;el.style.display="block";setTimeout(()=>el.style.display="none",3500);}
   window.mostrarNotif=notif;
 
-  // ── Navegação bottom-bar ──
-  window.navegarAba = function(abaId, btnRef) {
-    // Desactivar todas as abas
+  // ── Navegação (mobile bottom-nav + desktop sidebar) ──
+  window.navegarAba = function(abaId) {
     document.querySelectorAll(".aba-portal").forEach(a => a.classList.remove("activa"));
-    document.querySelectorAll(".bn-btn").forEach(b => b.classList.remove("activo"));
-    // Activar aba
     const aba = document.getElementById(abaId);
     if (aba) aba.classList.add("activa");
-    // Activar botão — mapear aba → botão
-    const mapa = {
-      "aba-docs":       "bn-inicio",
-      "aba-meus-docs":  "bn-docs",
-      "aba-solicitar":  "bn-pedir",
-      "aba-perfil":     "bn-perfil"
-    };
-    const btnId = mapa[abaId];
-    if (btnId) document.getElementById(btnId)?.classList.add("activo");
-    // Scroll ao topo
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // mobile bottom-nav
+    const mapaM = { "aba-docs":"bn-inicio", "aba-meus-docs":"bn-docs", "aba-solicitar":"bn-pedir", "aba-perfil":"bn-perfil" };
+    document.querySelectorAll(".bn-btn").forEach(b => b.classList.remove("activo"));
+    const mid = mapaM[abaId];
+    if (mid) document.getElementById(mid)?.classList.add("activo");
+    // desktop sidebar
+    const mapaD = { "aba-docs":"dsn-inicio", "aba-meus-docs":"dsn-docs", "aba-solicitar":"dsn-pedir", "aba-perfil":"dsn-perfil" };
+    document.querySelectorAll(".ds-nav-btn").forEach(b => b.classList.remove("activo"));
+    const did = mapaD[abaId];
+    if (did) document.getElementById(did)?.classList.add("activo");
+    // sincronizar lista-docs-meus (aba separada no desktop)
+    if (abaId === "aba-meus-docs") {
+      const src = document.getElementById("lista-docs-portal");
+      const dst = document.getElementById("lista-docs-meus");
+      if (src && dst) dst.innerHTML = src.innerHTML;
+    }
+    const main = document.querySelector(".portal-abas-content");
+    if (main) main.scrollTo({ top: 0, behavior: "smooth" });
   };
-
-  // Compatibilidade com código antigo que chama abrirAba
   window.abrirAba = function(id) { navegarAba(id); };
 </script>
 </body>
