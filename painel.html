@@ -6,17 +6,19 @@
   <title>SIGDOC-SUMBE — Painel de Gestão</title>
   <meta name="theme-color" content="#0d1422"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <script src="sigdoc-config.js">
+  <script src="sigdoc-config.js"></script>
+  <script src="sigdoc-nav.js"></script>
+  <script>
   function mostrarNotif(msg, tipo="sucesso") {
     const el = document.getElementById("notificacao-painel");
+    if (!el) { console.warn("notif:", msg); return; }
     el.textContent = msg;
     el.className = `toast toast-${tipo}`;
     el.style.display = "block";
     clearTimeout(el._t);
     el._t = setTimeout(() => { el.style.display = "none"; }, 4500);
   }
-</script>
-  <script src="sigdoc-nav.js"></script>
+  </script>
   <style>
     :root {
       --bg:       #0d1422;
