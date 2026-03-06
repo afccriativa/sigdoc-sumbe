@@ -815,23 +815,8 @@
               <div class="d-card-header">
                 <div class="d-card-titulo">⚡ Acções Rápidas</div>
               </div>
-              <div class="quick-actions-grid">
-                <a href="cadastro.html" class="qa-btn">
-                  <span class="qa-ic">👤</span>
-                  <span class="qa-txt">Novo Funcionário</span>
-                </a>
-                <a href="documentos.html" class="qa-btn">
-                  <span class="qa-ic">📄</span>
-                  <span class="qa-txt">Gerar Documento</span>
-                </a>
-                <a href="aprovacao.html" class="qa-btn">
-                  <span class="qa-ic">✅</span>
-                  <span class="qa-txt">Aprovações</span>
-                </a>
-                <a href="auditoria.html" class="qa-btn">
-                  <span class="qa-ic">📋</span>
-                  <span class="qa-txt">Auditoria</span>
-                </a>
+              <div class="quick-actions-grid" id="quick-actions-grid">
+                <!-- preenchido por JS conforme perfil -->
               </div>
             </div>
 
@@ -1100,11 +1085,46 @@
       if(banPor) banPor.style.display = p==="chefe"?"flex":"none";
       carregarSessoes(); carregarIndicadores();
     } else if (p==="tecnico") {
-      carregarIndicadores();
+      carregarSessoes(); carregarIndicadores();
     } else {
       // funcionário
       document.getElementById("secção-funcionario").style.display="block";
       document.getElementById("menu-modulos").style.display="none";
+    }
+
+    // ── Acções Rápidas — filtradas por perfil ──
+    const ACCOES_POR_PERFIL = {
+      admin:    [
+        { href:"cadastro.html",   ic:"👤", txt:"Novo Funcionário" },
+        { href:"documentos.html", ic:"📄", txt:"Gerar Documento"  },
+        { href:"aprovacao.html",  ic:"✅", txt:"Aprovações"       },
+        { href:"auditoria.html",  ic:"📋", txt:"Auditoria"        },
+      ],
+      chefe:    [
+        { href:"cadastro.html",   ic:"👤", txt:"Novo Funcionário" },
+        { href:"documentos.html", ic:"📄", txt:"Gerar Documento"  },
+        { href:"aprovacao.html",  ic:"✅", txt:"Aprovações"       },
+        { href:"auditoria.html",  ic:"📋", txt:"Auditoria"        },
+      ],
+      tecnico:  [
+        { href:"cadastro.html",   ic:"👤", txt:"Novo Funcionário" },
+        { href:"documentos.html", ic:"📄", txt:"Gerar Documento"  },
+      ],
+      director: [
+        { href:"aprovacao.html",  ic:"✅", txt:"Aprovações"       },
+        { href:"auditoria.html",  ic:"📋", txt:"Auditoria"        },
+        { href:"painel.html",     ic:"📈", txt:"Painel RH"        },
+      ],
+    };
+    const grid = document.getElementById("quick-actions-grid");
+    if (grid) {
+      const accoes = ACCOES_POR_PERFIL[p] || [];
+      grid.innerHTML = accoes.map(a =>
+        `<a href="${a.href}" class="qa-btn">
+          <span class="qa-ic">${a.ic}</span>
+          <span class="qa-txt">${a.txt}</span>
+        </a>`
+      ).join("");
     }
 
     // Mostrar/ocultar itens da sidebar conforme perfil
