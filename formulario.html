@@ -837,6 +837,7 @@
     _utilizador = user;
 
     // Carregar dados existentes do funcionário
+    // 1ª tentativa: leitura directa por ID (get — mais rápido e seguro)
     try {
       const snapU = await getDoc(doc(db, "utilizadores", user.uid));
       if (snapU.exists() && snapU.data().funcionarioId) {
@@ -845,18 +846,21 @@
         if (snapF.exists()) {
           _funcDoc = snapF.data();
           preencherFormularioExistente(_funcDoc);
-        }
-      } else {
-        // Fallback por portalUid
-        const qf = query(collection(db, "funcionarios"), where("portalUid", "==", user.uid));
-        const sf = await getDocs(qf);
-        if (!sf.empty) {
-          _funcDocId = sf.docs[0].id;
-          _funcDoc   = sf.docs[0].data();
-          preencherFormularioExistente(_funcDoc);
+          return;
         }
       }
-    } catch(e) { console.warn("Pré-preenchimento:", e); }
+    } catch(e) { console.warn("Pré-preenchimento (getDoc):", e); }
+    // 2ª tentativa: pesquisa por portalUid (só corre se o 1º falhou)
+    try {
+      const qf = query(collection(db, "funcionarios"), where("portalUid", "==", user.uid));
+      const sf = await getDocs(qf);
+      if (!sf.empty) {
+        _funcDocId = sf.docs[0].id;
+        _funcDoc   = sf.docs[0].data();
+        preencherFormularioExistente(_funcDoc);
+        try { await updateDoc(doc(db, "utilizadores", user.uid), { funcionarioId: _funcDocId }); } catch(_) {}
+      }
+    } catch(e) { console.warn("Pré-preenchimento (query):", e); }
   });
 
   // ── Pré-preencher com dados existentes ──
