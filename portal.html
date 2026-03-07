@@ -1061,7 +1061,7 @@
   let _sessaoToken=null,_unsubSessao=null;
 
   const LABELS_TIPO={"guia-ferias":{nome:"Guia de Férias",icone:"🏖️",bg:"#fef9e7"},"declaracao-servico":{nome:"Declaração de Serviço",icone:"📜",bg:"#eff6ff"},"guia-medica":{nome:"Guia Médica",icone:"🏥",bg:"var(--c-50)"},"oficio":{nome:"Ofício / Nota",icone:"📋",bg:"var(--p-100)"}};
-  const LABELS_ESTADO={nova:{texto:"Nova",classe:"est-nova"},processando:{texto:"Em processamento",classe:"est-processando"},concluida:{texto:"Aprovado ✅",classe:"est-aprovado"},rejeitada:{texto:"Rejeitado ❌",classe:"est-rejeitado"},pendente:{texto:"Pendente ⏳",classe:"est-pendente"}};
+  const LABELS_ESTADO={nova:{texto:"✅ Recebida",classe:"est-nova"},processando:{texto:"🔄 Em processamento",classe:"est-processando"},concluida:{texto:"📄 Disponível",classe:"est-aprovado"},rejeitada:{texto:"🚫 Anulada",classe:"est-rejeitado"},pendente:{texto:"📄 Disponível",classe:"est-aprovado"},aprovado:{texto:"📄 Disponível",classe:"est-aprovado"},gerado:{texto:"📄 Disponível",classe:"est-aprovado"}};
 
   function esconderLoading(){
     const el=document.getElementById("ecra-loading");
