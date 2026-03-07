@@ -384,7 +384,7 @@
     </div>
 
     <button class="btn-gerar" onclick="gerarDocumento()">&#128065; Gerar Pré-visualização</button>
-    <button class="btn-submeter" id="btn-submeter" onclick="submeterDocumento()" disabled>&#128228; Submeter para Aprovação</button>
+    <button class="btn-submeter" id="btn-submeter" onclick="submeterDocumento()" disabled>&#128228; Guardar Documento</button>
     <button class="btn-imprimir" id="btn-imprimir" onclick="imprimirDocumento()" disabled>&#128424; Imprimir / Exportar PDF</button>
     <div class="badge-estado" id="badge-estado"></div>
 
@@ -1009,7 +1009,7 @@
       console.error("Erro ao submeter:", e);
       mostrarNotificacao("❌ Erro ao submeter. Tente novamente.");
       btnSub.disabled = false;
-      btnSub.innerHTML = "&#128228; Submeter para Aprovação";
+      btnSub.innerHTML = "&#128228; Guardar Documento";
     }
   }
 
