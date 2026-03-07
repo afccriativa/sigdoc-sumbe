@@ -229,16 +229,12 @@
        ================================================ */
     @media print {
       @page { size: A4 landscape; margin: 3mm; }
-      /* Esconder elementos conhecidos do layout */
-      .barra-topo,
-      .layout,
-      .notificacao,
-      .badge-estado,
-      #btn-submeter,
-      #btn-imprimir,
-      #btn-preview { display: none !important; }
-      /* Mostrar apenas o documento */
-      #area-impressao { display: block !important; position: fixed; top: 0; left: 0; width: 100%; }
+      /* Esconder absolutamente tudo — incluindo sidebar injectada pelo sigdoc-nav.js */
+      body * { visibility: hidden; }
+      /* Mostrar apenas o conteúdo do documento */
+      #area-impressao,
+      #area-impressao * { visibility: visible; }
+      #area-impressao { position: fixed; top: 0; left: 0; width: 100%; display: block !important; }
 
       #area-impressao .documento-oficial {
         width: 291mm; height: 204mm;
