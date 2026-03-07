@@ -936,7 +936,7 @@
     try {
       const docRef = await addDoc(collection(db, "documentos"), {
         ...dadosUltimoDocumento,
-        estado: "pendente",
+        estado: "gerado",
         geradoPor: utilizadorActual.uid,
         geradoPorEmail: utilizadorActual.email,
         geradoEm: serverTimestamp(),
@@ -960,11 +960,11 @@
       btnSub.style.display = "none";
 
       const badge = document.getElementById("badge-estado");
-      badge.className = "badge-estado badge-pendente";
-      badge.innerHTML = "⏳ Aguarda aprovação do Chefe de Secção";
+      badge.className = "badge-estado badge-gerado";
+      badge.innerHTML = "📄 Documento gerado — pronto para impressão";
       badge.style.display = "flex";
 
-      mostrarNotificacao("✅ Documento submetido! O Chefe será notificado.");
+      mostrarNotificacao("✅ Documento gerado com sucesso! Pode agora imprimir.");
 
       // Se veio de solicitação do portal → marcar solicitação como "concluida"
       if (window._solicitacaoOrigemId) {
@@ -980,29 +980,7 @@
         } catch(eUpd) { console.warn("Não actualizou solicitação:", eUpd); }
       }
 
-      // Listener em tempo real — actualiza o estado assim que o Chefe decidir
-      onSnapshot(doc(db, "documentos", docRef.id), (snap) => {
-        if (!snap.exists()) return;
-        const dados = snap.data();
-
-        if (dados.estado === "aprovado") {
-          badge.className = "badge-estado badge-aprovado";
-          badge.style.cssText = "";
-          const obs = dados.observacao ? ` — <em style="font-weight:400">"${dados.observacao}"</em>` : "";
-          badge.innerHTML = `✅ Aprovado pelo Chefe de Secção${obs}`;
-          badge.style.display = "flex";
-          mostrarNotificacao("✅ O seu documento foi aprovado pelo Chefe!");
-
-        } else if (dados.estado === "rejeitado") {
-          badge.className = "badge-estado";
-          badge.style.background = "#fdecea";
-          badge.style.color = "#c0392b";
-          badge.style.border = "1.5px solid #e74c3c";
-          badge.style.display = "flex";
-          const obs = dados.observacao ? ` — <em style="font-weight:400">"${dados.observacao}"</em>` : "";
-          badge.innerHTML = `❌ Rejeitado pelo Chefe de Secção${obs}`;
-          mostrarNotificacao("❌ O seu documento foi rejeitado. Verifique a observação.");
-        }
+      // Documento gerado — estado final, não aguarda aprovação digital
       });
 
     } catch(e) {
