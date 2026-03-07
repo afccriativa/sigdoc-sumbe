@@ -676,6 +676,40 @@
       transition: background .15s;
     }
     .btn-expulsar:hover { background: rgba(220,38,38,.25); }
+
+    /* ── SECRETARIA ── */
+    .btn-filtro-sec { background:var(--bg-card); border:1px solid rgba(255,255,255,.12); color:var(--txt-sec); padding:7px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; transition:all .15s; }
+    .btn-filtro-sec.activo { background:rgba(99,102,241,.2); border-color:rgba(99,102,241,.5); color:#818cf8; }
+    .sec-item { padding:14px 16px; border-bottom:1px solid rgba(255,255,255,.06); display:flex; gap:12px; align-items:flex-start; }
+    .sec-item:last-child { border-bottom:none; }
+    .sec-item-info { flex:1; min-width:0; }
+    .sec-item-nome { font-size:13px; font-weight:700; color:var(--txt-pri); }
+    .sec-item-assunto { font-size:12px; color:var(--txt-sec); margin:2px 0 6px; }
+    .sec-item-msg { font-size:12px; color:var(--txt-sec); opacity:.8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:400px; }
+    .sec-item-acoes { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+    .badge-sec-novo    { background:rgba(59,130,246,.2);  color:#60a5fa; border:1px solid rgba(59,130,246,.3);  padding:2px 8px; border-radius:99px; font-size:11px; font-weight:700; white-space:nowrap; }
+    .badge-sec-analise { background:rgba(245,158,11,.2);  color:#fbbf24; border:1px solid rgba(245,158,11,.3);  padding:2px 8px; border-radius:99px; font-size:11px; font-weight:700; white-space:nowrap; }
+    .badge-sec-resp    { background:rgba(16,185,129,.2);  color:#34d399; border:1px solid rgba(16,185,129,.3);  padding:2px 8px; border-radius:99px; font-size:11px; font-weight:700; white-space:nowrap; }
+    .badge-sec-fechado { background:rgba(100,116,139,.2); color:#94a3b8; border:1px solid rgba(100,116,139,.3); padding:2px 8px; border-radius:99px; font-size:11px; font-weight:700; white-space:nowrap; }
+    .badge-sec-pend    { background:rgba(245,158,11,.2);  color:#fbbf24; border:1px solid rgba(245,158,11,.3);  padding:2px 8px; border-radius:99px; font-size:11px; font-weight:700; white-space:nowrap; }
+    .badge-sec-conf    { background:rgba(16,185,129,.2);  color:#34d399; border:1px solid rgba(16,185,129,.3);  padding:2px 8px; border-radius:99px; font-size:11px; font-weight:700; white-space:nowrap; }
+    .badge-sec-rec     { background:rgba(239,68,68,.2);   color:#f87171; border:1px solid rgba(239,68,68,.3);   padding:2px 8px; border-radius:99px; font-size:11px; font-weight:700; white-space:nowrap; }
+    .badge-sec-remapc  { background:rgba(139,92,246,.2);  color:#a78bfa; border:1px solid rgba(139,92,246,.3);  padding:2px 8px; border-radius:99px; font-size:11px; font-weight:700; white-space:nowrap; }
+    .btn-sec-sm { padding:5px 10px; border-radius:6px; font-size:11px; font-weight:700; border:none; cursor:pointer; }
+    .btn-sec-resp  { background:rgba(99,102,241,.2); color:#818cf8; }
+    .btn-sec-anal  { background:rgba(245,158,11,.15); color:#fbbf24; }
+    .btn-sec-fech  { background:rgba(100,116,139,.15); color:#94a3b8; }
+    .btn-sec-conf  { background:rgba(16,185,129,.15); color:#34d399; }
+    .btn-sec-recus { background:rgba(239,68,68,.15); color:#f87171; }
+    .modal-sec { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9999; display:flex; align-items:center; justify-content:center; padding:16px; }
+    .modal-sec-card { background:var(--bg-card); border-radius:16px; padding:28px; width:100%; max-width:520px; border:1px solid rgba(255,255,255,.1); }
+    .modal-sec-titulo { font-size:16px; font-weight:800; color:var(--txt-pri); margin-bottom:6px; }
+    .modal-sec-sub { font-size:13px; color:var(--txt-sec); margin-bottom:18px; }
+    .modal-sec-label { font-size:11px; font-weight:700; color:var(--txt-sec); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+    .modal-sec-texto { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:12px; font-size:13px; color:var(--txt-pri); line-height:1.6; margin-bottom:16px; white-space:pre-wrap; }
+    .modal-sec textarea { width:100%; min-height:100px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.15); border-radius:8px; padding:10px 12px; font-size:13px; color:var(--txt-pri); resize:vertical; box-sizing:border-box; }
+    .modal-sec input[type=text], .modal-sec input[type=datetime-local] { width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.15); border-radius:8px; padding:9px 12px; font-size:13px; color:var(--txt-pri); box-sizing:border-box; margin-bottom:12px; }
+    .modal-sec-btns { display:flex; gap:10px; margin-top:18px; justify-content:flex-end; }
 </style>
 </head>
 <body>
@@ -749,6 +783,9 @@
       <span class="nav-ic">✅</span> Aprovações
     </a>
 
+    <a href="#" onclick="mostrarSecção('secretaria');return false;" class="nav-item" id="mod-secretaria">
+      <span class="nav-ic">✉️</span> Secretaria
+    </a>
     <div class="sidebar-section-label">Gestão</div>
     <a href="auditoria.html" class="nav-item" id="mod-auditoria">
       <span class="nav-ic">🔍</span> Auditoria
@@ -996,6 +1033,59 @@
         </div>
       </div>
 
+      <!-- ══ SECÇÃO SECRETARIA ══ -->
+      <div id="secção-secretaria" class="secção-restrita" style="display:none;">
+        <div class="secção-titulo" style="margin-bottom:20px">✉️ Secretaria</div>
+
+        <!-- Filtros -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+          <button class="btn-filtro-sec activo" onclick="filtrarSecretaria('pedidos',this)">📬 Pedidos de Informação</button>
+          <button class="btn-filtro-sec" onclick="filtrarSecretaria('reunioes',this)">📅 Agendamentos de Reunião</button>
+        </div>
+
+        <!-- Painel Pedidos -->
+        <div id="painel-pedidos-sec">
+          <div class="painel-card" style="margin-bottom:16px">
+            <div class="painel-card-header">
+              <div class="painel-card-titulo">📬 Pedidos de Informação</div>
+              <div style="display:flex;gap:8px">
+                <select id="filtro-estado-pedidos" onchange="carregarPedidosSecretaria()" style="font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:var(--bg-card);color:var(--txt-pri)">
+                  <option value="">Todos</option>
+                  <option value="novo">Novos</option>
+                  <option value="em_analise">Em análise</option>
+                  <option value="respondido">Respondidos</option>
+                  <option value="fechado">Fechados</option>
+                </select>
+              </div>
+            </div>
+            <div id="lista-pedidos-secretaria">
+              <div class="vazio-estado"><div class="icone">✉️</div><p>A carregar...</p></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Painel Reuniões -->
+        <div id="painel-reunioes-sec" style="display:none">
+          <div class="painel-card">
+            <div class="painel-card-header">
+              <div class="painel-card-titulo">📅 Agendamentos de Reunião</div>
+              <div style="display:flex;gap:8px">
+                <select id="filtro-estado-reunioes" onchange="carregarReunioesSecretaria()" style="font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:var(--bg-card);color:var(--txt-pri)">
+                  <option value="">Todos</option>
+                  <option value="pendente">Pendentes</option>
+                  <option value="confirmada">Confirmadas</option>
+                  <option value="recusada">Recusadas</option>
+                  <option value="remarcada">Remarcadas</option>
+                </select>
+              </div>
+            </div>
+            <div id="lista-reunioes-secretaria">
+              <div class="vazio-estado"><div class="icone">📅</div><p>A carregar...</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /conteudo -->
   </div><!-- /main-wrap -->
 </div>
@@ -1037,6 +1127,7 @@
       <select id="novo-perfil">
         <option value="funcionario">Funcionário de Unidade Sanitária</option>
         <option value="tecnico">Técnico de RH</option>
+        <option value="secretaria">Secretaria</option>
         <option value="chefe">Chefe de Secção</option>
         <option value="director">Director Municipal</option>
         <option value="admin">Administrador do Sistema</option>
@@ -1091,7 +1182,8 @@
 
   const etiquetasPerfil = {
     admin:"Administrador do Sistema", director:"Director Municipal",
-    chefe:"Chefe de Secção", tecnico:"Técnico de RH", funcionario:"Funcionário de Unidade"
+    chefe:"Chefe de Secção", tecnico:"Técnico de RH",
+    secretaria:"Secretaria", funcionario:"Funcionário de Unidade"
   };
 
   let utilizadorActual = null, perfilActual = null;
@@ -1171,15 +1263,25 @@
 
   // Navegação entre secções do dashboard
   window.mostrarSecção = function(id) {
-    const secções = ["dashboard","utilizadores","sessoes"];
+    const secções = ["dashboard","utilizadores","sessoes","secretaria"];
     secções.forEach(s => {
       const el = document.getElementById("secção-" + s);
       if(el) el.style.display = s === id ? "block" : "none";
     });
-    const titulos = { dashboard:"Dashboard", utilizadores:"Gestão de Utilizadores", sessoes:"Acessos Recentes" };
+    const titulos = { dashboard:"Dashboard", utilizadores:"Gestão de Utilizadores", sessoes:"Acessos Recentes", secretaria:"Secretaria" };
     const tt = document.getElementById("topbar-titulo");
     if(tt) tt.textContent = titulos[id] || "Dashboard";
     document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("activo"));
+    if(id === "secretaria") carregarPedidosSecretaria();
+  };
+
+  window.filtrarSecretaria = function(tipo, btn) {
+    document.querySelectorAll('.btn-filtro-sec').forEach(b => b.classList.remove('activo'));
+    if (btn) btn.classList.add('activo');
+    document.getElementById('painel-pedidos-sec').style.display  = tipo === 'pedidos'  ? '' : 'none';
+    document.getElementById('painel-reunioes-sec').style.display = tipo === 'reunioes' ? '' : 'none';
+    if (tipo === 'pedidos')  carregarPedidosSecretaria();
+    if (tipo === 'reunioes') carregarReunioesSecretaria();
   };
 
   function mostrarPainel(u, d) {
@@ -1208,6 +1310,10 @@
       // Esconder card Acessos Recentes — tecnico não tem permissão na colecção sessoes
       const secSessoes = document.getElementById("secção-sessoes-mini");
       if (secSessoes) secSessoes.style.display = "none";
+    } else if (p==="secretaria") {
+      // secretaria: esconder tudo menos o painel de secretaria
+      const secSessoes2 = document.getElementById("secção-sessoes-mini");
+      if (secSessoes2) secSessoes2.style.display = "none";
     } else {
       // funcionário
       document.getElementById("secção-funcionario").style.display="block";
@@ -1232,6 +1338,10 @@
         { href:"documentos.html", ic:"📄", txt:"Gerar Documento"  },
         { href:"aprovacao.html",  ic:"✅", txt:"Solicitações"     },
       ],
+      secretaria: [
+        { href:"index.html#secretaria", ic:"✉️", txt:"Pedidos"          },
+        { href:"index.html#reunioes",   ic:"📅", txt:"Reuniões"         },
+      ],
       director: [
         { href:"auditoria.html",  ic:"📋", txt:"Auditoria"        },
         { href:"painel.html",     ic:"📈", txt:"Painel RH"        },
@@ -1253,11 +1363,12 @@
       admin:       ["mod-cadastro","mod-documentos","mod-auditoria","mod-painel","mod-portal","mod-utilizadores-card"],
       chefe:       ["mod-cadastro","mod-documentos","mod-auditoria","mod-portal"],
       tecnico:     ["mod-cadastro","mod-documentos","mod-aprovacao"],
+      secretaria:  ["mod-secretaria"],
       director:    ["mod-auditoria","mod-painel"],
       funcionario: []
     };
     const vis = acessoSidebar[p] || [];
-    ["mod-cadastro","mod-documentos","mod-aprovacao","mod-auditoria","mod-painel","mod-portal","mod-utilizadores-card"].forEach(id => {
+    ["mod-cadastro","mod-documentos","mod-aprovacao","mod-auditoria","mod-painel","mod-portal","mod-utilizadores-card","mod-secretaria"].forEach(id => {
       const el = document.getElementById(id);
       if(el) el.style.display = vis.includes(id) ? "" : "none";
     });
@@ -1269,11 +1380,12 @@
       admin:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card","mod-painel-card"],
       chefe:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card"],
       tecnico:     ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card"],
+      secretaria:  ["mod-secretaria-card"],
       director:    ["mod-auditoria-card","mod-painel-card"],
       funcionario: []
     };
     const visCards = acessoCards[p] || [];
-    ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-auditoria-card","mod-painel-card"].forEach(id => {
+    ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-auditoria-card","mod-painel-card","mod-secretaria-card"].forEach(id => {
       const el = document.getElementById(id);
       if(el) el.style.display = visCards.includes(id) ? "" : "none";
     });
@@ -1283,6 +1395,8 @@
       iniciarWatcherPendentes();
     } else if (p === "tecnico") {
       iniciarWatcherTecnico();
+    } else if (p === "secretaria") {
+      iniciarWatcherSecretaria();
     } else {
       // Esconder sino para perfis sem acesso
       const sino = document.getElementById("sino-btn");
@@ -1838,6 +1952,301 @@
     }
   };
 
+
+  // ══════════════════════════════════════════════════════════
+  //  SECRETARIA — pedidos e reuniões
+  // ══════════════════════════════════════════════════════════
+
+  const BADGE_PEDIDO = {
+    novo:       '<span class="badge-sec-novo">🔵 Novo</span>',
+    em_analise: '<span class="badge-sec-analise">🟡 Em análise</span>',
+    respondido: '<span class="badge-sec-resp">🟢 Respondido</span>',
+    fechado:    '<span class="badge-sec-fechado">⚫ Fechado</span>'
+  };
+  const BADGE_REUNIAO = {
+    pendente:   '<span class="badge-sec-pend">⏳ Pendente</span>',
+    confirmada: '<span class="badge-sec-conf">✅ Confirmada</span>',
+    recusada:   '<span class="badge-sec-rec">❌ Recusada</span>',
+    remarcada:  '<span class="badge-sec-remapc">🔄 Remarcada</span>',
+    realizada:  '<span class="badge-sec-fechado">✔ Realizada</span>'
+  };
+  const ASSUNTOS_SEC = {
+    'ferias-licencas':'Férias e Licenças','abonos-salarios':'Abonos e Salários',
+    'documentacao':'Documentação Pessoal','transferencias':'Transferências',
+    'escalas':'Escalas de Serviço','outro':'Outro'
+  };
+  const DEST_REUNIAO = {
+    'director':'Director Municipal de Saúde',
+    'chefe-rh':'Chefe de Secção de Recursos Humanos',
+    'chefe-af':'Chefe de Secção de Administração e Finanças',
+    'chefe-spe':'Chefe de Secção de Saúde Pública e Epidemiologia',
+    'chefe-lm':'Chefe de Secção de Logística e Medicamentos'
+  };
+
+  async function carregarPedidosSecretaria() {
+    const el = document.getElementById('lista-pedidos-secretaria');
+    if (!el) return;
+    el.innerHTML = '<div class="vazio-estado"><p>⏳ A carregar…</p></div>';
+    try {
+      const filtro = document.getElementById('filtro-estado-pedidos')?.value || '';
+      let q = filtro
+        ? query(collection(db,'pedidos_secretaria'), where('estado','==',filtro))
+        : query(collection(db,'pedidos_secretaria'));
+      const snap = await getDocs(q);
+      if (snap.empty) { el.innerHTML = '<div class="vazio-estado"><div class="icone">✉️</div><p>Sem pedidos.</p></div>'; return; }
+      const docs = snap.docs.map(d=>({id:d.id,...d.data()}))
+        .sort((a,b)=>(b.criadoEm?.toDate?.()?.getTime()||0)-(a.criadoEm?.toDate?.()?.getTime()||0));
+      el.innerHTML = docs.map(p => {
+        const data = p.criadoEm?.toDate ? p.criadoEm.toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+        const assunto = ASSUNTOS_SEC[p.assunto] || p.assunto || '—';
+        const badge = BADGE_PEDIDO[p.estado] || p.estado;
+        const resposta = p.respostaTexto ? `<div class="sec-item-msg">💬 ${p.respostaTexto.substring(0,80)}${p.respostaTexto.length>80?'…':''}</div>` : '';
+        const btns = p.estado !== 'fechado' && p.estado !== 'respondido' ? `
+          <button class="btn-sec-sm btn-sec-resp"  onclick="abrirModalResponderPedido('${p.id}')">✏️ Responder</button>
+          ${p.estado==='novo'?`<button class="btn-sec-sm btn-sec-anal" onclick="marcarPedidoAnalise('${p.id}')">🔍 Em análise</button>`:''}
+          <button class="btn-sec-sm btn-sec-fech"  onclick="fecharPedido('${p.id}')">✖ Fechar</button>
+        ` : (p.estado==='respondido' ? `<button class="btn-sec-sm btn-sec-resp" onclick="abrirModalResponderPedido('${p.id}')">✏️ Reeditar</button>` : '');
+        return `<div class="sec-item">
+          <div class="sec-item-info">
+            <div class="sec-item-nome">${p.funcionarioNome||'—'} <span style="opacity:.5;font-weight:400">· ${p.unidade||'—'}</span></div>
+            <div class="sec-item-assunto">📌 ${assunto} · ${data}</div>
+            <div class="sec-item-msg">${(p.mensagem||'').substring(0,100)}${(p.mensagem||'').length>100?'…':''}</div>
+            ${resposta}
+            <div class="sec-item-acoes">${badge}${btns}</div>
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) { console.error(e); el.innerHTML = '<div class="vazio-estado"><p>⚠️ Erro ao carregar.</p></div>'; }
+  }
+
+  async function carregarReunioesSecretaria() {
+    const el = document.getElementById('lista-reunioes-secretaria');
+    if (!el) return;
+    el.innerHTML = '<div class="vazio-estado"><p>⏳ A carregar…</p></div>';
+    try {
+      const filtro = document.getElementById('filtro-estado-reunioes')?.value || '';
+      let q = filtro
+        ? query(collection(db,'reunioes'), where('estado','==',filtro))
+        : query(collection(db,'reunioes'));
+      const snap = await getDocs(q);
+      if (snap.empty) { el.innerHTML = '<div class="vazio-estado"><div class="icone">📅</div><p>Sem reuniões.</p></div>'; return; }
+      const docs = snap.docs.map(d=>({id:d.id,...d.data()}))
+        .sort((a,b)=>(b.criadoEm?.toDate?.()?.getTime()||0)-(a.criadoEm?.toDate?.()?.getTime()||0));
+      el.innerHTML = docs.map(r => {
+        const data = r.criadoEm?.toDate ? r.criadoEm.toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+        const dataPref = r.dataPreferida ? new Date(r.dataPreferida).toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+        const dest = DEST_REUNIAO[r.destinatario] || r.destinatario || '—';
+        const badge = BADGE_REUNIAO[r.estado] || r.estado;
+        const confirmada = r.estado==='confirmada' && r.dataSugerida
+          ? `<div class="sec-item-msg">📅 Confirmada: ${new Date(r.dataSugerida).toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})} · ${r.local||'—'}</div>` : '';
+        const recusada = r.estado==='recusada' && r.motivoRecusa
+          ? `<div class="sec-item-msg">❌ Motivo: ${r.motivoRecusa}</div>` : '';
+        const btns = (r.estado==='pendente'||r.estado==='remarcada') ? `
+          <button class="btn-sec-sm btn-sec-conf"  onclick="abrirModalConfirmarReuniao('${r.id}')">✅ Confirmar</button>
+          <button class="btn-sec-sm btn-sec-recus" onclick="abrirModalRecusarReuniao('${r.id}')">❌ Recusar</button>
+        ` : '';
+        return `<div class="sec-item">
+          <div class="sec-item-info">
+            <div class="sec-item-nome">${r.funcionarioNome||'—'} <span style="opacity:.5;font-weight:400">· ${r.unidade||'—'}</span></div>
+            <div class="sec-item-assunto">🎯 ${dest} · Preferida: ${dataPref} · ${data}</div>
+            <div class="sec-item-msg">${(r.assunto||'').substring(0,100)}</div>
+            ${confirmada}${recusada}
+            <div class="sec-item-acoes">${badge}${btns}</div>
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) { console.error(e); el.innerHTML = '<div class="vazio-estado"><p>⚠️ Erro ao carregar.</p></div>'; }
+  }
+
+  window.marcarPedidoAnalise = async function(id) {
+    try { await updateDoc(doc(db,'pedidos_secretaria',id),{estado:'em_analise',analisadoEm:serverTimestamp()}); carregarPedidosSecretaria(); mostrarNotif('🔍 Pedido marcado como Em análise.'); } catch(e){console.error(e);}
+  };
+  window.fecharPedido = async function(id) {
+    if(!confirm('Fechar este pedido sem resposta?')) return;
+    try { await updateDoc(doc(db,'pedidos_secretaria',id),{estado:'fechado',fechadoEm:serverTimestamp()}); carregarPedidosSecretaria(); mostrarNotif('✖ Pedido fechado.'); } catch(e){console.error(e);}
+  };
+
+  let _pedidoParaResponder = null;
+  let _reuniaoParaGestao   = null;
+
+  window.abrirModalResponderPedido = async function(id) {
+    _pedidoParaResponder = id;
+    try {
+      const snap = await getDoc(doc(db,'pedidos_secretaria',id));
+      const p = snap.data();
+      const assunto = ASSUNTOS_SEC[p.assunto]||p.assunto||'—';
+      document.body.insertAdjacentHTML('beforeend',`
+        <div class="modal-sec" id="modal-responder-pedido">
+          <div class="modal-sec-card">
+            <div class="modal-sec-titulo">✏️ Responder ao Pedido</div>
+            <div class="modal-sec-sub">${p.funcionarioNome||'—'} · ${assunto}</div>
+            <div class="modal-sec-label">Mensagem do funcionário</div>
+            <div class="modal-sec-texto">${p.mensagem||'—'}</div>
+            <div class="modal-sec-label">Resposta</div>
+            <textarea id="campo-resposta-pedido" placeholder="Escreva a resposta aqui…" style="margin-bottom:0">${p.respostaTexto||''}</textarea>
+            <div class="modal-sec-btns">
+              <button class="btn-sec-sm btn-sec-fech" onclick="document.getElementById('modal-responder-pedido').remove()">Cancelar</button>
+              <button class="btn-sec-sm btn-sec-resp" onclick="enviarRespostaPedido()">Enviar resposta</button>
+            </div>
+          </div>
+        </div>`);
+    } catch(e){console.error(e);}
+  };
+
+  window.enviarRespostaPedido = async function() {
+    const texto = document.getElementById('campo-resposta-pedido').value.trim();
+    if(!texto){alert('Escreva a resposta antes de enviar.');return;}
+    try {
+      await updateDoc(doc(db,'pedidos_secretaria',_pedidoParaResponder),{
+        estado:'respondido', respostaTexto:texto,
+        respondidoEm:serverTimestamp(), respondidoPor:utilizadorActual.uid
+      });
+      document.getElementById('modal-responder-pedido').remove();
+      carregarPedidosSecretaria();
+      mostrarNotif('✅ Resposta enviada!');
+    } catch(e){console.error(e);mostrarNotif('❌ Erro ao enviar.','erro');}
+  };
+
+  window.abrirModalConfirmarReuniao = async function(id) {
+    _reuniaoParaGestao = id;
+    try {
+      const snap = await getDoc(doc(db,'reunioes',id));
+      const r = snap.data();
+      document.body.insertAdjacentHTML('beforeend',`
+        <div class="modal-sec" id="modal-confirmar-reuniao">
+          <div class="modal-sec-card">
+            <div class="modal-sec-titulo">✅ Confirmar Reunião</div>
+            <div class="modal-sec-sub">${r.funcionarioNome||'—'} · ${DEST_REUNIAO[r.destinatario]||r.destinatario}</div>
+            <div class="modal-sec-label">Assunto</div>
+            <div class="modal-sec-texto">${r.assunto||'—'}</div>
+            <div class="modal-sec-label">Data e hora confirmada</div>
+            <input type="datetime-local" id="campo-data-reuniao" />
+            <div class="modal-sec-label">Local</div>
+            <input type="text" id="campo-local-reuniao" placeholder="Ex: Sala de Reuniões / Gabinete do Director" />
+            <div class="modal-sec-label">Observações (opcional)</div>
+            <textarea id="campo-obs-reuniao" placeholder="Notas adicionais…" style="min-height:60px;margin-bottom:0"></textarea>
+            <div class="modal-sec-btns">
+              <button class="btn-sec-sm btn-sec-fech" onclick="document.getElementById('modal-confirmar-reuniao').remove()">Cancelar</button>
+              <button class="btn-sec-sm btn-sec-conf" onclick="confirmarReuniao()">✅ Confirmar</button>
+            </div>
+          </div>
+        </div>`);
+    } catch(e){console.error(e);}
+  };
+
+  window.confirmarReuniao = async function() {
+    const data  = document.getElementById('campo-data-reuniao').value;
+    const local = document.getElementById('campo-local-reuniao').value.trim();
+    const obs   = document.getElementById('campo-obs-reuniao').value.trim();
+    if(!data||!local){alert('Preencha a data e o local.');return;}
+    try {
+      await updateDoc(doc(db,'reunioes',_reuniaoParaGestao),{
+        estado:'confirmada', dataSugerida:data, local, observacoes:obs,
+        actualizadoEm:serverTimestamp(), geridoPor:utilizadorActual.uid
+      });
+      document.getElementById('modal-confirmar-reuniao').remove();
+      carregarReunioesSecretaria();
+      mostrarNotif('✅ Reunião confirmada!');
+    } catch(e){console.error(e);mostrarNotif('❌ Erro.','erro');}
+  };
+
+  window.abrirModalRecusarReuniao = async function(id) {
+    _reuniaoParaGestao = id;
+    try {
+      const snap = await getDoc(doc(db,'reunioes',id));
+      const r = snap.data();
+      document.body.insertAdjacentHTML('beforeend',`
+        <div class="modal-sec" id="modal-recusar-reuniao">
+          <div class="modal-sec-card">
+            <div class="modal-sec-titulo">❌ Recusar Reunião</div>
+            <div class="modal-sec-sub">${r.funcionarioNome||'—'} · ${DEST_REUNIAO[r.destinatario]||r.destinatario}</div>
+            <div class="modal-sec-label">Motivo da recusa (obrigatório)</div>
+            <textarea id="campo-motivo-recusa" placeholder="Indique o motivo…" style="margin-bottom:0"></textarea>
+            <div class="modal-sec-btns">
+              <button class="btn-sec-sm btn-sec-fech" onclick="document.getElementById('modal-recusar-reuniao').remove()">Cancelar</button>
+              <button class="btn-sec-sm btn-sec-recus" onclick="recusarReuniao()">❌ Confirmar recusa</button>
+            </div>
+          </div>
+        </div>`);
+    } catch(e){console.error(e);}
+  };
+
+  window.recusarReuniao = async function() {
+    const motivo = document.getElementById('campo-motivo-recusa').value.trim();
+    if(!motivo){alert('O motivo é obrigatório.');return;}
+    try {
+      await updateDoc(doc(db,'reunioes',_reuniaoParaGestao),{
+        estado:'recusada', motivoRecusa:motivo,
+        actualizadoEm:serverTimestamp(), geridoPor:utilizadorActual.uid
+      });
+      document.getElementById('modal-recusar-reuniao').remove();
+      carregarReunioesSecretaria();
+      mostrarNotif('Reunião recusada.');
+    } catch(e){console.error(e);mostrarNotif('❌ Erro.','erro');}
+  };
+
+  // ── WATCHER SECRETARIA — pedidos novos + reuniões pendentes ──
+  let _unsubPedidosSec = null, _unsubReunioesSec = null;
+  let _pedidosNovos = [], _reunioesPend = [];
+
+  function iniciarWatcherSecretaria() {
+    if (_unsubPedidosSec) _unsubPedidosSec();
+    if (_unsubReunioesSec) _unsubReunioesSec();
+
+    _unsubPedidosSec = onSnapshot(
+      query(collection(db,'pedidos_secretaria'), where('estado','==','novo')),
+      snap => { _pedidosNovos = snap.docs.map(d=>({id:d.id,...d.data()})); actualizarSinoSecretaria(); },
+      err => console.error('Watcher pedidos sec:',err)
+    );
+    _unsubReunioesSec = onSnapshot(
+      query(collection(db,'reunioes'), where('estado','==','pendente')),
+      snap => { _reunioesPend = snap.docs.map(d=>({id:d.id,...d.data()})); actualizarSinoSecretaria(); },
+      err => console.error('Watcher reunioes sec:',err)
+    );
+  }
+
+  function actualizarSinoSecretaria() {
+    const total  = _pedidosNovos.length + _reunioesPend.length;
+    const dot    = document.getElementById('notif-dot');
+    const count  = document.getElementById('sino-count');
+    const lista  = document.getElementById('notif-drop-lista');
+
+    if (total > 0) {
+      dot.classList.add('visivel'); count.classList.add('visivel');
+      count.textContent = total > 99 ? '99+' : total;
+    } else {
+      dot.classList.remove('visivel'); count.classList.remove('visivel');
+    }
+
+    if (total === 0) { lista.innerHTML = '<div class="notif-drop-vazio">✅ Sem pendentes</div>'; return; }
+
+    let html = '';
+    if (_pedidosNovos.length > 0) {
+      html += `<div style="padding:8px 16px 4px;font-size:10px;font-weight:800;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px">Pedidos novos (${_pedidosNovos.length})</div>`;
+      html += _pedidosNovos.slice(0,4).map(p => {
+        const assunto = ASSUNTOS_SEC[p.assunto]||p.assunto||'—';
+        return `<a class="notif-item" href="#" onclick="mostrarSecção('secretaria');return false;">
+          <div class="notif-ic notif-ic-sol">✉️</div>
+          <div class="notif-corpo">
+            <div class="notif-titulo">${p.funcionarioNome||'—'}</div>
+            <div class="notif-sub">${assunto}</div>
+          </div></a>`;
+      }).join('');
+    }
+    if (_reunioesPend.length > 0) {
+      html += `<div style="padding:8px 16px 4px;font-size:10px;font-weight:800;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;border-top:1px solid rgba(255,255,255,.06);margin-top:4px">Reuniões pendentes (${_reunioesPend.length})</div>`;
+      html += _reunioesPend.slice(0,3).map(r => {
+        const dest = DEST_REUNIAO[r.destinatario]||r.destinatario||'—';
+        return `<a class="notif-item" href="#" onclick="mostrarSecção('secretaria');filtrarSecretaria('reunioes',null);return false;">
+          <div class="notif-ic notif-ic-sol">📅</div>
+          <div class="notif-corpo">
+            <div class="notif-titulo">${r.funcionarioNome||'—'}</div>
+            <div class="notif-sub">${dest}</div>
+          </div></a>`;
+      }).join('');
+    }
+    lista.innerHTML = html;
+  }
 
   // ══════════════════════════════════════════════════════════
   //  SESSÕES ACTIVAS — leitura e expulsão remota
