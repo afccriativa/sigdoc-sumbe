@@ -675,7 +675,7 @@
 
   window.aprovarDocumento=async function(){
     if(!docSel||!utilizadorActual)return;
-    if(!_exigirPerfil(["admin","chefe","director"])){console.warn("Acesso negado: aprovar");return;}
+    if(!_exigirPerfil(["admin","chefe","director","tecnico"])){console.warn("Acesso negado: aprovar");return;}
     const bA=document.getElementById("btn-aprovar"),bR=document.getElementById("btn-rejeitar");
     bA.disabled=true; bR.disabled=true;
     bA.innerHTML='<span class="spinner"></span> A aprovar...';
@@ -800,7 +800,7 @@
   }
 
   window.processarSol=async function(){
-    if(!_exigirPerfil(["admin","chefe","director"])){console.warn("Acesso negado: processarSol");return;}
+    if(!_exigirPerfil(["admin","chefe","director","tecnico"])){console.warn("Acesso negado: processarSol");return;}
     if(!solSel)return;
     try{
       await updateDoc(doc(db,"solicitacoes",solSel.id),{estado:"processando",processadoPor:utilizadorActual.uid,processadoPorEmail:utilizadorActual.email,processadoEm:serverTimestamp()});
@@ -815,7 +815,7 @@
   };
 
   window.concluirSol=async function(){
-    if(!_exigirPerfil(["admin","chefe","director"])){console.warn("Acesso negado: concluirSol");return;}
+    if(!_exigirPerfil(["admin","chefe","director","tecnico"])){console.warn("Acesso negado: concluirSol");return;}
     if(!solSel)return;
     try{
       await updateDoc(doc(db,"solicitacoes",solSel.id),{estado:"concluida",concluidoPor:utilizadorActual.uid,concluidoPorEmail:utilizadorActual.email,concluidoEm:serverTimestamp()});
