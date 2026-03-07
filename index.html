@@ -1278,11 +1278,13 @@
       if(el) el.style.display = visCards.includes(id) ? "" : "none";
     });
 
-    // Activar notificações em tempo real para quem pode aprovar
+    // Activar notificações em tempo real conforme perfil
     if (["admin","chefe","director"].includes(p)) {
       iniciarWatcherPendentes();
+    } else if (p === "tecnico") {
+      iniciarWatcherTecnico();
     } else {
-      // Esconder sino para perfis sem acesso a aprovações
+      // Esconder sino para perfis sem acesso
       const sino = document.getElementById("sino-btn");
       if (sino) sino.style.display = "none";
     }
@@ -1311,6 +1313,65 @@
       _formsRHPend = snap.docs.map(d => ({ id: d.id, ...d.data(), _categoria: "form" }));
       actualizarSino();
     }, err => { console.error("Watcher formulários:", err); });
+  }
+
+  // ── WATCHER TÉCNICO — solicitações novas ──
+  let _unsubSolsNovas = null;
+  let _solsNovas = [];
+
+  function iniciarWatcherTecnico() {
+    if (_unsubSolsNovas) _unsubSolsNovas();
+    // IMPORTANTE: sem orderBy para evitar índice composto no Firestore
+    const q = query(collection(db, "solicitacoes"), where("estado", "==", "nova"));
+    _unsubSolsNovas = onSnapshot(q, snap => {
+      _solsNovas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      actualizarSinoTecnico();
+    }, err => { console.error("Watcher solicitações técnico:", err); });
+  }
+
+  function actualizarSinoTecnico() {
+    const total  = _solsNovas.length;
+    const dot    = document.getElementById("notif-dot");
+    const count  = document.getElementById("sino-count");
+    const lista  = document.getElementById("notif-drop-lista");
+
+    if (total > 0) {
+      dot.classList.add("visivel");
+      count.classList.add("visivel");
+      count.textContent = total > 99 ? "99+" : total;
+    } else {
+      dot.classList.remove("visivel");
+      count.classList.remove("visivel");
+    }
+
+    if (window.SIGDOC_NAV) SIGDOC_NAV.setBadges({ aprovacoes: total });
+
+    if (total === 0) {
+      lista.innerHTML = '<div class="notif-drop-vazio">✅ Sem solicitações novas</div>';
+      return;
+    }
+
+    let html = `<div style="padding:8px 16px 4px;font-size:10px;font-weight:800;
+      color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px">
+      Solicitações novas (${total})</div>`;
+
+    html += _solsNovas.slice(0, 6).map(s => {
+      const tipo = s.tipo || s.tipoDocumento || "Solicitação";
+      const func = s.funcionarioNome || s.funcionarioEmail || "—";
+      const hora = s.criadaEm?.toDate
+        ? s.criadaEm.toDate().toLocaleDateString("pt-AO", { day:"2-digit", month:"short" })
+        : "—";
+      return `<a class="notif-item" href="aprovacao.html">
+        <div class="notif-ic notif-ic-sol">📋</div>
+        <div class="notif-corpo">
+          <div class="notif-titulo">${tipo}</div>
+          <div class="notif-sub">${func} · ${hora}</div>
+        </div>
+      </a>`;
+    }).join("");
+
+    if (total > 6) html += `<div class="notif-drop-vazio">+ ${total - 6} mais por processar</div>`;
+    lista.innerHTML = html;
   }
 
   function actualizarSino() {
