@@ -772,6 +772,9 @@
       <button class="ds-nav-btn" id="dsn-pedir" onclick="navegarAba('aba-solicitar',this)">
         <span class="material-symbols-outlined">add_circle</span> Pedir documento
       </button>
+      <button class="ds-nav-btn" id="dsn-secretaria" onclick="navegarAba('aba-secretaria',this)">
+        <span class="material-symbols-outlined">support_agent</span> Secretaria
+      </button>
       <button class="ds-nav-btn" id="dsn-perfil" onclick="navegarAba('aba-perfil',this)">
         <span class="material-symbols-outlined">person</span> O meu perfil
       </button>
@@ -1012,6 +1015,83 @@
 
   </div><!-- /portal-abas-content -->
 
+  <!-- ── ABA SECRETARIA ── -->
+  <div id="aba-secretaria" class="aba-portal" style="padding:16px">
+    <div class="aba-titulo-pg">✉️ Secretaria</div>
+
+    <!-- Sub-tabs -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px">
+      <button class="subtab-sec activo" id="subtab-pedidos" onclick="trocarSubtabSec('pedidos',this)" style="background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.3);padding:7px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
+        ✉️ Contactar Secretaria
+      </button>
+      <button class="subtab-sec" id="subtab-reuniao" onclick="trocarSubtabSec('reuniao',this)" style="background:transparent;color:var(--txt-sub,#888);border:1px solid var(--border);padding:7px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
+        📅 Agendar Reunião
+      </button>
+    </div>
+
+    <!-- Painel Pedidos -->
+    <div id="sec-painel-pedidos">
+      <div id="sec-lista-pedidos" style="margin-bottom:16px">
+        <!-- preenchido por JS -->
+      </div>
+      <button onclick="abrirFormPedido()" style="width:100%;padding:12px;background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.3);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">
+        ✉️ Novo Pedido de Informação
+      </button>
+      <!-- Formulário novo pedido (oculto por defeito) -->
+      <div id="form-novo-pedido" style="display:none;margin-top:16px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:16px">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px">✉️ Novo Pedido de Informação</div>
+        <label style="font-size:12px;font-weight:700;color:var(--txt-sub,#888);display:block;margin-bottom:6px">Assunto</label>
+        <select id="sec-assunto" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card,#1e1e1e);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
+          <option value="">Seleccione o assunto…</option>
+          <option value="ferias-licencas">Férias e Licenças</option>
+          <option value="abonos-salarios">Abonos e Salários</option>
+          <option value="documentacao">Documentação Pessoal</option>
+          <option value="transferencias">Transferências</option>
+          <option value="escalas">Escalas de Serviço</option>
+          <option value="outro">Outro</option>
+        </select>
+        <label style="font-size:12px;font-weight:700;color:var(--txt-sub,#888);display:block;margin-bottom:6px">Mensagem <span id="sec-contador">0</span>/500</label>
+        <textarea id="sec-mensagem" maxlength="500" oninput="document.getElementById('sec-contador').textContent=this.value.length" placeholder="Descreva o seu pedido de informação…" style="width:100%;min-height:100px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card,#1e1e1e);color:var(--txt);font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px"></textarea>
+        <div id="sec-msg-pedido" style="margin-bottom:8px"></div>
+        <div style="display:flex;gap:8px">
+          <button onclick="cancelarFormPedido()" style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--txt-sub,#888);font-size:13px;font-weight:700;cursor:pointer">Cancelar</button>
+          <button onclick="enviarPedidoPortal()" id="btn-enviar-pedido" style="flex:2;padding:11px;border-radius:8px;background:rgba(99,102,241,.8);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer">📤 Enviar pedido</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Painel Reunião -->
+    <div id="sec-painel-reuniao" style="display:none">
+      <div id="sec-lista-reunioes" style="margin-bottom:16px">
+        <!-- preenchido por JS -->
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:16px">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px">📅 Solicitar Reunião</div>
+        <label style="font-size:12px;font-weight:700;color:var(--txt-sub,#888);display:block;margin-bottom:6px">Com quem</label>
+        <select id="sec-reuniao-dest" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card,#1e1e1e);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
+          <option value="">Seleccione…</option>
+          <option value="director">Director Municipal de Saúde</option>
+          <option value="chefe-rh">Chefe de Secção de Recursos Humanos</option>
+          <option value="chefe-af">Chefe de Secção de Administração e Finanças</option>
+          <option value="chefe-spe">Chefe de Secção de Saúde Pública e Epidemiologia</option>
+          <option value="chefe-lm">Chefe de Secção de Logística e Medicamentos</option>
+        </select>
+        <label style="font-size:12px;font-weight:700;color:var(--txt-sub,#888);display:block;margin-bottom:6px">Assunto da reunião</label>
+        <textarea id="sec-reuniao-assunto" maxlength="300" placeholder="Descreva brevemente o assunto…" style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card,#1e1e1e);color:var(--txt);font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px"></textarea>
+        <label style="font-size:12px;font-weight:700;color:var(--txt-sub,#888);display:block;margin-bottom:6px">Data preferida</label>
+        <input type="date" id="sec-reuniao-data" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card,#1e1e1e);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box" />
+        <label style="font-size:12px;font-weight:700;color:var(--txt-sub,#888);display:block;margin-bottom:6px">Período preferido</label>
+        <select id="sec-reuniao-periodo" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card,#1e1e1e);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
+          <option value="manha">Manhã (08h–12h)</option>
+          <option value="tarde">Tarde (14h–17h)</option>
+          <option value="indiferente">Indiferente</option>
+        </select>
+        <div id="sec-msg-reuniao" style="margin-bottom:8px"></div>
+        <button onclick="enviarPedidoReuniaoPortal()" id="btn-enviar-reuniao" style="width:100%;padding:12px;background:rgba(99,102,241,.8);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">📅 Solicitar reunião</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ── BOTTOM NAV MOBILE ── -->
   <nav class="bottom-nav">
     <button class="bn-btn activo" id="bn-inicio" onclick="navegarAba('aba-docs',this)">
@@ -1023,6 +1103,9 @@
     </button>
     <button class="bn-btn" id="bn-pedir" onclick="navegarAba('aba-solicitar',this)">
       <span class="material-symbols-outlined">add_circle</span><span class="bn-lbl">Pedir</span>
+    </button>
+    <button class="bn-btn" id="bn-secretaria" onclick="navegarAba('aba-secretaria',this)">
+      <span class="material-symbols-outlined">support_agent</span><span class="bn-lbl">Secretaria</span>
     </button>
     <button class="bn-btn" id="bn-perfil" onclick="navegarAba('aba-perfil',this)">
       <span class="material-symbols-outlined">person</span><span class="bn-lbl">Perfil</span>
@@ -1640,11 +1723,234 @@
     const main = document.querySelector(".portal-abas-content");
     if (main) main.scrollTo({ top: 0, behavior: "smooth" });
   };
+  // ── Navegação (mobile bottom-nav + desktop sidebar) ──
+  window.navegarAba = function(abaId) {
+    document.querySelectorAll(".aba-portal").forEach(a => a.classList.remove("activa"));
+    const aba = document.getElementById(abaId);
+    if (aba) aba.classList.add("activa");
+    // mobile bottom-nav
+    const mapaM = { "aba-docs":"bn-inicio", "aba-meus-docs":"bn-docs", "aba-solicitar":"bn-pedir", "aba-secretaria":"bn-secretaria", "aba-perfil":"bn-perfil" };
+    document.querySelectorAll(".bn-btn").forEach(b => b.classList.remove("activo"));
+    const mid = mapaM[abaId];
+    if (mid) document.getElementById(mid)?.classList.add("activo");
+    // desktop sidebar
+    const mapaD = { "aba-docs":"dsn-inicio", "aba-meus-docs":"dsn-docs", "aba-solicitar":"dsn-pedir", "aba-secretaria":"dsn-secretaria", "aba-perfil":"dsn-perfil" };
+    document.querySelectorAll(".ds-nav-btn").forEach(b => b.classList.remove("activo"));
+    const did = mapaD[abaId];
+    if (did) document.getElementById(did)?.classList.add("activo");
+    // sincronizar lista-docs-meus (aba separada no desktop)
+    if (abaId === "aba-meus-docs") {
+      const src = document.getElementById("lista-docs-portal");
+      const dst = document.getElementById("lista-docs-meus");
+      if (src && dst) dst.innerHTML = src.innerHTML;
+    }
+    // carregar secretaria ao entrar na aba
+    if (abaId === "aba-secretaria") carregarPedidosPortal();
+    const main = document.querySelector(".portal-abas-content");
+    if (main) main.scrollTo({ top: 0, behavior: "smooth" });
+  };
   window.abrirAba = function(id) { navegarAba(id); };
 
   // ══════════════════════════════════════════════════════════
-  //  GESTÃO DE SESSÃO ACTIVA — token + listener de expulsão
+  //  SECRETARIA — portal do funcionário
   // ══════════════════════════════════════════════════════════
+
+  const LABELS_PEDIDO = {
+    novo:       '🔵 Novo',
+    em_analise: '🟡 Em análise',
+    respondido: '🟢 Respondido',
+    fechado:    '⚫ Fechado'
+  };
+  const LABELS_REUNIAO_P = {
+    pendente:   '⏳ Pendente',
+    confirmada: '✅ Confirmada',
+    recusada:   '❌ Recusada',
+    remarcada:  '🔄 Remarcada',
+    realizada:  '✔ Realizada'
+  };
+  const ASSUNTOS_LABEL = {
+    'ferias-licencas':'Férias e Licenças','abonos-salarios':'Abonos e Salários',
+    'documentacao':'Documentação Pessoal','transferencias':'Transferências',
+    'escalas':'Escalas de Serviço','outro':'Outro'
+  };
+  const DEST_LABEL = {
+    'director':'Director Municipal de Saúde',
+    'chefe-rh':'Chefe de RH','chefe-af':'Chefe de AF',
+    'chefe-spe':'Chefe de SPE','chefe-lm':'Chefe de LM'
+  };
+
+  window.trocarSubtabSec = function(tipo, btn) {
+    document.querySelectorAll('.subtab-sec').forEach(b => {
+      b.style.background = 'transparent';
+      b.style.color = 'var(--txt-sub,#888)';
+      b.style.borderColor = 'var(--border)';
+    });
+    if (btn) {
+      btn.style.background = 'rgba(99,102,241,.15)';
+      btn.style.color = '#818cf8';
+      btn.style.borderColor = 'rgba(99,102,241,.3)';
+    }
+    document.getElementById('sec-painel-pedidos').style.display  = tipo === 'pedidos'  ? '' : 'none';
+    document.getElementById('sec-painel-reuniao').style.display  = tipo === 'reuniao'  ? '' : 'none';
+    if (tipo === 'pedidos') carregarPedidosPortal();
+    if (tipo === 'reuniao') carregarReunioesPortal();
+  };
+
+  async function carregarPedidosPortal() {
+    if (!_utilizador) return;
+    const el = document.getElementById('sec-lista-pedidos');
+    if (!el) return;
+    try {
+      const snap = await getDocs(query(collection(db,'pedidos_secretaria'), where('funcionarioUid','==',_utilizador.uid)));
+      if (snap.empty) { el.innerHTML = ''; return; }
+      const docs = snap.docs.map(d=>({id:d.id,...d.data()}))
+        .sort((a,b)=>(b.criadoEm?.toDate?.()?.getTime()||0)-(a.criadoEm?.toDate?.()?.getTime()||0));
+      el.innerHTML = docs.map(p => {
+        const assunto = ASSUNTOS_LABEL[p.assunto]||p.assunto||'—';
+        const data = p.criadoEm?.toDate ? p.criadoEm.toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+        const badge = LABELS_PEDIDO[p.estado]||p.estado;
+        const resposta = p.respostaTexto
+          ? `<div style="margin-top:8px;padding:10px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;font-size:12px;color:#34d399">
+              💬 <strong>Resposta:</strong> ${p.respostaTexto}
+             </div>` : '';
+        return `<div style="padding:14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:13px;font-weight:700">📌 ${assunto}</span>
+            <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.08)">${badge}</span>
+          </div>
+          <div style="font-size:12px;color:var(--txt-sub,#888);margin-bottom:6px">${data}</div>
+          <div style="font-size:13px">${(p.mensagem||'').substring(0,120)}${(p.mensagem||'').length>120?'…':''}</div>
+          ${resposta}
+        </div>`;
+      }).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  async function carregarReunioesPortal() {
+    if (!_utilizador) return;
+    const el = document.getElementById('sec-lista-reunioes');
+    if (!el) return;
+    try {
+      const snap = await getDocs(query(collection(db,'reunioes'), where('funcionarioUid','==',_utilizador.uid)));
+      if (snap.empty) { el.innerHTML = ''; return; }
+      const docs = snap.docs.map(d=>({id:d.id,...d.data()}))
+        .sort((a,b)=>(b.criadoEm?.toDate?.()?.getTime()||0)-(a.criadoEm?.toDate?.()?.getTime()||0));
+      el.innerHTML = docs.map(r => {
+        const dest = DEST_LABEL[r.destinatario]||r.destinatario||'—';
+        const data = r.criadoEm?.toDate ? r.criadoEm.toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+        const badge = LABELS_REUNIAO_P[r.estado]||r.estado;
+        const extra = r.estado==='confirmada' && r.dataSugerida
+          ? `<div style="margin-top:6px;font-size:12px;color:#34d399">📅 ${new Date(r.dataSugerida).toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})} · ${r.local||'—'}</div>` : '';
+        const motivo = r.estado==='recusada' && r.motivoRecusa
+          ? `<div style="margin-top:6px;font-size:12px;color:#f87171">❌ ${r.motivoRecusa}</div>` : '';
+        return `<div style="padding:14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:13px;font-weight:700">🎯 ${dest}</span>
+            <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.08)">${badge}</span>
+          </div>
+          <div style="font-size:12px;color:var(--txt-sub,#888);margin-bottom:6px">${data}</div>
+          <div style="font-size:13px">${(r.assunto||'').substring(0,100)}</div>
+          ${extra}${motivo}
+        </div>`;
+      }).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  window.abrirFormPedido = function() {
+    document.getElementById('form-novo-pedido').style.display = '';
+  };
+  window.cancelarFormPedido = function() {
+    document.getElementById('form-novo-pedido').style.display = 'none';
+    document.getElementById('sec-assunto').value = '';
+    document.getElementById('sec-mensagem').value = '';
+    document.getElementById('sec-contador').textContent = '0';
+    document.getElementById('sec-msg-pedido').innerHTML = '';
+  };
+
+  window.enviarPedidoPortal = async function() {
+    const assunto  = document.getElementById('sec-assunto').value;
+    const mensagem = document.getElementById('sec-mensagem').value.trim();
+    const msgEl    = document.getElementById('sec-msg-pedido');
+    const btn      = document.getElementById('btn-enviar-pedido');
+    if (!assunto) { msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Seleccione o assunto.</span>'; return; }
+    if (!mensagem){ msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Escreva a mensagem.</span>'; return; }
+    btn.disabled = true; btn.textContent = '⏳ A enviar…';
+    try {
+      await addDoc(collection(db,'pedidos_secretaria'), {
+        funcionarioUid:   _utilizador.uid,
+        funcionarioNome:  _funcDoc?.nome || _utilizador.email,
+        funcionarioNumero: _funcDoc?.numero || '',
+        unidade:          _funcDoc?.unidade || '',
+        assunto, mensagem,
+        estado:           'novo',
+        criadoEm:         serverTimestamp(),
+        respostaTexto:    '',
+        respondidoEm:     null,
+        respondidoPor:    null
+      });
+      msgEl.innerHTML = '<span style="color:#34d399;font-size:12px">✅ Pedido enviado com sucesso!</span>';
+      document.getElementById('sec-assunto').value = '';
+      document.getElementById('sec-mensagem').value = '';
+      document.getElementById('sec-contador').textContent = '0';
+      btn.disabled = false; btn.textContent = '📤 Enviar pedido';
+      setTimeout(() => { cancelarFormPedido(); carregarPedidosPortal(); }, 1500);
+    } catch(e) {
+      console.error(e);
+      msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">❌ Erro ao enviar. Tente novamente.</span>';
+      btn.disabled = false; btn.textContent = '📤 Enviar pedido';
+    }
+  };
+
+  window.enviarPedidoReuniaoPortal = async function() {
+    const dest    = document.getElementById('sec-reuniao-dest').value;
+    const assunto = document.getElementById('sec-reuniao-assunto').value.trim();
+    const data    = document.getElementById('sec-reuniao-data').value;
+    const periodo = document.getElementById('sec-reuniao-periodo').value;
+    const msgEl   = document.getElementById('sec-msg-reuniao');
+    const btn     = document.getElementById('btn-enviar-reuniao');
+    if (!dest)   { msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Seleccione o destinatário.</span>'; return; }
+    if (!assunto){ msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Escreva o assunto.</span>'; return; }
+    if (!data)   { msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Indique a data preferida.</span>'; return; }
+    if (new Date(data) < new Date()) { msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ A data não pode ser no passado.</span>'; return; }
+    btn.disabled = true; btn.textContent = '⏳ A enviar…';
+    const DEST_NOMES = {
+      'director':'Director Municipal de Saúde','chefe-rh':'Chefe de Secção de Recursos Humanos',
+      'chefe-af':'Chefe de Secção de Administração e Finanças',
+      'chefe-spe':'Chefe de Secção de Saúde Pública e Epidemiologia',
+      'chefe-lm':'Chefe de Secção de Logística e Medicamentos'
+    };
+    try {
+      await addDoc(collection(db,'reunioes'), {
+        funcionarioUid:    _utilizador.uid,
+        funcionarioNome:   _funcDoc?.nome || _utilizador.email,
+        funcionarioNumero: _funcDoc?.numero || '',
+        unidade:           _funcDoc?.unidade || '',
+        destinatario:      dest,
+        destinatarioNome:  DEST_NOMES[dest]||dest,
+        assunto, dataPreferida: data, periodo,
+        estado:            'pendente',
+        criadoEm:          serverTimestamp(),
+        actualizadoEm:     serverTimestamp(),
+        geridoPor:         null,
+        dataSugerida:      null,
+        local:             '',
+        motivoRecusa:      '',
+        observacoes:       ''
+      });
+      msgEl.innerHTML = '<span style="color:#34d399;font-size:12px">✅ Pedido de reunião enviado!</span>';
+      document.getElementById('sec-reuniao-dest').value = '';
+      document.getElementById('sec-reuniao-assunto').value = '';
+      document.getElementById('sec-reuniao-data').value = '';
+      btn.disabled = false; btn.textContent = '📅 Solicitar reunião';
+      setTimeout(() => { carregarReunioesPortal(); }, 1500);
+    } catch(e) {
+      console.error(e);
+      msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">❌ Erro ao enviar.</span>';
+      btn.disabled = false; btn.textContent = '📅 Solicitar reunião';
+    }
+  };
+
+
   async function iniciarSessaoActiva(user) {
     // Gerar token único para esta sessão
     _sessaoToken = crypto.randomUUID ? crypto.randomUUID()
