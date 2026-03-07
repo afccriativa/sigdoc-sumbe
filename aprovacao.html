@@ -289,7 +289,24 @@
       .doc-wrapper{transform:scale(.30);margin-bottom:-780px}
       .doc-wrapper-centro{width:337px}
     }
-  </style>
+  
+    /* ── Nota interna ── */
+    .sol-nota-wrap { margin: 12px 0 4px; }
+    .sol-nota-label { font-size:12px;font-weight:700;color:#6b7280;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px; }
+    .sol-nota-wrap textarea { width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;resize:vertical;font-family:inherit;color:#374151; }
+    .sol-nota-wrap textarea:focus { outline:none;border-color:#6366f1; }
+    /* ── Stats chefe ── */
+    .stats-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px; }
+    .stat-box { background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:14px;text-align:center; }
+    .stat-num { font-size:26px;font-weight:800;color:#1d4ed8;margin-bottom:2px; }
+    .stat-lbl { font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.4px; }
+    .stats-tabela { width:100%;border-collapse:collapse;font-size:13px; }
+    .stats-tabela th { text-align:left;padding:8px 10px;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e5e7eb; }
+    .stats-tabela td { padding:9px 10px;border-bottom:1px solid #f3f4f6;color:#374151; }
+    .stats-tabela tr:hover td { background:#f9fafb; }
+    .stats-header { font-size:13px;font-weight:700;color:#374151;margin:16px 0 8px;display:flex;align-items:center;gap:6px; }
+    .accao-titulo { font-size:14px;font-weight:700;color:#374151;margin-bottom:12px; }
+</style>
 </head>
 <body>
 
@@ -299,7 +316,7 @@
     Aprovação e Solicitações
     <span>Módulo de Chefe de Secção — SIGDOC-SUMBE</span>
   </div>
-  <div class="badge-pend" id="badge-pend">0 pendentes</div>
+  <div class="badge-pend" id="badge-pend" style="display:none">0</div>
 </div>
 
 <div class="layout">
@@ -321,14 +338,14 @@
       <div class="filtros-card">
         <div class="filtros-header">Filtrar por estado</div>
         <div class="filtros-body">
-          <button class="filtro-btn activo" id="filtro-pendente" onclick="filtrar('pendente')">
-            ⏳ Pendentes <span class="filtro-conta" id="conta-pendente">0</span>
+          <button class="filtro-btn activo" id="filtro-gerado" onclick="filtrar('gerado')">
+            📄 Gerados <span class="filtro-conta" id="conta-gerado">0</span>
           </button>
-          <button class="filtro-btn" id="filtro-aprovado" onclick="filtrar('aprovado')">
-            ✅ Aprovados <span class="filtro-conta" id="conta-aprovado">0</span>
+          <button class="filtro-btn" id="filtro-concluido" onclick="filtrar('concluido')">
+            ✅ Concluídos <span class="filtro-conta" id="conta-concluido">0</span>
           </button>
-          <button class="filtro-btn" id="filtro-rejeitado" onclick="filtrar('rejeitado')">
-            ❌ Rejeitados <span class="filtro-conta" id="conta-rejeitado">0</span>
+          <button class="filtro-btn" id="filtro-anulado" onclick="filtrar('anulado')">
+            🚫 Anulados <span class="filtro-conta" id="conta-anulado">0</span>
           </button>
         </div>
       </div>
@@ -403,16 +420,7 @@
 
     <!-- Acção -->
     <div class="accao-card" id="accao-card">
-      <div class="accao-titulo">Decisão de Aprovação</div>
-      <div class="accao-botoes" id="accao-botoes">
-        <button class="btn-aprovar" id="btn-aprovar" onclick="aprovarDocumento()">✅ Aprovar</button>
-        <button class="btn-rejeitar" id="btn-rejeitar" onclick="mostrarCampoRejeicao()">❌ Rejeitar</button>
-      </div>
-      <div class="campo-rejeicao" id="campo-rejeicao">
-        <label>Motivo da rejeição (obrigatório)</label>
-        <textarea id="obs-rejeicao" placeholder="Descreva o motivo para informar o técnico..."></textarea>
-        <button class="btn-confirmar-rej" onclick="rejeitarDocumento()">❌ Confirmar Rejeição</button>
-      </div>
+      <div class="accao-titulo">Estado do Documento</div>
       <div class="estado-final" id="estado-final"></div>
     </div>
 
@@ -427,10 +435,15 @@
       </div>
       <div class="sol-grid" id="sol-dados-grid"></div>
       <div class="sol-motivo" id="sol-motivo-box" style="display:none"></div>
+      <div class="sol-nota-wrap" id="sol-nota-wrap" style="display:none">
+        <label class="sol-nota-label">📝 Nota interna <span style="font-weight:400;opacity:.6">(opcional — não visível ao funcionário)</span></label>
+        <textarea id="sol-nota-interna" rows="2" placeholder="Ex: Guia nº 12/2026 enviada para assinatura do Director…"></textarea>
+      </div>
       <div class="sol-accoes" id="sol-accoes"></div>
       <div class="sol-rej-campo" id="sol-campo-rej">
-        <textarea id="sol-obs-rej" rows="3" placeholder="Motivo da rejeição (obrigatório)..."></textarea>
-        <button onclick="confirmarRejeitarSol()">❌ Confirmar Rejeição</button>
+        <label style="font-size:13px;font-weight:600;margin-bottom:6px;display:block">Motivo da anulação (obrigatório)</label>
+        <textarea id="sol-obs-rej" rows="3" placeholder="Indique o motivo para informar o funcionário..."></textarea>
+        <button onclick="confirmarRejeitarSol()" style="margin-top:8px;padding:10px 18px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer">🚫 Confirmar Anulação</button>
       </div>
       <div class="sol-estado-final" id="sol-estado-final"></div>
     </div>
@@ -548,11 +561,12 @@
 
   function renderizarLista(){
     const lista=document.getElementById("lista-documentos");
-    const filtrados=todosDocumentos.filter(d=>d.estado===filtroActual);
+    const norm=e=>e==="pendente"?"gerado":e==="aprovado"?"concluido":e==="rejeitado"?"anulado":e;
+    const filtrados=todosDocumentos.filter(d=>norm(d.estado)===filtroActual);
     if(filtrados.length===0){
-      const msgs={pendente:"Nenhum documento pendente",aprovado:"Nenhum documento aprovado",rejeitado:"Nenhum documento rejeitado"};
-      const icons={pendente:"⏳",aprovado:"✅",rejeitado:"❌"};
-      lista.innerHTML=`<div class="vazio-lista"><div class="icone">${icons[filtroActual]}</div><p>${msgs[filtroActual]}</p></div>`;
+      const msgs={gerado:"Nenhum documento gerado",concluido:"Nenhum documento concluído",anulado:"Nenhum documento anulado"};
+      const icons={gerado:"📄",concluido:"✅",anulado:"🚫"};
+      lista.innerHTML=`<div class="vazio-lista"><div class="icone">${icons[filtroActual]||"📄"}</div><p>${msgs[filtroActual]||"Sem documentos"}</p></div>`;
       return;
     }
     window._docs={};
@@ -561,8 +575,9 @@
       const numDoc=d.numGuia&&d.anoGuia?`Guia nº ${d.numGuia}/${d.anoGuia}`:"Guia de Férias";
       const dataFmt=d.geradoEm?fmtTs(d.geradoEm):"—";
       const selCls=docSel&&docSel.id===d.id?" sel":"";
-      const bCls={pendente:"b-pend",aprovado:"b-aprov",rejeitado:"b-rej"}[d.estado];
-      const bTxt={pendente:"⏳ Pendente",aprovado:"✅ Aprovado",rejeitado:"❌ Rejeitado"}[d.estado];
+      const eN=norm(d.estado);
+      const bCls={gerado:"b-proc",concluido:"b-aprov",anulado:"b-rej"}[eN]||"b-pend";
+      const bTxt={gerado:"📄 Gerado",concluido:"✅ Concluído",anulado:"🚫 Anulado"}[eN]||eN;
       return `<div class="item-doc${selCls}" onclick="selDoc(window._docs['${d.id}'])">
         <div class="item-nome">${d.funcionarioNome||"—"}</div>
         <div class="item-meta">${numDoc} · ${dataFmt}</div>
@@ -613,25 +628,20 @@
       document.getElementById("area-impressao").innerHTML   = htmlDoc;
     }
 
-    // reset accao
-    const campoR=document.getElementById("campo-rejeicao");
+    // estado do documento — sem aprovação digital
     const estadoF=document.getElementById("estado-final");
-    const accBt=document.getElementById("accao-botoes");
-    campoR.style.display="none"; estadoF.style.display="none"; estadoF.className="estado-final";
-    document.getElementById("obs-rejeicao").value="";
-    const bApr=document.getElementById("btn-aprovar"),bRej=document.getElementById("btn-rejeitar");
-    if(d.estado==="pendente"){
-      accBt.style.display="flex"; bApr.disabled=false; bRej.disabled=false; bRej.style.display="flex";
-    }else if(d.estado==="aprovado"){
-      accBt.style.display="none";
-      estadoF.className="estado-final aprovado";
-      estadoF.innerHTML=`✅ Aprovado em ${fmtTs(d.aprovadoEm)} por ${d.aprovadoPorEmail||"—"}`;
-      estadoF.style.display="block";
-    }else if(d.estado==="rejeitado"){
-      accBt.style.display="none";
-      estadoF.className="estado-final rejeitado";
-      estadoF.innerHTML=`❌ Rejeitado em ${fmtTs(d.aprovadoEm)} por ${d.aprovadoPorEmail||"—"}<br><small>Motivo: ${d.observacao||"—"}</small>`;
-      estadoF.style.display="block";
+    estadoF.style.display="none"; estadoF.className="estado-final";
+    const eN=d.estado==="pendente"?"gerado":d.estado==="aprovado"?"concluido":d.estado==="rejeitado"?"anulado":d.estado;
+    if(eN==="gerado"){
+      estadoF.style.cssText="display:block;background:#eff6ff;border-color:#93c5fd;color:#1d4ed8";
+      estadoF.innerHTML="📄 Documento gerado — aguarda impressão e entrega";
+    }else if(eN==="concluido"){
+      estadoF.className="estado-final aprovado"; estadoF.style.display="block";
+      const nota=d.notaEntrega?`<br><small style="opacity:.7">📝 ${d.notaEntrega}</small>`:"";
+      estadoF.innerHTML=`✅ Concluído por ${d.concluidoPorEmail||d.geradoPorEmail||"—"}${nota}`;
+    }else if(eN==="anulado"){
+      estadoF.className="estado-final rejeitado"; estadoF.style.display="block";
+      estadoF.innerHTML=`🚫 Anulado — ${d.observacao||d.motivoRejeicao||"sem motivo"}`;
     }
     // mostrar painéis, esconder sol e placeholder
     document.getElementById("placeholder-detalhe").style.display="none";
@@ -720,6 +730,12 @@
     document.getElementById("conta-sol-rej").textContent=c.rejeitada;
     const b=document.getElementById("badge-sol"),total=c.nova+c.processando;
     if(total>0){b.textContent=total;b.style.display="inline";}else b.style.display="none";
+    // Badge topbar para técnico (solicitações pendentes)
+    const badgeTop=document.getElementById("badge-pend");
+    if(badgeTop && _perfilActual==="tecnico"){
+      badgeTop.textContent=c.nova;
+      badgeTop.style.display=c.nova>0?"inline-flex":"none";
+    }
   }
 
   function renderizarSolicitacoes(){
@@ -775,16 +791,24 @@
     const sfinal=document.getElementById("sol-estado-final");
     const srej=document.getElementById("sol-campo-rej");
     srej.style.display="none"; sfinal.style.display="none"; sfinal.className="sol-estado-final";
+    // Nota interna — mostrar se existe, ou campo se está em processando
+    const notaWrap=document.getElementById("sol-nota-wrap");
+    const notaField=document.getElementById("sol-nota-interna");
+    if(notaWrap){ notaWrap.style.display="none"; }
+    if(notaField){ notaField.value=""; }
+
     if(s.estado==="nova"){
-      accoes.innerHTML=`<button class="btn-processar" onclick="processarSol()">🔄 Marcar como "A Processar"</button><button class="btn-rejeitar-sol" onclick="mostrarRejeitarSol()">❌ Rejeitar</button>`;
+      accoes.innerHTML=`<button class="btn-processar" onclick="processarSol()">🔄 Tomar a cargo</button><button class="btn-rejeitar-sol" onclick="mostrarRejeitarSol()">🚫 Anular</button>`;
     }else if(s.estado==="processando"){
-      accoes.innerHTML=`<button class="btn-concluir" onclick="concluirSol()">✅ Marcar como Concluída</button><button class="btn-rejeitar-sol" onclick="mostrarRejeitarSol()">❌ Rejeitar</button>`;
+      if(notaWrap) notaWrap.style.display="block";
+      accoes.innerHTML=`<button class="btn-concluir" onclick="concluirSol()">✅ Concluído / Entregue</button><button class="btn-rejeitar-sol" onclick="mostrarRejeitarSol()">🚫 Anular</button>`;
     }else if(s.estado==="concluida"){
       accoes.innerHTML=""; sfinal.className="sol-estado-final concluida";
-      sfinal.innerHTML="✅ Solicitação concluída."; sfinal.style.display="block";
+      const notaInterna=s.notaInterna?`<br><small style="opacity:.7">📝 ${s.notaInterna}</small>`:"";
+      sfinal.innerHTML=`✅ Concluída.${notaInterna}`; sfinal.style.display="block";
     }else if(s.estado==="rejeitada"){
       accoes.innerHTML=""; sfinal.className="sol-estado-final rejeitada";
-      sfinal.innerHTML="❌ Rejeitada."+(s.motivoRejeicao?" Motivo: "+s.motivoRejeicao:""); sfinal.style.display="block";
+      sfinal.innerHTML="🚫 Anulada."+(s.motivoRejeicao?" Motivo: "+s.motivoRejeicao:""); sfinal.style.display="block";
     }
     document.getElementById("placeholder-detalhe").style.display="none";
     document.getElementById("detalhe-card").style.display="none";
@@ -800,7 +824,7 @@
   }
 
   window.processarSol=async function(){
-    if(!_exigirPerfil(["admin","chefe","director"])){console.warn("Acesso negado: processarSol");return;}
+    if(!_exigirPerfil(["admin","chefe","director","tecnico"])){console.warn("Acesso negado: processarSol");return;}
     if(!solSel)return;
     try{
       await updateDoc(doc(db,"solicitacoes",solSel.id),{estado:"processando",processadoPor:utilizadorActual.uid,processadoPorEmail:utilizadorActual.email,processadoEm:serverTimestamp()});
@@ -815,10 +839,14 @@
   };
 
   window.concluirSol=async function(){
-    if(!_exigirPerfil(["admin","chefe","director"])){console.warn("Acesso negado: concluirSol");return;}
+    if(!_exigirPerfil(["admin","chefe","director","tecnico"])){console.warn("Acesso negado: concluirSol");return;}
     if(!solSel)return;
+    const notaEl=document.getElementById("sol-nota-interna");
+    const nota=(notaEl?notaEl.value.trim():"");
     try{
-      await updateDoc(doc(db,"solicitacoes",solSel.id),{estado:"concluida",concluidoPor:utilizadorActual.uid,concluidoPorEmail:utilizadorActual.email,concluidoEm:serverTimestamp()});
+      const upd={estado:"concluida",concluidoPor:utilizadorActual.uid,concluidoPorEmail:utilizadorActual.email,concluidoEm:serverTimestamp()};
+      if(nota) upd.notaInterna=nota;
+      await updateDoc(doc(db,"solicitacoes",solSel.id),upd);
       notif("✅ Solicitação marcada como Concluída!");
       await carregarSolicitacoes(); esconderSol();
     }catch(e){console.error(e);notif("❌ Erro ao actualizar.","err");}
@@ -830,14 +858,15 @@
   };
 
   window.confirmarRejeitarSol=async function(){
+    if(!_exigirPerfil(["admin","chefe","director","tecnico"])){console.warn("Acesso negado: anular");return;}
     if(!solSel)return;
     const motivo=document.getElementById("sol-obs-rej").value.trim();
-    if(!motivo){alert("Por favor, indique o motivo da rejeição.");return;}
+    if(!motivo){notif("⚠️ Indique o motivo da anulação.","err");return;}
     try{
       await updateDoc(doc(db,"solicitacoes",solSel.id),{estado:"rejeitada",motivoRejeicao:motivo,rejeitadoPor:utilizadorActual.uid,rejeitadoPorEmail:utilizadorActual.email,rejeitadoEm:serverTimestamp()});
-      notif("❌ Solicitação rejeitada.");
+      notif("🚫 Solicitação anulada.");
       await carregarSolicitacoes(); esconderSol();
-    }catch(e){console.error(e);notif("❌ Erro ao rejeitar.","err");}
+    }catch(e){console.error(e);notif("❌ Erro ao anular.","err");}
   };
 
   window.mudarAba=function(aba){
@@ -871,6 +900,110 @@
     return`<div class="documento-oficial">${metade}${metade}</div>`;
   }
   function nomeMes(m){return["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"][parseInt(m,10)-1]||m;}
+
+  // ══════════════════════════════════════════════════════════
+  // CONFIGURAÇÃO DE INTERFACE POR PERFIL
+  // ══════════════════════════════════════════════════════════
+  function configurarInterfacePorPerfil(perfil) {
+    const isTecnico = perfil === "tecnico";
+    const isGestao  = ["admin","chefe","director"].includes(perfil);
+
+    // Técnico: começa na aba Solicitações
+    if (isTecnico) {
+      mudarAba("sol");
+      // Topbar: mostrar badge de solicitações novas
+      const badge = document.getElementById("badge-pend");
+      if (badge) { badge.style.display = "none"; }
+    }
+
+    // Gestão: começa na aba Documentos (arquivo) + mostra stats
+    if (isGestao) {
+      mudarAba("docs");
+      renderEstatisticas();
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // ESTATÍSTICAS PARA CHEFE/DIRECTOR (Fase 3)
+  // ══════════════════════════════════════════════════════════
+  async function renderEstatisticas() {
+    try {
+      // Carregar solicitações para estatísticas
+      const snap = await getDocs(collection(db, "solicitacoes"));
+      const sols = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      const agora  = new Date();
+      const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+
+      const desteMs = sols.filter(s => {
+        const t = s.criadaEm?.toDate ? s.criadaEm.toDate() : null;
+        return t && t >= inicioMes;
+      });
+
+      // Contagem por tipo este mês
+      const porTipo = {};
+      desteMs.forEach(s => { porTipo[s.tipo] = (porTipo[s.tipo]||0) + 1; });
+
+      const NOMES = {
+        "guia-ferias":       "Guias de Férias",
+        "declaracao-servico":"Declarações de Serviço",
+        "guia-medica":       "Guias Médicas",
+        "oficio":            "Ofícios"
+      };
+
+      // Construir painel de stats no topo do painel esq.
+      const statsHtml = `
+        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:14px 16px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:800;color:#0369a1;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">
+            📊 Emissões este mês
+          </div>
+          <div class="stats-grid">
+            ${Object.entries(NOMES).map(([tipo, label]) => `
+              <div class="stat-box">
+                <div class="stat-num">${porTipo[tipo]||0}</div>
+                <div class="stat-lbl">${label}</div>
+              </div>`).join("")}
+            <div class="stat-box" style="border-color:#bbf7d0;background:#f0fdf4">
+              <div class="stat-num" style="color:#16a34a">${desteMs.filter(s=>s.estado==="concluida").length}</div>
+              <div class="stat-lbl">Concluídas</div>
+            </div>
+          </div>
+          <div class="stats-header">🕐 Recentes</div>
+          <table class="stats-tabela">
+            <thead><tr><th>Funcionário</th><th>Tipo</th><th>Unidade</th><th>Estado</th></tr></thead>
+            <tbody>
+              ${sols.slice(0,8).map(s => {
+                const est = {nova:"🆕 Nova",processando:"🔄 A processar",concluida:"✅ Concluída",rejeitada:"🚫 Anulada"}[s.estado]||s.estado;
+                const tipo = NOMES[s.tipo]||s.tipo||"—";
+                return `<tr>
+                  <td style="font-weight:600">${s.funcionarioNome||"—"}</td>
+                  <td>${tipo}</td>
+                  <td style="font-size:12px;color:#6b7280">${(s.unidade||"—").slice(0,25)}</td>
+                  <td>${est}</td>
+                </tr>`;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>`;
+
+      // Injectar antes do filtros-card da aba docs
+      const painelDocs = document.getElementById("painel-docs-lista");
+      if (painelDocs) {
+        const div = document.createElement("div");
+        div.id = "stats-gestao";
+        div.innerHTML = statsHtml;
+        painelDocs.insertBefore(div, painelDocs.firstChild);
+      }
+    } catch(e) {
+      console.warn("Stats não carregadas:", e);
+    }
+  }
+
+  // Remover funções de aprovação obsoletas (segurança)
+  window.aprovarDocumento = function() { console.warn("Aprovação digital desactivada."); };
+  window.rejeitarDocumento = function() { console.warn("Aprovação digital desactivada."); };
+  window.mostrarCampoRejeicao = function() {};
+
 </script>
 </body>
 </html>
