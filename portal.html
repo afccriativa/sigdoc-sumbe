@@ -1024,7 +1024,7 @@
       <button class="subtab-sec activo" id="subtab-pedidos" onclick="trocarSubtabSec('pedidos',this)" style="background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.3);padding:7px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
         ✉️ Contactar Secretaria
       </button>
-      <button class="subtab-sec" id="subtab-reuniao" onclick="trocarSubtabSec('reuniao',this)" style="background:transparent;color:var(--txt-sub,#888);border:1px solid var(--border);padding:7px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
+      <button class="subtab-sec" id="subtab-reuniao" onclick="trocarSubtabSec('reuniao',this)" style="background:transparent;color:var(--txt-3,#6b7280);border:1px solid var(--border);padding:7px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
         📅 Agendar Reunião
       </button>
     </div>
@@ -1040,8 +1040,8 @@
       <!-- Formulário novo pedido (oculto por defeito) -->
       <div id="form-novo-pedido" style="display:none;margin-top:16px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:16px">
         <div style="font-size:14px;font-weight:700;margin-bottom:12px">✉️ Novo Pedido de Informação</div>
-        <label style="font-size:12px;font-weight:700;color:var(--txt-sub,#888);display:block;margin-bottom:6px">Assunto</label>
-        <select id="sec-assunto" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card,#1e1e1e);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
+        <label style="font-size:12px;font-weight:700;color:var(--txt-3,#6b7280);display:block;margin-bottom:6px">Assunto</label>
+        <select id="sec-assunto" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
           <option value="">Seleccione o assunto…</option>
           <option value="ferias-licencas">Férias e Licenças</option>
           <option value="abonos-salarios">Abonos e Salários</option>
@@ -1050,11 +1050,11 @@
           <option value="escalas">Escalas de Serviço</option>
           <option value="outro">Outro</option>
         </select>
-        <label style="font-size:12px;font-weight:700;color:var(--txt-sub,#888);display:block;margin-bottom:6px">Mensagem <span id="sec-contador">0</span>/500</label>
-        <textarea id="sec-mensagem" maxlength="500" oninput="document.getElementById('sec-contador').textContent=this.value.length" placeholder="Descreva o seu pedido de informação…" style="width:100%;min-height:100px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card,#1e1e1e);color:var(--txt);font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px"></textarea>
+        <label style="font-size:12px;font-weight:700;color:var(--txt-3,#6b7280);display:block;margin-bottom:6px">Mensagem <span id="sec-contador">0</span>/500</label>
+        <textarea id="sec-mensagem" maxlength="500" oninput="document.getElementById('sec-contador').textContent=this.value.length" placeholder="Descreva o seu pedido de informação…" style="width:100%;min-height:100px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px"></textarea>
         <div id="sec-msg-pedido" style="margin-bottom:8px"></div>
         <div style="display:flex;gap:8px">
-          <button onclick="cancelarFormPedido()" style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--txt-sub,#888);font-size:13px;font-weight:700;cursor:pointer">Cancelar</button>
+          <button onclick="cancelarFormPedido()" style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--txt-3,#6b7280);font-size:13px;font-weight:700;cursor:pointer">Cancelar</button>
           <button onclick="enviarPedidoPortal()" id="btn-enviar-pedido" style="flex:2;padding:11px;border-radius:8px;background:rgba(99,102,241,.8);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer">📤 Enviar pedido</button>
         </div>
       </div>
@@ -1067,8 +1067,8 @@
       </div>
       <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:16px">
         <div style="font-size:14px;font-weight:700;margin-bottom:12px">📅 Solicitar Reunião</div>
-        <label style="font-size:12px;font-weight:700;color:var(--txt-sub,#888);display:block;margin-bottom:6px">Com quem</label>
-        <select id="sec-reuniao-dest" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card,#1e1e1e);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
+        <label style="font-size:12px;font-weight:700;color:var(--txt-3,#6b7280);display:block;margin-bottom:6px">Com quem</label>
+        <select id="sec-reuniao-dest" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
           <option value="">Seleccione…</option>
           <option value="director">Director Municipal de Saúde</option>
           <option value="chefe-rh">Chefe de Secção de Recursos Humanos</option>
@@ -1076,12 +1076,12 @@
           <option value="chefe-spe">Chefe de Secção de Saúde Pública e Epidemiologia</option>
           <option value="chefe-lm">Chefe de Secção de Logística e Medicamentos</option>
         </select>
-        <label style="font-size:12px;font-weight:700;color:var(--txt-sub,#888);display:block;margin-bottom:6px">Assunto da reunião</label>
-        <textarea id="sec-reuniao-assunto" maxlength="300" placeholder="Descreva brevemente o assunto…" style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card,#1e1e1e);color:var(--txt);font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px"></textarea>
-        <label style="font-size:12px;font-weight:700;color:var(--txt-sub,#888);display:block;margin-bottom:6px">Data preferida</label>
-        <input type="date" id="sec-reuniao-data" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card,#1e1e1e);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box" />
-        <label style="font-size:12px;font-weight:700;color:var(--txt-sub,#888);display:block;margin-bottom:6px">Período preferido</label>
-        <select id="sec-reuniao-periodo" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card,#1e1e1e);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
+        <label style="font-size:12px;font-weight:700;color:var(--txt-3,#6b7280);display:block;margin-bottom:6px">Assunto da reunião</label>
+        <textarea id="sec-reuniao-assunto" maxlength="300" placeholder="Descreva brevemente o assunto…" style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px"></textarea>
+        <label style="font-size:12px;font-weight:700;color:var(--txt-3,#6b7280);display:block;margin-bottom:6px">Data preferida</label>
+        <input type="date" id="sec-reuniao-data" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box" />
+        <label style="font-size:12px;font-weight:700;color:var(--txt-3,#6b7280);display:block;margin-bottom:6px">Período preferido</label>
+        <select id="sec-reuniao-periodo" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
           <option value="manha">Manhã (08h–12h)</option>
           <option value="tarde">Tarde (14h–17h)</option>
           <option value="indiferente">Indiferente</option>
@@ -1818,7 +1818,7 @@
             <span style="font-size:13px;font-weight:700">📌 ${assunto}</span>
             <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.08)">${badge}</span>
           </div>
-          <div style="font-size:12px;color:var(--txt-sub,#888);margin-bottom:6px">${data}</div>
+          <div style="font-size:12px;color:var(--txt-3,#6b7280);margin-bottom:6px">${data}</div>
           <div style="font-size:13px">${(p.mensagem||'').substring(0,120)}${(p.mensagem||'').length>120?'…':''}</div>
           ${resposta}
         </div>`;
@@ -1848,7 +1848,7 @@
             <span style="font-size:13px;font-weight:700">🎯 ${dest}</span>
             <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.08)">${badge}</span>
           </div>
-          <div style="font-size:12px;color:var(--txt-sub,#888);margin-bottom:6px">${data}</div>
+          <div style="font-size:12px;color:var(--txt-3,#6b7280);margin-bottom:6px">${data}</div>
           <div style="font-size:13px">${(r.assunto||'').substring(0,100)}</div>
           ${extra}${motivo}
         </div>`;
