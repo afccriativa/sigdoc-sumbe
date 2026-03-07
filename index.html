@@ -1040,27 +1040,40 @@
       <div id="secção-secretaria" class="secção-restrita" style="display:none;">
         <div class="secção-titulo" style="margin-bottom:20px;display:flex;align-items:center;gap:10px">✉️ Secretaria <span style="font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;background:rgba(217,119,6,.15);color:#fbbf24;border:1px solid rgba(217,119,6,.25)">Atendimento</span></div>
 
-        <!-- Filtros -->
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
-          <button class="btn-filtro-sec activo" onclick="filtrarSecretaria('pedidos',this)">📬 Pedidos de Informação</button>
-          <button class="btn-filtro-sec" onclick="filtrarSecretaria('reunioes',this)">📅 Agendamentos de Reunião</button>
+        <!-- Tabs principais -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+          <button class="btn-filtro-sec activo" id="tab-sec-pedidos" onclick="filtrarSecretaria('pedidos',this)">📬 Pedidos de Informação</button>
+          <button class="btn-filtro-sec" id="tab-sec-reunioes" onclick="filtrarSecretaria('reunioes',this)">📅 Agendamentos de Reunião</button>
         </div>
 
         <!-- Painel Pedidos -->
         <div id="painel-pedidos-sec">
           <div class="painel-card" style="margin-bottom:16px">
-            <div class="painel-card-header">
+            <div class="painel-card-header" style="flex-wrap:wrap;gap:10px">
               <div class="painel-card-titulo">📬 Pedidos de Informação</div>
-              <div style="display:flex;gap:8px">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <!-- Filtro estado -->
                 <select id="filtro-estado-pedidos" onchange="carregarPedidosSecretaria()" style="font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:var(--bg-card);color:var(--txt-pri)">
-                  <option value="">Todos</option>
+                  <option value="">Todos os estados</option>
                   <option value="novo">Novos</option>
                   <option value="em_analise">Em análise</option>
                   <option value="respondido">Respondidos</option>
                   <option value="fechado">Fechados</option>
                 </select>
+                <!-- Filtro data de -->
+                <label style="font-size:11px;color:var(--txt-sec);display:flex;align-items:center;gap:4px">
+                  De <input type="date" id="filtro-data-de-pedidos" onchange="carregarPedidosSecretaria()"
+                    style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:var(--bg-card);color:var(--txt-pri)">
+                </label>
+                <label style="font-size:11px;color:var(--txt-sec);display:flex;align-items:center;gap:4px">
+                  Até <input type="date" id="filtro-data-ate-pedidos" onchange="carregarPedidosSecretaria()"
+                    style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:var(--bg-card);color:var(--txt-pri)">
+                </label>
+                <button onclick="limparFiltrosPedidos()" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:transparent;color:var(--txt-sec);cursor:pointer">✕ Limpar</button>
               </div>
             </div>
+            <!-- Contador -->
+            <div id="sec-pedidos-contador" style="padding:8px 16px 0;font-size:12px;color:var(--txt-sec)"></div>
             <div id="lista-pedidos-secretaria">
               <div class="vazio-estado"><div class="icone">✉️</div><p>A carregar...</p></div>
             </div>
@@ -1070,21 +1083,43 @@
         <!-- Painel Reuniões -->
         <div id="painel-reunioes-sec" style="display:none">
           <div class="painel-card">
-            <div class="painel-card-header">
+            <div class="painel-card-header" style="flex-wrap:wrap;gap:10px">
               <div class="painel-card-titulo">📅 Agendamentos de Reunião</div>
-              <div style="display:flex;gap:8px">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
                 <select id="filtro-estado-reunioes" onchange="carregarReunioesSecretaria()" style="font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:var(--bg-card);color:var(--txt-pri)">
-                  <option value="">Todos</option>
+                  <option value="">Todos os estados</option>
                   <option value="pendente">Pendentes</option>
                   <option value="confirmada">Confirmadas</option>
                   <option value="recusada">Recusadas</option>
                   <option value="remarcada">Remarcadas</option>
                 </select>
+                <label style="font-size:11px;color:var(--txt-sec);display:flex;align-items:center;gap:4px">
+                  De <input type="date" id="filtro-data-de-reunioes" onchange="carregarReunioesSecretaria()"
+                    style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:var(--bg-card);color:var(--txt-pri)">
+                </label>
+                <label style="font-size:11px;color:var(--txt-sec);display:flex;align-items:center;gap:4px">
+                  Até <input type="date" id="filtro-data-ate-reunioes" onchange="carregarReunioesSecretaria()"
+                    style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:var(--bg-card);color:var(--txt-pri)">
+                </label>
+                <button onclick="limparFiltrosReunioes()" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:transparent;color:var(--txt-sec);cursor:pointer">✕ Limpar</button>
               </div>
             </div>
+            <div id="sec-reunioes-contador" style="padding:8px 16px 0;font-size:12px;color:var(--txt-sec)"></div>
             <div id="lista-reunioes-secretaria">
               <div class="vazio-estado"><div class="icone">📅</div><p>A carregar...</p></div>
             </div>
+          </div>
+        </div>
+
+        <!-- Modal Histórico -->
+        <div id="modal-historico-sec" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;padding:16px">
+          <div style="background:#1e2438;border-radius:16px;padding:28px;width:100%;max-width:540px;border:1px solid rgba(217,119,6,.25);max-height:80vh;overflow-y:auto">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+              <div style="font-size:15px;font-weight:800;color:var(--txt-pri)">🕑 Histórico do Pedido</div>
+              <button onclick="document.getElementById('modal-historico-sec').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:22px;cursor:pointer">×</button>
+            </div>
+            <div id="modal-historico-sec-info" style="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.2);border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px;color:var(--txt-pri)"></div>
+            <div id="modal-historico-sec-lista"></div>
           </div>
         </div>
       </div>
@@ -1986,19 +2021,47 @@
     'chefe-lhm':  'Chefe da Secção de Logística Hospitalar e Medicamentos'
   };
 
+  // ── helpers de filtro de data ──
+  function _dentroDoIntervalo(ts, de, ate) {
+    if (!ts?.toDate) return true;
+    const d = ts.toDate();
+    if (de  && d < new Date(de))  return false;
+    if (ate && d > new Date(ate + 'T23:59:59')) return false;
+    return true;
+  }
+
+  window.limparFiltrosPedidos = function() {
+    document.getElementById('filtro-estado-pedidos').value = '';
+    document.getElementById('filtro-data-de-pedidos').value  = '';
+    document.getElementById('filtro-data-ate-pedidos').value = '';
+    carregarPedidosSecretaria();
+  };
+  window.limparFiltrosReunioes = function() {
+    document.getElementById('filtro-estado-reunioes').value = '';
+    document.getElementById('filtro-data-de-reunioes').value  = '';
+    document.getElementById('filtro-data-ate-reunioes').value = '';
+    carregarReunioesSecretaria();
+  };
+
   async function carregarPedidosSecretaria() {
     const el = document.getElementById('lista-pedidos-secretaria');
     if (!el) return;
     el.innerHTML = '<div class="vazio-estado"><p>⏳ A carregar…</p></div>';
     try {
-      const filtro = document.getElementById('filtro-estado-pedidos')?.value || '';
-      let q = filtro
-        ? query(collection(db,'pedidos_secretaria'), where('estado','==',filtro))
+      const filtroEstado = document.getElementById('filtro-estado-pedidos')?.value || '';
+      const filtroDe  = document.getElementById('filtro-data-de-pedidos')?.value  || '';
+      const filtroAte = document.getElementById('filtro-data-ate-pedidos')?.value || '';
+      let q = filtroEstado
+        ? query(collection(db,'pedidos_secretaria'), where('estado','==',filtroEstado))
         : query(collection(db,'pedidos_secretaria'));
       const snap = await getDocs(q);
-      if (snap.empty) { el.innerHTML = '<div class="vazio-estado"><div class="icone">✉️</div><p>Sem pedidos.</p></div>'; return; }
-      const docs = snap.docs.map(d=>({id:d.id,...d.data()}))
+      let docs = snap.docs.map(d=>({id:d.id,...d.data()}))
+        .filter(p => _dentroDoIntervalo(p.criadoEm, filtroDe, filtroAte))
         .sort((a,b)=>(b.criadoEm?.toDate?.()?.getTime()||0)-(a.criadoEm?.toDate?.()?.getTime()||0));
+      // Contador
+      const ctr = document.getElementById('sec-pedidos-contador');
+      if (ctr) ctr.textContent = docs.length > 0 ? `${docs.length} pedido${docs.length!==1?'s':''}` : '';
+      if (docs.length===0) { el.innerHTML = '<div class="vazio-estado"><div class="icone">✉️</div><p>Sem pedidos para os filtros seleccionados.</p></div>'; return; }
       el.innerHTML = docs.map(p => {
         const data = p.criadoEm?.toDate ? p.criadoEm.toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}) : '—';
         const assunto = ASSUNTOS_SEC[p.assunto] || p.assunto || '—';
@@ -2015,7 +2078,9 @@
             <div class="sec-item-assunto">📌 ${assunto} · ${data}</div>
             <div class="sec-item-msg">${(p.mensagem||'').substring(0,100)}${(p.mensagem||'').length>100?'…':''}</div>
             ${resposta}
-            <div class="sec-item-acoes">${badge}${btns}</div>
+            <div class="sec-item-acoes">${badge}${btns}
+              <button class="btn-sec-sm" style="background:rgba(255,255,255,.08);color:var(--txt-sec)" onclick="verHistoricoPedido('${p.id}')">🕑 Histórico</button>
+            </div>
           </div>
         </div>`;
       }).join('');
@@ -2027,14 +2092,19 @@
     if (!el) return;
     el.innerHTML = '<div class="vazio-estado"><p>⏳ A carregar…</p></div>';
     try {
-      const filtro = document.getElementById('filtro-estado-reunioes')?.value || '';
-      let q = filtro
-        ? query(collection(db,'reunioes'), where('estado','==',filtro))
+      const filtroEstado = document.getElementById('filtro-estado-reunioes')?.value || '';
+      const filtroDe  = document.getElementById('filtro-data-de-reunioes')?.value  || '';
+      const filtroAte = document.getElementById('filtro-data-ate-reunioes')?.value || '';
+      let q = filtroEstado
+        ? query(collection(db,'reunioes'), where('estado','==',filtroEstado))
         : query(collection(db,'reunioes'));
       const snap = await getDocs(q);
-      if (snap.empty) { el.innerHTML = '<div class="vazio-estado"><div class="icone">📅</div><p>Sem reuniões.</p></div>'; return; }
-      const docs = snap.docs.map(d=>({id:d.id,...d.data()}))
+      let docs = snap.docs.map(d=>({id:d.id,...d.data()}))
+        .filter(r => _dentroDoIntervalo(r.criadoEm, filtroDe, filtroAte))
         .sort((a,b)=>(b.criadoEm?.toDate?.()?.getTime()||0)-(a.criadoEm?.toDate?.()?.getTime()||0));
+      const ctr = document.getElementById('sec-reunioes-contador');
+      if (ctr) ctr.textContent = docs.length > 0 ? `${docs.length} reunião${docs.length!==1?'ões':''}` : '';
+      if (docs.length===0) { el.innerHTML = '<div class="vazio-estado"><div class="icone">📅</div><p>Sem reuniões para os filtros seleccionados.</p></div>'; return; }
       el.innerHTML = docs.map(r => {
         const data = r.criadoEm?.toDate ? r.criadoEm.toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}) : '—';
         const dataPref = r.dataPreferida ? new Date(r.dataPreferida).toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}) : '—';
@@ -2061,12 +2131,36 @@
     } catch(e) { console.error(e); el.innerHTML = '<div class="vazio-estado"><p>⚠️ Erro ao carregar.</p></div>'; }
   }
 
+  // ── Registo de histórico ──────────────────────────────────
+  async function _registarHistorico(coleccao, docId, acao, detalhe) {
+    try {
+      const ref = doc(db, coleccao, docId);
+      const snap = await getDoc(ref);
+      const historico = snap.data()?.historico || [];
+      historico.push({
+        acao,
+        detalhe: detalhe || '',
+        por: utilizadorActual?.displayName || utilizadorActual?.email || '—',
+        em: new Date().toISOString()
+      });
+      await updateDoc(ref, { historico });
+    } catch(e) { console.warn('Histórico:', e); }
+  }
+
   window.marcarPedidoAnalise = async function(id) {
-    try { await updateDoc(doc(db,'pedidos_secretaria',id),{estado:'em_analise',analisadoEm:serverTimestamp()}); carregarPedidosSecretaria(); mostrarNotif('🔍 Pedido marcado como Em análise.'); } catch(e){console.error(e);}
+    try {
+      await updateDoc(doc(db,'pedidos_secretaria',id),{estado:'em_analise',analisadoEm:serverTimestamp()});
+      await _registarHistorico('pedidos_secretaria', id, 'Em análise', 'Pedido marcado como em análise');
+      carregarPedidosSecretaria(); mostrarNotif('🔍 Pedido marcado como Em análise.');
+    } catch(e){console.error(e);}
   };
   window.fecharPedido = async function(id) {
     if(!confirm('Fechar este pedido sem resposta?')) return;
-    try { await updateDoc(doc(db,'pedidos_secretaria',id),{estado:'fechado',fechadoEm:serverTimestamp()}); carregarPedidosSecretaria(); mostrarNotif('✖ Pedido fechado.'); } catch(e){console.error(e);}
+    try {
+      await updateDoc(doc(db,'pedidos_secretaria',id),{estado:'fechado',fechadoEm:serverTimestamp()});
+      await _registarHistorico('pedidos_secretaria', id, 'Fechado', 'Pedido fechado sem resposta');
+      carregarPedidosSecretaria(); mostrarNotif('✖ Pedido fechado.');
+    } catch(e){console.error(e);}
   };
 
   let _pedidoParaResponder = null;
@@ -2104,6 +2198,7 @@
         estado:'respondido', respostaTexto:texto,
         respondidoEm:serverTimestamp(), respondidoPor:utilizadorActual.uid
       });
+      await _registarHistorico('pedidos_secretaria', _pedidoParaResponder, 'Respondido', texto.substring(0,120));
       document.getElementById('modal-responder-pedido').remove();
       carregarPedidosSecretaria();
       mostrarNotif('✅ Resposta enviada!');
@@ -2147,6 +2242,7 @@
         estado:'confirmada', dataSugerida:data, local, observacoes:obs,
         actualizadoEm:serverTimestamp(), geridoPor:utilizadorActual.uid
       });
+      await _registarHistorico('reunioes', _reuniaoParaGestao, 'Confirmada', `Data: ${data} · Local: ${local}`);
       document.getElementById('modal-confirmar-reuniao').remove();
       carregarReunioesSecretaria();
       mostrarNotif('✅ Reunião confirmada!');
@@ -2182,10 +2278,51 @@
         estado:'recusada', motivoRecusa:motivo,
         actualizadoEm:serverTimestamp(), geridoPor:utilizadorActual.uid
       });
+      await _registarHistorico('reunioes', _reuniaoParaGestao, 'Recusada', motivo);
       document.getElementById('modal-recusar-reuniao').remove();
       carregarReunioesSecretaria();
       mostrarNotif('Reunião recusada.');
     } catch(e){console.error(e);mostrarNotif('❌ Erro.','erro');}
+  };
+
+  // ── Histórico de pedido ──────────────────────────────────
+  window.verHistoricoPedido = async function(id) {
+    const modal = document.getElementById('modal-historico-sec');
+    const info  = document.getElementById('modal-historico-sec-info');
+    const lista = document.getElementById('modal-historico-sec-lista');
+    info.textContent = '⏳ A carregar…';
+    lista.innerHTML  = '';
+    modal.style.display = 'flex';
+    try {
+      const snap = await getDoc(doc(db,'pedidos_secretaria',id));
+      const p = snap.data();
+      const assunto = ASSUNTOS_SEC[p.assunto]||p.assunto||'—';
+      info.innerHTML = `<strong>${p.funcionarioNome||'—'}</strong> · ${assunto}<br>
+        <span style="opacity:.7;font-size:12px">${p.unidade||'—'} · ${p.criadoEm?.toDate?p.criadoEm.toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}):''}</span>`;
+      const hist = p.historico || [];
+      const ICONES = {'Em análise':'🔍','Respondido':'💬','Fechado':'✖','Confirmada':'✅','Recusada':'❌','Remarcada':'🔄'};
+      lista.innerHTML = (hist.length === 0
+        ? '<div style="text-align:center;padding:24px;opacity:.5;font-size:13px">Sem registos de alterações ainda</div>'
+        : hist.slice().reverse().map(h => {
+            const dt = h.em ? new Date(h.em).toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+            return `<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+              <div style="font-size:18px;line-height:1.2">${ICONES[h.acao]||'•'}</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:700;color:var(--txt-pri)">${h.acao}</div>
+                ${h.detalhe?`<div style="font-size:12px;color:var(--txt-sec);margin-top:3px">${h.detalhe.substring(0,120)}</div>`:''}
+                <div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:4px">${h.por||'—'} · ${dt}</div>
+              </div>
+            </div>`;
+          }).join('')
+      ) + `<div style="display:flex;gap:12px;padding:12px 0">
+        <div style="font-size:18px;line-height:1.2">📬</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--txt-pri)">Pedido criado</div>
+          <div style="font-size:12px;color:var(--txt-sec);margin-top:3px">${(p.mensagem||'').substring(0,80)}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:4px">${p.funcionarioNome||'—'} · ${p.criadoEm?.toDate?p.criadoEm.toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):''}</div>
+        </div>
+      </div>`;
+    } catch(e){ console.error(e); info.textContent='⚠️ Erro ao carregar histórico.'; }
   };
 
   // ── WATCHER SECRETARIA — pedidos novos + reuniões pendentes ──
