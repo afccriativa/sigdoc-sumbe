@@ -776,7 +776,7 @@
     const srej=document.getElementById("sol-campo-rej");
     srej.style.display="none"; sfinal.style.display="none"; sfinal.className="sol-estado-final";
     if(s.estado==="nova"){
-      accoes.innerHTML=`<button class="btn-processar" onclick="processarSol()">🔄 Marcar como "A Processar"</button><button class="btn-rejeitar-sol" onclick="mostrarRejeitarSol()">❌ Rejeitar</button>`;
+      accoes.innerHTML=`<button class="btn-processar" onclick="processarSol()">🔄 Tomar a cargo</button><button class="btn-rejeitar-sol" onclick="mostrarRejeitarSol()">❌ Rejeitar</button>`;
     }else if(s.estado==="processando"){
       accoes.innerHTML=`<button class="btn-concluir" onclick="concluirSol()">✅ Marcar como Concluída</button><button class="btn-rejeitar-sol" onclick="mostrarRejeitarSol()">❌ Rejeitar</button>`;
     }else if(s.estado==="concluida"){
