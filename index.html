@@ -1284,7 +1284,7 @@
       if (snap.exists()) {
         const d = snap.data(); perfilActual = d;
         await registarSessao(u, d, "entrada");
-        await updateDoc(doc(db,"utilizadores",u.uid), { ultimoAcesso: serverTimestamp() });
+        try { await updateDoc(doc(db,"utilizadores",u.uid), { ultimoAcesso: serverTimestamp() }); } catch(eu) { console.warn("ultimoAcesso:", eu); }
         mostrarPainel(u, d);
       } else {
         const d = { nome: u.email.split("@")[0], email: u.email, perfil:"admin",
@@ -1296,7 +1296,7 @@
         mostrarPainel(u, d);
         mostrarNotif("✅ Conta de administrador criada automaticamente!");
       }
-    } catch(e) { console.error(e); mostrarErro("Erro ao carregar perfil."); await signOut(auth); }
+    } catch(e) { console.error(e); mostrarErro("Erro ao carregar perfil. Verifique as credenciais ou contacte o administrador."); }
   }
 
   // Navegação entre secções do dashboard
@@ -1453,7 +1453,7 @@
     if (_unsubFormsRH)   _unsubFormsRH();
 
     // Watcher 1 — documentos pendentes de aprovação
-    const q = query(collection(db, "documentos"), where("estado", "==", "pendente"), orderBy("geradoEm", "desc"));
+    const q = query(collection(db, "documentos"), where("estado", "==", "pendente"));
     _unsubPendentes = onSnapshot(q, snap => {
       _docsRHPend = snap.docs.map(d => ({ id: d.id, ...d.data(), _categoria: "doc" }));
       actualizarSino();
@@ -2412,7 +2412,7 @@
         const disp = u.dispositivo
           ? u.dispositivo.includes('Mobile') ? '📱 Móvel' : '🖥️ Computador'
           : '—';
-        const isSelf = uid === _userActual?.uid;
+        const isSelf = uid === utilizadorActual?.uid;
         const btnExpulsar = isSelf
           ? `<span style="font-size:11px;color:var(--neu-400)">Tu</span>`
           : `<button class="btn-expulsar" onclick="expulsarSessao('${uid}','${(u.nome||u.email||'').replace(/'/g,"\'")}')">⏏ Expulsar</button>`;
