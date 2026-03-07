@@ -544,6 +544,75 @@
       /* toast desktop — canto inferior direito */
       .notif { bottom: 28px; right: 28px; left: auto; transform: none; }
     }
+  
+    /* ── SINO DE NOTIFICAÇÕES ── */
+    .sino-btn { position:relative; width:38px; height:38px; border-radius:50%;
+      background:rgba(255,255,255,.15); border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:background .15s; }
+    .sino-btn:hover { background:rgba(255,255,255,.25); }
+    .sino-btn .material-symbols-outlined { font-size:20px; color:white; }
+    .sino-badge { position:absolute; top:-3px; right:-3px; min-width:17px; height:17px;
+      background:#ef4444; border-radius:99px; border:2px solid var(--primary);
+      font-size:10px; font-weight:800; color:white; display:none;
+      align-items:center; justify-content:center; padding:0 3px; }
+    .sino-badge.visivel { display:flex; }
+    /* Desktop sino */
+    .dt-sino-btn { position:relative; width:36px; height:36px; border-radius:50%;
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12);
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:background .15s; margin-right:8px; }
+    .dt-sino-btn:hover { background:rgba(255,255,255,.15); }
+    .dt-sino-btn .material-symbols-outlined { font-size:18px; color:rgba(255,255,255,.8); }
+    .dt-sino-badge { position:absolute; top:-3px; right:-3px; min-width:16px; height:16px;
+      background:#ef4444; border-radius:99px; border:2px solid #0f172a;
+      font-size:9px; font-weight:800; color:white; display:none;
+      align-items:center; justify-content:center; padding:0 2px; }
+    .dt-sino-badge.visivel { display:flex; }
+    /* Dropdown de notificações */
+    .sino-drop { position:fixed; top:0; right:0; width:min(340px,100vw);
+      height:100vh; background:#0f172a; border-left:1px solid rgba(255,255,255,.08);
+      z-index:9999; transform:translateX(100%); transition:transform .25s cubic-bezier(.4,0,.2,1);
+      display:flex; flex-direction:column; box-shadow:-8px 0 32px rgba(0,0,0,.4); }
+    .sino-drop.aberto { transform:translateX(0); }
+    .sino-drop-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4);
+      z-index:9998; display:none; }
+    .sino-drop-overlay.visivel { display:block; }
+    .sino-drop-header { padding:20px 20px 16px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+    .sino-drop-titulo { font-size:15px; font-weight:800; color:#f1f5f9; }
+    .sino-drop-fechar { background:none; border:none; color:rgba(255,255,255,.5);
+      cursor:pointer; font-size:22px; line-height:1; padding:4px; }
+    .sino-drop-fechar:hover { color:white; }
+    .sino-drop-body { flex:1; overflow-y:auto; padding:8px 0; }
+    .sino-notif-item { padding:14px 20px; border-bottom:1px solid rgba(255,255,255,.05);
+      display:flex; gap:12px; align-items:flex-start; cursor:pointer;
+      transition:background .12s; }
+    .sino-notif-item:hover { background:rgba(255,255,255,.04); }
+    .sino-notif-item.nova { background:rgba(245,158,11,.06); }
+    .sino-notif-ic { width:36px; height:36px; border-radius:10px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; font-size:16px; }
+    .sino-notif-ic.resp    { background:rgba(16,185,129,.15); }
+    .sino-notif-ic.pend    { background:rgba(245,158,11,.15); }
+    .sino-notif-ic.conf    { background:rgba(16,185,129,.15); }
+    .sino-notif-ic.recus   { background:rgba(239,68,68,.15); }
+    .sino-notif-ic.remarc  { background:rgba(139,92,246,.15); }
+    .sino-notif-texto { flex:1; min-width:0; }
+    .sino-notif-titulo { font-size:13px; font-weight:700; color:#f1f5f9; margin-bottom:3px; }
+    .sino-notif-sub { font-size:12px; color:rgba(255,255,255,.5); line-height:1.4; }
+    .sino-notif-data { font-size:11px; color:rgba(255,255,255,.3); margin-top:4px; }
+    .sino-notif-ponto { width:7px; height:7px; border-radius:50%;
+      background:#f59e0b; flex-shrink:0; margin-top:5px; }
+    .sino-vazio { padding:48px 20px; text-align:center; }
+    .sino-vazio-ic { font-size:40px; margin-bottom:12px; opacity:.4; }
+    .sino-vazio-txt { font-size:13px; color:rgba(255,255,255,.35); }
+    .sino-drop-footer { padding:12px 20px; border-top:1px solid rgba(255,255,255,.08); flex-shrink:0; }
+    .sino-marcar-lidas { width:100%; padding:10px; background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.1); border-radius:8px; color:rgba(255,255,255,.6);
+      font-size:12px; font-weight:700; cursor:pointer; }
+    .sino-marcar-lidas:hover { background:rgba(255,255,255,.1); color:white; }
+
   </style>
 </head>
 <body>
@@ -797,7 +866,13 @@
   <header class="desk-topbar">
     <div class="dt-saudacao" id="dt-saudacao">Bom dia, <em>—</em></div>
     <div class="dt-live"><span class="dt-live-dot"></span> Documentos actualizados em tempo real</div>
-    <div class="dt-avatar" id="dt-avatar" onclick="navegarAba('aba-perfil')">?</div>
+    <div style="display:flex;align-items:center;gap:4px">
+      <button class="dt-sino-btn" id="dt-sino-btn" onclick="abrirSinoPortal()" title="Notificações">
+        <span class="material-symbols-outlined">notifications</span>
+        <span class="dt-sino-badge" id="dt-sino-badge"></span>
+      </button>
+      <div class="dt-avatar" id="dt-avatar" onclick="navegarAba('aba-perfil')">?</div>
+    </div>
   </header>
 
   <!-- ── HEADER MOBILE ── -->
@@ -808,6 +883,10 @@
         <p>SIGDOC-SUMBE · Direcção Municipal da Saúde do Sumbe</p>
       </div>
       <div class="portal-header-actions">
+        <button class="sino-btn" id="ph-sino-btn" onclick="abrirSinoPortal()" title="Notificações">
+          <span class="material-symbols-outlined">notifications</span>
+          <span class="sino-badge" id="ph-sino-badge"></span>
+        </button>
         <div class="ph-avatar" id="pt-avatar" onclick="navegarAba('aba-perfil')">?</div>
         <button class="ph-sair-btn" onclick="fazerLogoutFuncionario()">Sair</button>
       </div>
@@ -1178,6 +1257,8 @@
       esconderLoading();
       // ── Sessão activa: gerar token + listener de expulsão ──
       iniciarSessaoActiva(user);
+      // ── Sino: notificações em tempo real ──
+      iniciarSinoPortal(user.uid);
     }catch(e){console.error(e);mostrarEcra("ecra-entrada");esconderLoading();}
   });
 
@@ -1528,7 +1609,26 @@
         body{margin:0;padding:0;font-family:Arial,sans-serif}
         @media print{@page{size:A4 landscape;margin:0}}
       </style>
-    </head><body>${s.htmlArquivo}<script>window.onload=function(){window.print();window.close();}<\/script></body></html>`);
+    </head><body>${s.htmlArquivo}<script>window.onload=function(){window.print();window.close();}<\/script>
+<!-- ── SINO DROPDOWN ── -->
+<div class="sino-drop-overlay" id="sino-overlay" onclick="fecharSinoPortal()"></div>
+<div class="sino-drop" id="sino-drop">
+  <div class="sino-drop-header">
+    <span class="sino-drop-titulo">🔔 Notificações</span>
+    <button class="sino-drop-fechar" onclick="fecharSinoPortal()">×</button>
+  </div>
+  <div class="sino-drop-body" id="sino-drop-body">
+    <div class="sino-vazio">
+      <div class="sino-vazio-ic">🔔</div>
+      <div class="sino-vazio-txt">Sem notificações</div>
+    </div>
+  </div>
+  <div class="sino-drop-footer">
+    <button class="sino-marcar-lidas" onclick="marcarTodasLidas()">✓ Marcar todas como lidas</button>
+  </div>
+</div>
+
+</body></html>`);
     win.document.close();
   };
 
@@ -2013,6 +2113,147 @@
     }, 200);
   }
 
+  // ══════════════════════════════════════════════════════════════
+  //  SINO DE NOTIFICAÇÕES — tempo real (pedidos + reuniões)
+  // ══════════════════════════════════════════════════════════════
+
+  let _unsubSinoPedidos  = null;
+  let _unsubSinoReunioes = null;
+  let _notifCache = [];
+  let _notifLidas = new Set();
+
+  const ESTADOS_NOTIF_PEDIDO  = ['respondido'];
+  const ESTADOS_NOTIF_REUNIAO = ['confirmada','recusada','remarcada'];
+
+  window.iniciarSinoPortal = function(uid) {
+    if (_unsubSinoPedidos)  _unsubSinoPedidos();
+    if (_unsubSinoReunioes) _unsubSinoReunioes();
+    _unsubSinoPedidos = onSnapshot(
+      query(collection(db,'pedidos_secretaria'), where('funcionarioUid','==',uid)),
+      snap => {
+        actualizarCacheNotif('pedido', snap.docs
+          .map(d=>({id:d.id,tipo:'pedido',...d.data()}))
+          .filter(p=>ESTADOS_NOTIF_PEDIDO.includes(p.estado)));
+      }, err => console.warn('Sino pedidos:',err)
+    );
+    _unsubSinoReunioes = onSnapshot(
+      query(collection(db,'reunioes'), where('funcionarioUid','==',uid)),
+      snap => {
+        actualizarCacheNotif('reuniao', snap.docs
+          .map(d=>({id:d.id,tipo:'reuniao',...d.data()}))
+          .filter(r=>ESTADOS_NOTIF_REUNIAO.includes(r.estado)));
+      }, err => console.warn('Sino reuniões:',err)
+    );
+  };
+
+  function actualizarCacheNotif(tipo, novas) {
+    _notifCache = [
+      ..._notifCache.filter(n=>n.tipo!==tipo),
+      ...novas
+    ].sort((a,b)=>{
+      const ta=a.actualizadoEm?.toDate?.()?.getTime()||a.respondidoEm?.toDate?.()?.getTime()||0;
+      const tb=b.actualizadoEm?.toDate?.()?.getTime()||b.respondidoEm?.toDate?.()?.getTime()||0;
+      return tb-ta;
+    });
+    renderizarSino();
+  }
+
+  function renderizarSino() {
+    const naoLidas = _notifCache.filter(n=>!_notifLidas.has(n.id));
+    const total = naoLidas.length;
+    ['ph-sino-badge','dt-sino-badge'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(!el)return;
+      el.textContent = total>9?'9+':total;
+      el.classList.toggle('visivel', total>0);
+    });
+    const body=document.getElementById('sino-drop-body');
+    if(!body)return;
+    if(_notifCache.length===0){
+      body.innerHTML='<div class="sino-vazio"><div class="sino-vazio-ic">🔔</div><div class="sino-vazio-txt">Sem notificações</div></div>';
+      return;
+    }
+    const ASSUNTOS={'ferias-licencas':'Férias e Licenças','abonos-salarios':'Abonos e Salários','documentacao':'Documentação Pessoal','transferencias':'Transferências','escalas':'Escalas de Serviço','outro':'Outro'};
+    const DEST={'director':'Director Municipal','chefe-sperh':'Chefe de Planeamento/RH','chefe-sp':'Chefe de Saúde Pública','chefe-is':'Chefe de Inspecção Sanitária','chefe-lhm':'Chefe de Logística e Medicamentos'};
+    body.innerHTML=_notifCache.map(n=>{
+      const lida=_notifLidas.has(n.id);
+      const data=n.respondidoEm?.toDate?.()||n.actualizadoEm?.toDate?.()||null;
+      const dataStr=data?data.toLocaleDateString('pt-AO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+      let ic,icClass,titulo,sub,aba;
+      if(n.tipo==='pedido'){
+        ic='💬';icClass='resp';aba='pedidos';
+        titulo='✅ Pedido respondido';
+        sub=(ASSUNTOS[n.assunto]||n.assunto||'—')+(n.respostaTexto?` — "${n.respostaTexto.substring(0,50)}${n.respostaTexto.length>50?'…':''}"`:'');
+      } else {
+        aba='reuniao';
+        const dest=DEST[n.destinatario]||n.destinatario||'—';
+        if(n.estado==='confirmada'){
+          ic='✅';icClass='conf';titulo='Reunião confirmada';
+          const dt=n.dataSugerida?new Date(n.dataSugerida).toLocaleDateString('pt-AO',{day:'2-digit',month:'short'}):'';
+          sub=dest+(dt?' · '+dt:'')+(n.local?' · '+n.local:'');
+        } else if(n.estado==='recusada'){
+          ic='❌';icClass='recus';titulo='Reunião não confirmada';
+          sub=dest+(n.motivoRecusa?' — '+n.motivoRecusa.substring(0,50):'');
+        } else {
+          ic='🔄';icClass='remarc';titulo='Reunião remarcada';sub=dest;
+        }
+      }
+      return `<div class="sino-notif-item${lida?'':' nova'}" onclick="clicarNotif('${n.id}','${aba}')">
+        <div class="sino-notif-ic ${icClass}">${ic}</div>
+        <div class="sino-notif-texto">
+          <div class="sino-notif-titulo">${titulo}</div>
+          <div class="sino-notif-sub">${sub}</div>
+          ${dataStr?`<div class="sino-notif-data">${dataStr}</div>`:''}
+        </div>
+        ${lida?'':'<div class="sino-notif-ponto"></div>'}
+      </div>`;
+    }).join('');
+  }
+
+  window.abrirSinoPortal = function(){
+    document.getElementById('sino-drop').classList.add('aberto');
+    document.getElementById('sino-overlay').classList.add('visivel');
+  };
+  window.fecharSinoPortal = function(){
+    document.getElementById('sino-drop').classList.remove('aberto');
+    document.getElementById('sino-overlay').classList.remove('visivel');
+  };
+  window.clicarNotif = function(id,aba){
+    _notifLidas.add(id);
+    fecharSinoPortal();
+    navegarAba('aba-secretaria');
+    setTimeout(()=>{
+      const btn=document.getElementById(aba==='pedidos'?'subtab-pedidos':'subtab-reuniao');
+      trocarSubtabSec(aba,btn);
+    },120);
+    renderizarSino();
+  };
+  window.marcarTodasLidas = function(){
+    _notifCache.forEach(n=>_notifLidas.add(n.id));
+    renderizarSino();
+  };
+
+
+
 </script>
+
+<!-- ── SINO DROPDOWN ── -->
+<div class="sino-drop-overlay" id="sino-overlay" onclick="fecharSinoPortal()"></div>
+<div class="sino-drop" id="sino-drop">
+  <div class="sino-drop-header">
+    <span class="sino-drop-titulo">🔔 Notificações</span>
+    <button class="sino-drop-fechar" onclick="fecharSinoPortal()">×</button>
+  </div>
+  <div class="sino-drop-body" id="sino-drop-body">
+    <div class="sino-vazio">
+      <div class="sino-vazio-ic">🔔</div>
+      <div class="sino-vazio-txt">Sem notificações</div>
+    </div>
+  </div>
+  <div class="sino-drop-footer">
+    <button class="sino-marcar-lidas" onclick="marcarTodasLidas()">✓ Marcar todas como lidas</button>
+  </div>
+</div>
+
 </body>
 </html>
