@@ -1204,7 +1204,10 @@
       if(banPor) banPor.style.display = p==="chefe"?"flex":"none";
       carregarSessoes(); carregarIndicadores();
     } else if (p==="tecnico") {
-      carregarSessoes(); carregarIndicadores();
+      carregarIndicadores(); // sessoes: só gestão tem acesso
+      // Esconder card Acessos Recentes — tecnico não tem permissão na colecção sessoes
+      const secSessoes = document.getElementById("secção-sessoes-mini");
+      if (secSessoes) secSessoes.style.display = "none";
     } else {
       // funcionário
       document.getElementById("secção-funcionario").style.display="block";
@@ -1216,21 +1219,20 @@
       admin:    [
         { href:"cadastro.html",   ic:"👤", txt:"Novo Funcionário" },
         { href:"documentos.html", ic:"📄", txt:"Gerar Documento"  },
-        { href:"aprovacao.html",  ic:"✅", txt:"Aprovações"       },
         { href:"auditoria.html",  ic:"📋", txt:"Auditoria"        },
+        { href:"painel.html",     ic:"📈", txt:"Painel RH"        },
       ],
       chefe:    [
         { href:"cadastro.html",   ic:"👤", txt:"Novo Funcionário" },
         { href:"documentos.html", ic:"📄", txt:"Gerar Documento"  },
-        { href:"aprovacao.html",  ic:"✅", txt:"Aprovações"       },
         { href:"auditoria.html",  ic:"📋", txt:"Auditoria"        },
       ],
       tecnico:  [
         { href:"cadastro.html",   ic:"👤", txt:"Novo Funcionário" },
         { href:"documentos.html", ic:"📄", txt:"Gerar Documento"  },
+        { href:"aprovacao.html",  ic:"✅", txt:"Solicitações"     },
       ],
       director: [
-        { href:"aprovacao.html",  ic:"✅", txt:"Aprovações"       },
         { href:"auditoria.html",  ic:"📋", txt:"Auditoria"        },
         { href:"painel.html",     ic:"📈", txt:"Painel RH"        },
       ],
