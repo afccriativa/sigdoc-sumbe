@@ -1377,7 +1377,7 @@
 
     // Listener em solicitações
     _unsubSols = onSnapshot(
-      query(collection(db, "solicitacoes"), where("funcionarioId", "==", funcionarioId)),
+      query(collection(db, "solicitacoes"), where("funcionarioUid", "==", uid), where("funcionarioId", "==", funcionarioId)),
       snap => {
         _sols = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderTudo();
@@ -1387,7 +1387,7 @@
 
     // Listener em documentos gerados
     _unsubDocs = onSnapshot(
-      query(collection(db, "documentos"), where("funcionarioId", "==", funcionarioId)),
+      query(collection(db, "documentos"), where("funcionarioId", "==", funcionarioId), where("funcionarioUid", "==", uid)),
       snap => {
         const novos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         // Detectar mudanças de estado para notificar o funcionário
@@ -1513,6 +1513,7 @@
       if(_funcDocId){
         const snapDup=await getDocs(query(
           collection(db,"solicitacoes"),
+          where("funcionarioUid","==",_utilizador.uid),
           where("funcionarioId","==",_funcDocId),
           where("tipo","==",_tipoSel),
           where("estado","in",["nova","processando"])
