@@ -1020,7 +1020,7 @@
     <div class="aba-titulo-pg">✉️ Secretaria</div>
 
     <!-- Sub-tabs -->
-    <div style="display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px">
+    <div style="display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid #e5e7eb;padding-bottom:12px">
       <button class="subtab-sec activo" id="subtab-pedidos" onclick="trocarSubtabSec('pedidos',this)" style="background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.3);padding:7px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
         ✉️ Contactar Secretaria
       </button>
@@ -1034,13 +1034,13 @@
       <div id="sec-lista-pedidos" style="margin-bottom:16px">
         <!-- preenchido por JS -->
       </div>
-      <button onclick="abrirFormPedido()" style="width:100%;padding:12px;background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.3);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">
+      <button onclick="abrirFormPedido()" style="width:100%;padding:12px;background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">
         ✉️ Novo Pedido de Informação
       </button>
       <!-- Formulário novo pedido (oculto por defeito) -->
-      <div id="form-novo-pedido" style="display:none;margin-top:16px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:16px">
+      <div id="form-novo-pedido" style="display:none;margin-top:16px;background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px">
         <div style="font-size:14px;font-weight:700;margin-bottom:12px">✉️ Novo Pedido de Informação</div>
-        <label style="font-size:12px;font-weight:700;color:var(--txt-3,#6b7280);display:block;margin-bottom:6px">Assunto</label>
+        <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Assunto</label>
         <select id="sec-assunto" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
           <option value="">Seleccione o assunto…</option>
           <option value="ferias-licencas">Férias e Licenças</option>
@@ -1050,12 +1050,12 @@
           <option value="escalas">Escalas de Serviço</option>
           <option value="outro">Outro</option>
         </select>
-        <label style="font-size:12px;font-weight:700;color:var(--txt-3,#6b7280);display:block;margin-bottom:6px">Mensagem <span id="sec-contador">0</span>/500</label>
-        <textarea id="sec-mensagem" maxlength="500" oninput="document.getElementById('sec-contador').textContent=this.value.length" placeholder="Descreva o seu pedido de informação…" style="width:100%;min-height:100px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px"></textarea>
+        <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Mensagem <span id="sec-contador">0</span>/500</label>
+        <textarea id="sec-mensagem" maxlength="500" oninput="document.getElementById('sec-contador').textContent=this.value.length" placeholder="Descreva o seu pedido de informação…" style="width:100%;min-height:100px;padding:10px;border-radius:8px;border:1px solid var(--border);background:#ffffff;color:#111827;font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px;border:1px solid #d1d5db"></textarea>
         <div id="sec-msg-pedido" style="margin-bottom:8px"></div>
         <div style="display:flex;gap:8px">
           <button onclick="cancelarFormPedido()" style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--txt-3,#6b7280);font-size:13px;font-weight:700;cursor:pointer">Cancelar</button>
-          <button onclick="enviarPedidoPortal()" id="btn-enviar-pedido" style="flex:2;padding:11px;border-radius:8px;background:rgba(99,102,241,.8);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer">📤 Enviar pedido</button>
+          <button onclick="enviarPedidoPortal()" id="btn-enviar-pedido" style="flex:2;padding:11px;border-radius:8px;background:#4f46e5;color:white;border:none;font-size:13px;font-weight:700;cursor:pointer">📤 Enviar pedido</button>
         </div>
       </div>
     </div>
@@ -1065,29 +1065,29 @@
       <div id="sec-lista-reunioes" style="margin-bottom:16px">
         <!-- preenchido por JS -->
       </div>
-      <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:16px">
+      <div style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px">
         <div style="font-size:14px;font-weight:700;margin-bottom:12px">📅 Solicitar Reunião</div>
-        <label style="font-size:12px;font-weight:700;color:var(--txt-3,#6b7280);display:block;margin-bottom:6px">Com quem</label>
+        <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Com quem</label>
         <select id="sec-reuniao-dest" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
           <option value="">Seleccione…</option>
           <option value="director">Director Municipal de Saúde</option>
-          <option value="chefe-rh">Chefe de Secção de Recursos Humanos</option>
-          <option value="chefe-af">Chefe de Secção de Administração e Finanças</option>
-          <option value="chefe-spe">Chefe de Secção de Saúde Pública e Epidemiologia</option>
-          <option value="chefe-lm">Chefe de Secção de Logística e Medicamentos</option>
+          <option value="chefe-sperh">Chefe da Secção de Planeamento, Estatística e RH</option>
+          <option value="chefe-sp">Chefe da Secção de Saúde Pública</option>
+          <option value="chefe-is">Chefe da Secção de Inspecção Sanitária</option>
+          <option value="chefe-lhm">Chefe da Secção de Logística Hospitalar e Medicamentos</option>
         </select>
-        <label style="font-size:12px;font-weight:700;color:var(--txt-3,#6b7280);display:block;margin-bottom:6px">Assunto da reunião</label>
-        <textarea id="sec-reuniao-assunto" maxlength="300" placeholder="Descreva brevemente o assunto…" style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px"></textarea>
-        <label style="font-size:12px;font-weight:700;color:var(--txt-3,#6b7280);display:block;margin-bottom:6px">Data preferida</label>
+        <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Assunto da reunião</label>
+        <textarea id="sec-reuniao-assunto" maxlength="300" placeholder="Descreva brevemente o assunto…" style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid var(--border);background:#ffffff;color:#111827;font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px;border:1px solid #d1d5db"></textarea>
+        <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Data preferida</label>
         <input type="date" id="sec-reuniao-data" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box" />
-        <label style="font-size:12px;font-weight:700;color:var(--txt-3,#6b7280);display:block;margin-bottom:6px">Período preferido</label>
+        <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Período preferido</label>
         <select id="sec-reuniao-periodo" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
           <option value="manha">Manhã (08h–12h)</option>
-          <option value="tarde">Tarde (14h–17h)</option>
+          <option value="tarde">Tarde (13h30–15h)</option>
           <option value="indiferente">Indiferente</option>
         </select>
         <div id="sec-msg-reuniao" style="margin-bottom:8px"></div>
-        <button onclick="enviarPedidoReuniaoPortal()" id="btn-enviar-reuniao" style="width:100%;padding:12px;background:rgba(99,102,241,.8);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">📅 Solicitar reunião</button>
+        <button onclick="enviarPedidoReuniaoPortal()" id="btn-enviar-reuniao" style="width:100%;padding:12px;background:#4f46e5;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">📅 Solicitar reunião</button>
       </div>
     </div>
   </div>
@@ -1774,9 +1774,11 @@
     'escalas':'Escalas de Serviço','outro':'Outro'
   };
   const DEST_LABEL = {
-    'director':'Director Municipal de Saúde',
-    'chefe-rh':'Chefe de RH','chefe-af':'Chefe de AF',
-    'chefe-spe':'Chefe de SPE','chefe-lm':'Chefe de LM'
+    'director':   'Director Municipal de Saúde',
+    'chefe-sperh':'Chefe de Planeamento, Estatística e RH',
+    'chefe-sp':   'Chefe de Saúde Pública',
+    'chefe-is':   'Chefe de Inspecção Sanitária',
+    'chefe-lhm':  'Chefe de Logística Hospitalar e Medicamentos'
   };
 
   window.trocarSubtabSec = function(tipo, btn) {
@@ -1813,7 +1815,7 @@
           ? `<div style="margin-top:8px;padding:10px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;font-size:12px;color:#34d399">
               💬 <strong>Resposta:</strong> ${p.respostaTexto}
              </div>` : '';
-        return `<div style="padding:14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;margin-bottom:10px">
+        return `<div style="padding:14px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;margin-bottom:10px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
             <span style="font-size:13px;font-weight:700">📌 ${assunto}</span>
             <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.08)">${badge}</span>
@@ -1843,7 +1845,7 @@
           ? `<div style="margin-top:6px;font-size:12px;color:#34d399">📅 ${new Date(r.dataSugerida).toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})} · ${r.local||'—'}</div>` : '';
         const motivo = r.estado==='recusada' && r.motivoRecusa
           ? `<div style="margin-top:6px;font-size:12px;color:#f87171">❌ ${r.motivoRecusa}</div>` : '';
-        return `<div style="padding:14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;margin-bottom:10px">
+        return `<div style="padding:14px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;margin-bottom:10px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
             <span style="font-size:13px;font-weight:700">🎯 ${dest}</span>
             <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.08)">${badge}</span>
@@ -1914,10 +1916,11 @@
     if (new Date(data) < new Date()) { msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ A data não pode ser no passado.</span>'; return; }
     btn.disabled = true; btn.textContent = '⏳ A enviar…';
     const DEST_NOMES = {
-      'director':'Director Municipal de Saúde','chefe-rh':'Chefe de Secção de Recursos Humanos',
-      'chefe-af':'Chefe de Secção de Administração e Finanças',
-      'chefe-spe':'Chefe de Secção de Saúde Pública e Epidemiologia',
-      'chefe-lm':'Chefe de Secção de Logística e Medicamentos'
+      'director':   'Director Municipal de Saúde',
+      'chefe-sperh':'Chefe da Secção de Planeamento, Estatística e RH',
+      'chefe-sp':   'Chefe da Secção de Saúde Pública',
+      'chefe-is':   'Chefe da Secção de Inspecção Sanitária',
+      'chefe-lhm':  'Chefe da Secção de Logística Hospitalar e Medicamentos'
     };
     try {
       await addDoc(collection(db,'reunioes'), {
