@@ -1294,26 +1294,14 @@
     if (_unsubPendentes) _unsubPendentes();
     if (_unsubFormsRH)   _unsubFormsRH();
 
-    const p = typeof perfilActual === "string" ? perfilActual : (perfilActual?.perfil || "");
-    const isTecnico = p === "tecnico";
+    // Watcher 1 — documentos pendentes de aprovação
+    const q = query(collection(db, "documentos"), where("estado", "==", "pendente"), orderBy("geradoEm", "desc"));
+    _unsubPendentes = onSnapshot(q, snap => {
+      _docsRHPend = snap.docs.map(d => ({ id: d.id, ...d.data(), _categoria: "doc" }));
+      actualizarSino();
+    }, err => { console.error("Watcher documentos:", err); });
 
-    if (isTecnico) {
-      // Técnico: notificado de solicitações novas por processar
-      const q = query(collection(db, "solicitacoes"), where("estado", "==", "nova"), orderBy("criadaEm", "desc"));
-      _unsubPendentes = onSnapshot(q, snap => {
-        _docsRHPend = snap.docs.map(d => ({ id: d.id, ...d.data(), _categoria: "sol" }));
-        actualizarSino();
-      }, err => { console.error("Watcher solicitações:", err); });
-    } else {
-      // Gestão: notificada de solicitações novas + em processamento (visibilidade)
-      const q = query(collection(db, "solicitacoes"), where("estado", "in", ["nova","processando"]), orderBy("criadaEm", "desc"));
-      _unsubPendentes = onSnapshot(q, snap => {
-        _docsRHPend = snap.docs.map(d => ({ id: d.id, ...d.data(), _categoria: "sol" }));
-        actualizarSino();
-      }, err => { console.error("Watcher solicitações gestão:", err); });
-    }
-
-    // Watcher 2 — formulários por rever (mantém-se igual)
+    // Watcher 2 — formulários submetidos por funcionários mas não revistos
     const qF = query(collection(db, "funcionarios"), where("formularioPendente", "==", true));
     _unsubFormsRH = onSnapshot(qF, snap => {
       _formsRHPend = snap.docs.map(d => ({ id: d.id, ...d.data(), _categoria: "form" }));
@@ -1351,33 +1339,26 @@
 
     let html = "";
 
-    // Secção: solicitações (para técnico: novas; para gestão: novas + a processar)
+    // Secção: documentos para aprovação
     if (totalDocs > 0) {
-      const isTec = (typeof perfilActual === "string" ? perfilActual : perfilActual?.perfil) === "tecnico";
-      const tituloSec = isTec
-        ? `Solicitações por processar (${totalDocs})`
-        : `Solicitações em curso (${totalDocs})`;
       html += `<div style="padding:8px 16px 4px;font-size:10px;font-weight:800;
         color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px">
-        ${tituloSec}</div>`;
-      const NOMES_TIPO = {"guia-ferias":"Guia de Férias","declaracao-servico":"Declaração de Serviço","guia-medica":"Guia Médica","oficio":"Ofício"};
-      const ESTADO_LABEL = {nova:"🆕 Nova",processando:"🔄 A processar"};
+        Documentos para aprovar (${totalDocs})</div>`;
       html += _docsRHPend.slice(0, 5).map(d => {
-        const tipo = NOMES_TIPO[d.tipo] || d.tipo || "Solicitação";
-        const func = d.funcionarioNome || "—";
-        const hora = d.criadaEm?.toDate
-          ? d.criadaEm.toDate().toLocaleDateString("pt-AO", { day:"2-digit", month:"short" })
+        const tipo = d.tipo || d.tipoDocumento || "Documento";
+        const func = d.funcionarioNome || d.geradoPorEmail || "—";
+        const hora = d.geradoEm?.toDate
+          ? d.geradoEm.toDate().toLocaleDateString("pt-AO", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" })
           : "—";
-        const estLabel = ESTADO_LABEL[d.estado] || d.estado;
         return `<a class="notif-item" href="aprovacao.html">
-          <div class="notif-ic notif-ic-pend">📋</div>
+          <div class="notif-ic notif-ic-pend">📄</div>
           <div class="notif-corpo">
-            <div class="notif-titulo">${tipo} — ${func}</div>
-            <div class="notif-sub">${estLabel} · ${hora}</div>
+            <div class="notif-titulo">${tipo}</div>
+            <div class="notif-sub">${func} · ${hora}</div>
           </div>
         </a>`;
       }).join("");
-      if (totalDocs > 5) html += `<div class="notif-drop-vazio">+ ${totalDocs - 5} mais</div>`;
+      if (totalDocs > 5) html += `<div class="notif-drop-vazio">+ ${totalDocs - 5} mais em aprovação</div>`;
     }
 
     // Secção: formulários de funcionários por rever
