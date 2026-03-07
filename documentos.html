@@ -229,8 +229,16 @@
        ================================================ */
     @media print {
       @page { size: A4 landscape; margin: 3mm; }
-      body > * { display: none !important; }
-      #area-impressao { display: block !important; }
+      /* Esconder elementos conhecidos do layout */
+      .barra-topo,
+      .layout,
+      .notificacao,
+      .badge-estado,
+      #btn-submeter,
+      #btn-imprimir,
+      #btn-preview { display: none !important; }
+      /* Mostrar apenas o documento */
+      #area-impressao { display: block !important; position: fixed; top: 0; left: 0; width: 100%; }
 
       #area-impressao .documento-oficial {
         width: 291mm; height: 204mm;
@@ -889,7 +897,7 @@
           collection(db, "documentos"),
           where("funcionarioId", "==", dadosUltimoDocumento.funcionarioId),
           where("tipo", "==", dadosUltimoDocumento.tipo),
-          where("estado", "in", ["pendente", "aprovado"])
+          where("estado", "in", ["gerado", "pendente", "aprovado"])
         );
         const snapDup = await getDocs(qDup);
 
@@ -913,7 +921,7 @@
             "aviso"
           );
           btnSub.disabled = false;
-          btnSub.innerHTML = "&#128228; Confirmar submissão";
+          btnSub.innerHTML = "&#128228; Confirmar e guardar";
           // Marcar que o aviso já foi mostrado — próximo clique submete mesmo assim
           btnSub.dataset.confirmar = "true";
           return;
@@ -932,11 +940,11 @@
   // Lógica de submissão isolada — chamada após verificação de duplicados
   async function _criarDocumento(btnSub) {
     btnSub.disabled = true;
-    btnSub.textContent = "A submeter...";
+    btnSub.textContent = "A guardar...";
     try {
       const docRef = await addDoc(collection(db, "documentos"), {
         ...dadosUltimoDocumento,
-        estado: "pendente",
+        estado: "gerado",
         geradoPor: utilizadorActual.uid,
         geradoPorEmail: utilizadorActual.email,
         geradoEm: serverTimestamp(),
@@ -960,11 +968,11 @@
       btnSub.style.display = "none";
 
       const badge = document.getElementById("badge-estado");
-      badge.className = "badge-estado badge-pendente";
-      badge.innerHTML = "⏳ Aguarda aprovação do Chefe de Secção";
-      badge.style.display = "flex";
+      badge.className = "badge-estado badge-gerado";
+      badge.style.cssText = "display:flex;background:#eff6ff;color:#1d4ed8;border:1.5px solid #93c5fd;padding:10px;border-radius:8px;font-size:13px;font-weight:700;margin-top:4px;";
+      badge.innerHTML = "📄 Documento guardado — pronto para impressão";
 
-      mostrarNotificacao("✅ Documento submetido! O Chefe será notificado.");
+      mostrarNotificacao("✅ Documento guardado com sucesso!");
 
       // Se veio de solicitação do portal → marcar solicitação como "concluida"
       if (window._solicitacaoOrigemId) {
@@ -980,30 +988,7 @@
         } catch(eUpd) { console.warn("Não actualizou solicitação:", eUpd); }
       }
 
-      // Listener em tempo real — actualiza o estado assim que o Chefe decidir
-      onSnapshot(doc(db, "documentos", docRef.id), (snap) => {
-        if (!snap.exists()) return;
-        const dados = snap.data();
-
-        if (dados.estado === "aprovado") {
-          badge.className = "badge-estado badge-aprovado";
-          badge.style.cssText = "";
-          const obs = dados.observacao ? ` — <em style="font-weight:400">"${dados.observacao}"</em>` : "";
-          badge.innerHTML = `✅ Aprovado pelo Chefe de Secção${obs}`;
-          badge.style.display = "flex";
-          mostrarNotificacao("✅ O seu documento foi aprovado pelo Chefe!");
-
-        } else if (dados.estado === "rejeitado") {
-          badge.className = "badge-estado";
-          badge.style.background = "#fdecea";
-          badge.style.color = "#c0392b";
-          badge.style.border = "1.5px solid #e74c3c";
-          badge.style.display = "flex";
-          const obs = dados.observacao ? ` — <em style="font-weight:400">"${dados.observacao}"</em>` : "";
-          badge.innerHTML = `❌ Rejeitado pelo Chefe de Secção${obs}`;
-          mostrarNotificacao("❌ O seu documento foi rejeitado. Verifique a observação.");
-        }
-      });
+      // Documento guardado — fluxo completo sem aprovação digital
 
     } catch(e) {
       console.error("Erro ao submeter:", e);
