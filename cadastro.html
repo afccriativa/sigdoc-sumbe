@@ -754,8 +754,8 @@
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
   const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app);
-  const etiquetasPerfil={admin:"Administrador do Sistema",director:"Director Municipal",chefe:"Chefe de Secção",tecnico:"Técnico de RH",funcionario:"Funcionário de Unidade"};
-  const perfisPermitidos=["admin","tecnico","chefe","director"];
+  const etiquetasPerfil={admin:"Administrador do Sistema",director:"Director Municipal",chefe:"Chefe de Secção",tecnico:"Técnico de RH",secretaria:"Secretaria",funcionario:"Funcionário de Unidade"};
+  const perfisPermitidos=["admin","tecnico","chefe","director","secretaria"];
   let todosOsFuncionarios=[], utilizadorActual=null, funcionarioEmEdicao=null, _perfilActual=null;
   function _exigirPerfil(perfisPermitidos) {
     if (!utilizadorActual) return false;
