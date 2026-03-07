@@ -677,9 +677,9 @@
     }
     .btn-expulsar:hover { background: rgba(220,38,38,.25); }
 
-    /* ── SECRETARIA ── */
-    .btn-filtro-sec { background:rgba(99,102,241,.08); border:1px solid rgba(99,102,241,.2); color:var(--txt-sec); padding:7px 16px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; transition:all .15s; }
-    .btn-filtro-sec.activo { background:rgba(99,102,241,.25); border-color:rgba(99,102,241,.6); color:#a5b4fc; box-shadow:0 0 0 2px rgba(99,102,241,.15); }
+    /* ── SECRETARIA — paleta âmbar/dourada (acolhimento) ── */
+    .btn-filtro-sec { background:rgba(217,119,6,.08); border:1px solid rgba(217,119,6,.2); color:var(--txt-sec); padding:7px 16px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; transition:all .15s; }
+    .btn-filtro-sec.activo { background:rgba(217,119,6,.22); border-color:rgba(245,158,11,.6); color:#fbbf24; box-shadow:0 0 0 2px rgba(217,119,6,.12); }
     .sec-item { padding:16px 18px; border-bottom:1px solid rgba(255,255,255,.05); display:flex; gap:12px; align-items:flex-start; transition:background .12s; }
     .sec-item:hover { background:rgba(255,255,255,.03); }
     .sec-item:last-child { border-bottom:none; }
@@ -698,20 +698,20 @@
     .badge-sec-remapc  { background:rgba(139,92,246,.18); color:#c4b5fd; border:1px solid rgba(139,92,246,.35);  padding:3px 9px; border-radius:99px; font-size:11px; font-weight:700; white-space:nowrap; }
     .btn-sec-sm { padding:5px 12px; border-radius:6px; font-size:11px; font-weight:700; border:none; cursor:pointer; transition:opacity .12s; }
     .btn-sec-sm:hover { opacity:.82; }
-    .btn-sec-resp  { background:rgba(99,102,241,.25); color:#a5b4fc; }
+    .btn-sec-resp  { background:rgba(217,119,6,.22); color:#fbbf24; }
     .btn-sec-anal  { background:rgba(245,158,11,.2);  color:#fcd34d; }
     .btn-sec-fech  { background:rgba(100,116,139,.18); color:#94a3b8; }
     .btn-sec-conf  { background:rgba(16,185,129,.2);  color:#6ee7b7; }
     .btn-sec-recus { background:rgba(239,68,68,.2);   color:#fca5a5; }
     .modal-sec { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:9999; display:flex; align-items:center; justify-content:center; padding:16px; }
-    .modal-sec-card { background:#1e2438; border-radius:16px; padding:28px; width:100%; max-width:520px; border:1px solid rgba(99,102,241,.25); box-shadow:0 20px 60px rgba(0,0,0,.5); }
+    .modal-sec-card { background:#1c1a14; border-radius:16px; padding:28px; width:100%; max-width:520px; border:1px solid rgba(217,119,6,.3); box-shadow:0 20px 60px rgba(0,0,0,.5); }
     .modal-sec-titulo { font-size:16px; font-weight:800; color:var(--txt-pri); margin-bottom:6px; }
     .modal-sec-sub { font-size:13px; color:var(--txt-sec); margin-bottom:18px; }
-    .modal-sec-label { font-size:11px; font-weight:700; color:rgba(165,180,252,.8); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
-    .modal-sec-texto { background:rgba(99,102,241,.08); border:1px solid rgba(99,102,241,.2); border-radius:8px; padding:12px; font-size:13px; color:var(--txt-pri); line-height:1.6; margin-bottom:16px; white-space:pre-wrap; }
-    .modal-sec textarea { width:100%; min-height:100px; background:rgba(255,255,255,.06); border:1px solid rgba(99,102,241,.25); border-radius:8px; padding:10px 12px; font-size:13px; color:var(--txt-pri); resize:vertical; box-sizing:border-box; outline:none; }
-    .modal-sec textarea:focus { border-color:rgba(99,102,241,.6); }
-    .modal-sec input[type=text], .modal-sec input[type=datetime-local] { width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(99,102,241,.25); border-radius:8px; padding:9px 12px; font-size:13px; color:var(--txt-pri); box-sizing:border-box; margin-bottom:12px; outline:none; }
+    .modal-sec-label { font-size:11px; font-weight:700; color:rgba(251,191,36,.75); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+    .modal-sec-texto { background:rgba(217,119,6,.08); border:1px solid rgba(217,119,6,.2); border-radius:8px; padding:12px; font-size:13px; color:var(--txt-pri); line-height:1.6; margin-bottom:16px; white-space:pre-wrap; }
+    .modal-sec textarea { width:100%; min-height:100px; background:rgba(255,255,255,.06); border:1px solid rgba(217,119,6,.25); border-radius:8px; padding:10px 12px; font-size:13px; color:var(--txt-pri); resize:vertical; box-sizing:border-box; outline:none; }
+    .modal-sec textarea:focus { border-color:rgba(245,158,11,.6); }
+    .modal-sec input[type=text], .modal-sec input[type=datetime-local] { width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(217,119,6,.25); border-radius:8px; padding:9px 12px; font-size:13px; color:var(--txt-pri); box-sizing:border-box; margin-bottom:12px; outline:none; }
     .modal-sec-btns { display:flex; gap:10px; margin-top:18px; justify-content:flex-end; }
 </style>
 </head>
@@ -1038,7 +1038,7 @@
 
       <!-- ══ SECÇÃO SECRETARIA ══ -->
       <div id="secção-secretaria" class="secção-restrita" style="display:none;">
-        <div class="secção-titulo" style="margin-bottom:20px">✉️ Secretaria</div>
+        <div class="secção-titulo" style="margin-bottom:20px;display:flex;align-items:center;gap:10px">✉️ Secretaria <span style="font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;background:rgba(217,119,6,.15);color:#fbbf24;border:1px solid rgba(217,119,6,.25)">Atendimento</span></div>
 
         <!-- Filtros -->
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
