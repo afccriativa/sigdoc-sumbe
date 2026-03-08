@@ -1262,7 +1262,7 @@
            setPersistence, browserLocalPersistence }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc, getDocs, collection,
-           updateDoc, serverTimestamp, query, orderBy, limit, onSnapshot, where, arrayUnion, increment }
+           updateDoc, serverTimestamp, query, orderBy, limit, onSnapshot, where }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
@@ -2236,7 +2236,7 @@
     carregarPedidosSecretaria();
   };
 
-   window.enviarMensagemSecretaria = async function() {
+  window.enviarMensagemSecretaria = async function() {
     const input = document.getElementById('chat-sec-input');
     const texto = input.value.trim();
     if (!texto || !_chatSecId) return;
@@ -2244,27 +2244,32 @@
     if (btn) btn.disabled = true;
     input.value = '';
     try {
-      const snap = await getDoc(doc(db,'pedidos_secretaria',_chatSecId));
-      const p = snap.data();
+      const ref  = doc(db, 'pedidos_secretaria', _chatSecId);
+      const nome = perfilActual?.nome || utilizadorActual?.email || 'Secretaria';
       const agora = new Date().toISOString();
-      const nomeSec = perfilActual?.nome || utilizadorActual?.email || 'Secretaria';
-      const novaMsg = { texto, autor:'secretaria', nomeAutor:nomeSec, em:agora };
+      const snapCheck = await getDoc(ref);
+      const pCheck    = snapCheck.data();
+      const precisaMigrar = !pCheck.mensagens || pCheck.mensagens.length === 0;
 
-      if (!p.mensagens || p.mensagens.length === 0) {
-        // Migrar documento antigo: construir array completo
-        const arr = [];
-        if (p.mensagem) arr.push({ texto:p.mensagem, autor:'funcionario', nomeAutor:p.funcionarioNome||'—', em:p.criadoEm?.toDate?.()?.toISOString()||agora });
-        if (p.respostaTexto) arr.push({ texto:p.respostaTexto, autor:'secretaria', nomeAutor:'Secretaria', em:p.respondidoEm?.toDate?.()?.toISOString()||agora });
-        arr.push(novaMsg);
-        await updateDoc(doc(db,'pedidos_secretaria',_chatSecId), {
-          mensagens:arr, estado:'aberto',
-          ultimaMensagem:texto.substring(0,80), ultimaMensagemEm:serverTimestamp(),
-          naoLidasFuncionario:increment(1), naoLidasSecretaria:0,
-          respondidoEm:serverTimestamp(), respondidoPor:utilizadorActual?.uid
+      if (precisaMigrar) {
+        await runTransaction(db, async (tx) => {
+          const snap = await tx.get(ref);
+          const p    = snap.data();
+          const arr  = [];
+          if (p.mensagem)      arr.push({ texto:p.mensagem,      autor:'funcionario', nomeAutor:p.funcionarioNome||'—', em:p.criadoEm?.toDate?.()?.toISOString()||agora });
+          if (p.respostaTexto) arr.push({ texto:p.respostaTexto, autor:'secretaria',  nomeAutor:'Secretaria',           em:p.respondidoEm?.toDate?.()?.toISOString()||agora });
+          arr.push({ texto, autor:'secretaria', nomeAutor:nome, em:agora });
+          tx.update(ref, {
+            mensagens:arr, estado:'aberto',
+            ultimaMensagem:texto.substring(0,80), ultimaMensagemEm:serverTimestamp(),
+            naoLidasFuncionario:(p.naoLidasFuncionario||0)+1, naoLidasSecretaria:0,
+            respondidoEm:serverTimestamp(), respondidoPor:utilizadorActual?.uid
+          });
         });
       } else {
-        await updateDoc(doc(db,'pedidos_secretaria',_chatSecId), {
-          mensagens:arrayUnion(novaMsg), estado:'aberto',
+        await updateDoc(ref, {
+          mensagens: arrayUnion({ texto, autor:'secretaria', nomeAutor:nome, em:agora }),
+          estado:'aberto',
           ultimaMensagem:texto.substring(0,80), ultimaMensagemEm:serverTimestamp(),
           naoLidasFuncionario:increment(1), naoLidasSecretaria:0,
           respondidoEm:serverTimestamp(), respondidoPor:utilizadorActual?.uid
@@ -2272,7 +2277,11 @@
       }
       _registarHistorico('pedidos_secretaria', _chatSecId, 'Respondido', texto.substring(0,80)).catch(()=>{});
       mostrarNotif('✅ Mensagem enviada!');
-    } catch(e){ console.error('enviarMensagemSecretaria:', e); mostrarNotif('❌ Erro ao enviar.','erro'); input.value = texto; }
+    } catch(e) {
+      console.error('enviarMensagemSecretaria:', e);
+      mostrarNotif('❌ Erro ao enviar.', 'erro');
+      input.value = texto;
+    }
     if (btn) btn.disabled = false;
   };
   window.fecharConversaSecretaria = async function() {
