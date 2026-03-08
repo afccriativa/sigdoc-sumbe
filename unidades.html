@@ -526,8 +526,7 @@ import { getAuth, signInWithEmailAndPassword,
          onAuthStateChanged }                        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
 import { getFirestore, doc, setDoc, getDoc,
          getDocs, collection, updateDoc,
-         serverTimestamp, query, where,
-         orderBy, writeBatch }                       from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+         serverTimestamp, writeBatch }                       from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
 
 // ── Config ─────────────────────────────────────────────────
 const app  = initializeApp(window.SIGDOC_CONFIG.config);
@@ -645,38 +644,31 @@ function mostrarPagina(){
 
 // ── SEED automático: garantir que todas as unidades existem no Firestore ──
 async function seedUnidades(){
-  const batch = writeBatch(db);
-  for(const u of UNIDADES_BASE){
-    const id  = toId(u.nome);
-    const ref = doc(db,'unidades_sanitarias', id);
-    const snap = await getDoc(ref);
-    if(!snap.exists()){
-      batch.set(ref,{
-        id, nome:u.nome, tipo:u.tipo, activa:true,
+  const promises = UNIDADES_BASE
+    .filter(u => u.tipo !== 'seccao')
+    .map(u => {
+      const id  = toId(u.nome);
+      const ref = doc(db, 'unidades_sanitarias', id);
+      return setDoc(ref, {
+        id, nome: u.nome, tipo: u.tipo, activa: true,
         servicos: u.servicos,
-        efectivo:{ esperado:0 },
-        contactos:{ telefone:'', emergencia:'' },
-        horario:{ semana:'07h30–15h30', sabado:'08h00–12h00', domingo:'Fechado', urgencia24h:false },
-        responsavel:{ nome:'', cargo:'' },
-        criadoEm: serverTimestamp(), actualizadoEm: serverTimestamp()
-      });
-    }
-  }
-  await batch.commit();
+      }, { merge: true }).catch(e => console.warn('Seed skip:', u.nome, e.code));
+    });
+  await Promise.allSettled(promises);
 }
 
 // ── Carregar tudo em paralelo ───────────────────────────────
 async function carregarTudo(){
   document.getElementById('grid').innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
   try{
-    // 1. Garantir seed
-    await seedUnidades();
+    // 1. Seed não-bloqueante
+    try{ await seedUnidades(); }catch(e){ console.warn('Seed:',e.code); }
     // 2. Buscar documentos das unidades
     const uSnaps = await getDocs(collection(db,'unidades_sanitarias'));
     const uMap = {};
     uSnaps.forEach(s=>{ uMap[s.id] = s.data(); });
     // 3. Buscar todos os funcionários activos
-    const fSnaps = await getDocs(query(collection(db,'funcionarios'), where('estado','==','activo')));
+    const fSnaps = await getDocs(collection(db,'funcionarios'));
     FUNCIONARIOS_MAP = {};
     SECCOES_MAP = {};  // secção → [funcionarios] — só para DMS
     fSnaps.forEach(s=>{
