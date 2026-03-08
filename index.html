@@ -2111,6 +2111,113 @@
     carregarReunioesSecretaria();
   };
 
+  // ── Agendamentos de Reunião ─────────────────────────────────
+  window.carregarReunioesSecretaria = async function() {
+    const el = document.getElementById('lista-reunioes-secretaria');
+    const ctr = document.getElementById('sec-reunioes-contador');
+    if (!el) return;
+    el.innerHTML = '<div class="vazio-estado"><div class="icone">📅</div><p>⏳ A carregar…</p></div>';
+
+    try {
+      const filtroEstado = document.getElementById('filtro-estado-reunioes')?.value || '';
+      const filtroDe     = document.getElementById('filtro-data-de-reunioes')?.value  || '';
+      const filtroAte    = document.getElementById('filtro-data-ate-reunioes')?.value || '';
+
+      const snap = await getDocs(query(collection(db,'reunioes'), orderBy('criadoEm','desc')));
+      let docs = snap.docs.map(d => ({id:d.id, ...d.data()}));
+
+      if (filtroEstado) docs = docs.filter(r => r.estado === filtroEstado);
+      if (filtroDe)     docs = docs.filter(r => { const d = r.dataPreferida; return d && d >= filtroDe; });
+      if (filtroAte)    docs = docs.filter(r => { const d = r.dataPreferida; return d && d <= filtroAte; });
+
+      if (ctr) ctr.textContent = docs.length > 0 ? `${docs.length} agendamento${docs.length!==1?'s':''}` : '';
+
+      if (docs.length === 0) {
+        el.innerHTML = '<div class="vazio-estado"><div class="icone">📅</div><p>Sem agendamentos.</p></div>';
+        return;
+      }
+
+      const corEstado = { pendente:'#f59e0b', confirmada:'#10b981', recusada:'#ef4444', remarcada:'#6366f1', realizada:'#8b5cf6' };
+      const labelEstado = { pendente:'Pendente', confirmada:'Confirmado', recusada:'Recusado', remarcada:'Remarcado', realizada:'Realizado' };
+      const labelPeriodo = { manha:'Manhã', tarde:'Tarde', qualquer:'Qualquer hora' };
+
+      el.innerHTML = docs.map(r => {
+        const estado = r.estado || 'pendente';
+        const cor    = corEstado[estado] || '#8b5cf6';
+        const dest   = DEST_REUNIAO[r.destinatario] || r.destinatario || '—';
+        const data   = r.dataPreferida || '—';
+        const periodo = labelPeriodo[r.periodo] || r.periodo || '—';
+        const criado = r.criadoEm?.toDate ? r.criadoEm.toDate().toLocaleDateString('pt-AO') : '—';
+        const acoes  = estado === 'pendente' ? `
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+            <button onclick="confirmarReuniao('${r.id}')" style="padding:5px 12px;background:#10b981;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">✔ Confirmar</button>
+            <button onclick="remarcarReuniao('${r.id}')"  style="padding:5px 12px;background:#6366f1;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">↷ Remarcar</button>
+            <button onclick="recusarReuniao('${r.id}')"   style="padding:5px 12px;background:#ef4444;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">✕ Recusar</button>
+          </div>` : (r.dataSugerida ? `<div style="margin-top:6px;font-size:12px;color:var(--txt-sec)">📌 Data sugerida: <strong style="color:var(--txt-pri)">${r.dataSugerida}</strong>${r.local?' · '+r.local:''}</div>` : '')
+                     + (r.motivoRecusa ? `<div style="margin-top:4px;font-size:12px;color:#f87171">Motivo: ${r.motivoRecusa}</div>` : '');
+        return `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px 16px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--txt-pri)">${r.funcionarioNome||'—'}</div>
+              <div style="font-size:12px;color:var(--txt-sec);margin-top:2px">${r.unidade||'—'}</div>
+            </div>
+            <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:${cor}22;color:${cor};white-space:nowrap">${labelEstado[estado]||estado}</span>
+          </div>
+          <div style="margin-top:8px;font-size:13px;color:var(--txt-sec)">
+            <div>📋 <strong style="color:var(--txt-pri)">${r.assunto||'—'}</strong></div>
+            <div style="margin-top:3px">👤 Destinatário: ${dest}</div>
+            <div style="margin-top:3px">📅 Preferência: ${data} · ${periodo}</div>
+            <div style="margin-top:3px;font-size:11px;opacity:.6">Submetido em ${criado}</div>
+          </div>
+          ${acoes}
+        </div>`;
+      }).join('');
+    } catch(e) {
+      console.error('carregarReunioesSecretaria:', e);
+      el.innerHTML = '<div class="vazio-estado"><p>⚠️ Erro ao carregar.</p></div>';
+    }
+  };
+
+  window.confirmarReuniao = async function(id) {
+    const local = prompt('Local da reunião (opcional):') || '';
+    if (local === null) return; // cancelou
+    try {
+      await updateDoc(doc(db,'reunioes',id), {
+        estado:'confirmada', local, geridoPor:utilizadorActual?.uid,
+        actualizadoEm:serverTimestamp()
+      });
+      mostrarNotif('✅ Reunião confirmada!');
+      carregarReunioesSecretaria();
+    } catch(e) { mostrarNotif('❌ Erro: '+e.message,'erro'); }
+  };
+
+  window.recusarReuniao = async function(id) {
+    const motivo = prompt('Motivo da recusa:');
+    if (!motivo) return;
+    try {
+      await updateDoc(doc(db,'reunioes',id), {
+        estado:'recusada', motivoRecusa:motivo, geridoPor:utilizadorActual?.uid,
+        actualizadoEm:serverTimestamp()
+      });
+      mostrarNotif('Reunião recusada.');
+      carregarReunioesSecretaria();
+    } catch(e) { mostrarNotif('❌ Erro: '+e.message,'erro'); }
+  };
+
+  window.remarcarReuniao = async function(id) {
+    const data = prompt('Nova data sugerida (AAAA-MM-DD):');
+    if (!data) return;
+    const obs = prompt('Observações (opcional):') || '';
+    try {
+      await updateDoc(doc(db,'reunioes',id), {
+        estado:'remarcada', dataSugerida:data, observacoes:obs,
+        geridoPor:utilizadorActual?.uid, actualizadoEm:serverTimestamp()
+      });
+      mostrarNotif('✅ Reunião remarcada!');
+      carregarReunioesSecretaria();
+    } catch(e) { mostrarNotif('❌ Erro: '+e.message,'erro'); }
+  };
+
   async function carregarPedidosSecretaria() {
     const el = document.getElementById('lista-pedidos-secretaria');
     if (!el) return;
@@ -2186,14 +2293,17 @@
         bar.textContent = aberto ? '● Conversa aberta' : '○ Conversa encerrada';
         bar.className = 'chat-estado-bar-sec ' + (aberto ? 'aberto' : 'fechado');
       }
-      // Construir mensagens
+      // Construir mensagens — sempre mostrar legacy + array
       const msgs = [];
-      if (p.mensagem && (!p.mensagens||p.mensagens.length===0)) {
-        msgs.push({texto:p.mensagem, autor:'funcionario', nomeAutor:p.funcionarioNome||'—', em:null});
-        if (p.respostaTexto) msgs.push({texto:p.respostaTexto, autor:'secretaria', nomeAutor:'Secretaria', em:null});
-      } else {
-        (p.mensagens||[]).forEach(m=>msgs.push(m));
+      if (p.mensagem) {
+        const dup = (p.mensagens||[]).some(x => x.texto === p.mensagem && x.autor === 'funcionario');
+        if (!dup) msgs.push({ texto:p.mensagem, autor:'funcionario', nomeAutor:p.funcionarioNome||'—', em:p.criadoEm?.toDate?.()?.toISOString()||null });
       }
+      if (p.respostaTexto) {
+        const dup = (p.mensagens||[]).some(x => x.texto === p.respostaTexto && x.autor === 'secretaria');
+        if (!dup) msgs.push({ texto:p.respostaTexto, autor:'secretaria', nomeAutor:'Secretaria', em:p.respondidoEm?.toDate?.()?.toISOString()||null });
+      }
+      (p.mensagens||[]).forEach(m => msgs.push(m));
       const lido = (p.naoLidasFuncionario||0) === 0;
       if (msgs.length===0) {
         msgsEl.innerHTML = '<div style="text-align:center;padding:32px;opacity:.4;font-size:13px">Sem mensagens ainda</div>';
