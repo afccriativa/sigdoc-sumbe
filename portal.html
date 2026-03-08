@@ -629,9 +629,8 @@
       background-color:#f0f2f5;background-image:radial-gradient(circle at 20% 30%,rgba(79,70,229,.05) 0%,transparent 50%); }
     .chat-msgs::-webkit-scrollbar { width:4px; }
     .chat-msgs::-webkit-scrollbar-thumb { background:rgba(0,0,0,.12);border-radius:4px; }
-    .chat-data-sep { text-align:center;margin:10px 0 6px;font-size:11px;color:#9ca3af;
-      display:flex;align-items:center;gap:8px; }
-    .chat-data-sep::before,.chat-data-sep::after { content:'';flex:1;height:1px;background:#e5e7eb; }
+    .chat-data-sep { display:flex;align-items:center;justify-content:center;margin:10px auto 8px; }
+    .chat-data-sep span { background:#e8f4f0;color:#6b7280;font-size:11.5px;font-weight:500;padding:3px 10px;border-radius:8px; }
     .chat-msg-row { display:flex;gap:6px;align-items:flex-end;max-width:82%; }
     .chat-msg-row.enviada  { align-self:flex-end;flex-direction:row-reverse; }
     .chat-msg-row.recebida { align-self:flex-start; }
@@ -1691,14 +1690,12 @@
       </div>
       <button class="chat-header-fechar" onclick="fecharChatPortal()">×</button>
     </div>
-    <div class="chat-estado-bar aberto" id="chat-estado-bar">🟢 Conversa aberta</div>
+    <div class="chat-estado-bar aberto" id="chat-estado-bar">● Conversa aberta</div>
     <div class="chat-msgs" id="chat-msgs"></div>
     <div class="chat-input-row" id="chat-input-row">
       <textarea class="chat-input" id="chat-input" rows="1" placeholder="Escreva a sua mensagem…"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemChatPortal();}"></textarea>
-      <button class="chat-enviar" onclick="enviarMensagemChatPortal()" id="btn-chat-enviar">
-        <span class="material-symbols-outlined">send</span>
-      </button>
+      <button class="chat-enviar" onclick="enviarMensagemChatPortal()" id="btn-chat-enviar" title="Enviar" style="font-size:20px">➤</button>
     </div>
   </div>
 </div>
@@ -2056,14 +2053,14 @@
       document.getElementById('chat-titulo').textContent = assunto;
       const aberto = p.estado !== 'fechado';
       const bar = document.getElementById('chat-estado-bar');
+      const bar = document.getElementById('chat-estado-bar');
       if (bar) {
-        bar.innerHTML = aberto
-          ? '<span class="material-symbols-outlined" style="font-size:12px">circle</span> Conversa aberta'
-          : '<span class="material-symbols-outlined" style="font-size:12px">do_not_disturb_on</span> Conversa encerrada';
+        bar.textContent = aberto ? '● Conversa aberta' : '○ Encerrada — envie mensagem para reabrir';
         bar.className = 'chat-estado-bar ' + (aberto ? 'aberto' : 'fechado');
       }
-      const inputRow = document.getElementById('chat-input-row');
-      if (inputRow) inputRow.style.display = aberto ? '' : 'none';
+      // Funcionário pode sempre enviar (encerrada é só para secretaria)
+      // inputRow sempre visível — reabrir ao enviar
+
       // Construir mensagens
       const msgs = [];
       // Compatibilidade: pedidos antigos sem mensagens[]
@@ -2082,11 +2079,11 @@
         const hora = dt ? dt.toLocaleTimeString('pt-AO',{hour:'2-digit',minute:'2-digit'}) : '';
         const dataStr = dt ? dt.toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}) : '';
         let dataSep = '';
-        if (dataStr && dataStr !== lastData2) { lastData2 = dataStr; dataSep = `<div class="chat-data-sep">${dataStr}</div>`; }
+        if (dataStr && dataStr !== lastData2) { lastData2 = dataStr; dataSep = `<div class="chat-data-sep"><span>${dataStr}</span></div>`; }
         const idxsFunc = msgs.map((mm,ii)=>mm.autor==='funcionario'?ii:-1).filter(ii=>ii>=0);
         const isUltimaFunc = isFunc && i === idxsFunc[idxsFunc.length-1];
         const visto = isUltimaFunc
-          ? `<span class="chat-visto ${lido?'lido':'enviado'}"><span class="material-symbols-outlined" style="font-size:13px">${lido?'done_all':'done'}</span></span>`
+          ? `<i class="chat-visto ${lido?'lido':'enviado'}">${lido?'✓✓':'✓'}</i>`
           : '';
         const initials = isFunc
           ? (_funcDoc?.nome||_utilizador?.email||'V').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()
@@ -2444,14 +2441,12 @@
       </div>
       <button class="chat-header-fechar" onclick="fecharChatPortal()">×</button>
     </div>
-    <div class="chat-estado-bar aberto" id="chat-estado-bar">🟢 Conversa aberta</div>
+    <div class="chat-estado-bar aberto" id="chat-estado-bar">● Conversa aberta</div>
     <div class="chat-msgs" id="chat-msgs"></div>
     <div class="chat-input-row" id="chat-input-row">
       <textarea class="chat-input" id="chat-input" rows="1" placeholder="Escreva a sua mensagem…"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemChatPortal();}"></textarea>
-      <button class="chat-enviar" onclick="enviarMensagemChatPortal()" id="btn-chat-enviar">
-        <span class="material-symbols-outlined">send</span>
-      </button>
+      <button class="chat-enviar" onclick="enviarMensagemChatPortal()" id="btn-chat-enviar" title="Enviar" style="font-size:20px">➤</button>
     </div>
   </div>
 </div>
