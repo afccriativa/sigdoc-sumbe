@@ -2053,7 +2053,6 @@
       document.getElementById('chat-titulo').textContent = assunto;
       const aberto = p.estado !== 'fechado';
       const bar = document.getElementById('chat-estado-bar');
-      const bar = document.getElementById('chat-estado-bar');
       if (bar) {
         bar.textContent = aberto ? '● Conversa aberta' : '○ Encerrada — envie mensagem para reabrir';
         bar.className = 'chat-estado-bar ' + (aberto ? 'aberto' : 'fechado');
