@@ -2124,26 +2124,22 @@
     if (!texto || !_chatPedidoId) return;
     const btn = document.getElementById('btn-chat-enviar');
     btn.disabled = true;
+    input.value = ''; // limpar imediatamente
     try {
-      const snap = await getDoc(doc(db,'pedidos_secretaria',_chatPedidoId));
-      const p = snap.data();
-      const msgs = p.mensagens||[];
-      // Compatibilidade: migrar mensagem antiga para array
-      if (p.mensagem && msgs.length===0) {
-        msgs.push({texto:p.mensagem, autor:'funcionario', nomeAutor:p.funcionarioNome||'—', em:new Date().toISOString()});
-        if (p.respostaTexto) msgs.push({texto:p.respostaTexto, autor:'secretaria', nomeAutor:'Secretaria', em:new Date().toISOString()});
-      }
-      msgs.push({texto, autor:'funcionario', nomeAutor:_funcDoc?.nome||_utilizador.email, em:new Date().toISOString()});
-      await updateDoc(doc(db,'pedidos_secretaria',_chatPedidoId),{
-        mensagens: msgs,
-        estado: p.estado==='fechado' ? 'fechado' : 'aberto',
-        ultimaMensagem: texto.substring(0,80),
+      await updateDoc(doc(db,'pedidos_secretaria',_chatPedidoId), {
+        mensagens: arrayUnion({
+          texto,
+          autor:     'funcionario',
+          nomeAutor: _funcDoc?.nome || _utilizador?.email || 'Funcionário',
+          em:        new Date().toISOString()
+        }),
+        estado:           'aberto',
+        ultimaMensagem:   texto.substring(0,80),
         ultimaMensagemEm: serverTimestamp(),
-        naoLidasSecretaria: (p.naoLidasSecretaria||0)+1,
+        naoLidasSecretaria: increment(1),
         naoLidasFuncionario: 0
       });
-      input.value = '';
-    } catch(e) { console.error(e); }
+    } catch(e) { console.error('enviarMensagem:', e); input.value = texto; }
     btn.disabled = false;
   };
 
