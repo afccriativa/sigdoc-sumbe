@@ -2384,7 +2384,8 @@
         respondidoEm:        serverTimestamp(),
         respondidoPor:       utilizadorActual?.uid
       });
-      _registarHistorico('pedidos_secretaria', _chatSecId, 'Respondido', texto.substring(0,80)).catch(()=>{});
+      // auditoria — registo assíncrono não crítico
+      addDoc(collection(db,'auditoria'),{coleccao:'pedidos_secretaria',docId:_chatSecId,acao:'Respondido',detalhe:texto.substring(0,80),por:utilizadorActual?.uid,em:serverTimestamp()}).catch(()=>{});
       mostrarNotif('✅ Mensagem enviada!');
     } catch(e) {
       console.error('enviarMensagemSecretaria:', e);
@@ -2398,7 +2399,7 @@
     if (!confirm('Fechar esta conversa? O funcionário não poderá enviar mais mensagens.')) return;
     try {
       await updateDoc(doc(db,'pedidos_secretaria',_chatSecId),{estado:'fechado',fechadoEm:serverTimestamp()});
-      await _registarHistorico('pedidos_secretaria', _chatSecId, 'Fechado', 'Conversa encerrada pela secretaria');
+      addDoc(collection(db,'auditoria'),{coleccao:'pedidos_secretaria',docId:_chatSecId,acao:'Fechado',detalhe:'Conversa encerrada pela secretaria',por:utilizadorActual?.uid,em:serverTimestamp()}).catch(()=>{});
       mostrarNotif('✖ Conversa fechada.');
       fecharChatSecretaria();
     } catch(e){ console.error(e); }
