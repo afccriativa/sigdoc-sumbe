@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>Unidades Sanitárias — SIGDOC-SUMBE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="sigdoc-config.js"></script>
+<style>
+:root{
+  --pri:#1241a1; --pri-10:rgba(18,65,161,.10); --pri-20:rgba(18,65,161,.20);
+  --bg:#f6f6f8; --card:#fff; --border:rgba(18,65,161,.10);
+  --txt-1:#0f172a; --txt-2:#64748b; --txt-3:#94a3b8;
+  --sh:0 1px 4px rgba(0,0,0,.07),0 0 0 1px rgba(18,65,161,.06);
+  --sh-md:0 4px 16px rgba(0,0,0,.1);
+  --green:#059669; --amber:#d97706; --red:#dc2626;
+  --font:'Plus Jakarta Sans',sans-serif; --mono:'DM Mono',monospace;
+  --r:14px; --r-sm:8px; --r-lg:20px; --r-full:999px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--txt-1)}
+
+/* ── TOPBAR ────────────────────────────────────── */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  background:#fff;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  padding:12px 24px;
+}
+.topbar-marca{display:flex;align-items:center;gap:8px;text-decoration:none}
+.topbar-logo{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--pri);display:flex;align-items:center;
+  justify-content:center;font-size:18px;flex-shrink:0;
+}
+.topbar-nome{font-size:13px;font-weight:800;color:var(--pri);text-transform:uppercase;letter-spacing:.5px;line-height:1.2}
+.topbar-nome span{display:block;font-size:10px;font-weight:500;color:var(--txt-3);text-transform:none;letter-spacing:0}
+.topbar-sep{flex:1}
+.topbar-back{
+  display:flex;align-items:center;gap:6px;
+  background:var(--pri-10);border:none;border-radius:var(--r-sm);
+  padding:8px 14px;font-size:13px;font-weight:700;color:var(--pri);
+  cursor:pointer;text-decoration:none;font-family:var(--font);
+  transition:all .15s;
+}
+.topbar-back:hover{background:var(--pri-20)}
+.topbar-user{display:flex;align-items:center;gap:10px}
+.topbar-avatar{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--pri-20);border:2px solid var(--pri-10);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:800;color:var(--pri);
+}
+.topbar-uinfo{display:flex;flex-direction:column}
+.topbar-uinfo b{font-size:13px;font-weight:700;color:var(--txt-1)}
+.topbar-uinfo small{font-size:11px;color:var(--txt-3)}
+
+/* ── MAIN LAYOUT ───────────────────────────────── */
+.page{max-width:1200px;margin:0 auto;padding:28px 24px 100px}
+
+/* ── PAGE HEADER ───────────────────────────────── */
+.page-header{margin-bottom:28px}
+.page-titulo{font-size:26px;font-weight:800;color:var(--txt-1);letter-spacing:-.5px}
+.page-sub{font-size:14px;color:var(--txt-2);margin-top:4px}
+
+/* ── KPI STRIP ─────────────────────────────────── */
+.kpi-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+  margin-bottom:24px;
+}
+.kpi-strip-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;box-shadow:var(--sh);
+}
+.kpi-strip-label{font-size:11px;font-weight:600;color:var(--txt-3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.kpi-strip-val{font-size:24px;font-weight:800;color:var(--txt-1);font-family:var(--mono);line-height:1}
+.kpi-strip-sub{font-size:12px;color:var(--txt-2);margin-top:4px}
+
+/* ── TOOLBAR ───────────────────────────────────── */
+.toolbar{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:20px;flex-wrap:wrap;
+}
+.search-wrap{
+  flex:1;min-width:240px;
+  display:flex;align-items:center;gap:10px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:10px 14px;
+  box-shadow:var(--sh);
+}
+.search-wrap input{
+  flex:1;border:none;outline:none;font-size:14px;
+  color:var(--txt-1);background:transparent;font-family:var(--font);
+}
+.search-wrap input::placeholder{color:var(--txt-3)}
+.search-ic{color:var(--txt-3);font-size:16px;flex-shrink:0}
+
+.filtros{display:flex;gap:6px;flex-wrap:wrap}
+.filtro{
+  padding:7px 14px;border-radius:var(--r-full);font-size:12px;
+  font-weight:700;border:1px solid var(--border);background:var(--card);
+  color:var(--txt-2);cursor:pointer;transition:all .15s;
+  font-family:var(--font);white-space:nowrap;
+}
+.filtro:hover{border-color:var(--pri);color:var(--pri)}
+.filtro.activo{background:var(--pri);border-color:var(--pri);color:#fff}
+
+/* ── GRID DE CARDS ─────────────────────────────── */
+.unidades-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+.u-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-lg);box-shadow:var(--sh);
+  overflow:hidden;transition:all .18s;cursor:pointer;
+}
+.u-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 28px rgba(18,65,161,.12);
+  border-color:rgba(18,65,161,.25);
+}
+.u-card-top{padding:18px 18px 0}
+.u-tipo-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:var(--r-full);
+  font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;
+  margin-bottom:10px;
+}
+.tipo-dms   {background:rgba(18,65,161,.1);color:var(--pri)}
+.tipo-centro{background:rgba(5,150,105,.1);color:var(--green)}
+.tipo-posto {background:rgba(245,158,11,.1);color:var(--amber)}
+.tipo-seccao{background:rgba(139,92,246,.1);color:#7c3aed}
+
+.u-nome{
+  font-size:15px;font-weight:800;color:var(--txt-1);
+  line-height:1.3;margin-bottom:4px;
+}
+.u-local{font-size:12px;color:var(--txt-3);margin-bottom:16px}
+
+/* Barra de cobertura */
+.u-cobertura{padding:14px 18px;background:var(--bg);border-top:1px solid var(--border)}
+.u-cob-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.u-cob-label{font-size:11px;font-weight:700;color:var(--txt-2);text-transform:uppercase;letter-spacing:.6px}
+.u-cob-pct{
+  font-size:12px;font-weight:800;font-family:var(--mono);
+  padding:2px 8px;border-radius:var(--r-full);
+}
+.pct-verde {background:rgba(5,150,105,.12);color:var(--green)}
+.pct-amarelo{background:rgba(217,119,6,.12);color:var(--amber)}
+.pct-vermelho{background:rgba(220,38,38,.12);color:var(--red)}
+.pct-vazio  {background:#f1f5f9;color:var(--txt-3)}
+
+.u-barra-fundo{height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden}
+.u-barra-fill{height:100%;border-radius:99px;transition:width .4s ease}
+.fill-verde  {background:var(--green)}
+.fill-amarelo{background:var(--amber)}
+.fill-vermelho{background:var(--red)}
+
+.u-nums{
+  display:flex;gap:16px;margin-top:10px;
+  padding-top:10px;border-top:1px solid var(--border);
+}
+.u-num-item{flex:1}
+.u-num-val{
+  font-size:18px;font-weight:800;color:var(--txt-1);
+  font-family:var(--mono);line-height:1;
+}
+.u-num-label{font-size:10px;color:var(--txt-3);font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+
+/* Footer card */
+.u-card-footer{
+  padding:12px 18px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid var(--border);
+}
+.u-responsavel{display:flex;align-items:center;gap:6px}
+.u-resp-av{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--pri-10);color:var(--pri);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;
+}
+.u-resp-nome{font-size:12px;color:var(--txt-2);font-weight:600}
+.btn-ver{
+  display:flex;align-items:center;gap:4px;
+  padding:6px 12px;background:var(--pri-10);
+  border-radius:var(--r-sm);font-size:12px;
+  font-weight:700;color:var(--pri);border:none;
+  cursor:pointer;font-family:var(--font);transition:all .15s;
+}
+.btn-ver:hover{background:var(--pri);color:#fff}
+
+/* Vazio */
+.vazio{
+  grid-column:1/-1;text-align:center;
+  padding:60px 20px;color:var(--txt-3);
+}
+.vazio-ic{font-size:40px;margin-bottom:12px;opacity:.5}
+.vazio p{font-size:14px;font-weight:500}
+
+/* ── DRAWER / FICHA COMPLETA ───────────────────── */
+.drawer-overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.5);
+  z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.drawer-overlay.aberto{opacity:1;pointer-events:all}
+
+.drawer{
+  position:fixed;top:0;right:-100%;bottom:0;
+  width:min(520px,100vw);background:var(--card);
+  z-index:201;overflow-y:auto;
+  transition:right .25s cubic-bezier(.4,0,.2,1);
+  box-shadow:-8px 0 40px rgba(0,0,0,.15);
+}
+.drawer.aberto{right:0}
+
+.drawer-header{
+  position:sticky;top:0;background:var(--card);
+  border-bottom:1px solid var(--border);
+  padding:20px 24px;z-index:1;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+}
+.drawer-titulo{
+  font-size:18px;font-weight:800;color:var(--txt-1);line-height:1.2;flex:1;
+}
+.drawer-fechar{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--bg);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:16px;color:var(--txt-2);
+  flex-shrink:0;transition:all .15s;
+}
+.drawer-fechar:hover{background:var(--red);color:#fff;border-color:var(--red)}
+
+.drawer-body{padding:24px}
+
+/* Secções do drawer */
+.ds{margin-bottom:28px}
+.ds-titulo{
+  font-size:10px;font-weight:800;text-transform:uppercase;
+  letter-spacing:1.2px;color:var(--txt-3);
+  margin-bottom:14px;padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+.ds-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:10px}
+.ds-key{font-size:12px;font-weight:700;color:var(--txt-2);min-width:120px;flex-shrink:0;padding-top:1px}
+.ds-val{font-size:13px;color:var(--txt-1);font-weight:500;flex:1}
+
+/* Barra de efectivo no drawer */
+.ef-bar-wrap{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;margin-bottom:16px;
+}
+.ef-bar-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px}
+.ef-bar-num{font-size:28px;font-weight:800;font-family:var(--mono);color:var(--txt-1)}
+.ef-bar-label{font-size:12px;color:var(--txt-2);margin-top:2px}
+.ef-bar-esperado{font-size:13px;font-weight:600;color:var(--txt-2)}
+.ef-barra-fundo{height:10px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-bottom:8px}
+.ef-barra-fill{height:100%;border-radius:99px;transition:width .5s ease}
+.ef-bar-sub{font-size:12px;color:var(--txt-3)}
+
+/* Chips de serviços */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  padding:4px 10px;border-radius:var(--r-full);
+  font-size:11px;font-weight:700;
+  background:rgba(18,65,161,.07);color:var(--pri);
+  border:1px solid rgba(18,65,161,.15);
+}
+
+/* Funcionários da unidade */
+.func-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--border);
+}
+.func-item:last-child{border-bottom:none}
+.func-av{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--pri-10);color:var(--pri);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:800;flex-shrink:0;
+}
+.func-info{flex:1}
+.func-nome{font-size:13px;font-weight:700;color:var(--txt-1)}
+.func-cat{font-size:11px;color:var(--txt-2);margin-top:1px}
+.func-num{font-family:var(--mono);font-size:11px;color:var(--txt-3)}
+
+/* ── MODAL EDITAR EFECTIVO ─────────────────────── */
+.modal-ov{
+  position:fixed;inset:0;background:rgba(15,23,42,.6);
+  z-index:300;display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s;padding:20px;
+}
+.modal-ov.aberto{opacity:1;pointer-events:all}
+.modal-card{
+  background:var(--card);border-radius:var(--r-lg);
+  padding:28px;width:100%;max-width:420px;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+}
+.modal-titulo{font-size:18px;font-weight:800;color:var(--txt-1);margin-bottom:6px}
+.modal-sub{font-size:13px;color:var(--txt-2);margin-bottom:24px}
+.modal-campo label{
+  display:block;font-size:11px;font-weight:700;
+  color:var(--txt-2);text-transform:uppercase;letter-spacing:.6px;
+  margin-bottom:6px;
+}
+.modal-campo input{
+  width:100%;padding:12px 14px;
+  background:#f8fafc;border:1px solid var(--border);
+  border-radius:var(--r-sm);font-size:20px;font-family:var(--mono);
+  font-weight:700;color:var(--txt-1);outline:none;transition:border .15s;
+}
+.modal-campo input:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(18,65,161,.1)}
+.modal-hint{font-size:12px;color:var(--txt-3);margin-top:8px}
+.modal-footer{
+  display:flex;gap:8px;justify-content:flex-end;margin-top:24px;
+}
+.btn-guardar{
+  padding:10px 20px;background:var(--pri);color:#fff;
+  border:none;border-radius:var(--r-sm);font-size:14px;
+  font-weight:700;cursor:pointer;font-family:var(--font);
+  transition:all .15s;
+}
+.btn-guardar:hover{background:#0f35a0}
+.btn-guardar:disabled{opacity:.5;cursor:not-allowed}
+.btn-cancelar{
+  padding:10px 20px;background:#f1f5f9;color:var(--txt-2);
+  border:1px solid var(--border);border-radius:var(--r-sm);
+  font-size:14px;font-weight:700;cursor:pointer;
+  font-family:var(--font);transition:all .15s;
+}
+.btn-cancelar:hover{background:#e2e8f0}
+
+/* ── SPINNER ───────────────────────────────────── */
+.spinner-wrap{grid-column:1/-1;text-align:center;padding:60px 20px}
+.spinner{
+  display:inline-block;width:36px;height:36px;
+  border:3px solid rgba(18,65,161,.15);
+  border-top-color:var(--pri);border-radius:50%;
+  animation:spin .6s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── TOAST ─────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:#0f172a;color:#fff;
+  padding:12px 18px;border-radius:var(--r-sm);
+  font-size:14px;font-weight:600;
+  box-shadow:var(--sh-md);z-index:999;
+  transform:translateY(8px);opacity:0;
+  transition:all .2s;pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── LOGIN ─────────────────────────────────────── */
+#ecrã-login{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  z-index:500;padding:20px;
+}
+.login-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:40px;
+  width:100%;max-width:380px;box-shadow:var(--sh-md);text-align:center;
+}
+.login-logo{font-size:36px;margin-bottom:16px}
+.login-titulo{font-size:22px;font-weight:800;color:var(--pri);margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--txt-2);margin-bottom:28px}
+.login-campo{text-align:left;margin-bottom:14px}
+.login-campo label{display:block;font-size:11px;font-weight:700;color:var(--txt-2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.login-campo input{width:100%;padding:11px 14px;background:#f8fafc;border:1px solid var(--border);border-radius:var(--r-sm);font-size:14px;color:var(--txt-1);outline:none;font-family:var(--font)}
+.login-campo input:focus{border-color:var(--pri)}
+.btn-login{width:100%;padding:12px;background:var(--pri);color:#fff;border:none;border-radius:var(--r-sm);font-size:15px;font-weight:800;cursor:pointer;font-family:var(--font);margin-top:8px;transition:all .15s}
+.btn-login:hover{background:#0f35a0}
+.login-erro{font-size:13px;color:var(--red);margin-top:10px;display:none}
+
+/* ── RESPONSIVE ────────────────────────────────── */
+@media(max-width:900px){
+  .unidades-grid{grid-template-columns:repeat(2,1fr)}
+  .kpi-strip{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:600px){
+  .page{padding:20px 16px 80px}
+  .unidades-grid{grid-template-columns:1fr}
+  .kpi-strip{grid-template-columns:1fr 1fr}
+  .topbar{padding:12px 16px}
+  .topbar-uinfo,.topbar-back span{display:none}
+  .drawer{width:100vw}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="ecrã-login">
+  <div class="login-card">
+    <div class="login-logo">🏥</div>
+    <div class="login-titulo">SIGDOC-SUMBE</div>
+    <div class="login-sub">Directório de Unidades Sanitárias</div>
+    <div class="login-campo">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="utilizador@dms.ao"/>
+    </div>
+    <div class="login-campo">
+      <label>Senha</label>
+      <input type="password" id="login-senha" placeholder="••••••••"/>
+    </div>
+    <button class="btn-login" onclick="fazerLogin()">Entrar</button>
+    <div class="login-erro" id="login-erro"></div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<header class="topbar" id="topbar" style="display:none">
+  <a href="index.html" class="topbar-marca">
+    <div class="topbar-logo">🏥</div>
+    <div class="topbar-nome">SIGDOC-SUMBE <span>Direcção Municipal da Saúde</span></div>
+  </a>
+  <div class="topbar-sep"></div>
+  <a href="index.html" class="topbar-back">← <span>Dashboard</span></a>
+  <div class="topbar-user">
+    <div class="topbar-avatar" id="topbar-avatar">?</div>
+    <div class="topbar-uinfo">
+      <b id="topbar-nome">—</b>
+      <small id="topbar-perfil">—</small>
+    </div>
+  </div>
+</header>
+
+<!-- CONTEÚDO PRINCIPAL -->
+<main class="page" id="pagina" style="display:none">
+
+  <div class="page-header">
+    <h1 class="page-titulo">Unidades Sanitárias</h1>
+    <p class="page-sub" id="page-sub">Directório da rede de saúde do Município do Sumbe</p>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-strip">
+    <div class="kpi-strip-card">
+      <div class="kpi-strip-label">Total de Unidades</div>
+      <div class="kpi-strip-val" id="kpi-total">—</div>
+      <div class="kpi-strip-sub">Activas no município</div>
+    </div>
+    <div class="kpi-strip-card">
+      <div class="kpi-strip-label">Total Cadastrados</div>
+      <div class="kpi-strip-val" id="kpi-cadastrados">—</div>
+      <div class="kpi-strip-sub">No portal SIGDOC</div>
+    </div>
+    <div class="kpi-strip-card">
+      <div class="kpi-strip-label">Efectivo Esperado</div>
+      <div class="kpi-strip-val" id="kpi-esperado">—</div>
+      <div class="kpi-strip-sub">Total definido pela gestão</div>
+    </div>
+    <div class="kpi-strip-card">
+      <div class="kpi-strip-label">Cobertura Geral</div>
+      <div class="kpi-strip-val" id="kpi-cobertura">—</div>
+      <div class="kpi-strip-sub">Cadastrados vs esperado</div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-ic">🔍</span>
+      <input type="text" id="campo-pesquisa" placeholder="Pesquisar unidade, tipo, serviço…" oninput="filtrar()"/>
+    </div>
+    <div class="filtros">
+      <button class="filtro activo" data-filtro="todos" onclick="setFiltro(this,'todos')">Todos</button>
+      <button class="filtro" data-filtro="dms" onclick="setFiltro(this,'dms')">🏢 DMS</button>
+      <button class="filtro" data-filtro="centro" onclick="setFiltro(this,'centro')">🏥 Centros</button>
+      <button class="filtro" data-filtro="posto" onclick="setFiltro(this,'posto')">🏠 Postos</button>
+
+      <button class="filtro" data-filtro="incompleto" onclick="setFiltro(this,'incompleto')">⚠️ Cobertura &lt;80%</button>
+    </div>
+  </div>
+
+  <!-- GRID -->
+  <div class="unidades-grid" id="grid">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+
+</main>
+
+<!-- DRAWER FICHA -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="fecharDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div>
+      <div class="drawer-titulo" id="drawer-titulo">—</div>
+      <div style="font-size:12px;color:var(--txt-3);margin-top:4px" id="drawer-tipo-badge">—</div>
+    </div>
+    <button class="drawer-fechar" onclick="fecharDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+</aside>
+
+<!-- MODAL EDITAR EFECTIVO -->
+<div class="modal-ov" id="modal-ef">
+  <div class="modal-card">
+    <div class="modal-titulo" id="mef-titulo">Definir Efectivo</div>
+    <div class="modal-sub" id="mef-sub">Número total de funcionários esperados nesta unidade</div>
+    <div class="modal-campo">
+      <label>Efectivo Esperado (nº de funcionários)</label>
+      <input type="number" id="mef-input" min="0" max="9999" placeholder="0"/>
+      <div class="modal-hint" id="mef-hint"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharModalEf()">Cancelar</button>
+      <button class="btn-guardar" id="mef-btn-guardar" onclick="guardarEfectivo()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp }                             from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"
+import { getAuth, signInWithEmailAndPassword,
+         onAuthStateChanged }                        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
+import { getFirestore, doc, setDoc, getDoc,
+         getDocs, collection, updateDoc,
+         serverTimestamp, query, where,
+         orderBy, writeBatch }                       from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+
+// ── Config ─────────────────────────────────────────────────
+const app  = initializeApp(window.SIGDOC_CONFIG.config);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── Perfis com permissão de edição ─────────────────────────
+const PODE_EDITAR  = ['admin','chefe','tecnico'];
+const PODE_ACEDER  = ['admin','director','chefe','tecnico','secretaria'];
+
+const ETIQUETAS = {
+  admin:'Administrador',director:'Director Municipal',
+  chefe:'Chefe de Secção',tecnico:'Técnico de RH',
+  secretaria:'Secretaria',funcionario:'Funcionário'
+};
+
+// ── Lista canónica de unidades (extraída do formulário) ─────
+const SECCOES_DMS = [
+  'Secção de Planeamento, Estatística e Recursos Humanos',
+  'Secção de Saúde Pública',
+  'Secção de Inspecção Sanitária',
+  'Secção de Logística Hospitalar e Medicamentos',
+  'Secretaria',
+];
+
+const UNIDADES_BASE = [
+  { nome:'Direcção Municipal de Saúde do Sumbe', tipo:'dms',
+    servicos:['Gestão Municipal','Recursos Humanos','Logística','Saúde Pública','Estatística','Inspecção Sanitária'] },
+  { nome:'Centro de Saúde da Assaca', tipo:'centro',
+    servicos:['Consulta Externa','Urgências','Maternidade','Laboratório','Farmácia','PAV','CPN'] },
+  { nome:'Centro de Saúde da Pedra 1', tipo:'centro',
+    servicos:['Consulta Externa','Urgências','Maternidade','Laboratório','Farmácia','PAV','CPN','Testagem VIH'] },
+  { nome:'Centro de Saúde do Chingo', tipo:'centro',
+    servicos:['Consulta Externa','Urgências','Maternidade','Farmácia','PAV','CPN'] },
+  { nome:'Posto de Saúde da Bumba',   tipo:'posto', servicos:['Consulta Externa','PAV','CPN','Farmácia'] },
+  { nome:'Posto de Saúde da Canguanja', tipo:'posto', servicos:['Consulta Externa','PAV','CPN','Farmácia'] },
+  { nome:'Posto de Saúde da Casa Branca', tipo:'posto', servicos:['Consulta Externa','PAV','Farmácia'] },
+  { nome:'Posto de Saúde da Njata',   tipo:'posto', servicos:['Consulta Externa','PAV','CPN'] },
+  { nome:'Posto de Saúde da Pomba Nova', tipo:'posto', servicos:['Consulta Externa','PAV','Farmácia'] },
+  { nome:'Posto de Saúde da Santa Cruz', tipo:'posto', servicos:['Consulta Externa','PAV','CPN','Farmácia'] },
+  { nome:'Posto de Saúde das Salinas', tipo:'posto', servicos:['Consulta Externa','PAV','Farmácia'] },
+  { nome:'Posto de Saúde do Atuco',   tipo:'posto', servicos:['Consulta Externa','PAV'] },
+  { nome:'Posto de Saúde do Cangulo', tipo:'posto', servicos:['Consulta Externa','PAV','Farmácia'] },
+  { nome:'Posto de Saúde do Mercado da Feira', tipo:'posto', servicos:['Consulta Externa','PAV','Testagem VIH'] },
+  { nome:'Posto de Saúde do Pindo',   tipo:'posto', servicos:['Consulta Externa','PAV'] },
+  { nome:'Posto de Saúde do Quicombo', tipo:'posto', servicos:['Consulta Externa','PAV','Farmácia'] },
+  { nome:'Posto de Saúde Firmar/Praia', tipo:'posto', servicos:['Consulta Externa','PAV','CPN'] },
+  // Secções são sub-unidades da DMS — ver renderDrawerDMS()
+];
+
+// ── Estado global ───────────────────────────────────────────
+let UTILIZADOR    = null;
+let PERFIL_DOC    = null;
+let TODAS_UNIDADES = [];  // dados mesclados Firestore + base
+let FUNCIONARIOS_MAP = {}; // nome_unidade → [funcionarios]
+let SECCOES_MAP    = {}; // seccao → [funcionarios] (só DMS)
+let FILTRO_ACTIVO = 'todos';
+let DRAWER_ID     = null;
+let MODAL_EF_ID   = null;
+
+// ── ID seguro para Firestore (sem caracteres especiais) ─────
+function toId(nome){ return nome.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'') }
+
+// ── Auth ────────────────────────────────────────────────────
+window.fazerLogin = async function(){
+  const email = document.getElementById('login-email').value.trim();
+  const senha  = document.getElementById('login-senha').value;
+  const erroEl = document.getElementById('login-erro');
+  erroEl.style.display = 'none';
+  try{
+    await signInWithEmailAndPassword(auth, email, senha);
+  } catch(e){
+    erroEl.textContent = 'Email ou senha incorrectos.';
+    erroEl.style.display = 'block';
+  }
+};
+
+document.getElementById('login-senha').addEventListener('keydown', e=>{
+  if(e.key==='Enter') window.fazerLogin();
+});
+
+onAuthStateChanged(auth, async user=>{
+  if(!user){ mostrarLogin(); return; }
+  UTILIZADOR = user;
+  // Carregar perfil
+  const snap = await getDoc(doc(db,'utilizadores',user.uid));
+  if(!snap.exists()){ mostrarLogin(); return; }
+  PERFIL_DOC = snap.data();
+  if(!PODE_ACEDER.includes(PERFIL_DOC.perfil)){
+    mostrarLogin('Sem permissão para aceder a esta página.');
+    return;
+  }
+  mostrarPagina();
+});
+
+function mostrarLogin(erro=''){
+  document.getElementById('ecrã-login').style.display='flex';
+  document.getElementById('topbar').style.display='none';
+  document.getElementById('pagina').style.display='none';
+  if(erro){ const el=document.getElementById('login-erro'); el.textContent=erro; el.style.display='block'; }
+}
+
+function mostrarPagina(){
+  document.getElementById('ecrã-login').style.display='none';
+  document.getElementById('topbar').style.display='flex';
+  document.getElementById('pagina').style.display='block';
+  // Topbar
+  const n = PERFIL_DOC.nome||UTILIZADOR.email;
+  document.getElementById('topbar-avatar').textContent = n[0].toUpperCase();
+  document.getElementById('topbar-nome').textContent   = n;
+  document.getElementById('topbar-perfil').textContent = ETIQUETAS[PERFIL_DOC.perfil]||PERFIL_DOC.perfil;
+  // Carregar dados
+  carregarTudo();
+}
+
+// ── SEED automático: garantir que todas as unidades existem no Firestore ──
+async function seedUnidades(){
+  const batch = writeBatch(db);
+  for(const u of UNIDADES_BASE){
+    const id  = toId(u.nome);
+    const ref = doc(db,'unidades_sanitarias', id);
+    const snap = await getDoc(ref);
+    if(!snap.exists()){
+      batch.set(ref,{
+        id, nome:u.nome, tipo:u.tipo, activa:true,
+        servicos: u.servicos,
+        efectivo:{ esperado:0 },
+        contactos:{ telefone:'', emergencia:'' },
+        horario:{ semana:'07h30–15h30', sabado:'08h00–12h00', domingo:'Fechado', urgencia24h:false },
+        responsavel:{ nome:'', cargo:'' },
+        criadoEm: serverTimestamp(), actualizadoEm: serverTimestamp()
+      });
+    }
+  }
+  await batch.commit();
+}
+
+// ── Carregar tudo em paralelo ───────────────────────────────
+async function carregarTudo(){
+  document.getElementById('grid').innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+  try{
+    // 1. Garantir seed
+    await seedUnidades();
+    // 2. Buscar documentos das unidades
+    const uSnaps = await getDocs(collection(db,'unidades_sanitarias'));
+    const uMap = {};
+    uSnaps.forEach(s=>{ uMap[s.id] = s.data(); });
+    // 3. Buscar todos os funcionários activos
+    const fSnaps = await getDocs(query(collection(db,'funcionarios'), where('estado','==','activo')));
+    FUNCIONARIOS_MAP = {};
+    SECCOES_MAP = {};  // secção → [funcionarios] — só para DMS
+    fSnaps.forEach(s=>{
+      const d = s.data();
+      const un = d.unidade||'';
+      if(!FUNCIONARIOS_MAP[un]) FUNCIONARIOS_MAP[un]=[];
+      FUNCIONARIOS_MAP[un].push({id:s.id, ...d});
+      // Indexar por secção (apenas quem pertence à DMS)
+      if(un === 'Direcção Municipal de Saúde do Sumbe' && d.seccao){
+        if(!SECCOES_MAP[d.seccao]) SECCOES_MAP[d.seccao]=[];
+        SECCOES_MAP[d.seccao].push({id:s.id, ...d});
+      }
+    });
+    // 4. Mesclar base + Firestore
+    TODAS_UNIDADES = UNIDADES_BASE.map(u=>{
+      const id  = toId(u.nome);
+      const fs  = uMap[id]||{};
+      const cadastrados = (FUNCIONARIOS_MAP[u.nome]||[]).length;
+      return { id, ...u, ...fs, cadastrados };
+    });
+    // 5. Actualizar KPIs
+    actualizarKPIs();
+    // 6. Render
+    render();
+  } catch(e){
+    console.error(e);
+    document.getElementById('grid').innerHTML='<div class="vazio"><div class="vazio-ic">⚠️</div><p>Erro ao carregar dados. Verifique a ligação.</p></div>';
+  }
+}
+
+function actualizarKPIs(){
+  const total      = TODAS_UNIDADES.length;
+  const cadastrados= TODAS_UNIDADES.reduce((s,u)=>s+u.cadastrados,0);
+  const esperado   = TODAS_UNIDADES.reduce((s,u)=>s+(u.efectivo?.esperado||0),0);
+  const pct        = esperado>0 ? Math.round(cadastrados/esperado*100) : 0;
+  document.getElementById('kpi-total').textContent      = total;
+  document.getElementById('kpi-cadastrados').textContent= cadastrados;
+  document.getElementById('kpi-esperado').textContent   = esperado||'—';
+  document.getElementById('kpi-cobertura').textContent  = esperado>0 ? `${pct}%` : '—';
+  document.getElementById('page-sub').textContent       = `${total} unidades · ${cadastrados} funcionários cadastrados no portal`;
+}
+
+// ── Filtrar ────────────────────────────────────────────────
+let PESQUISA = '';
+window.setFiltro = function(btn, valor){
+  document.querySelectorAll('.filtro').forEach(b=>b.classList.remove('activo'));
+  btn.classList.add('activo');
+  FILTRO_ACTIVO = valor;
+  render();
+};
+window.filtrar = function(){
+  PESQUISA = document.getElementById('campo-pesquisa').value.toLowerCase();
+  render();
+};
+
+function render(){
+  const lista = TODAS_UNIDADES.filter(u=>{
+    // Filtro tipo
+    if(FILTRO_ACTIVO !== 'todos' && u.tipo !== FILTRO_ACTIVO) return false;
+    if(FILTRO_ACTIVO === 'incompleto'){
+      const esp = u.efectivo?.esperado||0;
+      if(esp===0) return true;
+      const pct = u.cadastrados/esp*100;
+      if(pct>=80) return false;
+    }
+    // Pesquisa
+    if(PESQUISA){
+      const haystack = [u.nome, u.tipo, ...(u.servicos||[])].join(' ').toLowerCase();
+      if(!haystack.includes(PESQUISA)) return false;
+    }
+    return true;
+  });
+
+  const grid = document.getElementById('grid');
+  if(!lista.length){
+    grid.innerHTML='<div class="vazio"><div class="vazio-ic">🔍</div><p>Nenhuma unidade encontrada.</p></div>';
+    return;
+  }
+  grid.innerHTML = lista.map(u=>cardHTML(u)).join('');
+}
+
+function tipoLabel(tipo){
+  return {dms:'🏢 DMS',centro:'🏥 Centro de Saúde',posto:'🏠 Posto de Saúde',seccao:'📋 Secção'}[tipo]||tipo;
+}
+function tipoClasse(tipo){
+  return {dms:'tipo-dms',centro:'tipo-centro',posto:'tipo-posto',seccao:'tipo-seccao'}[tipo]||'tipo-posto';
+}
+function calcCobertura(u){
+  const esp = u.efectivo?.esperado||0;
+  const cad = u.cadastrados||0;
+  if(esp===0) return {pct:null,classe:'pct-vazio',fillClass:'fill-verde',label:'Sem meta definida'};
+  const pct = Math.min(Math.round(cad/esp*100),100);
+  if(pct>=90) return {pct,classe:'pct-verde',fillClass:'fill-verde',label:`${pct}%`};
+  if(pct>=60) return {pct,classe:'pct-amarelo',fillClass:'fill-amarelo',label:`${pct}%`};
+  return {pct,classe:'pct-vermelho',fillClass:'fill-vermelho',label:`${pct}%`};
+}
+
+function cardHTML(u){
+  const cob = calcCobertura(u);
+  const esp = u.efectivo?.esperado||0;
+  const largura = cob.pct!==null ? Math.min(cob.pct,100) : 0;
+  return `
+  <div class="u-card" onclick="abrirDrawer('${u.id}')">
+    <div class="u-card-top">
+      <span class="u-tipo-badge ${tipoClasse(u.tipo)}">${tipoLabel(u.tipo)}</span>
+      <div class="u-nome">${u.nome}</div>
+      <div class="u-local">${u.localizacao?.descricao||'Município do Sumbe, Cuanza Sul'}</div>
+    </div>
+    <div class="u-cobertura">
+      <div class="u-cob-header">
+        <span class="u-cob-label">Cobertura</span>
+        <span class="u-cob-pct ${cob.classe}">${cob.pct!==null?cob.label:'Sem meta'}</span>
+      </div>
+      <div class="u-barra-fundo">
+        <div class="u-barra-fill ${cob.fillClass}" style="width:${largura}%"></div>
+      </div>
+      <div class="u-nums">
+        <div class="u-num-item">
+          <div class="u-num-val">${u.cadastrados}</div>
+          <div class="u-num-label">No portal</div>
+        </div>
+        <div class="u-num-item">
+          <div class="u-num-val">${esp||'—'}</div>
+          <div class="u-num-label">Esperado</div>
+        </div>
+      </div>
+    </div>
+    <div class="u-card-footer">
+      <div class="u-responsavel">
+        ${u.responsavel?.nome ? `
+          <div class="u-resp-av">${u.responsavel.nome[0]}</div>
+          <span class="u-resp-nome">${u.responsavel.nome.split(' ').slice(0,2).join(' ')}</span>
+        ` : `<span class="u-resp-nome" style="color:var(--txt-3)">Sem responsável definido</span>`}
+      </div>
+      <button class="btn-ver" onclick="event.stopPropagation();abrirDrawer('${u.id}')">Ver ficha →</button>
+    </div>
+  </div>`;
+}
+
+// ── DRAWER ─────────────────────────────────────────────────
+window.abrirDrawer = function(id){
+  DRAWER_ID = id;
+  const u   = TODAS_UNIDADES.find(x=>x.id===id);
+  if(!u) return;
+  document.getElementById('drawer-titulo').textContent   = u.nome;
+  document.getElementById('drawer-tipo-badge').innerHTML = `<span class="u-tipo-badge ${tipoClasse(u.tipo)}">${tipoLabel(u.tipo)}</span>`;
+  document.getElementById('drawer-overlay').classList.add('aberto');
+  document.getElementById('drawer').classList.add('aberto');
+  renderDrawer(u);
+};
+
+window.fecharDrawer = function(){
+  document.getElementById('drawer-overlay').classList.remove('aberto');
+  document.getElementById('drawer').classList.remove('aberto');
+  DRAWER_ID = null;
+};
+
+
+// ── Drawer especial para a DMS — breakdown por secção ──────
+function renderDrawerDMS(u){
+  const podeEd   = PODE_EDITAR.includes(PERFIL_DOC?.perfil);
+  const todosFunc= FUNCIONARIOS_MAP[u.nome]||[];
+  const esp      = u.efectivo?.esperado||0;
+  const cad      = todosFunc.length;
+  const pct      = esp>0 ? Math.min(Math.round(cad/esp*100),100) : null;
+  const fillCls  = pct===null?'fill-verde':pct>=90?'fill-verde':pct>=60?'fill-amarelo':'fill-vermelho';
+  const largura  = pct!==null ? Math.min(pct,100) : 0;
+
+  // Funcionários sem secção definida
+  const semSeccao = todosFunc.filter(f=>!f.seccao||f.seccao==='');
+
+  const seccaoHTML = SECCOES_DMS.map(sec=>{
+    const funcs = SECCOES_MAP[sec]||[];
+    if(!funcs.length && !SECCOES_MAP[sec]) return ''; // só mostrar se tiver alguém OU sempre
+    return `
+      <div style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;
+                    padding:10px 14px;background:var(--bg);
+                    border-radius:var(--r-sm);border:1px solid var(--border);
+                    margin-bottom:8px;cursor:pointer"
+             onclick="toggleSeccao(this)">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--txt-1)">${sec}</div>
+            <div style="font-size:11px;color:var(--txt-3);margin-top:2px">
+              ${funcs.length} funcionário${funcs.length!==1?'s':''} cadastrado${funcs.length!==1?'s':''}
+            </div>
+          </div>
+          <span style="font-size:18px;color:var(--txt-3);transition:transform .2s" class="sec-arrow">▸</span>
+        </div>
+        <div class="sec-lista" style="display:none;padding-left:4px">
+          ${funcs.length ? funcs.map(f=>`
+            <div class="func-item">
+              <div class="func-av">${(f.nome||'?')[0].toUpperCase()}</div>
+              <div class="func-info">
+                <div class="func-nome">${f.nome||'—'}</div>
+                <div class="func-cat">${f.categoria||f.cargo||''}</div>
+              </div>
+              <div class="func-num">${f.numeroBeneficiario||''}</div>
+            </div>`).join('') :
+            `<div style="font-size:12px;color:var(--txt-3);padding:10px 0 4px">
+               Nenhum funcionário cadastrado nesta secção.
+             </div>`}
+        </div>
+      </div>`;
+  }).join('');
+
+  const semSeccaoHTML = semSeccao.length ? `
+    <div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;
+                  padding:10px 14px;background:rgba(245,158,11,.06);
+                  border-radius:var(--r-sm);border:1px solid rgba(245,158,11,.2);
+                  margin-bottom:8px;cursor:pointer"
+           onclick="toggleSeccao(this)">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--amber)">⚠️ Sem Secção Definida</div>
+          <div style="font-size:11px;color:var(--txt-3);margin-top:2px">
+            ${semSeccao.length} funcionário${semSeccao.length!==1?'s':''} sem secção atribuída
+          </div>
+        </div>
+        <span style="font-size:18px;color:var(--txt-3)" class="sec-arrow">▸</span>
+      </div>
+      <div class="sec-lista" style="display:none;padding-left:4px">
+        ${semSeccao.map(f=>`
+          <div class="func-item">
+            <div class="func-av">${(f.nome||'?')[0].toUpperCase()}</div>
+            <div class="func-info">
+              <div class="func-nome">${f.nome||'—'}</div>
+              <div class="func-cat">${f.categoria||f.cargo||''}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  const html = `
+    <!-- Identificação -->
+    <div class="ds">
+      <div class="ds-titulo">Identificação</div>
+      <div class="ds-row"><span class="ds-key">Tipo</span><span class="ds-val">Direcção Municipal de Saúde</span></div>
+      <div class="ds-row"><span class="ds-key">Município</span><span class="ds-val">Sumbe, Cuanza Sul</span></div>
+      ${u.responsavel?.nome ? `
+        <div class="ds-row"><span class="ds-key">Director</span>
+          <span class="ds-val"><strong>${u.responsavel.nome}</strong>${u.responsavel.cargo?' · '+u.responsavel.cargo:''}</span></div>
+      ` : ''}
+      ${u.contactos?.telefone?`<div class="ds-row"><span class="ds-key">Telefone</span><span class="ds-val">${u.contactos.telefone}</span></div>`:''}
+    </div>
+
+    <!-- Efectivo total DMS -->
+    <div class="ds">
+      <div class="ds-titulo" style="display:flex;align-items:center;justify-content:space-between">
+        <span>Efectivo Total da DMS</span>
+        ${podeEd?`<button class="btn-ver" onclick="abrirModalEf('${u.id}')">✏️ Editar meta</button>`:''}
+      </div>
+      <div class="ef-bar-wrap">
+        <div class="ef-bar-header">
+          <div>
+            <div class="ef-bar-num">${cad}</div>
+            <div class="ef-bar-label">funcionários cadastrados no portal</div>
+          </div>
+          <div class="ef-bar-esperado">de ${esp||'?'} esperados</div>
+        </div>
+        <div class="ef-barra-fundo">
+          <div class="ef-barra-fill ${fillCls}" style="width:${largura}%"></div>
+        </div>
+        <div class="ef-bar-sub">${pct!==null?`${pct}% de cobertura`:'Defina o efectivo esperado para ver a cobertura'}</div>
+      </div>
+    </div>
+
+    <!-- Breakdown por secção -->
+    <div class="ds">
+      <div class="ds-titulo">Funcionários por Secção</div>
+      <div style="font-size:12px;color:var(--txt-3);margin-bottom:14px">
+        Clique numa secção para expandir a lista de funcionários.
+      </div>
+      ${seccaoHTML}
+      ${semSeccaoHTML}
+    </div>
+
+    <!-- Serviços da DMS -->
+    <div class="ds">
+      <div class="ds-titulo">Serviços da DMS</div>
+      <div class="chips">${(u.servicos||[]).map(s=>`<span class="chip">${s}</span>`).join('')}</div>
+    </div>
+  `;
+  document.getElementById('drawer-body').innerHTML = html;
+}
+
+// Toggle expandir/colapsar secção
+window.toggleSeccao = function(header){
+  const lista  = header.nextElementSibling;
+  const arrow  = header.querySelector('.sec-arrow');
+  const aberto = lista.style.display !== 'none';
+  lista.style.display = aberto ? 'none' : 'block';
+  if(arrow) arrow.style.transform = aberto ? '' : 'rotate(90deg)';
+};
+
+
+function renderDrawer(u){
+  // DMS tem vista especial com breakdown por secção
+  if(u.tipo === 'dms'){
+    return renderDrawerDMS(u);
+  }
+
+  const cob  = calcCobertura(u);
+  const esp  = u.efectivo?.esperado||0;
+  const cad  = u.cadastrados||0;
+  const podeEd = PODE_EDITAR.includes(PERFIL_DOC?.perfil);
+  const funcs  = FUNCIONARIOS_MAP[u.nome]||[];
+  const largura = cob.pct!==null ? Math.min(cob.pct,100) : 0;
+
+  const html = `
+    <!-- Identificação -->
+    <div class="ds">
+      <div class="ds-titulo">Identificação</div>
+      ${u.localizacao?.descricao ? `<div class="ds-row"><span class="ds-key">Localização</span><span class="ds-val">${u.localizacao.descricao}</span></div>` : ''}
+      <div class="ds-row"><span class="ds-key">Tipo</span><span class="ds-val">${tipoLabel(u.tipo)}</span></div>
+      ${u.responsavel?.nome ? `
+        <div class="ds-row"><span class="ds-key">Responsável</span>
+          <span class="ds-val"><strong>${u.responsavel.nome}</strong>${u.responsavel.cargo?` · ${u.responsavel.cargo}`:''}</span></div>
+      ` : `<div class="ds-row"><span class="ds-key">Responsável</span><span class="ds-val" style="color:var(--txt-3)">Não definido</span></div>`}
+      ${u.contactos?.telefone ? `<div class="ds-row"><span class="ds-key">Telefone</span><span class="ds-val">${u.contactos.telefone}</span></div>` : ''}
+      ${u.contactos?.emergencia ? `<div class="ds-row"><span class="ds-key">Emergência</span><span class="ds-val">📞 ${u.contactos.emergencia}</span></div>` : ''}
+      ${u.horario?.semana ? `<div class="ds-row"><span class="ds-key">Horário</span><span class="ds-val">${u.horario.semana}${u.horario.urgencia24h?' · 🔴 Urgência 24h':''}</span></div>` : ''}
+    </div>
+
+    <!-- Efectivo RH -->
+    <div class="ds">
+      <div class="ds-titulo" style="display:flex;align-items:center;justify-content:space-between">
+        <span>Efectivo de Recursos Humanos</span>
+        ${podeEd ? `<button class="btn-ver" onclick="abrirModalEf('${u.id}')">✏️ Editar meta</button>` : ''}
+      </div>
+      <div class="ef-bar-wrap">
+        <div class="ef-bar-header">
+          <div>
+            <div class="ef-bar-num">${cad}</div>
+            <div class="ef-bar-label">funcionários cadastrados no portal</div>
+          </div>
+          <div class="ef-bar-esperado">de ${esp||'?'} esperados</div>
+        </div>
+        <div class="ef-barra-fundo">
+          <div class="ef-barra-fill ${cob.fillClass}" style="width:${largura}%"></div>
+        </div>
+        <div class="ef-bar-sub">${cob.pct!==null ? `${cob.pct}% de cobertura` : 'Defina o efectivo esperado para ver a cobertura'}</div>
+      </div>
+
+      ${funcs.length ? `
+        <div style="max-height:220px;overflow-y:auto">
+          ${funcs.map(f=>`
+            <div class="func-item">
+              <div class="func-av">${(f.nome||f.nomeCompleto||'?')[0].toUpperCase()}</div>
+              <div class="func-info">
+                <div class="func-nome">${f.nome||f.nomeCompleto||'—'}</div>
+                <div class="func-cat">${f.categoria||f.cargo||''}</div>
+              </div>
+              <div class="func-num">${f.numeroBeneficiario||''}</div>
+            </div>`).join('')}
+        </div>
+      ` : `<div style="font-size:13px;color:var(--txt-3);padding:12px 0">Nenhum funcionário cadastrado nesta unidade.</div>`}
+    </div>
+
+    <!-- Serviços -->
+    ${(u.servicos||[]).length ? `
+      <div class="ds">
+        <div class="ds-titulo">Serviços Disponíveis</div>
+        <div class="chips">${u.servicos.map(s=>`<span class="chip">${s}</span>`).join('')}</div>
+      </div>` : ''}
+
+    <!-- Historial -->
+    ${u.historial?.inauguradoEm ? `
+      <div class="ds">
+        <div class="ds-titulo">Historial</div>
+        ${u.historial.inauguradoEm ? `<div class="ds-row"><span class="ds-key">Inauguração</span><span class="ds-val">${u.historial.inauguradoEm}</span></div>` : ''}
+        ${u.historial.ultimaRenovacao ? `<div class="ds-row"><span class="ds-key">Última renovação</span><span class="ds-val">${u.historial.ultimaRenovacao}</span></div>` : ''}
+        ${u.historial.observacoes ? `<div class="ds-row"><span class="ds-key">Observações</span><span class="ds-val">${u.historial.observacoes}</span></div>` : ''}
+      </div>` : ''}
+  `;
+  document.getElementById('drawer-body').innerHTML = html;
+}
+
+// ── MODAL EDITAR EFECTIVO ───────────────────────────────────
+window.abrirModalEf = function(id){
+  MODAL_EF_ID = id;
+  const u     = TODAS_UNIDADES.find(x=>x.id===id);
+  if(!u) return;
+  document.getElementById('mef-titulo').textContent = u.nome;
+  document.getElementById('mef-sub').textContent    = 'Define o número total de funcionários que esta unidade deve ter.';
+  document.getElementById('mef-input').value        = u.efectivo?.esperado||0;
+  document.getElementById('mef-hint').textContent   = `Actualmente: ${u.cadastrados} cadastrado(s) no portal.`;
+  document.getElementById('modal-ef').classList.add('aberto');
+};
+
+window.fecharModalEf = function(){
+  document.getElementById('modal-ef').classList.remove('aberto');
+  MODAL_EF_ID = null;
+};
+
+window.guardarEfectivo = async function(){
+  if(!MODAL_EF_ID) return;
+  const val = parseInt(document.getElementById('mef-input').value)||0;
+  const btn = document.getElementById('mef-btn-guardar');
+  btn.disabled = true; btn.textContent = 'A guardar…';
+  try{
+    await updateDoc(doc(db,'unidades_sanitarias',MODAL_EF_ID),{
+      'efectivo.esperado': val,
+      'actualizadoEm':     serverTimestamp(),
+    });
+    // Actualizar local
+    const u = TODAS_UNIDADES.find(x=>x.id===MODAL_EF_ID);
+    if(u){ u.efectivo = {...(u.efectivo||{}), esperado:val}; }
+    // Registar auditoria
+    try{
+      const {addDoc} = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+      await addDoc(collection(db,'auditoria'),{
+        acao:'EDITAR_EFECTIVO_UNIDADE',
+        detalhe:`${u?.nome||MODAL_EF_ID}: efectivo esperado definido para ${val}`,
+        uidUtilizador: UTILIZADOR.uid,
+        nomeUtilizador: PERFIL_DOC?.nome||UTILIZADOR.email,
+        timestamp: serverTimestamp()
+      });
+    }catch(e){}
+    fecharModalEf();
+    actualizarKPIs();
+    render();
+    if(DRAWER_ID === MODAL_EF_ID){
+      const uActual = TODAS_UNIDADES.find(x=>x.id===DRAWER_ID);
+      if(uActual) renderDrawer(uActual);
+    }
+    mostrarToast(`✅ Efectivo actualizado para ${val} funcionários`);
+  } catch(e){
+    mostrarToast('❌ Erro ao guardar. Tente novamente.','#dc2626');
+  } finally{
+    btn.disabled=false; btn.textContent='Guardar';
+  }
+};
+
+// ── Toast ───────────────────────────────────────────────────
+function mostrarToast(msg, bg=''){
+  const t = document.getElementById('toast');
+  if(bg) t.style.background=bg;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>{ t.classList.remove('show'); t.style.background=''; }, 3000);
+}
+
+// ── Fechar modal com ESC ────────────────────────────────────
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('modal-ef').classList.contains('aberto')) fecharModalEf();
+    else fecharDrawer();
+  }
+});
+</script>
+</body>
+</html>
