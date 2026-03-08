@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>SIGDOC-SUMBE — Sistema de Gestão</title>
   <meta name="theme-color" content="#0b4f3a"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -560,17 +560,94 @@
     .secção-restrita{display:none}
     .tabela-scroll{overflow-x:auto}
 
+    /* ═══ MOBILE ≤ 768px ═══ */
     @media(max-width:768px){
-      .kpi-grid{grid-template-columns:repeat(2,1fr)}
-      .topbar{padding:0 16px}
-      .conteudo{padding:0 14px 40px}
-      .painel-hero{padding:24px 16px 70px}
-      .hero-data{display:none}
-      .topbar-info{display:none}
+      /* Esconder sidebar — substituída por bottom nav */
+      .sidebar { display:none !important; }
+
+      /* Main ocupa ecrã completo */
+      #ecrã-painel { flex-direction:column !important; }
+      .main-wrap   { width:100% !important; min-width:0; }
+
+      /* Topbar mobile */
+      .topbar {
+        padding:0 16px;
+        height:56px;
+        position:sticky;top:0;z-index:200;
+      }
+      .topbar-search  { display:none; }
+      .topbar-btn-new { display:none; }
+      .topbar-nome    { font-size:17px; font-weight:800; }
+
+      /* Conteúdo com espaço para bottom nav */
+      .conteudo { padding:16px 16px 90px; }
+
+      /* KPIs — 2 colunas */
+      .kpi-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+      .kpi-num  { font-size:24px; }
+
+      /* Dashboard grid — coluna única */
+      .dash-grid        { grid-template-columns:1fr !important; }
+      .dash-header h2   { font-size:20px; }
+      .modulos-grid     { grid-template-columns:1fr; }
+      .hero-data        { display:none; }
+      .topbar-info      { display:none; }
+      .painel-hero      { padding:24px 16px 70px; }
+
+      /* Cards mais compactos */
+      .painel-card       { border-radius:14px; }
+      .painel-card-header{ flex-direction:column; align-items:flex-start; gap:10px; }
+
+      /* Tabelas com scroll horizontal */
+      .tabela-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+      .tabela-modern { min-width:560px; }
+
+      /* Overlays / modais full-width */
+      .modal-card { margin:16px; width:calc(100% - 32px) !important; max-width:100% !important; }
+
+      /* Chat overlay já é posição:fixed — ok */
+
+      /* Bottom nav mobile */
+      #mobile-bottom-nav {
+        display:flex !important;
+      }
     }
     @media(max-width:480px){
-      .modulos-grid{grid-template-columns:1fr}
-      .login-card{padding:32px 24px}
+      .kpi-grid         { grid-template-columns:repeat(2,1fr); }
+      .login-card       { padding:32px 24px; }
+      .kpi-card         { padding:14px; }
+    }
+
+    /* Bottom nav — escondida em desktop */
+    #mobile-bottom-nav {
+      display:none;
+      position:fixed;bottom:0;left:0;right:0;z-index:500;
+      background:#111827;
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:0 4px env(safe-area-inset-bottom,0px);
+      height:62px;
+      align-items:stretch;
+      box-shadow:0 -4px 20px rgba(0,0,0,.4);
+    }
+    .mbn-item {
+      flex:1;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:3px;
+      cursor:pointer;padding:6px 4px 4px;
+      background:none;border:none;font-family:var(--font);
+      color:rgba(255,255,255,.35);transition:color .15s;
+      position:relative;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .mbn-item.activo { color:#10c886; }
+    .mbn-item:active { opacity:.7; }
+    .mbn-ic   { font-size:20px;line-height:1; }
+    .mbn-txt  { font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px; }
+    .mbn-badge{
+      position:absolute;top:4px;right:calc(50% - 16px);
+      background:#ef4444;color:#fff;
+      font-size:9px;font-weight:800;min-width:16px;height:16px;
+      border-radius:99px;display:flex;align-items:center;justify-content:center;
+      padding:0 3px;line-height:1;
     }
   
     /* ═══ PESQUISA GLOBAL ═══ */
@@ -1181,6 +1258,29 @@
 
     </div><!-- /conteudo -->
   </div><!-- /main-wrap -->
+
+  <!-- BOTTOM NAV MOBILE -->
+  <nav id="mobile-bottom-nav">
+    <button class="mbn-item activo" id="mbn-dashboard" onclick="mbnIr('dashboard')">
+      <span class="mbn-ic">📊</span>
+      <span class="mbn-txt">Início</span>
+    </button>
+    <button class="mbn-item" id="mbn-secretaria" onclick="mbnIr('secretaria')">
+      <span class="mbn-ic">✉️</span>
+      <span class="mbn-txt">Secretaria</span>
+      <span class="mbn-badge" id="mbn-badge-sec" style="display:none"></span>
+    </button>
+    <button class="mbn-item" id="mbn-utilizadores" onclick="mbnIr('utilizadores')">
+      <span class="mbn-ic">⚙️</span>
+      <span class="mbn-txt">Gestão</span>
+    </button>
+    <button class="mbn-item" id="mbn-notif" onclick="toggleDropdownNotif(event)">
+      <span class="mbn-ic">🔔</span>
+      <span class="mbn-txt">Alertas</span>
+      <span class="mbn-badge" id="mbn-badge-notif" style="display:none"></span>
+    </button>
+  </nav>
+
 </div>
 
 <!-- MODAL PERFIL (preservado) -->
