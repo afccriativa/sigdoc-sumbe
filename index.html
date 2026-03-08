@@ -1296,7 +1296,7 @@
         mostrarPainel(u, d);
         mostrarNotif("✅ Conta de administrador criada automaticamente!");
       }
-    } catch(e) { console.error(e); mostrarErro("Erro ao carregar perfil. Verifique as credenciais ou contacte o administrador."); }
+    } catch(e) { console.error("carregarPerfil:",e); mostrarLogin(); setTimeout(()=>mostrarErro("Erro ao carregar perfil. As regras de acesso podem não estar actualizadas. Contacte o administrador."),100); }
   }
 
   // Navegação entre secções do dashboard
@@ -1697,16 +1697,29 @@
     if(!nome||!email||!senha){mostrarNotif("⚠️ Preencha todos os campos obrigatórios.","aviso");return;}
     if(senha.length<6){mostrarNotif("⚠️ A senha deve ter pelo menos 6 caracteres.","aviso");return;}
     try{
-      const cred=await createUserWithEmailAndPassword(auth,email,senha);
-      await setDoc(doc(db,"utilizadores",cred.user.uid),{nome,email,perfil,unidade,activo:true,criadoEm:serverTimestamp(),ultimoAcesso:null,criadoPor:utilizadorActual.uid});
-      fecharModal(); mostrarNotif(`✅ Utilizador "${nome}" registado!`);
+      // Usar app secundária para NÃO substituir a sessão do admin
+      const appSec = initializeApp(firebaseConfig, `criar-user-${Date.now()}`);
+      const authSec = getAuth(appSec);
+      const cred = await createUserWithEmailAndPassword(authSec, email, senha);
+      const novoUid = cred.user.uid;
+      // Fazer sign out da app secundária imediatamente
+      await authSec.signOut();
+      // Escrever o documento usando a sessão do admin (db principal)
+      await setDoc(doc(db,"utilizadores",novoUid),{
+        nome, email, perfil, unidade, activo:true,
+        criadoEm:serverTimestamp(), ultimoAcesso:null,
+        criadoPor:utilizadorActual.uid
+      });
+      fecharModal();
+      mostrarNotif(`✅ Utilizador "${nome}" (${perfil}) criado com sucesso!`);
       carregarUtilizadores(); carregarIndicadores();
       document.getElementById("novo-nome").value="";
       document.getElementById("novo-email").value="";
       document.getElementById("novo-senha").value="Sumbe2026!";
     }catch(e){
-      const m={"auth/email-already-in-use":"❌ E-mail já está registado.","auth/invalid-email":"❌ E-mail inválido."};
-      mostrarNotif(m[e.code]||"❌ Erro ao criar utilizador. Tente novamente.","erro");
+      console.error("criarNovoUtilizador:",e);
+      const m={"auth/email-already-in-use":"❌ E-mail já está registado.","auth/invalid-email":"❌ E-mail inválido.","auth/weak-password":"❌ Senha fraca (mínimo 6 caracteres)."};
+      mostrarNotif(m[e.code]||`❌ Erro: ${e.message}`,"erro");
     }
   };
 
