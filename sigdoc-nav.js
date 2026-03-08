@@ -3,8 +3,8 @@
  * Inclui este ficheiro em qualquer página e chama:
  *   SIGDOC_NAV.mount({ pagina: 'painel', nome: 'Nome', perfil: 'admin' })
  *
- * Páginas válidas: 'index' | 'cadastro' | 'documentos' | 'aprovacoes' |
- *                  'auditoria' | 'painel' | 'utilizadores'
+ * Páginas válidas: 'index' | 'cadastro' | 'portal' | 'aprovacoes' |
+ *                  'auditoria' | 'painel' | 'unidades' | 'utilizadores'
  */
 
 window.SIGDOC_NAV = (function () {
@@ -17,9 +17,9 @@ window.SIGDOC_NAV = (function () {
       label: 'PRINCIPAL',
       itens: [
         { id: 'index',       icon: '📊', texto: 'Dashboard',    href: 'index.html',       perfis: ['admin','director','chefe','tecnico','funcionario'] },
-        { id: 'cadastro',    icon: '👤', texto: 'Cadastro',     href: 'cadastro.html',    perfis: ['admin','chefe','tecnico'] },
-        { id: 'documentos',  icon: '📄', texto: 'Documentos',   href: 'documentos.html',  perfis: ['admin','chefe','tecnico'] },
-        { id: 'aprovacoes',  icon: '✅', texto: 'Aprovações',   href: 'aprovacao.html',   perfis: ['admin','director','chefe'] },
+        { id: 'cadastro',    icon: '👤', texto: 'Cadastro',     href: 'cadastro.html',    perfis: ['admin','director','chefe','tecnico'] },
+        { id: 'portal',      icon: '📄', texto: 'Documentos',   href: 'portal.html',      perfis: ['admin','director','chefe','tecnico','funcionario'] },
+        { id: 'aprovacoes',  icon: '✅', texto: 'Aprovações',   href: 'aprovacoes.html',  perfis: ['admin','director','chefe'] },
       ]
     },
     {
@@ -27,6 +27,7 @@ window.SIGDOC_NAV = (function () {
       itens: [
         { id: 'auditoria',   icon: '🔍', texto: 'Auditoria',    href: 'auditoria.html',   perfis: ['admin','director','chefe'] },
         { id: 'painel',      icon: '📈', texto: 'Painel RH',    href: 'painel.html',      perfis: ['admin','director'] },
+        { id: 'unidades',    icon: '🏥', texto: 'Unidades',     href: 'unidades.html',    perfis: ['admin','director','chefe','tecnico','secretaria'] },
         { id: 'utilizadores',icon: '⚙️', texto: 'Utilizadores', href: 'index.html#utilizadores', perfis: ['admin'] },
       ]
     }
@@ -489,8 +490,8 @@ window.SIGDOC_NAV = (function () {
    5. IDs das páginas disponíveis:
       'index'       → index.html        (Dashboard)
       'cadastro'    → cadastro.html     (Cadastro)
-      'documentos'  → documentos.html       (Documentos)
-      'aprovacoes'  → aprovacao.html    (Aprovações)
+      'portal'      → portal.html       (Documentos)
+      'aprovacoes'  → aprovacoes.html   (Aprovações)
       'auditoria'   → auditoria.html    (Auditoria)
       'painel'      → painel.html       (Painel RH)
       'utilizadores'→ index.html        (Utilizadores)
