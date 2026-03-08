@@ -2039,44 +2039,6 @@
   let _unsubChat      = null;
   let _chatPedidoData = null;
 
-  async function carregarPedidosPortal() {
-    if (!_utilizador) return;
-    const el = document.getElementById('sec-lista-pedidos');
-    if (!el) return;
-    try {
-      const snap = await getDocs(query(collection(db,'pedidos_secretaria'), where('funcionarioUid','==',_utilizador.uid)));
-      const docs = snap.docs.map(d=>({id:d.id,...d.data()}))
-        .sort((a,b)=>(b.ultimaMensagemEm?.toDate?.()?.getTime()||b.criadoEm?.toDate?.()?.getTime()||0)
-                    -(a.ultimaMensagemEm?.toDate?.()?.getTime()||a.criadoEm?.toDate?.()?.getTime()||0));
-      if (docs.length === 0) { el.innerHTML = ''; return; }
-      el.innerHTML = docs.map(p => {
-        const assunto  = ASSUNTOS_LABEL[p.assunto]||p.assunto||'—';
-        const msgs     = p.mensagens||[];
-        const ultima   = msgs[msgs.length-1];
-        const preview  = ultima ? ultima.texto.substring(0,60)+(ultima.texto.length>60?'…':'') : (p.mensagem||'').substring(0,60);
-        const preAutor = ultima ? (ultima.autor==='secretaria'?'Secretaria: ':'Você: ') : 'Você: ';
-        const hora     = (p.ultimaMensagemEm||p.criadoEm)?.toDate
-          ? (p.ultimaMensagemEm||p.criadoEm).toDate().toLocaleTimeString('pt-AO',{hour:'2-digit',minute:'2-digit'}) : '—';
-        const novas    = p.naoLidasFuncionario||0;
-        const aberto   = p.estado !== 'fechado';
-        const initials = assunto.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()||'✉';
-        return `<div class="pedido-chat-item${novas>0?' tem-nova':''}" onclick="abrirChatPortal('${p.id}')">
-          <div class="pedido-chat-av">${initials}</div>
-          <div class="pedido-chat-body">
-            <div class="pedido-chat-topo">
-              <span class="pedido-chat-assunto">${assunto}</span>
-              <span class="pedido-chat-hora">${hora}</span>
-            </div>
-            <div class="pedido-chat-preview">${preAutor}${preview}</div>
-            <div class="pedido-chat-rodape">
-              ${novas>0?`<span class="pedido-chat-nova-badge">${novas}</span>`:''}
-              ${aberto?'<span style="font-size:10px;color:#059669;font-weight:700">● Aberto</span>':'<span style="font-size:10px;color:#9ca3af">● Encerrado</span>'}
-            </div>
-          </div>
-        </div>`;
-      }).join('');
-    } catch(e) { console.error(e); }
-  }
 
   window.abrirChatPortal = async function(pedidoId) {
     _chatPedidoId = pedidoId;
