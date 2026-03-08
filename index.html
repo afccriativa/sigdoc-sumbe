@@ -2352,7 +2352,6 @@
     if (!texto || !_chatSecId) return;
     const btn = document.getElementById('btn-chat-sec-enviar');
     if (btn) btn.disabled = true;
-    input.value = '';
     try {
       const ref  = doc(db, 'pedidos_secretaria', _chatSecId);
       const snap = await getDoc(ref);
@@ -2374,8 +2373,13 @@
       (p.mensagens||[]).forEach(x => arr.push(x));
       arr.push({ texto, autor:'secretaria', nomeAutor:nome, em:agora });
 
+      // Novo registo de histórico no próprio documento
+      const novoHist = { acao:'Respondido', detalhe:texto.substring(0,80), por:nome, em:agora };
+      const hist = [...(p.historico||[]), novoHist];
+
       await updateDoc(ref, {
         mensagens:           arr,
+        historico:           hist,
         estado:              'aberto',
         ultimaMensagem:      texto.substring(0,80),
         ultimaMensagemEm:    serverTimestamp(),
@@ -2384,13 +2388,15 @@
         respondidoEm:        serverTimestamp(),
         respondidoPor:       utilizadorActual?.uid
       });
-      // auditoria — registo assíncrono não crítico
+
+      // Limpar input só após escrita confirmada
+      input.value = '';
+      // Auditoria separada — não crítica
       addDoc(collection(db,'auditoria'),{coleccao:'pedidos_secretaria',docId:_chatSecId,acao:'Respondido',detalhe:texto.substring(0,80),por:utilizadorActual?.uid,em:serverTimestamp()}).catch(()=>{});
       mostrarNotif('✅ Mensagem enviada!');
     } catch(e) {
       console.error('enviarMensagemSecretaria:', e);
       mostrarNotif('❌ Erro ao enviar: ' + e.message, 'erro');
-      input.value = texto;
     }
     if (btn) btn.disabled = false;
   };
