@@ -1973,30 +1973,73 @@
     const el = document.getElementById('sec-lista-pedidos');
     if (!el) return;
     try {
-      const snap = await getDocs(query(collection(db,'pedidos_secretaria'), where('funcionarioUid','==',_utilizador.uid)));
-      if (snap.empty) { el.innerHTML = ''; return; }
+      const snap = await getDocs(query(
+        collection(db,'pedidos_secretaria'),
+        where('funcionarioUid','==',_utilizador.uid)
+      ));
+      if (snap.empty) {
+        el.innerHTML = '<div style="text-align:center;padding:28px;opacity:.5;font-size:13px">Sem conversas ainda.</div>';
+        return;
+      }
       const docs = snap.docs.map(d=>({id:d.id,...d.data()}))
-        .sort((a,b)=>(b.criadoEm?.toDate?.()?.getTime()||0)-(a.criadoEm?.toDate?.()?.getTime()||0));
+        .sort((a,b) =>
+          (b.ultimaMensagemEm?.toDate?.()?.getTime() || b.criadoEm?.toDate?.()?.getTime() || 0) -
+          (a.ultimaMensagemEm?.toDate?.()?.getTime() || a.criadoEm?.toDate?.()?.getTime() || 0)
+        );
+
       el.innerHTML = docs.map(p => {
-        const assunto = ASSUNTOS_LABEL[p.assunto]||p.assunto||'—';
-        const data = p.criadoEm?.toDate ? p.criadoEm.toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}) : '—';
-        const badge = LABELS_PEDIDO[p.estado]||p.estado;
-        const resposta = p.respostaTexto
-          ? `<div style="margin-top:8px;padding:10px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;font-size:12px;color:#34d399">
-              💬 <strong>Resposta:</strong> ${p.respostaTexto}
-             </div>` : '';
-        return `<div style="padding:14px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;margin-bottom:10px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <span style="font-size:13px;font-weight:700">📌 ${assunto}</span>
-            <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.08)">${badge}</span>
+        const assunto  = ASSUNTOS_LABEL[p.assunto] || p.assunto || '—';
+        const aberto   = p.estado !== 'fechado';
+        const msgs     = p.mensagens || [];
+        const ultima   = msgs[msgs.length - 1];
+        // Preview: última mensagem ou campo legacy
+        const previewTxt = ultima
+          ? ultima.texto.substring(0,70) + (ultima.texto.length > 70 ? '…' : '')
+          : (p.respostaTexto
+              ? p.respostaTexto.substring(0,70)
+              : (p.mensagem || '').substring(0,70));
+        const previewAutor = ultima
+          ? (ultima.autor === 'funcionario' ? 'Você: ' : 'Secretaria: ')
+          : (p.respostaTexto ? 'Secretaria: ' : 'Você: ');
+        const hora = (p.ultimaMensagemEm || p.criadoEm)?.toDate
+          ? (p.ultimaMensagemEm || p.criadoEm).toDate()
+              .toLocaleTimeString('pt-AO',{hour:'2-digit',minute:'2-digit'})
+          : '';
+        const novas = p.naoLidasFuncionario || 0;
+
+        return `<div onclick="abrirChatPortal('${p.id}')"
+          style="display:flex;gap:12px;align-items:center;padding:13px 14px;
+                 background:#f8fafc;border:1px solid ${novas>0?'#6366f1':'#e5e7eb'};
+                 border-radius:12px;margin-bottom:10px;cursor:pointer;transition:background .12s"
+          onmouseover="this.style.background='#f1f5f9'"
+          onmouseout="this.style.background='#f8fafc'">
+          <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#818cf8);
+                      display:flex;align-items:center;justify-content:center;color:#fff;
+                      font-size:16px;font-weight:800;flex-shrink:0">
+            ${(assunto[0]||'?').toUpperCase()}
           </div>
-          <div style="font-size:12px;color:var(--txt-3,#6b7280);margin-bottom:6px">${data}</div>
-          <div style="font-size:13px">${(p.mensagem||'').substring(0,120)}${(p.mensagem||'').length>120?'…':''}</div>
-          ${resposta}
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+              <span style="font-size:13px;font-weight:700;color:#111">${assunto}</span>
+              <span style="font-size:11px;color:#9ca3af;flex-shrink:0">${hora}</span>
+            </div>
+            <div style="font-size:12px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+              ${previewAutor}${previewTxt}
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+              ${novas > 0
+                ? `<span style="background:#6366f1;color:#fff;font-size:10px;font-weight:800;padding:1px 7px;border-radius:99px">${novas} nova${novas>1?'s':''}</span>`
+                : ''}
+              <span style="font-size:10px;font-weight:700;color:${aberto?'#059669':'#9ca3af'}">
+                ${aberto ? '● Aberta' : '○ Encerrada'}
+              </span>
+            </div>
+          </div>
         </div>`;
       }).join('');
     } catch(e) { console.error(e); }
   }
+
 
   async function carregarReunioesPortal() {
     if (!_utilizador) return;
