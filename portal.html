@@ -625,23 +625,39 @@
     .chat-header-sub { font-size:11px;color:rgba(255,255,255,.7);margin-top:2px; }
     .chat-header-fechar { background:none;border:none;color:rgba(255,255,255,.7);font-size:22px;cursor:pointer;line-height:1;padding:4px; }
     .chat-header-fechar:hover { color:#fff; }
-    .chat-msgs { flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;background:#f1f5f9; }
+    .chat-msgs { flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:4px;
+      background-color:#f0f2f5;background-image:radial-gradient(circle at 20% 30%,rgba(79,70,229,.05) 0%,transparent 50%); }
+    .chat-msgs::-webkit-scrollbar { width:4px; }
+    .chat-msgs::-webkit-scrollbar-thumb { background:rgba(0,0,0,.12);border-radius:4px; }
+    .chat-data-sep { text-align:center;margin:10px 0 6px;font-size:11px;color:#9ca3af;
+      display:flex;align-items:center;gap:8px; }
+    .chat-data-sep::before,.chat-data-sep::after { content:'';flex:1;height:1px;background:#e5e7eb; }
+    .chat-msg-row { display:flex;gap:6px;align-items:flex-end;max-width:82%; }
+    .chat-msg-row.enviada  { align-self:flex-end;flex-direction:row-reverse; }
+    .chat-msg-row.recebida { align-self:flex-start; }
+    .chat-msg-av { width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-bottom:2px; }
+    .chat-msg-av.func { background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff; }
+    .chat-msg-av.sec  { background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff; }
     .chat-balao { max-width:80%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.5;word-break:break-word; }
-    .chat-balao.func { align-self:flex-end;background:#4f46e5;color:#fff;border-bottom-right-radius:4px; }
-    .chat-balao.sec  { align-self:flex-start;background:#fff;color:#111827;border-bottom-left-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.08); }
-    .chat-balao-meta { font-size:10px;opacity:.65;margin-top:4px;display:flex;align-items:center;gap:4px; }
-    .chat-balao.func .chat-balao-meta { justify-content:flex-end; }
+    .chat-msg-row.enviada  .chat-balao { background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;border-bottom-right-radius:4px; }
+    .chat-msg-row.recebida .chat-balao { background:#fff;color:#111827;border-bottom-left-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.1); }
+    .chat-balao-meta { display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:3px; }
+    .chat-hora { font-size:10px;opacity:.6; }
+    .chat-visto { font-size:13px;line-height:1; }
+    .chat-visto.lido    { color:#a5f3fc; }
+    .chat-visto.enviado { opacity:.5; }
     .chat-vazio { text-align:center;padding:32px 16px;color:#9ca3af;font-size:13px; }
     .chat-input-row { padding:12px 16px;background:#fff;border-top:1px solid #e5e7eb;display:flex;gap:8px;align-items:flex-end;flex-shrink:0; }
-    .chat-input { flex:1;padding:10px 14px;border-radius:12px;border:1px solid #d1d5db;font-size:13px;resize:none;min-height:42px;max-height:120px;outline:none;background:#f9fafb;color:#111827;line-height:1.5; }
-    .chat-input:focus { border-color:#4f46e5; }
-    .chat-enviar { width:42px;height:42px;border-radius:50%;background:#4f46e5;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s; }
-    .chat-enviar:hover { background:#4338ca; }
-    .chat-enviar:disabled { background:#9ca3af;cursor:default; }
+    .chat-input { flex:1;padding:10px 16px;border-radius:22px;border:1px solid #e5e7eb;background:#f9fafb;color:#111827;font-size:13px;resize:none;min-height:42px;max-height:140px;outline:none;line-height:1.5;transition:border-color .15s; }
+    .chat-input::placeholder { color:#9ca3af; }
+    .chat-input:focus { border-color:#4f46e5;background:#fff; }
+    .chat-enviar { width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#6366f1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .12s;box-shadow:0 2px 8px rgba(79,70,229,.35); }
+    .chat-enviar:hover { transform:scale(1.05); }
+    .chat-enviar:disabled { opacity:.5;cursor:default;transform:none; }
     .chat-enviar .material-symbols-outlined { font-size:18px;color:#fff; }
-    .chat-estado-bar { padding:6px 16px;font-size:11px;font-weight:700;text-align:center;flex-shrink:0; }
-    .chat-estado-bar.aberto { background:#ecfdf5;color:#059669; }
-    .chat-estado-bar.fechado { background:#f3f4f6;color:#9ca3af; }
+    .chat-estado-bar { padding:5px 16px;font-size:11px;font-weight:700;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:5px; }
+    .chat-estado-bar.aberto  { background:#ecfdf5;color:#059669;border-bottom:1px solid #d1fae5; }
+    .chat-estado-bar.fechado { background:#f9fafb;color:#9ca3af;border-bottom:1px solid #f3f4f6; }
     /* Lista pedidos como chat */
     .pedido-chat-item { padding:14px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:10px;cursor:pointer;transition:box-shadow .12s; }
     .pedido-chat-item:hover { box-shadow:0 2px 10px rgba(79,70,229,.12); }
@@ -2037,22 +2053,25 @@
         const assunto  = ASSUNTOS_LABEL[p.assunto]||p.assunto||'—';
         const msgs     = p.mensagens||[];
         const ultima   = msgs[msgs.length-1];
-        const preview  = ultima ? ultima.texto.substring(0,80)+(ultima.texto.length>80?'…':'') : (p.mensagem||'').substring(0,80);
+        const preview  = ultima ? ultima.texto.substring(0,60)+(ultima.texto.length>60?'…':'') : (p.mensagem||'').substring(0,60);
         const preAutor = ultima ? (ultima.autor==='secretaria'?'Secretaria: ':'Você: ') : 'Você: ';
-        const data     = (p.ultimaMensagemEm||p.criadoEm)?.toDate
-          ? (p.ultimaMensagemEm||p.criadoEm).toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short'}) : '—';
+        const hora     = (p.ultimaMensagemEm||p.criadoEm)?.toDate
+          ? (p.ultimaMensagemEm||p.criadoEm).toDate().toLocaleTimeString('pt-AO',{hour:'2-digit',minute:'2-digit'}) : '—';
         const novas    = p.naoLidasFuncionario||0;
         const aberto   = p.estado !== 'fechado';
-        const estadoLabel = aberto ? '🟢 Aberto' : '⚫ Fechado';
+        const initials = assunto.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()||'✉';
         return `<div class="pedido-chat-item${novas>0?' tem-nova':''}" onclick="abrirChatPortal('${p.id}')">
-          <div class="pedido-chat-topo">
-            <span class="pedido-chat-assunto">📌 ${assunto}</span>
-            <span class="pedido-chat-badge">${estadoLabel}</span>
-          </div>
-          <div class="pedido-chat-preview">${preAutor}${preview}</div>
-          <div class="pedido-chat-rodape">
-            <span class="pedido-chat-data">${data}</span>
-            ${novas>0?`<span class="pedido-chat-nova-badge">${novas} nova${novas!==1?'s':''}</span>`:''}
+          <div class="pedido-chat-av">${initials}</div>
+          <div class="pedido-chat-body">
+            <div class="pedido-chat-topo">
+              <span class="pedido-chat-assunto">${assunto}</span>
+              <span class="pedido-chat-hora">${hora}</span>
+            </div>
+            <div class="pedido-chat-preview">${preAutor}${preview}</div>
+            <div class="pedido-chat-rodape">
+              ${novas>0?`<span class="pedido-chat-nova-badge">${novas}</span>`:''}
+              ${aberto?'<span style="font-size:10px;color:#059669;font-weight:700">● Aberto</span>':'<span style="font-size:10px;color:#9ca3af">● Encerrado</span>'}
+            </div>
           </div>
         </div>`;
       }).join('');
@@ -2075,8 +2094,12 @@
       document.getElementById('chat-titulo').textContent = assunto;
       const aberto = p.estado !== 'fechado';
       const bar = document.getElementById('chat-estado-bar');
-      bar.textContent = aberto ? '🟢 Conversa aberta' : '⚫ Conversa fechada';
-      bar.className = 'chat-estado-bar ' + (aberto ? 'aberto' : 'fechado');
+      if (bar) {
+        bar.innerHTML = aberto
+          ? '<span class="material-symbols-outlined" style="font-size:12px">circle</span> Conversa aberta'
+          : '<span class="material-symbols-outlined" style="font-size:12px">do_not_disturb_on</span> Conversa encerrada';
+        bar.className = 'chat-estado-bar ' + (aberto ? 'aberto' : 'fechado');
+      }
       const inputRow = document.getElementById('chat-input-row');
       if (inputRow) inputRow.style.display = aberto ? '' : 'none';
       // Construir mensagens
@@ -2089,13 +2112,31 @@
         (p.mensagens||[]).forEach(m=>msgs.push(m));
       }
       if (msgs.length===0) { msgsEl.innerHTML='<div class="chat-vazio">Sem mensagens ainda.</div>'; return; }
-      msgsEl.innerHTML = msgs.map(m => {
+      const lido = (p.naoLidasSecretaria||0) === 0;
+      let lastData2 = '';
+      msgsEl.innerHTML = msgs.map((m,i) => {
         const isFunc = m.autor==='funcionario';
-        const emStr  = m.em ? new Date(m.em).toLocaleTimeString('pt-AO',{hour:'2-digit',minute:'2-digit'}) : '';
-        return `<div style="display:flex;flex-direction:column">
-          <div class="chat-balao ${isFunc?'func':'sec'}">
+        const dt   = m.em ? new Date(m.em) : null;
+        const hora = dt ? dt.toLocaleTimeString('pt-AO',{hour:'2-digit',minute:'2-digit'}) : '';
+        const dataStr = dt ? dt.toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}) : '';
+        let dataSep = '';
+        if (dataStr && dataStr !== lastData2) { lastData2 = dataStr; dataSep = `<div class="chat-data-sep">${dataStr}</div>`; }
+        const idxsFunc = msgs.map((mm,ii)=>mm.autor==='funcionario'?ii:-1).filter(ii=>ii>=0);
+        const isUltimaFunc = isFunc && i === idxsFunc[idxsFunc.length-1];
+        const visto = isUltimaFunc
+          ? `<span class="chat-visto ${lido?'lido':'enviado'}"><span class="material-symbols-outlined" style="font-size:13px">${lido?'done_all':'done'}</span></span>`
+          : '';
+        const initials = isFunc
+          ? (_funcDoc?.nome||_utilizador?.email||'V').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()
+          : 'S';
+        return `${dataSep}<div class="chat-msg-row ${isFunc?'enviada':'recebida'}">
+          <div class="chat-msg-av ${isFunc?'func':'sec'}">${initials}</div>
+          <div class="chat-balao">
             ${m.texto}
-            <div class="chat-balao-meta">${isFunc?'':'<span>Secretaria</span>'}${emStr?`<span>${emStr}</span>`:''}</div>
+            <div class="chat-balao-meta">
+              <span class="chat-hora">${hora}</span>
+              ${visto}
+            </div>
           </div>
         </div>`;
       }).join('');
