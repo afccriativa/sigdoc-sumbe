@@ -1279,7 +1279,7 @@
            setPersistence, browserLocalPersistence }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc, getDocs, collection,
-           updateDoc, serverTimestamp, query, orderBy, limit, onSnapshot, where }
+           updateDoc, serverTimestamp, query, orderBy, limit, onSnapshot, where, arrayUnion, increment }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
@@ -2259,32 +2259,31 @@
     const input = document.getElementById('chat-sec-input');
     const texto = input.value.trim();
     if (!texto || !_chatSecId) return;
+    const btn = document.getElementById('btn-chat-sec-enviar');
+    if (btn) btn.disabled = true;
+    input.value = ''; // limpar imediatamente
     try {
-      const snap = await getDoc(doc(db,'pedidos_secretaria',_chatSecId));
-      const p = snap.data();
-      const msgs = p.mensagens||[];
-      if (p.mensagem && msgs.length===0) {
-        msgs.push({texto:p.mensagem, autor:'funcionario', nomeAutor:p.funcionarioNome||'—', em:new Date().toISOString()});
-        if (p.respostaTexto) msgs.push({texto:p.respostaTexto, autor:'secretaria', nomeAutor:'Secretaria', em:new Date().toISOString()});
-      }
-      const nomeSec = utilizadorActual?.displayName || perfilActual?.nome || 'Secretaria';
-      msgs.push({texto, autor:'secretaria', nomeAutor:nomeSec, em:new Date().toISOString()});
-      await updateDoc(doc(db,'pedidos_secretaria',_chatSecId),{
-        mensagens: msgs,
-        estado: 'aberto',
-        ultimaMensagem: texto.substring(0,80),
+      const nomeSec = perfilActual?.nome || utilizadorActual?.email || 'Secretaria';
+      await updateDoc(doc(db,'pedidos_secretaria',_chatSecId), {
+        mensagens: arrayUnion({
+          texto,
+          autor:     'secretaria',
+          nomeAutor: nomeSec,
+          em:        new Date().toISOString()
+        }),
+        estado:           'aberto',
+        ultimaMensagem:   texto.substring(0,80),
         ultimaMensagemEm: serverTimestamp(),
-        naoLidasFuncionario: (p.naoLidasFuncionario||0)+1,
-        naoLidasSecretaria: 0,
-        respondidoEm: serverTimestamp(),
-        respondidoPor: utilizadorActual?.uid
+        naoLidasFuncionario: increment(1),
+        naoLidasSecretaria:  0,
+        respondidoEm:     serverTimestamp(),
+        respondidoPor:    utilizadorActual?.uid
       });
-      _registarHistorico('pedidos_secretaria', _chatSecId, 'Respondido', texto.substring(0,120)).catch(()=>{});
-      input.value = '';
+      _registarHistorico('pedidos_secretaria', _chatSecId, 'Respondido', texto.substring(0,80)).catch(()=>{});
       mostrarNotif('✅ Mensagem enviada!');
-    } catch(e){ console.error('enviarMensagemSecretaria:',e); mostrarNotif('❌ Erro ao enviar.','erro'); }
+    } catch(e){ console.error('enviarMensagemSecretaria:', e); mostrarNotif('❌ Erro ao enviar.','erro'); input.value = texto; }
+    if (btn) btn.disabled = false;
   };
-
   window.fecharConversaSecretaria = async function() {
     if (!_chatSecId) return;
     if (!confirm('Fechar esta conversa? O funcionário não poderá enviar mais mensagens.')) return;
@@ -2487,24 +2486,36 @@
 </div>
 
 <!-- ── CHAT SECRETARIA OVERLAY ── -->
+<!-- ── CHAT SECRETARIA OVERLAY ── -->
 <div class="chat-sec-overlay" id="chat-sec-overlay" onclick="if(event.target===this)fecharChatSecretaria()">
   <div class="chat-sec-box">
     <div class="chat-sec-header">
-      <div style="font-size:20px">✉️</div>
+      <div class="chat-sec-av">
+        <span class="material-symbols-outlined" style="font-size:22px;color:#fff">support_agent</span>
+      </div>
       <div class="chat-sec-header-info">
         <div class="chat-sec-titulo" id="chat-sec-titulo">Conversa</div>
-        <div class="chat-sec-sub" id="chat-sec-sub">—</div>
+        <div class="chat-sec-sub" id="chat-sec-sub">Secretaria · DMS Sumbe</div>
       </div>
-      <button class="chat-sec-fechar" onclick="fecharChatSecretaria()">×</button>
+      <button class="chat-sec-fechar" onclick="fecharChatSecretaria()" title="Fechar">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="chat-estado-bar-sec aberto" id="chat-sec-estado-bar">
+      <span class="material-symbols-outlined" style="font-size:13px">circle</span>
+      Conversa aberta
     </div>
     <div class="chat-sec-msgs" id="chat-sec-msgs"></div>
-    <div style="padding:0 16px 4px;flex-shrink:0" id="chat-sec-fechar-row">
-      <button class="chat-sec-fechar-conv" onclick="fecharConversaSecretaria()">✖ Fechar conversa (sem mais respostas)</button>
+    <div style="padding:0 16px;flex-shrink:0" id="chat-sec-fechar-row">
+      <button class="chat-sec-fechar-conv" onclick="fecharConversaSecretaria()">
+        <span class="material-symbols-outlined">do_not_disturb_on</span>
+        Encerrar conversa
+      </button>
     </div>
     <div class="chat-sec-input-row">
-      <textarea class="chat-sec-input" id="chat-sec-input" rows="1" placeholder="Responder…"
+      <textarea class="chat-sec-input" id="chat-sec-input" rows="1" placeholder="Escreva uma resposta…"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemSecretaria();}"></textarea>
-      <button class="chat-sec-enviar" onclick="enviarMensagemSecretaria()">
+      <button class="chat-sec-enviar" onclick="enviarMensagemSecretaria()" id="btn-chat-sec-enviar" title="Enviar">
         <span class="material-symbols-outlined">send</span>
       </button>
     </div>
