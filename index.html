@@ -1578,6 +1578,14 @@
                   </div>
                   <span class="modulo-seta">›</span>
                 </a>
+                <a href="unidades.html" class="modulo-card" id="mod-unidades-card">
+                  <div class="modulo-icon" style="background:rgba(18,65,161,.12)">🏥</div>
+                  <div style="flex:1;min-width:0">
+                    <div class="modulo-nome">Unidades Sanitárias</div>
+                    <div class="modulo-desc">Directório e cobertura por unidade.</div>
+                  </div>
+                  <span class="modulo-seta">›</span>
+                </a>
               </div>
             </div>
           </div>
@@ -2064,11 +2072,11 @@
     // cada card tem id = sidebar_id + "-card"
     // O admin vê tudo, os outros só os seus módulos
     const acessoCards = {
-      admin:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card","mod-painel-card","mod-secretaria-card"],
-      chefe:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card"],
-      tecnico:     ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card"],
-      secretaria:  ["mod-secretaria-card"],
-      director:    ["mod-auditoria-card","mod-painel-card"],
+      admin:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card","mod-painel-card","mod-secretaria-card","mod-unidades-card"],
+      chefe:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card","mod-unidades-card"],
+      tecnico:     ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-unidades-card"],
+      secretaria:  ["mod-secretaria-card","mod-unidades-card"],
+      director:    ["mod-auditoria-card","mod-painel-card","mod-unidades-card"],
       funcionario: []
     };
     const visCards = acessoCards[p] || [];
