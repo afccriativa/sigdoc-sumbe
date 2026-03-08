@@ -1261,7 +1261,7 @@
            createUserWithEmailAndPassword, onAuthStateChanged,
            setPersistence, browserLocalPersistence }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, getDocs, collection,
+  import { getFirestore, doc, setDoc, getDoc, getDocs, collection, addDoc,
            updateDoc, serverTimestamp, query, orderBy, limit, onSnapshot, where }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -2245,41 +2245,40 @@
     input.value = '';
     try {
       const ref  = doc(db, 'pedidos_secretaria', _chatSecId);
-      const nome = perfilActual?.nome || utilizadorActual?.email || 'Secretaria';
+      const snap = await getDoc(ref);
+      if (!snap.exists()) throw new Error('Documento não encontrado');
+      const p    = snap.data();
       const agora = new Date().toISOString();
-      const snapCheck = await getDoc(ref);
-      const pCheck    = snapCheck.data();
-      const precisaMigrar = !pCheck.mensagens || pCheck.mensagens.length === 0;
+      const nome  = perfilActual?.nome || utilizadorActual?.email || 'Secretaria';
 
-      if (precisaMigrar) {
-        await runTransaction(db, async (tx) => {
-          const snap = await tx.get(ref);
-          const p    = snap.data();
-          const arr  = [];
-          if (p.mensagem)      arr.push({ texto:p.mensagem,      autor:'funcionario', nomeAutor:p.funcionarioNome||'—', em:p.criadoEm?.toDate?.()?.toISOString()||agora });
-          if (p.respostaTexto) arr.push({ texto:p.respostaTexto, autor:'secretaria',  nomeAutor:'Secretaria',           em:p.respondidoEm?.toDate?.()?.toISOString()||agora });
-          arr.push({ texto, autor:'secretaria', nomeAutor:nome, em:agora });
-          tx.update(ref, {
-            mensagens:arr, estado:'aberto',
-            ultimaMensagem:texto.substring(0,80), ultimaMensagemEm:serverTimestamp(),
-            naoLidasFuncionario:(p.naoLidasFuncionario||0)+1, naoLidasSecretaria:0,
-            respondidoEm:serverTimestamp(), respondidoPor:utilizadorActual?.uid
-          });
-        });
-      } else {
-        await updateDoc(ref, {
-          mensagens: arrayUnion({ texto, autor:'secretaria', nomeAutor:nome, em:agora }),
-          estado:'aberto',
-          ultimaMensagem:texto.substring(0,80), ultimaMensagemEm:serverTimestamp(),
-          naoLidasFuncionario:increment(1), naoLidasSecretaria:0,
-          respondidoEm:serverTimestamp(), respondidoPor:utilizadorActual?.uid
-        });
+      // Construir array completo — inclui campos legacy se ainda não migrados
+      const arr = [];
+      if (p.mensagem) {
+        const dup = (p.mensagens||[]).some(x => x.texto === p.mensagem && x.autor === 'funcionario');
+        if (!dup) arr.push({ texto:p.mensagem, autor:'funcionario', nomeAutor:p.funcionarioNome||'—', em: p.criadoEm?.toDate?.()?.toISOString() || agora });
       }
+      if (p.respostaTexto) {
+        const dup = (p.mensagens||[]).some(x => x.texto === p.respostaTexto && x.autor === 'secretaria');
+        if (!dup) arr.push({ texto:p.respostaTexto, autor:'secretaria', nomeAutor:'Secretaria', em: p.respondidoEm?.toDate?.()?.toISOString() || agora });
+      }
+      (p.mensagens||[]).forEach(x => arr.push(x));
+      arr.push({ texto, autor:'secretaria', nomeAutor:nome, em:agora });
+
+      await updateDoc(ref, {
+        mensagens:           arr,
+        estado:              'aberto',
+        ultimaMensagem:      texto.substring(0,80),
+        ultimaMensagemEm:    serverTimestamp(),
+        naoLidasFuncionario: (p.naoLidasFuncionario||0) + 1,
+        naoLidasSecretaria:  0,
+        respondidoEm:        serverTimestamp(),
+        respondidoPor:       utilizadorActual?.uid
+      });
       _registarHistorico('pedidos_secretaria', _chatSecId, 'Respondido', texto.substring(0,80)).catch(()=>{});
       mostrarNotif('✅ Mensagem enviada!');
     } catch(e) {
       console.error('enviarMensagemSecretaria:', e);
-      mostrarNotif('❌ Erro ao enviar.', 'erro');
+      mostrarNotif('❌ Erro ao enviar: ' + e.message, 'erro');
       input.value = texto;
     }
     if (btn) btn.disabled = false;
@@ -2349,7 +2348,7 @@
       err => console.error('Watcher pedidos sec:',err)
     );
     _unsubReunioesSec = onSnapshot(
-      query(collection(db,'reunioes'), where('estado','==','pendente')),
+      query(collection(db,'reunioes'), orderBy('criadoEm','desc')),
       snap => { _reunioesPend = snap.docs.map(d=>({id:d.id,...d.data()})); actualizarSinoSecretaria(); },
       err => console.error('Watcher reunioes sec:',err)
     );
