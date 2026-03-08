@@ -2060,15 +2060,25 @@
       // Funcionário pode sempre enviar (encerrada é só para secretaria)
       // inputRow sempre visível — reabrir ao enviar
 
-      // Construir mensagens
+       // Construir lista de mensagens — sempre preservar campos legacy
       const msgs = [];
-      // Compatibilidade: pedidos antigos sem mensagens[]
-      if (p.mensagem && (!p.mensagens || p.mensagens.length===0)) {
-        msgs.push({texto:p.mensagem, autor:'funcionario', nomeAutor:p.funcionarioNome||'Você', em:null});
-        if (p.respostaTexto) msgs.push({texto:p.respostaTexto, autor:'secretaria', nomeAutor:'Secretaria', em:null});
-      } else {
-        (p.mensagens||[]).forEach(m=>msgs.push(m));
+      const jaTemNova = p.mensagens && p.mensagens.length > 0;
+      if (p.mensagem) {
+        const jaEsta = jaTemNova && p.mensagens.some(m => m.texto === p.mensagem && m.autor === 'funcionario');
+        if (!jaEsta) {
+          const em0 = p.criadoEm?.toDate?.()?.toISOString() || null;
+          msgs.push({ texto:p.mensagem, autor:'funcionario', nomeAutor:p.funcionarioNome||'Funcionário', em:em0 });
+        }
       }
+      if (p.respostaTexto) {
+        const jaEsta = jaTemNova && p.mensagens.some(m => m.texto === p.respostaTexto && m.autor === 'secretaria');
+        if (!jaEsta) {
+          const em1 = p.respondidoEm?.toDate?.()?.toISOString() || null;
+          msgs.push({ texto:p.respostaTexto, autor:'secretaria', nomeAutor:'Secretaria', em:em1 });
+        }
+      }
+      (p.mensagens||[]).forEach(m => msgs.push(m));
+      msgs.sort((a,b) => (a.em||'') < (b.em||'') ? -1 : 1);
       if (msgs.length===0) { msgsEl.innerHTML='<div class="chat-vazio">Sem mensagens ainda.</div>'; return; }
       const lido = (p.naoLidasSecretaria||0) === 0;
       let lastData2 = '';
@@ -2114,27 +2124,39 @@
     carregarPedidosPortal();
   };
 
-  window.enviarMensagemChatPortal = async function() {
+   window.enviarMensagemChatPortal = async function() {
     const input = document.getElementById('chat-input');
     const texto = input.value.trim();
     if (!texto || !_chatPedidoId) return;
     const btn = document.getElementById('btn-chat-enviar');
     btn.disabled = true;
-    input.value = ''; // limpar imediatamente
+    input.value = '';
     try {
-      await updateDoc(doc(db,'pedidos_secretaria',_chatPedidoId), {
-        mensagens: arrayUnion({
-          texto,
-          autor:     'funcionario',
-          nomeAutor: _funcDoc?.nome || _utilizador?.email || 'Funcionário',
-          em:        new Date().toISOString()
-        }),
-        estado:           'aberto',
-        ultimaMensagem:   texto.substring(0,80),
-        ultimaMensagemEm: serverTimestamp(),
-        naoLidasSecretaria: increment(1),
-        naoLidasFuncionario: 0
-      });
+      const snap = await getDoc(doc(db,'pedidos_secretaria',_chatPedidoId));
+      const p = snap.data();
+      const agora = new Date().toISOString();
+      const nomeFunc = _funcDoc?.nome || _utilizador?.email || 'Funcionário';
+      const novaMsg = { texto, autor:'funcionario', nomeAutor:nomeFunc, em:agora };
+
+      if (!p.mensagens || p.mensagens.length === 0) {
+        // Migrar documento antigo: construir array completo de uma vez
+        const arr = [];
+        if (p.mensagem) arr.push({ texto:p.mensagem, autor:'funcionario', nomeAutor:p.funcionarioNome||nomeFunc, em:p.criadoEm?.toDate?.()?.toISOString()||agora });
+        if (p.respostaTexto) arr.push({ texto:p.respostaTexto, autor:'secretaria', nomeAutor:'Secretaria', em:p.respondidoEm?.toDate?.()?.toISOString()||agora });
+        arr.push(novaMsg);
+        await updateDoc(doc(db,'pedidos_secretaria',_chatPedidoId), {
+          mensagens: arr, estado:'aberto',
+          ultimaMensagem:texto.substring(0,80), ultimaMensagemEm:serverTimestamp(),
+          naoLidasSecretaria:increment(1), naoLidasFuncionario:0
+        });
+      } else {
+        // Documento já migrado — operação atómica
+        await updateDoc(doc(db,'pedidos_secretaria',_chatPedidoId), {
+          mensagens:arrayUnion(novaMsg), estado:'aberto',
+          ultimaMensagem:texto.substring(0,80), ultimaMensagemEm:serverTimestamp(),
+          naoLidasSecretaria:increment(1), naoLidasFuncionario:0
+        });
+      }
     } catch(e) { console.error('enviarMensagem:', e); input.value = texto; }
     btn.disabled = false;
   };
