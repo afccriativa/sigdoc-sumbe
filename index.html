@@ -374,15 +374,17 @@
     /* Quick Actions */
     .quick-actions-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:18px}
     .qa-btn{
-      background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
-      border-radius:10px;padding:16px 14px;
-      display:flex;flex-direction:column;align-items:center;gap:8px;
+      background:#141f18;border:1px solid rgba(16,200,134,.08);
+      border-radius:16px;padding:20px 12px;
+      display:flex;flex-direction:column;align-items:center;gap:10px;
       cursor:pointer;transition:all .2s;text-decoration:none;
       font-family:var(--font);
     }
-    .qa-btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.15);transform:translateY(-2px)}
+    .qa-btn:hover{background:#162219;border-color:rgba(16,200,134,.3);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+    .qa-ic-wrap{width:48px;height:48px;border-radius:50%;background:rgba(16,200,134,.1);display:flex;align-items:center;justify-content:center;transition:background .2s}
+    .qa-btn:hover .qa-ic-wrap{background:rgba(16,200,134,.22)}
     .qa-ic{font-size:22px}
-    .qa-txt{font-size:11px;font-weight:600;color:rgba(255,255,255,.6);text-align:center}
+    .qa-txt{font-size:12px;font-weight:700;color:rgba(255,255,255,.7);text-align:center}
 
     /* Updates */
     .update-item{
@@ -435,11 +437,15 @@
 
     .modulos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:28px}
     .modulo-card{
-      background:#0f1c14;border-radius:14px;padding:22px 20px;
+      background:#141f18;border-radius:16px;padding:20px;
       text-decoration:none;color:inherit;
       display:flex;flex-direction:column;gap:12px;
-      transition:all .2s;border:1px solid rgba(255,255,255,.07);
+      transition:all .2s;border:1px solid rgba(16,200,134,.1);
       position:relative;overflow:hidden;cursor:pointer;
+    }
+    .modulo-card:hover{
+      border-color:rgba(16,200,134,.35);background:#162219;
+      transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);
     }
     .modulo-card:hover{transform:translateY(-3px);border-color:rgba(16,200,134,.3);background:#1e2a40}
     .modulo-card.desactivado{opacity:.4;cursor:not-allowed;pointer-events:none}
@@ -561,6 +567,12 @@
     .tabela-scroll{overflow-x:auto}
 
     /* ═══ MOBILE ≤ 768px ═══ */
+    /* Desktop: 4 colunas KPI + dash 2 cols */
+    @media(min-width:769px){
+      .kpi-grid  { grid-template-columns:repeat(4,1fr); gap:16px; }
+      .dash-grid { grid-template-columns:1fr 320px; }
+    }
+
     @media(max-width:768px){
       /* Esconder sidebar — substituída por bottom nav */
       .sidebar { display:none !important; }
@@ -985,59 +997,65 @@
       <!-- ══ SECÇÃO DASHBOARD ══ -->
       <div id="secção-dashboard">
 
-        <div class="dash-header" style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div>
-            <h2 id="msg-boas-vindas">Bem-vindo ao SIGDOC-SUMBE</h2>
-            <p>Direcção Municipal da Saúde do Sumbe · Visão geral do sistema</p>
-          </div>
+        <div class="dash-header">
+          <h2 id="msg-boas-vindas">Bem-vindo, Utilizador</h2>
+          <p id="dash-subtitulo">Direcção Municipal da Saúde do Sumbe · Visão geral do sistema</p>
         </div>
 
-        <!-- KPIs -->
+        <!-- KPIs — estilo inspiração: label em cima, número em baixo, badge à direita -->
         <div class="kpi-grid" id="indicadores">
           <div class="kpi-card">
             <div class="kpi-top">
-              <div class="kpi-icon" style="background:rgba(59,130,246,.15)">👥</div>
-              <span class="kpi-trend trend-up">+2.1% ↑</span>
+              <span class="kpi-label">Utilizadores</span>
+              <span class="kpi-trend trend-up" style="background:rgba(16,200,134,.15);color:#10c886">+2.1%</span>
             </div>
-            <div class="kpi-num" id="total-utilizadores">—</div>
-            <div class="kpi-label">Utilizadores do Sistema</div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:6px">
+              <div class="kpi-num" id="total-utilizadores">—</div>
+              <div class="kpi-icon" style="background:rgba(59,130,246,.12)">👥</div>
+            </div>
           </div>
           <div class="kpi-card">
             <div class="kpi-top">
-              <div class="kpi-icon" style="background:rgba(16,200,134,.15)">✅</div>
-              <span class="kpi-trend trend-up">Activos</span>
+              <span class="kpi-label">Contas Activas</span>
+              <span class="kpi-trend" style="background:rgba(16,200,134,.15);color:#10c886">Activo</span>
             </div>
-            <div class="kpi-num" id="total-activos">—</div>
-            <div class="kpi-label">Contas Activas</div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:6px">
+              <div class="kpi-num" id="total-activos">—</div>
+              <div class="kpi-icon" style="background:rgba(16,200,134,.12)">✅</div>
+            </div>
           </div>
           <div class="kpi-card">
             <div class="kpi-top">
-              <div class="kpi-icon" style="background:rgba(245,158,11,.15)">🏥</div>
-              <span class="kpi-trend trend-stable">Estável</span>
+              <span class="kpi-label">Unidades de Saúde</span>
+              <span class="kpi-trend" style="background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)">Estável</span>
             </div>
-            <div class="kpi-num" id="total-unidades">16</div>
-            <div class="kpi-label">Unidades Sanitárias</div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:6px">
+              <div class="kpi-num" id="total-unidades">16</div>
+              <div class="kpi-icon" style="background:rgba(245,158,11,.12)">🏥</div>
+            </div>
           </div>
           <div class="kpi-card">
             <div class="kpi-top">
-              <div class="kpi-icon" style="background:rgba(139,92,246,.15)">👨‍💼</div>
-              <span class="kpi-trend trend-up">+12% ↑</span>
+              <span class="kpi-label">Funcionários</span>
+              <span class="kpi-trend trend-up" style="background:rgba(16,200,134,.15);color:#10c886">+12%</span>
             </div>
-            <div class="kpi-num" id="total-funcionarios">200+</div>
-            <div class="kpi-label">Funcionários Registados</div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:6px">
+              <div class="kpi-num" id="total-funcionarios">200+</div>
+              <div class="kpi-icon" style="background:rgba(139,92,246,.12)">👨‍💼</div>
+            </div>
           </div>
         </div>
 
-        <!-- Banner Portal -->
+        <!-- Banner Portal — inspiração -->
         <div class="portal-banner secção-restrita" id="banner-portal" style="display:none;">
-          <div>
-            <h4>📱 Portal do Funcionário</h4>
-            <p>Partilhe com os funcionários das unidades sanitárias</p>
-            <div class="portal-banner-url" id="link-portal-texto">—</div>
+          <div style="position:relative;z-index:1">
+            <h4>Portal do Funcionário</h4>
+            <p>Acesso directo ao portal de solicitações para os funcionários das unidades sanitárias do município.</p>
+            <div class="portal-banner-url" id="link-portal-texto" style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:16px;font-family:var(--mono)">—</div>
           </div>
-          <div class="portal-banner-acoes">
+          <div class="portal-banner-acoes" style="position:relative;z-index:1">
             <button class="btn-pb-copiar" onclick="copiarLinkPortal()">📋 Copiar link</button>
-            <a href="portal.html" target="_blank" class="btn-pb-abrir">↗ Abrir portal</a>
+            <a href="portal.html" target="_blank" class="btn-pb-abrir">Aceder ao Portal →</a>
           </div>
         </div>
 
@@ -1483,7 +1501,13 @@
     document.getElementById("avatar-utilizador").textContent = (d.nome||u.email)[0].toUpperCase();
     document.getElementById("nome-utilizador-topo").textContent = d.nome || u.email;
     document.getElementById("perfil-utilizador-topo").textContent = etiquetasPerfil[d.perfil] || d.perfil;
-    document.getElementById("msg-boas-vindas").textContent = `Bem-vindo, ${(d.nome||"Utilizador").split(" ")[0]}`;
+    (()=>{
+      const h=new Date().getHours();
+      const s=h<12?"Bom dia":h<18?"Boa tarde":"Boa noite";
+      const n=(d.nome||"Utilizador").split(" ")[0];
+      const el=document.getElementById("msg-boas-vindas");
+      if(el) el.textContent=`${s}, ${n}`;
+    })();
     actualizarDataHora(); setInterval(actualizarDataHora, 60000);
 
     const p = d.perfil;
@@ -1545,7 +1569,7 @@
       const accoes = ACCOES_POR_PERFIL[p] || [];
       grid.innerHTML = accoes.map(a =>
         `<a href="${a.href}" class="qa-btn">
-          <span class="qa-ic">${a.ic}</span>
+          <div class="qa-ic-wrap"><span class="qa-ic">${a.ic}</span></div>
           <span class="qa-txt">${a.txt}</span>
         </a>`
       ).join("");
