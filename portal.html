@@ -613,6 +613,47 @@
       font-size:12px; font-weight:700; cursor:pointer; }
     .sino-marcar-lidas:hover { background:rgba(255,255,255,.1); color:white; }
 
+  
+    /* ── CHAT DE PEDIDOS ── */
+    .chat-overlay { position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:8000;display:none;align-items:flex-end;justify-content:center; }
+    .chat-overlay.aberto { display:flex; }
+    .chat-box { background:#fff;width:min(520px,100vw);height:90vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,0,0,.18); }
+    .chat-header { background:#4f46e5;padding:16px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0; }
+    .chat-header-av { width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0; }
+    .chat-header-info { flex:1;min-width:0; }
+    .chat-header-titulo { font-size:14px;font-weight:800;color:#fff; }
+    .chat-header-sub { font-size:11px;color:rgba(255,255,255,.7);margin-top:2px; }
+    .chat-header-fechar { background:none;border:none;color:rgba(255,255,255,.7);font-size:22px;cursor:pointer;line-height:1;padding:4px; }
+    .chat-header-fechar:hover { color:#fff; }
+    .chat-msgs { flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;background:#f1f5f9; }
+    .chat-balao { max-width:80%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.5;word-break:break-word; }
+    .chat-balao.func { align-self:flex-end;background:#4f46e5;color:#fff;border-bottom-right-radius:4px; }
+    .chat-balao.sec  { align-self:flex-start;background:#fff;color:#111827;border-bottom-left-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.08); }
+    .chat-balao-meta { font-size:10px;opacity:.65;margin-top:4px;display:flex;align-items:center;gap:4px; }
+    .chat-balao.func .chat-balao-meta { justify-content:flex-end; }
+    .chat-vazio { text-align:center;padding:32px 16px;color:#9ca3af;font-size:13px; }
+    .chat-input-row { padding:12px 16px;background:#fff;border-top:1px solid #e5e7eb;display:flex;gap:8px;align-items:flex-end;flex-shrink:0; }
+    .chat-input { flex:1;padding:10px 14px;border-radius:12px;border:1px solid #d1d5db;font-size:13px;resize:none;min-height:42px;max-height:120px;outline:none;background:#f9fafb;color:#111827;line-height:1.5; }
+    .chat-input:focus { border-color:#4f46e5; }
+    .chat-enviar { width:42px;height:42px;border-radius:50%;background:#4f46e5;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s; }
+    .chat-enviar:hover { background:#4338ca; }
+    .chat-enviar:disabled { background:#9ca3af;cursor:default; }
+    .chat-enviar .material-symbols-outlined { font-size:18px;color:#fff; }
+    .chat-estado-bar { padding:6px 16px;font-size:11px;font-weight:700;text-align:center;flex-shrink:0; }
+    .chat-estado-bar.aberto { background:#ecfdf5;color:#059669; }
+    .chat-estado-bar.fechado { background:#f3f4f6;color:#9ca3af; }
+    /* Lista pedidos como chat */
+    .pedido-chat-item { padding:14px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:10px;cursor:pointer;transition:box-shadow .12s; }
+    .pedido-chat-item:hover { box-shadow:0 2px 10px rgba(79,70,229,.12); }
+    .pedido-chat-item.tem-nova { border-color:#4f46e5;background:#eef2ff; }
+    .pedido-chat-topo { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px; }
+    .pedido-chat-assunto { font-size:13px;font-weight:800;color:#111827; }
+    .pedido-chat-badge { font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:#eef2ff;color:#4f46e5; }
+    .pedido-chat-preview { font-size:12px;color:#6b7280;line-height:1.4;margin-bottom:6px; }
+    .pedido-chat-rodape { display:flex;justify-content:space-between;align-items:center; }
+    .pedido-chat-data { font-size:11px;color:#9ca3af; }
+    .pedido-chat-nova-badge { background:#4f46e5;color:#fff;font-size:10px;font-weight:800;padding:1px 6px;border-radius:99px; }
+
   </style>
 </head>
 <body>
@@ -1112,12 +1153,9 @@
       <div id="sec-lista-pedidos" style="margin-bottom:16px">
         <!-- preenchido por JS -->
       </div>
-      <button onclick="abrirFormPedido()" style="width:100%;padding:12px;background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">
-        ✉️ Novo Pedido de Informação
-      </button>
-      <!-- Formulário novo pedido (oculto por defeito) -->
-      <div id="form-novo-pedido" style="display:none;margin-top:16px;background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px">
-        <div style="font-size:14px;font-weight:700;margin-bottom:12px">✉️ Novo Pedido de Informação</div>
+      <!-- Formulário novo pedido -->
+      <div id="form-novo-pedido" style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px">✉️ Nova Conversa com a Secretaria</div>
         <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Assunto</label>
         <select id="sec-assunto" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
           <option value="">Seleccione o assunto…</option>
@@ -1128,13 +1166,10 @@
           <option value="escalas">Escalas de Serviço</option>
           <option value="outro">Outro</option>
         </select>
-        <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Mensagem <span id="sec-contador">0</span>/500</label>
-        <textarea id="sec-mensagem" maxlength="500" oninput="document.getElementById('sec-contador').textContent=this.value.length" placeholder="Descreva o seu pedido de informação…" style="width:100%;min-height:100px;padding:10px;border-radius:8px;border:1px solid var(--border);background:#ffffff;color:#111827;font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px;border:1px solid #d1d5db"></textarea>
+        <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Primeira mensagem <span id="sec-contador">0</span>/500</label>
+        <textarea id="sec-mensagem" maxlength="500" oninput="document.getElementById('sec-contador').textContent=this.value.length" placeholder="Descreva o seu pedido…" style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid #d1d5db;background:#ffffff;color:#111827;font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px"></textarea>
         <div id="sec-msg-pedido" style="margin-bottom:8px"></div>
-        <div style="display:flex;gap:8px">
-          <button onclick="cancelarFormPedido()" style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--txt-3,#6b7280);font-size:13px;font-weight:700;cursor:pointer">Cancelar</button>
-          <button onclick="enviarPedidoPortal()" id="btn-enviar-pedido" style="flex:2;padding:11px;border-radius:8px;background:#4f46e5;color:white;border:none;font-size:13px;font-weight:700;cursor:pointer">📤 Enviar pedido</button>
-        </div>
+        <button onclick="enviarPedidoPortal()" id="btn-enviar-pedido" style="width:100%;padding:12px;border-radius:8px;background:#4f46e5;color:white;border:none;font-size:14px;font-weight:700;cursor:pointer">✉️ Iniciar conversa</button>
       </div>
     </div>
 
@@ -1628,6 +1663,30 @@
   </div>
 </div>
 
+
+<!-- ── CHAT PEDIDO OVERLAY ── -->
+<div class="chat-overlay" id="chat-overlay" onclick="if(event.target===this)fecharChatPortal()">
+  <div class="chat-box">
+    <div class="chat-header">
+      <div class="chat-header-av">✉️</div>
+      <div class="chat-header-info">
+        <div class="chat-header-titulo" id="chat-titulo">Conversa</div>
+        <div class="chat-header-sub" id="chat-sub">Secretaria · DMS Sumbe</div>
+      </div>
+      <button class="chat-header-fechar" onclick="fecharChatPortal()">×</button>
+    </div>
+    <div class="chat-estado-bar aberto" id="chat-estado-bar">🟢 Conversa aberta</div>
+    <div class="chat-msgs" id="chat-msgs"></div>
+    <div class="chat-input-row" id="chat-input-row">
+      <textarea class="chat-input" id="chat-input" rows="1" placeholder="Escreva a sua mensagem…"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemChatPortal();}"></textarea>
+      <button class="chat-enviar" onclick="enviarMensagemChatPortal()" id="btn-chat-enviar">
+        <span class="material-symbols-outlined">send</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 </body></html>`);
     win.document.close();
   };
@@ -1959,15 +2018,130 @@
     } catch(e) { console.error(e); }
   }
 
-  window.abrirFormPedido = function() {
-    document.getElementById('form-novo-pedido').style.display = '';
+  // ─── CHAT DE PEDIDOS ─────────────────────────────────────
+  let _chatPedidoId   = null;
+  let _unsubChat      = null;
+  let _chatPedidoData = null;
+
+  async function carregarPedidosPortal() {
+    if (!_utilizador) return;
+    const el = document.getElementById('sec-lista-pedidos');
+    if (!el) return;
+    try {
+      const snap = await getDocs(query(collection(db,'pedidos_secretaria'), where('funcionarioUid','==',_utilizador.uid)));
+      const docs = snap.docs.map(d=>({id:d.id,...d.data()}))
+        .sort((a,b)=>(b.ultimaMensagemEm?.toDate?.()?.getTime()||b.criadoEm?.toDate?.()?.getTime()||0)
+                    -(a.ultimaMensagemEm?.toDate?.()?.getTime()||a.criadoEm?.toDate?.()?.getTime()||0));
+      if (docs.length === 0) { el.innerHTML = ''; return; }
+      el.innerHTML = docs.map(p => {
+        const assunto  = ASSUNTOS_LABEL[p.assunto]||p.assunto||'—';
+        const msgs     = p.mensagens||[];
+        const ultima   = msgs[msgs.length-1];
+        const preview  = ultima ? ultima.texto.substring(0,80)+(ultima.texto.length>80?'…':'') : (p.mensagem||'').substring(0,80);
+        const preAutor = ultima ? (ultima.autor==='secretaria'?'Secretaria: ':'Você: ') : 'Você: ';
+        const data     = (p.ultimaMensagemEm||p.criadoEm)?.toDate
+          ? (p.ultimaMensagemEm||p.criadoEm).toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short'}) : '—';
+        const novas    = p.naoLidasFuncionario||0;
+        const aberto   = p.estado !== 'fechado';
+        const estadoLabel = aberto ? '🟢 Aberto' : '⚫ Fechado';
+        return `<div class="pedido-chat-item${novas>0?' tem-nova':''}" onclick="abrirChatPortal('${p.id}')">
+          <div class="pedido-chat-topo">
+            <span class="pedido-chat-assunto">📌 ${assunto}</span>
+            <span class="pedido-chat-badge">${estadoLabel}</span>
+          </div>
+          <div class="pedido-chat-preview">${preAutor}${preview}</div>
+          <div class="pedido-chat-rodape">
+            <span class="pedido-chat-data">${data}</span>
+            ${novas>0?`<span class="pedido-chat-nova-badge">${novas} nova${novas!==1?'s':''}</span>`:''}
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  window.abrirChatPortal = async function(pedidoId) {
+    _chatPedidoId = pedidoId;
+    if (_unsubChat) _unsubChat();
+    const overlay = document.getElementById('chat-overlay');
+    const msgsEl  = document.getElementById('chat-msgs');
+    overlay.classList.add('aberto');
+    msgsEl.innerHTML = '<div class="chat-vazio">⏳ A carregar…</div>';
+    // Subscrever em tempo real
+    _unsubChat = onSnapshot(doc(db,'pedidos_secretaria',pedidoId), snap => {
+      if (!snap.exists()) return;
+      const p = snap.data();
+      _chatPedidoData = p;
+      const assunto = ASSUNTOS_LABEL[p.assunto]||p.assunto||'—';
+      document.getElementById('chat-titulo').textContent = assunto;
+      const aberto = p.estado !== 'fechado';
+      const bar = document.getElementById('chat-estado-bar');
+      bar.textContent = aberto ? '🟢 Conversa aberta' : '⚫ Conversa fechada';
+      bar.className = 'chat-estado-bar ' + (aberto ? 'aberto' : 'fechado');
+      const inputRow = document.getElementById('chat-input-row');
+      if (inputRow) inputRow.style.display = aberto ? '' : 'none';
+      // Construir mensagens
+      const msgs = [];
+      // Compatibilidade: pedidos antigos sem mensagens[]
+      if (p.mensagem && (!p.mensagens || p.mensagens.length===0)) {
+        msgs.push({texto:p.mensagem, autor:'funcionario', nomeAutor:p.funcionarioNome||'Você', em:null});
+        if (p.respostaTexto) msgs.push({texto:p.respostaTexto, autor:'secretaria', nomeAutor:'Secretaria', em:null});
+      } else {
+        (p.mensagens||[]).forEach(m=>msgs.push(m));
+      }
+      if (msgs.length===0) { msgsEl.innerHTML='<div class="chat-vazio">Sem mensagens ainda.</div>'; return; }
+      msgsEl.innerHTML = msgs.map(m => {
+        const isFunc = m.autor==='funcionario';
+        const emStr  = m.em ? new Date(m.em).toLocaleTimeString('pt-AO',{hour:'2-digit',minute:'2-digit'}) : '';
+        return `<div style="display:flex;flex-direction:column">
+          <div class="chat-balao ${isFunc?'func':'sec'}">
+            ${m.texto}
+            <div class="chat-balao-meta">${isFunc?'':'<span>Secretaria</span>'}${emStr?`<span>${emStr}</span>`:''}</div>
+          </div>
+        </div>`;
+      }).join('');
+      // Scroll para o fundo
+      setTimeout(()=>{ msgsEl.scrollTop = msgsEl.scrollHeight; },50);
+      // Marcar como lidas
+      if ((p.naoLidasFuncionario||0) > 0) {
+        updateDoc(doc(db,'pedidos_secretaria',pedidoId),{naoLidasFuncionario:0}).catch(()=>{});
+      }
+    }, err => { console.error('Chat:',err); msgsEl.innerHTML='<div class="chat-vazio">⚠️ Erro ao carregar.</div>'; });
   };
-  window.cancelarFormPedido = function() {
-    document.getElementById('form-novo-pedido').style.display = 'none';
-    document.getElementById('sec-assunto').value = '';
-    document.getElementById('sec-mensagem').value = '';
-    document.getElementById('sec-contador').textContent = '0';
-    document.getElementById('sec-msg-pedido').innerHTML = '';
+
+  window.fecharChatPortal = function() {
+    document.getElementById('chat-overlay').classList.remove('aberto');
+    if (_unsubChat) { _unsubChat(); _unsubChat=null; }
+    _chatPedidoId = null;
+    carregarPedidosPortal();
+  };
+
+  window.enviarMensagemChatPortal = async function() {
+    const input = document.getElementById('chat-input');
+    const texto = input.value.trim();
+    if (!texto || !_chatPedidoId) return;
+    const btn = document.getElementById('btn-chat-enviar');
+    btn.disabled = true;
+    try {
+      const snap = await getDoc(doc(db,'pedidos_secretaria',_chatPedidoId));
+      const p = snap.data();
+      const msgs = p.mensagens||[];
+      // Compatibilidade: migrar mensagem antiga para array
+      if (p.mensagem && msgs.length===0) {
+        msgs.push({texto:p.mensagem, autor:'funcionario', nomeAutor:p.funcionarioNome||'—', em:new Date().toISOString()});
+        if (p.respostaTexto) msgs.push({texto:p.respostaTexto, autor:'secretaria', nomeAutor:'Secretaria', em:new Date().toISOString()});
+      }
+      msgs.push({texto, autor:'funcionario', nomeAutor:_funcDoc?.nome||_utilizador.email, em:new Date().toISOString()});
+      await updateDoc(doc(db,'pedidos_secretaria',_chatPedidoId),{
+        mensagens: msgs,
+        estado: p.estado==='fechado' ? 'fechado' : 'aberto',
+        ultimaMensagem: texto.substring(0,80),
+        ultimaMensagemEm: serverTimestamp(),
+        naoLidasSecretaria: (p.naoLidasSecretaria||0)+1,
+        naoLidasFuncionario: 0
+      });
+      input.value = '';
+    } catch(e) { console.error(e); }
+    btn.disabled = false;
   };
 
   window.enviarPedidoPortal = async function() {
@@ -1979,28 +2153,31 @@
     if (!mensagem){ msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Escreva a mensagem.</span>'; return; }
     btn.disabled = true; btn.textContent = '⏳ A enviar…';
     try {
-      await addDoc(collection(db,'pedidos_secretaria'), {
-        funcionarioUid:   _utilizador.uid,
-        funcionarioNome:  _funcDoc?.nome || _utilizador.email,
+      const novoId = await addDoc(collection(db,'pedidos_secretaria'), {
+        funcionarioUid:    _utilizador.uid,
+        funcionarioNome:   _funcDoc?.nome || _utilizador.email,
         funcionarioNumero: _funcDoc?.numero || '',
-        unidade:          _funcDoc?.unidade || '',
-        assunto, mensagem,
-        estado:           'novo',
-        criadoEm:         serverTimestamp(),
-        respostaTexto:    '',
-        respondidoEm:     null,
-        respondidoPor:    null
+        unidade:           _funcDoc?.unidade || '',
+        assunto,
+        mensagens: [{texto:mensagem, autor:'funcionario', nomeAutor:_funcDoc?.nome||_utilizador.email, em:new Date().toISOString()}],
+        estado:            'aberto',
+        ultimaMensagem:    mensagem.substring(0,80),
+        ultimaMensagemEm:  serverTimestamp(),
+        criadoEm:          serverTimestamp(),
+        naoLidasSecretaria: 1,
+        naoLidasFuncionario: 0
       });
-      msgEl.innerHTML = '<span style="color:#34d399;font-size:12px">✅ Pedido enviado com sucesso!</span>';
       document.getElementById('sec-assunto').value = '';
       document.getElementById('sec-mensagem').value = '';
       document.getElementById('sec-contador').textContent = '0';
-      btn.disabled = false; btn.textContent = '📤 Enviar pedido';
-      setTimeout(() => { cancelarFormPedido(); carregarPedidosPortal(); }, 1500);
+      btn.disabled = false; btn.textContent = '✉️ Iniciar conversa';
+      msgEl.innerHTML = '';
+      // Abrir o chat directamente
+      setTimeout(()=>abrirChatPortal(novoId.id), 300);
     } catch(e) {
       console.error(e);
       msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">❌ Erro ao enviar. Tente novamente.</span>';
-      btn.disabled = false; btn.textContent = '📤 Enviar pedido';
+      btn.disabled = false; btn.textContent = '✉️ Iniciar conversa';
     }
   };
 
@@ -2129,11 +2306,10 @@
     if (_unsubSinoPedidos)  _unsubSinoPedidos();
     if (_unsubSinoReunioes) _unsubSinoReunioes();
     _unsubSinoPedidos = onSnapshot(
-      query(collection(db,'pedidos_secretaria'), where('funcionarioUid','==',uid)),
+      query(collection(db,'pedidos_secretaria'), where('funcionarioUid','==',uid), where('naoLidasFuncionario','>',0)),
       snap => {
         actualizarCacheNotif('pedido', snap.docs
-          .map(d=>({id:d.id,tipo:'pedido',...d.data()}))
-          .filter(p=>ESTADOS_NOTIF_PEDIDO.includes(p.estado)));
+          .map(d=>({id:d.id,tipo:'pedido',...d.data()})));
       }, err => console.warn('Sino pedidos:',err)
     );
     _unsubSinoReunioes = onSnapshot(
@@ -2182,8 +2358,10 @@
       let ic,icClass,titulo,sub,aba;
       if(n.tipo==='pedido'){
         ic='💬';icClass='resp';aba='pedidos';
-        titulo='✅ Pedido respondido';
-        sub=(ASSUNTOS[n.assunto]||n.assunto||'—')+(n.respostaTexto?` — "${n.respostaTexto.substring(0,50)}${n.respostaTexto.length>50?'…':''}"`:'');
+        titulo='💬 Nova mensagem da Secretaria';
+        const msgs=n.mensagens||[];
+        const ultima=msgs.filter(m=>m.autor==='secretaria').pop();
+        sub=(ASSUNTOS[n.assunto]||n.assunto||'—')+(ultima?` — "${ultima.texto.substring(0,50)}${ultima.texto.length>50?'…':''}"`:'');
       } else {
         aba='reuniao';
         const dest=DEST[n.destinatario]||n.destinatario||'—';
@@ -2252,6 +2430,30 @@
   </div>
   <div class="sino-drop-footer">
     <button class="sino-marcar-lidas" onclick="marcarTodasLidas()">✓ Marcar todas como lidas</button>
+  </div>
+</div>
+
+
+<!-- ── CHAT PEDIDO OVERLAY ── -->
+<div class="chat-overlay" id="chat-overlay" onclick="if(event.target===this)fecharChatPortal()">
+  <div class="chat-box">
+    <div class="chat-header">
+      <div class="chat-header-av">✉️</div>
+      <div class="chat-header-info">
+        <div class="chat-header-titulo" id="chat-titulo">Conversa</div>
+        <div class="chat-header-sub" id="chat-sub">Secretaria · DMS Sumbe</div>
+      </div>
+      <button class="chat-header-fechar" onclick="fecharChatPortal()">×</button>
+    </div>
+    <div class="chat-estado-bar aberto" id="chat-estado-bar">🟢 Conversa aberta</div>
+    <div class="chat-msgs" id="chat-msgs"></div>
+    <div class="chat-input-row" id="chat-input-row">
+      <textarea class="chat-input" id="chat-input" rows="1" placeholder="Escreva a sua mensagem…"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemChatPortal();}"></textarea>
+      <button class="chat-enviar" onclick="enviarMensagemChatPortal()" id="btn-chat-enviar">
+        <span class="material-symbols-outlined">send</span>
+      </button>
+    </div>
   </div>
 </div>
 
