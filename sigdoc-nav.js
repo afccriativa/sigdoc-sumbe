@@ -28,6 +28,7 @@ window.SIGDOC_NAV = (function () {
         { id: 'auditoria',   icon: '🔍', texto: 'Auditoria',    href: 'auditoria.html',   perfis: ['admin','director','chefe'] },
         { id: 'painel',      icon: '📈', texto: 'Painel RH',    href: 'painel.html',      perfis: ['admin','director'] },
         { id: 'unidades',    icon: '🏥', texto: 'Unidades',     href: 'unidades.html',    perfis: ['admin','director','chefe','tecnico','secretaria'] },
+        { id: 'estatisticas', icon: '📊', texto: 'Estatísticas',  href: 'estatisticas.html', perfis: ['admin','director','chefe','tecnico'] },
         { id: 'utilizadores',icon: '⚙️', texto: 'Utilizadores', href: 'index.html#utilizadores', perfis: ['admin'] },
       ]
     }
