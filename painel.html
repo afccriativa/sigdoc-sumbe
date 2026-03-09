@@ -394,7 +394,69 @@
     @keyframes fade-in-out {
       0%,100% { opacity:.3 } 50% { opacity:1 }
     }
-</style>
+
+    /* ── GRÁFICO COMPARATIVO COBERTURA ── */
+    .cob-chart-wrap { display: flex; flex-direction: column; gap: 10px; }
+    .cob-item { }
+    .cob-item-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .cob-nome {
+      font-size: 12px; font-weight: 600; color: rgba(255,255,255,.8);
+      max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .cob-nums { display: flex; align-items: center; gap: 8px; }
+    .cob-num-cad { font-size: 12px; font-weight: 800; color: #60a5fa; font-family: var(--mono); }
+    .cob-num-sep { font-size: 11px; color: rgba(255,255,255,.3); }
+    .cob-num-esp { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.4); font-family: var(--mono); }
+    .cob-pct-badge {
+      font-size: 10px; font-weight: 800; padding: 2px 6px;
+      border-radius: 99px; font-family: var(--mono); flex-shrink: 0;
+    }
+    .cob-pct-verde   { background: rgba(16,200,134,.2);  color: #10c886; }
+    .cob-pct-amarelo { background: rgba(245,158,11,.2);  color: #f59e0b; }
+    .cob-pct-vermelho{ background: rgba(239,68,68,.2);   color: #ef4444; }
+    .cob-pct-vazio   { background: rgba(255,255,255,.08);color: rgba(255,255,255,.3); }
+    .cob-track {
+      height: 8px; background: rgba(255,255,255,.08);
+      border-radius: 99px; overflow: visible; position: relative;
+    }
+    .cob-fill-esp {
+      position: absolute; top: 0; left: 0; height: 8px;
+      background: rgba(255,255,255,.12); border-radius: 99px;
+      transition: width 1s cubic-bezier(.4,0,.2,1);
+    }
+    .cob-fill-cad {
+      position: absolute; top: 0; left: 0; height: 8px;
+      border-radius: 99px;
+      transition: width 1.2s cubic-bezier(.4,0,.2,1);
+    }
+    .fill-verde-grad   { background: linear-gradient(90deg,#059669,#10c886); }
+    .fill-amarelo-grad { background: linear-gradient(90deg,#d97706,#f59e0b); }
+    .fill-vermelho-grad{ background: linear-gradient(90deg,#dc2626,#ef4444); }
+    .fill-neutro-grad  { background: linear-gradient(90deg,#3b82f6,#60a5fa); }
+
+    /* Legenda */
+    .cob-legenda {
+      display: flex; gap: 16px; margin-bottom: 14px;
+      padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .cob-leg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,.5); }
+    .cob-leg-dot  { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+    /* Tabela nova — coluna cobertura */
+    .pill-cob {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 8px; border-radius: 99px;
+      font-size: 11px; font-weight: 800; font-family: var(--mono);
+    }
+    .pill-cob-verde   { background: rgba(16,200,134,.15); color: #10c886; }
+    .pill-cob-amarelo { background: rgba(245,158,11,.15);  color: #f59e0b; }
+    .pill-cob-vermelho{ background: rgba(239,68,68,.15);   color: #ef4444; }
+    .pill-cob-vazio   { background: rgba(255,255,255,.06); color: rgba(255,255,255,.3); }
+
+    </style>
 </head>
 <body>
 
@@ -526,11 +588,21 @@
       <div class="card-grafico">
         <div class="card-cabecalho">
           <div>
-            <h3>🏥 Top Unidades</h3>
-            <p>Documentos gerados</p>
+            <h3>🏥 Cobertura por Unidade</h3>
+            <p>Cadastrados no portal vs efectivo esperado</p>
           </div>
         </div>
-        <div class="barras-h-wrap" id="barras-unidades"></div>
+        <div class="cob-legenda">
+          <div class="cob-leg-item">
+            <div class="cob-leg-dot" style="background:#60a5fa"></div>
+            Cadastrados no portal
+          </div>
+          <div class="cob-leg-item">
+            <div class="cob-leg-dot" style="background:rgba(255,255,255,.15)"></div>
+            Efectivo esperado
+          </div>
+        </div>
+        <div class="cob-chart-wrap" id="barras-unidades"></div>
       </div>
 
       <div class="card-grafico">
@@ -571,13 +643,14 @@
             <thead>
               <tr>
                 <th>Unidade</th>
-                <th>Funcionários</th>
+                <th>Cadastrados</th>
+                <th>Esperado</th>
+                <th>Cobertura</th>
                 <th>Docs.</th>
-                <th>Volume</th>
               </tr>
             </thead>
             <tbody id="tbody-unidades">
-              <tr><td colspan="4" style="text-align:center;padding:30px;color:var(--muted)">A carregar…</td></tr>
+              <tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">A carregar…</td></tr>
             </tbody>
           </table>
         </div>
@@ -733,19 +806,23 @@
     try {
       // funcionarios: sem filtro temporal (dados mestres — não crescem como docs)
       // documentos e sessoes: filtrados pelo período seleccionado
-      const [funcionarios, documentos, sessoes] = await Promise.all([
+      const [funcionarios, documentos, sessoes, snapUnidades] = await Promise.all([
         fetchColeccao("funcionarios"),
         fetchColeccao("documentos", "geradoEm",  opcoes),
-        fetchColeccao("sessoes",    "timestamp", opcoes)
+        fetchColeccao("sessoes",    "timestamp", opcoes),
+        getDocs(collection(db, "unidades_sanitarias")).catch(()=>({docs:[],forEach:()=>{}}))
       ]);
+      // Mapa nome→esperado a partir da colecção unidades_sanitarias
+      const ESPERADO_MAP = {};
+      snapUnidades.forEach(s=>{ const d=s.data(); if(d.nome) ESPERADO_MAP[d.nome]=d.efectivo?.esperado||0; });
 
       calcularKPIs(funcionarios, documentos);
       renderGraficoMensal(documentos, inicio);
       renderDonut(documentos);
-      renderBarrasUnidades(documentos);
+      renderBarrasUnidades(funcionarios, ESPERADO_MAP);
       renderBarrasCategorias(funcionarios);
       renderMiniEstat(funcionarios, documentos, sessoes);
-      renderTabelaUnidades(funcionarios, documentos);
+      renderTabelaUnidades(funcionarios, documentos, ESPERADO_MAP);
       renderFeed(documentos, sessoes);
 
       heroSub.textContent =
@@ -946,19 +1023,70 @@
   }
 
   // ── BARRAS HORIZONTAIS — UNIDADES ──
-  function renderBarrasUnidades(docs) {
-    const cont = {};
-    docs.forEach(d => { if (d.localColocacao) cont[d.localColocacao] = (cont[d.localColocacao]||0)+1; });
-    const entries = Object.entries(cont).sort((a,b)=>b[1]-a[1]).slice(0,6);
-    const max = Math.max(...entries.map(e=>e[1]),1);
-    document.getElementById("barras-unidades").innerHTML = entries.map(([unid, qtd], i) => `
-      <div class="barra-h-item">
-        <div class="barra-h-topo">
-          <span class="barra-h-label" title="${unid}">${unid}</span>
-          <span class="barra-h-val">${qtd}</span>
+  function renderBarrasUnidades(funcs, esperadoMap) {
+    // Contar cadastrados por unidade
+    const cadMap = {};
+    funcs.forEach(f => {
+      const u = f.unidade || 'Não especificada';
+      cadMap[u] = (cadMap[u]||0) + 1;
+    });
+
+    // Juntar todas as unidades com ou sem cadastrados
+    const todasUnidades = new Set([...Object.keys(cadMap), ...Object.keys(esperadoMap)]);
+    const entries = [...todasUnidades]
+      .map(nome => ({
+        nome,
+        cadastrados: cadMap[nome]||0,
+        esperado:    esperadoMap[nome]||0,
+      }))
+      .filter(u => u.nome !== 'Não especificada')
+      .sort((a,b) => {
+        // Ordenar por: tem esperado primeiro, depois por cadastrados
+        if(b.esperado !== a.esperado) return b.esperado - a.esperado;
+        return b.cadastrados - a.cadastrados;
+      });
+
+    if(!entries.length){
+      document.getElementById('barras-unidades').innerHTML =
+        '<p style="color:rgba(255,255,255,.3);font-size:13px;padding:8px 0">Sem dados de funcionários</p>';
+      return;
+    }
+
+    // Máximo para escala (o maior entre esperado e cadastrados)
+    const maxVal = Math.max(...entries.map(e => Math.max(e.esperado, e.cadastrados)), 1);
+
+    document.getElementById('barras-unidades').innerHTML = entries.map(u => {
+      const pctEsp = Math.min(Math.round(u.esperado    / maxVal * 100), 100);
+      const pctCad = Math.min(Math.round(u.cadastrados / maxVal * 100), 100);
+      const cobertura = u.esperado > 0 ? Math.round(u.cadastrados / u.esperado * 100) : null;
+
+      let pctClass, fillClass;
+      if(cobertura === null)      { pctClass='cob-pct-vazio';    fillClass='fill-neutro-grad'; }
+      else if(cobertura >= 90)    { pctClass='cob-pct-verde';    fillClass='fill-verde-grad'; }
+      else if(cobertura >= 60)    { pctClass='cob-pct-amarelo';  fillClass='fill-amarelo-grad'; }
+      else                        { pctClass='cob-pct-vermelho'; fillClass='fill-vermelho-grad'; }
+
+      const nomeAbrev = u.nome.replace('Centro de Saúde','CS').replace('Posto de Saúde','PS')
+                              .replace('Direcção Municipal de Saúde do Sumbe','DMS')
+                              .replace('Secção de ','Sec. ');
+
+      return `
+      <div class="cob-item">
+        <div class="cob-item-header">
+          <span class="cob-nome" title="${u.nome}">${nomeAbrev}</span>
+          <div class="cob-nums">
+            <span class="cob-num-cad">${u.cadastrados}</span>
+            <span class="cob-num-sep">/</span>
+            <span class="cob-num-esp">${u.esperado||'—'}</span>
+            <span class="cob-pct-badge ${pctClass}">${cobertura!==null?cobertura+'%':'s/meta'}</span>
+          </div>
         </div>
-        <div class="barra-h-track"><div class="barra-h-fill" style="width:${Math.round(qtd/max*100)}%;background:${CORES_BARRA[i%CORES_BARRA.length]}"></div></div>
-      </div>`).join("") || '<p style="color:rgba(255,255,255,.3);font-size:13px;padding:8px 0">Sem dados</p>';
+        <div class="cob-track">
+          <div class="cob-fill-esp" style="width:${pctEsp}%"></div>
+          <div class="cob-fill-cad ${fillClass}" style="width:${pctCad}%"></div>
+        </div>
+      </div>`;
+    }).join('');
   }
 
   // ── BARRAS HORIZONTAIS — CATEGORIAS ──
@@ -991,31 +1119,40 @@
   }
 
   // ── TABELA UNIDADES ──
-  function renderTabelaUnidades(funcs, docs) {
+  function renderTabelaUnidades(funcs, docs, esperadoMap) {
     const unidades = {};
     funcs.forEach(f => {
-      const u = f.unidade || "Não especificada";
-      if (!unidades[u]) unidades[u] = { funcs: 0, docs: 0 };
-      if (!f.estado || f.estado === "activo") unidades[u].funcs++;
+      const u = f.unidade || 'Não especificada';
+      if (!unidades[u]) unidades[u] = { cadastrados: 0, docs: 0 };
+      unidades[u].cadastrados++;
     });
     docs.forEach(d => {
-      const u = d.localColocacao || "Não especificada";
-      if (!unidades[u]) unidades[u] = { funcs: 0, docs: 0 };
+      const u = d.localColocacao || 'Não especificada';
+      if (!unidades[u]) unidades[u] = { cadastrados: 0, docs: 0 };
       unidades[u].docs++;
     });
 
-    const maxDocs = Math.max(...Object.values(unidades).map(u => u.docs), 1);
-    const entries = Object.entries(unidades).sort((a,b)=>b[1].docs-a[1].docs);
+    const entries = Object.entries(unidades)
+      .filter(([n]) => n !== 'Não especificada')
+      .sort((a,b) => b[1].cadastrados - a[1].cadastrados);
 
-    document.getElementById("tbody-unidades").innerHTML = entries.map(([nome, u]) => {
-      const pct = Math.round((u.docs / maxDocs) * 100);
+    document.getElementById('tbody-unidades').innerHTML = entries.map(([nome, u]) => {
+      const esp = (esperadoMap||{})[nome]||0;
+      const cob = esp > 0 ? Math.round(u.cadastrados / esp * 100) : null;
+      let cobHTML;
+      if(cob === null)    cobHTML = '<span class="pill-cob pill-cob-vazio">Sem meta</span>';
+      else if(cob >= 90)  cobHTML = `<span class="pill-cob pill-cob-verde">✓ ${cob}%</span>`;
+      else if(cob >= 60)  cobHTML = `<span class="pill-cob pill-cob-amarelo">⚠ ${cob}%</span>`;
+      else                cobHTML = `<span class="pill-cob pill-cob-vermelho">↓ ${cob}%</span>`;
+
       return `<tr>
-        <td style="font-weight:600;font-size:13px">${nome}</td>
-        <td><span class="pill pill-verde">${u.funcs}</span></td>
+        <td style="font-weight:600;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${nome}">${nome}</td>
+        <td style="font-family:'DM Mono',monospace;font-weight:800;color:#60a5fa">${u.cadastrados}</td>
+        <td style="font-family:'DM Mono',monospace;color:rgba(255,255,255,.4)">${esp||'—'}</td>
+        <td>${cobHTML}</td>
         <td style="font-family:'DM Mono',monospace;font-weight:700">${u.docs}</td>
-        <td><div class="barra-mini-track"><div class="barra-mini-fill" style="width:${pct}%"></div></div></td>
       </tr>`;
-    }).join("") || '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.3);padding:20px">Sem dados</td></tr>';
+    }).join('') || '<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,.3);padding:20px">Sem dados</td></tr>';
   }
 
   // ── FEED DE ACTIVIDADE ──
