@@ -1093,7 +1093,7 @@
       observacoes:document.getElementById("f-observacoes").value.trim(),
       inss:  document.getElementById("f-inss")?.value?.trim()||'',
       banco: document.getElementById("f-banco")?.value||'',
-      ...((['admin','chefe','tecnico'].includes(utilizadorActual?.perfil)) && document.getElementById("f-salario-base")
+      ...((['admin','chefe','tecnico'].includes(_perfilActual)) && document.getElementById("f-salario-base")
         ? { salarioBase: Number(document.getElementById("f-salario-base").value)||0 } : {}),
       actualizadoEm:serverTimestamp(),actualizadoPor:utilizadorActual.uid
     };
@@ -1190,8 +1190,12 @@
         (f.urlBI?`<a href="${f.urlBI}" target="_blank" style="color:var(--c-700);font-weight:700;">🪪 Ver BI</a>  `:"") +
         (f.urlCert?`<a href="${f.urlCert}" target="_blank" style="color:var(--c-700);font-weight:700;">🎓 Ver Certificado</a>`:""),
         span2:true,html:true}]:[]),
+      {r:"Naturalidade",v:(f.municipioNatal&&f.provinciaNatal)?f.municipioNatal+', '+f.provinciaNatal:(f.provinciaNatal||f.municipioNatal||null)},
       {r:"Nº de Assegurado INSS",v:f.inss||null},
       {r:"Banco de Domiciliação",v:f.banco||null},
+      ...(['admin','chefe','tecnico'].includes(_perfilActual) && f.salarioBase
+        ? [{r:"Salário Base",v:Number(f.salarioBase).toLocaleString('pt-PT')+' Kz'}]
+        : []),
       {r:"Observações",v:f.observacoes,span2:true},
     ];
     const grid=document.getElementById("ficha-grid-dados");
