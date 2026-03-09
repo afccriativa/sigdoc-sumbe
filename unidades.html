@@ -378,6 +378,108 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .btn-login:hover{background:#0f35a0}
 .login-erro{font-size:13px;color:var(--red);margin-top:10px;display:none}
 
+
+/* ── MODAL EDITAR FICHA ────────────────────────── */
+.mef-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px}
+.mef-tab{
+  padding:10px 16px;font-size:13px;font-weight:700;
+  color:var(--txt-2);border:none;background:none;
+  cursor:pointer;font-family:var(--font);
+  border-bottom:2px solid transparent;transition:all .15s;
+  white-space:nowrap;
+}
+.mef-tab.activo{color:var(--pri);border-bottom-color:var(--pri)}
+.mef-tab-panel{display:none}
+.mef-tab-panel.activo{display:block}
+
+.mef-campo{margin-bottom:16px}
+.mef-campo label{
+  display:block;font-size:11px;font-weight:700;color:var(--txt-2);
+  text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;
+}
+.mef-campo input,.mef-campo select,.mef-campo textarea{
+  width:100%;padding:10px 12px;
+  background:#f8fafc;border:1px solid var(--border);
+  border-radius:var(--r-sm);font-size:13px;font-family:var(--font);
+  color:var(--txt-1);outline:none;transition:border .15s;
+  resize:vertical;
+}
+.mef-campo input:focus,.mef-campo select:focus,.mef-campo textarea:focus{
+  border-color:var(--pri);box-shadow:0 0 0 3px rgba(18,65,161,.08);
+}
+.mef-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+.mef-toggle-label{font-size:13px;font-weight:600;color:var(--txt-1)}
+.mef-toggle{
+  width:44px;height:24px;border-radius:99px;background:#e2e8f0;
+  border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;
+}
+.mef-toggle.on{background:var(--green)}
+.mef-toggle::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:20px;height:20px;border-radius:50%;background:#fff;
+  transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.mef-toggle.on::after{transform:translateX(20px)}
+
+/* Pesquisa de responsável */
+.resp-search-wrap{position:relative;margin-bottom:8px}
+.resp-search-wrap input{padding-right:36px}
+.resp-resultados{
+  max-height:180px;overflow-y:auto;
+  border:1px solid var(--border);border-radius:var(--r-sm);
+  background:var(--card);margin-top:4px;display:none;
+}
+.resp-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;cursor:pointer;transition:background .12s;
+  border-bottom:1px solid var(--border);
+}
+.resp-item:last-child{border-bottom:none}
+.resp-item:hover{background:rgba(18,65,161,.05)}
+.resp-av{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--pri-10);color:var(--pri);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;flex-shrink:0;
+}
+.resp-info b{font-size:13px;font-weight:700;color:var(--txt-1)}
+.resp-info small{font-size:11px;color:var(--txt-2)}
+.resp-selecionado{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;background:rgba(5,150,105,.06);
+  border:1px solid rgba(5,150,105,.2);border-radius:var(--r-sm);
+  margin-bottom:8px;display:none;
+}
+.resp-selecionado .resp-nome{font-size:13px;font-weight:700;color:var(--green);flex:1}
+.resp-limpar{
+  background:none;border:none;color:var(--txt-3);
+  cursor:pointer;font-size:16px;padding:2px;
+}
+
+/* Chips editáveis de serviços */
+.chips-edit{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.chip-edit{
+  display:flex;align-items:center;gap:4px;
+  padding:4px 10px;border-radius:var(--r-full);
+  font-size:11px;font-weight:700;
+  background:rgba(18,65,161,.07);color:var(--pri);
+  border:1px solid rgba(18,65,161,.15);
+}
+.chip-edit button{
+  background:none;border:none;color:var(--pri);
+  cursor:pointer;font-size:13px;padding:0;line-height:1;
+  opacity:.6;transition:opacity .15s;
+}
+.chip-edit button:hover{opacity:1}
+.chip-add-row{display:flex;gap:6px}
+.chip-add-row input{flex:1;padding:8px 10px;font-size:12px}
+.btn-chip-add{
+  padding:8px 12px;background:var(--pri);color:#fff;
+  border:none;border-radius:var(--r-sm);font-size:12px;
+  font-weight:700;cursor:pointer;font-family:var(--font);
+  white-space:nowrap;
+}
+
 /* ── RESPONSIVE ────────────────────────────────── */
 @media(max-width:900px){
   .unidades-grid{grid-template-columns:repeat(2,1fr)}
@@ -501,7 +603,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
   </div>
 </aside>
 
-<!-- MODAL EDITAR EFECTIVO -->
+<!-- MODAL EDITAR EFECTIVO (meta numérica) -->
 <div class="modal-ov" id="modal-ef">
   <div class="modal-card">
     <div class="modal-titulo" id="mef-titulo">Definir Efectivo</div>
@@ -514,6 +616,139 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
     <div class="modal-footer">
       <button class="btn-cancelar" onclick="fecharModalEf()">Cancelar</button>
       <button class="btn-guardar" id="mef-btn-guardar" onclick="guardarEfectivo()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR FICHA COMPLETA -->
+<div class="modal-ov" id="modal-ficha" style="align-items:flex-start;padding:0">
+  <div class="modal-card" style="max-width:560px;width:100%;border-radius:0;min-height:100vh;padding:0;display:flex;flex-direction:column">
+    <!-- Header -->
+    <div style="padding:20px 24px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div class="modal-titulo" id="mf-titulo" style="font-size:16px">Editar Ficha</div>
+          <div style="font-size:12px;color:var(--txt-3);margin-top:2px" id="mf-sub"></div>
+        </div>
+        <button class="drawer-fechar" onclick="fecharModalFicha()">✕</button>
+      </div>
+      <!-- Tabs -->
+      <div class="mef-tabs">
+        <button class="mef-tab activo" onclick="mudarTab(this,'tab-resp')">👤 Responsável</button>
+        <button class="mef-tab" onclick="mudarTab(this,'tab-contactos')">📞 Contactos</button>
+        <button class="mef-tab" onclick="mudarTab(this,'tab-horario')">🕐 Horário</button>
+        <button class="mef-tab" onclick="mudarTab(this,'tab-servicos')">🏥 Serviços</button>
+        <button class="mef-tab" onclick="mudarTab(this,'tab-historial')">📋 Historial</button>
+      </div>
+    </div>
+    <!-- Corpo com scroll -->
+    <div style="flex:1;overflow-y:auto;padding:20px 24px">
+
+      <!-- TAB: Responsável -->
+      <div class="mef-tab-panel activo" id="tab-resp">
+        <div style="font-size:13px;color:var(--txt-2);margin-bottom:16px;line-height:1.5">
+          Pesquise pelos funcionários cadastrados nesta unidade e seleccione o responsável / director.
+        </div>
+        <!-- Responsável actual -->
+        <div class="resp-selecionado" id="resp-selecionado-wrap">
+          <div class="resp-av" id="resp-sel-av">?</div>
+          <div style="flex:1">
+            <div class="resp-nome" id="resp-sel-nome">—</div>
+            <div style="font-size:11px;color:var(--txt-2)" id="resp-sel-cargo">—</div>
+          </div>
+          <button class="resp-limpar" onclick="limparResponsavel()" title="Remover responsável">✕</button>
+        </div>
+        <!-- Pesquisa -->
+        <div class="mef-campo">
+          <label>Pesquisar funcionário desta unidade</label>
+          <div class="resp-search-wrap">
+            <input type="text" id="resp-pesquisa" placeholder="Nome ou número…" oninput="pesquisarResponsavel()"/>
+          </div>
+          <div class="resp-resultados" id="resp-resultados"></div>
+        </div>
+        <div class="mef-campo">
+          <label>Cargo / Função na unidade</label>
+          <input type="text" id="resp-cargo" placeholder="ex: Director de Unidade, Chefe de Posto…"/>
+        </div>
+      </div>
+
+      <!-- TAB: Contactos -->
+      <div class="mef-tab-panel" id="tab-contactos">
+        <div class="mef-campo">
+          <label>Localização / Descrição</label>
+          <input type="text" id="mf-localizacao" placeholder="ex: Bairro Pedra 1, Sumbe"/>
+        </div>
+        <div class="mef-campo">
+          <label>Telefone geral</label>
+          <input type="tel" id="mf-telefone" placeholder="+244 9XX XXX XXX"/>
+        </div>
+        <div class="mef-campo">
+          <label>Contacto de emergência</label>
+          <input type="tel" id="mf-emergencia" placeholder="+244 9XX XXX XXX"/>
+        </div>
+        <div class="mef-campo">
+          <label>Email (opcional)</label>
+          <input type="email" id="mf-email" placeholder="unidade@dms.ao"/>
+        </div>
+      </div>
+
+      <!-- TAB: Horário -->
+      <div class="mef-tab-panel" id="tab-horario">
+        <div class="mef-campo">
+          <label>Segunda a Sexta</label>
+          <input type="text" id="mf-h-semana" placeholder="ex: 07h30 – 15h30"/>
+        </div>
+        <div class="mef-campo">
+          <label>Sábado</label>
+          <input type="text" id="mf-h-sabado" placeholder="ex: 08h00 – 12h00 ou Fechado"/>
+        </div>
+        <div class="mef-campo">
+          <label>Domingo e Feriados</label>
+          <input type="text" id="mf-h-domingo" placeholder="ex: Fechado"/>
+        </div>
+        <div class="mef-toggle-row">
+          <span class="mef-toggle-label">🔴 Urgência 24 horas</span>
+          <button class="mef-toggle" id="toggle-urgencia" onclick="toggleUrgencia(this)"></button>
+        </div>
+      </div>
+
+      <!-- TAB: Serviços -->
+      <div class="mef-tab-panel" id="tab-servicos">
+        <div style="font-size:13px;color:var(--txt-2);margin-bottom:14px">
+          Clique no <strong>×</strong> para remover um serviço. Adicione novos no campo abaixo.
+        </div>
+        <div class="chips-edit" id="chips-servicos"></div>
+        <div class="chip-add-row">
+          <input type="text" id="novo-servico" placeholder="Adicionar serviço…" onkeydown="if(event.key==='Enter')adicionarServico()"/>
+          <button class="btn-chip-add" onclick="adicionarServico()">+ Adicionar</button>
+        </div>
+      </div>
+
+      <!-- TAB: Historial -->
+      <div class="mef-tab-panel" id="tab-historial">
+        <div class="mef-campo">
+          <label>Data de Inauguração</label>
+          <input type="text" id="mf-inauguracao" placeholder="ex: 1987-03-15 ou Março de 1987"/>
+        </div>
+        <div class="mef-campo">
+          <label>Inaugurado por</label>
+          <input type="text" id="mf-inaugurado-por" placeholder="ex: Governo Provincial de Cuanza Sul"/>
+        </div>
+        <div class="mef-campo">
+          <label>Última renovação / reabilitação</label>
+          <input type="text" id="mf-renovacao" placeholder="ex: 2019"/>
+        </div>
+        <div class="mef-campo">
+          <label>Observações</label>
+          <textarea id="mf-observacoes" rows="4" placeholder="Informações adicionais sobre a unidade…"></textarea>
+        </div>
+      </div>
+
+    </div>
+    <!-- Footer fixo -->
+    <div class="modal-footer" style="border-top:1px solid var(--border);padding:16px 24px;background:var(--card)">
+      <button class="btn-cancelar" onclick="fecharModalFicha()">Cancelar</button>
+      <button class="btn-guardar" id="mf-btn-guardar" onclick="guardarFicha()">💾 Guardar Ficha</button>
     </div>
   </div>
 </div>
@@ -905,7 +1140,10 @@ function renderDrawerDMS(u){
   const html = `
     <!-- Identificação -->
     <div class="ds">
-      <div class="ds-titulo">Identificação</div>
+      <div class="ds-titulo" style="display:flex;align-items:center;justify-content:space-between">
+        <span>Identificação</span>
+        ${podeEd?`<button class="btn-ver" onclick="abrirModalFicha('${u.id}')">✏️ Editar ficha</button>`:''}
+      </div>
       <div class="ds-row"><span class="ds-key">Tipo</span><span class="ds-val">Direcção Municipal de Saúde</span></div>
       <div class="ds-row"><span class="ds-key">Município</span><span class="ds-val">Sumbe, Cuanza Sul</span></div>
       ${u.responsavel?.nome ? `
@@ -981,7 +1219,10 @@ function renderDrawer(u){
   const html = `
     <!-- Identificação -->
     <div class="ds">
-      <div class="ds-titulo">Identificação</div>
+      <div class="ds-titulo" style="display:flex;align-items:center;justify-content:space-between">
+        <span>Identificação</span>
+        ${podeEd?`<button class="btn-ver" onclick="abrirModalFicha('${u.id}')">✏️ Editar ficha</button>`:''}
+      </div>
       ${u.localizacao?.descricao ? `<div class="ds-row"><span class="ds-key">Localização</span><span class="ds-val">${u.localizacao.descricao}</span></div>` : ''}
       <div class="ds-row"><span class="ds-key">Tipo</span><span class="ds-val">${tipoLabel(u.tipo)}</span></div>
       ${u.responsavel?.nome ? `
@@ -1104,6 +1345,243 @@ window.guardarEfectivo = async function(){
 };
 
 // ── Toast ───────────────────────────────────────────────────
+
+// ── Estado do modal de edição ──────────────────────────────
+let MODAL_FICHA_ID    = null;
+let SERVICOS_EDIT     = [];
+let RESP_SELECIONADO  = null;  // {id, nome, cargo, categoria}
+
+// ── Abrir modal ficha ──────────────────────────────────────
+window.abrirModalFicha = function(id){
+  MODAL_FICHA_ID   = id;
+  RESP_SELECIONADO = null;
+  const u = TODAS_UNIDADES.find(x=>x.id===id);
+  if(!u) return;
+
+  document.getElementById('mf-titulo').textContent = u.nome;
+  document.getElementById('mf-sub').textContent    = tipoLabel(u.tipo);
+
+  // Tab: Responsável
+  const respWrap = document.getElementById('resp-selecionado-wrap');
+  if(u.responsavel?.nome){
+    RESP_SELECIONADO = u.responsavel;
+    document.getElementById('resp-sel-av').textContent    = u.responsavel.nome[0].toUpperCase();
+    document.getElementById('resp-sel-nome').textContent  = u.responsavel.nome;
+    document.getElementById('resp-sel-cargo').textContent = u.responsavel.cargo||'';
+    respWrap.style.display = 'flex';
+  } else {
+    respWrap.style.display = 'none';
+  }
+  document.getElementById('resp-pesquisa').value = '';
+  document.getElementById('resp-resultados').style.display = 'none';
+  document.getElementById('resp-resultados').innerHTML = '';
+  document.getElementById('resp-cargo').value = u.responsavel?.cargo||'';
+
+  // Tab: Contactos
+  document.getElementById('mf-localizacao').value = u.localizacao?.descricao||'';
+  document.getElementById('mf-telefone').value    = u.contactos?.telefone||'';
+  document.getElementById('mf-emergencia').value  = u.contactos?.emergencia||'';
+  document.getElementById('mf-email').value       = u.contactos?.email||'';
+
+  // Tab: Horário
+  document.getElementById('mf-h-semana').value  = u.horario?.semana  ||'07h30 – 15h30';
+  document.getElementById('mf-h-sabado').value  = u.horario?.sabado  ||'08h00 – 12h00';
+  document.getElementById('mf-h-domingo').value = u.horario?.domingo ||'Fechado';
+  const tglUrg = document.getElementById('toggle-urgencia');
+  tglUrg.classList.toggle('on', !!u.horario?.urgencia24h);
+
+  // Tab: Serviços
+  SERVICOS_EDIT = [...(u.servicos||[])];
+  renderChipsEdit();
+
+  // Tab: Historial
+  document.getElementById('mf-inauguracao').value    = u.historial?.inauguradoEm||'';
+  document.getElementById('mf-inaugurado-por').value = u.historial?.inauguradoPor||'';
+  document.getElementById('mf-renovacao').value      = u.historial?.ultimaRenovacao||'';
+  document.getElementById('mf-observacoes').value    = u.historial?.observacoes||'';
+
+  // Reset tabs
+  mudarTab(document.querySelector('.mef-tab'), 'tab-resp');
+  document.getElementById('modal-ficha').classList.add('aberto');
+};
+
+window.fecharModalFicha = function(){
+  document.getElementById('modal-ficha').classList.remove('aberto');
+  MODAL_FICHA_ID = null;
+};
+
+// ── Tabs ──────────────────────────────────────────────────
+window.mudarTab = function(btn, panelId){
+  document.querySelectorAll('.mef-tab').forEach(b=>b.classList.remove('activo'));
+  document.querySelectorAll('.mef-tab-panel').forEach(p=>p.classList.remove('activo'));
+  btn.classList.add('activo');
+  document.getElementById(panelId).classList.add('activo');
+};
+
+// ── Toggle urgência ────────────────────────────────────────
+window.toggleUrgencia = function(btn){ btn.classList.toggle('on'); };
+
+// ── Pesquisa responsável ───────────────────────────────────
+window.pesquisarResponsavel = function(){
+  const q     = document.getElementById('resp-pesquisa').value.toLowerCase().trim();
+  const u     = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
+  const funcs = FUNCIONARIOS_MAP[u?.nome||'']||[];
+  const box   = document.getElementById('resp-resultados');
+
+  if(!q){ box.style.display='none'; return; }
+
+  const resultados = funcs.filter(f=>{
+    const nome = (f.nome||'').toLowerCase();
+    const num  = (f.numeroBeneficiario||'').toLowerCase();
+    return nome.includes(q) || num.includes(q);
+  });
+
+  if(!resultados.length){
+    box.innerHTML='<div style="padding:12px;font-size:13px;color:var(--txt-3)">Nenhum funcionário encontrado nesta unidade.</div>';
+    box.style.display='block';
+    return;
+  }
+
+  box.innerHTML = resultados.slice(0,8).map(f=>`
+    <div class="resp-item" onclick="selecionarResponsavel(${JSON.stringify({
+      id: f.id,
+      nome: f.nome||f.nomeCompleto||'',
+      categoria: f.categoria||f.cargo||''
+    }).replace(/"/g,'&quot;')})">
+      <div class="resp-av">${(f.nome||'?')[0].toUpperCase()}</div>
+      <div class="resp-info">
+        <b>${f.nome||f.nomeCompleto||'—'}</b>
+        <small>${f.categoria||f.cargo||''} · Nº${f.numeroBeneficiario||'—'}</small>
+      </div>
+    </div>`).join('');
+  box.style.display='block';
+};
+
+window.selecionarResponsavel = function(fObj){
+  RESP_SELECIONADO = fObj;
+  document.getElementById('resp-sel-av').textContent    = fObj.nome[0].toUpperCase();
+  document.getElementById('resp-sel-nome').textContent  = fObj.nome;
+  document.getElementById('resp-sel-cargo').textContent = document.getElementById('resp-cargo').value || fObj.categoria;
+  document.getElementById('resp-selecionado-wrap').style.display = 'flex';
+  document.getElementById('resp-pesquisa').value        = '';
+  document.getElementById('resp-resultados').style.display = 'none';
+};
+
+window.limparResponsavel = function(){
+  RESP_SELECIONADO = null;
+  document.getElementById('resp-selecionado-wrap').style.display = 'none';
+  document.getElementById('resp-cargo').value = '';
+};
+
+// ── Chips de serviços ──────────────────────────────────────
+function renderChipsEdit(){
+  document.getElementById('chips-servicos').innerHTML = SERVICOS_EDIT.map((s,i)=>`
+    <span class="chip-edit">
+      ${s}
+      <button onclick="removerServico(${i})" title="Remover">×</button>
+    </span>`).join('');
+}
+
+window.removerServico = function(i){
+  SERVICOS_EDIT.splice(i,1);
+  renderChipsEdit();
+};
+
+window.adicionarServico = function(){
+  const inp = document.getElementById('novo-servico');
+  const val = inp.value.trim();
+  if(!val || SERVICOS_EDIT.includes(val)) return;
+  SERVICOS_EDIT.push(val);
+  renderChipsEdit();
+  inp.value='';
+  inp.focus();
+};
+
+// ── Guardar ficha completa ─────────────────────────────────
+window.guardarFicha = async function(){
+  if(!MODAL_FICHA_ID) return;
+  const btn = document.getElementById('mf-btn-guardar');
+  btn.disabled=true; btn.textContent='A guardar…';
+
+  const cargoDigitado = document.getElementById('resp-cargo').value.trim();
+  const responsavel   = RESP_SELECIONADO ? {
+    funcionarioId: RESP_SELECIONADO.id||'',
+    nome:  RESP_SELECIONADO.nome,
+    cargo: cargoDigitado || RESP_SELECIONADO.categoria||'',
+  } : { nome:'', cargo:'' };
+
+  const dados = {
+    responsavel,
+    localizacao: {
+      descricao:  document.getElementById('mf-localizacao').value.trim(),
+      municipio:  'Sumbe',
+      provincia:  'Cuanza Sul',
+    },
+    contactos: {
+      telefone:   document.getElementById('mf-telefone').value.trim(),
+      emergencia: document.getElementById('mf-emergencia').value.trim(),
+      email:      document.getElementById('mf-email').value.trim(),
+    },
+    horario: {
+      semana:     document.getElementById('mf-h-semana').value.trim(),
+      sabado:     document.getElementById('mf-h-sabado').value.trim(),
+      domingo:    document.getElementById('mf-h-domingo').value.trim(),
+      urgencia24h:document.getElementById('toggle-urgencia').classList.contains('on'),
+    },
+    servicos: SERVICOS_EDIT,
+    historial: {
+      inauguradoEm:   document.getElementById('mf-inauguracao').value.trim(),
+      inauguradoPor:  document.getElementById('mf-inaugurado-por').value.trim(),
+      ultimaRenovacao:document.getElementById('mf-renovacao').value.trim(),
+      observacoes:    document.getElementById('mf-observacoes').value.trim(),
+    },
+    actualizadoEm: serverTimestamp(),
+  };
+
+  try{
+    await updateDoc(doc(db,'unidades_sanitarias',MODAL_FICHA_ID), dados);
+
+    // Actualizar cache local
+    const u = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
+    if(u) Object.assign(u, dados);
+
+    // Auditoria
+    try{
+      const {addDoc: aDoc, collection: col} = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+      await aDoc(col(db,'auditoria'),{
+        acao:'EDITAR_FICHA_UNIDADE',
+        detalhe:`Ficha actualizada: ${u?.nome||MODAL_FICHA_ID}`,
+        uidUtilizador: UTILIZADOR.uid,
+        nomeUtilizador: PERFIL_DOC?.nome||UTILIZADOR.email,
+        timestamp: serverTimestamp()
+      });
+    }catch(e){}
+
+    fecharModalFicha();
+    render();
+    // Se o drawer desta unidade estiver aberto, refrescar
+    if(DRAWER_ID === MODAL_FICHA_ID){
+      const uActual = TODAS_UNIDADES.find(x=>x.id===DRAWER_ID);
+      if(uActual) renderDrawer(uActual);
+    }
+    mostrarToast('✅ Ficha da unidade actualizada');
+  } catch(e){
+    console.error(e);
+    mostrarToast('❌ Erro ao guardar. Verifique as permissões.','#dc2626');
+  } finally {
+    btn.disabled=false; btn.textContent='💾 Guardar Ficha';
+  }
+};
+
+// Fechar modal-ficha com ESC
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('modal-ficha').classList.contains('aberto')) fecharModalFicha();
+    else if(document.getElementById('modal-ef').classList.contains('aberto')) fecharModalEf();
+    else fecharDrawer();
+  }
+}, {capture:false});
+
 function mostrarToast(msg, bg=''){
   const t = document.getElementById('toast');
   if(bg) t.style.background=bg;
