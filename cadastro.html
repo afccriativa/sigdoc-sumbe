@@ -786,6 +786,27 @@
 
 <div class="toast" id="notificacao"></div>
 
+<script>
+  function toggleCategoriaOutra(sel) {
+    var manual = document.getElementById('f-categoria-manual');
+    if (!manual) return;
+    if (sel.value === '__outra__') {
+      manual.style.display = 'block';
+      manual.focus();
+    } else {
+      manual.style.display = 'none';
+      manual.value = '';
+    }
+  }
+  function lerCategoria() {
+    var sel = document.getElementById('f-categoria');
+    if (!sel) return '';
+    if (sel.value === '__outra__') {
+      return (document.getElementById('f-categoria-manual') || {value:''}).value.trim();
+    }
+    return sel.value;
+  }
+</script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -1084,7 +1105,7 @@
     const nome=document.getElementById("f-nome").value.trim();
     const sexo=document.getElementById("f-sexo").value;
     const numero=document.getElementById("f-numero").value.trim();
-    const categoria=document.getElementById("f-categoria").value;
+    const categoria=lerCategoria();
     const unidade=document.getElementById("f-unidade").value;
     const vinculo=document.getElementById("f-vinculo").value;
     const admissao=document.getElementById("f-admissao").value;
