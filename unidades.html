@@ -670,6 +670,13 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
           <label>Cargo / Função na unidade</label>
           <input type="text" id="resp-cargo" placeholder="ex: Director de Unidade, Chefe de Posto…"/>
         </div>
+        <div class="mef-campo">
+          <label>Data de início de funções como responsável</label>
+          <input type="date" id="resp-data-inicio"/>
+          <div style="font-size:11px;color:var(--txt-3);margin-top:6px">
+            Usada para calcular tempo em funções e estatísticas de liderança.
+          </div>
+        </div>
       </div>
 
       <!-- TAB: Contactos -->
@@ -1227,7 +1234,10 @@ function renderDrawer(u){
       <div class="ds-row"><span class="ds-key">Tipo</span><span class="ds-val">${tipoLabel(u.tipo)}</span></div>
       ${u.responsavel?.nome ? `
         <div class="ds-row"><span class="ds-key">Responsável</span>
-          <span class="ds-val"><strong>${u.responsavel.nome}</strong>${u.responsavel.cargo?` · ${u.responsavel.cargo}`:''}</span></div>
+          <span class="ds-val">
+            <strong>${u.responsavel.nome}</strong>${u.responsavel.cargo?' · '+u.responsavel.cargo:''}
+            ${u.responsavel.dataInicio?`<br><span style="font-size:11px;color:var(--txt-3)">Em funções desde ${new Date(u.responsavel.dataInicio+'T00:00:00').toLocaleDateString('pt-PT',{day:'2-digit',month:'long',year:'numeric'})}</span>`:''}
+          </span></div>
       ` : `<div class="ds-row"><span class="ds-key">Responsável</span><span class="ds-val" style="color:var(--txt-3)">Não definido</span></div>`}
       ${u.contactos?.telefone ? `<div class="ds-row"><span class="ds-key">Telefone</span><span class="ds-val">${u.contactos.telefone}</span></div>` : ''}
       ${u.contactos?.emergencia ? `<div class="ds-row"><span class="ds-key">Emergência</span><span class="ds-val">📞 ${u.contactos.emergencia}</span></div>` : ''}
@@ -1375,7 +1385,8 @@ window.abrirModalFicha = function(id){
   document.getElementById('resp-pesquisa').value = '';
   document.getElementById('resp-resultados').style.display = 'none';
   document.getElementById('resp-resultados').innerHTML = '';
-  document.getElementById('resp-cargo').value = u.responsavel?.cargo||'';
+  document.getElementById('resp-cargo').value      = u.responsavel?.cargo||'';
+  document.getElementById('resp-data-inicio').value = u.responsavel?.dataInicio||'';
 
   // Tab: Contactos
   document.getElementById('mf-localizacao').value = u.localizacao?.descricao||'';
@@ -1504,11 +1515,13 @@ window.guardarFicha = async function(){
   btn.disabled=true; btn.textContent='A guardar…';
 
   const cargoDigitado = document.getElementById('resp-cargo').value.trim();
+  const dataInicio    = document.getElementById('resp-data-inicio').value||'';
   const responsavel   = RESP_SELECIONADO ? {
     funcionarioId: RESP_SELECIONADO.id||'',
-    nome:  RESP_SELECIONADO.nome,
-    cargo: cargoDigitado || RESP_SELECIONADO.categoria||'',
-  } : { nome:'', cargo:'' };
+    nome:          RESP_SELECIONADO.nome,
+    cargo:         cargoDigitado || RESP_SELECIONADO.categoria||'',
+    dataInicio:    dataInicio,
+  } : { nome:'', cargo:'', dataInicio:'' };
 
   const dados = {
     responsavel,
