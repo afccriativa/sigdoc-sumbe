@@ -890,6 +890,8 @@
     preencher('f-estado',       f.estado);
     preencher('f-escolaridade', f.escolaridade);
     preencher('f-observacoes',  f.observacoes);
+    preencher('f-inss',         f.inss||'');
+    preencher('f-banco',        f.banco||'');
 
     // Estudando
     if (f.estudando === true)       { toggleEstuda(true); preencher('f-curso', f.curso); preencher('f-instituicao', f.instituicao); preencher('f-ano-curso', f.anoCurso); }
@@ -1255,6 +1257,8 @@
         instituicao: g('f-estudando') === 'true' ? g('f-instituicao') : '',
         anoCurso:    g('f-estudando') === 'true' ? g('f-ano-curso')   : '',
         observacoes: g('f-observacoes'),
+        inss:        g('f-inss')||'',
+        banco:       g('f-banco')||'',
         ...(urlBI   ? { urlBI }   : {}),
         ...(urlCert ? { urlCert } : {}),
         formularioPreenchidoEm: serverTimestamp(),
