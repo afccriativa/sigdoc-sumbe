@@ -432,6 +432,24 @@
         <div class="campo-erro" id="err-morada">Campo obrigatório.</div>
       </div>
 
+
+      <div class="grelha-2">
+        <div class="campo-grupo">
+          <label>Província de Naturalidade <span class="obrig">*</span></label>
+          <input type="text" id="f-provincia-natal" class="campo-input"
+            placeholder="ex: Cuanza Sul"
+            oninput="validarCampo(this)"/>
+          <div class="campo-erro" id="err-provincia-natal">Campo obrigatório.</div>
+        </div>
+        <div class="campo-grupo">
+          <label>Município de Naturalidade <span class="obrig">*</span></label>
+          <input type="text" id="f-municipio-natal" class="campo-input"
+            placeholder="ex: Sumbe"
+            oninput="validarCampo(this)"/>
+          <div class="campo-erro" id="err-municipio-natal">Campo obrigatório.</div>
+        </div>
+      </div>
+
       <div class="grelha-2">
         <div class="campo-grupo">
           <label>Contacto Telefónico <span class="obrig">*</span></label>
@@ -863,7 +881,10 @@
     } catch(e) { console.warn("Pré-preenchimento (query):", e); }
   });
 
-  // ── Pré-preencher com dados existentes ──
+
+
+
+    // ── Pré-preencher com dados existentes ──
   function preencherFormularioExistente(f) {
     const preencher = (id, val) => {
       const el = document.getElementById(id);
@@ -878,6 +899,8 @@
     preencher('f-pai',          f.nomePai);
     preencher('f-mae',          f.nomeMae);
     preencher('f-morada',       f.morada);
+    if(f.provinciaNatal) preencher('f-provincia-natal', f.provinciaNatal);
+    if(f.municipioNatal)  preencher('f-municipio-natal',  f.municipioNatal);
     preencher('f-telefone',     f.telefone);
     preencher('f-email',        f.email);
     preencher('f-numero',       f.numero);
@@ -942,7 +965,7 @@
   function validarPasso(passo) {
     const erros = [];
     if (passo === 1) {
-      erros.push(...validarCampos(['f-nome','f-sexo','f-bi','f-bi-emissao','f-nascimento','f-estado-civil','f-pai','f-mae','f-morada','f-telefone']));
+      erros.push(...validarCampos(['f-nome','f-sexo','f-bi','f-bi-emissao','f-nascimento','f-estado-civil','f-pai','f-mae','f-morada','f-telefone','f-provincia-natal','f-municipio-natal']));
       if (!validarBIFormato()) { erros.push('bi'); }
     }
     if (passo === 2) {
@@ -1157,6 +1180,7 @@
         <div class="rev-linha"><span>Nome do pai</span><strong>${g('f-pai')}</strong></div>
         <div class="rev-linha"><span>Nome da mãe</span><strong>${g('f-mae')}</strong></div>
         <div class="rev-linha"><span>Morada</span><strong>${g('f-morada')}</strong></div>
+          <div class="rev-linha"><span>Naturalidade</span><strong>${g('f-municipio-natal')||'—'}, ${g('f-provincia-natal')||'—'}</strong></div>
         <div class="rev-linha"><span>Contacto</span><strong>${g('f-telefone')}</strong></div>
       </div>
       <div class="rev-bloco">
@@ -1240,7 +1264,9 @@
         estadoCivil: g('f-estado-civil'),
         nomePai:     g('f-pai'),
         nomeMae:     g('f-mae'),
-        morada:      g('f-morada'),
+        morada:        g('f-morada'),
+        provinciaNatal: g('f-provincia-natal'),
+        municipioNatal: g('f-municipio-natal'),
         telefone:    g('f-telefone'),
         email:       g('f-email') || _utilizador.email,
         numero:      g('f-numero'),
