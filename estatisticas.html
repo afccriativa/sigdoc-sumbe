@@ -6,7 +6,7 @@
   <title>Estatísticas — SIGDOC-SUMBE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <script src="sigdoc-config.js"></script>
   <script src="sigdoc-nav.js"></script>
   <style>
@@ -361,25 +361,43 @@
 
   /* ── CARREGAR DADOS ───────────────────────────────────── */
   async function carregarEstatisticas() {
+    const content = document.getElementById('content');
+
+    // Timeout de segurança — evitar loading infinito
+    const timeout = setTimeout(() => {
+      content.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;gap:16px;color:rgba(255,255,255,.4)">
+        <div style="font-size:40px">⚠️</div>
+        <div style="font-size:15px;font-weight:700;color:rgba(255,255,255,.7)">Não foi possível carregar os dados</div>
+        <div style="font-size:12px;text-align:center">Verifique a ligação à internet e as permissões do Firestore.<br>Consulte a consola do browser para mais detalhes.</div>
+        <button onclick="location.reload()" style="margin-top:8px;padding:10px 24px;border-radius:8px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:13px;font-weight:700;cursor:pointer">🔄 Tentar novamente</button>
+      </div>`;
+    }, 12000);
+
     try {
-      const [snapF, snapU] = await Promise.all([
-        getDocs(collection(db, 'funcionarios')),
-        getDocs(collection(db, 'unidades_sanitarias')).catch(() => ({ forEach: () => {} }))
-      ]);
+      const snapF = await getDocs(collection(db, 'funcionarios'));
+      const snapU = await getDocs(collection(db, 'unidades_sanitarias')).catch(() => null);
+
+      clearTimeout(timeout);
 
       const funcs   = snapF.docs.map(d => ({ id: d.id, ...d.data() }));
       const activos = funcs.filter(f => !f.estado || f.estado === 'activo');
 
       const unidades = {};
-      snapU.forEach(d => { const u = d.data(); if (u.nome) unidades[u.nome] = u; });
+      if (snapU) snapU.forEach(d => { const u = d.data(); if (u.nome) unidades[u.nome] = u; });
 
       document.getElementById('topbar-sub').textContent =
         `${funcs.length} funcionários · ${activos.length} em serviço activo`;
 
       renderConteudo(funcs, activos, unidades);
-    } catch(e) {
-      console.error(e);
-      notif('❌ Erro ao carregar dados. Verifique a ligação.', 'erro');
+    } catch(err) {
+      clearTimeout(timeout);
+      console.error('Estatísticas — erro Firestore:', err);
+      content.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;gap:16px;color:rgba(255,255,255,.4)">
+        <div style="font-size:40px">❌</div>
+        <div style="font-size:15px;font-weight:700;color:rgba(255,255,255,.7)">Erro ao carregar</div>
+        <div style="font-size:12px;text-align:center;font-family:monospace;background:rgba(239,68,68,.1);padding:10px 16px;border-radius:8px;color:#fca5a5">${err.code || err.message || 'Erro desconhecido'}</div>
+        <button onclick="location.reload()" style="margin-top:8px;padding:10px 24px;border-radius:8px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:13px;font-weight:700;cursor:pointer">🔄 Tentar novamente</button>
+      </div>`;
     }
   }
 
