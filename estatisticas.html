@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Estatísticas — SIGDOC-SUMBE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="sigdoc-config.js"></script>
+  <script src="sigdoc-nav.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d1422;
+      --surface:  #111827;
+      --card:     #1a2236;
+      --card2:    #1e2a3a;
+      --border:   rgba(255,255,255,.07);
+      --border2:  rgba(255,255,255,.13);
+      --txt:      #e2e8f0;
+      --muted:    rgba(255,255,255,.4);
+      --dim:      rgba(255,255,255,.22);
+      --green:    #10c886;
+      --blue:     #3b82f6;
+      --amber:    #f59e0b;
+      --red:      #ef4444;
+      --purple:   #a78bfa;
+      --cyan:     #22d3ee;
+      --pink:     #f472b6;
+      --font:     'Plus Jakarta Sans', sans-serif;
+      --mono:     'DM Mono', monospace;
+      --r:        10px;
+      --rlg:      14px;
+      --nav-w:    220px;
+      --top-h:    56px;
+    }
+
+    body { font-family: var(--font); background: var(--bg); color: var(--txt); min-height: 100vh; }
+
+    /* ── LAYOUT ── */
+    .layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: var(--nav-w); background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: fixed; top: 0; left: 0; bottom: 0;
+      display: flex; flex-direction: column; z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 18px 20px; border-bottom: 1px solid var(--border);
+      font-size: 13px; font-weight: 800; color: var(--txt);
+      letter-spacing: -.3px; line-height: 1.3;
+    }
+    .sidebar-logo span { display: block; font-size: 10px; font-weight: 500; color: var(--muted); margin-top: 2px; }
+    .nav-section-label {
+      font-size: 9px; font-weight: 700; color: var(--dim);
+      text-transform: uppercase; letter-spacing: 1px;
+      padding: 14px 20px 4px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 20px; font-size: 13px; font-weight: 600;
+      color: var(--muted); text-decoration: none;
+      border-radius: 8px; margin: 1px 8px;
+      transition: all .15s;
+    }
+    .nav-item:hover { background: var(--card); color: var(--txt); }
+    .nav-item.activo { background: rgba(59,130,246,.15); color: var(--blue); }
+    .sidebar-bottom {
+      margin-top: auto; padding: 14px; border-top: 1px solid var(--border);
+    }
+    .user-chip {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; background: var(--card);
+      border-radius: var(--r); cursor: pointer;
+    }
+    .user-av {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg,#3b82f6,#8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0;
+    }
+    .user-nome { font-size: 12px; font-weight: 700; color: var(--txt); }
+    .user-perfil { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+    /* ── MAIN ── */
+    .main { margin-left: var(--nav-w); flex: 1; display: flex; flex-direction: column; }
+    .topbar {
+      height: var(--top-h); background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-titulo { font-size: 16px; font-weight: 800; letter-spacing: -.3px; }
+    .topbar-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .topbar-acoes { display: flex; align-items: center; gap: 10px; }
+
+    .content { padding: 28px; flex: 1; }
+
+    /* ── KPI STRIP ── */
+    .kpi-strip {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      gap: 14px; margin-bottom: 28px;
+    }
+    .kpi-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--rlg); padding: 18px 20px;
+    }
+    .kpi-icon { font-size: 20px; margin-bottom: 10px; }
+    .kpi-val {
+      font-size: 28px; font-weight: 800; font-family: var(--mono);
+      letter-spacing: -1px; line-height: 1;
+    }
+    .kpi-lbl { font-size: 11px; color: var(--muted); margin-top: 6px; font-weight: 600; }
+    .kpi-sub { font-size: 10px; color: var(--dim); margin-top: 3px; }
+
+    /* ── SECÇÕES ── */
+    .secao-titulo {
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .secao-titulo::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── GRELHAS ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 28px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 28px; }
+    .grid-full { margin-bottom: 28px; }
+
+    /* ── CARD GRÁFICO ── */
+    .chart-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--rlg); padding: 22px 24px;
+    }
+    .chart-card-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .chart-card-titulo { font-size: 14px; font-weight: 800; }
+    .chart-card-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .chart-wrap { position: relative; }
+
+    /* ── PIRÂMIDE ETÁRIA ── */
+    .piramide-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .piramide-linha {
+      display: grid; grid-template-columns: 48px 1fr 32px 1fr 48px;
+      align-items: center; gap: 6px;
+    }
+    .pir-lbl { font-size: 11px; font-weight: 700; font-family: var(--mono); color: var(--muted); text-align: center; }
+    .pir-barra-wrap { display: flex; align-items: center; }
+    .pir-barra-m { height: 22px; border-radius: 4px 0 0 4px; background: linear-gradient(90deg,#3b82f6,#60a5fa); transition: width .8s cubic-bezier(.4,0,.2,1); margin-left: auto; }
+    .pir-barra-f { height: 22px; border-radius: 0 4px 4px 0; background: linear-gradient(90deg,#f472b6,#fb7185); transition: width .8s cubic-bezier(.4,0,.2,1); }
+    .pir-centro { font-size: 10px; font-weight: 700; color: var(--txt); text-align: center; font-family: var(--mono); }
+    .pir-legenda { display: flex; gap: 16px; margin-top: 14px; }
+    .pir-leg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); font-weight: 600; }
+    .pir-leg-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+    /* ── BARRAS HORIZONTAIS ── */
+    .bh-item { margin-bottom: 10px; }
+    .bh-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .bh-label { font-size: 12px; font-weight: 600; color: var(--txt); max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bh-val { font-size: 12px; font-weight: 800; font-family: var(--mono); color: var(--txt); }
+    .bh-track { height: 8px; background: rgba(255,255,255,.07); border-radius: 99px; overflow: hidden; }
+    .bh-fill { height: 100%; border-radius: 99px; transition: width .9s cubic-bezier(.4,0,.2,1); }
+
+    /* ── DONUT ── */
+    .donut-wrap { display: flex; align-items: center; gap: 24px; }
+    .donut-canvas-wrap { flex-shrink: 0; }
+    .donut-legenda { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .donut-leg-item { display: flex; align-items: center; gap: 8px; }
+    .donut-leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .donut-leg-txt { font-size: 12px; color: var(--muted); flex: 1; }
+    .donut-leg-val { font-size: 12px; font-weight: 800; font-family: var(--mono); }
+
+    /* ── MAPA GEOGRÁFICO ── */
+    .geo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .geo-item {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .geo-nome { font-size: 12px; font-weight: 600; }
+    .geo-count {
+      font-size: 13px; font-weight: 800; font-family: var(--mono);
+      color: var(--blue);
+    }
+    .geo-bar-wrap { width: 100%; margin-top: 6px; }
+
+    /* ── TABELA SALARIAL ── */
+    .tab-sal { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .tab-sal th {
+      text-align: left; padding: 8px 12px; font-size: 10px;
+      font-weight: 700; color: var(--dim); text-transform: uppercase;
+      letter-spacing: .7px; border-bottom: 1px solid var(--border2);
+    }
+    .tab-sal td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .tab-sal tr:last-child td { border-bottom: none; }
+    .tab-sal tr:hover td { background: var(--card2); }
+    .val-kz { font-family: var(--mono); font-weight: 700; color: var(--green); }
+    .val-n  { font-family: var(--mono); color: var(--muted); }
+    .badge-vinculo {
+      padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700;
+    }
+    .bv-quadro { background: rgba(16,200,134,.12); color: var(--green); }
+    .bv-prov   { background: rgba(245,158,11,.12);  color: var(--amber); }
+
+    /* ── COBERTURA FULL ── */
+    .cob-full-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .cob-full-item:last-child { border-bottom: none; }
+    .cob-full-nome { flex: 1; font-size: 12px; font-weight: 600; min-width: 0; }
+    .cob-full-nums { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .cob-num-cad { font-family: var(--mono); font-weight: 800; font-size: 13px; color: var(--blue); }
+    .cob-num-sep { color: var(--dim); font-size: 11px; }
+    .cob-num-esp { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+    .cob-badge {
+      padding: 2px 8px; border-radius: 99px; font-size: 10px;
+      font-weight: 800; font-family: var(--mono); flex-shrink: 0;
+    }
+    .cob-v  { background: rgba(16,200,134,.12); color: var(--green); }
+    .cob-a  { background: rgba(245,158,11,.12);  color: var(--amber); }
+    .cob-r  { background: rgba(239,68,68,.12);   color: var(--red); }
+    .cob-0  { background: rgba(255,255,255,.06); color: var(--dim); }
+    .cob-track-full { width: 90px; height: 6px; background: rgba(255,255,255,.07); border-radius: 99px; overflow: hidden; flex-shrink: 0; }
+    .cob-fill-full  { height: 100%; border-radius: 99px; transition: width .9s cubic-bezier(.4,0,.2,1); }
+
+    /* ── INSS / BANCO ── */
+    .inss-stat {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 8px; padding: 20px 0;
+    }
+    .inss-pct {
+      font-size: 48px; font-weight: 800; font-family: var(--mono);
+      letter-spacing: -2px; line-height: 1;
+    }
+    .inss-lbl { font-size: 12px; color: var(--muted); font-weight: 600; text-align: center; }
+
+    /* ── LOADING / EMPTY ── */
+    .loading-wrap {
+      display: flex; align-items: center; justify-content: center;
+      padding: 48px; color: var(--muted); font-size: 13px; gap: 10px;
+    }
+    .spinner {
+      width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.1);
+      border-top-color: var(--blue); border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── BADGE PERFIL ── */
+    .badge-perfil {
+      padding: 3px 10px; border-radius: 99px; font-size: 10px;
+      font-weight: 700; background: rgba(59,130,246,.15); color: var(--blue);
+    }
+
+    /* ── NOTIF ── */
+    .notif {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      background: var(--card2); border: 1px solid var(--border2);
+      border-radius: 12px; padding: 12px 18px;
+      font-size: 13px; font-weight: 600; color: var(--txt);
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      opacity: 0; transform: translateY(12px);
+      transition: all .25s; pointer-events: none;
+    }
+    .notif.visivel { opacity: 1; transform: translateY(0); }
+
+    /* ── CHIP FILTRO ── */
+    .filtro-wrap { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+    .chip-filtro {
+      padding: 5px 14px; border-radius: 99px; font-size: 11px; font-weight: 700;
+      border: 1px solid var(--border2); cursor: pointer; transition: all .15s;
+      background: transparent; color: var(--muted);
+    }
+    .chip-filtro:hover { border-color: var(--blue); color: var(--blue); }
+    .chip-filtro.activo { background: rgba(59,130,246,.15); border-color: var(--blue); color: var(--blue); }
+
+    @media (max-width: 1200px) {
+      .kpi-strip { grid-template-columns: repeat(3, 1fr); }
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .kpi-strip { grid-template-columns: 1fr 1fr; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar"></nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-titulo">📊 Estatísticas Avançadas</div>
+        <div class="topbar-sub" id="topbar-sub">A carregar dados…</div>
+      </div>
+      <div class="topbar-acoes">
+        <span class="badge-perfil" id="badge-perfil">—</span>
+      </div>
+    </div>
+
+    <div class="content" id="content">
+      <div class="loading-wrap"><div class="spinner"></div> A carregar estatísticas…</div>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script type="module">
+  import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc }
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  /* ── INIT ─────────────────────────────────────────────── */
+  const firebaseConfig = window.SIGDOC_CONFIG.config;
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  const PERFIS_ACESSO = ['admin','director','chefe','tecnico'];
+
+  /* ── NAV ──────────────────────────────────────────────── */
+  window.SIGDOC_NAV?.render('estatisticas', document.getElementById('sidebar'));
+
+  /* ── NOTIF ─────────────────────────────────────────────── */
+  let _ntimer;
+  function notif(msg, tipo='info') {
+    const el = document.getElementById('notif');
+    el.textContent = msg;
+    el.className = 'notif visivel';
+    el.style.borderColor = tipo === 'erro' ? 'rgba(239,68,68,.3)' : 'rgba(255,255,255,.13)';
+    clearTimeout(_ntimer);
+    _ntimer = setTimeout(() => el.classList.remove('visivel'), 3500);
+  }
+
+  /* ── AUTH ─────────────────────────────────────────────── */
+  onAuthStateChanged(auth, async user => {
+    if (!user) { location.href = 'index.html'; return; }
+    const snap = await getDoc(doc(db, 'utilizadores', user.uid));
+    if (!snap.exists()) { location.href = 'index.html'; return; }
+    const dados = snap.data();
+    if (!PERFIS_ACESSO.includes(dados.perfil)) { location.href = 'index.html'; return; }
+
+    document.getElementById('badge-perfil').textContent =
+      { admin:'Administrador', director:'Director', chefe:'Chefe RH', tecnico:'Técnico RH' }[dados.perfil] || dados.perfil;
+
+    await carregarEstatisticas();
+  });
+
+  /* ── CARREGAR DADOS ───────────────────────────────────── */
+  async function carregarEstatisticas() {
+    try {
+      const [snapF, snapU] = await Promise.all([
+        getDocs(collection(db, 'funcionarios')),
+        getDocs(collection(db, 'unidades_sanitarias')).catch(() => ({ forEach: () => {} }))
+      ]);
+
+      const funcs   = snapF.docs.map(d => ({ id: d.id, ...d.data() }));
+      const activos = funcs.filter(f => !f.estado || f.estado === 'activo');
+
+      const unidades = {};
+      snapU.forEach(d => { const u = d.data(); if (u.nome) unidades[u.nome] = u; });
+
+      document.getElementById('topbar-sub').textContent =
+        `${funcs.length} funcionários · ${activos.length} em serviço activo`;
+
+      renderConteudo(funcs, activos, unidades);
+    } catch(e) {
+      console.error(e);
+      notif('❌ Erro ao carregar dados. Verifique a ligação.', 'erro');
+    }
+  }
+
+  /* ── RENDER PRINCIPAL ─────────────────────────────────── */
+  function renderConteudo(funcs, activos, unidades) {
+    const content = document.getElementById('content');
+
+    // ── KPIs ──────────────────────────────────────────────
+    const totalF       = funcs.length;
+    const totalActivos = activos.length;
+    const totalM       = funcs.filter(f => f.sexo === 'Masculino').length;
+    const totalFem     = funcs.filter(f => f.sexo === 'Feminino').length;
+    const massaSal     = funcs.reduce((s, f) => s + (Number(f.salarioBase) || 0), 0);
+    const comINSS      = funcs.filter(f => f.inss && f.inss.trim()).length;
+    const idadeMed     = calcularIdadeMedia(funcs);
+
+    content.innerHTML = `
+      <!-- KPIs -->
+      <div class="kpi-strip">
+        <div class="kpi-card">
+          <div class="kpi-icon">👥</div>
+          <div class="kpi-val" style="color:var(--blue)">${totalF}</div>
+          <div class="kpi-lbl">Total de Funcionários</div>
+          <div class="kpi-sub">${totalActivos} em serviço activo</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">👨</div>
+          <div class="kpi-val" style="color:var(--blue)">${totalM}</div>
+          <div class="kpi-lbl">Masculino</div>
+          <div class="kpi-sub">${totalF ? Math.round(totalM/totalF*100) : 0}% do total</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">👩</div>
+          <div class="kpi-val" style="color:var(--pink)">${totalFem}</div>
+          <div class="kpi-lbl">Feminino</div>
+          <div class="kpi-sub">${totalF ? Math.round(totalFem/totalF*100) : 0}% do total</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">🎂</div>
+          <div class="kpi-val" style="color:var(--amber)">${idadeMed || '—'}</div>
+          <div class="kpi-lbl">Idade Média</div>
+          <div class="kpi-sub">anos</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-val" style="color:var(--green);font-size:18px">${massaSal ? formatKz(massaSal) : '—'}</div>
+          <div class="kpi-lbl">Massa Salarial Total</div>
+          <div class="kpi-sub">${funcs.filter(f=>f.salarioBase).length} registos com salário</div>
+        </div>
+      </div>
+
+      <!-- SECÇÃO 1: Pirâmide + Vínculo -->
+      <div class="secao-titulo">👤 Composição do Pessoal</div>
+      <div class="grid-2">
+        <div class="chart-card" id="card-piramide">
+          <div class="chart-card-head">
+            <div>
+              <div class="chart-card-titulo">Pirâmide Etária</div>
+              <div class="chart-card-sub">Distribuição por faixa etária e sexo</div>
+            </div>
+          </div>
+          <div id="piramide-conteudo"><div class="loading-wrap"><div class="spinner"></div></div></div>
+          <div class="pir-legenda">
+            <div class="pir-leg-item"><div class="pir-leg-dot" style="background:#60a5fa"></div> Masculino</div>
+            <div class="pir-leg-item"><div class="pir-leg-dot" style="background:#f472b6"></div> Feminino</div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <div>
+              <div class="chart-card-titulo">Tipo de Vínculo</div>
+              <div class="chart-card-sub">Quadro vs Provisório</div>
+            </div>
+          </div>
+          <div class="donut-wrap" style="min-height:200px">
+            <div class="donut-canvas-wrap">
+              <canvas id="chart-vinculo" width="160" height="160"></canvas>
+            </div>
+            <div class="donut-legenda" id="legenda-vinculo"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECÇÃO 2: Categorias + Estado -->
+      <div class="secao-titulo">🏥 Distribuição Profissional</div>
+      <div class="grid-2">
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <div>
+              <div class="chart-card-titulo">Top Categorias</div>
+              <div class="chart-card-sub">Categorias / cargos mais frequentes</div>
+            </div>
+          </div>
+          <div id="barras-categorias"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <div>
+              <div class="chart-card-titulo">Estado do Serviço</div>
+              <div class="chart-card-sub">Activos, licenças e inactivos</div>
+            </div>
+          </div>
+          <div class="donut-wrap" style="min-height:200px">
+            <div class="donut-canvas-wrap">
+              <canvas id="chart-estado" width="160" height="160"></canvas>
+            </div>
+            <div class="donut-legenda" id="legenda-estado"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECÇÃO 3: Cobertura por Unidade -->
+      <div class="secao-titulo">📍 Cobertura por Unidade Sanitária</div>
+      <div class="grid-full">
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <div>
+              <div class="chart-card-titulo">Cadastrados vs Efectivo Esperado</div>
+              <div class="chart-card-sub">Por unidade sanitária — dados do Firestore</div>
+            </div>
+          </div>
+          <div id="cobertura-lista"></div>
+        </div>
+      </div>
+
+      <!-- SECÇÃO 4: Distribuição Geográfica -->
+      <div class="secao-titulo">🗺 Distribuição Geográfica — Naturalidade</div>
+      <div class="grid-2">
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <div>
+              <div class="chart-card-titulo">Por Província</div>
+              <div class="chart-card-sub">Província de naturalidade dos funcionários</div>
+            </div>
+          </div>
+          <div id="geo-provincias"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <div>
+              <div class="chart-card-titulo">Por Município</div>
+              <div class="chart-card-sub">Top 10 municípios de naturalidade</div>
+            </div>
+          </div>
+          <div id="geo-municipios"></div>
+        </div>
+      </div>
+
+      <!-- SECÇÃO 5: Massa Salarial -->
+      <div class="secao-titulo">💰 Massa Salarial</div>
+      <div class="grid-2">
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <div>
+              <div class="chart-card-titulo">Por Unidade Sanitária</div>
+              <div class="chart-card-sub">Soma dos salários base registados</div>
+            </div>
+          </div>
+          <div id="sal-unidades"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <div>
+              <div class="chart-card-titulo">Por Categoria</div>
+              <div class="chart-card-sub">Top 8 categorias por massa salarial</div>
+            </div>
+          </div>
+          <div id="sal-categorias"></div>
+        </div>
+      </div>
+
+      <!-- SECÇÃO 6: INSS + Banco -->
+      <div class="secao-titulo">🏦 INSS e Domiciliação Bancária</div>
+      <div class="grid-3">
+        <div class="chart-card" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px">
+          <div class="inss-stat">
+            <div class="kpi-icon">🔐</div>
+            <div class="inss-pct" style="color:var(--green)" id="pct-inss">—</div>
+            <div class="inss-lbl">com Nº INSS registado<br><span id="sub-inss" style="color:var(--dim)">—</span></div>
+          </div>
+        </div>
+        <div class="chart-card" style="grid-column:span 2">
+          <div class="chart-card-head">
+            <div>
+              <div class="chart-card-titulo">Distribuição Bancária</div>
+              <div class="chart-card-sub">Bancos de domiciliação do salário</div>
+            </div>
+          </div>
+          <div id="bancos-lista"></div>
+        </div>
+      </div>
+    `;
+
+    // Render todos os componentes
+    renderPiramide(funcs);
+    renderDonut('chart-vinculo', 'legenda-vinculo', calcVinculo(funcs));
+    renderDonut('chart-estado', 'legenda-estado', calcEstado(funcs));
+    renderBarrasH('barras-categorias', calcTop(funcs, 'categoria', 8), '#60a5fa', '#1d4ed8');
+    renderCobertura(funcs, unidades);
+    renderGeo(funcs);
+    renderSalarial(funcs);
+    renderINSS(funcs);
+    renderBancos(funcs);
+  }
+
+  /* ── PIRÂMIDE ETÁRIA ─────────────────────────────────── */
+  function renderPiramide(funcs) {
+    const faixas = ['0–24','25–29','30–34','35–39','40–44','45–49','50–54','55–59','60+'];
+    const dados  = faixas.map(f => ({ faixa: f, m: 0, fem: 0 }));
+
+    funcs.forEach(f => {
+      if (!f.nascimento) return;
+      const idade = new Date().getFullYear() - new Date(f.nascimento).getFullYear();
+      let idx;
+      if      (idade < 25) idx = 0;
+      else if (idade < 30) idx = 1;
+      else if (idade < 35) idx = 2;
+      else if (idade < 40) idx = 3;
+      else if (idade < 45) idx = 4;
+      else if (idade < 50) idx = 5;
+      else if (idade < 55) idx = 6;
+      else if (idade < 60) idx = 7;
+      else                 idx = 8;
+      if (f.sexo === 'Masculino') dados[idx].m++;
+      else                        dados[idx].fem++;
+    });
+
+    const maxVal = Math.max(...dados.map(d => Math.max(d.m, d.fem)), 1);
+    const piramide = document.getElementById('piramide-conteudo');
+    piramide.innerHTML = `<div class="piramide-wrap">${
+      [...dados].reverse().map(d => {
+        const pM   = Math.round(d.m   / maxVal * 100);
+        const pF   = Math.round(d.fem / maxVal * 100);
+        return `
+          <div class="piramide-linha">
+            <div class="pir-lbl">${d.m}</div>
+            <div class="pir-barra-wrap" style="width:100%">
+              <div class="pir-barra-m" style="width:${pM}%"></div>
+            </div>
+            <div class="pir-centro">${d.faixa}</div>
+            <div class="pir-barra-wrap" style="width:100%">
+              <div class="pir-barra-f" style="width:${pF}%"></div>
+            </div>
+            <div class="pir-lbl">${d.fem}</div>
+          </div>`;
+      }).join('')
+    }</div>`;
+  }
+
+  /* ── DONUT ───────────────────────────────────────────── */
+  function renderDonut(canvasId, legendaId, dados) {
+    const CORES = ['#3b82f6','#10c886','#f59e0b','#ef4444','#a78bfa','#22d3ee','#f472b6'];
+    const labels = dados.map(d => d.label);
+    const vals   = dados.map(d => d.val);
+    const total  = vals.reduce((a,b)=>a+b,0);
+    const cores  = dados.map((_,i) => CORES[i % CORES.length]);
+
+    new Chart(document.getElementById(canvasId), {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data: vals, backgroundColor: cores, borderWidth: 0, hoverOffset: 4 }] },
+      options: {
+        cutout: '68%', responsive: false,
+        plugins: { legend: { display: false }, tooltip: {
+          callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} (${total?Math.round(ctx.raw/total*100):0}%)` }
+        }}
+      }
+    });
+
+    document.getElementById(legendaId).innerHTML = dados.map((d,i) => `
+      <div class="donut-leg-item">
+        <div class="donut-leg-dot" style="background:${cores[i]}"></div>
+        <div class="donut-leg-txt">${d.label}</div>
+        <div class="donut-leg-val">${d.val}</div>
+      </div>`).join('');
+  }
+
+  /* ── BARRAS HORIZONTAIS ──────────────────────────────── */
+  function renderBarrasH(containerId, dados, corA, corB, showKz=false) {
+    const max = Math.max(...dados.map(d=>d.val), 1);
+    document.getElementById(containerId).innerHTML = dados.length
+      ? dados.map(d => {
+          const pct = Math.round(d.val / max * 100);
+          const grad = `linear-gradient(90deg,${corA},${corB||corA})`;
+          return `
+            <div class="bh-item">
+              <div class="bh-header">
+                <span class="bh-label" title="${d.label}">${d.label}</span>
+                <span class="bh-val">${showKz ? formatKz(d.val) : d.val}</span>
+              </div>
+              <div class="bh-track"><div class="bh-fill" style="width:${pct}%;background:${grad}"></div></div>
+            </div>`;
+        }).join('')
+      : '<div class="loading-wrap" style="padding:20px">Sem dados suficientes</div>';
+  }
+
+  /* ── COBERTURA ───────────────────────────────────────── */
+  function renderCobertura(funcs, unidades) {
+    const cadMap = {};
+    funcs.forEach(f => { const u=f.unidade||'—'; cadMap[u]=(cadMap[u]||0)+1; });
+
+    const todas = new Set([...Object.keys(cadMap), ...Object.keys(unidades)]);
+    const lista = [...todas]
+      .filter(n => n !== '—' && n !== 'Não especificada')
+      .map(nome => ({
+        nome,
+        cadastrados: cadMap[nome]||0,
+        esperado:    unidades[nome]?.efectivo?.esperado||0,
+      }))
+      .sort((a,b) => (b.esperado||b.cadastrados) - (a.esperado||a.cadastrados));
+
+    const max = Math.max(...lista.map(u=>Math.max(u.esperado,u.cadastrados)),1);
+
+    document.getElementById('cobertura-lista').innerHTML = lista.length ? `
+      <div style="display:flex;gap:16px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)">
+          <div style="width:10px;height:10px;border-radius:2px;background:#3b82f6"></div>Cadastrados
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)">
+          <div style="width:10px;height:10px;border-radius:2px;background:rgba(255,255,255,.15)"></div>Esperado
+        </div>
+      </div>
+      ${lista.map(u => {
+        const cob = u.esperado > 0 ? Math.round(u.cadastrados/u.esperado*100) : null;
+        const cls = cob===null?'cob-0':cob>=90?'cob-v':cob>=60?'cob-a':'cob-r';
+        const fillClr = cob===null?'#3b82f6':cob>=90?'#10c886':cob>=60?'#f59e0b':'#ef4444';
+        const pctEsp = Math.min(Math.round(u.esperado/max*100),100);
+        const pctCad = Math.min(Math.round(u.cadastrados/max*100),100);
+        const nomeAbrev = u.nome
+          .replace('Direcção Municipal de Saúde do Sumbe','DMS — Sumbe')
+          .replace('Centro de Saúde','CS')
+          .replace('Posto de Saúde','PS');
+        return `
+          <div class="cob-full-item">
+            <div class="cob-full-nome" title="${u.nome}">${nomeAbrev}</div>
+            <div class="cob-track-full" style="width:160px">
+              <div style="position:relative;width:100%;height:100%">
+                <div style="position:absolute;top:0;left:0;width:${pctEsp}%;height:100%;background:rgba(255,255,255,.12);border-radius:99px"></div>
+                <div style="position:absolute;top:0;left:0;width:${pctCad}%;height:100%;background:${fillClr};border-radius:99px;transition:width .9s"></div>
+              </div>
+            </div>
+            <div class="cob-full-nums">
+              <span class="cob-num-cad">${u.cadastrados}</span>
+              <span class="cob-num-sep">/</span>
+              <span class="cob-num-esp">${u.esperado||'—'}</span>
+            </div>
+            <span class="cob-badge ${cls}">${cob!==null?cob+'%':'s/meta'}</span>
+          </div>`;
+      }).join('')}` : '<div class="loading-wrap">Sem dados de unidades</div>';
+  }
+
+  /* ── GEOGRÁFICA ──────────────────────────────────────── */
+  function renderGeo(funcs) {
+    const provs = {}, muns = {};
+    funcs.forEach(f => {
+      if (f.provinciaNatal?.trim()) provs[f.provinciaNatal.trim()] = (provs[f.provinciaNatal.trim()]||0)+1;
+      if (f.municipioNatal?.trim()) muns[f.municipioNatal.trim()]   = (muns[f.municipioNatal.trim()]||0)+1;
+    });
+
+    const CORES_GEO = ['#3b82f6','#10c886','#f59e0b','#a78bfa','#22d3ee','#f472b6','#ef4444','#84cc16'];
+
+    const pEntries = Object.entries(provs).sort((a,b)=>b[1]-a[1]);
+    const mEntries = Object.entries(muns).sort((a,b)=>b[1]-a[1]).slice(0,10);
+
+    renderBarrasH('geo-provincias', pEntries.map(([l,v])=>({label:l,val:v})), '#3b82f6', '#1d4ed8');
+    renderBarrasH('geo-municipios', mEntries.map(([l,v])=>({label:l,val:v})), '#a78bfa', '#7c3aed');
+
+    if (!pEntries.length) {
+      document.getElementById('geo-provincias').innerHTML = '<div class="loading-wrap" style="padding:20px">Sem dados de naturalidade registados</div>';
+      document.getElementById('geo-municipios').innerHTML = '<div class="loading-wrap" style="padding:20px">Sem dados de naturalidade registados</div>';
+    }
+  }
+
+  /* ── SALARIAL ────────────────────────────────────────── */
+  function renderSalarial(funcs) {
+    const comSal = funcs.filter(f => f.salarioBase && Number(f.salarioBase) > 0);
+
+    if (!comSal.length) {
+      ['sal-unidades','sal-categorias'].forEach(id => {
+        document.getElementById(id).innerHTML = '<div class="loading-wrap" style="padding:20px">Sem salários registados ainda</div>';
+      });
+      return;
+    }
+
+    // Por unidade
+    const salUnit = {};
+    comSal.forEach(f => {
+      const u = f.unidade||'Não especificada';
+      salUnit[u] = (salUnit[u]||0) + Number(f.salarioBase);
+    });
+    const unitEntries = Object.entries(salUnit)
+      .sort((a,b)=>b[1]-a[1]).slice(0,8)
+      .map(([l,v])=>({
+        label: l.replace('Direcção Municipal de Saúde do Sumbe','DMS').replace('Centro de Saúde','CS').replace('Posto de Saúde','PS'),
+        val: v
+      }));
+    renderBarrasH('sal-unidades', unitEntries, '#10c886', '#059669', true);
+
+    // Por categoria
+    const salCat = {};
+    comSal.forEach(f => {
+      const c = f.categoria||'Não definida';
+      salCat[c] = (salCat[c]||0) + Number(f.salarioBase);
+    });
+    const catEntries = Object.entries(salCat)
+      .sort((a,b)=>b[1]-a[1]).slice(0,8)
+      .map(([l,v])=>({ label:l, val:v }));
+    renderBarrasH('sal-categorias', catEntries, '#f59e0b', '#d97706', true);
+  }
+
+  /* ── INSS ────────────────────────────────────────────── */
+  function renderINSS(funcs) {
+    const total   = funcs.length;
+    const comINSS = funcs.filter(f => f.inss?.trim()).length;
+    const pct     = total ? Math.round(comINSS/total*100) : 0;
+    document.getElementById('pct-inss').textContent = pct + '%';
+    document.getElementById('sub-inss').textContent  = `${comINSS} de ${total} funcionários`;
+  }
+
+  /* ── BANCOS ──────────────────────────────────────────── */
+  function renderBancos(funcs) {
+    const bancos = {};
+    funcs.forEach(f => { if (f.banco?.trim()) bancos[f.banco.trim()] = (bancos[f.banco.trim()]||0)+1; });
+    const entries = Object.entries(bancos).sort((a,b)=>b[1]-a[1]);
+
+    const CORES_B = ['#3b82f6','#10c886','#f59e0b','#a78bfa','#22d3ee','#f472b6','#ef4444'];
+    const max = Math.max(...entries.map(e=>e[1]),1);
+
+    document.getElementById('bancos-lista').innerHTML = entries.length
+      ? entries.map(([nome,qtd],i) => {
+          const pct = Math.round(qtd/max*100);
+          return `
+            <div class="bh-item">
+              <div class="bh-header">
+                <span class="bh-label">${nome}</span>
+                <span class="bh-val">${qtd}</span>
+              </div>
+              <div class="bh-track"><div class="bh-fill" style="width:${pct}%;background:${CORES_B[i%CORES_B.length]}"></div></div>
+            </div>`;
+        }).join('')
+      : '<div class="loading-wrap" style="padding:20px">Sem dados bancários registados ainda</div>';
+  }
+
+  /* ── UTILITÁRIOS ─────────────────────────────────────── */
+  function calcVinculo(funcs) {
+    const q = funcs.filter(f=>f.vinculo==='quadro').length;
+    const p = funcs.filter(f=>f.vinculo==='provisorio').length;
+    const o = funcs.length - q - p;
+    const r = [];
+    if(q) r.push({label:'Pessoal do Quadro', val:q});
+    if(p) r.push({label:'Prov. Provisório', val:p});
+    if(o) r.push({label:'Não especificado', val:o});
+    return r.length ? r : [{label:'Sem dados',val:1}];
+  }
+
+  function calcEstado(funcs) {
+    const a = funcs.filter(f=>!f.estado||f.estado==='activo').length;
+    const l = funcs.filter(f=>f.estado==='licenca').length;
+    const i = funcs.filter(f=>f.estado==='inactivo').length;
+    const r = [];
+    if(a) r.push({label:'Em Serviço Activo',val:a});
+    if(l) r.push({label:'De Licença',val:l});
+    if(i) r.push({label:'Inactivo',val:i});
+    return r.length ? r : [{label:'Sem dados',val:1}];
+  }
+
+  function calcTop(funcs, campo, n) {
+    const map = {};
+    funcs.forEach(f => { const v=f[campo]||'Não definido'; map[v]=(map[v]||0)+1; });
+    return Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([l,v])=>({label:l,val:v}));
+  }
+
+  function calcularIdadeMedia(funcs) {
+    const idades = funcs
+      .filter(f=>f.nascimento)
+      .map(f => new Date().getFullYear() - new Date(f.nascimento).getFullYear());
+    if (!idades.length) return null;
+    return Math.round(idades.reduce((a,b)=>a+b,0) / idades.length);
+  }
+
+  function formatKz(val) {
+    if (val >= 1_000_000) return (val/1_000_000).toFixed(1).replace('.',',') + 'M Kz';
+    if (val >= 1_000)     return (val/1_000).toFixed(0) + 'K Kz';
+    return val.toLocaleString('pt-PT') + ' Kz';
+  }
+</script>
+</body>
+</html>
