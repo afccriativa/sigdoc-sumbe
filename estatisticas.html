@@ -3,240 +3,460 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Estatísticas — SIGDOC-SUMBE</title>
+  <title>Estatísticas Avançadas — SIGDOC-SUMBE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <script src="sigdoc-config.js"></script>
   <script src="sigdoc-nav.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --bg:#0d1422;--surface:#111827;--card:#1a2236;--card2:#1e2a3a;
-      --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
-      --txt:#e2e8f0;--muted:rgba(255,255,255,.4);--dim:rgba(255,255,255,.18);
-      --green:#10c886;--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;
-      --purple:#a78bfa;--cyan:#22d3ee;--pink:#f472b6;
-      --font:'Plus Jakarta Sans',sans-serif;--mono:'DM Mono',monospace;
-      --rlg:14px;--nav-w:220px;
-    }
-    body{font-family:var(--font);background:var(--bg);color:var(--txt);min-height:100vh}
-    .layout{display:flex;min-height:100vh}
-    .sidebar{width:var(--nav-w);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100}
-    .main{margin-left:var(--nav-w);flex:1;display:flex;flex-direction:column}
-    @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
-    .topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:#0d1422;color:#e2e8f0;min-height:100vh}
+    /* ── ecrãs ── */
+    #ecra-carregando{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:14px;color:rgba(255,255,255,.4)}
+    #ecra-negado{display:none;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:14px}
+    #ecra-principal{display:none}
+    .spinner{width:22px;height:22px;border:2px solid rgba(255,255,255,.1);border-top-color:#3b82f6;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    /* ── topbar ── */
+    .topbar{height:56px;background:#111827;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50}
     .topbar-titulo{font-size:15px;font-weight:800;letter-spacing:-.3px}
-    .topbar-sub{font-size:11px;color:var(--muted);margin-top:2px}
-    .badge-perfil{padding:3px 10px;border-radius:99px;font-size:10px;font-weight:700;background:rgba(59,130,246,.15);color:var(--blue)}
-    .content{padding:24px;flex:1}
+    .topbar-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+    .badge-perfil{padding:3px 10px;border-radius:99px;font-size:10px;font-weight:700;background:rgba(59,130,246,.15);color:#3b82f6}
+    /* ── conteúdo ── */
+    .content{padding:24px}
+    /* ── kpis ── */
     .kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
     @media(max-width:1100px){.kpi-strip{grid-template-columns:repeat(3,1fr)}}
     @media(max-width:700px){.kpi-strip{grid-template-columns:repeat(2,1fr)}}
-    .kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--rlg);padding:16px 18px}
+    .kpi{background:#1a2236;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:16px 18px}
     .kpi-icon{font-size:18px;margin-bottom:8px}
-    .kpi-val{font-size:26px;font-weight:800;font-family:var(--mono);letter-spacing:-1px;line-height:1}
-    .kpi-lbl{font-size:11px;color:var(--muted);margin-top:5px;font-weight:600}
-    .kpi-sub{font-size:10px;color:var(--dim);margin-top:2px}
-    .sec{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
-    .sec::after{content:'';flex:1;height:1px;background:var(--border)}
+    .kpi-val{font-size:26px;font-weight:800;font-family:'DM Mono',monospace;letter-spacing:-1px;line-height:1}
+    .kpi-lbl{font-size:11px;color:rgba(255,255,255,.4);margin-top:5px;font-weight:600}
+    .kpi-sub{font-size:10px;color:rgba(255,255,255,.2);margin-top:2px}
+    /* ── secção ── */
+    .sec{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+    .sec::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
+    /* ── grelhas ── */
     .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
     .g1{margin-bottom:20px}
     @media(max-width:900px){.g2{grid-template-columns:1fr}}
-    .gc{background:var(--card);border:1px solid var(--border);border-radius:var(--rlg);padding:20px 22px}
+    /* ── card gráfico ── */
+    .gc{background:#1a2236;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:20px 22px}
     .gc-titulo{font-size:13px;font-weight:800;margin-bottom:3px}
-    .gc-sub{font-size:11px;color:var(--muted);margin-bottom:16px}
+    .gc-sub{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:16px}
+    /* ── barras horizontais ── */
     .bh{margin-bottom:9px}
     .bh-head{display:flex;justify-content:space-between;margin-bottom:4px}
     .bh-lbl{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:75%}
-    .bh-val{font-size:12px;font-weight:800;font-family:var(--mono)}
+    .bh-val{font-size:12px;font-weight:800;font-family:'DM Mono',monospace}
     .bh-track{height:7px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden}
-    .bh-fill{height:100%;border-radius:99px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+    .bh-fill{height:100%;border-radius:99px}
+    /* ── pirâmide ── */
     .pir-linha{display:grid;grid-template-columns:36px 1fr 44px 1fr 36px;align-items:center;gap:4px;margin-bottom:5px}
-    .pir-n{font-size:10px;font-weight:700;font-family:var(--mono);color:var(--muted);text-align:center}
-    .pir-bm{height:20px;border-radius:3px 0 0 3px;background:linear-gradient(90deg,#3b82f6,#60a5fa);margin-left:auto;transition:width 1s cubic-bezier(.4,0,.2,1)}
-    .pir-bf{height:20px;border-radius:0 3px 3px 0;background:linear-gradient(90deg,#f472b6,#fb7185);transition:width 1s cubic-bezier(.4,0,.2,1)}
-    .pir-eixo{font-size:9px;font-weight:700;color:var(--txt);text-align:center;font-family:var(--mono)}
+    .pir-n{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;color:rgba(255,255,255,.4);text-align:center}
+    .pir-bm{height:20px;border-radius:3px 0 0 3px;background:linear-gradient(90deg,#3b82f6,#60a5fa);margin-left:auto}
+    .pir-bf{height:20px;border-radius:0 3px 3px 0;background:linear-gradient(90deg,#f472b6,#fb7185)}
+    .pir-eixo{font-size:9px;font-weight:700;color:#e2e8f0;text-align:center;font-family:'DM Mono',monospace}
     .pir-leg{display:flex;gap:14px;margin-top:12px}
-    .pir-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-weight:600}
+    .pir-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.4);font-weight:600}
     .pir-dot{width:9px;height:9px;border-radius:2px}
+    /* ── donut svg ── */
     .donut-wrap{display:flex;align-items:center;gap:20px}
     .donut-leg{flex:1;display:flex;flex-direction:column;gap:7px}
     .donut-item{display:flex;align-items:center;gap:8px}
     .donut-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-    .donut-txt{font-size:12px;color:var(--muted);flex:1}
-    .donut-n{font-size:12px;font-weight:800;font-family:var(--mono)}
-    .cob-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+    .donut-txt{font-size:12px;color:rgba(255,255,255,.4);flex:1}
+    .donut-n{font-size:12px;font-weight:800;font-family:'DM Mono',monospace}
+    /* ── cobertura ── */
+    .cob-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07)}
     .cob-item:last-child{border-bottom:none}
     .cob-nome{flex:1;font-size:12px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .cob-nums{display:flex;align-items:center;gap:4px;flex-shrink:0}
-    .cob-cad{font-family:var(--mono);font-weight:800;font-size:13px;color:var(--blue)}
-    .cob-sep{color:var(--dim);font-size:11px}
-    .cob-esp{font-family:var(--mono);font-size:12px;color:var(--muted)}
-    .cob-badge{padding:2px 7px;border-radius:99px;font-size:10px;font-weight:800;font-family:var(--mono);flex-shrink:0}
-    .cv{background:rgba(16,200,134,.12);color:var(--green)}
-    .ca{background:rgba(245,158,11,.12);color:var(--amber)}
-    .cr{background:rgba(239,68,68,.12);color:var(--red)}
-    .c0{background:rgba(255,255,255,.06);color:var(--dim)}
+    .cob-cad{font-family:'DM Mono',monospace;font-weight:800;font-size:13px;color:#3b82f6}
+    .cob-sep{color:rgba(255,255,255,.2);font-size:11px}
+    .cob-esp{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,.4)}
+    .cob-badge{padding:2px 7px;border-radius:99px;font-size:10px;font-weight:800;font-family:'DM Mono',monospace;flex-shrink:0}
+    .cv{background:rgba(16,200,134,.12);color:#10c886}
+    .ca{background:rgba(245,158,11,.12);color:#f59e0b}
+    .cr{background:rgba(239,68,68,.12);color:#ef4444}
+    .c0{background:rgba(255,255,255,.06);color:rgba(255,255,255,.3)}
     .cob-bar{width:80px;height:5px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;flex-shrink:0;position:relative}
-    .cob-bar-fill{height:100%;border-radius:99px;transition:width 1s cubic-bezier(.4,0,.2,1)}
-    .inss-big{font-size:52px;font-weight:800;font-family:var(--mono);letter-spacing:-2px;line-height:1;color:var(--green)}
-    .vazio{padding:28px;text-align:center;color:var(--dim);font-size:12px}
-    .loading-wrap{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--muted);font-size:13px;gap:10px;flex-direction:column}
-    .spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.1);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .notif{position:fixed;bottom:20px;right:20px;z-index:9999;background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none}
-    .notif.v{opacity:1;transform:translateY(0)}
+    .cob-bar-fill{height:100%;border-radius:99px}
+    /* ── inss ── */
+    .inss-big{font-size:52px;font-weight:800;font-family:'DM Mono',monospace;letter-spacing:-2px;line-height:1;color:#10c886}
+    /* ── vazio ── */
+    .vazio{padding:24px;text-align:center;color:rgba(255,255,255,.2);font-size:12px}
+    /* ── notif ── */
+    #notif{position:fixed;bottom:20px;right:20px;z-index:9999;background:#1e2a3a;border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none}
+    #notif.v{opacity:1;transform:translateY(0)}
   </style>
 </head>
 <body>
-<div class="layout">
-  <nav class="sidebar" id="sidebar"></nav>
-  <div class="main">
-    <div class="topbar">
-      <div>
-        <div class="topbar-titulo">📊 Estatísticas Avançadas</div>
-        <div class="topbar-sub" id="topbar-sub">A carregar…</div>
-      </div>
-      <span class="badge-perfil" id="badge-perfil">—</span>
+
+<!-- Ecrã de carregamento (mostrado até auth confirmar) -->
+<div id="ecra-carregando">
+  <div class="spinner"></div>
+  <div style="font-size:13px">A verificar acesso…</div>
+</div>
+
+<!-- Ecrã de acesso negado -->
+<div id="ecra-negado">
+  <div style="font-size:40px">🔒</div>
+  <div style="font-size:16px;font-weight:700">Acesso não autorizado</div>
+  <div style="font-size:12px;color:rgba(255,255,255,.4)">Esta página requer perfil de gestão.</div>
+  <a href="index.html" style="margin-top:12px;padding:9px 22px;border-radius:8px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:13px;font-weight:700;text-decoration:none">← Voltar ao Dashboard</a>
+</div>
+
+<!-- Ecrã principal (oculto até auth confirmar) -->
+<div id="ecra-principal">
+  <div class="topbar">
+    <div>
+      <div class="topbar-titulo">📊 Estatísticas Avançadas</div>
+      <div class="topbar-sub" id="topbar-sub">A carregar dados…</div>
     </div>
-    <div class="content" id="content">
-      <div class="loading-wrap"><div class="spinner"></div><div>A carregar estatísticas…</div></div>
+    <span class="badge-perfil" id="badge-perfil">—</span>
+  </div>
+  <div class="content" id="content">
+    <div style="display:flex;align-items:center;gap:10px;padding:40px;color:rgba(255,255,255,.4);font-size:13px">
+      <div class="spinner"></div> A carregar estatísticas…
     </div>
   </div>
 </div>
-<div class="notif" id="notif"></div>
+
+<div id="notif"></div>
+
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {getAuth,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import {getFirestore,collection,getDocs,doc,getDoc} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-const CORES=['#3b82f6','#10c886','#f59e0b','#ef4444','#a78bfa','#22d3ee','#f472b6','#84cc16','#fb923c','#e879f9'];
-const app=initializeApp(window.SIGDOC_CONFIG.config);
-const auth=getAuth(app);
-const db=getFirestore(app);
-window.SIGDOC_NAV?.render('estatisticas',document.getElementById('sidebar'));
-function erro(msg,cod){document.getElementById('content').innerHTML=`<div class="loading-wrap"><div style="font-size:36px">❌</div><div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.7)">${msg}</div>${cod?`<div style="font-size:11px;font-family:monospace;background:rgba(239,68,68,.1);padding:8px 14px;border-radius:8px;color:#fca5a5">${cod}</div>`:''}<button onclick="location.reload()" style="margin-top:4px;padding:9px 22px;border-radius:8px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:13px;font-weight:700;cursor:pointer">🔄 Tentar novamente</button></div>`;}
-onAuthStateChanged(auth,async user=>{
-  if(!user){location.href='index.html';return}
-  try{
-    const snap=await getDoc(doc(db,'utilizadores',user.uid));
-    if(!snap.exists()){location.href='index.html';return}
-    const perfil=snap.data().perfil||'';
-    if(!['admin','director','chefe','tecnico'].includes(perfil)){location.href='index.html';return}
-    document.getElementById('badge-perfil').textContent={admin:'Administrador',director:'Director',chefe:'Chefe RH',tecnico:'Técnico RH'}[perfil]||perfil;
-    const [snapF,snapU]=await Promise.all([
-      getDocs(collection(db,'funcionarios')),
-      getDocs(collection(db,'unidades_sanitarias')).catch(()=>null)
-    ]);
-    const funcs=snapF.docs.map(d=>({id:d.id,...d.data()}));
-    const unidades={};
-    if(snapU)snapU.forEach(d=>{const u=d.data();if(u.nome)unidades[u.nome]=u;});
-    document.getElementById('topbar-sub').textContent=`${funcs.length} funcionários · ${funcs.filter(f=>!f.estado||f.estado==='activo').length} em serviço activo`;
-    render(funcs,unidades,perfil);
-  }catch(e){console.error(e);erro('Erro ao carregar dados',e.code||e.message);}
-});
-function render(funcs,unidades,perfil){
-  const total=funcs.length,masc=funcs.filter(f=>f.sexo==='Masculino').length,fem=funcs.filter(f=>f.sexo==='Feminino').length;
-  const massa=funcs.reduce((s,f)=>s+(Number(f.salarioBase)||0),0);
-  const idMed=idadeMedia(funcs);
-  document.getElementById('content').innerHTML=`
-    <div class="kpi-strip">
-      <div class="kpi"><div class="kpi-icon">👥</div><div class="kpi-val" style="color:var(--blue)">${total}</div><div class="kpi-lbl">Total Funcionários</div><div class="kpi-sub">${funcs.filter(f=>!f.estado||f.estado==='activo').length} em serviço</div></div>
-      <div class="kpi"><div class="kpi-icon">👨</div><div class="kpi-val" style="color:var(--blue)">${masc}</div><div class="kpi-lbl">Masculino</div><div class="kpi-sub">${total?Math.round(masc/total*100):0}%</div></div>
-      <div class="kpi"><div class="kpi-icon">👩</div><div class="kpi-val" style="color:var(--pink)">${fem}</div><div class="kpi-lbl">Feminino</div><div class="kpi-sub">${total?Math.round(fem/total*100):0}%</div></div>
-      <div class="kpi"><div class="kpi-icon">🎂</div><div class="kpi-val" style="color:var(--amber)">${idMed||'—'}</div><div class="kpi-lbl">Idade Média</div><div class="kpi-sub">anos</div></div>
-      <div class="kpi"><div class="kpi-icon">💰</div><div class="kpi-val" style="color:var(--green);font-size:${massa?'17px':'26px'}">${massa?fmtKz(massa):'—'}</div><div class="kpi-lbl">Massa Salarial</div><div class="kpi-sub">${funcs.filter(f=>f.salarioBase).length} registos</div></div>
-    </div>
-    <div class="sec">👤 Composição do Pessoal</div>
-    <div class="g2">
-      <div class="gc"><div class="gc-titulo">Pirâmide Etária</div><div class="gc-sub">Por faixa etária e sexo</div><div id="piramide"></div></div>
-      <div class="gc"><div class="gc-titulo">Tipo de Vínculo</div><div class="gc-sub">Quadro vs Provisório</div><div id="vinculo-wrap"></div></div>
-    </div>
-    <div class="sec">🏥 Distribuição Profissional</div>
-    <div class="g2">
-      <div class="gc"><div class="gc-titulo">Top Categorias</div><div class="gc-sub">Categorias mais frequentes</div><div id="top-cat"></div></div>
-      <div class="gc"><div class="gc-titulo">Estado do Serviço</div><div class="gc-sub">Activos, licenças e inactivos</div><div id="estado-wrap"></div></div>
-    </div>
-    <div class="sec">📍 Cobertura por Unidade Sanitária</div>
-    <div class="g1"><div class="gc"><div class="gc-titulo">Cadastrados vs Efectivo Esperado</div><div class="gc-sub">Por unidade</div><div id="cobertura"></div></div></div>
-    <div class="sec">🗺 Naturalidade</div>
-    <div class="g2">
-      <div class="gc"><div class="gc-titulo">Por Província</div><div class="gc-sub">Província de naturalidade</div><div id="geo-prov"></div></div>
-      <div class="gc"><div class="gc-titulo">Top Municípios</div><div class="gc-sub">Municípios mais frequentes</div><div id="geo-mun"></div></div>
-    </div>
-    ${['admin','chefe','tecnico','director'].includes(perfil)?`
-    <div class="sec">💰 Massa Salarial</div>
-    <div class="g2">
-      <div class="gc"><div class="gc-titulo">Por Unidade</div><div class="gc-sub">Soma de salários registados</div><div id="sal-unit"></div></div>
-      <div class="gc"><div class="gc-titulo">Por Categoria</div><div class="gc-sub">Top 8 por massa salarial</div><div id="sal-cat"></div></div>
-    </div>`:''}
-    <div class="sec">🏦 INSS e Domiciliação Bancária</div>
-    <div class="g2">
-      <div class="gc" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;min-height:160px">
-        <div style="font-size:22px">🔐</div>
-        <div class="inss-big" id="inss-pct">—</div>
-        <div style="font-size:12px;color:var(--muted);text-align:center;font-weight:600">com Nº INSS registado<br><span id="inss-sub" style="color:var(--dim)">—</span></div>
+  import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+                               from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc }
+                               from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = window.SIGDOC_CONFIG.config;
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  const PERFIS_ACESSO = ["admin", "director", "chefe", "tecnico"];
+  const CORES = ['#3b82f6','#10c886','#f59e0b','#ef4444','#a78bfa','#22d3ee','#f472b6','#84cc16','#fb923c','#e879f9'];
+
+  let _nt;
+  function notif(msg) {
+    const el = document.getElementById('notif');
+    el.textContent = msg; el.classList.add('v');
+    clearTimeout(_nt); _nt = setTimeout(() => el.classList.remove('v'), 3500);
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "index.html"; return; }
+
+    try {
+      const snap  = await getDoc(doc(db, "utilizadores", user.uid));
+      const dados = snap.exists() ? snap.data() : {};
+      const perfil = dados.perfil || "funcionario";
+
+      if (!PERFIS_ACESSO.includes(perfil)) {
+        document.getElementById("ecra-carregando").style.display = "none";
+        document.getElementById("ecra-negado").style.display     = "flex";
+        return;
+      }
+
+      const nome = dados.nome || user.email;
+
+      // ── Montar navegação lateral partilhada ──
+      window._sigdocAuth = auth;
+      SIGDOC_NAV.mount({
+        pagina:   'estatisticas',
+        nome:     nome,
+        perfil:   perfil,
+        onLogout: async () => {
+          await signOut(auth);
+          window.location.href = "index.html";
+        }
+      });
+
+      // Mostrar ecrã principal
+      document.getElementById("ecra-carregando").style.display = "none";
+      document.getElementById("ecra-principal").style.display  = "block";
+      document.getElementById("badge-perfil").textContent =
+        {admin:"Administrador",director:"Director",chefe:"Chefe RH",tecnico:"Técnico RH"}[perfil] || perfil;
+
+      // Carregar dados
+      await carregarEstatisticas(perfil);
+
+    } catch(e) {
+      console.error("Auth/Firestore error:", e);
+      document.getElementById("ecra-carregando").innerHTML =
+        `<div style="font-size:36px">❌</div>
+         <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.7)">Erro ao carregar</div>
+         <div style="font-size:11px;font-family:monospace;background:rgba(239,68,68,.1);padding:8px 14px;border-radius:8px;color:#fca5a5;max-width:300px;text-align:center">${e.code || e.message || String(e)}</div>
+         <a href="index.html" style="margin-top:8px;padding:9px 22px;border-radius:8px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:13px;font-weight:700;text-decoration:none">← Voltar</a>`;
+    }
+  });
+
+  // ════════════════════════════════════════════════════════
+  //  CARREGAR DADOS
+  // ════════════════════════════════════════════════════════
+  async function carregarEstatisticas(perfil) {
+    try {
+      const [snapF, snapU] = await Promise.all([
+        getDocs(collection(db, "funcionarios")),
+        getDocs(collection(db, "unidades_sanitarias")).catch(() => null)
+      ]);
+
+      const funcs = snapF.docs.map(d => ({ id: d.id, ...d.data() }));
+      const unidades = {};
+      if (snapU) snapU.forEach(d => { const u = d.data(); if (u.nome) unidades[u.nome] = u; });
+
+      const activos = funcs.filter(f => !f.estado || f.estado === "activo").length;
+      document.getElementById("topbar-sub").textContent =
+        `${funcs.length} funcionários · ${activos} em serviço activo`;
+
+      render(funcs, unidades, perfil);
+
+    } catch(e) {
+      console.error("Firestore error:", e);
+      document.getElementById("content").innerHTML =
+        `<div style="display:flex;flex-direction:column;align-items:center;padding:48px;gap:14px;color:rgba(255,255,255,.4)">
+           <div style="font-size:36px">⚠️</div>
+           <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.7)">Erro ao carregar estatísticas</div>
+           <div style="font-size:11px;font-family:monospace;background:rgba(239,68,68,.1);padding:8px 14px;border-radius:8px;color:#fca5a5">${e.code || e.message}</div>
+           <button onclick="location.reload()" style="padding:9px 22px;border-radius:8px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:13px;font-weight:700;cursor:pointer">🔄 Tentar novamente</button>
+         </div>`;
+    }
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  RENDER PRINCIPAL
+  // ════════════════════════════════════════════════════════
+  function render(funcs, unidades, perfil) {
+    const total  = funcs.length;
+    const masc   = funcs.filter(f => f.sexo === "Masculino").length;
+    const fem    = funcs.filter(f => f.sexo === "Feminino").length;
+    const massa  = funcs.reduce((s, f) => s + (Number(f.salarioBase) || 0), 0);
+    const idMed  = idadeMedia(funcs);
+    const activos = funcs.filter(f => !f.estado || f.estado === "activo").length;
+
+    document.getElementById("content").innerHTML = `
+      <div class="kpi-strip">
+        <div class="kpi"><div class="kpi-icon">👥</div><div class="kpi-val" style="color:#3b82f6">${total}</div><div class="kpi-lbl">Total Funcionários</div><div class="kpi-sub">${activos} em serviço activo</div></div>
+        <div class="kpi"><div class="kpi-icon">👨</div><div class="kpi-val" style="color:#3b82f6">${masc}</div><div class="kpi-lbl">Masculino</div><div class="kpi-sub">${total ? Math.round(masc/total*100) : 0}%</div></div>
+        <div class="kpi"><div class="kpi-icon">👩</div><div class="kpi-val" style="color:#f472b6">${fem}</div><div class="kpi-lbl">Feminino</div><div class="kpi-sub">${total ? Math.round(fem/total*100) : 0}%</div></div>
+        <div class="kpi"><div class="kpi-icon">🎂</div><div class="kpi-val" style="color:#f59e0b">${idMed || "—"}</div><div class="kpi-lbl">Idade Média</div><div class="kpi-sub">anos</div></div>
+        <div class="kpi"><div class="kpi-icon">💰</div><div class="kpi-val" style="color:#10c886;font-size:${massa ? "17px" : "26px"}">${massa ? fmtKz(massa) : "—"}</div><div class="kpi-lbl">Massa Salarial</div><div class="kpi-sub">${funcs.filter(f => f.salarioBase).length} registos</div></div>
       </div>
-      <div class="gc"><div class="gc-titulo">Banco de Domiciliação</div><div class="gc-sub">Distribuição por banco</div><div id="bancos"></div></div>
-    </div>`;
-  renderPiramide(funcs);
-  renderDonut('vinculo-wrap',calcGrupo(funcs,'vinculo',{quadro:'Quadro',provisorio:'Provisório'}));
-  renderBarras('top-cat',topN(funcs,'categoria',8),0);
-  renderDonut('estado-wrap',calcGrupo(funcs,'estado',{activo:'Em Serviço',licenca:'De Licença',inactivo:'Inactivo'}));
-  renderCobertura(funcs,unidades);
-  renderBarras('geo-prov',topN(funcs,'provinciaNatal',10),4);
-  renderBarras('geo-mun',topN(funcs,'municipioNatal',10),3);
-  if(document.getElementById('sal-unit'))renderSalarial(funcs);
-  renderINSS(funcs);
-  renderBarras('bancos',topN(funcs,'banco',10),5);
-}
-function renderPiramide(funcs){
-  const fx=['0–24','25–29','30–34','35–39','40–44','45–49','50–54','55–59','60+'];
-  const d=fx.map(f=>({f,m:0,fem:0}));
-  funcs.forEach(f=>{if(!f.nascimento)return;const idade=new Date().getFullYear()-new Date(f.nascimento).getFullYear();const i=idade<25?0:idade<30?1:idade<35?2:idade<40?3:idade<45?4:idade<50?5:idade<55?6:idade<60?7:8;f.sexo==='Masculino'?d[i].m++:d[i].fem++;});
-  const mx=Math.max(...d.map(x=>Math.max(x.m,x.fem)),1);
-  document.getElementById('piramide').innerHTML=[...d].reverse().map(x=>`<div class="pir-linha"><div class="pir-n">${x.m}</div><div style="display:flex;justify-content:flex-end;width:100%"><div class="pir-bm" style="width:${Math.round(x.m/mx*100)}%"></div></div><div class="pir-eixo">${x.f}</div><div style="width:100%"><div class="pir-bf" style="width:${Math.round(x.fem/mx*100)}%"></div></div><div class="pir-n">${x.fem}</div></div>`).join('')+`<div class="pir-leg"><div class="pir-leg-item"><div class="pir-dot" style="background:#60a5fa"></div>Masculino</div><div class="pir-leg-item"><div class="pir-dot" style="background:#f472b6"></div>Feminino</div></div>`;
-}
-function renderDonut(id,dados){
-  const el=document.getElementById(id);if(!el)return;
-  if(!dados.length){el.innerHTML='<div class="vazio">Sem dados</div>';return}
-  const total=dados.reduce((s,d)=>s+d.val,0);let cm=0;
-  const r=54,cx=70,cy=70,sw=22,circ=2*Math.PI*r;
-  const segs=dados.map((d,i)=>{const pct=total?d.val/total*100:0;const s={...d,pct,offset:cm,color:CORES[i%CORES.length]};cm+=pct;return s;});
-  el.innerHTML=`<div class="donut-wrap"><svg width="140" height="140" viewBox="0 0 140 140"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="${sw}"/>${segs.map(s=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${sw}" stroke-dasharray="${circ*s.pct/100} ${circ*(1-s.pct/100)}" stroke-dashoffset="${circ*(25-s.offset)/100}"/>`).join('')}<text x="${cx}" y="${cy+6}" text-anchor="middle" fill="rgba(255,255,255,.7)" font-size="22" font-weight="800" font-family="DM Mono,monospace">${total}</text></svg><div class="donut-leg">${segs.map(s=>`<div class="donut-item"><div class="donut-dot" style="background:${s.color}"></div><div class="donut-txt">${s.label}</div><div class="donut-n">${s.val}</div></div>`).join('')}</div></div>`;
-}
-function renderBarras(id,dados,ci){
-  const el=document.getElementById(id);if(!el)return;
-  if(!dados.length){el.innerHTML='<div class="vazio">Sem dados registados</div>';return}
-  const max=Math.max(...dados.map(d=>d.val),1);
-  el.innerHTML=dados.map((d,i)=>`<div class="bh"><div class="bh-head"><span class="bh-lbl" title="${d.label}">${d.label}</span><span class="bh-val">${d.kz?fmtKz(d.val):d.val}</span></div><div class="bh-track"><div class="bh-fill" style="width:${Math.round(d.val/max*100)}%;background:${CORES[(ci+i)%CORES.length]}"></div></div></div>`).join('');
-}
-function renderCobertura(funcs,unidades){
-  const cm={};funcs.forEach(f=>{const u=f.unidade||'—';cm[u]=(cm[u]||0)+1;});
-  const todas=new Set([...Object.keys(cm),...Object.keys(unidades)]);
-  const lista=[...todas].filter(n=>n!=='—'&&n!=='Não especificada').map(nome=>({nome,cad:cm[nome]||0,esp:unidades[nome]?.efectivo?.esperado||0})).sort((a,b)=>(b.esp||b.cad)-(a.esp||a.cad));
-  const max=Math.max(...lista.map(u=>Math.max(u.esp,u.cad)),1);
-  const abrev=n=>n.replace('Direcção Municipal de Saúde do Sumbe','DMS').replace('Centro de Saúde','CS').replace('Posto de Saúde','PS');
-  document.getElementById('cobertura').innerHTML=lista.length?lista.map(u=>{const cob=u.esp>0?Math.round(u.cad/u.esp*100):null;const cls=cob===null?'c0':cob>=90?'cv':cob>=60?'ca':'cr';const fillClr=cob===null?'#3b82f6':cob>=90?'#10c886':cob>=60?'#f59e0b':'#ef4444';return`<div class="cob-item"><div class="cob-nome" title="${u.nome}">${abrev(u.nome)}</div><div class="cob-bar"><div style="position:absolute;inset:0;width:${Math.round(Math.min(u.esp/max,1)*100)}%;background:rgba(255,255,255,.12);border-radius:99px"></div><div class="cob-bar-fill" style="width:${Math.round(Math.min(u.cad/max,1)*100)}%;background:${fillClr}"></div></div><div class="cob-nums"><span class="cob-cad">${u.cad}</span><span class="cob-sep">/</span><span class="cob-esp">${u.esp||'—'}</span></div><span class="cob-badge ${cls}">${cob!==null?cob+'%':'s/meta'}</span></div>`;}).join(''):'<div class="vazio">Sem dados de unidades</div>';
-}
-function renderSalarial(funcs){
-  const cs=funcs.filter(f=>f.salarioBase&&Number(f.salarioBase)>0);
-  if(!cs.length){['sal-unit','sal-cat'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='<div class="vazio">Sem salários registados</div>';});return;}
-  const abrev=n=>n.replace('Direcção Municipal de Saúde do Sumbe','DMS').replace('Centro de Saúde','CS').replace('Posto de Saúde','PS');
-  const bu={},bc={};
-  cs.forEach(f=>{const u=abrev(f.unidade||'—');bu[u]=(bu[u]||0)+Number(f.salarioBase);const c=f.categoria||'—';bc[c]=(bc[c]||0)+Number(f.salarioBase);});
-  const toArr=(obj,n)=>Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([l,v])=>({label:l,val:v,kz:true}));
-  renderBarras('sal-unit',toArr(bu,8),1);
-  renderBarras('sal-cat',toArr(bc,8),2);
-}
-function renderINSS(funcs){
-  const t=funcs.length,c=funcs.filter(f=>f.inss?.trim()).length;
-  const p=document.getElementById('inss-pct');if(p)p.textContent=(t?Math.round(c/t*100):0)+'%';
-  const s=document.getElementById('inss-sub');if(s)s.textContent=`${c} de ${t} funcionários`;
-}
-function topN(funcs,campo,n){const m={};funcs.forEach(f=>{const v=(f[campo]||'').trim();if(v)m[v]=(m[v]||0)+1;});return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([l,v])=>({label:l,val:v}));}
-function calcGrupo(funcs,campo,labels){const m={};funcs.forEach(f=>{const k=f[campo]||'activo';m[k]=(m[k]||0)+1;});return Object.entries(m).map(([k,v])=>({label:labels[k]||k,val:v})).sort((a,b)=>b.val-a.val);}
-function idadeMedia(funcs){const ids=funcs.filter(f=>f.nascimento).map(f=>new Date().getFullYear()-new Date(f.nascimento).getFullYear());return ids.length?Math.round(ids.reduce((a,b)=>a+b,0)/ids.length):null;}
-function fmtKz(v){if(v>=1e6)return(v/1e6).toFixed(1).replace('.',',')+' MKz';if(v>=1e3)return(v/1e3).toFixed(0)+'K Kz';return v.toLocaleString('pt-PT')+' Kz';}
+
+      <div class="sec">👤 Composição do Pessoal</div>
+      <div class="g2">
+        <div class="gc"><div class="gc-titulo">Pirâmide Etária</div><div class="gc-sub">Por faixa etária e sexo</div><div id="piramide"></div></div>
+        <div class="gc"><div class="gc-titulo">Tipo de Vínculo</div><div class="gc-sub">Quadro vs Provisório</div><div id="vinculo-wrap"></div></div>
+      </div>
+
+      <div class="sec">🏥 Distribuição Profissional</div>
+      <div class="g2">
+        <div class="gc"><div class="gc-titulo">Top Categorias</div><div class="gc-sub">Categorias mais frequentes</div><div id="top-cat"></div></div>
+        <div class="gc"><div class="gc-titulo">Estado do Serviço</div><div class="gc-sub">Activos, licenças e inactivos</div><div id="estado-wrap"></div></div>
+      </div>
+
+      <div class="sec">📍 Cobertura por Unidade</div>
+      <div class="g1"><div class="gc"><div class="gc-titulo">Cadastrados vs Efectivo Esperado</div><div class="gc-sub">Por unidade sanitária</div><div id="cobertura"></div></div></div>
+
+      <div class="sec">🗺 Naturalidade</div>
+      <div class="g2">
+        <div class="gc"><div class="gc-titulo">Por Província</div><div class="gc-sub">Província de naturalidade</div><div id="geo-prov"></div></div>
+        <div class="gc"><div class="gc-titulo">Top Municípios</div><div class="gc-sub">Municípios mais frequentes</div><div id="geo-mun"></div></div>
+      </div>
+
+      <div class="sec">💰 Massa Salarial</div>
+      <div class="g2">
+        <div class="gc"><div class="gc-titulo">Por Unidade</div><div class="gc-sub">Soma dos salários base</div><div id="sal-unit"></div></div>
+        <div class="gc"><div class="gc-titulo">Por Categoria</div><div class="gc-sub">Top 8 por massa salarial</div><div id="sal-cat"></div></div>
+      </div>
+
+      <div class="sec">🏦 INSS e Domiciliação Bancária</div>
+      <div class="g2">
+        <div class="gc" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;min-height:160px">
+          <div style="font-size:22px">🔐</div>
+          <div class="inss-big" id="inss-pct">—</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.4);text-align:center;font-weight:600">com Nº INSS registado<br><span id="inss-sub" style="color:rgba(255,255,255,.2)">—</span></div>
+        </div>
+        <div class="gc"><div class="gc-titulo">Banco de Domiciliação</div><div class="gc-sub">Distribuição por banco</div><div id="bancos"></div></div>
+      </div>`;
+
+    renderPiramide(funcs);
+    renderDonut("vinculo-wrap", calcGrupo(funcs, "vinculo", {quadro:"Quadro", provisorio:"Provisório"}));
+    renderBarras("top-cat",     topN(funcs, "categoria", 8), 0);
+    renderDonut("estado-wrap",  calcGrupo(funcs, "estado", {activo:"Em Serviço", licenca:"De Licença", inactivo:"Inactivo"}));
+    renderCobertura(funcs, unidades);
+    renderBarras("geo-prov",    topN(funcs, "provinciaNatal", 10), 4);
+    renderBarras("geo-mun",     topN(funcs, "municipioNatal",  10), 3);
+    renderSalarial(funcs);
+    renderINSS(funcs);
+    renderBarras("bancos",      topN(funcs, "banco", 10), 5);
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  COMPONENTES
+  // ════════════════════════════════════════════════════════
+  function renderPiramide(funcs) {
+    const fx = ["0–24","25–29","30–34","35–39","40–44","45–49","50–54","55–59","60+"];
+    const d  = fx.map(f => ({ f, m: 0, fem: 0 }));
+    funcs.forEach(f => {
+      if (!f.nascimento) return;
+      const idade = new Date().getFullYear() - new Date(f.nascimento).getFullYear();
+      const i = idade<25?0:idade<30?1:idade<35?2:idade<40?3:idade<45?4:idade<50?5:idade<55?6:idade<60?7:8;
+      f.sexo === "Masculino" ? d[i].m++ : d[i].fem++;
+    });
+    const mx = Math.max(...d.map(x => Math.max(x.m, x.fem)), 1);
+    document.getElementById("piramide").innerHTML =
+      [...d].reverse().map(x =>
+        `<div class="pir-linha">
+          <div class="pir-n">${x.m}</div>
+          <div style="display:flex;justify-content:flex-end;width:100%"><div class="pir-bm" style="width:${Math.round(x.m/mx*100)}%"></div></div>
+          <div class="pir-eixo">${x.f}</div>
+          <div style="width:100%"><div class="pir-bf" style="width:${Math.round(x.fem/mx*100)}%"></div></div>
+          <div class="pir-n">${x.fem}</div>
+        </div>`).join("") +
+      `<div class="pir-leg">
+        <div class="pir-leg-item"><div class="pir-dot" style="background:#60a5fa"></div>Masculino</div>
+        <div class="pir-leg-item"><div class="pir-dot" style="background:#f472b6"></div>Feminino</div>
+      </div>`;
+  }
+
+  function renderDonut(id, dados) {
+    const el = document.getElementById(id); if (!el) return;
+    if (!dados.length) { el.innerHTML = '<div class="vazio">Sem dados</div>'; return; }
+    const total = dados.reduce((s, d) => s + d.val, 0);
+    const r = 54, cx = 70, cy = 70, sw = 22, circ = 2 * Math.PI * r;
+    let cm = 0;
+    const segs = dados.map((d, i) => {
+      const pct = total ? d.val / total * 100 : 0;
+      const s = { ...d, pct, offset: cm, color: CORES[i % CORES.length] };
+      cm += pct; return s;
+    });
+    el.innerHTML = `
+      <div class="donut-wrap">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="${sw}"/>
+          ${segs.map(s =>
+            `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}"
+             stroke-width="${sw}"
+             stroke-dasharray="${circ*s.pct/100} ${circ*(1-s.pct/100)}"
+             stroke-dashoffset="${circ*(25-s.offset)/100}"/>`).join("")}
+          <text x="${cx}" y="${cy+6}" text-anchor="middle" fill="rgba(255,255,255,.7)"
+            font-size="22" font-weight="800" font-family="DM Mono,monospace">${total}</text>
+        </svg>
+        <div class="donut-leg">
+          ${segs.map(s =>
+            `<div class="donut-item">
+               <div class="donut-dot" style="background:${s.color}"></div>
+               <div class="donut-txt">${s.label}</div>
+               <div class="donut-n">${s.val}</div>
+             </div>`).join("")}
+        </div>
+      </div>`;
+  }
+
+  function renderBarras(id, dados, ci) {
+    const el = document.getElementById(id); if (!el) return;
+    if (!dados.length) { el.innerHTML = '<div class="vazio">Sem dados registados</div>'; return; }
+    const max = Math.max(...dados.map(d => d.val), 1);
+    el.innerHTML = dados.map((d, i) =>
+      `<div class="bh">
+        <div class="bh-head">
+          <span class="bh-lbl" title="${d.label}">${d.label}</span>
+          <span class="bh-val">${d.kz ? fmtKz(d.val) : d.val}</span>
+        </div>
+        <div class="bh-track">
+          <div class="bh-fill" style="width:${Math.round(d.val/max*100)}%;background:${CORES[(ci+i)%CORES.length]}"></div>
+        </div>
+      </div>`).join("");
+  }
+
+  function renderCobertura(funcs, unidades) {
+    const cm = {};
+    funcs.forEach(f => { const u = f.unidade || "—"; cm[u] = (cm[u] || 0) + 1; });
+    const todas = new Set([...Object.keys(cm), ...Object.keys(unidades)]);
+    const lista = [...todas]
+      .filter(n => n !== "—" && n !== "Não especificada")
+      .map(nome => ({ nome, cad: cm[nome] || 0, esp: unidades[nome]?.efectivo?.esperado || 0 }))
+      .sort((a, b) => (b.esp || b.cad) - (a.esp || a.cad));
+    const max = Math.max(...lista.map(u => Math.max(u.esp, u.cad)), 1);
+    const ab = n => n
+      .replace("Direcção Municipal de Saúde do Sumbe","DMS")
+      .replace("Centro de Saúde","CS")
+      .replace("Posto de Saúde","PS");
+    document.getElementById("cobertura").innerHTML = lista.length
+      ? lista.map(u => {
+          const cob = u.esp > 0 ? Math.round(u.cad / u.esp * 100) : null;
+          const cls = cob === null ? "c0" : cob >= 90 ? "cv" : cob >= 60 ? "ca" : "cr";
+          const fc  = cob === null ? "#3b82f6" : cob >= 90 ? "#10c886" : cob >= 60 ? "#f59e0b" : "#ef4444";
+          return `<div class="cob-item">
+            <div class="cob-nome" title="${u.nome}">${ab(u.nome)}</div>
+            <div class="cob-bar">
+              <div style="position:absolute;inset:0;width:${Math.round(Math.min(u.esp/max,1)*100)}%;background:rgba(255,255,255,.12);border-radius:99px"></div>
+              <div class="cob-bar-fill" style="width:${Math.round(Math.min(u.cad/max,1)*100)}%;background:${fc}"></div>
+            </div>
+            <div class="cob-nums">
+              <span class="cob-cad">${u.cad}</span><span class="cob-sep">/</span><span class="cob-esp">${u.esp || "—"}</span>
+            </div>
+            <span class="cob-badge ${cls}">${cob !== null ? cob+"%" : "s/meta"}</span>
+          </div>`;
+        }).join("")
+      : '<div class="vazio">Sem dados de unidades</div>';
+  }
+
+  function renderSalarial(funcs) {
+    const cs = funcs.filter(f => f.salarioBase && Number(f.salarioBase) > 0);
+    if (!cs.length) {
+      ["sal-unit","sal-cat"].forEach(id => {
+        const e = document.getElementById(id);
+        if (e) e.innerHTML = '<div class="vazio">Sem salários registados</div>';
+      });
+      return;
+    }
+    const ab = n => n.replace("Direcção Municipal de Saúde do Sumbe","DMS").replace("Centro de Saúde","CS").replace("Posto de Saúde","PS");
+    const bu = {}, bc = {};
+    cs.forEach(f => {
+      const u = ab(f.unidade || "—"); bu[u] = (bu[u] || 0) + Number(f.salarioBase);
+      const c = f.categoria || "—"; bc[c] = (bc[c] || 0) + Number(f.salarioBase);
+    });
+    const toArr = (obj, n) => Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([l,v])=>({label:l,val:v,kz:true}));
+    renderBarras("sal-unit", toArr(bu, 8), 1);
+    renderBarras("sal-cat",  toArr(bc, 8), 2);
+  }
+
+  function renderINSS(funcs) {
+    const t = funcs.length, c = funcs.filter(f => f.inss?.trim()).length;
+    const p = document.getElementById("inss-pct"); if (p) p.textContent = (t ? Math.round(c/t*100) : 0) + "%";
+    const s = document.getElementById("inss-sub"); if (s) s.textContent = `${c} de ${t} funcionários`;
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  UTILITÁRIOS
+  // ════════════════════════════════════════════════════════
+  function topN(funcs, campo, n) {
+    const m = {};
+    funcs.forEach(f => { const v = (f[campo] || "").trim(); if (v) m[v] = (m[v] || 0) + 1; });
+    return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([l,v])=>({label:l,val:v}));
+  }
+
+  function calcGrupo(funcs, campo, labels) {
+    const m = {};
+    funcs.forEach(f => { const k = f[campo] || "activo"; m[k] = (m[k] || 0) + 1; });
+    return Object.entries(m).map(([k,v])=>({label:labels[k]||k,val:v})).sort((a,b)=>b.val-a.val);
+  }
+
+  function idadeMedia(funcs) {
+    const ids = funcs.filter(f=>f.nascimento).map(f=>new Date().getFullYear()-new Date(f.nascimento).getFullYear());
+    return ids.length ? Math.round(ids.reduce((a,b)=>a+b,0)/ids.length) : null;
+  }
+
+  function fmtKz(v) {
+    if (v >= 1e6) return (v/1e6).toFixed(1).replace(".",",") + " MKz";
+    if (v >= 1e3) return (v/1e3).toFixed(0) + "K Kz";
+    return v.toLocaleString("pt-PT") + " Kz";
+  }
 </script>
 </body>
 </html>
