@@ -1,4 +1,14 @@
-<!DOCTYPE html>
+
+          <div class="grid-2" style="margin-top:10px">
+            <div class="campo">
+              <label>Província de Naturalidade</label>
+              <input type="text" id="f-provinciaNatal" placeholder="ex: Cuanza Sul"/>
+            </div>
+            <div class="campo">
+              <label>Município de Naturalidade</label>
+              <input type="text" id="f-municipioNatal" placeholder="ex: Sumbe"/>
+            </div>
+          </div><!DOCTYPE html>
 <html lang="pt">
 <head>
   <meta charset="UTF-8"/>
@@ -1017,7 +1027,7 @@
     funcionarioEmEdicao=id;
     document.getElementById("titulo-modal").textContent="✏️ Editar Funcionário";
     document.getElementById("funcionario-id").value=id;
-    ["nome","sexo","nascimento","bi","telefone","numero","categoria","unidade","vinculo","admissao","escolaridade","observacoes","inss","banco"].forEach(k=>{
+    ["nome","sexo","nascimento","bi","telefone","numero","categoria","unidade","vinculo","admissao","escolaridade","observacoes","inss","banco","provinciaNatal","municipioNatal"].forEach(k=>{
       const el=document.getElementById("f-"+k); if(el) el.value=f[k]||"";
     });
     document.getElementById("f-estado").value=f.estado||"activo";
@@ -1034,16 +1044,14 @@
   function limparForm(){
     ["f-nome","f-bi","f-telefone","f-numero","f-admissao","f-observacoes","f-nascimento"].forEach(id=>document.getElementById(id).value="");
     ["f-sexo","f-categoria","f-unidade","f-vinculo","f-escolaridade","f-seccao","f-area"].forEach(id=>document.getElementById(id).value="");
-    if(document.getElementById('f-inss'))  document.getElementById('f-inss').value  = f.inss||'';
-    if(document.getElementById('f-banco')) document.getElementById('f-banco').value = f.banco||'';
-    // Salário — só para perfis autorizados
+    if(document.getElementById('f-inss'))          document.getElementById('f-inss').value          = '';
+    if(document.getElementById('f-banco'))         document.getElementById('f-banco').value         = '';
+    if(document.getElementById('f-provinciaNatal'))document.getElementById('f-provinciaNatal').value= '';
+    if(document.getElementById('f-municipioNatal'))document.getElementById('f-municipioNatal').value= '';
     const wrapSal = document.getElementById('campo-salario-wrap');
-    if(wrapSal){
-      const podeSal = ['admin','chefe','tecnico'].includes(utilizadorActual?.perfil);
-      wrapSal.style.display = podeSal ? 'block' : 'none';
-      if(podeSal && document.getElementById('f-salario-base'))
-        document.getElementById('f-salario-base').value = f.salarioBase||'';
-    }
+    if(wrapSal){ wrapSal.style.display='none'; }
+    if(document.getElementById('f-salario-base')) document.getElementById('f-salario-base').value='';
+
     document.getElementById("f-estado").value="activo";
     document.getElementById("campo-seccao-wrap").classList.add("campo-oculto");
     document.getElementById("campo-area-wrap").classList.add("campo-oculto");
@@ -1070,6 +1078,8 @@
     const dados={
       nome,sexo,numero,categoria,unidade,vinculo,admissao,seccao,
       area:document.getElementById("f-area").value,
+      provinciaNatal: document.getElementById("f-provinciaNatal")?.value?.trim()||'',
+      municipioNatal: document.getElementById("f-municipioNatal")?.value?.trim()||'',
       nascimento:document.getElementById("f-nascimento").value,
       bi:document.getElementById("f-bi").value.trim(),
       telefone:document.getElementById("f-telefone").value.trim(),
