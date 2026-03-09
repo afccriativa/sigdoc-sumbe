@@ -557,7 +557,7 @@
           </div>
           <div class="campo campo-obrig">
             <label>Categoria / Cargo</label>
-            <select id="f-categoria">
+            <select id="f-categoria" onchange="toggleCategoriaOutra(this)">
               <option value="">Seleccione...</option>
               <optgroup label="Pessoal Médico">
                 <option>Médico Geral</option><option>Médico Especialista</option><option>Médico Director</option>
@@ -588,7 +588,11 @@
               <optgroup label="Pessoal Auxiliar">
                 <option>Motorista</option><option>Segurança</option><option>Contínuo</option><option>Auxiliar de Serviços Gerais</option>
               </optgroup>
+              <option value="__outra__">— Outra (inserir manualmente) —</option>
             </select>
+            <input type="text" id="f-categoria-manual"
+              placeholder="Escreva a categoria / cargo..."
+              style="display:none;margin-top:6px;width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;box-sizing:border-box"/>
           </div>
           <div class="campo campo-obrig col-2">
             <label>Local de Colocação</label>
@@ -1032,9 +1036,21 @@
     funcionarioEmEdicao=id;
     document.getElementById("titulo-modal").textContent="✏️ Editar Funcionário";
     document.getElementById("funcionario-id").value=id;
-    ["nome","sexo","nascimento","bi","telefone","numero","categoria","unidade","vinculo","admissao","escolaridade","observacoes","inss","banco","provinciaNatal","municipioNatal"].forEach(k=>{
+    ["nome","sexo","nascimento","bi","telefone","numero","unidade","vinculo","admissao","escolaridade","observacoes","inss","banco","provinciaNatal","municipioNatal"].forEach(k=>{
       const el=document.getElementById("f-"+k); if(el) el.value=f[k]||"";
     });
+    // Categoria — verificar se está na lista ou é manual
+    (function(){
+      const sel=document.getElementById("f-categoria");
+      const opts=[...sel.options].map(o=>o.value);
+      if(f.categoria && !opts.includes(f.categoria)){
+        sel.value="__outra__";
+        const manual=document.getElementById("f-categoria-manual");
+        if(manual){ manual.style.display="block"; manual.value=f.categoria; }
+      } else {
+        sel.value=f.categoria||"";
+      }
+    })();
     document.getElementById("f-estado").value=f.estado||"activo";
     verificarDireccao();
     document.getElementById("f-seccao").value=f.seccao||"";
@@ -1049,6 +1065,7 @@
   function limparForm(){
     ["f-nome","f-bi","f-telefone","f-numero","f-admissao","f-observacoes","f-nascimento"].forEach(id=>document.getElementById(id).value="");
     ["f-sexo","f-categoria","f-unidade","f-vinculo","f-escolaridade","f-seccao","f-area"].forEach(id=>document.getElementById(id).value="");
+    const _mc=document.getElementById("f-categoria-manual"); if(_mc){_mc.value="";_mc.style.display="none";}
     if(document.getElementById('f-inss'))          document.getElementById('f-inss').value          = '';
     if(document.getElementById('f-banco'))         document.getElementById('f-banco').value         = '';
     if(document.getElementById('f-provinciaNatal'))document.getElementById('f-provinciaNatal').value= '';
