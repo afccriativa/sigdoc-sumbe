@@ -1584,13 +1584,14 @@
                     <div class="modulo-nome">Unidades Sanitárias</div>
                     <div class="modulo-desc">Directório e cobertura por unidade.</div>
                   </div>
-          <div class="mod-card" id="mod-estatisticas-card" onclick="location.href='estatisticas.html'" style="cursor:pointer">
-            <div class="mod-card-icon" style="background:linear-gradient(135deg,#1d4ed8,#7c3aed)">📊</div>
-            <div class="mod-card-info">
-              <div class="mod-card-titulo">Estatísticas</div>
-              <div class="mod-card-sub">Pirâmide etária, cobertura, massa salarial</div>
-            </div>
-          </div>
+                  <span class="modulo-seta">›</span>
+                </a>
+                <a href="estatisticas.html" class="modulo-card" id="mod-estatisticas-card">
+                  <div class="modulo-icon" style="background:rgba(124,58,237,.12)">📊</div>
+                  <div style="flex:1;min-width:0">
+                    <div class="modulo-nome">Estatísticas Avançadas</div>
+                    <div class="modulo-desc">Pirâmide etária, cobertura, massa salarial.</div>
+                  </div>
                   <span class="modulo-seta">›</span>
                 </a>
               </div>
@@ -2079,15 +2080,15 @@
     // cada card tem id = sidebar_id + "-card"
     // O admin vê tudo, os outros só os seus módulos
     const acessoCards = {
-      admin:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card","mod-painel-card","mod-secretaria-card","mod-unidades-card"],
-      chefe:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card","mod-unidades-card"],
-      tecnico:     ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-unidades-card"],
+      admin:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card","mod-painel-card","mod-secretaria-card","mod-unidades-card","mod-estatisticas-card"],
+      chefe:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card","mod-unidades-card","mod-estatisticas-card"],
+      tecnico:     ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-unidades-card","mod-estatisticas-card"],
       secretaria:  ["mod-secretaria-card","mod-unidades-card"],
-      director:    ["mod-auditoria-card","mod-painel-card","mod-unidades-card"],
+      director:    ["mod-auditoria-card","mod-painel-card","mod-unidades-card","mod-estatisticas-card"],
       funcionario: []
     };
     const visCards = acessoCards[p] || [];
-    ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-auditoria-card","mod-painel-card","mod-secretaria-card"].forEach(id => {
+    ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-auditoria-card","mod-painel-card","mod-secretaria-card","mod-unidades-card","mod-estatisticas-card"].forEach(id => {
       const el = document.getElementById(id);
       if(el) el.style.display = visCards.includes(id) ? "" : "none";
     });
