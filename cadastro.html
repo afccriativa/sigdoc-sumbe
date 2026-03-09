@@ -700,6 +700,28 @@
             <textarea id="f-observacoes" placeholder="Informações adicionais relevantes..."></textarea>
           </div>
         </div>
+            <div class="campo-edicao col-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+              <div>
+                <label class="campo-label">Nº de Assegurado INSS</label>
+                <input type="text" id="f-inss" class="campo-input campo-mono" placeholder="Nº INSS" maxlength="20"/>
+              </div>
+              <div>
+                <label class="campo-label">Banco de Domiciliação</label>
+                <select id="f-banco" class="campo-input">
+                  <option value="">Seleccionar...</option>
+                  <option>BAI — Banco Angolano de Investimentos</option>
+                  <option>BFA — Banco de Fomento Angola</option>
+                  <option>BIC — Banco BIC</option>
+                  <option>BPC — Banco de Poupança e Crédito</option>
+                  <option>BMA — Banco Millennium Atlântico</option>
+                  <option>Standard Bank Angola</option>
+                  <option>SOL — Banco Sol</option>
+                  <option>BCH — Banco de Comércio e Habitação</option>
+                  <option>Keve — Banco Keve</option>
+                  <option>Outro</option>
+                </select>
+              </div>
+            </div>
       </div>
     </div>
     <div class="modal-foot">
@@ -995,7 +1017,7 @@
     funcionarioEmEdicao=id;
     document.getElementById("titulo-modal").textContent="✏️ Editar Funcionário";
     document.getElementById("funcionario-id").value=id;
-    ["nome","sexo","nascimento","bi","telefone","numero","categoria","unidade","vinculo","admissao","escolaridade","observacoes"].forEach(k=>{
+    ["nome","sexo","nascimento","bi","telefone","numero","categoria","unidade","vinculo","admissao","escolaridade","observacoes","inss","banco"].forEach(k=>{
       const el=document.getElementById("f-"+k); if(el) el.value=f[k]||"";
     });
     document.getElementById("f-estado").value=f.estado||"activo";
@@ -1139,6 +1161,8 @@
         (f.urlBI?`<a href="${f.urlBI}" target="_blank" style="color:var(--c-700);font-weight:700;">🪪 Ver BI</a>  `:"") +
         (f.urlCert?`<a href="${f.urlCert}" target="_blank" style="color:var(--c-700);font-weight:700;">🎓 Ver Certificado</a>`:""),
         span2:true,html:true}]:[]),
+      {r:"Nº de Assegurado INSS",v:f.inss||null},
+      {r:"Banco de Domiciliação",v:f.banco||null},
       {r:"Observações",v:f.observacoes,span2:true},
     ];
     const grid=document.getElementById("ficha-grid-dados");
