@@ -1034,6 +1034,16 @@
   function limparForm(){
     ["f-nome","f-bi","f-telefone","f-numero","f-admissao","f-observacoes","f-nascimento"].forEach(id=>document.getElementById(id).value="");
     ["f-sexo","f-categoria","f-unidade","f-vinculo","f-escolaridade","f-seccao","f-area"].forEach(id=>document.getElementById(id).value="");
+    if(document.getElementById('f-inss'))  document.getElementById('f-inss').value  = f.inss||'';
+    if(document.getElementById('f-banco')) document.getElementById('f-banco').value = f.banco||'';
+    // Salário — só para perfis autorizados
+    const wrapSal = document.getElementById('campo-salario-wrap');
+    if(wrapSal){
+      const podeSal = ['admin','chefe','tecnico'].includes(utilizadorActual?.perfil);
+      wrapSal.style.display = podeSal ? 'block' : 'none';
+      if(podeSal && document.getElementById('f-salario-base'))
+        document.getElementById('f-salario-base').value = f.salarioBase||'';
+    }
     document.getElementById("f-estado").value="activo";
     document.getElementById("campo-seccao-wrap").classList.add("campo-oculto");
     document.getElementById("campo-area-wrap").classList.add("campo-oculto");
@@ -1066,6 +1076,10 @@
       estado:document.getElementById("f-estado").value,
       escolaridade:document.getElementById("f-escolaridade").value,
       observacoes:document.getElementById("f-observacoes").value.trim(),
+      inss:  document.getElementById("f-inss")?.value?.trim()||'',
+      banco: document.getElementById("f-banco")?.value||'',
+      ...((['admin','chefe','tecnico'].includes(utilizadorActual?.perfil)) && document.getElementById("f-salario-base")
+        ? { salarioBase: Number(document.getElementById("f-salario-base").value)||0 } : {}),
       actualizadoEm:serverTimestamp(),actualizadoPor:utilizadorActual.uid
     };
     try{
