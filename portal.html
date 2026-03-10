@@ -1511,7 +1511,7 @@
            sendPasswordResetEmail,
            setPersistence, browserLocalPersistence }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, doc, query, where, serverTimestamp, onSnapshot, arrayUnion, increment, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, doc, query, where, orderBy, serverTimestamp, onSnapshot, arrayUnion, increment, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
   const firebaseConfig = window.SIGDOC_CONFIG.config;
   const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
   setPersistence(auth,browserLocalPersistence).catch(e=>console.warn(e));
@@ -2875,90 +2875,82 @@
   const ESTADOS_NOTIF_REUNIAO = ['confirmada','recusada','remarcada'];
 
   window.iniciarSinoPortal = function(uid) {
-    if (_unsubSinoPedidos)  _unsubSinoPedidos();
-    if (_unsubSinoReunioes) _unsubSinoReunioes();
+    // Cancelar listeners anteriores
+    if (_unsubSinoPedidos)  { _unsubSinoPedidos();  _unsubSinoPedidos  = null; }
+    if (_unsubSinoReunioes) { _unsubSinoReunioes(); _unsubSinoReunioes = null; }
+
+    // Listener único na collection 'notificacoes' filtrado pelo UID
     _unsubSinoPedidos = onSnapshot(
-      query(collection(db,'pedidos_secretaria'), where('funcionarioUid','==',uid), where('naoLidasFuncionario','>',0)),
+      query(
+        collection(db, 'notificacoes'),
+        where('destinatarioUid', '==', uid),
+        orderBy('criadaEm', 'desc')
+      ),
       snap => {
-        actualizarCacheNotif('pedido', snap.docs
-          .map(d=>({id:d.id,tipo:'pedido',...d.data()})));
-      }, err => console.warn('Sino pedidos:',err)
-    );
-    _unsubSinoReunioes = onSnapshot(
-      query(collection(db,'reunioes'), where('funcionarioUid','==',uid)),
-      snap => {
-        actualizarCacheNotif('reuniao', snap.docs
-          .map(d=>({id:d.id,tipo:'reuniao',...d.data()}))
-          .filter(r=>ESTADOS_NOTIF_REUNIAO.includes(r.estado)));
-      }, err => console.warn('Sino reuniões:',err)
+        _notifCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderizarSino();
+      },
+      err => console.warn('Sino notificacoes:', err)
     );
   };
 
-  function actualizarCacheNotif(tipo, novas) {
-    _notifCache = [
-      ..._notifCache.filter(n=>n.tipo!==tipo),
-      ...novas
-    ].sort((a,b)=>{
-      const ta=a.actualizadoEm?.toDate?.()?.getTime()||a.respondidoEm?.toDate?.()?.getTime()||0;
-      const tb=b.actualizadoEm?.toDate?.()?.getTime()||b.respondidoEm?.toDate?.()?.getTime()||0;
-      return tb-ta;
-    });
-    renderizarSino();
-  }
-
   function renderizarSino() {
-    const naoLidas = _notifCache.filter(n=>!_notifLidas.has(n.id));
-    const total = naoLidas.length;
-    ['ph-sino-badge','dt-sino-badge'].forEach(id=>{
-      const el=document.getElementById(id);
-      if(!el)return;
-      el.textContent = total>9?'9+':total;
-      el.classList.toggle('visivel', total>0);
+    const naoLidas = _notifCache.filter(n => !n.lida);
+    const total    = naoLidas.length;
+
+    // Badge nos dois botões (mobile header + desktop topbar)
+    ['ph-sino-badge','dt-sino-badge'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = total > 9 ? '9+' : String(total);
+      el.classList.toggle('visivel', total > 0);
     });
-    const body=document.getElementById('sino-drop-body');
-    if(!body)return;
-    if(_notifCache.length===0){
-      body.innerHTML='<div class="sino-vazio"><div class="sino-vazio-ic">🔔</div><div class="sino-vazio-txt">Sem notificações</div></div>';
+
+    const body = document.getElementById('sino-drop-body');
+    if (!body) return;
+
+    if (_notifCache.length === 0) {
+      body.innerHTML =
+        '<div class="sino-vazio">' +
+          '<div class="sino-vazio-ic">🔔</div>' +
+          '<div class="sino-vazio-txt">Sem notificações</div>' +
+        '</div>';
       return;
     }
-    const ASSUNTOS={'ferias-licencas':'Férias e Licenças','abonos-salarios':'Abonos e Salários','documentacao':'Documentação Pessoal','transferencias':'Transferências','escalas':'Escalas de Serviço','outro':'Outro'};
-    const DEST={'director':'Director Municipal','chefe-sperh':'Chefe de Planeamento/RH','chefe-sp':'Chefe de Saúde Pública','chefe-is':'Chefe de Inspecção Sanitária','chefe-lhm':'Chefe de Logística e Medicamentos'};
-    body.innerHTML=_notifCache.map(n=>{
-      const lida=_notifLidas.has(n.id);
-      const data=n.respondidoEm?.toDate?.()||n.actualizadoEm?.toDate?.()||null;
-      const dataStr=data?data.toLocaleDateString('pt-AO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
-      let ic,icClass,titulo,sub,aba;
-      if(n.tipo==='pedido'){
-        ic='💬';icClass='resp';aba='pedidos';
-        titulo='💬 Nova mensagem da Secretaria';
-        const msgs=n.mensagens||[];
-        const ultima=msgs.filter(m=>m.autor==='secretaria').pop();
-        sub=(ASSUNTOS[n.assunto]||n.assunto||'—')+(ultima?` — "${ultima.texto.substring(0,50)}${ultima.texto.length>50?'…':''}"`:'');
-      } else {
-        aba='reuniao';
-        const dest=DEST[n.destinatario]||n.destinatario||'—';
-        if(n.estado==='confirmada'){
-          ic='✅';icClass='conf';titulo='Reunião confirmada';
-          const dt=n.dataSugerida?new Date(n.dataSugerida).toLocaleDateString('pt-AO',{day:'2-digit',month:'short'}):'';
-          sub=dest+(dt?' · '+dt:'')+(n.local?' · '+n.local:'');
-        } else if(n.estado==='recusada'){
-          ic='❌';icClass='recus';titulo='Reunião não confirmada';
-          sub=dest+(n.motivoRecusa?' — '+n.motivoRecusa.substring(0,50):'');
-        } else {
-          ic='🔄';icClass='remarc';titulo='Reunião remarcada';sub=dest;
-        }
-      }
-      return `<div class="sino-notif-item${lida?'':' nova'}" onclick="clicarNotif('${n.id}','${aba}')">
-        <div class="sino-notif-ic ${icClass}">${ic}</div>
-        <div class="sino-notif-texto">
-          <div class="sino-notif-titulo">${titulo}</div>
-          <div class="sino-notif-sub">${sub}</div>
-          ${dataStr?`<div class="sino-notif-data">${dataStr}</div>`:''}
-        </div>
-        ${lida?'':'<div class="sino-notif-ponto"></div>'}
-      </div>`;
+
+    // Mapas de ícone e classe por tipo
+    const IC = {
+      doc_aprovado:         { ic: '✅', cls: 'conf'   },
+      doc_rejeitado:        { ic: '❌', cls: 'recus'  },
+      doc_gerado:           { ic: '📄', cls: 'resp'   },
+      reuniao_confirmada:   { ic: '📅', cls: 'conf'   },
+      reuniao_recusada:     { ic: '❌', cls: 'recus'  },
+      mensagem_secretaria:  { ic: '💬', cls: 'resp'   },
+      sistema:              { ic: 'ℹ️', cls: 'remarc' },
+    };
+
+    body.innerHTML = _notifCache.map(n => {
+      const lida    = !!n.lida;
+      const icObj   = IC[n.tipo] || { ic: '🔔', cls: '' };
+      const data    = n.criadaEm?.toDate?.() || null;
+      const dataStr = data
+        ? data.toLocaleDateString('pt-AO', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })
+        : '';
+
+      return (
+        '<div class="sino-notif-item' + (lida ? '' : ' nova') + '" onclick="clicarNotif(\'' + n.id + '\')">' +
+          '<div class="sino-notif-ic ' + icObj.cls + '">' + icObj.ic + '</div>' +
+          '<div class="sino-notif-texto">' +
+            '<div class="sino-notif-titulo">' + (n.titulo || '—') + '</div>' +
+            '<div class="sino-notif-sub">'   + (n.corpo  || '')  + '</div>' +
+            (dataStr ? '<div class="sino-notif-data">' + dataStr + '</div>' : '') +
+          '</div>' +
+          (lida ? '' : '<div class="sino-notif-ponto"></div>') +
+        '</div>'
+      );
     }).join('');
   }
+
 
   window.abrirSinoPortal = function(){
     document.getElementById('sino-drop').classList.add('aberto');
@@ -2968,19 +2960,41 @@
     document.getElementById('sino-drop').classList.remove('aberto');
     document.getElementById('sino-overlay').classList.remove('visivel');
   };
-  window.clicarNotif = function(id,aba){
-    _notifLidas.add(id);
+  window.clicarNotif = async function(notifId) {
+    // Marcar como lida no Firestore
+    try {
+      await updateDoc(doc(db,'notificacoes',notifId), { lida: true });
+    } catch(e) { console.warn('Marcar lida:', e); }
     fecharSinoPortal();
-    navegarAba('aba-secretaria');
-    setTimeout(()=>{
-      const btn=document.getElementById(aba==='pedidos'?'subtab-pedidos':'subtab-reuniao');
-      trocarSubtabSec(aba,btn);
-    },120);
-    renderizarSino();
+    // Navegar conforme o tipo da notificação
+    const n = _notifCache.find(x => x.id === notifId);
+    if (!n) return;
+    if (n.tipo === 'mensagem_secretaria') {
+      navegarAba('aba-secretaria');
+      setTimeout(() => {
+        const btn = document.getElementById('subtab-pedidos');
+        if (btn) trocarSubtabSec('pedidos', btn);
+      }, 120);
+    } else if (n.tipo === 'reuniao_confirmada' || n.tipo === 'reuniao_recusada') {
+      navegarAba('aba-secretaria');
+      setTimeout(() => {
+        const btn = document.getElementById('subtab-reuniao');
+        if (btn) trocarSubtabSec('reuniao', btn);
+      }, 120);
+    } else if (['doc_aprovado','doc_rejeitado','doc_gerado'].includes(n.tipo)) {
+      navegarAba('aba-docs');
+    }
   };
-  window.marcarTodasLidas = function(){
-    _notifCache.forEach(n=>_notifLidas.add(n.id));
-    renderizarSino();
+
+  window.marcarTodasLidas = async function() {
+    const naoLidas = _notifCache.filter(n => !n.lida);
+    await Promise.all(
+      naoLidas.map(n =>
+        updateDoc(doc(db,'notificacoes',n.id), { lida: true })
+          .catch(e => console.warn('marcarLida:', e))
+      )
+    );
+    // O onSnapshot actualiza automaticamente o cache e re-renderiza
   };
 
 
