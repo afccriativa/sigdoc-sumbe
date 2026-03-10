@@ -24,6 +24,10 @@
       --red:       #ef4444;
       --red-l:     #fee2e2;
       --blue:      #3b82f6;
+      /* ── Acento secundário ── */
+      --accent:   #4f46e5;
+      --accent-d: #3730a3;
+      --accent-l: #e0e7ff;
       --bg:        #f3f4f6;
       --card:      #ffffff;
       --txt:       #111827;
@@ -51,6 +55,19 @@
       --r-lg:  16px;
       --r-xl:  20px;
       --r-2xl: 28px;
+      /* ── Escala tipográfica ── */
+      --text-xs:   11px;
+      --text-sm:   12px;
+      --text-base: 14px;
+      --text-md:   15px;
+      --text-lg:   18px;
+      --text-xl:   20px;
+      --text-2xl:  24px;
+      --text-3xl:  30px;
+      /* ── Pesos ── */
+      --fw-med:  600;
+      --fw-semi: 700;
+      --fw-bold: 800;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { -webkit-tap-highlight-color: transparent; }
@@ -61,9 +78,11 @@
     @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.5} }
     @keyframes pulse-warn { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
     @keyframes ping-warn { 0%{transform:scale(1);opacity:.8} 100%{transform:scale(1.6);opacity:0} }
-    @keyframes flash-verde { 0%,100%{background:white} 50%{background:var(--primary-xl)} }
+    @keyframes flash-verde { 0%{background:white} 30%{background:var(--primary-xl)} 100%{background:white} }
     @keyframes slide-up { from{transform:translateY(100%)} to{transform:translateY(0)} }
     @keyframes slide-notif { from{transform:translateX(-50%) translateY(20px);opacity:0} to{transform:translateX(-50%) translateY(0);opacity:1} }
+    @keyframes fade-overlay { from{opacity:0} to{opacity:1} }
+    @keyframes slide-up-smooth { from{transform:translateY(100%);opacity:.6} to{transform:translateY(0);opacity:1} }
 
     /* ECRÃS */
     .ecra { display:none; }
@@ -109,7 +128,7 @@
     .caixa { background:var(--card);border-radius:var(--r-xl);width:100%;max-width:440px;box-shadow:0 8px 40px rgba(0,0,0,.1);overflow:hidden; }
     .caixa-topo { padding:var(--sp-8) 28px 0; }
     .caixa-passo { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--primary-l);margin-bottom:8px; }
-    .caixa-titulo { font-size:22px;font-weight:800;color:var(--txt);letter-spacing:-.4px;margin-bottom:6px; }
+    .caixa-titulo { font-size:var(--text-2xl);font-weight:var(--fw-semi);color:var(--txt);letter-spacing:-.4px;margin-bottom:var(--sp-2); }
     .caixa-sub { font-size:13px;color:var(--txt-3);line-height:1.5;margin-bottom:4px; }
     .caixa-corpo { padding:var(--sp-5) 28px; }
     .caixa-rodape { padding:var(--sp-4) 28px 28px;display:flex;gap:var(--sp-3);justify-content:flex-end; }
@@ -126,8 +145,42 @@
     .campo-inp.campo-ok   { border-color:#10c886!important;box-shadow:0 0 0 3px rgba(16,200,134,.10)!important; }
     .campo-mono { font-family:var(--mono);letter-spacing:1px; }
     .campo-hint { font-size:11px;color:var(--txt-4);margin-top:5px; }
-    .campo-err-msg { font-size:11px;color:#ef4444;font-weight:600;margin-top:4px;display:none;line-height:1.4; }
-    .campo-ok-msg  { font-size:11px;color:#10c886;font-weight:600;margin-top:4px;display:none; }
+    .campo-err-msg {
+      font-size:var(--text-xs);color:#ef4444;font-weight:600;
+      margin-top:4px;display:none;line-height:1.4;
+      padding-left:18px;position:relative;
+    }
+    .campo-err-msg::before {
+      content:'⚠';
+      position:absolute;left:0;top:0;
+      font-size:11px;
+    }
+    .campo-ok-msg {
+      font-size:var(--text-xs);color:#10c886;font-weight:600;
+      margin-top:4px;display:none;
+      padding-left:18px;position:relative;
+    }
+    .campo-ok-msg::before {
+      content:'✓';
+      position:absolute;left:0;top:0;
+      font-size:11px;font-weight:800;
+    }
+    /* :invalid — só após interacção (usa :user-invalid onde suportado) */
+    .campo-inp:user-invalid,
+    .campo-inp.tocado:invalid {
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 0 3px rgba(239,68,68,.10) !important;
+    }
+    /* Campo data com estado visual */
+    input[type="date"].campo-erro { border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,.10)!important; }
+    input[type="date"].campo-ok   { border-color:#10c886!important;box-shadow:0 0 0 3px rgba(16,200,134,.10)!important; }
+    /* Campo telefone */
+    #perf-telefone-edit.campo-erro { border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,.10)!important; }
+    #perf-telefone-edit.campo-ok   { border-color:#10c886!important;box-shadow:0 0 0 3px rgba(16,200,134,.10)!important; }
+    /* Hint de formato */
+    .campo-formato-hint { font-size:10px;color:var(--txt-4);margin-top:3px;font-family:var(--mono);letter-spacing:.4px;display:none; }
+    .campo-formato-hint.visivel { display:block; }
+
     /* ── Sub-tabs Secretaria ── */
     .subtabs-barra {
       display: flex;
@@ -226,7 +279,7 @@
     .ph-sair-btn { padding:8px 16px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:var(--r-xl);color:white;font-size:13px;font-weight:700;cursor:pointer;backdrop-filter:blur(4px);transition:background .18s; }
     .ph-sair-btn:hover { background:rgba(255,255,255,.22); }
     .portal-header-hero { position:relative;z-index:1; }
-    .ph-saudacao { font-size:30px;font-weight:800;color:white;letter-spacing:-1px;line-height:1.15;margin-bottom:10px; }
+    .ph-saudacao { font-size:var(--text-3xl);font-weight:var(--fw-bold);color:white;letter-spacing:-1px;line-height:1.15;margin-bottom:var(--sp-2); }
     .ph-status { display:inline-flex;align-items:center;gap:var(--sp-2);background:rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.08);padding:6px 12px;border-radius:var(--r-xl);font-size:12px;color:rgba(255,255,255,.8);font-weight:500; }
     .ph-status-dot { width:7px;height:7px;border-radius:50%;background:var(--primary-l);box-shadow:0 0 8px rgba(16,200,134,.8);animation:pulse-dot 2s ease-in-out infinite; }
 
@@ -281,12 +334,12 @@
     .perfil-campo-valor  { font-size:15px;font-weight:600;color:var(--txt); }
 
     /* lista docs */
-    .aba-titulo-pg { font-size:18px;font-weight:800;color:var(--txt);letter-spacing:-.4px;margin-bottom:16px; }
+    .aba-titulo-pg { font-size:var(--text-lg);font-weight:var(--fw-semi);color:var(--txt);letter-spacing:-.3px;margin-bottom:var(--sp-4); }
     .lista-docs { display:flex;flex-direction:column;gap:var(--sp-2); }
     .item-doc-portal { background:white;border-radius:14px;padding:14px;display:flex;align-items:center;gap:var(--sp-3);box-shadow:0 1px 6px rgba(0,0,0,.06);border:1px solid var(--border);cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent; }
     .item-doc-portal:hover { border-color:var(--primary-l);box-shadow:0 4px 16px rgba(16,200,134,.1); }
     .item-doc-portal:active { transform:scale(.98); }
-    .item-actualizado { animation:flash-verde .6s ease; }
+    .item-actualizado { animation:flash-verde 1.4s cubic-bezier(.2,0,0,1); }
     .doc-ic-portal { width:44px;height:44px;border-radius:var(--r-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px; }
     .doc-info-portal { flex:1;min-width:0; }
     .doc-tipo-portal { font-size:14px;font-weight:700;color:var(--txt); }
@@ -306,7 +359,7 @@
     .btn-segunda-via-portal:hover { background:var(--primary-xl);border-color:var(--primary-l);color:var(--primary); }
 
     /* pedir */
-    .pedir-titulo { font-size:18px;font-weight:800;color:var(--txt);margin-bottom:6px; }
+    .pedir-titulo { font-size:var(--text-lg);font-weight:var(--fw-semi);color:var(--txt);letter-spacing:-.3px;margin-bottom:var(--sp-2); }
     .pedir-sub    { font-size:13px;color:var(--txt-3);line-height:1.5;margin-bottom:20px; }
     .tipo-grid { display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:20px; }
     .tipo-card { background:white;border-radius:var(--r-lg);padding:var(--sp-4);text-align:center;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.06);border:2px solid transparent;transition:all .18s;-webkit-tap-highlight-color:transparent; }
@@ -319,8 +372,8 @@
     .form-extra { background:white;border-radius:var(--r-lg);padding:var(--sp-5);box-shadow:0 1px 6px rgba(0,0,0,.06); }
     .campo-hint { font-size:11px;color:var(--txt-4);margin-top:5px; }
     #erro-data-inicio { font-size:11px;color:var(--red);font-weight:600;margin-top:4px;display:none; }
-    .btn-submeter { width:100%;padding:15px;border-radius:14px;background:var(--primary);color:white;border:none;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:var(--sp-2);box-shadow:0 6px 20px rgba(6,95,70,.3);transition:all .18s;margin-top:16px; }
-    .btn-submeter:hover:not(:disabled) { background:var(--primary-d);transform:translateY(-1px); }
+    .btn-submeter { width:100%;padding:15px;border-radius:14px;background:linear-gradient(135deg,var(--accent) 0%,#6366f1 100%);color:white;border:none;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:var(--sp-2);box-shadow:0 4px 14px rgba(79,70,229,.3);transition:all .2s cubic-bezier(.2,0,0,1);margin-top:16px; }
+    .btn-submeter:hover:not(:disabled) { background:linear-gradient(135deg,var(--accent-d) 0%,var(--accent) 100%);transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,.4); }
     .btn-submeter:disabled { opacity:.5;cursor:not-allowed; }
     .btn-submeter .material-symbols-outlined { font-size:18px;font-variation-settings:'FILL' 1; }
 
@@ -436,9 +489,9 @@
     .desk-kpi-row, .desk-docs-section, .desk-col-dir { display:none; }
 
     /* modal mobile */
-    .overlay-modal { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:500;align-items:flex-end;justify-content:center; }
-    .overlay-modal.activo { display:flex; }
-    .modal-caixa { background:white;border-radius:var(--r-2xl) 24px 0 0;width:100%;max-width:520px;max-height:90dvh;overflow-y:auto;animation:slide-up .3s cubic-bezier(.16,1,.3,1); }
+    .overlay-modal { display:none;position:fixed;inset:0;background:rgba(0,0,0,0);backdrop-filter:blur(0px);z-index:500;align-items:flex-end;justify-content:center;transition:background .25s,backdrop-filter .25s; }
+    .overlay-modal.activo { display:flex;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);animation:fade-overlay .25s ease; }
+    .modal-caixa { background:white;border-radius:var(--r-2xl) var(--r-xl) 0 0;width:100%;max-width:520px;max-height:90dvh;overflow-y:auto;animation:slide-up-smooth .32s cubic-bezier(.2,0,0,1); }
     .modal-caixa::before { content:'';display:block;width:36px;height:4px;border-radius:2px;background:var(--border);margin:12px auto 8px; }
 
     /* toast mobile */
@@ -578,7 +631,7 @@
         box-shadow: 0 1px 0 var(--border);
       }
       .dt-saudacao {
-        flex: 1; font-size: 20px; font-weight: 800; color: var(--txt); letter-spacing: -.4px;
+        flex:1;font-size:var(--text-xl);font-weight:var(--fw-semi);color:var(--txt);letter-spacing:-.4px;
       }
       .dt-saudacao em { font-style: normal; color: var(--primary); }
       .dt-live {
@@ -664,7 +717,7 @@
 
       /* ── ABA MEUS DOCS desktop ── */
       #aba-meus-docs.activa { display: block; }
-      .aba-titulo-pg { font-size: 20px; margin-bottom: 20px; }
+      .aba-titulo-pg { font-size:var(--text-xl);margin-bottom:var(--sp-5); }
 
       /* ── ABA PEDIR desktop — 2 col ── */
       #aba-solicitar.activa {
@@ -813,6 +866,33 @@
     .pedido-chat-data { font-size:11px;color:#9ca3af; }
     .pedido-chat-nova-badge { background:#4f46e5;color:#fff;font-size:10px;font-weight:800;padding:1px 6px;border-radius:99px; }
 
+  
+    /* ══════════════════════════════════════════════════════
+       DARK MODE — prefers-color-scheme:dark
+    ══════════════════════════════════════════════════════ */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:        #0f172a;
+        --card:      #1e293b;
+        --txt:       #f1f5f9;
+        --txt-2:     #cbd5e1;
+        --txt-3:     #94a3b8;
+        --txt-4:     #64748b;
+        --border:    #334155;
+        --primary-xl:#052e16;
+        --accent-l:  #1e1b4b;
+        --red-l:     #450a0a;
+      }
+      .campo-inp { background:var(--card);color:var(--txt);border-color:var(--border); }
+      .campo-inp:focus { border-color:var(--primary-l); }
+      .alerta-info { background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.25);color:#93c5fd; }
+      .card-enc, .minha-unidade { background:var(--card); }
+      .perfil-campo-card { background:var(--card);box-shadow:none;border:1px solid var(--border); }
+      .mu-row-val { color:var(--txt-2); }
+      .modal-caixa { background:var(--card); }
+      .notif { background:var(--card);color:var(--txt);border-color:var(--border); }
+      .doc-fich { background:var(--card); }
+    }
   </style>
 </head>
 <body>
@@ -874,7 +954,7 @@
           <span class="campo-icone" id="ico-numero"></span>
         </div>
         <div class="campo-hint">8 dígitos numéricos (ex: 00123456)</div>
-        <div class="campo-err-msg" id="erro-numero"></div>
+        <div class="campo-err-msg" aria-live="polite" id="erro-numero"></div>
       </div>
       <div class="ou-sep">ou</div>
       <div class="campo-g">
@@ -886,7 +966,7 @@
           <span class="campo-icone" id="ico-bi"></span>
         </div>
         <div class="campo-hint">14 caracteres: 8 dígitos + 2 letras + 3 dígitos (ex: 00123456LA083)</div>
-        <div class="campo-err-msg" id="erro-bi"></div>
+        <div class="campo-err-msg" aria-live="polite" id="erro-bi"></div>
         <div class="campo-ok-msg"  id="ok-bi"></div>
       </div>
       <div id="msg-verificacao"></div>
@@ -925,7 +1005,7 @@
           <span class="campo-icone" id="ico-email"></span>
         </div>
         <div class="campo-hint">Este será o seu e-mail de acesso ao portal</div>
-        <div class="campo-err-msg" id="erro-email"></div>
+        <div class="campo-err-msg" aria-live="polite" id="erro-email"></div>
         <div class="campo-ok-msg"  id="ok-email"></div>
       </div>
       <div class="campo-g">
@@ -944,7 +1024,7 @@
           <div class="req-item" id="req-upper">Uma letra maiúscula</div>
           <div class="req-item" id="req-num">Um número</div>
         </div>
-        <div class="campo-err-msg" id="erro-senha"></div>
+        <div class="campo-err-msg" aria-live="polite" id="erro-senha"></div>
       </div>
       <div class="campo-g">
         <label>Confirmar Senha <em>*</em></label>
@@ -953,7 +1033,7 @@
             oninput="validarCampoSenha2();validarCriarConta()" autocomplete="new-password"/>
           <span class="campo-icone" id="ico-senha2"></span>
         </div>
-        <div class="campo-err-msg" id="erro-senha2"></div>
+        <div class="campo-err-msg" aria-live="polite" id="erro-senha2"></div>
         <div class="campo-ok-msg"  id="ok-senha2"></div>
       </div>
       <div id="msg-criar"></div>
@@ -1266,9 +1346,15 @@
           <div class="form-extra">
             <div class="campo-g" id="campo-data-inicio-wrap" style="display:none">
               <label>Data de Início das Férias <em style="color:var(--red)">*</em></label>
-              <input type="date" id="sol-data-inicio" class="campo-inp campo-mono" oninput="validarDataInicio()"/>
+              <div class="campo-inp-wrap">
+                <input type="date" id="sol-data-inicio" class="campo-inp campo-mono"
+                  required aria-required="true" aria-describedby="erro-data-inicio"
+                  oninput="validarDataInicio()" onblur="validarDataInicio()"/>
+                <span class="campo-icone" id="ico-data-inicio"></span>
+              </div>
               <div class="campo-hint">📅 Essencial — RH calcula os dias de férias com base nesta data.</div>
-              <div id="erro-data-inicio"></div>
+              <div class="campo-err-msg" aria-live="polite" id="erro-data-inicio"></div>
+              <div class="campo-ok-msg"  aria-live="polite" id="ok-data-inicio"></div>
             </div>
             <div class="campo-g">
               <label>Finalidade / Motivo <span style="font-size:10px;font-weight:400;color:var(--txt-4)">(opcional)</span></label>
@@ -1322,7 +1408,17 @@
           </a>
           <div class="campo-g">
             <label>Telefone de contacto</label>
-            <input type="tel" id="perf-telefone-edit" class="campo-inp" placeholder="900 000 000"/>
+            <div class="campo-inp-wrap">
+              <input type="tel" id="perf-telefone-edit" class="campo-inp campo-mono"
+                inputmode="numeric" maxlength="12" placeholder="900 000 000"
+                aria-describedby="erro-tel-edit"
+                oninput="mascaraTelefone(this);validarTelefone()"
+                onblur="validarTelefone()"/>
+              <span class="campo-icone" id="ico-tel-edit"></span>
+            </div>
+            <div class="campo-formato-hint visivel" id="fmt-tel">ex: 900 000 000 ou 222 000 000</div>
+            <div class="campo-err-msg" aria-live="polite" id="erro-tel-edit"></div>
+            <div class="campo-ok-msg"  aria-live="polite" id="ok-tel-edit"></div>
           </div>
           <button class="btn btn-prim btn-full" onclick="guardarPerfil()">💾 Guardar telefone</button>
         </div>
@@ -1992,13 +2088,58 @@
   };
 
   window.validarDataInicio=function(){
-    const val=document.getElementById("sol-data-inicio").value;
+    const inp=document.getElementById("sol-data-inicio");
+    const val=inp.value;
+    const ico=document.getElementById("ico-data-inicio");
     const err=document.getElementById("erro-data-inicio");
-    if(!val){err.style.display="none";return;}
+    const ok =document.getElementById("ok-data-inicio");
+    if(!val){
+      inp.classList.remove("campo-erro","campo-ok");
+      if(ico) ico.style.display="none";
+      if(err){err.textContent="";err.style.display="none";}
+      if(ok) {ok.textContent="";ok.style.display="none";}
+      return;
+    }
     const hoje=new Date();hoje.setHours(0,0,0,0);
     const d=new Date(val+"T12:00:00");
-    if(d<hoje){err.textContent="⚠️ A data de início não pode ser no passado.";err.style.display="block";}
-    else err.style.display="none";
+    const valido=d>=hoje;
+    inp.classList.toggle("campo-erro",!valido);
+    inp.classList.toggle("campo-ok",   valido);
+    if(ico){ico.textContent=valido?"✅":"❌";ico.style.display="block";}
+    if(err){err.textContent=!valido?"A data não pode ser no passado.":"";err.style.display=!valido?"block":"none";}
+    if(ok) {ok.textContent= valido?"Data válida ✓":"";ok.style.display=valido?"block":"none";}
+  };
+
+  // ── Máscara telefone Angola: 9XX XXX XXX ou 2XX XXX XXX ────────
+  window.mascaraTelefone=function(inp){
+    let v=inp.value.replace(/\D/g,'').slice(0,9);
+    if(v.length>6)      v=v.slice(0,3)+' '+v.slice(3,6)+' '+v.slice(6);
+    else if(v.length>3) v=v.slice(0,3)+' '+v.slice(3);
+    inp.value=v;
+  };
+
+  const RE_TEL_AO=/^(9[0-9]{2}|2[0-9]{2}) \d{3} \d{3}$/;
+
+  window.validarTelefone=function(){
+    const inp=document.getElementById("perf-telefone-edit");
+    if(!inp)return;
+    const v=inp.value.trim();
+    const ico=document.getElementById("ico-tel-edit");
+    const err=document.getElementById("erro-tel-edit");
+    const ok =document.getElementById("ok-tel-edit");
+    if(!v){
+      inp.classList.remove("campo-erro","campo-ok");
+      if(ico)ico.style.display="none";
+      if(err){err.textContent="";err.style.display="none";}
+      if(ok) {ok.textContent="";ok.style.display="none";}
+      return;
+    }
+    const valido=RE_TEL_AO.test(v);
+    inp.classList.toggle("campo-erro",!valido);
+    inp.classList.toggle("campo-ok",   valido);
+    if(ico){ico.textContent=valido?"✅":"❌";ico.style.display="block";}
+    if(err){err.textContent=!valido?"Formato inválido. Use: 900 000 000":"";err.style.display=!valido?"block":"none";}
+    if(ok) {ok.textContent= valido?"Número válido ✓":"";ok.style.display=valido?"block":"none";}
   };
 
   window.submeterSolicitacao=async function(){
@@ -2075,7 +2216,13 @@
     const est={activo:"Em Serviço Activo",inactivo:"Inactivo",licenca:"De Licença"};
     document.getElementById("perf-vinculo").textContent=vinc[f.vinculo]||f.vinculo||"—";
     document.getElementById("perf-estado").textContent=est[f.estado]||f.estado||"—";
-    if(f.telefone)document.getElementById("perf-telefone-edit").value=f.telefone;
+    if(f.telefone){
+      const _telRaw=(f.telefone||"").replace(/\D/g,"").slice(0,9);
+      let _telFmt=_telRaw;
+      if(_telRaw.length>6)_telFmt=_telRaw.slice(0,3)+" "+_telRaw.slice(3,6)+" "+_telRaw.slice(6);
+      else if(_telRaw.length>3)_telFmt=_telRaw.slice(0,3)+" "+_telRaw.slice(3);
+      document.getElementById("perf-telefone-edit").value=_telFmt;
+    }
     const campos=[
       {r:"Número de Agente",v:f.numero||"—"},{r:"Bilhete de Identidade",v:f.bi||"—"},
       {r:"Categoria / Cargo",v:f.categoria||"—"},{r:"Local de Colocação",v:f.unidade||"—"},
@@ -2240,6 +2387,11 @@
   window.guardarPerfil=async function(){
     if(!_funcDocId)return;
     const tel=document.getElementById("perf-telefone-edit").value.trim();
+    if(tel&&!RE_TEL_AO.test(tel)){
+      notif("❌ Formato de telefone inválido.","notif-erro");
+      validarTelefone();
+      return;
+    }
     try{await updateDoc(doc(db,"funcionarios",_funcDocId),{telefone:tel,actualizadoEm:serverTimestamp()});notif("✅ Perfil actualizado!","notif-ok");}
     catch(e){notif("❌ Erro ao guardar.","notif-erro");}
   };
