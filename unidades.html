@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="sigdoc-config.js"></script>
+<script src="sigdoc-nav.js"></script>
 <style>
 :root{
   --pri:#1241a1; --pri-10:rgba(18,65,161,.10); --pri-20:rgba(18,65,161,.20);
@@ -882,6 +883,19 @@ function mostrarPagina(){
   document.getElementById('topbar-perfil').textContent = ETIQUETAS[PERFIL_DOC.perfil]||PERFIL_DOC.perfil;
   // Carregar dados
   carregarTudo();
+  // ── Navegação lateral ──
+  if (window.SIGDOC_NAV) {
+    SIGDOC_NAV.mount({
+      pagina:   'unidades',
+      nome:     PERFIL_DOC.nome || UTILIZADOR.email,
+      perfil:   PERFIL_DOC.perfil,
+      onLogout: async () => {
+        const { signOut } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+        await signOut(auth);
+        window.location.href = 'index.html';
+      }
+    });
+  }
 }
 
 // ── SEED automático: garantir que todas as unidades existem no Firestore ──
