@@ -128,6 +128,44 @@
     .campo-hint { font-size:11px;color:var(--txt-4);margin-top:5px; }
     .campo-err-msg { font-size:11px;color:#ef4444;font-weight:600;margin-top:4px;display:none;line-height:1.4; }
     .campo-ok-msg  { font-size:11px;color:#10c886;font-weight:600;margin-top:4px;display:none; }
+    /* ── Sub-tabs Secretaria ── */
+    .subtabs-barra {
+      display: flex;
+      gap: 0;
+      margin-bottom: var(--sp-4);
+      border-bottom: 2px solid var(--border);
+    }
+    .subtab-sec {
+      position: relative;
+      padding: var(--sp-2) var(--sp-4);
+      background: transparent;
+      border: none;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--txt-3);
+      cursor: pointer;
+      transition: color .18s;
+      border-radius: 0;
+      /* indicador bottom */
+    }
+    .subtab-sec::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0; right: 0;
+      height: 2px;
+      background: var(--primary-l);
+      border-radius: 2px 2px 0 0;
+      transform: scaleX(0);
+      transition: transform .2s cubic-bezier(.4,0,.2,1);
+    }
+    .subtab-sec:hover { color: var(--txt); }
+    .subtab-sec.activo {
+      color: var(--primary-l);
+    }
+    .subtab-sec.activo::after {
+      transform: scaleX(1);
+    }
     .campo-inp-wrap { position:relative; }
     .campo-inp-wrap .campo-inp { padding-right:38px; }
     .campo-icone { position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;display:none; }
@@ -237,7 +275,8 @@
 
     /* campos */
     .perfil-campos-lista { display:flex;flex-direction:column;gap:var(--sp-2);margin-bottom:20px; }
-    .perfil-campo-card { background:white;border-radius:14px;padding:14px 16px;box-shadow:0 1px 6px rgba(0,0,0,.06);border:1px solid var(--border); }
+    .perfil-campo-card { background:white;border-radius:14px;padding:14px 16px;box-shadow:0 1px 6px rgba(0,0,0,.06);border:1px solid var(--border);  }
+    #pcv-unidade-card:hover { box-shadow:0 4px 16px rgba(16,200,134,.15);border-color:var(--primary-l)!important; }
     .perfil-campo-rotulo { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt-4);margin-bottom:4px; }
     .perfil-campo-valor  { font-size:15px;font-weight:600;color:var(--txt); }
 
@@ -1180,8 +1219,14 @@
             <div class="perfil-campo-rotulo">Categoria / Cargo</div>
             <div class="perfil-campo-valor" id="pcv-categoria">—</div>
           </div>
-          <div class="perfil-campo-card">
-            <div class="perfil-campo-rotulo">Local de Colocação</div>
+          <div class="perfil-campo-card" id="pcv-unidade-card"
+               onclick="navegarAba('aba-perfil')"
+               title="Ver ficha completa da unidade"
+               style="cursor:pointer;transition:box-shadow .15s,border-color .15s;border:1.5px solid transparent">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="perfil-campo-rotulo">Local de Colocação</div>
+              <span style="font-size:10px;font-weight:700;color:var(--primary-l);white-space:nowrap">Ver ficha →</span>
+            </div>
             <div class="perfil-campo-valor" id="pcv-unidade">—</div>
           </div>
         </div>
@@ -1290,11 +1335,11 @@
     <div class="aba-titulo-pg">✉️ Secretaria</div>
 
     <!-- Sub-tabs -->
-    <div style="display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid #e5e7eb;padding-bottom:12px">
-      <button class="subtab-sec activo" id="subtab-pedidos" onclick="trocarSubtabSec('pedidos',this)" style="background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.3);padding:7px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
+    <div class="subtabs-barra">
+      <button class="subtab-sec activo" id="subtab-pedidos" onclick="trocarSubtabSec('pedidos',this)">
         ✉️ Contactar Secretaria
       </button>
-      <button class="subtab-sec" id="subtab-reuniao" onclick="trocarSubtabSec('reuniao',this)" style="background:transparent;color:var(--txt-3,#6b7280);border:1px solid var(--border);padding:7px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
+      <button class="subtab-sec" id="subtab-reuniao" onclick="trocarSubtabSec('reuniao',this)">
         📅 Agendar Reunião
       </button>
     </div>
@@ -2309,18 +2354,11 @@
   };
 
   window.trocarSubtabSec = function(tipo, btn) {
-    document.querySelectorAll('.subtab-sec').forEach(b => {
-      b.style.background = 'transparent';
-      b.style.color = 'var(--txt-sub,#888)';
-      b.style.borderColor = 'var(--border)';
-    });
-    if (btn) {
-      btn.style.background = 'rgba(99,102,241,.15)';
-      btn.style.color = '#818cf8';
-      btn.style.borderColor = 'rgba(99,102,241,.3)';
-    }
-    document.getElementById('sec-painel-pedidos').style.display  = tipo === 'pedidos'  ? '' : 'none';
-    document.getElementById('sec-painel-reuniao').style.display  = tipo === 'reuniao'  ? '' : 'none';
+    // Remover .activo de todos, aplicar ao clicado
+    document.querySelectorAll('.subtab-sec').forEach(b => b.classList.remove('activo'));
+    if (btn) btn.classList.add('activo');
+    document.getElementById('sec-painel-pedidos').style.display = tipo === 'pedidos' ? '' : 'none';
+    document.getElementById('sec-painel-reuniao').style.display = tipo === 'reuniao' ? '' : 'none';
     if (tipo === 'pedidos') carregarPedidosPortal();
     if (tipo === 'reuniao') carregarReunioesPortal();
   };
