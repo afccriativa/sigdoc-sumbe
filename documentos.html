@@ -859,6 +859,21 @@
     if (!silencioso) mostrarNotificacao("✅ Documento gerado! Clique em 'Submeter para Aprovação' para enviar ao Chefe.");
   };
 
+
+  // ── Helper notificações ─────────────────────────────────────────
+  async function criarNotificacao(destinatarioUid, tipo, titulo, corpo, extra={}) {
+    if (!destinatarioUid || !tipo || !titulo) return;
+    try {
+      await addDoc(collection(db,'notificacoes'), {
+        destinatarioUid, tipo, titulo,
+        corpo: corpo || '',
+        extra,
+        lida: false,
+        criadaEm: serverTimestamp()
+      });
+    } catch(e) { console.warn('criarNotificacao:', e); }
+  }
+
   window.submeterDocumento = async function() {
     if (!dadosUltimoDocumento || !utilizadorActual) {
       mostrarNotificacao("⚠️ Gere o documento antes de submeter.");
@@ -962,6 +977,24 @@
 
       documentoSubmetido = true;
       btnSub.style.display = "none";
+
+      // ── Notificar funcionário que o documento foi submetido ───────
+      const _funcUid = funcionarioSeleccionado?.uidUtilizador || null;
+      if (_funcUid) {
+        const _tipoLabel = {
+          'guia-ferias':        'Guia de Férias',
+          'guia-medica':        'Guia Médica',
+          'declaracao-servico': 'Declaração de Serviço',
+          'oficio':             'Ofício'
+        }[dadosUltimoDocumento?.tipo] || dadosUltimoDocumento?.tipo || 'Documento';
+        await criarNotificacao(
+          _funcUid,
+          'doc_gerado',
+          '📄 ' + _tipoLabel + ' submetido para aprovação',
+          'O seu ' + _tipoLabel + ' foi gerado e aguarda aprovação do responsável.',
+          { docId: docRef.id, tipoDoc: dadosUltimoDocumento?.tipo }
+        );
+      }
 
       const badge = document.getElementById("badge-estado");
       badge.className = "badge-estado badge-gerado";
