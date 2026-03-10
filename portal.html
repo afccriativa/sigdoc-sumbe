@@ -106,9 +106,20 @@
     .campo-g label em { color:var(--red);font-style:normal; }
     .campo-inp { width:100%;padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--txt);transition:border-color .18s,box-shadow .18s;outline:none; }
     .campo-inp:focus { border-color:var(--primary-l);box-shadow:0 0 0 3px rgba(16,200,134,.12); }
+    .campo-inp.campo-erro { border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,.10)!important; }
+    .campo-inp.campo-ok   { border-color:#10c886!important;box-shadow:0 0 0 3px rgba(16,200,134,.10)!important; }
     .campo-mono { font-family:var(--mono);letter-spacing:1px; }
     .campo-hint { font-size:11px;color:var(--txt-4);margin-top:5px; }
-    .campo-err-msg { font-size:11px;color:var(--red);font-weight:600;margin-top:4px;display:none; }
+    .campo-err-msg { font-size:11px;color:#ef4444;font-weight:600;margin-top:4px;display:none;line-height:1.4; }
+    .campo-ok-msg  { font-size:11px;color:#10c886;font-weight:600;margin-top:4px;display:none; }
+    .campo-inp-wrap { position:relative; }
+    .campo-inp-wrap .campo-inp { padding-right:38px; }
+    .campo-icone { position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;display:none; }
+    .req-lista { margin-top:8px;display:flex;flex-direction:column;gap:3px; }
+    .req-item { font-size:11px;display:flex;align-items:center;gap:5px;color:var(--txt-4);transition:color .2s; }
+    .req-item.ok { color:#10c886; }
+    .req-item.ok::before { content:'✓'; font-weight:800; }
+    .req-item:not(.ok)::before { content:'○'; }
     .ou-sep { text-align:center;color:var(--txt-4);font-size:12px;font-weight:600;margin:4px 0;position:relative; }
     .ou-sep::before,.ou-sep::after { content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border); }
     .ou-sep::before { left:0; }
@@ -801,20 +812,27 @@
       <div class="alerta alerta-info">ℹ️ Os seus dados foram inseridos pela Secção de RH. Introduza o Nº de Agente <strong>(8 dígitos)</strong> ou o Nº do BI <strong>(14 dígitos)</strong>.</div>
       <div class="campo-g">
         <label>Número de Agente <em>*</em></label>
-        <input type="text" id="input-numero" class="campo-inp campo-mono" maxlength="8" placeholder="00000000"
-          oninput="this.value=this.value.replace(/\D/g,'');validarVerificacao()"
-          onkeydown="if(event.key==='Enter')fazerVerificacao()"/>
-        <div class="campo-hint">8 dígitos numéricos</div>
+        <div class="campo-inp-wrap">
+          <input type="text" id="input-numero" class="campo-inp campo-mono" maxlength="8" placeholder="00000000"
+            oninput="this.value=this.value.replace(/\D/g,'');validarCampoNumero()"
+            onkeydown="if(event.key==='Enter')fazerVerificacao()" autocomplete="off"/>
+          <span class="campo-icone" id="ico-numero"></span>
+        </div>
+        <div class="campo-hint">8 dígitos numéricos (ex: 00123456)</div>
         <div class="campo-err-msg" id="erro-numero"></div>
       </div>
       <div class="ou-sep">ou</div>
       <div class="campo-g">
         <label>Número do Bilhete de Identidade <em>*</em></label>
-        <input type="text" id="input-bi" class="campo-inp campo-mono" maxlength="14" placeholder="00000000LA000"
-          oninput="validarVerificacao()"
-          onkeydown="if(event.key==='Enter')fazerVerificacao()"/>
-        <div class="campo-hint">14 caracteres (ex: 00123456LA083)</div>
+        <div class="campo-inp-wrap">
+          <input type="text" id="input-bi" class="campo-inp campo-mono" maxlength="14" placeholder="00000000LA000"
+            oninput="this.value=this.value.toUpperCase();validarCampoBI()"
+            onkeydown="if(event.key==='Enter')fazerVerificacao()" autocomplete="off"/>
+          <span class="campo-icone" id="ico-bi"></span>
+        </div>
+        <div class="campo-hint">14 caracteres: 8 dígitos + 2 letras + 3 dígitos (ex: 00123456LA083)</div>
         <div class="campo-err-msg" id="erro-bi"></div>
+        <div class="campo-ok-msg"  id="ok-bi"></div>
       </div>
       <div id="msg-verificacao"></div>
     </div>
@@ -846,23 +864,42 @@
       </div>
       <div class="campo-g">
         <label>Endereço de E-mail <em>*</em></label>
-        <input type="email" id="cc-email" class="campo-inp" placeholder="o.seu.email@exemplo.com" oninput="validarCriarConta()"/>
+        <div class="campo-inp-wrap">
+          <input type="email" id="cc-email" class="campo-inp" placeholder="o.seu.email@exemplo.com"
+            oninput="validarCampoEmail()" autocomplete="email"/>
+          <span class="campo-icone" id="ico-email"></span>
+        </div>
         <div class="campo-hint">Este será o seu e-mail de acesso ao portal</div>
         <div class="campo-err-msg" id="erro-email"></div>
+        <div class="campo-ok-msg"  id="ok-email"></div>
       </div>
       <div class="campo-g">
         <label>Criar Senha <em>*</em></label>
-        <input type="password" id="cc-senha" class="campo-inp" placeholder="Mínimo 8 caracteres" oninput="avaliarForca();validarCriarConta()"/>
+        <div class="campo-inp-wrap">
+          <input type="password" id="cc-senha" class="campo-inp" placeholder="Mínimo 8 caracteres"
+            oninput="avaliarForca();validarCampoSenha();validarCriarConta()" autocomplete="new-password"/>
+          <span class="campo-icone" id="ico-senha"></span>
+        </div>
         <div class="forca-senha" id="forca-wrap" style="display:none">
           <div class="forca-barras" id="forca-barras"><div class="forca-barra"></div><div class="forca-barra"></div><div class="forca-barra"></div><div class="forca-barra"></div></div>
           <div class="forca-texto" id="forca-texto"></div>
+        </div>
+        <div class="req-lista" id="req-lista" style="display:none">
+          <div class="req-item" id="req-len">Mínimo 8 caracteres</div>
+          <div class="req-item" id="req-upper">Uma letra maiúscula</div>
+          <div class="req-item" id="req-num">Um número</div>
         </div>
         <div class="campo-err-msg" id="erro-senha"></div>
       </div>
       <div class="campo-g">
         <label>Confirmar Senha <em>*</em></label>
-        <input type="password" id="cc-senha2" class="campo-inp" placeholder="Repita a senha" oninput="validarCriarConta()"/>
+        <div class="campo-inp-wrap">
+          <input type="password" id="cc-senha2" class="campo-inp" placeholder="Repita a senha"
+            oninput="validarCampoSenha2();validarCriarConta()" autocomplete="new-password"/>
+          <span class="campo-icone" id="ico-senha2"></span>
+        </div>
         <div class="campo-err-msg" id="erro-senha2"></div>
+        <div class="campo-ok-msg"  id="ok-senha2"></div>
       </div>
       <div id="msg-criar"></div>
     </div>
@@ -1395,10 +1432,54 @@
   window.mostrarEcra=function(id){document.querySelectorAll(".ecra").forEach(e=>e.classList.remove("activo"));document.getElementById(id).classList.add("activo");};
 
   // VERIFICAÇÃO
-  window.validarVerificacao=function(){
-    const num=document.getElementById("input-numero").value.trim();
-    const bi=document.getElementById("input-bi").value.trim();
-    document.getElementById("btn-verificar").disabled=!(num.length===8||bi.length>=8);
+  // ══ VALIDAÇÃO ROBUSTA — Número de Agente ══════════════════
+  const RE_NUMERO = /^\d{8}$/;
+  // BI angolano: 8 dígitos + 2 letras + 3 dígitos (ex: 00123456LA083) — 13 chars
+  // Alguns sistemas usam também 9+2+3=14. Aceita ambos.
+  const RE_BI = /^\d{8,9}[A-Z]{2}\d{3}$/;
+  const RE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function setCampo(inputId, iconId, errId, okId, valido, msgErro, msgOk) {
+    const inp = document.getElementById(inputId);
+    const ico = document.getElementById(iconId);
+    const err = errId ? document.getElementById(errId) : null;
+    const ok  = okId  ? document.getElementById(okId)  : null;
+    if (!inp) return;
+    const vazio = !inp.value.trim();
+    inp.classList.toggle('campo-erro', !vazio && !valido);
+    inp.classList.toggle('campo-ok',   !vazio &&  valido);
+    if (ico) { ico.textContent = vazio ? '' : valido ? '✅' : '❌'; ico.style.display = vazio ? 'none' : 'block'; }
+    if (err) { err.textContent = (!vazio && !valido) ? msgErro : ''; err.style.display = (!vazio && !valido) ? 'block' : 'none'; }
+    if (ok)  { ok.textContent  = (!vazio &&  valido) ? (msgOk||'') : ''; ok.style.display  = (!vazio &&  valido) ? 'block' : 'none'; }
+    return valido || vazio;
+  }
+
+  window.validarCampoNumero = function() {
+    const v = document.getElementById("input-numero").value.trim();
+    setCampo("input-numero","ico-numero","erro-numero",null,
+      RE_NUMERO.test(v),
+      "O Nº de Agente deve ter exactamente 8 dígitos numéricos.");
+    sincronizarBtnVerificar();
+  };
+
+  window.validarCampoBI = function() {
+    const v = document.getElementById("input-bi").value.trim().toUpperCase();
+    setCampo("input-bi","ico-bi","erro-bi","ok-bi",
+      RE_BI.test(v),
+      "Formato inválido. Exemplo correcto: 00123456LA083",
+      "Formato de BI válido ✓");
+    sincronizarBtnVerificar();
+  };
+
+  function sincronizarBtnVerificar() {
+    const num = document.getElementById("input-numero").value.trim();
+    const bi  = document.getElementById("input-bi").value.trim().toUpperCase();
+    const ok  = RE_NUMERO.test(num) || RE_BI.test(bi);
+    document.getElementById("btn-verificar").disabled = !ok;
+  }
+
+  window.validarVerificacao = function() {
+    sincronizarBtnVerificar();
   };
 
   window.fazerVerificacao=async function(){
@@ -1434,24 +1515,60 @@
   window.avaliarForca=function(){
     const senha=document.getElementById("cc-senha").value;
     const wrap=document.getElementById("forca-wrap");
-    if(!senha){wrap.style.display="none";return;}
-    wrap.style.display="block";
+    const rl=document.getElementById("req-lista");
+    if(!senha){wrap.style.display="none";if(rl)rl.style.display="none";return;}
+    wrap.style.display="block";if(rl)rl.style.display="flex";
     let f=0;
-    if(senha.length>=8)f++;if(/[A-Z]/.test(senha))f++;if(/[0-9]/.test(senha))f++;if(/[^A-Za-z0-9]/.test(senha))f++;
+    const temLen=senha.length>=8, temMai=/[A-Z]/.test(senha), temNum=/[0-9]/.test(senha), temEsp=/[^A-Za-z0-9]/.test(senha);
+    if(temLen)f++;if(temMai)f++;if(temNum)f++;if(temEsp)f++;
     document.getElementById("forca-barras").className="forca-barras forca-"+f;
     const msgs=["","Fraca — adicione números ou maiúsculas","Razoável — pode ser mais forte","Boa — quase perfeita!","Excelente — senha muito segura! ✅"];
-    const cores=["","var(--r-600)","var(--a-500)","var(--c-500)","var(--c-700)"];
+    const cores=["","#ef4444","#f59e0b","#3b82f6","#10c886"];
     const txt=document.getElementById("forca-texto");
     txt.textContent=msgs[f];txt.style.color=cores[f];
+    // Requisitos visuais
+    const rq=id=>document.getElementById(id);
+    if(rq("req-len"))  rq("req-len").classList.toggle("ok",temLen);
+    if(rq("req-upper"))rq("req-upper").classList.toggle("ok",temMai);
+    if(rq("req-num"))  rq("req-num").classList.toggle("ok",temNum);
+  };
+
+  window.validarCampoSenha = function() {
+    const s = document.getElementById("cc-senha").value;
+    const valido = s.length>=8 && /[A-Z]/.test(s) && /[0-9]/.test(s);
+    const inp = document.getElementById("cc-senha");
+    const ico = document.getElementById("ico-senha");
+    inp.classList.toggle("campo-erro", s.length>0 && !valido);
+    inp.classList.toggle("campo-ok",   s.length>0 &&  valido);
+    if(ico){ico.textContent=s.length===0?'':valido?'✅':'❌';ico.style.display=s.length?'block':'none';}
+  };
+
+  window.validarCampoSenha2 = function() {
+    const s  = document.getElementById("cc-senha").value;
+    const s2 = document.getElementById("cc-senha2").value;
+    setCampo("cc-senha2","ico-senha2","erro-senha2","ok-senha2",
+      s2===s && s2.length>0,
+      "As senhas não coincidem.",
+      "As senhas coincidem ✓");
+  };
+
+  window.validarCampoEmail = function() {
+    const v = document.getElementById("cc-email").value.trim();
+    setCampo("cc-email","ico-email","erro-email","ok-email",
+      RE_EMAIL.test(v),
+      "Endereço de e-mail inválido (ex: nome@dominio.com).",
+      "E-mail válido ✓");
+    validarCriarConta();
   };
 
   window.validarCriarConta=function(){
-    const email=document.getElementById("cc-email").value.trim();
-    const senha=document.getElementById("cc-senha").value;
-    const s2=document.getElementById("cc-senha2").value;
-    document.getElementById("btn-criar").disabled=!(email.includes("@")&&senha.length>=8&&senha===s2);
-    const el=document.getElementById("erro-senha2");
-    if(s2&&senha!==s2){el.textContent="As senhas não coincidem.";el.style.display="block";}else el.style.display="none";
+    const email = document.getElementById("cc-email").value.trim();
+    const senha = document.getElementById("cc-senha").value;
+    const s2    = document.getElementById("cc-senha2").value;
+    const emailOk = RE_EMAIL.test(email);
+    const senhaOk = senha.length>=8 && /[A-Z]/.test(senha) && /[0-9]/.test(senha);
+    const s2Ok    = s2===senha && s2.length>0;
+    document.getElementById("btn-criar").disabled = !(emailOk && senhaOk && s2Ok);
   };
 
   window.criarConta=async function(){
