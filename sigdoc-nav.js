@@ -18,7 +18,7 @@ window.SIGDOC_NAV = (function () {
       itens: [
         { id: 'index',       icon: '📊', texto: 'Dashboard',    href: 'index.html',       perfis: ['admin','director','chefe','tecnico','funcionario'] },
         { id: 'cadastro',    icon: '👤', texto: 'Cadastro',     href: 'cadastro.html',    perfis: ['admin','director','chefe','tecnico'] },
-        { id: 'portal',      icon: '📄', texto: 'Documentos',   href: 'portal.html',      perfis: ['admin','director','chefe','tecnico','funcionario'] },
+        { id: 'portal',      icon: '📄', texto: 'Documentos',   href: 'documentos.html',  perfis: ['admin','director','chefe','tecnico'] },
         { id: 'aprovacoes',  icon: '✅', texto: 'Aprovações',   href: 'aprovacoes.html',  perfis: ['admin','director','chefe'] },
       ]
     },
@@ -30,6 +30,7 @@ window.SIGDOC_NAV = (function () {
         { id: 'unidades',    icon: '🏥', texto: 'Unidades',     href: 'unidades.html',    perfis: ['admin','director','chefe','tecnico','secretaria'] },
         { id: 'estatisticas', icon: '📊', texto: 'Estatísticas',  href: 'estatisticas.html', perfis: ['admin','director','chefe','tecnico'] },
         { id: 'relatorios',  icon: '📋', texto: 'Relatórios',   href: 'relatorios.html',  perfis: ['admin','director','chefe','tecnico'] },
+        { id: 'ferias',      icon: '🌴', texto: 'Férias/Ausências', href: 'ferias.html', perfis: ['admin','director','chefe','tecnico'] },
         { id: 'utilizadores',icon: '⚙️', texto: 'Utilizadores', href: 'index.html#utilizadores', perfis: ['admin'] },
       ]
     }
