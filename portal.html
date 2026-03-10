@@ -216,8 +216,8 @@
     }
 
     /* header hero */
-    .portal-header { background:var(--primary);border-radius:0 0 28px 28px;padding:var(--sp-12) var(--sp-5) var(--sp-8);position:relative;overflow:hidden; }
-    .portal-header::before { content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 80% 20%,rgba(16,200,134,.2) 0%,transparent 60%),radial-gradient(circle at 10% 80%,rgba(255,255,255,.05) 0%,transparent 50%); }
+    .portal-header { background:var(--primary);border-radius:0 0 var(--r-2xl) var(--r-2xl);padding:var(--sp-12) var(--sp-5) var(--sp-8);position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(6,95,70,.25); }
+    .portal-header::before { content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(16,200,134,.08) 0%,transparent 55%);pointer-events:none; }
     .portal-header-top { position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px; }
     .portal-header-marca h1 { font-size:17px;font-weight:800;color:white;line-height:1.1; }
     .portal-header-marca p  { font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;max-width:160px;line-height:1.3; }
@@ -1093,7 +1093,7 @@
     <div class="dt-saudacao" id="dt-saudacao">Bom dia, <em>—</em></div>
     <div class="dt-live"><span class="dt-live-dot"></span> Documentos actualizados em tempo real</div>
     <div style="display:flex;align-items:center;gap:4px">
-      <button class="dt-sino-btn" id="dt-sino-btn" onclick="abrirSinoPortal()" title="Notificações">
+      <button class="dt-sino-btn" id="dt-sino-btn" onclick="abrirSinoPortal()" title="Notificações" aria-label="Notificações">
         <span class="material-symbols-outlined">notifications</span>
         <span class="dt-sino-badge" id="dt-sino-badge"></span>
       </button>
@@ -1109,7 +1109,7 @@
         <p>SIGDOC-SUMBE · Direcção Municipal da Saúde do Sumbe</p>
       </div>
       <div class="portal-header-actions">
-        <button class="sino-btn" id="ph-sino-btn" onclick="abrirSinoPortal()" title="Notificações">
+        <button class="sino-btn" id="ph-sino-btn" onclick="abrirSinoPortal()" title="Notificações" aria-label="Notificações">
           <span class="material-symbols-outlined">notifications</span>
           <span class="sino-badge" id="ph-sino-badge"></span>
         </button>
@@ -1198,10 +1198,10 @@
             </div>
           </div>
           <div class="perfil-card-acoes">
-            <button class="perfil-card-btn" onclick="navegarAba('aba-perfil')" title="Ver perfil">
+            <button class="perfil-card-btn" onclick="navegarAba('aba-perfil')" title="Ver perfil" aria-label="Ver perfil completo">
               <span class="material-symbols-outlined">badge</span>
             </button>
-            <button class="perfil-card-btn" onclick="navegarAba('aba-solicitar')" title="Pedir documento">
+            <button class="perfil-card-btn" onclick="navegarAba('aba-solicitar')" title="Pedir documento" aria-label="Pedir documento">
               <span class="material-symbols-outlined">add_circle</span>
             </button>
           </div>
@@ -1923,7 +1923,7 @@
 <div class="sino-drop" id="sino-drop">
   <div class="sino-drop-header">
     <span class="sino-drop-titulo">🔔 Notificações</span>
-    <button class="sino-drop-fechar" onclick="fecharSinoPortal()">×</button>
+    <button class="sino-drop-fechar" onclick="fecharSinoPortal()" aria-label="Fechar notificações" title="Fechar">×</button>
   </div>
   <div class="sino-drop-body" id="sino-drop-body">
     <div class="sino-vazio">
@@ -1946,7 +1946,7 @@
         <div class="chat-header-titulo" id="chat-titulo">Conversa</div>
         <div class="chat-header-sub" id="chat-sub">Secretaria · DMS Sumbe</div>
       </div>
-      <button class="chat-header-fechar" onclick="fecharChatPortal()">×</button>
+      <button class="chat-header-fechar" onclick="fecharChatPortal()" aria-label="Fechar chat" title="Fechar">×</button>
     </div>
     <div class="chat-estado-bar aberto" id="chat-estado-bar">● Conversa aberta</div>
     <div class="chat-msgs" id="chat-msgs"></div>
@@ -2868,7 +2868,7 @@
 <div class="sino-drop" id="sino-drop">
   <div class="sino-drop-header">
     <span class="sino-drop-titulo">🔔 Notificações</span>
-    <button class="sino-drop-fechar" onclick="fecharSinoPortal()">×</button>
+    <button class="sino-drop-fechar" onclick="fecharSinoPortal()" aria-label="Fechar notificações" title="Fechar">×</button>
   </div>
   <div class="sino-drop-body" id="sino-drop-body">
     <div class="sino-vazio">
@@ -2891,7 +2891,7 @@
         <div class="chat-header-titulo" id="chat-titulo">Conversa</div>
         <div class="chat-header-sub" id="chat-sub">Secretaria · DMS Sumbe</div>
       </div>
-      <button class="chat-header-fechar" onclick="fecharChatPortal()">×</button>
+      <button class="chat-header-fechar" onclick="fecharChatPortal()" aria-label="Fechar chat" title="Fechar">×</button>
     </div>
     <div class="chat-estado-bar aberto" id="chat-estado-bar">● Conversa aberta</div>
     <div class="chat-msgs" id="chat-msgs"></div>
