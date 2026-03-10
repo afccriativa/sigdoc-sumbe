@@ -86,6 +86,36 @@
     .inss-big{font-size:52px;font-weight:800;font-family:'DM Mono',monospace;letter-spacing:-2px;line-height:1;color:#10c886}
     /* ── vazio ── */
     .vazio{padding:24px;text-align:center;color:rgba(255,255,255,.2);font-size:12px}
+    /* ── cartão género ── */
+    .gen-card{background:#1a2236;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:28px 28px 22px;margin-bottom:20px}
+    .gen-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+    .gen-card-titulo{font-size:18px;font-weight:800;letter-spacing:-.4px;margin-bottom:3px}
+    .gen-card-sub{font-size:12px;color:rgba(255,255,255,.4)}
+    .gen-total-pill{display:flex;align-items:center;gap:6px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.2);color:#60a5fa;padding:6px 14px;border-radius:99px;font-size:12px;font-weight:700;white-space:nowrap}
+    .gen-body{display:flex;align-items:center;gap:32px;flex-wrap:wrap}
+    /* donut grande */
+    .gen-donut-wrap{position:relative;flex-shrink:0}
+    .gen-donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+    .gen-donut-pct{font-size:40px;font-weight:900;font-family:'DM Mono',monospace;letter-spacing:-2px;line-height:1;color:#e2e8f0}
+    .gen-donut-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.35);margin-top:4px}
+    /* detail cards */
+    .gen-details{flex:1;min-width:240px;display:flex;flex-direction:column;gap:12px}
+    .gen-det-card{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);transition:border-color .2s}
+    .gen-det-card:hover{border-color:rgba(255,255,255,.15)}
+    .gen-det-left{display:flex;align-items:center;gap:14px}
+    .gen-det-pill{width:4px;height:44px;border-radius:99px;flex-shrink:0}
+    .gen-det-nome{font-size:15px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+    .gen-det-sub{font-size:12px;color:rgba(255,255,255,.4)}
+    .gen-det-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px}
+    .gen-det-right{text-align:right}
+    .gen-det-pct{font-size:30px;font-weight:900;font-family:'DM Mono',monospace;letter-spacing:-1px;line-height:1}
+    .gen-det-delta{font-size:10px;font-family:'DM Mono',monospace;color:rgba(255,255,255,.3);margin-top:3px}
+    /* footer stats */
+    .gen-footer{margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.07);display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    @media(max-width:700px){.gen-footer{grid-template-columns:repeat(2,1fr)}}
+    .gen-stat-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:rgba(255,255,255,.3);margin-bottom:5px}
+    .gen-stat-val{font-size:20px;font-weight:800;font-family:'DM Mono',monospace;letter-spacing:-1px}
+    @media(max-width:600px){.gen-body{flex-direction:column;align-items:center}}
     /* ── notif ── */
     #notif{position:fixed;bottom:20px;right:20px;z-index:9999;background:#1e2a3a;border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none}
     #notif.v{opacity:1;transform:translateY(0)}
@@ -246,7 +276,10 @@
         <div class="kpi"><div class="kpi-icon">💰</div><div class="kpi-val" style="color:#10c886;font-size:${massa ? "17px" : "26px"}">${massa ? fmtKz(massa) : "—"}</div><div class="kpi-lbl">Massa Salarial</div><div class="kpi-sub">${funcs.filter(f => f.salarioBase).length} registos</div></div>
       </div>
 
-      <div class="sec">👤 Composição do Pessoal</div>
+      <div class="sec">👤 Distribuição por Género</div>
+      <div id="genero-card-wrap"></div>
+
+      <div class="sec">📊 Composição do Pessoal</div>
       <div class="g2">
         <div class="gc"><div class="gc-titulo">Pirâmide Etária</div><div class="gc-sub">Por faixa etária e sexo</div><div id="piramide"></div></div>
         <div class="gc"><div class="gc-titulo">Tipo de Vínculo</div><div class="gc-sub">Quadro vs Provisório</div><div id="vinculo-wrap"></div></div>
@@ -283,6 +316,7 @@
         <div class="gc"><div class="gc-titulo">Banco de Domiciliação</div><div class="gc-sub">Distribuição por banco</div><div id="bancos"></div></div>
       </div>`;
 
+    renderGeneroCard(funcs);
     renderPiramide(funcs);
     renderDonut("vinculo-wrap", calcGrupo(funcs, "vinculo", {quadro:"Quadro", provisorio:"Provisório"}));
     renderBarras("top-cat",     topN(funcs, "categoria", 8), 0);
@@ -298,6 +332,145 @@
   // ════════════════════════════════════════════════════════
   //  COMPONENTES
   // ════════════════════════════════════════════════════════
+  function renderGeneroCard(funcs) {
+    const el = document.getElementById("genero-card-wrap"); if (!el) return;
+    const total = funcs.length;
+    const masc  = funcs.filter(f => f.sexo === "Masculino").length;
+    const fem   = funcs.filter(f => f.sexo === "Feminino").length;
+    const outro = total - masc - fem;
+    const pctM  = total ? Math.round(masc / total * 100) : 0;
+    const pctF  = total ? Math.round(fem  / total * 100) : 0;
+
+    // Idades médias por sexo
+    function idadeMediaSexo(sexo) {
+      const lista = funcs.filter(f => f.sexo === sexo && f.nascimento);
+      if (!lista.length) return null;
+      const soma = lista.reduce((s, f) => s + (new Date().getFullYear() - new Date(f.nascimento).getFullYear()), 0);
+      return (soma / lista.length).toFixed(1);
+    }
+    const idM = idadeMediaSexo("Masculino") || "—";
+    const idF = idadeMediaSexo("Feminino")  || "—";
+
+    // Activos por sexo
+    const activosM = funcs.filter(f => f.sexo === "Masculino" && (!f.estado || f.estado === "activo")).length;
+    const activosF = funcs.filter(f => f.sexo === "Feminino"  && (!f.estado || f.estado === "activo")).length;
+    const pctActM  = masc ? Math.round(activosM / masc * 100) : 0;
+    const pctActF  = fem  ? Math.round(activosF / fem  * 100) : 0;
+
+    // SVG donut — r=54, cx=cy=70, circ=339.3
+    const r = 54, cx = 70, cy = 70, sw = 18, circ = 2 * Math.PI * r;
+    const segM = circ * pctM / 100;
+    const segF = circ * pctF / 100;
+    // offset: SVG começa às 3h; -90° → começar no topo; dashoffset = circ*0.25 - segAnterior
+    const offM = circ * 0.25;
+    const offF = circ * 0.25 - segM;
+
+    el.innerHTML = `
+      <div class="gen-card">
+        <!-- header -->
+        <div class="gen-card-header">
+          <div>
+            <div class="gen-card-titulo">Distribuição por Género</div>
+            <div class="gen-card-sub">Análise demográfica do efectivo</div>
+          </div>
+          <div class="gen-total-pill">
+            <span>👥</span>
+            <span>\${total} funcionários</span>
+          </div>
+        </div>
+
+        <!-- body: donut + detail cards -->
+        <div class="gen-body">
+
+          <!-- Donut SVG -->
+          <div class="gen-donut-wrap" style="width:160px;height:160px">
+            <svg width="160" height="160" viewBox="0 0 140 140" style="transform:rotate(-90deg)">
+              <!-- track -->
+              <circle cx="\${cx}" cy="\${cy}" r="\${r}" fill="none"
+                stroke="rgba(255,255,255,.06)" stroke-width="\${sw}"/>
+              <!-- Masculino -->
+              <circle cx="\${cx}" cy="\${cy}" r="\${r}" fill="none"
+                stroke="#3b82f6"
+                stroke-width="\${sw}"
+                stroke-linecap="round"
+                stroke-dasharray="\${segM.toFixed(1)} \${(circ - segM).toFixed(1)}"
+                stroke-dashoffset="\${offM.toFixed(1)}"/>
+              <!-- Feminino -->
+              <circle cx="\${cx}" cy="\${cy}" r="\${r}" fill="none"
+                stroke="#f472b6"
+                stroke-width="\${sw}"
+                stroke-linecap="round"
+                stroke-dasharray="\${segF.toFixed(1)} \${(circ - segF).toFixed(1)}"
+                stroke-dashoffset="\${offF.toFixed(1)}"/>
+            </svg>
+            <div class="gen-donut-center">
+              <div class="gen-donut-pct">100%</div>
+              <div class="gen-donut-lbl">Geral</div>
+            </div>
+          </div>
+
+          <!-- Detail cards -->
+          <div class="gen-details">
+            <!-- Masculino -->
+            <div class="gen-det-card">
+              <div class="gen-det-left">
+                <div class="gen-det-pill" style="background:#3b82f6"></div>
+                <div>
+                  <div class="gen-det-nome">
+                    Masculino
+                    <span class="gen-det-badge" style="background:rgba(59,130,246,.15);color:#60a5fa">\${pctM}%</span>
+                  </div>
+                  <div class="gen-det-sub">\${masc} funcionários · \${activosM} activos</div>
+                </div>
+              </div>
+              <div class="gen-det-right">
+                <div class="gen-det-pct" style="color:#e2e8f0">\${masc}</div>
+                <div class="gen-det-delta">Activos: \${pctActM}%</div>
+              </div>
+            </div>
+            <!-- Feminino -->
+            <div class="gen-det-card">
+              <div class="gen-det-left">
+                <div class="gen-det-pill" style="background:#f472b6"></div>
+                <div>
+                  <div class="gen-det-nome">
+                    Feminino
+                    <span class="gen-det-badge" style="background:rgba(244,114,182,.15);color:#fb7185">\${pctF}%</span>
+                  </div>
+                  <div class="gen-det-sub">\${fem} funcionárias · \${activosF} activas</div>
+                </div>
+              </div>
+              <div class="gen-det-right">
+                <div class="gen-det-pct" style="color:#e2e8f0">\${fem}</div>
+                <div class="gen-det-delta">Activas: \${pctActF}%</div>
+              </div>
+            </div>
+            \${outro > 0 ? \'<div class="gen-det-card"><div class="gen-det-left"><div class="gen-det-pill" style="background:#94a3b8"></div><div><div class="gen-det-nome">N\u00e3o especificado</div><div class="gen-det-sub">\' + outro + \' sem registo de sexo</div></div></div></div>\' : ""}
+          </div>
+        </div>
+
+        <!-- footer métricas -->
+        <div class="gen-footer">
+          <div>
+            <div class="gen-stat-lbl">Activos M</div>
+            <div class="gen-stat-val" style="color:#3b82f6">\${pctActM}%</div>
+          </div>
+          <div>
+            <div class="gen-stat-lbl">Activas F</div>
+            <div class="gen-stat-val" style="color:#f472b6">\${pctActF}%</div>
+          </div>
+          <div>
+            <div class="gen-stat-lbl">Idade Média M</div>
+            <div class="gen-stat-val" style="color:#f59e0b">\${idM}</div>
+          </div>
+          <div>
+            <div class="gen-stat-lbl">Idade Média F</div>
+            <div class="gen-stat-val" style="color:#f59e0b">\${idF}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
   function renderPiramide(funcs) {
     const fx = ["0–24","25–29","30–34","35–39","40–44","45–49","50–54","55–59","60+"];
     const d  = fx.map(f => ({ f, m: 0, fem: 0 }));
