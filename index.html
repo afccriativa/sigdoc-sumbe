@@ -1356,7 +1356,7 @@
       </div>
     </div>
 
-    <div class="sidebar-section-label">Principal</div>
+    <div class="sidebar-section-label" id="label-principal">Principal</div>
     <a class="nav-item activo" onclick="mostrarSecção('dashboard')">
       <span class="nav-ic">📊</span> Dashboard
     </a>
@@ -1373,7 +1373,7 @@
     <a href="#" onclick="mostrarSecção('secretaria');return false;" class="nav-item" id="mod-secretaria">
       <span class="nav-ic">✉️</span> Secretaria
     </a>
-    <div class="sidebar-section-label">Gestão</div>
+    <div class="sidebar-section-label" id="label-gestao">Gestão</div>
     <a href="auditoria.html" class="nav-item" id="mod-auditoria">
       <span class="nav-ic">🔍</span> Auditoria
     </a>
@@ -1599,6 +1599,14 @@
                   <div style="flex:1;min-width:0">
                     <div class="modulo-nome">Relatórios e Exportação</div>
                     <div class="modulo-desc">Mapas de pessoal em PDF e Excel.</div>
+                  </div>
+                  <span class="modulo-seta">›</span>
+                </a>
+                <a href="ferias.html" class="modulo-card" id="mod-ferias-card">
+                  <div class="modulo-icon" style="background:rgba(16,200,134,.12)">🌴</div>
+                  <div style="flex:1;min-width:0">
+                    <div class="modulo-nome">Férias e Ausências</div>
+                    <div class="modulo-desc">Registo e controlo de licenças e faltas.</div>
                   </div>
                   <span class="modulo-seta">›</span>
                 </a>
@@ -2083,20 +2091,27 @@
       const el = document.getElementById(id);
       if(el) el.style.display = vis.includes(id) ? "" : "none";
     });
+    // Ocultar section labels se nenhum item do grupo estiver visível
+    const principalVis = ["mod-cadastro","mod-documentos","mod-aprovacao","mod-secretaria"].some(id => vis.includes(id));
+    const gestaoVis    = ["mod-auditoria","mod-painel","mod-portal","mod-utilizadores-card"].some(id => vis.includes(id));
+    const lp = document.getElementById("label-principal");
+    const lg = document.getElementById("label-gestao");
+    if(lp) lp.style.display = principalVis ? "" : "none";
+    if(lg) lg.style.display = gestaoVis    ? "" : "none";
 
     // Controlar os cards do dashboard com a mesma matriz —
     // cada card tem id = sidebar_id + "-card"
     // O admin vê tudo, os outros só os seus módulos
     const acessoCards = {
-      admin:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card","mod-painel-card","mod-secretaria-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card"],
-      chefe:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card"],
-      tecnico:     ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card"],
+      admin:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card","mod-painel-card","mod-secretaria-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card","mod-ferias-card"],
+      chefe:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card","mod-ferias-card"],
+      tecnico:     ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card","mod-ferias-card"],
       secretaria:  ["mod-secretaria-card","mod-unidades-card"],
-      director:    ["mod-auditoria-card","mod-painel-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card"],
+      director:    ["mod-auditoria-card","mod-painel-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card","mod-ferias-card"],
       funcionario: []
     };
     const visCards = acessoCards[p] || [];
-    ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-auditoria-card","mod-painel-card","mod-secretaria-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card"].forEach(id => {
+    ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-auditoria-card","mod-painel-card","mod-secretaria-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card","mod-ferias-card"].forEach(id => {
       const el = document.getElementById(id);
       if(el) el.style.display = visCards.includes(id) ? "" : "none";
     });
