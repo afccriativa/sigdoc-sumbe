@@ -444,7 +444,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, collection, query, orderBy, where,
+  import { getFirestore, collection, addDoc, addDoc, query, orderBy, where,
            onSnapshot, getDocs, doc, updateDoc, getDoc, addDoc, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -673,6 +673,21 @@
     document.getElementById("obs-rejeicao").focus();
   };
 
+
+  // ── Helper: registar notificação para o funcionário ─────────────
+  async function criarNotificacao(destinatarioUid, tipo, titulo, corpo, extra={}) {
+    if (!destinatarioUid || !tipo || !titulo) return;
+    try {
+      await addDoc(collection(db,'notificacoes'), {
+        destinatarioUid, tipo, titulo,
+        corpo: corpo || '',
+        extra,
+        lida: false,
+        criadaEm: serverTimestamp()
+      });
+    } catch(e) { console.warn('criarNotificacao:', e); }
+  }
+
   window.aprovarDocumento=async function(){
     if(!docSel||!utilizadorActual)return;
     if(!_exigirPerfil(["admin","chefe","director","tecnico"])){console.warn("Acesso negado: aprovar");return;}
@@ -682,6 +697,19 @@
     try{
       await updateDoc(doc(db,"documentos",docSel.id),{estado:"aprovado",aprovadoPor:utilizadorActual.uid,aprovadoPorEmail:utilizadorActual.email,aprovadoEm:serverTimestamp(),observacao:""});
       notif("✅ Documento aprovado com sucesso!");
+      // ── Notificar funcionário ────────────────────────────────────
+      if (docSel.funcionarioUid || docSel.funcionarioId) {
+        const _uid = docSel.funcionarioUid || docSel.funcionarioId;
+        const _tipo = docSel.tipo || docSel.tipoDocumento || 'Documento';
+        const _nome = docSel.funcionarioNome ? ' de ' + docSel.funcionarioNome : '';
+        await criarNotificacao(
+          _uid,
+          'doc_aprovado',
+          '✅ Documento aprovado',
+          _tipo + _nome + ' foi aprovado e está disponível para consulta.',
+          { docId: docSel.id, tipoDoc: _tipo }
+        );
+      }
     }catch(e){console.error(e);notif("❌ Erro ao aprovar.","err");bA.disabled=false;bR.disabled=false;bA.innerHTML="✅ Aprovar";}
   };
 
@@ -696,6 +724,19 @@
       await updateDoc(doc(db,"documentos",docSel.id),{estado:"rejeitado",aprovadoPor:utilizadorActual.uid,aprovadoPorEmail:utilizadorActual.email,aprovadoEm:serverTimestamp(),observacao:obs});
       document.getElementById("obs-rejeicao").value="";
       notif("❌ Documento rejeitado.");
+      // ── Notificar funcionário ────────────────────────────────────
+      if (docSel.funcionarioUid || docSel.funcionarioId) {
+        const _uid = docSel.funcionarioUid || docSel.funcionarioId;
+        const _tipo = docSel.tipo || docSel.tipoDocumento || 'Documento';
+        const _nome = docSel.funcionarioNome ? ' de ' + docSel.funcionarioNome : '';
+        await criarNotificacao(
+          _uid,
+          'doc_rejeitado',
+          '❌ Documento rejeitado',
+          _tipo + _nome + ' foi rejeitado. Motivo: ' + obs,
+          { docId: docSel.id, tipoDoc: _tipo, motivo: obs }
+        );
+      }
     }catch(e){console.error(e);notif("❌ Erro ao rejeitar.","err");btn.disabled=false;btn.textContent="❌ Confirmar Rejeição";}
   };
 
