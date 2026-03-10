@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Relatórios — SIGDOC-SUMBE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="sigdoc-config.js"></script>
+  <script src="sigdoc-nav.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:#0d1422;color:#e2e8f0;min-height:100vh}
+    #ecra-carregando{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:14px;color:rgba(255,255,255,.4);font-size:13px}
+    #ecra-negado{display:none;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:14px}
+    #ecra-principal{display:none}
+    .spinner{width:22px;height:22px;border:2px solid rgba(255,255,255,.1);border-top-color:#3b82f6;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    /* topbar */
+    .topbar{height:56px;background:#111827;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50}
+    .topbar-titulo{font-size:15px;font-weight:800;letter-spacing:-.3px}
+    .topbar-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+    .badge-perfil{padding:3px 10px;border-radius:99px;font-size:10px;font-weight:700;background:rgba(59,130,246,.15);color:#3b82f6}
+    /* layout */
+    .content{padding:28px}
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px}
+    @media(max-width:900px){.g2{grid-template-columns:1fr}}
+    /* secção */
+    .sec{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin:28px 0 14px;display:flex;align-items:center;gap:8px}
+    .sec::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
+    /* card de relatório */
+    .rel-card{background:#1a2236;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:22px 24px;display:flex;flex-direction:column;gap:16px}
+    .rel-card-head{display:flex;align-items:flex-start;gap:14px}
+    .rel-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+    .rel-info{flex:1;min-width:0}
+    .rel-titulo{font-size:14px;font-weight:800;margin-bottom:3px}
+    .rel-desc{font-size:12px;color:rgba(255,255,255,.4);line-height:1.5}
+    /* filtros */
+    .rel-filtros{display:flex;flex-direction:column;gap:8px}
+    .campo-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px}
+    .campo-select,.campo-input{width:100%;padding:8px 10px;background:#111827;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#e2e8f0;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif}
+    .campo-select:focus,.campo-input:focus{outline:none;border-color:#3b82f6}
+    /* botões de exportação */
+    .btn-strip{display:flex;gap:8px;flex-wrap:wrap}
+    .btn-exp{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:9px;font-size:12px;font-weight:700;border:none;cursor:pointer;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif}
+    .btn-exp:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+    .btn-exp:active{transform:translateY(0)}
+    .btn-excel{background:rgba(16,200,134,.15);color:#10c886;border:1px solid rgba(16,200,134,.3)}
+    .btn-excel:hover{background:rgba(16,200,134,.25)}
+    .btn-pdf{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
+    .btn-pdf:hover{background:rgba(239,68,68,.25)}
+    .btn-csv{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3)}
+    .btn-csv:hover{background:rgba(245,158,11,.25)}
+    .btn-exp.loading{opacity:.6;pointer-events:none}
+    /* preview */
+    .preview-card{background:#1a2236;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:22px 24px;margin-bottom:22px}
+    .preview-titulo{font-size:13px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+    .preview-count{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace}
+    .preview-table-wrap{overflow-x:auto}
+    table.preview{width:100%;border-collapse:collapse;font-size:12px}
+    table.preview th{text-align:left;padding:7px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid rgba(255,255,255,.1)}
+    table.preview td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.05);color:#e2e8f0}
+    table.preview tr:hover td{background:rgba(255,255,255,.03)}
+    table.preview tr:last-child td{border-bottom:none}
+    .badge-estado{padding:2px 7px;border-radius:99px;font-size:10px;font-weight:700}
+    .be-activo{background:rgba(16,200,134,.12);color:#10c886}
+    .be-licenca{background:rgba(245,158,11,.12);color:#f59e0b}
+    .be-inactivo{background:rgba(239,68,68,.12);color:#ef4444}
+    /* notif */
+    #notif{position:fixed;bottom:20px;right:20px;z-index:9999;background:#1e2a3a;border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none;max-width:300px}
+    #notif.v{opacity:1;transform:translateY(0)}
+    /* vazio */
+    .vazio{padding:32px;text-align:center;color:rgba(255,255,255,.2);font-size:13px}
+  </style>
+</head>
+<body>
+
+<div id="ecra-carregando">
+  <div class="spinner"></div>
+  <div>A verificar acesso…</div>
+</div>
+<div id="ecra-negado">
+  <div style="font-size:40px">🔒</div>
+  <div style="font-size:16px;font-weight:700">Acesso não autorizado</div>
+  <a href="index.html" style="margin-top:12px;padding:9px 22px;border-radius:8px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:13px;font-weight:700;text-decoration:none">← Voltar</a>
+</div>
+
+<div id="ecra-principal">
+  <div class="topbar">
+    <div>
+      <div class="topbar-titulo">📋 Relatórios e Exportação</div>
+      <div class="topbar-sub" id="topbar-sub">A carregar…</div>
+    </div>
+    <span class="badge-perfil" id="badge-perfil">—</span>
+  </div>
+  <div class="content">
+
+    <!-- PRÉVIA INTERACTIVA -->
+    <div class="preview-card" id="preview-card" style="display:none">
+      <div class="preview-titulo">
+        <span id="preview-titulo-txt">Prévia</span>
+        <span class="preview-count" id="preview-count"></span>
+      </div>
+      <div class="preview-table-wrap">
+        <table class="preview" id="preview-table"></table>
+      </div>
+    </div>
+
+    <!-- SECÇÃO 1: Mapas de Pessoal -->
+    <div class="sec">👥 Mapas de Pessoal</div>
+    <div class="g2">
+
+      <!-- Mapa Geral -->
+      <div class="rel-card">
+        <div class="rel-card-head">
+          <div class="rel-icon" style="background:rgba(59,130,246,.15)">📋</div>
+          <div class="rel-info">
+            <div class="rel-titulo">Mapa Geral de Pessoal</div>
+            <div class="rel-desc">Lista completa de funcionários com todos os dados pessoais e profissionais.</div>
+          </div>
+        </div>
+        <div class="rel-filtros">
+          <div>
+            <label class="campo-label">Estado</label>
+            <select class="campo-select" id="f-mg-estado">
+              <option value="">Todos os estados</option>
+              <option value="activo">Em Serviço Activo</option>
+              <option value="licenca">De Licença</option>
+              <option value="inactivo">Inactivo</option>
+            </select>
+          </div>
+          <div>
+            <label class="campo-label">Vínculo</label>
+            <select class="campo-select" id="f-mg-vinculo">
+              <option value="">Todos os vínculos</option>
+              <option value="quadro">Pessoal do Quadro</option>
+              <option value="provisorio">Provimento Provisório</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-strip">
+          <button class="btn-exp btn-excel" onclick="exportarMapaGeral('excel')">📊 Excel</button>
+          <button class="btn-exp btn-pdf"   onclick="exportarMapaGeral('pdf')">📄 PDF</button>
+          <button class="btn-exp btn-csv"   onclick="exportarMapaGeral('csv')">📁 CSV</button>
+          <button class="btn-exp" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)" onclick="previsualizarMapaGeral()">👁 Prévia</button>
+        </div>
+      </div>
+
+      <!-- Mapa por Unidade -->
+      <div class="rel-card">
+        <div class="rel-card-head">
+          <div class="rel-icon" style="background:rgba(16,200,134,.15)">🏥</div>
+          <div class="rel-info">
+            <div class="rel-titulo">Mapa por Unidade Sanitária</div>
+            <div class="rel-desc">Lista de funcionários de uma unidade específica com dados de colocação.</div>
+          </div>
+        </div>
+        <div class="rel-filtros">
+          <div>
+            <label class="campo-label">Unidade</label>
+            <select class="campo-select" id="f-mu-unidade">
+              <option value="">Todas as unidades</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-strip">
+          <button class="btn-exp btn-excel" onclick="exportarMapaUnidade('excel')">📊 Excel</button>
+          <button class="btn-exp btn-pdf"   onclick="exportarMapaUnidade('pdf')">📄 PDF</button>
+          <button class="btn-exp btn-csv"   onclick="exportarMapaUnidade('csv')">📁 CSV</button>
+          <button class="btn-exp" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)" onclick="previsualizarMapaUnidade()">👁 Prévia</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SECÇÃO 2: Relatórios de Gestão -->
+    <div class="sec">📊 Relatórios de Gestão</div>
+    <div class="g2">
+
+      <!-- Cobertura -->
+      <div class="rel-card">
+        <div class="rel-card-head">
+          <div class="rel-icon" style="background:rgba(167,139,250,.15)">📍</div>
+          <div class="rel-info">
+            <div class="rel-titulo">Relatório de Cobertura</div>
+            <div class="rel-desc">Efectivo cadastrado vs esperado por unidade, com percentagem de cobertura.</div>
+          </div>
+        </div>
+        <div class="btn-strip" style="margin-top:8px">
+          <button class="btn-exp btn-excel" onclick="exportarCobertura('excel')">📊 Excel</button>
+          <button class="btn-exp btn-pdf"   onclick="exportarCobertura('pdf')">📄 PDF</button>
+          <button class="btn-exp" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)" onclick="previsualizarCobertura()">👁 Prévia</button>
+        </div>
+      </div>
+
+      <!-- Mapa Salarial -->
+      <div class="rel-card" id="card-salarial">
+        <div class="rel-card-head">
+          <div class="rel-icon" style="background:rgba(245,158,11,.15)">💰</div>
+          <div class="rel-info">
+            <div class="rel-titulo">Mapa Salarial</div>
+            <div class="rel-desc">Lista de funcionários com salário base e totais por unidade. Acesso restrito.</div>
+          </div>
+        </div>
+        <div class="rel-filtros">
+          <div>
+            <label class="campo-label">Unidade</label>
+            <select class="campo-select" id="f-sal-unidade">
+              <option value="">Todas as unidades</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-strip">
+          <button class="btn-exp btn-excel" onclick="exportarSalarial('excel')">📊 Excel</button>
+          <button class="btn-exp btn-pdf"   onclick="exportarSalarial('pdf')">📄 PDF</button>
+          <button class="btn-exp" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)" onclick="previsualizarSalarial()">👁 Prévia</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SECÇÃO 3: Fichas Individuais -->
+    <div class="sec">👤 Ficha Individual</div>
+    <div class="g2">
+      <div class="rel-card">
+        <div class="rel-card-head">
+          <div class="rel-icon" style="background:rgba(34,211,238,.15)">🪪</div>
+          <div class="rel-info">
+            <div class="rel-titulo">Ficha de Funcionário</div>
+            <div class="rel-desc">Ficha completa individual em formato PDF, para arquivo ou entrega.</div>
+          </div>
+        </div>
+        <div class="rel-filtros">
+          <div>
+            <label class="campo-label">Funcionário</label>
+            <select class="campo-select" id="f-ficha-func">
+              <option value="">Seleccionar funcionário…</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-strip">
+          <button class="btn-exp btn-pdf" onclick="exportarFicha()">📄 Gerar Ficha PDF</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="notif"></div>
+
+<script type="module">
+  import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+                               from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc }
+                               from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = window.SIGDOC_CONFIG.config;
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  const PERFIS_ACESSO = ["admin","director","chefe","tecnico"];
+  let _funcs = [], _unidades = {}, _perfil = '';
+
+  // ── NOTIF ───────────────────────────────────────────────
+  let _nt;
+  function notif(msg, tipo='ok') {
+    const el = document.getElementById('notif');
+    el.textContent = msg;
+    el.style.borderColor = tipo==='erro' ? 'rgba(239,68,68,.3)' : 'rgba(255,255,255,.13)';
+    el.classList.add('v');
+    clearTimeout(_nt); _nt = setTimeout(() => el.classList.remove('v'), 3500);
+  }
+
+  // ── AUTH ────────────────────────────────────────────────
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "index.html"; return; }
+    try {
+      const snap  = await getDoc(doc(db, "utilizadores", user.uid));
+      const dados = snap.exists() ? snap.data() : {};
+      _perfil     = dados.perfil || "funcionario";
+
+      if (!PERFIS_ACESSO.includes(_perfil)) {
+        document.getElementById("ecra-carregando").style.display = "none";
+        document.getElementById("ecra-negado").style.display     = "flex";
+        return;
+      }
+
+      const nome = dados.nome || user.email;
+      window._sigdocAuth = auth;
+      SIGDOC_NAV.mount({
+        pagina:   'relatorios',
+        nome:     nome,
+        perfil:   _perfil,
+        onLogout: async () => { await signOut(auth); window.location.href = "index.html"; }
+      });
+
+      document.getElementById("ecra-carregando").style.display = "none";
+      document.getElementById("ecra-principal").style.display  = "block";
+      document.getElementById("badge-perfil").textContent =
+        {admin:"Administrador",director:"Director",chefe:"Chefe RH",tecnico:"Técnico RH"}[_perfil] || _perfil;
+
+      // Ocultar mapa salarial se não tiver permissão
+      if (!["admin","chefe","tecnico"].includes(_perfil)) {
+        const cs = document.getElementById("card-salarial");
+        if (cs) cs.style.display = "none";
+      }
+
+      await carregarDados();
+
+    } catch(e) {
+      console.error(e);
+      document.getElementById("ecra-carregando").innerHTML =
+        `<div style="font-size:36px">❌</div>
+         <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.7)">Erro ao carregar</div>
+         <div style="font-size:11px;font-family:monospace;background:rgba(239,68,68,.1);padding:8px 14px;border-radius:8px;color:#fca5a5">${e.code||e.message}</div>
+         <a href="index.html" style="margin-top:8px;padding:9px 22px;border-radius:8px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:13px;font-weight:700;text-decoration:none">← Voltar</a>`;
+    }
+  });
+
+  // ── CARREGAR DADOS ──────────────────────────────────────
+  async function carregarDados() {
+    const [snapF, snapU] = await Promise.all([
+      getDocs(collection(db, "funcionarios")),
+      getDocs(collection(db, "unidades_sanitarias")).catch(() => null)
+    ]);
+
+    _funcs = snapF.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (snapU) snapU.forEach(d => { const u = d.data(); if (u.nome) _unidades[u.nome] = u; });
+
+    document.getElementById("topbar-sub").textContent =
+      `${_funcs.length} funcionários carregados`;
+
+    // Popular selects de unidades
+    const unidades = [...new Set(_funcs.map(f => f.unidade).filter(Boolean))].sort();
+    ["f-mu-unidade","f-sal-unidade"].forEach(id => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      unidades.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u; opt.textContent = u;
+        sel.appendChild(opt);
+      });
+    });
+
+    // Popular select de funcionários (ficha individual)
+    const selFunc = document.getElementById("f-ficha-func");
+    [..._funcs].sort((a,b) => (a.nome||"").localeCompare(b.nome||"")).forEach(f => {
+      const opt = document.createElement("option");
+      opt.value = f.id;
+      opt.textContent = f.nome + (f.numero ? ` — Nº ${f.numero}` : "");
+      selFunc.appendChild(opt);
+    });
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  FILTRAR DADOS
+  // ════════════════════════════════════════════════════════
+  function filtrarGeral() {
+    const estado  = document.getElementById("f-mg-estado").value;
+    const vinculo = document.getElementById("f-mg-vinculo").value;
+    return _funcs.filter(f => {
+      const eOK = !estado  || (f.estado||"activo") === estado;
+      const vOK = !vinculo || f.vinculo === vinculo;
+      return eOK && vOK;
+    });
+  }
+
+  function filtrarUnidade() {
+    const u = document.getElementById("f-mu-unidade").value;
+    return u ? _funcs.filter(f => f.unidade === u) : [..._funcs];
+  }
+
+  function filtrarSalarial() {
+    const u = document.getElementById("f-sal-unidade").value;
+    const base = u ? _funcs.filter(f => f.unidade === u) : [..._funcs];
+    return base.filter(f => f.salarioBase && Number(f.salarioBase) > 0);
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  UTILITÁRIOS
+  // ════════════════════════════════════════════════════════
+  const fmtData = v => v ? new Date(v).toLocaleDateString("pt-AO",{day:"2-digit",month:"2-digit",year:"numeric"}) : "—";
+  const fmtKz   = v => v ? Number(v).toLocaleString("pt-PT") + " Kz" : "—";
+  const lv      = v => ({quadro:"Pessoal do Quadro",provisorio:"Prov. Provisório"}[v] || v || "—");
+  const le      = v => ({activo:"Em Serviço",licenca:"De Licença",inactivo:"Inactivo"}[v] || v || "—");
+
+  // ════════════════════════════════════════════════════════
+  //  EXPORTAR EXCEL (TSV abre directamente no Excel)
+  // ════════════════════════════════════════════════════════
+  function downloadExcel(colunas, linhas, nomeArquivo) {
+    const bom   = "\uFEFF"; // BOM UTF-8 para Excel reconhecer acentos
+    const sep   = "\t";
+    const header = colunas.join(sep);
+    const rows   = linhas.map(l => l.map(c => String(c ?? "").replace(/\t/g," ").replace(/\n/g," ")).join(sep));
+    const tsv    = bom + [header, ...rows].join("\n");
+    const blob   = new Blob([tsv], { type: "text/tab-separated-values;charset=utf-8" });
+    const a      = document.createElement("a");
+    a.href       = URL.createObjectURL(blob);
+    a.download   = nomeArquivo + ".xls";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function downloadCSV(colunas, linhas, nomeArquivo) {
+    const bom  = "\uFEFF";
+    const esc  = v => { const s = String(v ?? ""); return s.includes(",") || s.includes('"') || s.includes("\n") ? `"${s.replace(/"/g,'""')}"` : s; };
+    const rows = [colunas, ...linhas].map(l => l.map(esc).join(","));
+    const blob = new Blob([bom + rows.join("\n")], { type: "text/csv;charset=utf-8" });
+    const a    = document.createElement("a");
+    a.href     = URL.createObjectURL(blob);
+    a.download = nomeArquivo + ".csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  EXPORTAR PDF (janela de impressão)
+  // ════════════════════════════════════════════════════════
+  function abrirPDF(html, titulo) {
+    const win = window.open("", "_blank");
+    win.document.write(`<!DOCTYPE html><html lang="pt"><head>
+      <meta charset="UTF-8"/>
+      <title>${titulo}</title>
+      <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:Arial,sans-serif;font-size:10px;color:#111;padding:20mm 18mm}
+        h1{font-size:15px;font-weight:700;margin-bottom:4px}
+        .sub{font-size:10px;color:#555;margin-bottom:16px}
+        .meta{font-size:9px;color:#888;margin-bottom:20px;display:flex;gap:20px}
+        table{width:100%;border-collapse:collapse;font-size:9px}
+        th{text-align:left;padding:5px 6px;background:#f3f4f6;font-weight:700;font-size:8.5px;text-transform:uppercase;letter-spacing:.4px;border:1px solid #d1d5db}
+        td{padding:5px 6px;border:1px solid #e5e7eb;vertical-align:top}
+        tr:nth-child(even) td{background:#f9fafb}
+        .badge{padding:1px 6px;border-radius:99px;font-size:8px;font-weight:700}
+        .ba{background:#d1fae5;color:#065f46}
+        .bl{background:#fef3c7;color:#92400e}
+        .bi{background:#fee2e2;color:#991b1b}
+        .totais{margin-top:16px;padding:10px 12px;background:#f3f4f6;border-radius:6px;font-size:10px}
+        .totais strong{font-size:12px}
+        @media print{body{padding:10mm 12mm}button{display:none}}
+        .print-btn{position:fixed;bottom:20px;right:20px;padding:10px 20px;background:#1d4ed8;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+        @page{margin:15mm}
+      </style>
+    </head><body>
+    ${html}
+    <button class="print-btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    </body></html>`);
+    win.document.close();
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  PRÉVIA
+  // ════════════════════════════════════════════════════════
+  function mostrarPrevia(titulo, colunas, linhas) {
+    const card = document.getElementById("preview-card");
+    document.getElementById("preview-titulo-txt").textContent = "👁 Prévia — " + titulo;
+    document.getElementById("preview-count").textContent = linhas.length + " registos";
+    const table = document.getElementById("preview-table");
+    const max = Math.min(linhas.length, 10);
+    table.innerHTML =
+      `<thead><tr>${colunas.map(c => `<th>${c}</th>`).join("")}</tr></thead>` +
+      `<tbody>${linhas.slice(0,max).map(l =>
+        `<tr>${l.map((c,i) => {
+          if(colunas[i]==="Estado"){
+            const cls = c==="Em Serviço"?"be-activo":c==="De Licença"?"be-licenca":"be-inactivo";
+            return `<td><span class="badge-estado ${cls}">${c}</span></td>`;
+          }
+          return `<td>${c}</td>`;
+        }).join("")}</tr>`
+      ).join("")}
+      ${linhas.length>max?`<tr><td colspan="${colunas.length}" style="text-align:center;color:rgba(255,255,255,.3);font-size:11px;padding:10px">… mais ${linhas.length-max} registos</td></tr>`:""}
+      </tbody>`;
+    card.style.display = "block";
+    card.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  MAPA GERAL
+  // ════════════════════════════════════════════════════════
+  const COLS_GERAL = ["Nº Agente","Nome Completo","Sexo","Data Nascimento","BI","Telefone","Categoria","Unidade","Secção","Vínculo","Data Admissão","Anos Serviço","Estado","Escolaridade","Naturalidade","Nº INSS","Banco"];
+
+  function linhasGeral(funcs) {
+    return funcs.map(f => {
+      const anos = f.admissao ? new Date().getFullYear() - new Date(f.admissao).getFullYear() : "—";
+      const nat  = [f.municipioNatal, f.provinciaNatal].filter(Boolean).join(", ") || "—";
+      return [f.numero||"—",f.nome||"—",f.sexo||"—",fmtData(f.nascimento),f.bi||"—",f.telefone||"—",f.categoria||"—",f.unidade||"—",f.seccao||"—",lv(f.vinculo),fmtData(f.admissao),anos,le(f.estado||"activo"),f.escolaridade||"—",nat,f.inss||"—",f.banco||"—"];
+    });
+  }
+
+  window.exportarMapaGeral = function(fmt) {
+    const funcs = filtrarGeral();
+    if (!funcs.length) { notif("Nenhum funcionário corresponde aos filtros.", "erro"); return; }
+    const linhas = linhasGeral(funcs);
+    const nome = "Mapa_Geral_Pessoal_" + hoje();
+    if (fmt === "excel") { downloadExcel(COLS_GERAL, linhas, nome); notif("📊 Excel gerado com "+funcs.length+" registos"); }
+    else if (fmt === "csv") { downloadCSV(COLS_GERAL, linhas, nome); notif("📁 CSV gerado com "+funcs.length+" registos"); }
+    else pdfMapaGeral(funcs);
+  };
+
+  window.previsualizarMapaGeral = function() {
+    mostrarPrevia("Mapa Geral de Pessoal", ["Nº","Nome","Sexo","Categoria","Unidade","Vínculo","Estado"], filtrarGeral().map(f=>[f.numero||"—",f.nome||"—",f.sexo||"—",f.categoria||"—",abrev(f.unidade||"—"),lv(f.vinculo),le(f.estado||"activo")]));
+  };
+
+  function pdfMapaGeral(funcs) {
+    const titulo = "Mapa Geral de Pessoal";
+    const rows = funcs.map(f => {
+      const anos = f.admissao ? new Date().getFullYear() - new Date(f.admissao).getFullYear() : "—";
+      const ecls = (f.estado||"activo")==="activo"?"ba":(f.estado==="licenca"?"bl":"bi");
+      return `<tr><td>${f.numero||"—"}</td><td><strong>${f.nome||"—"}</strong></td><td>${f.sexo||"—"}</td><td>${f.categoria||"—"}</td><td>${abrev(f.unidade||"—")}</td><td>${lv(f.vinculo)}</td><td>${fmtData(f.admissao)}</td><td>${anos}</td><td><span class="badge ${ecls}">${le(f.estado||"activo")}</span></td></tr>`;
+    }).join("");
+    abrirPDF(`
+      <h1>${titulo}</h1>
+      <div class="sub">Direcção Municipal de Saúde do Sumbe</div>
+      <div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span><span>Total: ${funcs.length} funcionários</span></div>
+      <table><thead><tr><th>Nº</th><th>Nome</th><th>Sexo</th><th>Categoria</th><th>Unidade</th><th>Vínculo</th><th>Admissão</th><th>Anos</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table>
+    `, titulo);
+    notif("📄 PDF aberto em nova janela — use Imprimir para guardar");
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  MAPA POR UNIDADE
+  // ════════════════════════════════════════════════════════
+  window.exportarMapaUnidade = function(fmt) {
+    const funcs = filtrarUnidade();
+    const unid  = document.getElementById("f-mu-unidade").value || "Todas as Unidades";
+    if (!funcs.length) { notif("Nenhum funcionário nesta unidade.", "erro"); return; }
+    const cols  = ["Nº Agente","Nome Completo","Sexo","Categoria","Secção","Vínculo","Data Admissão","Anos Serviço","Estado","Telefone"];
+    const linhas = funcs.map(f => {
+      const anos = f.admissao ? new Date().getFullYear() - new Date(f.admissao).getFullYear() : "—";
+      return [f.numero||"—",f.nome||"—",f.sexo||"—",f.categoria||"—",f.seccao||"—",lv(f.vinculo),fmtData(f.admissao),anos,le(f.estado||"activo"),f.telefone||"—"];
+    });
+    const nome = "Mapa_" + abrev(unid).replace(/\s+/g,"_") + "_" + hoje();
+    if (fmt==="excel") { downloadExcel(cols, linhas, nome); notif("📊 Excel gerado com "+funcs.length+" registos"); }
+    else if (fmt==="csv") { downloadCSV(cols, linhas, nome); notif("📁 CSV gerado"); }
+    else {
+      const rows = funcs.map(f => {
+        const anos = f.admissao ? new Date().getFullYear() - new Date(f.admissao).getFullYear() : "—";
+        const ecls = (f.estado||"activo")==="activo"?"ba":(f.estado==="licenca"?"bl":"bi");
+        return `<tr><td>${f.numero||"—"}</td><td><strong>${f.nome||"—"}</strong></td><td>${f.sexo||"—"}</td><td>${f.categoria||"—"}</td><td>${f.seccao||"—"}</td><td>${lv(f.vinculo)}</td><td>${fmtData(f.admissao)}</td><td>${anos}</td><td><span class="badge ${ecls}">${le(f.estado||"activo")}</span></td></tr>`;
+      }).join("");
+      abrirPDF(`<h1>Mapa de Pessoal — ${unid}</h1><div class="sub">Direcção Municipal de Saúde do Sumbe</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span><span>Total: ${funcs.length} funcionários</span></div><table><thead><tr><th>Nº</th><th>Nome</th><th>Sexo</th><th>Categoria</th><th>Secção</th><th>Vínculo</th><th>Admissão</th><th>Anos</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table>`,`Mapa ${unid}`);
+      notif("📄 PDF aberto em nova janela");
+    }
+  };
+
+  window.previsualizarMapaUnidade = function() {
+    const funcs = filtrarUnidade();
+    const unid  = document.getElementById("f-mu-unidade").value || "Todas";
+    mostrarPrevia("Mapa — "+abrev(unid), ["Nº","Nome","Categoria","Unidade","Vínculo","Estado"], funcs.map(f=>[f.numero||"—",f.nome||"—",f.categoria||"—",abrev(f.unidade||"—"),lv(f.vinculo),le(f.estado||"activo")]));
+  };
+
+  // ════════════════════════════════════════════════════════
+  //  COBERTURA
+  // ════════════════════════════════════════════════════════
+  window.exportarCobertura = function(fmt) {
+    const cm = {};
+    _funcs.forEach(f => { const u = f.unidade||"—"; cm[u]=(cm[u]||0)+1; });
+    const todas = new Set([...Object.keys(cm),...Object.keys(_unidades)]);
+    const lista = [...todas].filter(n=>n!=="—"&&n!=="Não especificada")
+      .map(nome=>({nome,cad:cm[nome]||0,esp:_unidades[nome]?.efectivo?.esperado||0}))
+      .sort((a,b)=>(b.esp||b.cad)-(a.esp||a.cad));
+    const cols   = ["Unidade Sanitária","Cadastrados","Efectivo Esperado","Cobertura (%)","Estado"];
+    const linhas = lista.map(u => {
+      const cob = u.esp>0?Math.round(u.cad/u.esp*100):null;
+      const est = cob===null?"Sem meta":cob>=90?"✓ Adequada":cob>=60?"⚠ Parcial":"✗ Crítica";
+      return [u.nome, u.cad, u.esp||"—", cob!==null?cob+"%":"—", est];
+    });
+    if (fmt==="excel") { downloadExcel(cols, linhas, "Relatorio_Cobertura_"+hoje()); notif("📊 Excel de cobertura gerado"); }
+    else {
+      const rows = lista.map(u => {
+        const cob  = u.esp>0?Math.round(u.cad/u.esp*100):null;
+        const ecls = cob===null?"":"badge "+(cob>=90?"ba":cob>=60?"bl":"bi");
+        const txt  = cob===null?"s/meta":cob+"%";
+        return `<tr><td>${u.nome}</td><td style="text-align:center">${u.cad}</td><td style="text-align:center">${u.esp||"—"}</td><td style="text-align:center"><span class="${ecls}">${txt}</span></td></tr>`;
+      }).join("");
+      const tot = lista.reduce((s,u)=>s+u.cad,0);
+      const totEsp = lista.reduce((s,u)=>s+u.esp,0);
+      abrirPDF(`<h1>Relatório de Cobertura por Unidade</h1><div class="sub">Direcção Municipal de Saúde do Sumbe</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span></div><table><thead><tr><th>Unidade Sanitária</th><th>Cadastrados</th><th>Esperado</th><th>Cobertura</th></tr></thead><tbody>${rows}</tbody></table><div class="totais">Total cadastrados: <strong>${tot}</strong> &nbsp;|&nbsp; Total esperado: <strong>${totEsp||"—"}</strong></div>`, "Relatório de Cobertura");
+      notif("📄 PDF aberto em nova janela");
+    }
+  };
+
+  window.previsualizarCobertura = function() {
+    const cm = {};
+    _funcs.forEach(f => { const u = f.unidade||"—"; cm[u]=(cm[u]||0)+1; });
+    const todas = new Set([...Object.keys(cm),...Object.keys(_unidades)]);
+    const lista = [...todas].filter(n=>n!=="—"&&n!=="Não especificada")
+      .map(nome=>({nome,cad:cm[nome]||0,esp:_unidades[nome]?.efectivo?.esperado||0}))
+      .sort((a,b)=>(b.esp||b.cad)-(a.esp||a.cad));
+    mostrarPrevia("Cobertura", ["Unidade","Cadastrados","Esperado","Cobertura"],
+      lista.map(u=>{const c=u.esp>0?Math.round(u.cad/u.esp*100):null;return[abrev(u.nome),u.cad,u.esp||"—",c!==null?c+"%":"s/meta"];}));
+  };
+
+  // ════════════════════════════════════════════════════════
+  //  SALARIAL
+  // ════════════════════════════════════════════════════════
+  window.exportarSalarial = function(fmt) {
+    if (!["admin","chefe","tecnico"].includes(_perfil)) { notif("Sem permissão para aceder ao mapa salarial.","erro"); return; }
+    const funcs = filtrarSalarial();
+    if (!funcs.length) { notif("Nenhum funcionário com salário registado.","erro"); return; }
+    const cols   = ["Nº Agente","Nome","Unidade","Categoria","Vínculo","Salário Base (Kz)"];
+    const linhas = funcs.map(f => [f.numero||"—",f.nome||"—",f.unidade||"—",f.categoria||"—",lv(f.vinculo),Number(f.salarioBase)||0]);
+    const total  = funcs.reduce((s,f)=>s+(Number(f.salarioBase)||0),0);
+    if (fmt==="excel") { downloadExcel([...cols,["TOTAL","","","","",total]], linhas, "Mapa_Salarial_"+hoje()); notif("📊 Mapa salarial exportado"); }
+    else {
+      const rows = funcs.map(f=>`<tr><td>${f.numero||"—"}</td><td><strong>${f.nome||"—"}</strong></td><td>${abrev(f.unidade||"—")}</td><td>${f.categoria||"—"}</td><td>${lv(f.vinculo)}</td><td style="text-align:right;font-weight:700">${fmtKz(f.salarioBase)}</td></tr>`).join("");
+      abrirPDF(`<h1>Mapa Salarial</h1><div class="sub">Direcção Municipal de Saúde do Sumbe — CONFIDENCIAL</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span><span>${funcs.length} funcionários com salário registado</span></div><table><thead><tr><th>Nº</th><th>Nome</th><th>Unidade</th><th>Categoria</th><th>Vínculo</th><th>Salário Base</th></tr></thead><tbody>${rows}</tbody></table><div class="totais">Massa salarial total: <strong>${fmtKz(total)}</strong></div>`, "Mapa Salarial");
+      notif("📄 PDF aberto em nova janela");
+    }
+  };
+
+  window.previsualizarSalarial = function() {
+    if (!["admin","chefe","tecnico"].includes(_perfil)) { notif("Sem permissão.","erro"); return; }
+    const funcs = filtrarSalarial();
+    mostrarPrevia("Mapa Salarial", ["Nº","Nome","Unidade","Categoria","Salário Base"],
+      funcs.map(f=>[f.numero||"—",f.nome||"—",abrev(f.unidade||"—"),f.categoria||"—",fmtKz(f.salarioBase)]));
+  };
+
+  // ════════════════════════════════════════════════════════
+  //  FICHA INDIVIDUAL
+  // ════════════════════════════════════════════════════════
+  window.exportarFicha = function() {
+    const id = document.getElementById("f-ficha-func").value;
+    if (!id) { notif("Seleccione um funcionário.","erro"); return; }
+    const f = _funcs.find(x => x.id === id);
+    if (!f) { notif("Funcionário não encontrado.","erro"); return; }
+    const anos = f.admissao ? new Date().getFullYear() - new Date(f.admissao).getFullYear() : null;
+    const nat  = [f.municipioNatal, f.provinciaNatal].filter(Boolean).join(", ") || "—";
+    const campoSal = ["admin","chefe","tecnico"].includes(_perfil) && f.salarioBase
+      ? `<tr><td><strong>Salário Base</strong></td><td>${fmtKz(f.salarioBase)}</td></tr>` : "";
+    abrirPDF(`
+      <h1>Ficha de Funcionário</h1>
+      <div class="sub">Direcção Municipal de Saúde do Sumbe</div>
+      <div class="meta"><span>Emitido em: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span></div>
+      <table>
+        <tbody>
+          <tr><td><strong>Nome Completo</strong></td><td>${f.nome||"—"}</td><td><strong>Nº de Agente</strong></td><td>${f.numero||"—"}</td></tr>
+          <tr><td><strong>Sexo</strong></td><td>${f.sexo||"—"}</td><td><strong>Data de Nascimento</strong></td><td>${fmtData(f.nascimento)}</td></tr>
+          <tr><td><strong>Bilhete de Identidade</strong></td><td>${f.bi||"—"}</td><td><strong>Naturalidade</strong></td><td>${nat}</td></tr>
+          <tr><td><strong>Telefone</strong></td><td>${f.telefone||"—"}</td><td><strong>E-mail</strong></td><td>${f.email||"—"}</td></tr>
+          <tr><td><strong>Categoria / Cargo</strong></td><td colspan="3">${f.categoria||"—"}</td></tr>
+          <tr><td><strong>Local de Colocação</strong></td><td colspan="3">${f.unidade||"—"}${f.seccao?" — "+f.seccao:""}</td></tr>
+          <tr><td><strong>Tipo de Vínculo</strong></td><td>${lv(f.vinculo)}</td><td><strong>Data de Admissão</strong></td><td>${fmtData(f.admissao)}</td></tr>
+          <tr><td><strong>Anos de Serviço</strong></td><td>${anos!==null?anos+" anos":"—"}</td><td><strong>Estado</strong></td><td>${le(f.estado||"activo")}</td></tr>
+          <tr><td><strong>Escolaridade</strong></td><td>${f.escolaridade||"—"}</td><td><strong>Nº INSS</strong></td><td>${f.inss||"—"}</td></tr>
+          <tr><td><strong>Banco</strong></td><td>${f.banco||"—"}</td><td></td><td></td></tr>
+          ${campoSal}
+          ${f.observacoes?`<tr><td><strong>Observações</strong></td><td colspan="3">${f.observacoes}</td></tr>`:""}
+        </tbody>
+      </table>
+      <br><br>
+      <div style="display:flex;justify-content:space-between;margin-top:30px;font-size:10px">
+        <div style="text-align:center">_______________________<br>Assinatura do Funcionário</div>
+        <div style="text-align:center">_______________________<br>Chefe dos Recursos Humanos</div>
+        <div style="text-align:center">_______________________<br>Director Municipal de Saúde</div>
+      </div>`,
+      "Ficha — " + f.nome);
+    notif("📄 Ficha de " + f.nome + " aberta em nova janela");
+  };
+
+  // ════════════════════════════════════════════════════════
+  //  UTILITÁRIOS
+  // ════════════════════════════════════════════════════════
+  const abrev = n => (n||"").replace("Direcção Municipal de Saúde do Sumbe","DMS").replace("Centro de Saúde","CS").replace("Posto de Saúde","PS");
+  const hoje  = () => new Date().toISOString().slice(0,10).replace(/-/g,"");
+</script>
+</body>
+</html>
