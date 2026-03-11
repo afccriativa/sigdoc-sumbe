@@ -532,6 +532,9 @@
       <div class="sec">📍 Cobertura por Unidade</div>
       <div class="g1"><div class="gc"><div class="gc-titulo" id="cob-titulo">Cadastrados vs Efectivo Esperado</div><div class="gc-sub" id="cob-sub">Por unidade sanitária</div><div id="cobertura"></div></div></div>
 
+      <div class="sec">🏢 Secções Internas da DMS</div>
+      <div class="g1" id="dms-seccoes-wrap"></div>
+
       <div class="sec">🗺 Naturalidade</div>
       <div class="g2">
         <div class="gc"><div class="gc-titulo">Por Província</div><div class="gc-sub">Província de naturalidade</div><div id="geo-prov"></div></div>
@@ -563,6 +566,7 @@
     renderBarras("top-cat",     topN(funcs, "categoria", 8), 0);
     renderDonut("estado-wrap",  calcGrupo(funcs, "estado", {activo:"Em Serviço", licenca:"De Licença", inactivo:"Inactivo"}));
     renderCobertura(funcs, unidades);
+    renderSeccoesDMS(funcs);
     renderBarras("geo-prov",    topN(funcs, "provinciaNatal", 10), 4);
     renderBarras("geo-mun",     topN(funcs, "municipioNatal",  10), 3);
     renderSalarial(funcs);
@@ -1136,6 +1140,184 @@
     `;
   }
 
+
+
+  // ════════════════════════════════════════════════════════
+  //  SECÇÕES INTERNAS DA DMS
+  // ════════════════════════════════════════════════════════
+
+  // Nome exacto da DMS — deve coincidir com o valor em unidades_sanitarias no Firestore
+  const DMS_NOME = 'Direcção Municipal de Saúde do Sumbe';
+
+  // Nomes oficiais das secções — idênticos ao SECCOES_DMS em unidades.html
+  // NÃO alterar aqui sem alterar também em unidades.html
+  const SECCOES_DMS_NOMES = [
+    'Secção de Planeamento, Estatística e Recursos Humanos',
+    'Secção de Saúde Pública',
+    'Secção de Inspecção Sanitária',
+    'Secção de Logística Hospitalar e Medicamentos',
+    'Secretaria',
+  ];
+
+  function renderSeccoesDMS(funcs) {
+    const wrap = document.getElementById('dms-seccoes-wrap');
+    if (!wrap) return;
+
+    // ── Filtrar apenas funcionários da DMS no conjunto activo ──
+    const dmsFunc = funcs.filter(f => (f.unidade || '').trim() === DMS_NOME);
+
+    if (!dmsFunc.length) {
+      wrap.innerHTML = `
+        <div class="gc">
+          <div style="padding:20px;text-align:center;color:rgba(255,255,255,.25);font-size:12px">
+            Nenhum funcionário da DMS no conjunto actualmente seleccionado.
+          </div>
+        </div>`;
+      return;
+    }
+
+    const total     = dmsFunc.length;
+    const comSeccao = dmsFunc.filter(f => (f.seccao || '').trim()).length;
+    const semSeccao = total - comSeccao;
+
+    // ── Contar por secção ──
+    const contagem = {};
+    dmsFunc.forEach(f => {
+      const s = (f.seccao || '').trim();
+      if (s) contagem[s] = (contagem[s] || 0) + 1;
+    });
+
+    // ── Ler metas do Firestore (via _todasUnidades já em memória) ──
+    const metasDMS = _todasUnidades[DMS_NOME]?.efectivo?.seccoes || {};
+
+    // ── Construir lista: secções oficiais primeiro, depois ad-hoc ──
+    const seccoesNoDados   = Object.keys(contagem);
+    const seccoesAdHoc     = seccoesNoDados.filter(s => !SECCOES_DMS_NOMES.includes(s));
+    const todasSeccoes     = [
+      ...SECCOES_DMS_NOMES.filter(s => contagem[s] || metasDMS[s]),  // oficiais com dados ou meta
+      ...seccoesAdHoc,                                                 // ad-hoc do campo seccao
+    ];
+
+    if (!todasSeccoes.length && !semSeccao) {
+      wrap.innerHTML = `<div class="gc"><div class="vazio">Nenhum dado de secção disponível.</div></div>`;
+      return;
+    }
+
+    // ── Escala das barras ──
+    const maxCad = Math.max(...todasSeccoes.map(s => contagem[s] || 0), semSeccao, 1);
+    const maxEsp = Math.max(...todasSeccoes.map(s => metasDMS[s] || 0), 1);
+    const maxBar = Math.max(maxCad, maxEsp);
+
+    // ── Cor / badge ──
+    const cor = pct => pct >= 90 ? '#10c886' : pct >= 60 ? '#f59e0b' : '#ef4444';
+    const cls = pct => pct >= 90 ? 'cv'      : pct >= 60 ? 'ca'      : 'cr';
+
+    // ── Score global DMS (só secções com meta definida e > 0) ──
+    const secsComMeta   = todasSeccoes.filter(s => metasDMS[s] > 0);
+    const totalEsperado = secsComMeta.reduce((a, s) => a + metasDMS[s], 0);
+    const totalCadMeta  = secsComMeta.reduce((a, s) => a + (contagem[s] || 0), 0);
+    const scoreDMS      = totalEsperado > 0 ? Math.round(totalCadMeta / totalEsperado * 100) : null;
+    const corScore      = scoreDMS !== null ? cor(scoreDMS) : '#3b82f6';
+
+    // ── Linhas por secção ──
+    const linhas = todasSeccoes.map(s => {
+      const cad  = contagem[s] || 0;
+      const esp  = metasDMS[s] > 0 ? metasDMS[s] : null;
+      const pct  = esp !== null ? Math.round(cad / esp * 100) : null;
+      const fc   = pct === null ? '#3b82f6' : cor(pct);
+      const barEspW = esp !== null ? Math.round(Math.min(esp / maxBar, 1) * 100) : 0;
+      const barCadW = Math.round(Math.min(cad / maxBar, 1) * 100);
+      return `
+        <div class="cob-item">
+          <div class="cob-nome" title="${s}">${s}</div>
+          <div class="cob-bar" style="width:90px">
+            ${esp !== null
+              ? `<div style="position:absolute;inset:0;width:${barEspW}%;background:rgba(255,255,255,.12);border-radius:99px"></div>`
+              : ''}
+            <div class="cob-bar-fill" style="width:${barCadW}%;background:${fc}"></div>
+          </div>
+          <div class="cob-nums">
+            <span class="cob-cad" style="color:${fc}">${cad}</span>
+            <span class="cob-sep">/</span>
+            <span class="cob-esp">${esp !== null ? esp : '—'}</span>
+          </div>
+          <span class="cob-badge ${pct !== null ? cls(pct) : 'c0'}">
+            ${pct !== null ? pct + '%' : 's/meta'}
+          </span>
+        </div>`;
+    }).join('');
+
+    // ── Linha "Sem secção registada" ──
+    const linhaSemSec = semSeccao > 0 ? `
+      <div class="cob-item" style="opacity:.5">
+        <div class="cob-nome" style="font-style:italic;color:rgba(255,255,255,.3)">Sem secção registada</div>
+        <div class="cob-bar" style="width:90px">
+          <div class="cob-bar-fill" style="width:${Math.round(semSeccao / maxBar * 100)}%;background:rgba(255,255,255,.15)"></div>
+        </div>
+        <div class="cob-nums">
+          <span class="cob-cad" style="color:rgba(255,255,255,.3)">${semSeccao}</span>
+          <span class="cob-sep">/</span><span class="cob-esp">—</span>
+        </div>
+        <span class="cob-badge c0">s/secção</span>
+      </div>` : '';
+
+    // ── Aviso de metas não configuradas ──
+    const semMeta = todasSeccoes.filter(s => !metasDMS[s] || metasDMS[s] === 0);
+    const avisoMeta = semMeta.length > 0 ? `
+      <div style="display:flex;align-items:flex-start;gap:8px;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.18);border-radius:8px;padding:9px 12px;margin-bottom:14px">
+        <span>ℹ️</span>
+        <span style="font-size:11px;color:rgba(255,255,255,.5);line-height:1.5">
+          <strong style="color:#60a5fa">${semMeta.length} secção(ões)</strong> sem meta definida.
+          Configura em <strong>Unidades → DMS → Editar meta</strong> para ver cobertura por secção.
+        </span>
+      </div>` : '';
+
+    wrap.innerHTML = `
+      <div class="gc">
+        <!-- cabeçalho com mini-KPIs -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px">
+          <div>
+            <div class="gc-titulo">Secções Internas — DMS Sede</div>
+            <div class="gc-sub">Direcção Municipal de Saúde do Sumbe</div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:8px 14px;text-align:center">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-bottom:3px">Total DMS</div>
+              <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:#3b82f6">${total}</div>
+            </div>
+            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:8px 14px;text-align:center">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-bottom:3px">Com Secção</div>
+              <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:${comSeccao === total ? '#10c886' : '#f59e0b'}">${comSeccao}</div>
+            </div>
+            ${scoreDMS !== null ? `
+            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:8px 14px;text-align:center">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-bottom:3px">Cobertura DMS</div>
+              <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:${corScore}">${scoreDMS}%</div>
+            </div>` : ''}
+          </div>
+        </div>
+
+        ${semSeccao > 0 && (semSeccao / total) > 0.2 ? `
+        <div style="display:flex;align-items:center;gap:8px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:8px 12px;margin-bottom:14px">
+          <span>⚠️</span>
+          <span style="font-size:11px;color:#f59e0b;font-weight:600">${semSeccao} funcionário${semSeccao > 1 ? 's' : ''} da DMS sem secção registada (${Math.round(semSeccao / total * 100)}%).</span>
+        </div>` : ''}
+
+        ${avisoMeta}
+
+        ${secsComMeta.length ? `
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:5px;border-radius:99px;background:rgba(255,255,255,.2)"></div><span style="font-size:10px;color:rgba(255,255,255,.3)">Esperado</span></div>
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:5px;border-radius:99px;background:#3b82f6"></div><span style="font-size:10px;color:rgba(255,255,255,.3)">Cadastrado</span></div>
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:2px;background:rgba(16,200,134,.2)"></div><span style="font-size:10px;color:rgba(255,255,255,.3)">≥90%</span></div>
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:2px;background:rgba(245,158,11,.2)"></div><span style="font-size:10px;color:rgba(255,255,255,.3)">60–89%</span></div>
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:2px;background:rgba(239,68,68,.2)"></div><span style="font-size:10px;color:rgba(255,255,255,.3)">&lt;60%</span></div>
+        </div>` : ''}
+
+        ${linhas}
+        ${linhaSemSec}
+      </div>`;
+  }
 
   // ════════════════════════════════════════════════════════
   //  EXPORTAÇÃO — CSV + Impressão
