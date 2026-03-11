@@ -345,8 +345,10 @@
         </div>
 
         <div>
-          <label>Categoria / Cargo</label>
-          <input type="text" id="categoria-func" placeholder="Preenchido automaticamente" readonly/>
+          <label>Cargo / Categoria</label>
+          <input type="text" id="cargo-func" placeholder="Preenchido automaticamente" readonly/>
+          <input type="text" id="categoria-func" style="display:none" readonly/>
+          <div id="hint-cargo-cat" style="display:none;font-size:10px;color:#6b7280;margin-top:4px;font-style:italic"></div>
         </div>
 
         <div>
@@ -642,9 +644,11 @@
       campoNome.classList.add('campo-preenchido');
     }
     if (cat) {
-      const campoCat = document.getElementById('categoria-func');
-      campoCat.value = cat;
-      campoCat.classList.add('campo-preenchido');
+      // campo visível é cargo-func; categoria-func mantém o valor técnico
+      var campoCat = document.getElementById('cargo-func');
+      if (campoCat) { campoCat.value = cat; campoCat.classList.add('campo-preenchido'); }
+      var campoCategoria = document.getElementById('categoria-func');
+      if (campoCategoria) campoCategoria.value = cat;
     }
     if (unid) {
       const campoLoc = document.getElementById('local-func');
@@ -768,7 +772,7 @@
     div.innerHTML = r.map(f =>
       `<div class="resultado-item" onclick="seleccionarFuncionario('${f.id}')">
         <div class="func-nome">${f.nome || "—"}</div>
-        <div class="func-info">${f.categoria || "—"} &middot; ${f.unidade || "—"}</div>
+        <div class="func-info">${(f.cargo||f.categoria) || "—"} &middot; ${f.unidade || "—"}</div>
       </div>`
     ).join("");
     div.style.display = "block";
@@ -779,7 +783,19 @@
     if (!funcionarioSeleccionado) return;
     const f = funcionarioSeleccionado;
     document.getElementById("pesquisa-func").value = f.nome || "";
+    // cargo-func mostra cargo se existir, categoria como fallback
+    var cargoExibir = f.cargo || f.categoria || "";
+    document.getElementById("cargo-func").value    = cargoExibir;
     document.getElementById("categoria-func").value = f.categoria || "";
+    var hintEl = document.getElementById("hint-cargo-cat");
+    if (hintEl) {
+      if (f.cargo && f.categoria && f.cargo !== f.categoria) {
+        hintEl.style.display = "block";
+        hintEl.textContent   = "Categoria profissional: " + f.categoria;
+      } else {
+        hintEl.style.display = "none";
+      }
+    }
     document.getElementById("local-func").value = f.unidade || "";
     document.getElementById("resultados-pesquisa").style.display = "none";
 
@@ -847,7 +863,7 @@
     const numGuia         = document.getElementById("num-guia").value.trim();
     const anoGuia         = document.getElementById("ano-guia").value.trim();
     const nomeFuncionario = document.getElementById("pesquisa-func").value.trim();
-    const categoria       = document.getElementById("categoria-func").value.trim();
+    const categoria       = document.getElementById("cargo-func").value.trim();   // cargo quando disponível, categoria como fallback
     const localColocacao  = document.getElementById("local-func").value.trim();
     const numDias         = document.getElementById("num-dias").value.trim();
     const dataInicio      = document.getElementById("data-inicio").value;
