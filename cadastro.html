@@ -1245,6 +1245,9 @@
   const etiquetasPerfil={admin:"Administrador do Sistema",director:"Director Municipal",chefe:"Chefe de Secção",tecnico:"Técnico de RH",secretaria:"Secretaria",funcionario:"Funcionário de Unidade"};
   const perfisPermitidos=["admin","tecnico","chefe","director","secretaria"];
   let todosOsFuncionarios=[], utilizadorActual=null, funcionarioEmEdicao=null, _perfilActual=null;
+  // Mapa funcionarioId → {nomeUnidade, tipoUnidade, cargo, dataInicio}
+  // Construído na carga inicial — usado em verFicha para o campo "Responsável por"
+  let _unidadesRespMap = {};
   function _exigirPerfil(perfisPermitidos) {
     if (!utilizadorActual) return false;
     return perfisPermitidos.includes(_perfilActual);
@@ -1279,10 +1282,24 @@
 
   async function carregarFuncionarios(){
     try{
-      const q=query(collection(db,"funcionarios"),orderBy("nome"));
-      const snap=await getDocs(q);
+      const [snap, snapU] = await Promise.all([
+        getDocs(query(collection(db,"funcionarios"),orderBy("nome"))),
+        getDocs(collection(db,"unidades_sanitarias")).catch(()=>null)
+      ]);
       todosOsFuncionarios=[];
       snap.forEach(d=>todosOsFuncionarios.push({id:d.id,...d.data()}));
+      // Construir mapa de responsabilidades: funcionarioId → dados da unidade
+      _unidadesRespMap = {};
+      if(snapU) snapU.forEach(s=>{
+        const u = s.data();
+        const rid = u.responsavel?.funcionarioId;
+        if(rid) _unidadesRespMap[rid] = {
+          nomeUnidade: u.nome  || '',
+          tipoUnidade: u.tipo  || '',
+          cargo:       u.responsavel?.cargo      || '',
+          dataInicio:  u.responsavel?.dataInicio || '',
+        };
+      });
       actualizarIndicadores(); renderizarTabela(todosOsFuncionarios);
       actualizarBadgeFormPend();
     }catch(e){console.error(e);notif("Erro ao carregar funcionários.","erro");}
@@ -2006,7 +2023,24 @@
          : null,
        span2:true, html:true},
       ...(subLocal?[{r:f.unidade==="Direcção Municipal de Saúde do Sumbe"?"Secção":"Área / Serviço",v:subLocal,span2:true}]:[]),
-      {r:"Tipo de Vínculo",v:lv},
+      // ── Campo derivado: responsabilidade de direcção ──────────────────────
+      ...(_unidadesRespMap[f.id] ? [{
+        r: 'Responsável pela Unidade',
+        v: _unidadesRespMap[f.id].nomeUnidade
+           + `&nbsp;<span style="display:inline-flex;align-items:center;gap:4px;
+                padding:2px 9px;border-radius:99px;
+                background:rgba(5,150,105,.12);color:#059669;
+                font-size:11px;font-weight:700;vertical-align:middle;
+                margin-left:6px;border:1px solid rgba(5,150,105,.22)">
+                👑 Em funções${_unidadesRespMap[f.id].dataInicio
+                  ? ' desde ' + fmtData(_unidadesRespMap[f.id].dataInicio)
+                  : ''}
+              </span>`
+           + (_unidadesRespMap[f.id].cargo
+                ? `<br><span style="font-size:11px;color:var(--neu-400);margin-top:3px;display:block">${_unidadesRespMap[f.id].cargo}</span>`
+                : ''),
+        span2:true, html:true
+      }] : []),
       {r:"Data de Admissão",v:f.admissao?fmtData(f.admissao):null},
       {r:"Anos de Serviço",v:anos!==null?anos+" anos":"—",badge:true,bval:anos},
       {r:"Dias de Férias com Direito",v:dias+" dias úteis"},
