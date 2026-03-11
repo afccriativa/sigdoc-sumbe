@@ -431,7 +431,7 @@
       </div>
 
       <div class="sec">📍 Cobertura por Unidade</div>
-      <div class="g1"><div class="gc"><div class="gc-titulo">Cadastrados vs Efectivo Esperado</div><div class="gc-sub">Por unidade sanitária</div><div id="cobertura"></div></div></div>
+      <div class="g1"><div class="gc"><div class="gc-titulo" id="cob-titulo">Cadastrados vs Efectivo Esperado</div><div class="gc-sub" id="cob-sub">Por unidade sanitária</div><div id="cobertura"></div></div></div>
 
       <div class="sec">🗺 Naturalidade</div>
       <div class="g2">
@@ -666,36 +666,161 @@
   }
 
   function renderCobertura(funcs, unidades) {
-    const cm = {};
-    funcs.forEach(f => { const u = f.unidade || "—"; cm[u] = (cm[u] || 0) + 1; });
-    const todas = new Set([...Object.keys(cm), ...Object.keys(unidades)]);
-    const lista = [...todas]
-      .filter(n => n !== "—" && n !== "Não especificada")
-      .map(nome => ({ nome, cad: cm[nome] || 0, esp: unidades[nome]?.efectivo?.esperado || 0 }))
-      .sort((a, b) => (b.esp || b.cad) - (a.esp || a.cad));
-    const max = Math.max(...lista.map(u => Math.max(u.esp, u.cad)), 1);
     const ab = n => n
       .replace("Direcção Municipal de Saúde do Sumbe","DMS")
       .replace("Centro de Saúde","CS")
       .replace("Posto de Saúde","PS");
-    document.getElementById("cobertura").innerHTML = lista.length
-      ? lista.map(u => {
-          const cob = u.esp > 0 ? Math.round(u.cad / u.esp * 100) : null;
-          const cls = cob === null ? "c0" : cob >= 90 ? "cv" : cob >= 60 ? "ca" : "cr";
-          const fc  = cob === null ? "#3b82f6" : cob >= 90 ? "#10c886" : cob >= 60 ? "#f59e0b" : "#ef4444";
-          return `<div class="cob-item">
-            <div class="cob-nome" title="${u.nome}">${ab(u.nome)}</div>
-            <div class="cob-bar">
-              <div style="position:absolute;inset:0;width:${Math.round(Math.min(u.esp/max,1)*100)}%;background:rgba(255,255,255,.12);border-radius:99px"></div>
-              <div class="cob-bar-fill" style="width:${Math.round(Math.min(u.cad/max,1)*100)}%;background:${fc}"></div>
+
+    const elTit = document.getElementById("cob-titulo");
+    const elSub = document.getElementById("cob-sub");
+    const elCob = document.getElementById("cobertura");
+    if (!elCob) return;
+
+    // ── Detectar modo com base nos filtros activos ──
+    const fUnidade   = _filtros.unidade;
+    const outrosFilt = _filtros.categoria || _filtros.vinculo || _filtros.estado || _filtros.sexo;
+
+    // ════════════════════════════════════════════════
+    // MODO A — Sem filtros: Cobertura total (comportamento original)
+    // ════════════════════════════════════════════════
+    if (!fUnidade && !outrosFilt) {
+      if (elTit) elTit.textContent = "Cadastrados vs Efectivo Esperado";
+      if (elSub) elSub.textContent = "Por unidade sanitária";
+
+      const cm = {};
+      funcs.forEach(f => { const u = f.unidade || "—"; cm[u] = (cm[u] || 0) + 1; });
+      const todas = new Set([...Object.keys(cm), ...Object.keys(unidades)]);
+      const lista = [...todas]
+        .filter(n => n !== "—" && n !== "Não especificada")
+        .map(nome => ({ nome, cad: cm[nome] || 0, esp: unidades[nome]?.efectivo?.esperado || 0 }))
+        .sort((a, b) => (b.esp || b.cad) - (a.esp || a.cad));
+      const max = Math.max(...lista.map(u => Math.max(u.esp, u.cad)), 1);
+
+      elCob.innerHTML = lista.length
+        ? lista.map(u => {
+            const cob = u.esp > 0 ? Math.round(u.cad / u.esp * 100) : null;
+            const cls = cob === null ? "c0" : cob >= 90 ? "cv" : cob >= 60 ? "ca" : "cr";
+            const fc  = cob === null ? "#3b82f6" : cob >= 90 ? "#10c886" : cob >= 60 ? "#f59e0b" : "#ef4444";
+            return `<div class="cob-item">
+              <div class="cob-nome" title="${u.nome}">${ab(u.nome)}</div>
+              <div class="cob-bar">
+                <div style="position:absolute;inset:0;width:${Math.round(Math.min(u.esp/max,1)*100)}%;background:rgba(255,255,255,.12);border-radius:99px"></div>
+                <div class="cob-bar-fill" style="width:${Math.round(Math.min(u.cad/max,1)*100)}%;background:${fc}"></div>
+              </div>
+              <div class="cob-nums">
+                <span class="cob-cad">${u.cad}</span><span class="cob-sep">/</span><span class="cob-esp">${u.esp || "—"}</span>
+              </div>
+              <span class="cob-badge ${cls}">${cob !== null ? cob+"%" : "s/meta"}</span>
+            </div>`;
+          }).join("")
+        : '<div class="vazio">Sem dados de unidades</div>';
+      return;
+    }
+
+    // ════════════════════════════════════════════════
+    // MODO B — Filtro só por Unidade: Foco numa unidade
+    // ════════════════════════════════════════════════
+    if (fUnidade && !outrosFilt) {
+      const nomeUnidade = fUnidade;
+      // Usar dataset COMPLETO para cobertura real da unidade
+      const totalUnidade = _todosOsFuncs.filter(f => f.unidade === nomeUnidade).length;
+      const esp = unidades[nomeUnidade]?.efectivo?.esperado || 0;
+      const cob = esp > 0 ? Math.round(totalUnidade / esp * 100) : null;
+      const cls = cob === null ? "c0" : cob >= 90 ? "cv" : cob >= 60 ? "ca" : "cr";
+      const fc  = cob === null ? "#3b82f6" : cob >= 90 ? "#10c886" : cob >= 60 ? "#f59e0b" : "#ef4444";
+      const pct = esp > 0 ? Math.round(totalUnidade / esp * 100) : null;
+
+      if (elTit) elTit.textContent = "Foco: " + ab(nomeUnidade);
+      if (elSub) elSub.textContent = "Cobertura real desta unidade";
+
+      elCob.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:16px;padding:8px 0">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div>
+              <div style="font-size:16px;font-weight:800;color:#e2e8f0;margin-bottom:3px">${ab(nomeUnidade)}</div>
+              <div style="font-size:11px;color:rgba(255,255,255,.35)">${nomeUnidade}</div>
             </div>
-            <div class="cob-nums">
-              <span class="cob-cad">${u.cad}</span><span class="cob-sep">/</span><span class="cob-esp">${u.esp || "—"}</span>
+            <span class="cob-badge ${cls}" style="font-size:13px;padding:4px 12px">
+              ${cob !== null ? cob+"%" : "s/meta"}
+            </span>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:11px;color:rgba(255,255,255,.4)">Cadastrados</span>
+              <span style="font-family:'DM Mono',monospace;font-weight:800;color:${fc}">${totalUnidade}</span>
             </div>
-            <span class="cob-badge ${cls}">${cob !== null ? cob+"%" : "s/meta"}</span>
-          </div>`;
-        }).join("")
-      : '<div class="vazio">Sem dados de unidades</div>';
+            <div style="height:10px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;margin-bottom:10px">
+              <div style="height:100%;width:${Math.min(pct||0,100)}%;background:${fc};border-radius:99px;transition:width .4s"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span style="font-size:11px;color:rgba(255,255,255,.4)">Efectivo esperado</span>
+              <span style="font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,.4)">${esp || "Não definido"}</span>
+            </div>
+          </div>
+          ${esp > 0 ? `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 14px">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-bottom:6px">Em falta</div>
+              <div style="font-size:22px;font-weight:800;font-family:'DM Mono',monospace;color:#ef4444">${Math.max(esp - totalUnidade, 0)}</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:2px">vagas por preencher</div>
+            </div>
+            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 14px">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-bottom:6px">Cobertura</div>
+              <div style="font-size:22px;font-weight:800;font-family:'DM Mono',monospace;color:${fc}">${pct}%</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:2px">do efectivo previsto</div>
+            </div>
+          </div>` : ''}
+        </div>`;
+      return;
+    }
+
+    // ════════════════════════════════════════════════
+    // MODO C — Filtros por atributo (categoria/vínculo/estado/sexo)
+    // Mostrar distribuição do subconjunto filtrado por unidade
+    // ════════════════════════════════════════════════
+    const labelFiltro = [
+      _filtros.categoria && `Categoria: ${_filtros.categoria}`,
+      _filtros.vinculo   && `Vínculo: ${{ quadro:"Quadro", provisorio:"Provisório" }[_filtros.vinculo] || _filtros.vinculo}`,
+      _filtros.estado    && `Estado: ${{ activo:"Em Serviço", licenca:"De Licença", inactivo:"Inactivo" }[_filtros.estado] || _filtros.estado}`,
+      _filtros.sexo      && `Sexo: ${_filtros.sexo}`,
+      _filtros.unidade   && `Unidade: ${ab(_filtros.unidade)}`,
+    ].filter(Boolean).join(" · ");
+
+    if (elTit) elTit.textContent = "Distribuição por Unidade";
+    if (elSub) elSub.textContent = labelFiltro || "Subconjunto filtrado";
+
+    // Contar apenas quem passa no filtro, por unidade — ignorar zeros
+    const cm = {};
+    funcs.forEach(f => { const u = f.unidade || "—"; cm[u] = (cm[u] || 0) + 1; });
+    const lista = Object.entries(cm)
+      .filter(([n]) => n !== "—" && n !== "Não especificada")
+      .map(([nome, cad]) => ({ nome, cad }))
+      .sort((a, b) => b.cad - a.cad);
+
+    if (!lista.length) {
+      elCob.innerHTML = '<div class="vazio">Nenhum resultado para os filtros seleccionados</div>';
+      return;
+    }
+
+    const maxCad = Math.max(...lista.map(u => u.cad), 1);
+    const totalFiltrado = lista.reduce((s, u) => s + u.cad, 0);
+
+    elCob.innerHTML = lista.map((u, i) => {
+      const pct  = Math.round(u.cad / totalFiltrado * 100);
+      const fc   = ['#3b82f6','#10c886','#f59e0b','#a78bfa','#22d3ee','#f472b6','#84cc16','#fb923c'][i % 8];
+      return `<div class="cob-item">
+        <div class="cob-nome" title="${u.nome}">${ab(u.nome)}</div>
+        <div class="cob-bar" style="width:100px">
+          <div class="cob-bar-fill" style="width:${Math.round(u.cad/maxCad*100)}%;background:${fc}"></div>
+        </div>
+        <div class="cob-nums">
+          <span class="cob-cad" style="color:${fc}">${u.cad}</span>
+          <span class="cob-sep">·</span>
+          <span class="cob-esp">${pct}%</span>
+        </div>
+        <span class="cob-badge" style="background:rgba(255,255,255,.05);color:rgba(255,255,255,.4)">${i+1}º</span>
+      </div>`;
+    }).join("");
   }
 
   function renderSalarial(funcs) {
