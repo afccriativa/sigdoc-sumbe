@@ -133,6 +133,59 @@
     .filtros-resultado{font-size:11px;color:rgba(255,255,255,.3);font-weight:600;white-space:nowrap;align-self:flex-end;padding-bottom:1px}
     @media(max-width:900px){.filtros-inner{gap:8px}.filtro-sel{min-width:110px}}
     @media(max-width:600px){#filtros-wrap{padding:10px 16px}.filtros-acoes{margin-left:0;width:100%}}
+    /* ── botões de exportação ── */
+    .topbar-actions{display:flex;align-items:center;gap:8px}
+    .btn-exp{display:none;align-items:center;gap:5px;padding:6px 13px;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .18s;border:1px solid;white-space:nowrap}
+    .btn-exp.pronto{display:flex}
+    .btn-csv{background:rgba(16,200,134,.1);border-color:rgba(16,200,134,.25);color:#10c886}
+    .btn-csv:hover{background:rgba(16,200,134,.22);border-color:rgba(16,200,134,.5)}
+    .btn-prn{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.25);color:#60a5fa}
+    .btn-prn:hover{background:rgba(59,130,246,.22);border-color:rgba(59,130,246,.5)}
+    /* ── cabeçalho de impressão (oculto no ecrã) ── */
+    #print-header{display:none}
+    /* ── @media print ── */
+    @media print{
+      *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+      body{background:#fff!important;color:#111827!important}
+      #ecra-carregando,#ecra-negado,#notif,.topbar,.btn-exp,
+      #filtros-wrap,[id*="sigdoc-nav"],[class*="sidebar"],[class*="nav-wrap"],
+      nav,aside,.topbar-actions{display:none!important}
+      #ecra-principal{display:block!important}
+      #print-header{display:block!important;padding:0 0 16px;border-bottom:2px solid #1e3a5f;margin-bottom:20px}
+      .ph-sistema{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#64748b;margin-bottom:4px}
+      .ph-titulo{font-size:20px;font-weight:800;color:#1e293b;margin-bottom:10px;letter-spacing:-.4px}
+      .ph-meta-grid{display:flex;gap:24px;flex-wrap:wrap}
+      .ph-meta-item{display:flex;flex-direction:column;gap:1px}
+      .ph-meta-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8}
+      .ph-meta-val{font-size:12px;font-weight:700;color:#1e293b}
+      .content{padding:0 16px!important}
+      .kpi-strip{grid-template-columns:repeat(5,1fr)!important}
+      .kpi,.gc,.gen-card,.dq-acoes{background:#f8fafc!important;border-color:#e2e8f0!important}
+      .kpi-lbl,.kpi-sub,.gc-sub,.topbar-sub,.cob-esp,.dq-contagem,
+      .gen-det-sub,.gen-stat-lbl,.pir-leg-item{color:#64748b!important}
+      .kpi-val,.gc-titulo,.cob-nome,.bh-lbl,.dq-texto,
+      .gen-det-nome,.gen-stat-val{color:#1e293b!important}
+      .sec{color:#475569!important;page-break-before:auto;margin-top:14px!important}
+      .sec::after{background:#e2e8f0!important}
+      .bh-track,.dq-track,.cob-bar,.pir-bm,.pir-bf{background:#e2e8f0!important}
+      .cob-badge.cv{background:rgba(16,200,134,.15)!important;color:#059669!important}
+      .cob-badge.ca{background:rgba(245,158,11,.15)!important;color:#d97706!important}
+      .cob-badge.cr{background:rgba(239,68,68,.15)!important;color:#dc2626!important}
+      .cob-badge.c0{background:#f1f5f9!important;color:#94a3b8!important}
+      .cob-item{border-bottom-color:#e2e8f0!important}
+      .donut-txt{color:#64748b!important}
+      .donut-n{color:#1e293b!important}
+      .gen-det-card{background:#f1f5f9!important;border-color:#e2e8f0!important}
+      .pir-eixo,.pir-n{color:#475569!important}
+      .dq-acao-item{background:#f1f5f9!important;border-color:#e2e8f0!important}
+      .dq-ok{background:rgba(16,200,134,.06)!important}
+      .dq-acoes-titulo{color:#dc2626!important}
+      .dq-acoes{background:rgba(239,68,68,.04)!important}
+      .g2,.g3,.kpi-strip,.gc,.gen-card{page-break-inside:avoid}
+      .gen-card{margin-bottom:12px!important}
+      .g1,.g2,.g3{margin-bottom:12px!important}
+      @page{margin:15mm 12mm;size:A4 portrait}
+    }
     /* ── qualidade dos dados ── */
     .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
     @media(max-width:1100px){.g3{grid-template-columns:repeat(2,1fr)}}
@@ -174,12 +227,29 @@
 
 <!-- Ecrã principal (oculto até auth confirmar) -->
 <div id="ecra-principal">
+
+  <!-- Cabeçalho de impressão — oculto no ecrã, visível no @media print -->
+  <div id="print-header">
+    <div class="ph-sistema">Sistema Integrado de Gestão Documental — Direcção Municipal de Saúde do Sumbe</div>
+    <div class="ph-titulo">Relatório de Estatísticas de Recursos Humanos</div>
+    <div class="ph-meta-grid">
+      <div class="ph-meta-item"><span class="ph-meta-lbl">Data de emissão</span><span class="ph-meta-val" id="ph-data">—</span></div>
+      <div class="ph-meta-item"><span class="ph-meta-lbl">Total analisado</span><span class="ph-meta-val" id="ph-total">—</span></div>
+      <div class="ph-meta-item"><span class="ph-meta-lbl">Filtros activos</span><span class="ph-meta-val" id="ph-filtros">Nenhum (efectivo total)</span></div>
+      <div class="ph-meta-item"><span class="ph-meta-lbl">Emitido por</span><span class="ph-meta-val" id="ph-user">—</span></div>
+    </div>
+  </div>
+
   <div class="topbar">
     <div>
       <div class="topbar-titulo">📊 Estatísticas Avançadas</div>
       <div class="topbar-sub" id="topbar-sub">A carregar dados…</div>
     </div>
-    <span class="badge-perfil" id="badge-perfil">—</span>
+    <div class="topbar-actions">
+      <button class="btn-exp btn-csv" id="btn-csv" onclick="window._exportarCSV()">📥 Exportar CSV</button>
+      <button class="btn-exp btn-prn" id="btn-prn" onclick="window.print()">🖨️ Imprimir</button>
+      <span class="badge-perfil" id="badge-perfil">—</span>
+    </div>
   </div>
   <div id="filtros-wrap" style="display:none"></div>
   <div class="content" id="content">
@@ -210,7 +280,9 @@
   let _todosOsFuncs  = [];
   let _todasUnidades = {};
   let _perfilActual  = '';
-  let _filtros = { unidade: '', categoria: '', vinculo: '', estado: '', sexo: '' };
+  let _filtros        = { unidade: '', categoria: '', vinculo: '', estado: '', sexo: '' };
+  let _funcsFiltrados = [];   // subconjunto actualmente visível — usado pelo exportarCSV
+  let _nomeUtilizador = '';   // para o cabeçalho de impressão
 
   let _nt;
   function notif(msg) {
@@ -234,6 +306,7 @@
       }
 
       const nome = dados.nome || user.email;
+      _nomeUtilizador = nome;
 
       // ── Montar navegação lateral partilhada ──
       window._sigdocAuth = auth;
@@ -255,6 +328,11 @@
 
       // Carregar dados
       await carregarEstatisticas(perfil);
+      // Mostrar botões de exportação agora que há dados
+      ['btn-csv','btn-prn'].forEach(id => {
+        const b = document.getElementById(id);
+        if (b) b.classList.add('pronto');
+      });
 
     } catch(e) {
       console.error("Auth/Firestore error:", e);
@@ -285,6 +363,7 @@
       document.getElementById("topbar-sub").textContent =
         `${_todosOsFuncs.length} funcionários · ${activos} em serviço activo`;
 
+      _funcsFiltrados = _todosOsFuncs;
       montarFiltros(_todosOsFuncs);
       render(_todosOsFuncs, _todasUnidades, perfil);
 
@@ -385,6 +464,7 @@
       if (sel) sel.classList.toggle('activo', !!_filtros[k]);
     });
 
+    _funcsFiltrados = resultado;
     render(resultado, _todasUnidades, _perfilActual);
   };
 
@@ -400,6 +480,7 @@
     if (badge)    { badge.classList.remove('vis'); }
     if (btnLimpar){ btnLimpar.classList.remove('vis'); }
     if (resEl)    { resEl.textContent = `${_todosOsFuncs.length} funcionários`; }
+    _funcsFiltrados = _todosOsFuncs;
     render(_todosOsFuncs, _todasUnidades, _perfilActual);
   };
 
@@ -1054,6 +1135,117 @@
         </div>`}
     `;
   }
+
+
+  // ════════════════════════════════════════════════════════
+  //  EXPORTAÇÃO — CSV + Impressão
+  // ════════════════════════════════════════════════════════
+
+  // Campos exportados no CSV — ordem e cabeçalhos
+  const CSV_CAMPOS = [
+    { key: 'numero',       label: 'Nº Funcionário'       },
+    { key: 'nome',         label: 'Nome Completo'         },
+    { key: 'sexo',         label: 'Sexo'                  },
+    { key: 'nascimento',   label: 'Data de Nascimento'    },
+    { key: 'estadoCivil',  label: 'Estado Civil'          },
+    { key: 'telefone',     label: 'Telefone'              },
+    { key: 'bi',           label: 'Nº BI'                 },
+    { key: 'biEmissao',    label: 'Data Emissão BI'       },
+    { key: 'categoria',    label: 'Categoria'             },
+    { key: 'unidade',      label: 'Unidade Sanitária'     },
+    { key: 'seccao',       label: 'Secção'                },
+    { key: 'area',         label: 'Área'                  },
+    { key: 'vinculo',      label: 'Vínculo'               },
+    { key: 'admissao',     label: 'Data de Admissão'      },
+    { key: 'estado',       label: 'Estado'                },
+    { key: 'escolaridade', label: 'Habilitações'          },
+    { key: 'provinciaNatal',label:'Província Natal'       },
+    { key: 'municipioNatal',label:'Município Natal'       },
+    { key: 'inss',         label: 'Nº INSS'              },
+    { key: 'banco',        label: 'Banco'                 },
+    { key: 'salarioBase',  label: 'Salário Base (Kz)'    },
+    { key: 'morada',       label: 'Morada'                },
+  ];
+
+  window._exportarCSV = function() {
+    const funcs = _funcsFiltrados.length ? _funcsFiltrados : _todosOsFuncs;
+    if (!funcs.length) { notif('⚠ Sem dados para exportar'); return; }
+
+    // Cabeçalho
+    const cabecalho = CSV_CAMPOS.map(f => `"${f.label}"`).join(';');
+
+    // Linhas de dados — aspas duplas em todos os campos, ; como separador (Excel PT)
+    const linhas = funcs.map(f => {
+      return CSV_CAMPOS.map(col => {
+        let v = f[col.key];
+        if (v === undefined || v === null) v = '';
+        // Normalizar vínculo e estado para texto legível
+        if (col.key === 'vinculo')
+          v = v === 'quadro' ? 'Quadro' : v === 'provisorio' ? 'Provisório' : v;
+        if (col.key === 'estado')
+          v = v === 'activo' ? 'Em Serviço' : v === 'licenca' ? 'De Licença' : v === 'inactivo' ? 'Inactivo' : v || 'Em Serviço';
+        // Escapar aspas internas
+        v = String(v).replace(/"/g, '""');
+        return `"${v}"`;
+      }).join(';');
+    });
+
+    // Montar conteúdo com BOM UTF-8 (Excel precisa para acentos)
+    const bom     = '\uFEFF';
+    const metaLinha1 = `"# SIGDOC-SUMBE — Direcção Municipal de Saúde do Sumbe"`;
+    const metaLinha2 = `"# Exportado em: ${new Date().toLocaleString('pt-PT')}"`;
+    const metaLinha3 = `"# Total de registos: ${funcs.length} de ${_todosOsFuncs.length}"`;
+    const filtrosActivos = Object.entries(_filtros)
+      .filter(([,v]) => v)
+      .map(([k,v]) => `${k}=${v}`)
+      .join(', ');
+    const metaLinha4 = filtrosActivos
+      ? `"# Filtros aplicados: ${filtrosActivos}"`
+      : `"# Filtros: Nenhum (efectivo total)"`;
+    const conteudo = [bom, metaLinha1, metaLinha2, metaLinha3, metaLinha4, '', cabecalho, ...linhas].join('\n');
+
+    // Download
+    const blob = new Blob([conteudo], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    const data = new Date().toISOString().slice(0,10);
+    a.href     = url;
+    a.download = `SIGDOC_Estatisticas_${data}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    notif(`✅ CSV exportado — ${funcs.length} registos`);
+  };
+
+  // Actualizar cabeçalho de impressão imediatamente antes de imprimir
+  window.onbeforeprint = function() {
+    const agora    = new Date();
+    const dataFmt  = agora.toLocaleDateString('pt-PT', { day:'2-digit', month:'long', year:'numeric' });
+    const horaFmt  = agora.toLocaleTimeString('pt-PT', { hour:'2-digit', minute:'2-digit' });
+    const filtAtivos = Object.entries(_filtros)
+      .filter(([,v]) => v)
+      .map(([k,v]) => {
+        const LABELS = {
+          unidade:'Unidade', categoria:'Categoria',
+          vinculo:'Vínculo', estado:'Estado', sexo:'Sexo'
+        };
+        const VINC = { quadro:'Quadro', provisorio:'Provisório' };
+        const ESTA = { activo:'Em Serviço', licenca:'De Licença', inactivo:'Inactivo' };
+        const vLabel = k === 'vinculo' ? (VINC[v] || v) : k === 'estado' ? (ESTA[v] || v) : v;
+        return `${LABELS[k]||k}: ${vLabel}`;
+      }).join(' · ');
+
+    const elData    = document.getElementById('ph-data');
+    const elTotal   = document.getElementById('ph-total');
+    const elFiltros = document.getElementById('ph-filtros');
+    const elUser    = document.getElementById('ph-user');
+    if (elData)    elData.textContent    = `${dataFmt} às ${horaFmt}`;
+    if (elTotal)   elTotal.textContent   = `${_funcsFiltrados.length || _todosOsFuncs.length} funcionários`;
+    if (elFiltros) elFiltros.textContent = filtAtivos || 'Nenhum (efectivo total)';
+    if (elUser)    elUser.textContent    = _nomeUtilizador || '—';
+  };
 
   // ════════════════════════════════════════════════════════
   //  UTILITÁRIOS
