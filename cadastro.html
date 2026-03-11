@@ -261,6 +261,50 @@
     .campo-oculto{display:none!important}
     .campo-hint{font-size:11px;color:var(--c-700);background:var(--c-50);border:1px solid var(--c-100);padding:6px 10px;border-radius:var(--r-sm);margin-top:4px}
 
+    /* ── Secções recolhíveis ── */
+    .secao-titulo-btn{
+      width:100%;display:flex;align-items:center;justify-content:space-between;
+      background:none;border:none;padding:0;cursor:pointer;font-family:var(--font);
+      font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+      color:var(--c-700);padding-bottom:8px;border-bottom:2px solid var(--neu-100);
+      margin-bottom:14px;gap:6px;
+    }
+    .secao-titulo-btn:hover{color:var(--c-800)}
+    .secao-titulo-btn .secao-label{display:flex;align-items:center;gap:6px}
+    .secao-titulo-btn .secao-chevron{
+      font-size:10px;color:var(--neu-400);transition:transform .2s;flex-shrink:0;
+    }
+    .secao-form.recolhida .secao-titulo-btn .secao-chevron{transform:rotate(-90deg)}
+    .secao-form.recolhida .secao-corpo{display:none}
+    .secao-form.recolhida .secao-titulo-btn{margin-bottom:0;border-bottom-color:var(--neu-100)}
+    .badge-opcional{
+      font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+      background:var(--neu-100);color:var(--neu-500);padding:2px 7px;
+      border-radius:99px;margin-left:4px;
+    }
+    /* Toggle Sim/Não estudando */
+    .toggle-estudando{display:flex;gap:8px;margin-top:4px}
+    .toggle-estudando button{
+      flex:1;padding:9px 12px;border:2px solid var(--neu-200);border-radius:var(--r-sm);
+      background:var(--white);font-size:12px;font-weight:600;font-family:var(--font);
+      cursor:pointer;transition:all .15s;color:var(--neu-600);
+    }
+    .toggle-estudando button.activo-sim{
+      border-color:#059669;background:#f0fdf4;color:#059669;
+    }
+    .toggle-estudando button.activo-nao{
+      border-color:#dc2626;background:#fef2f2;color:#dc2626;
+    }
+    .toggle-estudando button:hover:not(.activo-sim):not(.activo-nao){
+      border-color:var(--c-400);background:var(--c-50);
+    }
+    .curso-wrap{
+      margin-top:14px;padding:14px;background:var(--c-50);
+      border:1px solid var(--c-100);border-radius:var(--r-sm);
+      display:none;
+    }
+    .curso-wrap.visivel{display:block;animation:fadeIn .2s ease}
+
     .modal-foot{
       padding:16px 26px;border-top:1px solid var(--neu-100);
       display:flex;justify-content:flex-end;gap:10px;
@@ -547,6 +591,50 @@
         </div>
       </div>
 
+      <!-- Dados Pessoais Complementares (recolhível) -->
+      <div class="secao-form recolhida" id="secao-complementar">
+        <button type="button" class="secao-titulo-btn" onclick="toggleSecao('secao-complementar')">
+          <span class="secao-label">👤 Dados Pessoais Complementares <span class="badge-opcional">Opcional</span></span>
+          <span class="secao-chevron">▼</span>
+        </button>
+        <div class="secao-corpo">
+          <div class="grid-2">
+            <div class="campo">
+              <label>Estado Civil</label>
+              <select id="f-estadoCivil">
+                <option value="">Seleccione...</option>
+                <option>Solteiro(a)</option>
+                <option>Casado(a)</option>
+                <option>União de Facto</option>
+                <option>Divorciado(a)</option>
+                <option>Viúvo(a)</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label>Data de Emissão do BI</label>
+              <input type="date" id="f-biEmissao"/>
+            </div>
+            <div class="campo">
+              <label>Nome do Pai</label>
+              <input type="text" id="f-nomePai" placeholder="Nome completo do pai"/>
+            </div>
+            <div class="campo">
+              <label>Nome da Mãe</label>
+              <input type="text" id="f-nomeMae" placeholder="Nome completo da mãe"/>
+            </div>
+            <div class="campo col-2">
+              <label>Morada Actual</label>
+              <input type="text" id="f-morada" placeholder="Ex: Bairro Boavista, Rua 14, Nº 27, Sumbe"/>
+            </div>
+            <div class="campo col-2">
+              <label>E-mail Pessoal</label>
+              <input type="email" id="f-email" placeholder="exemplo@correo.com"/>
+              <span class="campo-hint">ℹ️ Opcional — necessário para activação da conta no Portal do Funcionário</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Dados Profissionais -->
       <div class="secao-form">
         <div class="secao-titulo">💼 Dados Profissionais</div>
@@ -673,7 +761,7 @@
 
       <!-- Estado e Observações -->
       <div class="secao-form">
-        <div class="secao-titulo">📌 Estado e Observações</div>
+        <div class="secao-titulo">📌 Estado, Escolaridade e Observações</div>
         <div class="grid-2">
           <div class="campo">
             <label>Estado Actual</label>
@@ -742,6 +830,49 @@
               </div>
             </div>
       </div>
+      <!-- Formação Académica (recolhível) -->
+      <div class="secao-form recolhida" id="secao-formacao">
+        <button type="button" class="secao-titulo-btn" onclick="toggleSecao('secao-formacao')">
+          <span class="secao-label">🎓 Formação Académica <span class="badge-opcional">Opcional</span></span>
+          <span class="secao-chevron">▼</span>
+        </button>
+        <div class="secao-corpo">
+          <div class="campo">
+            <label>Está actualmente a frequentar algum curso?</label>
+            <div class="toggle-estudando">
+              <button type="button" id="btn-estuda-sim" onclick="setEstudando(true)">✅ Sim, está a estudar</button>
+              <button type="button" id="btn-estuda-nao" onclick="setEstudando(false)">❌ Não</button>
+            </div>
+            <input type="hidden" id="f-estudando" value=""/>
+          </div>
+          <div class="curso-wrap" id="curso-wrap">
+            <div class="campo-hint" style="margin-bottom:12px">📚 Indique os dados do curso. Esta informação é relevante para processos de progressão na carreira.</div>
+            <div class="grid-2">
+              <div class="campo">
+                <label>Nome do Curso</label>
+                <input type="text" id="f-curso" placeholder="Ex: Licenciatura em Enfermagem"/>
+              </div>
+              <div class="campo">
+                <label>Instituição de Ensino</label>
+                <input type="text" id="f-instituicao" placeholder="Ex: UCAN, ISPKS, IMAP..."/>
+              </div>
+              <div class="campo">
+                <label>Ano de Frequência</label>
+                <select id="f-anoCurso">
+                  <option value="">Seleccionar...</option>
+                  <option value="1">1º Ano</option>
+                  <option value="2">2º Ano</option>
+                  <option value="3">3º Ano</option>
+                  <option value="4">4º Ano</option>
+                  <option value="5">5º Ano</option>
+                  <option value="6">6º Ano</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
     <div class="modal-foot">
       <button class="btn-cancelar" onclick="fecharFormulario()">Cancelar</button>
@@ -787,6 +918,37 @@
 <div class="toast" id="notificacao"></div>
 
 <script>
+  // ── Secções recolhíveis ──────────────────────────────────
+  window.toggleSecao = function(id) {
+    document.getElementById(id).classList.toggle('recolhida');
+  };
+
+  // Expandir programaticamente (ao editar, para mostrar campos preenchidos)
+  function expandirSecao(id) {
+    document.getElementById(id).classList.remove('recolhida');
+  }
+
+  // ── Toggle Estudando ─────────────────────────────────────
+  window.setEstudando = function(sim) {
+    document.getElementById('f-estudando').value = sim ? 'true' : 'false';
+    var btnSim  = document.getElementById('btn-estuda-sim');
+    var btnNao  = document.getElementById('btn-estuda-nao');
+    var wrap    = document.getElementById('curso-wrap');
+    btnSim.className = sim  ? 'activo-sim' : '';
+    btnNao.className = !sim ? 'activo-nao' : '';
+    if (sim) { wrap.classList.add('visivel'); }
+    else     { wrap.classList.remove('visivel'); }
+  };
+
+  function limparEstudando() {
+    document.getElementById('f-estudando').value = '';
+    document.getElementById('btn-estuda-sim').className = '';
+    document.getElementById('btn-estuda-nao').className = '';
+    document.getElementById('curso-wrap').classList.remove('visivel');
+    ['f-curso','f-instituicao'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('f-anoCurso').value = '';
+  }
+
   function toggleCategoriaOutra(sel) {
     var manual = document.getElementById('f-categoria-manual');
     if (!manual) return;
@@ -1060,6 +1222,36 @@
     ["nome","sexo","nascimento","bi","telefone","numero","unidade","vinculo","admissao","escolaridade","observacoes","inss","banco","provinciaNatal","municipioNatal"].forEach(k=>{
       const el=document.getElementById("f-"+k); if(el) el.value=f[k]||"";
     });
+    // ── Novos campos: Complementares ──
+    var camposCompl = {
+      'f-estadoCivil': f.estadoCivil||'',
+      'f-biEmissao':   f.biEmissao||'',
+      'f-nomePai':     f.nomePai||'',
+      'f-nomeMae':     f.nomeMae||'',
+      'f-morada':      f.morada||'',
+      'f-email':       f.email||''
+    };
+    Object.keys(camposCompl).forEach(function(id){
+      var el = document.getElementById(id); if(el) el.value = camposCompl[id];
+    });
+    var temCompl = f.estadoCivil||f.biEmissao||f.nomePai||f.nomeMae||f.morada||f.email;
+    if(temCompl) expandirSecao('secao-complementar');
+    else document.getElementById('secao-complementar').classList.add('recolhida');
+
+    // ── Novos campos: Formação ──
+    limparEstudando();
+    if(f.estudando === true){
+      setEstudando(true);
+      var elCurso = document.getElementById('f-curso'); if(elCurso) elCurso.value = f.curso||'';
+      var elInst  = document.getElementById('f-instituicao'); if(elInst) elInst.value = f.instituicao||'';
+      var elAno   = document.getElementById('f-anoCurso'); if(elAno) elAno.value = f.anoCurso||'';
+      expandirSecao('secao-formacao');
+    } else if(f.estudando === false){
+      setEstudando(false);
+      expandirSecao('secao-formacao');
+    } else {
+      document.getElementById('secao-formacao').classList.add('recolhida');
+    }
     // Categoria — verificar se está na lista ou é manual
     (function(){
       const sel=document.getElementById("f-categoria");
@@ -1094,6 +1286,16 @@
     const wrapSal = document.getElementById('campo-salario-wrap');
     if(wrapSal){ wrapSal.style.display='none'; }
     if(document.getElementById('f-salario-base')) document.getElementById('f-salario-base').value='';
+
+    // ── Novos campos: Complementares ──
+    ['f-estadoCivil','f-biEmissao','f-nomePai','f-nomeMae','f-morada','f-email'].forEach(function(id){
+      var el = document.getElementById(id); if(el) el.value='';
+    });
+    // ── Novos campos: Formação ──
+    limparEstudando();
+    // ── Recolher secções opcionais ──
+    document.getElementById('secao-complementar').classList.add('recolhida');
+    document.getElementById('secao-formacao').classList.add('recolhida');
 
     document.getElementById("f-estado").value="activo";
     document.getElementById("campo-seccao-wrap").classList.add("campo-oculto");
@@ -1131,6 +1333,25 @@
       observacoes:document.getElementById("f-observacoes").value.trim(),
       inss:  document.getElementById("f-inss")?.value?.trim()||'',
       banco: document.getElementById("f-banco")?.value||'',
+      // ── Campos complementares ──
+      estadoCivil: document.getElementById("f-estadoCivil")?.value||'',
+      biEmissao:   document.getElementById("f-biEmissao")?.value||'',
+      nomePai:     document.getElementById("f-nomePai")?.value?.trim()||'',
+      nomeMae:     document.getElementById("f-nomeMae")?.value?.trim()||'',
+      morada:      document.getElementById("f-morada")?.value?.trim()||'',
+      email:       document.getElementById("f-email")?.value?.trim()||'',
+      // ── Formação académica ──
+      ...(function(){
+        var est = document.getElementById("f-estudando")?.value;
+        if(est === 'true')  return {
+          estudando:   true,
+          curso:       document.getElementById("f-curso")?.value?.trim()||'',
+          instituicao: document.getElementById("f-instituicao")?.value?.trim()||'',
+          anoCurso:    document.getElementById("f-anoCurso")?.value||''
+        };
+        if(est === 'false') return { estudando: false, curso:'', instituicao:'', anoCurso:'' };
+        return {};
+      })(),
       ...((['admin','chefe','tecnico'].includes(_perfilActual)) && document.getElementById("f-salario-base")
         ? { salarioBase: Number(document.getElementById("f-salario-base").value)||0 } : {}),
       actualizadoEm:serverTimestamp(),actualizadoPor:utilizadorActual.uid
