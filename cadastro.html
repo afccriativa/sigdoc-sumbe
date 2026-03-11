@@ -819,6 +819,16 @@
                 </select>
               </div>
             </div>
+            <!-- Número de Conta -->
+            <div style="margin-top:10px">
+              <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:6px">Número de Conta / IBAN</label>
+              <input type="text" id="f-numeroConta"
+                placeholder="AO06 0000 0000 0000 0000 0000 0"
+                maxlength="34"
+                oninput="validarNumeroConta(this)"
+                style="width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:var(--mono,'DM Mono',monospace);box-sizing:border-box;letter-spacing:.5px"/>
+              <div id="hint-numero-conta" style="display:none;font-size:11px;padding:5px 10px;border-radius:8px;margin-top:5px;border:1px solid"></div>
+            </div>
             <!-- Naturalidade -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
               <div>
@@ -955,6 +965,34 @@
       hint.style.display='block';
       hint.style.background='#f0fdf4'; hint.style.borderColor='#bbf7d0'; hint.style.color='#166534';
       hint.textContent='✅ BI válido até ' + vDate.toLocaleDateString('pt-PT') + '.';
+    }
+  };
+
+  // ── Validação de Número de Conta / IBAN ─────────────────
+  window.validarNumeroConta = function(input) {
+    var hint = document.getElementById('hint-numero-conta');
+    if (!hint) return;
+    var raw = input.value.replace(/\s/g, '').toUpperCase();
+    if (!raw) { hint.style.display = 'none'; return; }
+
+    // IBAN angolano: AO + 2 dígitos de controlo + 21 dígitos = 25 chars
+    var isIBAN = /^AO\d{23}$/.test(raw);
+    // NIB simples: 21 dígitos numéricos (formato BNA)
+    var isNIB  = /^\d{21}$/.test(raw);
+
+    hint.style.display = 'block';
+    if (isIBAN) {
+      hint.style.background = '#f0fdf4'; hint.style.borderColor = '#bbf7d0'; hint.style.color = '#166534';
+      hint.textContent = '✅ Formato IBAN angolano válido (AO + 23 dígitos).';
+    } else if (isNIB) {
+      hint.style.background = '#f0fdf4'; hint.style.borderColor = '#bbf7d0'; hint.style.color = '#166534';
+      hint.textContent = '✅ NIB com 21 dígitos reconhecido.';
+    } else if (raw.startsWith('AO') && raw.length < 25) {
+      hint.style.background = '#fffbeb'; hint.style.borderColor = '#fde68a'; hint.style.color = '#92400e';
+      hint.textContent = '⏳ IBAN AO incompleto — faltam ' + (25 - raw.length) + ' caracteres.';
+    } else {
+      hint.style.background = '#f9fafb'; hint.style.borderColor = '#e5e7eb'; hint.style.color = '#6b7280';
+      hint.textContent = 'ℹ️ Guardado como inserido. Formato esperado: AO06 + 21 dígitos.';
     }
   };
 
@@ -1288,6 +1326,9 @@
     if(wrapSal) wrapSal.style.display=['admin','chefe','tecnico'].includes(_perfilActual)?'block':'none';
     var elSal = document.getElementById('f-salario-base');
     if(elSal) elSal.value = f.salarioBase||'';
+    // Número de Conta
+    var elNC = document.getElementById('f-numeroConta');
+    if(elNC){ elNC.value = f.numeroConta||''; if(f.numeroConta) validarNumeroConta(elNC); }
 
     // ── Novos campos: Formação ──
     limparEstudando();
@@ -1332,6 +1373,8 @@
     const _mc=document.getElementById("f-categoria-manual"); if(_mc){_mc.value="";_mc.style.display="none";}
     if(document.getElementById('f-inss'))          document.getElementById('f-inss').value          = '';
     if(document.getElementById('f-banco'))         document.getElementById('f-banco').value         = '';
+    if(document.getElementById('f-numeroConta')){ document.getElementById('f-numeroConta').value=''; }
+    var hNC = document.getElementById('hint-numero-conta'); if(hNC) hNC.style.display='none';
     if(document.getElementById('f-provinciaNatal'))document.getElementById('f-provinciaNatal').value= '';
     if(document.getElementById('f-municipioNatal'))document.getElementById('f-municipioNatal').value= '';
     const wrapSal = document.getElementById('campo-salario-wrap');
@@ -1385,6 +1428,7 @@
       observacoes:document.getElementById("f-observacoes").value.trim(),
       inss:  document.getElementById("f-inss")?.value?.trim()||'',
       banco: document.getElementById("f-banco")?.value||'',
+      numeroConta: (document.getElementById("f-numeroConta")?.value||'').replace(/\s/g,'').toUpperCase()||'',
       // ── Campos complementares ──
       estadoCivil: document.getElementById("f-estadoCivil")?.value||'',
       biEmissao:   document.getElementById("f-biEmissao")?.value||'',
@@ -1504,6 +1548,7 @@
       {r:"Naturalidade",v:(f.municipioNatal&&f.provinciaNatal)?f.municipioNatal+', '+f.provinciaNatal:(f.provinciaNatal||f.municipioNatal||null)},
       {r:"Nº de Assegurado INSS",v:f.inss||null},
       {r:"Banco de Domiciliação",v:f.banco||null},
+      {r:"Número de Conta / IBAN",v:f.numeroConta||null},
       ...(['admin','chefe','tecnico'].includes(_perfilActual) && f.salarioBase
         ? [{r:"Salário Base",v:Number(f.salarioBase).toLocaleString('pt-PT')+' Kz'}]
         : []),
