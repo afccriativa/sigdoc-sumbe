@@ -1032,7 +1032,55 @@
       .sort((a, b) => (b.critico ? 1 : 0) - (a.critico ? 1 : 0) || a.pct - b.pct)
       .slice(0, 6);
 
-    el.innerHTML = `
+    // ── Análise de validade do BI ──
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const d90  = new Date(hoje); d90.setDate(d90.getDate() + 90);
+    const biStats = funcs.reduce((acc, f) => {
+      let dataVal = null;
+      if(f.biValidade){ dataVal = new Date(f.biValidade + 'T00:00:00'); }
+      else if(f.biEmissao){
+        const em = new Date(f.biEmissao + 'T00:00:00');
+        if(!isNaN(em)) { dataVal = new Date(em); dataVal.setFullYear(dataVal.getFullYear() + 10); }
+      }
+      if(!dataVal || isNaN(dataVal)){   acc.semDados++;  }
+      else if(dataVal < hoje){          acc.expirados++; acc.listExpirados.push(f); }
+      else if(dataVal <= d90){          acc.aExpirar++;  acc.listAExpirar.push(f);  }
+      else {                            acc.validos++;   }
+      return acc;
+    }, { expirados:0, aExpirar:0, validos:0, semDados:0, listExpirados:[], listAExpirar:[] });
+
+    const biAlerta = (biStats.expirados > 0 || biStats.aExpirar > 0) ? [
+      '<div style="margin-top:16px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:12px;padding:16px 18px">',
+        '<div style="font-size:12px;font-weight:800;color:#fca5a5;margin-bottom:10px;display:flex;align-items:center;gap:8px">',
+          '🪪 ALERTAS DE BILHETE DE IDENTIDADE',
+        '</div>',
+        '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:' + (biStats.listExpirados.length ? '14' : '0') + 'px">',
+          (biStats.expirados ? '<div style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px 14px;flex:1;min-width:140px"><div style="font-size:22px;font-weight:900;color:#ef4444;font-family:\'DM Mono\',monospace">' + biStats.expirados + '</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.5);margin-top:2px">BI EXPIRADO' + (biStats.expirados !== 1 ? 'S' : '') + '</div></div>' : ''),
+          (biStats.aExpirar ? '<div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:10px 14px;flex:1;min-width:140px"><div style="font-size:22px;font-weight:900;color:#f59e0b;font-family:\'DM Mono\',monospace">' + biStats.aExpirar + '</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.5);margin-top:2px">EXPIRA NOS PRÓX. 90 DIAS</div></div>' : ''),
+          '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:10px 14px;flex:1;min-width:140px"><div style="font-size:22px;font-weight:900;color:rgba(255,255,255,.3);font-family:\'DM Mono\',monospace">' + biStats.semDados + '</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);margin-top:2px">SEM DATA BI REGISTADA</div></div>',
+        '</div>',
+        (biStats.listExpirados.length ? (function(){
+          var tags = biStats.listExpirados.slice(0,12).map(function(f){
+            var dv = f.biValidade ? new Date(f.biValidade+'T00:00:00') : (function(){ var d=new Date(f.biEmissao+'T00:00:00'); d.setFullYear(d.getFullYear()+10); return d; })();
+            var dias = Math.round((hoje - dv)/(1000*60*60*24));
+            var nome = f.nome.split(' ').slice(0,2).join(' ');
+            return '<span style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.25);padding:3px 9px;border-radius:99px;font-size:10px;font-weight:600;color:#fca5a5" title="Expirou há '+dias+' dias">'+nome+'</span>';
+          });
+          if(biStats.listExpirados.length > 12) tags.push('<span style="font-size:10px;color:rgba(255,255,255,.3);align-self:center">+' + (biStats.listExpirados.length-12) + ' mais</span>');
+          return '<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Funcionários com BI expirado:</div><div style="display:flex;flex-wrap:wrap;gap:6px">'+tags.join('')+'</div>';
+        })() : ''),
+      '</div>'
+    ].join('') : (biStats.validos > 0 ? [
+      '<div style="margin-top:16px;background:rgba(16,200,134,.05);border:1px solid rgba(16,200,134,.15);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px">',
+        '<span style="font-size:18px">🪪</span>',
+        '<div>',
+          '<div style="font-size:12px;font-weight:700;color:#10c886">BIs sem alertas</div>',
+          '<div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:1px">' + biStats.validos + ' funcionário' + (biStats.validos !== 1 ? 's' : '') + ' com BI válido registado.</div>',
+        '</div>',
+      '</div>'
+    ].join('') : '');
+
+    el.innerHTML =
 
       <!-- ── Score global ── -->
       <div class="gc" style="margin-bottom:16px">
@@ -1137,7 +1185,7 @@
             <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">Todos os campos acima de 70% de completude.</div>
           </div>
         </div>`}
-    `;
+    ` + biAlerta;
   }
 
 
