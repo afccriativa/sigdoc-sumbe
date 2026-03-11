@@ -585,6 +585,11 @@
             <input type="text" id="f-bi" placeholder="Ex: 003456789LA041"/>
           </div>
           <div class="campo">
+            <label>Validade do BI</label>
+            <input type="date" id="f-biValidade" onchange="verificarValidadeBI()"/>
+            <span class="campo-hint" id="hint-bi-validade" style="display:none"></span>
+          </div>
+          <div class="campo">
             <label>Telefone</label>
             <input type="tel" id="f-telefone" placeholder="Ex: 923 456 789"/>
           </div>
@@ -829,6 +834,16 @@
                   style="width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;box-sizing:border-box"/>
               </div>
             </div>
+            <!-- Salário Base -->
+            <div id="campo-salario-wrap" style="display:none;margin-top:12px">
+              <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:6px">Salário Base (Kz)</label>
+              <input type="number" id="f-salario-base" min="0" step="100"
+                placeholder="Ex: 75000"
+                style="width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;box-sizing:border-box"/>
+              <div style="font-size:11px;color:var(--c-700);background:var(--c-50);border:1px solid var(--c-100);padding:6px 10px;border-radius:8px;margin-top:6px">
+                🔒 Campo visível apenas para perfis admin, chefe e técnico
+              </div>
+            </div>
       </div>
       <!-- Formação Académica (recolhível) -->
       <div class="secao-form recolhida" id="secao-formacao">
@@ -918,6 +933,31 @@
 <div class="toast" id="notificacao"></div>
 
 <script>
+  // ── Validação de Validade do BI ─────────────────────────
+  window.verificarValidadeBI = function() {
+    var elVal  = document.getElementById('f-biValidade');
+    var hint   = document.getElementById('hint-bi-validade');
+    if(!elVal || !hint) return;
+    var val = elVal.value;
+    if(!val){ hint.style.display='none'; hint.textContent=''; return; }
+    var hoje  = new Date(); hoje.setHours(0,0,0,0);
+    var vDate = new Date(val + 'T00:00:00');
+    var diff  = Math.round((vDate - hoje)/(1000*60*60*24));
+    if(diff < 0){
+      hint.style.display='block';
+      hint.style.background='#fef2f2'; hint.style.borderColor='#fecaca'; hint.style.color='#dc2626';
+      hint.textContent='⚠️ BI expirado há ' + Math.abs(diff) + ' dias. Actualizar antes de gerar documentos.';
+    } else if(diff <= 90){
+      hint.style.display='block';
+      hint.style.background='#fffbeb'; hint.style.borderColor='#fde68a'; hint.style.color='#92400e';
+      hint.textContent='⏳ BI expira em ' + diff + ' dias. Considere renovar brevemente.';
+    } else {
+      hint.style.display='block';
+      hint.style.background='#f0fdf4'; hint.style.borderColor='#bbf7d0'; hint.style.color='#166534';
+      hint.textContent='✅ BI válido até ' + vDate.toLocaleDateString('pt-PT') + '.';
+    }
+  };
+
   // ── Secções recolhíveis ──────────────────────────────────
   window.toggleSecao = function(id) {
     document.getElementById(id).classList.toggle('recolhida');
@@ -1210,6 +1250,9 @@
     document.getElementById("titulo-modal").textContent="➕ Registar Novo Funcionário";
     document.getElementById("funcionario-id").value="";
     limparForm();
+    // Mostrar salário apenas para perfis com acesso
+    var wrapSal=document.getElementById('campo-salario-wrap');
+    if(wrapSal) wrapSal.style.display=['admin','chefe','tecnico'].includes(_perfilActual)?'block':'none';
     document.getElementById("overlay-formulario").classList.add("activo");
   };
 
@@ -1234,9 +1277,17 @@
     Object.keys(camposCompl).forEach(function(id){
       var el = document.getElementById(id); if(el) el.value = camposCompl[id];
     });
+    // biValidade
+    var elBiVal = document.getElementById('f-biValidade');
+    if(elBiVal){ elBiVal.value = f.biValidade||''; verificarValidadeBI(); }
     var temCompl = f.estadoCivil||f.biEmissao||f.nomePai||f.nomeMae||f.morada||f.email;
     if(temCompl) expandirSecao('secao-complementar');
     else document.getElementById('secao-complementar').classList.add('recolhida');
+    // Salário Base
+    var wrapSal = document.getElementById('campo-salario-wrap');
+    if(wrapSal) wrapSal.style.display=['admin','chefe','tecnico'].includes(_perfilActual)?'block':'none';
+    var elSal = document.getElementById('f-salario-base');
+    if(elSal) elSal.value = f.salarioBase||'';
 
     // ── Novos campos: Formação ──
     limparEstudando();
@@ -1288,7 +1339,7 @@
     if(document.getElementById('f-salario-base')) document.getElementById('f-salario-base').value='';
 
     // ── Novos campos: Complementares ──
-    ['f-estadoCivil','f-biEmissao','f-nomePai','f-nomeMae','f-morada','f-email'].forEach(function(id){
+    ['f-estadoCivil','f-biEmissao','f-biValidade','f-nomePai','f-nomeMae','f-morada','f-email'].forEach(function(id){
       var el = document.getElementById(id); if(el) el.value='';
     });
     // ── Novos campos: Formação ──
@@ -1327,6 +1378,7 @@
       municipioNatal: document.getElementById("f-municipioNatal")?.value?.trim()||'',
       nascimento:document.getElementById("f-nascimento").value,
       bi:document.getElementById("f-bi").value.trim(),
+      biValidade: document.getElementById("f-biValidade")?.value||'',
       telefone:document.getElementById("f-telefone").value.trim(),
       estado:document.getElementById("f-estado").value,
       escolaridade:document.getElementById("f-escolaridade").value,
