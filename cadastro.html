@@ -1591,20 +1591,29 @@
     return { tipo: null };
   }
 
-  function abrirFichaConflito() {
-    fecharModalDup();
+  window.abrirFichaConflito = function() {
+    fecharModalDupInterno();
     if (_idConflitoAbrir) {
       setTimeout(function() { window.verFicha && window.verFicha(_idConflitoAbrir); }, 150);
     }
+  };
+
+  window.fecharModalDup = function() {
+    fecharModalDupInterno();
+  };
+
+  // Versão interna (chamável dentro do módulo sem depender de window)
+  function fecharModalDupInterno() {
+    document.getElementById('overlay-dup').classList.remove('activo');
+    _dadosPendentesDup = null;
   }
 
-  function fecharModalDup() {
-    document.getElementById('overlay-dup').classList.remove('activo');
-  }
+  function abrirFichaConflito() { window.abrirFichaConflito(); }
+  function fecharModalDup()     { fecharModalDupInterno(); }
 
   // Chamado quando o utilizador clica "Guardar mesmo assim" no modal BI/nome
   window.confirmarGravacaoDup = async function() {
-    fecharModalDup();
+    fecharModalDupInterno();
     if (!_dadosPendentesDup) return;
     const { nome, dados } = _dadosPendentesDup;
     _dadosPendentesDup = null;
