@@ -733,6 +733,28 @@
         ⚠️ <strong>Formatos aceites:</strong> PDF, JPG ou PNG. <strong>Tamanho máximo:</strong> 3MB por ficheiro. Certifique-se que os documentos são legíveis.
       </div>
 
+      <!-- Upload Fotografia tipo passe -->
+      <div class="campo-grupo">
+        <label>📷 Fotografia tipo passe <span style="color:var(--neu-400);font-weight:400">(opcional)</span></label>
+        <div style="display:flex;align-items:center;gap:16px;padding:14px;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:10px;">
+          <div id="foto-preview-form" style="width:72px;height:72px;border-radius:50%;background:#e2e8f0;border:3px solid #cbd5e1;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;overflow:hidden;cursor:pointer;" onclick="document.getElementById('upload-foto').click()">
+            🧑
+          </div>
+          <input type="file" id="upload-foto" accept="image/jpeg,image/png,image/webp" style="display:none"
+            onchange="previewFotoForm(this)"/>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:4px">Fotografia para o registo</div>
+            <div style="font-size:11px;color:#6b7280;line-height:1.5">Fundo neutro, rosto bem visível.<br>JPG ou PNG · máx. 2MB</div>
+            <div id="foto-form-estado" style="font-size:11px;font-weight:600;color:#9ca3af;margin-top:6px">Sem fotografia</div>
+          </div>
+          <button type="button" onclick="document.getElementById('upload-foto').click()"
+            style="font-size:12px;font-weight:700;padding:7px 14px;border:2px solid #6366f1;border-radius:8px;color:#6366f1;background:white;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+            Escolher
+          </button>
+        </div>
+        <div class="campo-hint">Campo opcional mas recomendado. A fotografia será associada ao seu registo e visível no portal.</div>
+      </div>
+
       <!-- Upload Bilhete de Identidade -->
       <div class="campo-grupo">
         <label>Bilhete de Identidade (frente e verso)</label>
@@ -1120,6 +1142,27 @@
   // ════════════════════════════════
   // UPLOAD DE FICHEIROS
   // ════════════════════════════════
+  // ════════════════════════════════
+  // UPLOAD DE FICHEIROS
+  // ════════════════════════════════
+  window.previewFotoForm = function(input) {
+    var file = input.files[0]; if(!file) return;
+    if(file.size > 2*1024*1024){ alert('Foto demasiado grande (máx. 2MB).'); input.value=''; return; }
+    if(!file.type.match(/^image\/(jpeg|png|webp)$/)){ alert('Formato não suportado. Use JPG ou PNG.'); input.value=''; return; }
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var prev = document.getElementById('foto-preview-form');
+      var est  = document.getElementById('foto-form-estado');
+      var imgAnt = prev.querySelector('img'); if(imgAnt) imgAnt.remove();
+      prev.textContent='';
+      var img=document.createElement('img'); img.src=e.target.result;
+      img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%';
+      prev.appendChild(img);
+      if(est){ est.textContent='✅ Foto pronta'; est.style.color='#16a34a'; }
+    };
+    reader.readAsDataURL(file);
+  };
+
   window.tratarUpload = function(input, areaId, nomeId, avisoId, maxMB) {
     const ficheiro = input.files[0];
     const area     = document.getElementById(areaId);
@@ -1227,9 +1270,20 @@
       // Fazer upload dos ficheiros se existirem
       let urlBI   = _funcDoc?.urlBI   || '';
       let urlCert = _funcDoc?.urlCert || '';
+      let fotoUrl = _funcDoc?.fotoUrl || '';
 
+      const fotoFile = document.getElementById('upload-foto')?.files[0];
       const biFile   = document.getElementById('upload-bi')?.files[0];
       const certFile = document.getElementById('upload-cert')?.files[0];
+
+      if (fotoFile) {
+        btn.innerHTML = '<span class="spinner"></span> A carregar fotografia...';
+        try {
+          const refFoto = ref(storage, `fotos/${_funcDocId}/foto_${Date.now()}.${fotoFile.name.split('.').pop()}`);
+          const snapFoto = await uploadBytes(refFoto, fotoFile);
+          fotoUrl = await getDownloadURL(snapFoto.ref);
+        } catch(eUpload) { console.warn('Upload foto falhou:', eUpload); }
+      }
 
       if (biFile) {
         btn.innerHTML = '<span class="spinner"></span> A carregar Bilhete de Identidade...';
@@ -1287,6 +1341,7 @@
         banco:       g('f-banco')||'',
         ...(urlBI   ? { urlBI }   : {}),
         ...(urlCert ? { urlCert } : {}),
+        ...(fotoUrl ? { fotoUrl } : {}),
         formularioPreenchidoEm: serverTimestamp(),
         formularioPreenchidoPor: _utilizador.uid,
         formularioPendente: true,   // RH ainda não reviu
