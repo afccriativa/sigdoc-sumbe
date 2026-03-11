@@ -985,15 +985,25 @@
       { key:'inss',        label:'Número de INSS',          grupo:'fin', critico:true  },
       { key:'banco',       label:'Banco de Domiciliação',   grupo:'fin', critico:true  },
       { key:'salarioBase', label:'Salário Base',            grupo:'fin', critico:true  },
+      // numeroConta: crítico apenas quando o banco já está registado
+      { key:'numeroConta', label:'Nº de Conta Bancária',    grupo:'fin', critico:true,
+        fn: f => { const v = f['numeroConta']; return !!(v && String(v).trim() !== ''); },
+        fnBase: f => !!f['banco']  // só conta funcionários que têm banco
+      },
     ];
 
     // ── Completude por campo ──
     const campos = CAMPOS.map(c => {
-      const preench = funcs.filter(f => {
+      // fnBase: universo restrito (ex: só quem tem banco)
+      const universo = c.fnBase ? funcs.filter(c.fnBase) : funcs;
+      const base = universo.length;
+      const preench = universo.filter(f => {
+        if (c.fn) return c.fn(f);
         const v = f[c.key];
         return v !== undefined && v !== null && String(v).trim() !== '' && Number(v) !== 0;
       }).length;
-      return { ...c, preench, pct: total ? Math.round(preench / total * 100) : 0 };
+      const pct = base ? Math.round(preench / base * 100) : 100; // se base=0, 100% (não há o que preencher)
+      return { ...c, preench, base, pct };
     });
 
     // ── Score global (campos críticos = peso 2) ──
@@ -1141,7 +1151,7 @@
                     <span class="dq-texto" title="${c.label}">${c.label}</span>
                   </div>
                   <div class="dq-nums">
-                    <span class="dq-contagem">${c.preench}/${total}</span>
+                    <span class="dq-contagem">${c.preench}/${c.base}</span>
                     <span class="cob-badge ${cls(c.pct)}">${c.pct}%</span>
                   </div>
                 </div>
@@ -1160,7 +1170,8 @@
           </div>
           <div class="dq-acao-grid">
             ${acoes.map(c => {
-              const emFalta  = total - c.preench;
+              const emFalta  = c.base - c.preench;
+              const universoLabel = c.fnBase ? ` (de ${c.base} com banco)` : '';
               const urgencia = c.pct < 40 ? 'Urgente' : c.pct < 60 ? 'Prioritário' : 'Recomendado';
               const uCor     = c.pct < 40 ? '#ef4444' : c.pct < 60 ? '#f59e0b'     : '#60a5fa';
               return `<div class="dq-acao-item">
@@ -1169,7 +1180,7 @@
                   <span style="font-size:9px;font-weight:800;padding:2px 7px;border-radius:99px;background:rgba(255,255,255,.05);color:${uCor};white-space:nowrap;margin-left:6px">${urgencia}</span>
                 </div>
                 <div style="font-size:11px;color:rgba(255,255,255,.4)">
-                  <strong style="color:#fca5a5">${emFalta}</strong> funcionário${emFalta !== 1 ? 's' : ''} sem este campo
+                  <strong style="color:#fca5a5">${emFalta}</strong> funcionário${emFalta !== 1 ? 's' : ''} sem este campo${universoLabel}
                 </div>
                 <div style="margin-top:8px;height:4px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden">
                   <div style="height:100%;width:${c.pct}%;background:${cor(c.pct)};border-radius:99px"></div>
@@ -1393,6 +1404,7 @@
     { key: 'municipioNatal',label:'Município Natal'       },
     { key: 'inss',         label: 'Nº INSS'              },
     { key: 'banco',        label: 'Banco'                 },
+    { key: 'numeroConta',  label: 'Nº Conta / IBAN'      },
     { key: 'salarioBase',  label: 'Salário Base (Kz)'    },
     { key: 'morada',       label: 'Morada'                },
   ];
