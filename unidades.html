@@ -605,23 +605,13 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 
 <!-- MODAL EDITAR EFECTIVO (meta numérica) -->
 <div class="modal-ov" id="modal-ef">
-  <div class="modal-card" style="max-width:460px">
+  <div class="modal-card">
     <div class="modal-titulo" id="mef-titulo">Definir Efectivo</div>
     <div class="modal-sub" id="mef-sub">Número total de funcionários esperados nesta unidade</div>
     <div class="modal-campo">
-      <label>Efectivo Total Esperado</label>
+      <label>Efectivo Esperado (nº de funcionários)</label>
       <input type="number" id="mef-input" min="0" max="9999" placeholder="0"/>
       <div class="modal-hint" id="mef-hint"></div>
-    </div>
-    <!-- Bloco de secções — só visível para a DMS -->
-    <div id="mef-seccoes-wrap" style="display:none;margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--txt-2);margin-bottom:12px">
-        📋 Efectivo por Secção Interna
-      </div>
-      <div id="mef-seccoes-campos"></div>
-      <div style="font-size:11px;color:var(--txt-3);margin-top:8px">
-        Deixar a zero significa que a secção não tem meta definida.
-      </div>
     </div>
     <div class="modal-footer">
       <button class="btn-cancelar" onclick="fecharModalEf()">Cancelar</button>
@@ -1093,13 +1083,8 @@ function renderDrawerDMS(u){
   const semSeccao = todosFunc.filter(f=>!f.seccao||f.seccao==='');
 
   const seccaoHTML = SECCOES_DMS.map(sec=>{
-    const funcs  = SECCOES_MAP[sec]||[];
-    const espSec = u.efectivo?.seccoes?.[sec] || 0;
-    const pctSec = espSec > 0 ? Math.min(Math.round(funcs.length / espSec * 100), 100) : null;
-    const corSec = pctSec === null ? 'var(--txt-3)' : pctSec >= 90 ? 'var(--verde,#059669)' : pctSec >= 60 ? 'var(--amber,#d97706)' : '#dc2626';
-    const badgeSec = pctSec !== null
-      ? `<span style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:99px;background:rgba(0,0,0,.06);color:${corSec}">${pctSec}%</span>`
-      : (espSec === 0 ? '' : '');
+    const funcs = SECCOES_MAP[sec]||[];
+    if(!funcs.length && !SECCOES_MAP[sec]) return ''; // só mostrar se tiver alguém OU sempre
     return `
       <div style="margin-bottom:20px">
         <div style="display:flex;align-items:center;justify-content:space-between;
@@ -1107,17 +1092,13 @@ function renderDrawerDMS(u){
                     border-radius:var(--r-sm);border:1px solid var(--border);
                     margin-bottom:8px;cursor:pointer"
              onclick="toggleSeccao(this)">
-          <div style="min-width:0;flex:1">
+          <div>
             <div style="font-size:13px;font-weight:700;color:var(--txt-1)">${sec}</div>
             <div style="font-size:11px;color:var(--txt-3);margin-top:2px">
-              ${funcs.length} cadastrado${funcs.length!==1?'s':''}
-              ${espSec > 0 ? ` · meta: ${espSec}` : ''}
+              ${funcs.length} funcionário${funcs.length!==1?'s':''} cadastrado${funcs.length!==1?'s':''}
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-            ${badgeSec}
-            <span style="font-size:18px;color:var(--txt-3);transition:transform .2s" class="sec-arrow">▸</span>
-          </div>
+          <span style="font-size:18px;color:var(--txt-3);transition:transform .2s" class="sec-arrow">▸</span>
         </div>
         <div class="sec-lista" style="display:none;padding-left:4px">
           ${funcs.length ? funcs.map(f=>`
@@ -1322,38 +1303,10 @@ window.abrirModalEf = function(id){
   MODAL_EF_ID = id;
   const u     = TODAS_UNIDADES.find(x=>x.id===id);
   if(!u) return;
-
-  const isDMS = u.nome === 'Direcção Municipal de Saúde do Sumbe';
-
   document.getElementById('mef-titulo').textContent = u.nome;
-  document.getElementById('mef-sub').textContent    = isDMS
-    ? 'Define o efectivo total e por cada secção interna da DMS.'
-    : 'Define o número total de funcionários que esta unidade deve ter.';
+  document.getElementById('mef-sub').textContent    = 'Define o número total de funcionários que esta unidade deve ter.';
   document.getElementById('mef-input').value        = u.efectivo?.esperado||0;
   document.getElementById('mef-hint').textContent   = `Actualmente: ${u.cadastrados} cadastrado(s) no portal.`;
-
-  // ── Bloco de secções: só para a DMS ──
-  const wrapSec = document.getElementById('mef-seccoes-wrap');
-  const divCampos = document.getElementById('mef-seccoes-campos');
-  if(isDMS && wrapSec && divCampos){
-    const seccoes = u.efectivo?.seccoes || {};
-    divCampos.innerHTML = SECCOES_DMS.map(function(sec) {
-      var val     = (seccoes[sec] || 0);
-      var cadSec  = (SECCOES_MAP[sec]||[]).length;
-      var safeid  = 'mef-sec-' + sec.replace(/[^a-zA-Z0-9]/g,'_');
-      return '<div class="modal-campo" style="margin-bottom:10px">' +
-        '<label style="display:flex;justify-content:space-between">' +
-          '<span>' + sec + '</span>' +
-          '<span style="font-weight:400;color:var(--txt-3)">' + cadSec + ' cadastrado(s)</span>' +
-        '</label>' +
-        '<input type="number" id="' + safeid + '" min="0" max="999" value="' + val + '" placeholder="0"/>' +
-      '</div>';
-    }).join('');
-    wrapSec.style.display = 'block';
-  } else if(wrapSec){
-    wrapSec.style.display = 'none';
-  }
-
   document.getElementById('modal-ef').classList.add('aberto');
 };
 
@@ -1364,50 +1317,23 @@ window.fecharModalEf = function(){
 
 window.guardarEfectivo = async function(){
   if(!MODAL_EF_ID) return;
-  const val   = parseInt(document.getElementById('mef-input').value)||0;
-  const u     = TODAS_UNIDADES.find(x=>x.id===MODAL_EF_ID);
-  const isDMS = u?.nome === 'Direcção Municipal de Saúde do Sumbe';
-  const btn   = document.getElementById('mef-btn-guardar');
+  const val = parseInt(document.getElementById('mef-input').value)||0;
+  const btn = document.getElementById('mef-btn-guardar');
   btn.disabled = true; btn.textContent = 'A guardar…';
-
-  // Recolher valores das secções (só para DMS)
-  const seccoes = {};
-  if(isDMS){
-    SECCOES_DMS.forEach(sec => {
-      const safeid = 'mef-sec-' + sec.replace(/[^a-zA-Z0-9]/g,'_');
-      const el = document.getElementById(safeid);
-      if(el) seccoes[sec] = parseInt(el.value)||0;
-    });
-  }
-
-  // Construir objecto de update
-  const dadosUpdate = {
-    'efectivo.esperado': val,
-    'actualizadoEm':     serverTimestamp(),
-  };
-  if(isDMS){
-    Object.entries(seccoes).forEach(([sec, v]) => {
-      // Usar notação de ponto aninhada aceite pelo Firestore
-      dadosUpdate['efectivo.seccoes.' + sec] = v;
-    });
-  }
-
   try{
-    await updateDoc(doc(db,'unidades_sanitarias',MODAL_EF_ID), dadosUpdate);
+    await updateDoc(doc(db,'unidades_sanitarias',MODAL_EF_ID),{
+      'efectivo.esperado': val,
+      'actualizadoEm':     serverTimestamp(),
+    });
     // Actualizar local
-    if(u){
-      u.efectivo = {...(u.efectivo||{}), esperado:val};
-      if(isDMS) u.efectivo.seccoes = {...(u.efectivo.seccoes||{}), ...seccoes};
-    }
+    const u = TODAS_UNIDADES.find(x=>x.id===MODAL_EF_ID);
+    if(u){ u.efectivo = {...(u.efectivo||{}), esperado:val}; }
     // Registar auditoria
     try{
       const {addDoc} = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-      const detalhe = isDMS
-        ? `${u?.nome||MODAL_EF_ID}: efectivo total=${val}; secções=${JSON.stringify(seccoes)}`
-        : `${u?.nome||MODAL_EF_ID}: efectivo esperado definido para ${val}`;
       await addDoc(collection(db,'auditoria'),{
         acao:'EDITAR_EFECTIVO_UNIDADE',
-        detalhe,
+        detalhe:`${u?.nome||MODAL_EF_ID}: efectivo esperado definido para ${val}`,
         uidUtilizador: UTILIZADOR.uid,
         nomeUtilizador: PERFIL_DOC?.nome||UTILIZADOR.email,
         timestamp: serverTimestamp()
@@ -1597,7 +1523,11 @@ window.guardarFicha = async function(){
     dataInicio:    dataInicio,
   } : { nome:'', cargo:'', dataInicio:'' };
 
+  const u = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
+
   const dados = {
+    nome:          u?.nome   || '',   // garantir que nome nunca desaparece do Firestore
+    tipo:          u?.tipo   || '',   // idem para tipo — usado nos filtros e badges
     responsavel,
     localizacao: {
       descricao:  document.getElementById('mf-localizacao').value.trim(),
