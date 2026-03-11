@@ -116,6 +116,23 @@
     .gen-stat-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:rgba(255,255,255,.3);margin-bottom:5px}
     .gen-stat-val{font-size:20px;font-weight:800;font-family:'DM Mono',monospace;letter-spacing:-1px}
     @media(max-width:600px){.gen-body{flex-direction:column;align-items:center}}
+    /* ── painel de filtros ── */
+    #filtros-wrap{background:#111827;border-bottom:1px solid rgba(255,255,255,.07);padding:12px 24px;position:sticky;top:56px;z-index:40}
+    .filtros-inner{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .filtro-grupo{display:flex;flex-direction:column;gap:3px;min-width:0}
+    .filtro-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3)}
+    .filtro-sel{background:#1a2236;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#e2e8f0;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;padding:6px 28px 6px 10px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,.3)'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;transition:border-color .18s;min-width:130px;max-width:200px}
+    .filtro-sel:focus{outline:none;border-color:rgba(59,130,246,.6)}
+    .filtro-sel.activo{border-color:#3b82f6;background-color:#1e2d45;color:#60a5fa}
+    .filtros-acoes{display:flex;align-items:flex-end;gap:8px;margin-left:auto;flex-shrink:0}
+    .filtros-badge{display:none;padding:3px 9px;border-radius:99px;background:rgba(59,130,246,.18);border:1px solid rgba(59,130,246,.3);color:#60a5fa;font-size:10px;font-weight:800;white-space:nowrap;align-items:center;gap:4px}
+    .filtros-badge.vis{display:flex}
+    .btn-limpar{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#ef4444;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;padding:6px 12px;cursor:pointer;transition:all .18s;display:none;white-space:nowrap}
+    .btn-limpar:hover{background:rgba(239,68,68,.2)}
+    .btn-limpar.vis{display:block}
+    .filtros-resultado{font-size:11px;color:rgba(255,255,255,.3);font-weight:600;white-space:nowrap;align-self:flex-end;padding-bottom:1px}
+    @media(max-width:900px){.filtros-inner{gap:8px}.filtro-sel{min-width:110px}}
+    @media(max-width:600px){#filtros-wrap{padding:10px 16px}.filtros-acoes{margin-left:0;width:100%}}
     /* ── notif ── */
     #notif{position:fixed;bottom:20px;right:20px;z-index:9999;background:#1e2a3a;border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none}
     #notif.v{opacity:1;transform:translateY(0)}
@@ -146,6 +163,7 @@
     </div>
     <span class="badge-perfil" id="badge-perfil">—</span>
   </div>
+  <div id="filtros-wrap" style="display:none"></div>
   <div class="content" id="content">
     <div style="display:flex;align-items:center;gap:10px;padding:40px;color:rgba(255,255,255,.4);font-size:13px">
       <div class="spinner"></div> A carregar estatísticas…
@@ -169,6 +187,12 @@
 
   const PERFIS_ACESSO = ["admin", "director", "chefe", "tecnico"];
   const CORES = ['#3b82f6','#10c886','#f59e0b','#ef4444','#a78bfa','#22d3ee','#f472b6','#84cc16','#fb923c','#e879f9'];
+
+  // ── Estado global dos dados e filtros ──
+  let _todosOsFuncs  = [];
+  let _todasUnidades = {};
+  let _perfilActual  = '';
+  let _filtros = { unidade: '', categoria: '', vinculo: '', estado: '', sexo: '' };
 
   let _nt;
   function notif(msg) {
@@ -228,21 +252,23 @@
   //  CARREGAR DADOS
   // ════════════════════════════════════════════════════════
   async function carregarEstatisticas(perfil) {
+    _perfilActual = perfil;
     try {
       const [snapF, snapU] = await Promise.all([
         getDocs(collection(db, "funcionarios")),
         getDocs(collection(db, "unidades_sanitarias")).catch(() => null)
       ]);
 
-      const funcs = snapF.docs.map(d => ({ id: d.id, ...d.data() }));
-      const unidades = {};
-      if (snapU) snapU.forEach(d => { const u = d.data(); if (u.nome) unidades[u.nome] = u; });
+      _todosOsFuncs = snapF.docs.map(d => ({ id: d.id, ...d.data() }));
+      _todasUnidades = {};
+      if (snapU) snapU.forEach(d => { const u = d.data(); if (u.nome) _todasUnidades[u.nome] = u; });
 
-      const activos = funcs.filter(f => !f.estado || f.estado === "activo").length;
+      const activos = _todosOsFuncs.filter(f => !f.estado || f.estado === "activo").length;
       document.getElementById("topbar-sub").textContent =
-        `${funcs.length} funcionários · ${activos} em serviço activo`;
+        `${_todosOsFuncs.length} funcionários · ${activos} em serviço activo`;
 
-      render(funcs, unidades, perfil);
+      montarFiltros(_todosOsFuncs);
+      render(_todosOsFuncs, _todasUnidades, perfil);
 
     } catch(e) {
       console.error("Firestore error:", e);
@@ -257,6 +283,109 @@
   }
 
   // ════════════════════════════════════════════════════════
+  //  FILTROS
+  // ════════════════════════════════════════════════════════
+
+  function montarFiltros(funcs) {
+    // Extrair valores únicos de cada dimensão
+    const uniq = (campo) => [...new Set(
+      funcs.map(f => (f[campo] || '').trim()).filter(Boolean)
+    )].sort();
+
+    const unidades  = uniq('unidade');
+    const categorias = uniq('categoria');
+    const vinculos  = ['quadro','provisorio'].filter(v => funcs.some(f => f.vinculo === v));
+    const estados   = ['activo','licenca','inactivo'].filter(v => funcs.some(f => (f.estado||'activo') === v));
+    const sexos     = ['Masculino','Feminino'].filter(v => funcs.some(f => f.sexo === v));
+
+    const VINCULO_LABEL = { quadro: 'Pessoal do Quadro', provisorio: 'Provisório' };
+    const ESTADO_LABEL  = { activo: 'Em Serviço', licenca: 'De Licença', inactivo: 'Inactivo' };
+
+    const abrvUnidade = n => n
+      .replace('Direcção Municipal de Saúde do Sumbe','DMS — Sede')
+      .replace('Centro de Saúde','CS')
+      .replace('Posto de Saúde','PS');
+
+    function buildSelect(id, label, opcoes, labelFn) {
+      const opts = opcoes.map(v =>
+        `<option value="${v}">${labelFn ? labelFn(v) : v}</option>`
+      ).join('');
+      return `
+        <div class="filtro-grupo">
+          <span class="filtro-lbl">${label}</span>
+          <select class="filtro-sel" id="fil-${id}" onchange="window._aplicarFiltros()">
+            <option value="">Todos</option>
+            ${opts}
+          </select>
+        </div>`;
+    }
+
+    const wrap = document.getElementById('filtros-wrap');
+    wrap.style.display = 'block';
+    wrap.innerHTML = `
+      <div class="filtros-inner">
+        ${buildSelect('unidade',   'Unidade',   unidades,  abrvUnidade)}
+        ${buildSelect('categoria', 'Categoria', categorias, null)}
+        ${buildSelect('vinculo',   'Vínculo',   vinculos,  v => VINCULO_LABEL[v]||v)}
+        ${buildSelect('estado',    'Estado',    estados,   v => ESTADO_LABEL[v]||v)}
+        ${buildSelect('sexo',      'Sexo',      sexos,     null)}
+        <div class="filtros-acoes">
+          <span class="filtros-resultado" id="fil-resultado">${funcs.length} funcionários</span>
+          <span class="filtros-badge" id="fil-badge">0 filtros</span>
+          <button class="btn-limpar" id="btn-limpar" onclick="window._limparFiltros()">✕ Limpar</button>
+        </div>
+      </div>`;
+  }
+
+  window._aplicarFiltros = function() {
+    _filtros.unidade   = document.getElementById('fil-unidade')?.value   || '';
+    _filtros.categoria = document.getElementById('fil-categoria')?.value || '';
+    _filtros.vinculo   = document.getElementById('fil-vinculo')?.value   || '';
+    _filtros.estado    = document.getElementById('fil-estado')?.value    || '';
+    _filtros.sexo      = document.getElementById('fil-sexo')?.value      || '';
+
+    let resultado = _todosOsFuncs;
+    if (_filtros.unidade)   resultado = resultado.filter(f => f.unidade   === _filtros.unidade);
+    if (_filtros.categoria) resultado = resultado.filter(f => f.categoria === _filtros.categoria);
+    if (_filtros.vinculo)   resultado = resultado.filter(f => f.vinculo   === _filtros.vinculo);
+    if (_filtros.estado)    resultado = resultado.filter(f => (f.estado||'activo') === _filtros.estado);
+    if (_filtros.sexo)      resultado = resultado.filter(f => f.sexo      === _filtros.sexo);
+
+    // Actualizar badge e resultado
+    const nActivos = Object.values(_filtros).filter(Boolean).length;
+    const badge  = document.getElementById('fil-badge');
+    const btnLimpar = document.getElementById('btn-limpar');
+    const resEl  = document.getElementById('fil-resultado');
+
+    if (badge)    { badge.textContent = nActivos + (nActivos === 1 ? ' filtro' : ' filtros'); badge.classList.toggle('vis', nActivos > 0); }
+    if (btnLimpar){ btnLimpar.classList.toggle('vis', nActivos > 0); }
+    if (resEl)    { resEl.textContent = `${resultado.length} de ${_todosOsFuncs.length} funcionários`; }
+
+    // Marcar selects activos visualmente
+    ['unidade','categoria','vinculo','estado','sexo'].forEach(k => {
+      const sel = document.getElementById('fil-' + k);
+      if (sel) sel.classList.toggle('activo', !!_filtros[k]);
+    });
+
+    render(resultado, _todasUnidades, _perfilActual);
+  };
+
+  window._limparFiltros = function() {
+    _filtros = { unidade: '', categoria: '', vinculo: '', estado: '', sexo: '' };
+    ['unidade','categoria','vinculo','estado','sexo'].forEach(k => {
+      const sel = document.getElementById('fil-' + k);
+      if (sel) { sel.value = ''; sel.classList.remove('activo'); }
+    });
+    const badge   = document.getElementById('fil-badge');
+    const btnLimpar = document.getElementById('btn-limpar');
+    const resEl   = document.getElementById('fil-resultado');
+    if (badge)    { badge.classList.remove('vis'); }
+    if (btnLimpar){ btnLimpar.classList.remove('vis'); }
+    if (resEl)    { resEl.textContent = `${_todosOsFuncs.length} funcionários`; }
+    render(_todosOsFuncs, _todasUnidades, _perfilActual);
+  };
+
+  // ════════════════════════════════════════════════════════
   //  RENDER PRINCIPAL
   // ════════════════════════════════════════════════════════
   function render(funcs, unidades, perfil) {
@@ -267,7 +396,17 @@
     const idMed  = idadeMedia(funcs);
     const activos = funcs.filter(f => !f.estado || f.estado === "activo").length;
 
-    document.getElementById("content").innerHTML = `
+    // Banner de contexto quando filtros estão activos
+    const nFiltrosActivos = Object.values(_filtros).filter(Boolean).length;
+    const bannerFiltro = nFiltrosActivos > 0
+      ? `<div style="display:flex;align-items:center;gap:10px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.18);border-radius:10px;padding:10px 16px;margin-bottom:16px;flex-wrap:wrap">
+           <span style="font-size:13px;font-weight:700;color:#60a5fa">🔍 Visualização filtrada</span>
+           <span style="font-size:12px;color:rgba(255,255,255,.5)">Mostrando <strong style="color:#e2e8f0">${total}</strong> de <strong style="color:#e2e8f0">${_todosOsFuncs.length}</strong> funcionários com base nos filtros seleccionados.</span>
+           <button onclick="window._limparFiltros()" style="margin-left:auto;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:#60a5fa;border-radius:6px;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer">✕ Limpar filtros</button>
+         </div>`
+      : '';
+
+    document.getElementById("content").innerHTML = bannerFiltro + `
       <div class="kpi-strip">
         <div class="kpi"><div class="kpi-icon">👥</div><div class="kpi-val" style="color:#3b82f6">${total}</div><div class="kpi-lbl">Total Funcionários</div><div class="kpi-sub">${activos} em serviço activo</div></div>
         <div class="kpi"><div class="kpi-icon">👨</div><div class="kpi-val" style="color:#3b82f6">${masc}</div><div class="kpi-lbl">Masculino</div><div class="kpi-sub">${total ? Math.round(masc/total*100) : 0}%</div></div>
