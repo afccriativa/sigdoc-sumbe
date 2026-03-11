@@ -341,6 +341,7 @@
             <input type="text" id="pesquisa-func" placeholder="Nome ou número de agente..." oninput="pesquisarFuncionario(this.value)" autocomplete="off"/>
             <div class="resultados-pesquisa" id="resultados-pesquisa"></div>
           </div>
+          <div id="alerta-bi" style="display:none;margin-top:6px;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:600;line-height:1.4"></div>
         </div>
 
         <div>
@@ -781,6 +782,38 @@
     document.getElementById("categoria-func").value = f.categoria || "";
     document.getElementById("local-func").value = f.unidade || "";
     document.getElementById("resultados-pesquisa").style.display = "none";
+
+    // ── Alerta de Validade do BI ──
+    (function() {
+      var alertaEl = document.getElementById('alerta-bi');
+      if (!alertaEl) return;
+      var hoje = new Date(); hoje.setHours(0,0,0,0);
+      var dataVal = null;
+      var fonte   = '';
+      if (f.biValidade) {
+        dataVal = new Date(f.biValidade + 'T00:00:00');
+        fonte   = 'Data de validade registada: ' + dataVal.toLocaleDateString('pt-PT');
+      } else if (f.biEmissao) {
+        var em = new Date(f.biEmissao + 'T00:00:00');
+        if (!isNaN(em)) {
+          dataVal = new Date(em); dataVal.setFullYear(dataVal.getFullYear() + 10);
+          fonte   = 'Estimativa: emissão + 10 anos';
+        }
+      }
+      if (!dataVal || isNaN(dataVal)) {
+        alertaEl.style.display = 'none'; return;
+      }
+      var diff = Math.round((dataVal - hoje) / (1000*60*60*24));
+      if (diff < 0) {
+        alertaEl.style.cssText = 'display:block;margin-top:6px;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:600;line-height:1.4;background:#fef2f2;border:1px solid #fecaca;color:#dc2626';
+        alertaEl.innerHTML = '⚠️ BI possivelmente expirado há <strong>' + Math.abs(diff) + ' dias</strong>. ' + fonte + '. Verifique antes de gerar documentos oficiais.';
+      } else if (diff <= 90) {
+        alertaEl.style.cssText = 'display:block;margin-top:6px;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:600;line-height:1.4;background:#fffbeb;border:1px solid #fde68a;color:#92400e';
+        alertaEl.innerHTML = '⏳ BI expira em <strong>' + diff + ' dias</strong> (' + dataVal.toLocaleDateString('pt-PT') + '). Considere renovar em breve.';
+      } else {
+        alertaEl.style.display = 'none';
+      }
+    })();
 
     const anos = calcularAnos(f.admissao);
     const dias = calcularDiasDireito(anos);
