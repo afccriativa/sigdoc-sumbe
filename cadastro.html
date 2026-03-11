@@ -516,7 +516,7 @@
         <thead>
           <tr>
             <th>Funcionário</th>
-            <th>Categoria / Cargo</th>
+            <th>Categoria Profissional</th>
             <th>Local de Colocação</th>
             <th>Vínculo</th>
             <th>Estado</th>
@@ -649,7 +649,7 @@
             <input type="text" id="f-numero" placeholder="Ex: 00456"/>
           </div>
           <div class="campo campo-obrig">
-            <label>Categoria / Cargo</label>
+            <label>Categoria Profissional</label>
             <select id="f-categoria" onchange="toggleCategoriaOutra(this)">
               <option value="">Seleccione...</option>
               <optgroup label="Pessoal Médico">
@@ -684,8 +684,36 @@
               <option value="__outra__">— Outra (inserir manualmente) —</option>
             </select>
             <input type="text" id="f-categoria-manual"
-              placeholder="Escreva a categoria / cargo..."
+              placeholder="Escreva a categoria profissional..."
               style="display:none;margin-top:6px;width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;box-sizing:border-box"/>
+          </div>
+          <div class="campo">
+            <label>Cargo / Função Hierárquica</label>
+            <select id="f-cargo" onchange="toggleCargoOutro(this)">
+              <option value="">— Nenhum / Igual à categoria —</option>
+              <optgroup label="Cargos de Direcção e Chefia">
+                <option>Director Municipal de Saúde</option>
+                <option>Director Adjunto de Saúde</option>
+                <option>Director de Centro de Saúde</option>
+                <option>Director de Posto de Saúde</option>
+              </optgroup>
+              <optgroup label="Chefias de Secção / Área">
+                <option>Chefe de Secção de Planeamento, Estatística e RH</option>
+                <option>Chefe de Secção de Saúde Pública</option>
+                <option>Chefe de Secção de Inspecção Sanitária</option>
+                <option>Chefe de Secção de Logística Hospitalar e Medicamentos</option>
+                <option>Responsável de Área / Serviço</option>
+              </optgroup>
+              <optgroup label="Cargos Administrativos">
+                <option>Secretário(a) da Direcção</option>
+                <option>Responsável de Secretaria</option>
+              </optgroup>
+              <option value="__outro_cargo__">— Outro (inserir manualmente) —</option>
+            </select>
+            <input type="text" id="f-cargo-manual"
+              placeholder="Escreva o cargo / função..."
+              style="display:none;margin-top:6px;width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;box-sizing:border-box"/>
+            <span class="campo-hint">ℹ️ Só preencher se o cargo for diferente da categoria. Usado nos documentos oficiais.</span>
           </div>
           <div class="campo campo-obrig col-2">
             <label>Local de Colocação</label>
@@ -1038,11 +1066,30 @@
       manual.value = '';
     }
   }
+  function toggleCargoOutro(sel) {
+    var manual = document.getElementById('f-cargo-manual');
+    if (!manual) return;
+    if (sel.value === '__outro_cargo__') {
+      manual.style.display = 'block';
+      manual.focus();
+    } else {
+      manual.style.display = 'none';
+      manual.value = '';
+    }
+  }
   function lerCategoria() {
     var sel = document.getElementById('f-categoria');
     if (!sel) return '';
     if (sel.value === '__outra__') {
       return (document.getElementById('f-categoria-manual') || {value:''}).value.trim();
+    }
+    return sel.value;
+  }
+  function lerCargo() {
+    var sel = document.getElementById('f-cargo');
+    if (!sel || !sel.value) return '';
+    if (sel.value === '__outro_cargo__') {
+      return (document.getElementById('f-cargo-manual') || {value:''}).value.trim();
     }
     return sel.value;
   }
@@ -1356,6 +1403,19 @@
         sel.value=f.categoria||"";
       }
     })();
+    // Cargo — verificar se está na lista ou é manual
+    (function(){
+      const sel=document.getElementById("f-cargo");
+      if(!sel) return;
+      const opts=[...sel.options].map(o=>o.value);
+      if(f.cargo && !opts.includes(f.cargo)){
+        sel.value="__outro_cargo__";
+        const manual=document.getElementById("f-cargo-manual");
+        if(manual){ manual.style.display="block"; manual.value=f.cargo; }
+      } else {
+        sel.value=f.cargo||"";
+      }
+    })();
     document.getElementById("f-estado").value=f.estado||"activo";
     verificarDireccao();
     document.getElementById("f-seccao").value=f.seccao||"";
@@ -1371,6 +1431,8 @@
     ["f-nome","f-bi","f-telefone","f-numero","f-admissao","f-observacoes","f-nascimento"].forEach(id=>document.getElementById(id).value="");
     ["f-sexo","f-categoria","f-unidade","f-vinculo","f-escolaridade","f-seccao","f-area"].forEach(id=>document.getElementById(id).value="");
     const _mc=document.getElementById("f-categoria-manual"); if(_mc){_mc.value="";_mc.style.display="none";}
+    const _cg=document.getElementById("f-cargo"); if(_cg) _cg.value="";
+    const _cgm=document.getElementById("f-cargo-manual"); if(_cgm){_cgm.value="";_cgm.style.display="none";}
     if(document.getElementById('f-inss'))          document.getElementById('f-inss').value          = '';
     if(document.getElementById('f-banco'))         document.getElementById('f-banco').value         = '';
     if(document.getElementById('f-numeroConta')){ document.getElementById('f-numeroConta').value=''; }
@@ -1402,6 +1464,7 @@
     const sexo=document.getElementById("f-sexo").value;
     const numero=document.getElementById("f-numero").value.trim();
     const categoria=lerCategoria();
+    const cargo=lerCargo();
     const unidade=document.getElementById("f-unidade").value;
     const vinculo=document.getElementById("f-vinculo").value;
     const admissao=document.getElementById("f-admissao").value;
@@ -1415,7 +1478,7 @@
     const btn=document.getElementById("btn-guardar");
     btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A guardar...';
     const dados={
-      nome,sexo,numero,categoria,unidade,vinculo,admissao,seccao,
+      nome,sexo,numero,categoria,cargo,unidade,vinculo,admissao,seccao,
       area:document.getElementById("f-area").value,
       provinciaNatal: document.getElementById("f-provinciaNatal")?.value?.trim()||'',
       municipioNatal: document.getElementById("f-municipioNatal")?.value?.trim()||'',
@@ -1502,7 +1565,7 @@
     const anos=calcularAnos(f.admissao), dias=calcularDias(anos);
     document.getElementById("ficha-avatar").textContent=(f.nome||"?")[0].toUpperCase();
     document.getElementById("ficha-nome").textContent=f.nome||"—";
-    document.getElementById("ficha-cargo").textContent=(f.categoria||"—")+" · "+(f.unidade||"—");
+    document.getElementById("ficha-cargo").textContent=(f.cargo||f.categoria||"—")+" · "+(f.unidade||"—");
     document.getElementById("ficha-numero").textContent="Agente Nº "+(f.numero||"—")+" · BI: "+(f.bi||"—");
     const lv=f.vinculo==="quadro"?"Pessoal do Quadro":f.vinculo==="provisorio"?"Provimento Provisório":f.vinculo||"—";
     const subLocal=f.unidade==="Direcção Municipal de Saúde do Sumbe"
@@ -1521,7 +1584,8 @@
       {r:"Estado Civil",v:f.estadoCivil},{r:"Nome do Pai",v:f.nomePai},
       {r:"Nome da Mãe",v:f.nomeMae},{r:"Morada",v:f.morada,span2:true},
       {r:"Telefone",v:f.telefone},{r:"E-mail",v:f.email},
-      {r:"Categoria / Cargo",v:f.categoria,span2:true},
+      {r:"Categoria Profissional",v:f.categoria,span2:true},
+      ...(f.cargo ? [{r:"Cargo / Função", v:f.cargo, span2:true}] : []),
       {r:"Local de Colocação",
        v:f.unidade
          ? f.unidade + `&nbsp;<a href="unidades.html" title="Ver ficha da unidade"
