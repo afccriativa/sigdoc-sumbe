@@ -133,7 +133,25 @@
     .filtros-resultado{font-size:11px;color:rgba(255,255,255,.3);font-weight:600;white-space:nowrap;align-self:flex-end;padding-bottom:1px}
     @media(max-width:900px){.filtros-inner{gap:8px}.filtro-sel{min-width:110px}}
     @media(max-width:600px){#filtros-wrap{padding:10px 16px}.filtros-acoes{margin-left:0;width:100%}}
-    /* ── notif ── */
+    /* ── qualidade dos dados ── */
+    .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+    @media(max-width:1100px){.g3{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:700px){.g3{grid-template-columns:1fr}}
+    .dq-campo{margin-bottom:11px}
+    .dq-campo-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+    .dq-campo-lbl{display:flex;align-items:center;gap:5px;min-width:0}
+    .dq-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+    .dq-texto{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .dq-nums{display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px}
+    .dq-contagem{font-size:10px;color:rgba(255,255,255,.3);font-family:'DM Mono',monospace}
+    .dq-track{height:5px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden}
+    .dq-fill{height:100%;border-radius:99px;transition:width .4s}
+    .dq-acoes{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:14px;padding:18px 20px;margin-top:0}
+    .dq-acoes-titulo{font-size:12px;font-weight:800;color:#fca5a5;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .dq-acao-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+    .dq-acao-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 14px}
+    .dq-ok{background:rgba(16,200,134,.06);border:1px solid rgba(16,200,134,.2);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:10px}
+        /* ── notif ── */
     #notif{position:fixed;bottom:20px;right:20px;z-index:9999;background:#1e2a3a;border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none}
     #notif.v{opacity:1;transform:translateY(0)}
   </style>
@@ -453,7 +471,10 @@
           <div style="font-size:12px;color:rgba(255,255,255,.4);text-align:center;font-weight:600">com Nº INSS registado<br><span id="inss-sub" style="color:rgba(255,255,255,.2)">—</span></div>
         </div>
         <div class="gc"><div class="gc-titulo">Banco de Domiciliação</div><div class="gc-sub">Distribuição por banco</div><div id="bancos"></div></div>
-      </div>`;
+      </div>
+
+      <div class="sec">🧮 Qualidade do Cadastro</div>
+      <div id="dq-wrap"></div>`;
 
     renderGeneroCard(funcs);
     renderPiramide(funcs);
@@ -465,6 +486,7 @@
     renderBarras("geo-mun",     topN(funcs, "municipioNatal",  10), 3);
     renderSalarial(funcs);
     renderINSS(funcs);
+    renderQualidade(funcs);
     renderBarras("bancos",      topN(funcs, "banco", 10), 5);
   }
 
@@ -847,6 +869,190 @@
     const t = funcs.length, c = funcs.filter(f => f.inss?.trim()).length;
     const p = document.getElementById("inss-pct"); if (p) p.textContent = (t ? Math.round(c/t*100) : 0) + "%";
     const s = document.getElementById("inss-sub"); if (s) s.textContent = `${c} de ${t} funcionários`;
+  }
+
+
+  // ════════════════════════════════════════════════════════
+  //  QUALIDADE DO CADASTRO — Data Completeness Score
+  // ════════════════════════════════════════════════════════
+  function renderQualidade(funcs) {
+    const el = document.getElementById('dq-wrap');
+    if (!el) return;
+    const total = funcs.length;
+    if (!total) { el.innerHTML = '<div class="vazio">Sem dados</div>'; return; }
+
+    const CAMPOS = [
+      // Identificação
+      { key:'bi',          label:'Bilhete de Identidade',   grupo:'id',  critico:true  },
+      { key:'nascimento',  label:'Data de Nascimento',      grupo:'id',  critico:true  },
+      { key:'sexo',        label:'Sexo',                    grupo:'id',  critico:false },
+      { key:'estadoCivil', label:'Estado Civil',            grupo:'id',  critico:false },
+      { key:'telefone',    label:'Contacto Telefónico',     grupo:'id',  critico:false },
+      { key:'morada',      label:'Morada',                  grupo:'id',  critico:false },
+      // Serviço
+      { key:'categoria',   label:'Categoria Profissional',  grupo:'svc', critico:true  },
+      { key:'unidade',     label:'Unidade Sanitária',       grupo:'svc', critico:true  },
+      { key:'vinculo',     label:'Tipo de Vínculo',         grupo:'svc', critico:true  },
+      { key:'admissao',    label:'Data de Admissão',        grupo:'svc', critico:true  },
+      { key:'escolaridade',label:'Habilitações Literárias', grupo:'svc', critico:false },
+      { key:'seccao',      label:'Secção Interna',          grupo:'svc', critico:false },
+      // Financeiro
+      { key:'inss',        label:'Número de INSS',          grupo:'fin', critico:true  },
+      { key:'banco',       label:'Banco de Domiciliação',   grupo:'fin', critico:true  },
+      { key:'salarioBase', label:'Salário Base',            grupo:'fin', critico:true  },
+    ];
+
+    // ── Completude por campo ──
+    const campos = CAMPOS.map(c => {
+      const preench = funcs.filter(f => {
+        const v = f[c.key];
+        return v !== undefined && v !== null && String(v).trim() !== '' && Number(v) !== 0;
+      }).length;
+      return { ...c, preench, pct: total ? Math.round(preench / total * 100) : 0 };
+    });
+
+    // ── Score global (campos críticos = peso 2) ──
+    const somaPesos = campos.reduce((s, c) => s + (c.critico ? 2 : 1), 0);
+    const somaScore = campos.reduce((s, c) => s + c.pct * (c.critico ? 2 : 1), 0);
+    const scoreGlobal = Math.round(somaScore / somaPesos);
+
+    // ── Scores por grupo ──
+    const GRUPOS = {
+      id:  { label:'🪪 Identificação', campos: campos.filter(c => c.grupo === 'id')  },
+      svc: { label:'🏥 Serviço',       campos: campos.filter(c => c.grupo === 'svc') },
+      fin: { label:'💰 Financeiro',    campos: campos.filter(c => c.grupo === 'fin') },
+    };
+    Object.values(GRUPOS).forEach(g => {
+      const sp = g.campos.reduce((s, c) => s + (c.critico ? 2 : 1), 0);
+      const ss = g.campos.reduce((s, c) => s + c.pct * (c.critico ? 2 : 1), 0);
+      g.score = Math.round(ss / sp);
+    });
+
+    // ── Funções auxiliares de cor ──
+    const cor  = p => p >= 85 ? '#10c886' : p >= 65 ? '#f59e0b' : '#ef4444';
+    const cls  = p => p >= 85 ? 'cv'      : p >= 65 ? 'ca'      : 'cr';
+
+    // ── Gauge SVG ──
+    const R = 52, circ = 2 * Math.PI * R;
+    const dash = circ * scoreGlobal / 100;
+    const corScore = cor(scoreGlobal);
+
+    const camposTotais  = campos.length;
+    const camposOk      = campos.filter(c => c.pct >= 85).length;
+    const totalFiltrado = Object.values(_filtros).some(Boolean);
+
+    // ── Itens de acção: campos abaixo de 70%, dos mais críticos/piores primeiro ──
+    const acoes = campos
+      .filter(c => c.pct < 70)
+      .sort((a, b) => (b.critico ? 1 : 0) - (a.critico ? 1 : 0) || a.pct - b.pct)
+      .slice(0, 6);
+
+    el.innerHTML = `
+
+      <!-- ── Score global ── -->
+      <div class="gc" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:28px;flex-wrap:wrap">
+
+          <!-- Gauge circular -->
+          <div style="position:relative;flex-shrink:0;width:140px;height:140px">
+            <svg width="140" height="140" viewBox="0 0 140 140">
+              <circle cx="70" cy="70" r="${R}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="14"/>
+              <circle cx="70" cy="70" r="${R}" fill="none" stroke="${corScore}" stroke-width="14"
+                stroke-dasharray="${dash.toFixed(1)} ${(circ-dash).toFixed(1)}"
+                stroke-dashoffset="${(circ*0.25).toFixed(1)}"
+                stroke-linecap="round"/>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+              <div style="font-size:32px;font-weight:900;font-family:'DM Mono',monospace;color:${corScore};line-height:1">${scoreGlobal}%</div>
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-top:4px">score global</div>
+            </div>
+          </div>
+
+          <!-- Info e group scores -->
+          <div style="flex:1;min-width:220px">
+            <div style="font-size:17px;font-weight:800;letter-spacing:-.3px;margin-bottom:3px">
+              Qualidade do Cadastro
+              ${totalFiltrado ? '<span style="font-size:11px;font-weight:600;color:rgba(59,130,246,.7);margin-left:8px">· Subconjunto filtrado</span>' : ''}
+            </div>
+            <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:18px">
+              ${total} funcionário${total !== 1 ? 's' : ''} analisados ·
+              <strong style="color:${corScore}">${camposOk}</strong> de ${camposTotais} campos com cobertura total (≥85%)
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+              ${Object.values(GRUPOS).map(g => `
+                <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 14px">
+                  <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);margin-bottom:6px">${g.label}</div>
+                  <div style="font-size:24px;font-weight:800;font-family:'DM Mono',monospace;color:${cor(g.score)}">${g.score}%</div>
+                  <div style="margin-top:8px;height:4px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden">
+                    <div style="height:100%;width:${g.score}%;background:${cor(g.score)};border-radius:99px"></div>
+                  </div>
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Campo a campo ── -->
+      <div class="g3">
+        ${Object.values(GRUPOS).map(g => `
+          <div class="gc">
+            <div class="gc-titulo">${g.label}</div>
+            <div class="gc-sub" style="margin-bottom:14px">
+              ${g.campos.filter(c=>c.pct>=85).length} de ${g.campos.length} campos completos
+            </div>
+            ${g.campos.map(c => `
+              <div class="dq-campo">
+                <div class="dq-campo-row">
+                  <div class="dq-campo-lbl">
+                    <span class="dq-dot" style="background:${c.critico ? '#ef4444' : 'rgba(255,255,255,.15)'}" title="${c.critico ? 'Campo crítico' : 'Campo complementar'}"></span>
+                    <span class="dq-texto" title="${c.label}">${c.label}</span>
+                  </div>
+                  <div class="dq-nums">
+                    <span class="dq-contagem">${c.preench}/${total}</span>
+                    <span class="cob-badge ${cls(c.pct)}">${c.pct}%</span>
+                  </div>
+                </div>
+                <div class="dq-track">
+                  <div class="dq-fill" style="width:${c.pct}%;background:${cor(c.pct)}"></div>
+                </div>
+              </div>`).join('')}
+          </div>`).join('')}
+      </div>
+
+      <!-- ── Itens de acção ── -->
+      ${acoes.length ? `
+        <div class="dq-acoes">
+          <div class="dq-acoes-titulo">
+            ⚠ Itens de Acção — ${acoes.length} campo${acoes.length > 1 ? 's' : ''} abaixo de 70%
+          </div>
+          <div class="dq-acao-grid">
+            ${acoes.map(c => {
+              const emFalta  = total - c.preench;
+              const urgencia = c.pct < 40 ? 'Urgente' : c.pct < 60 ? 'Prioritário' : 'Recomendado';
+              const uCor     = c.pct < 40 ? '#ef4444' : c.pct < 60 ? '#f59e0b'     : '#60a5fa';
+              return `<div class="dq-acao-item">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+                  <span style="font-size:12px;font-weight:700">${c.label}</span>
+                  <span style="font-size:9px;font-weight:800;padding:2px 7px;border-radius:99px;background:rgba(255,255,255,.05);color:${uCor};white-space:nowrap;margin-left:6px">${urgencia}</span>
+                </div>
+                <div style="font-size:11px;color:rgba(255,255,255,.4)">
+                  <strong style="color:#fca5a5">${emFalta}</strong> funcionário${emFalta !== 1 ? 's' : ''} sem este campo
+                </div>
+                <div style="margin-top:8px;height:4px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden">
+                  <div style="height:100%;width:${c.pct}%;background:${cor(c.pct)};border-radius:99px"></div>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>` : `
+        <div class="dq-ok">
+          <span style="font-size:22px">✅</span>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#10c886">Cadastro em bom estado</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">Todos os campos acima de 70% de completude.</div>
+          </div>
+        </div>`}
+    `;
   }
 
   // ════════════════════════════════════════════════════════
