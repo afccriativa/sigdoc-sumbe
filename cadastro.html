@@ -395,6 +395,59 @@
     }
     .toast-sucesso{background:var(--c-800);color:var(--white);border-left:4px solid var(--c-500)}
     .toast-erro{background:#1f0a0a;color:#fca5a5;border-left:4px solid var(--r-600)}
+    .toast-aviso{background:#1c1400;color:#fde68a;border-left:4px solid #f59e0b}
+
+    /* ── Modal de confirmação de duplicado ── */
+    #overlay-dup{
+      display:none;position:fixed;inset:0;background:rgba(15,23,42,.75);
+      z-index:400;align-items:center;justify-content:center;
+      padding:24px 20px;backdrop-filter:blur(4px);
+    }
+    #overlay-dup.activo{display:flex;animation:fadeIn .2s ease}
+    .dup-modal{
+      background:var(--white);border-radius:var(--r-xl);width:100%;max-width:480px;
+      box-shadow:var(--sh-lg);animation:slideUp .3s cubic-bezier(.16,1,.3,1);overflow:hidden;
+    }
+    .dup-head{
+      background:linear-gradient(135deg,#7c2d12,#c2410c);
+      padding:18px 22px;display:flex;align-items:center;gap:12px;
+    }
+    .dup-head-aviso{background:linear-gradient(135deg,#78350f,#d97706)}
+    .dup-icon{font-size:26px;flex-shrink:0}
+    .dup-titulo{font-size:15px;font-weight:800;color:#fff}
+    .dup-sub{font-size:11px;color:rgba(255,255,255,.65);margin-top:2px}
+    .dup-corpo{padding:20px 22px}
+    .dup-msg{font-size:13px;color:var(--neu-700);line-height:1.6;margin-bottom:16px}
+    .dup-conflito{
+      background:var(--neu-50);border:1px solid var(--neu-200);border-radius:var(--r-sm);
+      padding:12px 14px;font-size:12px;display:flex;align-items:center;
+      justify-content:space-between;gap:10px;margin-bottom:16px;
+    }
+    .dup-conflito-nome{font-weight:700;color:var(--neu-900)}
+    .dup-conflito-detalhe{font-size:11px;color:var(--neu-500);margin-top:2px}
+    .dup-btn-ver{
+      font-size:11px;font-weight:700;color:var(--c-700);background:var(--c-50);
+      border:1px solid var(--c-200);border-radius:var(--r-sm);padding:6px 12px;
+      cursor:pointer;white-space:nowrap;font-family:var(--font);
+      transition:background .15s;flex-shrink:0;
+    }
+    .dup-btn-ver:hover{background:var(--c-100)}
+    .dup-foot{
+      padding:14px 22px;border-top:1px solid var(--neu-100);
+      display:flex;justify-content:flex-end;gap:10px;
+    }
+    .dup-btn-cancelar{
+      padding:9px 18px;border:2px solid var(--neu-200);border-radius:var(--r-sm);
+      background:var(--white);font-size:13px;font-weight:600;font-family:var(--font);
+      cursor:pointer;color:var(--neu-600);transition:all .15s;
+    }
+    .dup-btn-cancelar:hover{border-color:var(--neu-400);color:var(--neu-800)}
+    .dup-btn-prosseguir{
+      padding:9px 18px;border:2px solid #d97706;border-radius:var(--r-sm);
+      background:#d97706;font-size:13px;font-weight:700;font-family:var(--font);
+      cursor:pointer;color:#fff;transition:all .15s;
+    }
+    .dup-btn-prosseguir:hover{background:#b45309;border-color:#b45309}
 
     .spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:5px}
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -545,6 +598,33 @@
   <h2 style="color:var(--c-800)">Acesso Restrito</h2>
   <p style="color:var(--neu-500)">Não tem permissão para aceder a esta página.</p>
   <a href="index.html" class="btn-novo" style="margin-top:8px;text-decoration:none;">← Voltar ao Painel</a>
+</div>
+
+<!-- MODAL DUPLICADO -->
+<div id="overlay-dup">
+  <div class="dup-modal">
+    <div class="dup-head" id="dup-head">
+      <div class="dup-icon" id="dup-icon">⚠️</div>
+      <div>
+        <div class="dup-titulo" id="dup-titulo">Possível Duplicado Detectado</div>
+        <div class="dup-sub" id="dup-sub">Verifique antes de prosseguir</div>
+      </div>
+    </div>
+    <div class="dup-corpo">
+      <div class="dup-msg" id="dup-msg"></div>
+      <div class="dup-conflito" id="dup-conflito">
+        <div>
+          <div class="dup-conflito-nome" id="dup-conflito-nome">—</div>
+          <div class="dup-conflito-detalhe" id="dup-conflito-detalhe">—</div>
+        </div>
+        <button class="dup-btn-ver" id="dup-btn-ver" onclick="abrirFichaConflito()">Ver ficha →</button>
+      </div>
+    </div>
+    <div class="dup-foot" id="dup-foot">
+      <button class="dup-btn-cancelar" onclick="fecharModalDup()">← Corrigir dados</button>
+      <button class="dup-btn-prosseguir" id="dup-btn-prosseguir" onclick="confirmarGravacaoDup()">Guardar mesmo assim</button>
+    </div>
+  </div>
 </div>
 
 <!-- MODAL FORMULÁRIO -->
@@ -1458,6 +1538,153 @@
     document.getElementById("campo-area-wrap").classList.add("campo-oculto");
   }
 
+  // ══════════════════════════════════════════════════════
+  //  VALIDAÇÃO DE DUPLICADOS
+  // ══════════════════════════════════════════════════════
+
+  // Estado interno do fluxo de confirmação
+  var _dadosPendentesDup = null;   // objecto dados a guardar se o utilizador confirmar
+  var _idConflitoAbrir   = null;   // id do funcionário conflituante para abrir ficha
+
+  // Normaliza BI para comparação: maiúsculas, sem espaços
+  function normBI(bi) { return (bi||'').replace(/\s/g,'').toUpperCase(); }
+
+  // Normaliza nome: minúsculas, sem espaços múltiplos, sem acentos
+  function normNome(n) {
+    return (n||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+  }
+
+  /*
+   * verificarDuplicados(nome, numero, bi, idEmEdicao)
+   * Devolve um objecto de resultado:
+   *   { tipo: null }                        → sem conflito, pode gravar
+   *   { tipo: 'numero', conflito: {...} }   → bloqueante
+   *   { tipo: 'bi',     conflito: {...} }   → confirmável
+   *   { tipo: 'nome',   conflito: {...} }   → aviso leve (confirmável)
+   */
+  function verificarDuplicados(nome, numero, bi, idEmEdicao) {
+    const outros = todosOsFuncionarios.filter(f => f.id !== idEmEdicao);
+    const biNorm = normBI(bi);
+
+    // (a) Número de agente — bloqueante
+    if (numero) {
+      const confNum = outros.find(f => (f.numero||'').trim() === numero.trim());
+      if (confNum) return { tipo: 'numero', conflito: confNum };
+    }
+
+    // (b) BI — confirmável (só quando o BI não está vazio)
+    if (biNorm) {
+      const confBI = outros.find(f => normBI(f.bi) === biNorm);
+      if (confBI) return { tipo: 'bi', conflito: confBI };
+    }
+
+    // (c) Nome + nascimento — aviso leve
+    const nascimento = document.getElementById('f-nascimento')?.value||'';
+    if (nome && nascimento) {
+      const nNorm = normNome(nome);
+      const confNome = outros.find(f =>
+        normNome(f.nome) === nNorm && (f.nascimento||'') === nascimento
+      );
+      if (confNome) return { tipo: 'nome', conflito: confNome };
+    }
+
+    return { tipo: null };
+  }
+
+  function abrirFichaConflito() {
+    fecharModalDup();
+    if (_idConflitoAbrir) {
+      setTimeout(function() { window.verFicha && window.verFicha(_idConflitoAbrir); }, 150);
+    }
+  }
+
+  function fecharModalDup() {
+    document.getElementById('overlay-dup').classList.remove('activo');
+  }
+
+  // Chamado quando o utilizador clica "Guardar mesmo assim" no modal BI/nome
+  window.confirmarGravacaoDup = async function() {
+    fecharModalDup();
+    if (!_dadosPendentesDup) return;
+    const { nome, dados } = _dadosPendentesDup;
+    _dadosPendentesDup = null;
+    await _executarGravacao(nome, dados);
+  };
+
+  // Função separada que efectivamente grava no Firestore
+  async function _executarGravacao(nome, dados) {
+    const btn = document.getElementById('btn-guardar');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> A guardar...';
+    try {
+      if (funcionarioEmEdicao) {
+        await updateDoc(doc(db,'funcionarios',funcionarioEmEdicao), dados);
+        notif('✅ Funcionário "' + nome + '" actualizado!');
+      } else {
+        dados.criadoEm = serverTimestamp(); dados.criadoPor = utilizadorActual.uid;
+        await addDoc(collection(db,'funcionarios'), dados);
+        notif('✅ Funcionário "' + nome + '" registado com sucesso!');
+      }
+      fecharFormulario(); carregarFuncionarios();
+    } catch(e) {
+      console.error(e); notif('Erro ao guardar. Verifique a conexão.','erro');
+    } finally {
+      btn.disabled = false; btn.innerHTML = '💾 Guardar Funcionário';
+    }
+  }
+
+  // Mostra o modal de duplicado — configurado por tipo
+  function mostrarModalDup(tipo, conflito, dadosPendentes, nomeNovo) {
+    _idConflitoAbrir   = conflito.id || null;
+    _dadosPendentesDup = dadosPendentes;
+
+    var head   = document.getElementById('dup-head');
+    var icon   = document.getElementById('dup-icon');
+    var titulo = document.getElementById('dup-titulo');
+    var sub    = document.getElementById('dup-sub');
+    var msg    = document.getElementById('dup-msg');
+    var cNome  = document.getElementById('dup-conflito-nome');
+    var cDet   = document.getElementById('dup-conflito-detalhe');
+    var foot   = document.getElementById('dup-foot');
+    var btnP   = document.getElementById('dup-btn-prosseguir');
+
+    // Dados do funcionário conflituante
+    cNome.textContent = conflito.nome || '(sem nome)';
+    cDet.textContent  = [
+      conflito.numero ? 'Nº ' + conflito.numero : null,
+      conflito.bi     ? 'BI: ' + conflito.bi    : null,
+      conflito.unidade || null,
+    ].filter(Boolean).join(' · ');
+
+    if (tipo === 'numero') {
+      head.className   = 'dup-head';   // vermelho
+      icon.textContent = '🚫';
+      titulo.textContent = 'Número de Agente Já Registado';
+      sub.textContent    = 'Operação bloqueada — corrija antes de continuar';
+      msg.innerHTML = 'O número de agente <strong>' + nomeNovo.numero + '</strong> já existe no sistema. '
+        + 'Dois funcionários não podem ter o mesmo número de agente.';
+      // Bloqueante: esconder botão "Guardar mesmo assim"
+      btnP.style.display = 'none';
+    } else if (tipo === 'bi') {
+      head.className   = 'dup-head dup-head-aviso';  // âmbar
+      icon.textContent = '⚠️';
+      titulo.textContent = 'Bilhete de Identidade Duplicado';
+      sub.textContent    = 'Confirme se pretende continuar';
+      msg.innerHTML = 'O BI <strong>' + nomeNovo.bi + '</strong> já consta no registo de outro funcionário. '
+        + 'Pode ser um erro de digitação. Verifique a ficha abaixo antes de prosseguir.';
+      btnP.style.display = 'inline-block';
+    } else {
+      head.className   = 'dup-head dup-head-aviso';
+      icon.textContent = '⚠️';
+      titulo.textContent = 'Possível Registo Duplicado';
+      sub.textContent    = 'Nome e data de nascimento coincidem';
+      msg.innerHTML = 'Já existe um funcionário com o nome <strong>' + nomeNovo.nome + '</strong> '
+        + 'e a mesma data de nascimento. Pode ser a mesma pessoa registada em duplicado.';
+      btnP.style.display = 'inline-block';
+    }
+
+    document.getElementById('overlay-dup').classList.add('activo');
+  }
+
   window.guardarFuncionario=async function(){
     if(!_exigirPerfil(["admin","chefe","tecnico"])){console.warn("Acesso negado: guardarFuncionario");return;}
     const nome=document.getElementById("f-nome").value.trim();
@@ -1475,15 +1702,16 @@
     if(unidade==="Direcção Municipal de Saúde do Sumbe"&&!seccao){
       notif("Indique a Secção da Direcção Municipal.","erro");return;
     }
-    const btn=document.getElementById("btn-guardar");
-    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A guardar...';
+
+    // ── Construir objecto dados ──
+    const bi=document.getElementById("f-bi").value.trim();
     const dados={
       nome,sexo,numero,categoria,cargo,unidade,vinculo,admissao,seccao,
       area:document.getElementById("f-area").value,
       provinciaNatal: document.getElementById("f-provinciaNatal")?.value?.trim()||'',
       municipioNatal: document.getElementById("f-municipioNatal")?.value?.trim()||'',
       nascimento:document.getElementById("f-nascimento").value,
-      bi:document.getElementById("f-bi").value.trim(),
+      bi,
       biValidade: document.getElementById("f-biValidade")?.value||'',
       telefone:document.getElementById("f-telefone").value.trim(),
       estado:document.getElementById("f-estado").value,
@@ -1515,18 +1743,20 @@
         ? { salarioBase: Number(document.getElementById("f-salario-base").value)||0 } : {}),
       actualizadoEm:serverTimestamp(),actualizadoPor:utilizadorActual.uid
     };
-    try{
-      if(funcionarioEmEdicao){
-        await updateDoc(doc(db,"funcionarios",funcionarioEmEdicao),dados);
-        notif(`✅ Funcionário "${nome}" actualizado!`);
-      }else{
-        dados.criadoEm=serverTimestamp(); dados.criadoPor=utilizadorActual.uid;
-        await addDoc(collection(db,"funcionarios"),dados);
-        notif(`✅ Funcionário "${nome}" registado com sucesso!`);
-      }
-      fecharFormulario(); carregarFuncionarios();
-    }catch(e){console.error(e);notif("Erro ao guardar. Verifique a conexão.","erro");}
-    finally{btn.disabled=false;btn.innerHTML="💾 Guardar Funcionário";}
+
+    // ── Verificação de duplicados (client-side, sem hit ao Firestore) ──
+    const dup = verificarDuplicados(nome, numero, bi, funcionarioEmEdicao);
+    if (dup.tipo === 'numero') {
+      mostrarModalDup('numero', dup.conflito, null, { numero, nome, bi });
+      return;
+    }
+    if (dup.tipo === 'bi' || dup.tipo === 'nome') {
+      mostrarModalDup(dup.tipo, dup.conflito, { nome, dados }, { numero, nome, bi });
+      return;
+    }
+
+    // Sem duplicados — gravar directamente
+    await _executarGravacao(nome, dados);
   };
 
   // ── AUDITORIA DE LEITURAS ──
