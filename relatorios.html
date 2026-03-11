@@ -334,7 +334,12 @@
       `${_funcs.length} funcionários carregados`;
 
     // Popular selects de unidades
-    const unidades = [...new Set(_funcs.map(f => f.unidade).filter(Boolean))].sort();
+    // Fonte: união entre unidades_sanitarias (Firestore) e unidades dos funcionários.
+    // Garante que postos com zero funcionários registados aparecem nos filtros e relatórios.
+    const unidades = [...new Set([
+      ...Object.keys(_unidades),                       // todas as unidades com ficha no Firestore
+      ..._funcs.map(f => f.unidade).filter(Boolean)    // unidades dos funcionários (fallback / novas)
+    ])].sort();
     ["f-mu-unidade","f-sal-unidade"].forEach(id => {
       const sel = document.getElementById(id);
       if (!sel) return;
