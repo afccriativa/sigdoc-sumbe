@@ -245,7 +245,7 @@
     .btn-full { width:100%;justify-content:center;padding:14px; }
     .spinner { width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.3);border-top-color:white;animation:spin .6s linear infinite;display:inline-block; }
     .card-enc { background:var(--bg);border-radius:var(--r-md);padding:14px;display:flex;gap:var(--sp-3);align-items:center;margin-bottom:16px; }
-    .enc-avatar { width:44px;height:44px;border-radius:50%;background:var(--primary);color:white;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .enc-avatar { width:44px;height:44px;border-radius:50%;background:var(--primary);color:white;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden; }
     .enc-nome { font-size:14px;font-weight:700;color:var(--txt); }
     .enc-sub { font-size:12px;color:var(--txt-3);margin-top:2px; }
     .badge-verif { display:inline-block;background:var(--primary-xl);color:var(--primary);font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-xl);margin-top:4px; }
@@ -275,7 +275,7 @@
     .portal-header-marca h1 { font-size:17px;font-weight:800;color:white;line-height:1.1; }
     .portal-header-marca p  { font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;max-width:160px;line-height:1.3; }
     .portal-header-actions  { display:flex;align-items:center;gap:var(--sp-2); }
-    .ph-avatar { width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:white;cursor:pointer;backdrop-filter:blur(4px); }
+    .ph-avatar { width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:white;cursor:pointer;backdrop-filter:blur(4px);overflow:hidden; }
     .ph-sair-btn { padding:8px 16px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:var(--r-xl);color:white;font-size:13px;font-weight:700;cursor:pointer;backdrop-filter:blur(4px);transition:background .18s; }
     .ph-sair-btn:hover { background:rgba(255,255,255,.22); }
     .portal-header-hero { position:relative;z-index:1; }
@@ -318,7 +318,8 @@
     .perfil-card-verde { background:var(--primary);border-radius:var(--r-xl);padding:var(--sp-6);position:relative;overflow:hidden;margin-bottom:12px;box-shadow:0 8px 24px rgba(6,95,70,.25); }
     .perfil-card-verde::after { content:'';position:absolute;bottom:-20px;right:-20px;width:120px;height:120px;background:rgba(255,255,255,.04);border-radius:50%;filter:blur(20px); }
     .perfil-card-topo { display:flex;align-items:center;gap:14px;margin-bottom:16px; }
-    .perfil-card-av   { width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:white;flex-shrink:0; }
+    .perfil-card-av   { width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:white;flex-shrink:0;overflow:hidden; }
+    .perfil-card-av img,.enc-avatar img,.ph-avatar img,.dt-avatar img,.ds-rodape-av img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
     .perfil-card-nome  { font-size:18px;font-weight:800;color:white;line-height:1.2; }
     .perfil-card-cargo { font-size:13px;color:rgba(255,255,255,.65);margin-top:3px;font-weight:500; }
     .perfil-card-acoes { display:flex;gap:var(--sp-2); }
@@ -1811,18 +1812,31 @@
     const f=_funcDoc||{};
     const _set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
     const _html= (id, val) => { const el=document.getElementById(id); if(el) el.innerHTML=val; };
+
+    // ── Helper: coloca foto real ou inicial num avatar ──
+    function setAvatar(id, fotoUrl, inicial) {
+      const el = document.getElementById(id); if(!el) return;
+      const imgAnt = el.querySelector('img'); if(imgAnt) imgAnt.remove();
+      if(fotoUrl){
+        el.textContent='';
+        const img=document.createElement('img'); img.src=fotoUrl; img.alt='';
+        img.onerror=function(){ img.remove(); el.textContent=inicial; };
+        el.appendChild(img);
+      } else { el.textContent=inicial; }
+    }
+
     // header mobile
-    _set("pt-avatar",  inic);
+    setAvatar("pt-avatar", f.fotoUrl||'', inic);
     _set("ph-saudacao", saud+", "+primeiroNome+"! 👋");
     // topbar desktop
     _html("dt-saudacao", saud+", <em>"+primeiroNome+"!</em>");
-    _set("dt-avatar", inic);
+    setAvatar("dt-avatar", f.fotoUrl||'', inic);
     // sidebar desktop
-    _set("ds-av",    inic);
+    setAvatar("ds-av", f.fotoUrl||'', inic);
     _set("ds-nome",  nome);
     _set("ds-cargo", f.categoria||"Funcionário");
     // card verde (início)
-    _set("pcv-avatar",    inic);
+    setAvatar("pcv-avatar", f.fotoUrl||'', inic);
     _set("pcv-nome",      nome);
     _set("pcv-cargo",     f.categoria||"—");
     _set("pcv-numero",    f.numero||"—");
@@ -2181,7 +2195,18 @@
     const f=_funcDoc||{};
     const nome=f.nome||dados.nome||"—";
     const inic=nome.split(" ").filter(Boolean).slice(0,2).map(p=>p[0]).join("").toUpperCase();
-    document.getElementById("perf-avatar").textContent=inic;
+    // ── Avatar perfil — foto real ou iniciais ──
+    (function(){
+      const av=document.getElementById("perf-avatar"); if(!av) return;
+      const imgAnt=av.querySelector('img'); if(imgAnt) imgAnt.remove();
+      if(f.fotoUrl){
+        av.textContent='';
+        const img=document.createElement('img'); img.src=f.fotoUrl; img.alt=nome;
+        img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%';
+        img.onerror=function(){ img.remove(); av.textContent=inic; };
+        av.appendChild(img);
+      } else { av.textContent=inic; }
+    })();
     document.getElementById("perf-nome").textContent=nome;
     document.getElementById("perf-sub").textContent=(f.categoria||"—")+" · "+(f.unidade||"—");
     const vinc={quadro:"Pessoal do Quadro",provisorio:"Prov. Provisório"};
