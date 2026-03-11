@@ -1337,17 +1337,17 @@ window.abrirModalEf = function(id){
   const divCampos = document.getElementById('mef-seccoes-campos');
   if(isDMS && wrapSec && divCampos){
     const seccoes = u.efectivo?.seccoes || {};
-    divCampos.innerHTML = SECCOES_DMS.map(sec => {
-      const val = seccoes[sec] || 0;
-      const cadSec = (SECCOES_MAP[sec]||[]).length;
-      const safeid = 'mef-sec-' + sec.replace(/[^a-zA-Z0-9]/g,'_');
-      return \`<div class="modal-campo" style="margin-bottom:10px">
-        <label style="display:flex;justify-content:space-between">
-          <span>\${sec}</span>
-          <span style="font-weight:400;color:var(--txt-3)">\${cadSec} cadastrado(s)</span>
-        </label>
-        <input type="number" id="\${safeid}" min="0" max="999" value="\${val}" placeholder="0"/>
-      </div>\`;
+    divCampos.innerHTML = SECCOES_DMS.map(function(sec) {
+      var val     = (seccoes[sec] || 0);
+      var cadSec  = (SECCOES_MAP[sec]||[]).length;
+      var safeid  = 'mef-sec-' + sec.replace(/[^a-zA-Z0-9]/g,'_');
+      return '<div class="modal-campo" style="margin-bottom:10px">' +
+        '<label style="display:flex;justify-content:space-between">' +
+          '<span>' + sec + '</span>' +
+          '<span style="font-weight:400;color:var(--txt-3)">' + cadSec + ' cadastrado(s)</span>' +
+        '</label>' +
+        '<input type="number" id="' + safeid + '" min="0" max="999" value="' + val + '" placeholder="0"/>' +
+      '</div>';
     }).join('');
     wrapSec.style.display = 'block';
   } else if(wrapSec){
