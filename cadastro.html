@@ -338,7 +338,43 @@
       display:flex;align-items:center;justify-content:center;
       font-size:26px;font-weight:800;color:var(--white);
       border:3px solid rgba(255,255,255,.3);flex-shrink:0;
+      overflow:hidden;
     }
+    .ficha-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+
+    /* ── Bloco foto no formulário administrativo ── */
+    .foto-bloco{
+      display:flex;align-items:center;gap:16px;padding:14px 16px;
+      background:var(--neu-50);border:1.5px solid var(--neu-200);
+      border-radius:var(--r-sm);margin-bottom:18px;
+    }
+    .foto-circulo{
+      width:76px;height:76px;border-radius:50%;
+      background:var(--c-100);border:3px solid var(--c-200);
+      display:flex;align-items:center;justify-content:center;
+      font-size:28px;font-weight:800;color:var(--c-600);
+      flex-shrink:0;overflow:hidden;cursor:pointer;position:relative;
+      transition:border-color .2s;
+    }
+    .foto-circulo:hover{border-color:var(--c-500)}
+    .foto-circulo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+    .foto-circulo-overlay{
+      position:absolute;inset:0;border-radius:50%;
+      background:rgba(0,0,0,.42);display:none;
+      align-items:center;justify-content:center;font-size:20px;color:#fff;
+    }
+    .foto-circulo:hover .foto-circulo-overlay{display:flex}
+    .foto-bloco-info{flex:1;min-width:0}
+    .foto-bloco-titulo{font-size:12px;font-weight:700;color:var(--neu-700);margin-bottom:3px}
+    .foto-bloco-sub{font-size:11px;color:var(--neu-500);line-height:1.5}
+    .foto-bloco-estado{font-size:11px;font-weight:600;margin-top:6px;color:var(--neu-400)}
+    .foto-bloco-btn{
+      font-size:12px;font-weight:700;padding:7px 14px;
+      border:2px solid var(--c-400);border-radius:var(--r-sm);
+      color:var(--c-700);background:var(--white);cursor:pointer;
+      font-family:var(--font);transition:all .15s;white-space:nowrap;flex-shrink:0;
+    }
+    .foto-bloco-btn:hover{background:var(--c-50);border-color:var(--c-600)}
     .ficha-nome{font-size:20px;font-weight:800;color:var(--white)}
     .ficha-cargo{font-size:12px;color:rgba(255,255,255,.7);margin-top:4px}
     .ficha-numero{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;font-family:var(--mono)}
@@ -643,6 +679,25 @@
       <!-- Dados Pessoais -->
       <div class="secao-form">
         <div class="secao-titulo">📋 Dados Pessoais</div>
+
+        <!-- ── Fotografia do Funcionário ── -->
+        <div class="foto-bloco">
+          <div class="foto-circulo" id="foto-circulo-admin" onclick="document.getElementById('f-foto-input').click()">
+            <span id="foto-inicial-admin">?</span>
+            <div class="foto-circulo-overlay">📷</div>
+          </div>
+          <input type="file" id="f-foto-input" accept="image/jpeg,image/png,image/webp"
+            style="display:none" onchange="previewFotoAdmin(this)"/>
+          <div class="foto-bloco-info">
+            <div class="foto-bloco-titulo">Fotografia tipo passe</div>
+            <div class="foto-bloco-sub">Clique no círculo para carregar ou substituir a foto.<br>JPG ou PNG · máx. 2MB · fundo neutro recomendado.</div>
+            <div class="foto-bloco-estado" id="foto-bloco-estado">Sem fotografia</div>
+          </div>
+          <button class="foto-bloco-btn" type="button" onclick="document.getElementById('f-foto-input').click()">
+            📷 Escolher
+          </button>
+        </div>
+
         <div class="grid-2">
           <div class="campo campo-obrig col-2">
             <label>Nome Completo</label>
@@ -1180,9 +1235,13 @@
   import { getFirestore, collection, doc, getDoc, getDocs,
            addDoc, updateDoc, serverTimestamp, query, orderBy, where }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import {
+    getStorage, ref as sRef, uploadBytes, getDownloadURL
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
   const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app);
+  const storage = getStorage(app);
   const etiquetasPerfil={admin:"Administrador do Sistema",director:"Director Municipal",chefe:"Chefe de Secção",tecnico:"Técnico de RH",secretaria:"Secretaria",funcionario:"Funcionário de Unidade"};
   const perfisPermitidos=["admin","tecnico","chefe","director","secretaria"];
   let todosOsFuncionarios=[], utilizadorActual=null, funcionarioEmEdicao=null, _perfilActual=null;
@@ -1500,6 +1559,8 @@
     verificarDireccao();
     document.getElementById("f-seccao").value=f.seccao||"";
     document.getElementById("f-area").value=f.area||"";
+    // ── Foto: carregar preview se existir ──
+    carregarFotoAdmin(f.fotoUrl||'', f.nome||'');
     document.getElementById("overlay-formulario").classList.add("activo");
   };
 
@@ -1532,10 +1593,87 @@
     // ── Recolher secções opcionais ──
     document.getElementById('secao-complementar').classList.add('recolhida');
     document.getElementById('secao-formacao').classList.add('recolhida');
+    // ── Resetar foto ──
+    carregarFotoAdmin('', '');
+    var fi = document.getElementById('f-foto-input'); if(fi) fi.value = '';
 
     document.getElementById("f-estado").value="activo";
     document.getElementById("campo-seccao-wrap").classList.add("campo-oculto");
     document.getElementById("campo-area-wrap").classList.add("campo-oculto");
+  }
+
+  // ══════════════════════════════════════════════════════
+  //  FOTOGRAFIA DO FUNCIONÁRIO — CADASTRO ADMINISTRATIVO
+  // ══════════════════════════════════════════════════════
+
+  var _fotoNovaFile = null;     // File a fazer upload (se o utilizador escolheu nova foto)
+  var _fotoUrlActual = '';      // URL da foto já guardada (para não re-fazer upload se não mudou)
+
+  // Carrega preview da foto no bloco do formulário
+  function carregarFotoAdmin(url, nome) {
+    _fotoNovaFile  = null;
+    _fotoUrlActual = url || '';
+    var circulo = document.getElementById('foto-circulo-admin');
+    var inicial = document.getElementById('foto-inicial-admin');
+    var estado  = document.getElementById('foto-bloco-estado');
+    if (!circulo) return;
+    // Remover img anterior
+    var imgAnterior = circulo.querySelector('img');
+    if (imgAnterior) imgAnterior.remove();
+    if (url) {
+      var img = document.createElement('img');
+      img.src = url;
+      img.alt = nome || '';
+      img.onerror = function() { img.remove(); if(inicial) inicial.style.display='flex'; };
+      if (inicial) inicial.style.display = 'none';
+      circulo.insertBefore(img, circulo.firstChild);
+      if (estado) { estado.textContent = '✅ Foto carregada'; estado.style.color = '#16a34a'; }
+    } else {
+      var ini = (nome || '?')[0].toUpperCase();
+      if (inicial) { inicial.textContent = ini; inicial.style.display = 'flex'; }
+      if (estado) { estado.textContent = 'Sem fotografia'; estado.style.color = ''; }
+    }
+  }
+
+  // Preview imediata quando o utilizador escolhe ficheiro
+  window.previewFotoAdmin = function(input) {
+    var file = input.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      notif('Foto demasiado grande. Máximo: 2MB.', 'erro'); input.value = ''; return;
+    }
+    if (!file.type.match(/^image\/(jpeg|png|webp)$/)) {
+      notif('Formato não suportado. Use JPG, PNG ou WEBP.', 'erro'); input.value = ''; return;
+    }
+    _fotoNovaFile = file;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var circulo = document.getElementById('foto-circulo-admin');
+      var inicial = document.getElementById('foto-inicial-admin');
+      var estado  = document.getElementById('foto-bloco-estado');
+      var imgAnterior = circulo.querySelector('img');
+      if (imgAnterior) imgAnterior.remove();
+      var img = document.createElement('img');
+      img.src = e.target.result; img.alt = 'Preview';
+      if (inicial) inicial.style.display = 'none';
+      circulo.insertBefore(img, circulo.firstChild);
+      if (estado) { estado.textContent = '📷 Nova foto pronta (será guardada ao clicar Guardar)'; estado.style.color = '#d97706'; }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Faz upload da foto para Storage e devolve URL (ou URL existente se não mudou)
+  async function uploadFotoSeNecessario(funcionarioId) {
+    if (!_fotoNovaFile) return _fotoUrlActual || null;  // sem alteração
+    try {
+      var path = 'fotos/' + funcionarioId + '/foto_' + Date.now() + '.' + _fotoNovaFile.name.split('.').pop();
+      var r = sRef(storage, path);
+      var snap = await uploadBytes(r, _fotoNovaFile);
+      return await getDownloadURL(snap.ref);
+    } catch(e) {
+      console.warn('Upload foto falhou (Storage pode não estar activo):', e);
+      return _fotoUrlActual || null;
+    }
   }
 
   // ══════════════════════════════════════════════════════
@@ -1625,12 +1763,30 @@
     const btn = document.getElementById('btn-guardar');
     btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> A guardar...';
     try {
+      // ── Upload de foto (se houver nova foto ou actualização) ──
+      var funcId = funcionarioEmEdicao || null;
+      if (_fotoNovaFile) {
+        btn.innerHTML = '<span class="spinner"></span> A carregar fotografia...';
+        // Para novos funcionários ainda não temos o ID — usamos timestamp como placeholder
+        var uploadId = funcId || ('novo_' + Date.now());
+        var fotoUrl = await uploadFotoSeNecessario(uploadId);
+        if (fotoUrl) dados.fotoUrl = fotoUrl;
+      } else if (_fotoUrlActual) {
+        dados.fotoUrl = _fotoUrlActual;
+      }
+      btn.innerHTML = '<span class="spinner"></span> A guardar...';
+
       if (funcionarioEmEdicao) {
         await updateDoc(doc(db,'funcionarios',funcionarioEmEdicao), dados);
         notif('✅ Funcionário "' + nome + '" actualizado!');
       } else {
         dados.criadoEm = serverTimestamp(); dados.criadoPor = utilizadorActual.uid;
-        await addDoc(collection(db,'funcionarios'), dados);
+        var novoDoc = await addDoc(collection(db,'funcionarios'), dados);
+        // Se havia foto com ID temporário, actualizar para o ID real
+        if (_fotoNovaFile && dados.fotoUrl && dados.fotoUrl.includes('novo_')) {
+          var fotoReal = await uploadFotoSeNecessario(novoDoc.id);
+          if (fotoReal) await updateDoc(doc(db,'funcionarios',novoDoc.id), { fotoUrl: fotoReal });
+        }
         notif('✅ Funcionário "' + nome + '" registado com sucesso!');
       }
       fecharFormulario(); carregarFuncionarios();
@@ -1802,7 +1958,19 @@
     });
 
     const anos=calcularAnos(f.admissao), dias=calcularDias(anos);
-    document.getElementById("ficha-avatar").textContent=(f.nome||"?")[0].toUpperCase();
+    // ── Avatar da ficha: foto real ou inicial ──
+    (function(){
+      var av = document.getElementById('ficha-avatar');
+      var imgAnt = av.querySelector('img'); if(imgAnt) imgAnt.remove();
+      if(f.fotoUrl){
+        av.textContent='';
+        var img=document.createElement('img'); img.src=f.fotoUrl; img.alt=f.nome||'';
+        img.onerror=function(){ img.remove(); av.textContent=(f.nome||'?')[0].toUpperCase(); };
+        av.appendChild(img);
+      } else {
+        av.textContent=(f.nome||'?')[0].toUpperCase();
+      }
+    })();
     document.getElementById("ficha-nome").textContent=f.nome||"—";
     document.getElementById("ficha-cargo").textContent=(f.cargo||f.categoria||"—")+" · "+(f.unidade||"—");
     document.getElementById("ficha-numero").textContent="Agente Nº "+(f.numero||"—")+" · BI: "+(f.bi||"—");
