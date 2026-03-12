@@ -3090,6 +3090,8 @@
   // ── Chat da secretaria ────────────────────────────────────
   let _chatSecId   = null;
   let _unsubChatSec = null;
+  let _chatSecFuncUid  = null;
+  let _chatSecFuncNome = null;
 
   window.abrirChatSecretaria = async function(pedidoId) {
     _chatSecId = pedidoId;
@@ -3100,6 +3102,11 @@
     _unsubChatSec = onSnapshot(doc(db,'pedidos_secretaria',pedidoId), snap => {
       if (!snap.exists()) return;
       const p = snap.data();
+      // Guardar identificadores do funcionário para o atalho de documentos
+      _chatSecFuncUid  = p.funcionarioUid  || null;
+      _chatSecFuncNome = p.funcionarioNome || '';
+      const btnDoc = document.getElementById('chat-sec-btn-doc');
+      if (btnDoc) btnDoc.style.display = _chatSecFuncUid ? '' : 'none';
       const assunto = ASSUNTOS_SEC[p.assunto]||p.assunto||'—';
       document.getElementById('chat-sec-titulo').textContent = assunto;
       document.getElementById('chat-sec-sub').textContent = (p.funcionarioNome||'—') + ' · ' + (p.unidade||'—');
@@ -3161,7 +3168,7 @@
   window.fecharChatSecretaria = function() {
     document.getElementById('chat-sec-overlay').classList.remove('aberto');
     if (_unsubChatSec) { _unsubChatSec(); _unsubChatSec=null; }
-    _chatSecId=null;
+    _chatSecId=null; _chatSecFuncUid=null; _chatSecFuncNome=null;
     carregarPedidosSecretaria();
   };
 
@@ -3219,6 +3226,30 @@
     }
     if (btn) btn.disabled = false;
   };
+  // Atalho: abrir documentos.html pré-seleccionado com o funcionário do chat activo
+  window.abrirDocumentosParaFuncionario = async function() {
+    if (!_chatSecFuncUid) return;
+    const btn = document.getElementById('chat-sec-btn-doc');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+    try {
+      // Resolver Auth UID → Firestore doc ID via portalUid
+      const snap = await getDocs(
+        query(collection(db,'funcionarios'), where('portalUid','==',_chatSecFuncUid))
+      );
+      if (snap.empty) {
+        mostrarNotif('⚠️ Funcionário sem registo activo no sistema.', 'aviso');
+        if (btn) { btn.disabled=false; btn.textContent='📄 Gerar doc'; }
+        return;
+      }
+      const docId = snap.docs[0].id;
+      const nome  = encodeURIComponent(_chatSecFuncNome || '');
+      window.open(`documentos.html?func=${docId}&origem=secretaria&nome=${nome}`, '_blank');
+    } catch(e) {
+      mostrarNotif('❌ Erro ao abrir documentos: ' + e.message, 'erro');
+    }
+    if (btn) { btn.disabled=false; btn.textContent='📄 Gerar doc'; }
+  };
+
   window.fecharConversaSecretaria = async function() {
     if (!_chatSecId) return;
     if (!confirm('Fechar esta conversa? O funcionário não poderá enviar mais mensagens.')) return;
@@ -3455,6 +3486,12 @@
         <div class="chat-sec-titulo" id="chat-sec-titulo">Conversa</div>
         <div class="chat-sec-sub" id="chat-sec-sub">Secretaria · DMS Sumbe</div>
       </div>
+      <button id="chat-sec-btn-doc" onclick="abrirDocumentosParaFuncionario()"
+        title="Gerar documento para este funcionário"
+        style="display:none;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#fbbf24;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s"
+        onmouseover="this.style.background='rgba(245,158,11,.28)'" onmouseout="this.style.background='rgba(245,158,11,.15)'">
+        📄 Gerar doc
+      </button>
       <button class="chat-sec-fechar" onclick="fecharChatSecretaria()" title="Fechar">✕</button>
     </div>
     <div class="chat-estado-bar-sec aberto" id="chat-sec-estado-bar">● Conversa aberta</div>
