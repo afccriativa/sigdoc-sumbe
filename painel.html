@@ -812,17 +812,18 @@
         fetchColeccao("sessoes",    "timestamp", opcoes),
         getDocs(collection(db, "unidades_sanitarias")).catch(()=>({docs:[],forEach:()=>{}}))
       ]);
-      // Mapa nome→esperado a partir da colecção unidades_sanitarias
+      // Mapa nome→esperado + nomeAbreviado a partir da colecção unidades_sanitarias
       const ESPERADO_MAP = {};
-      snapUnidades.forEach(s=>{ const d=s.data(); if(d.nome) ESPERADO_MAP[d.nome]=d.efectivo?.esperado||0; });
+      const ABRV_MAP     = {};
+      snapUnidades.forEach(s=>{ const d=s.data(); if(d.nome){ ESPERADO_MAP[d.nome]=d.efectivo?.esperado||0; ABRV_MAP[d.nome]=d.nomeAbreviado||''; } });
 
       calcularKPIs(funcionarios, documentos);
       renderGraficoMensal(documentos, inicio);
       renderDonut(documentos);
-      renderBarrasUnidades(funcionarios, ESPERADO_MAP);
+      renderBarrasUnidades(funcionarios, ESPERADO_MAP, ABRV_MAP);
       renderBarrasCategorias(funcionarios);
       renderMiniEstat(funcionarios, documentos, sessoes);
-      renderTabelaUnidades(funcionarios, documentos, ESPERADO_MAP);
+      renderTabelaUnidades(funcionarios, documentos, ESPERADO_MAP, ABRV_MAP);
       renderFeed(documentos, sessoes);
 
       heroSub.textContent =
@@ -1023,7 +1024,7 @@
   }
 
   // ── BARRAS HORIZONTAIS — UNIDADES ──
-  function renderBarrasUnidades(funcs, esperadoMap) {
+  function renderBarrasUnidades(funcs, esperadoMap, abrvMap) {
     // Contar cadastrados por unidade
     const cadMap = {};
     funcs.forEach(f => {
@@ -1066,9 +1067,7 @@
       else if(cobertura >= 60)    { pctClass='cob-pct-amarelo';  fillClass='fill-amarelo-grad'; }
       else                        { pctClass='cob-pct-vermelho'; fillClass='fill-vermelho-grad'; }
 
-      const nomeAbrev = u.nome.replace('Centro de Saúde','CS').replace('Posto de Saúde','PS')
-                              .replace('Direcção Municipal de Saúde do Sumbe','DMS')
-                              .replace('Secção de ','Sec. ');
+      const nomeAbrev = window.SIGDOC_CONFIG.abrvUnidade(u.nome, (abrvMap||{})[u.nome]);
 
       return `
       <div class="cob-item">
@@ -1119,7 +1118,7 @@
   }
 
   // ── TABELA UNIDADES ──
-  function renderTabelaUnidades(funcs, docs, esperadoMap) {
+  function renderTabelaUnidades(funcs, docs, esperadoMap, abrvMap) {
     const unidades = {};
     funcs.forEach(f => {
       const u = f.unidade || 'Não especificada';
@@ -1146,7 +1145,7 @@
       else                cobHTML = `<span class="pill-cob pill-cob-vermelho">↓ ${cob}%</span>`;
 
       return `<tr>
-        <td style="font-weight:600;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${nome}">${nome}</td>
+        <td style="font-weight:600;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${nome}">${window.SIGDOC_CONFIG.abrvUnidade(nome, (abrvMap||{})[nome])}</td>
         <td style="font-family:'DM Mono',monospace;font-weight:800;color:#60a5fa">${u.cadastrados}</td>
         <td style="font-family:'DM Mono',monospace;color:rgba(255,255,255,.4)">${esp||'—'}</td>
         <td>${cobHTML}</td>
