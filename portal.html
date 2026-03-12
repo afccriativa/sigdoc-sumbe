@@ -2667,7 +2667,7 @@
     _comprimirFotoPerfil(file).then(function(base64) {
       _perfilFotoNovaBase64 = base64;
       // Actualizar todos os avatares visíveis na página
-      ['perf-avatar','pt-avatar','dt-avatar','ds-av'].forEach(function(id) {
+      ['perf-avatar','pt-avatar','dt-avatar','ds-av','pcv-avatar'].forEach(function(id) {
         var av = document.getElementById(id); if (!av) return;
         var imgAnt = av.querySelector('img'); if (imgAnt) imgAnt.remove();
         av.textContent = '';
@@ -2676,7 +2676,7 @@
         img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
         av.appendChild(img);
       });
-      notif('📷 Nova foto pronta — clique em "Guardar telefone" para gravar.', 'notif-ok');
+      notif('📷 Nova foto pronta — clique em "Guardar alterações" para gravar.', 'notif-ok');
     }).catch(function(e) {
       notif('❌ Erro ao processar a foto: ' + e.message, 'notif-erro');
     });
