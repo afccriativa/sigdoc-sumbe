@@ -968,6 +968,7 @@ async function seedUnidades(){
       const ref = doc(db, 'unidades_sanitarias', id);
       return setDoc(ref, {
         id, nome: u.nome, tipo: u.tipo,
+        nomeAbreviado: window.SIGDOC_CONFIG.abrvUnidade(u.nome),
         servicos: u.servicos,
         // Nota: 'estado' NÃO está aqui intencionalmente.
         // setDoc com merge:true sobrescreveria o valor guardado pelo utilizador
@@ -1565,10 +1566,7 @@ window.pesquisarResponsavel = function(){
   box.innerHTML = resultados.slice(0,10).map(f=>{
     const nomU2 = u?.nome||'';
     const outra = f.unidade && f.unidade !== nomU2;
-    const abrevU = (s='') => s
-      .replace('Centro de Saúde','CS')
-      .replace('Posto de Saúde','PS')
-      .replace('Direcção Municipal de Saúde do Sumbe','DMS');
+    const abrevU = n => window.SIGDOC_CONFIG.abrvUnidade(n);
     const badge = outra
       ? `<span class="resp-outra-unidade">📍 ${abrevU(f.unidade)}</span>`
       : '';
@@ -1663,6 +1661,7 @@ window.guardarFicha = async function(){
   const dados = {
     nome:          u?.nome   || '',
     tipo:          u?.tipo   || '',
+    nomeAbreviado: window.SIGDOC_CONFIG.abrvUnidade(u?.nome || ''),  // calculado na gravação; editável no futuro
     estado:        document.getElementById('mf-estado').value || ESTADO_DEFAULT,
     responsavel,
     localizacao: {
