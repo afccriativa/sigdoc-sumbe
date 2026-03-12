@@ -530,7 +530,20 @@
       </div>
 
       <div class="sec">📍 Cobertura por Unidade</div>
-      <div class="g1"><div class="gc"><div class="gc-titulo" id="cob-titulo">Cadastrados vs Efectivo Esperado</div><div class="gc-sub" id="cob-sub">Por unidade sanitária</div><div id="cobertura"></div></div></div>
+      <div class="g1"><div class="gc">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+          <div>
+            <div class="gc-titulo" id="cob-titulo">Cadastrados vs Efectivo Esperado</div>
+            <div class="gc-sub" id="cob-sub">Por unidade sanitária</div>
+          </div>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;font-weight:600;color:var(--txt-2);white-space:nowrap">
+            <input type="checkbox" id="chk-excluir-nao-op" onchange="window._aplicarFiltros()"
+              style="width:14px;height:14px;accent-color:#1241a1;cursor:pointer"/>
+            Excluir não operacionais
+          </label>
+        </div>
+        <div id="cobertura"></div>
+      </div></div>
 
       <div class="sec">🏢 Secções Internas da DMS</div>
       <div class="g1" id="dms-seccoes-wrap"></div>
@@ -786,6 +799,16 @@
     // ── Detectar modo com base nos filtros activos ──
     const fUnidade   = _filtros.unidade;
     const outrosFilt = _filtros.categoria || _filtros.vinculo || _filtros.estado || _filtros.sexo;
+    const excluirNaoOp = document.getElementById('chk-excluir-nao-op')?.checked ?? false;
+
+    // Helper: verdadeiro se a unidade tem estado operacional
+    const isOperacional = nome => {
+      const u = unidades[nome];
+      if (!u) return true; // sem ficha = assumir operacional (dados históricos)
+      if (u.estado) return u.estado === 'operacional';
+      if (u.activa === false) return false; // compatibilidade booleano legado
+      return true;
+    };
 
     // ════════════════════════════════════════════════
     // MODO A — Sem filtros: Cobertura total (comportamento original)
@@ -799,6 +822,7 @@
       const todas = new Set([...Object.keys(cm), ...Object.keys(unidades)]);
       const lista = [...todas]
         .filter(n => n !== "—" && n !== "Não especificada")
+        .filter(n => !excluirNaoOp || isOperacional(n))
         .map(nome => ({ nome, cad: cm[nome] || 0, esp: unidades[nome]?.efectivo?.esperado || 0 }))
         .sort((a, b) => (b.esp || b.cad) - (a.esp || a.cad));
       const max = Math.max(...lista.map(u => Math.max(u.esp, u.cad)), 1);
