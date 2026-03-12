@@ -3098,7 +3098,7 @@
       err => console.error('Watcher pedidos sec:',err)
     );
     _unsubReunioesSec = onSnapshot(
-      query(collection(db,'reunioes'), orderBy('criadoEm','desc')),
+      query(collection(db,'reunioes'), where('estado','==','pendente')),
       snap => { _reunioesPend = snap.docs.map(d=>({id:d.id,...d.data()})); actualizarSinoSecretaria(); },
       err => console.error('Watcher reunioes sec:',err)
     );
