@@ -837,7 +837,8 @@
     .modal-sec-texto { background:rgba(217,119,6,.08); border:1px solid rgba(217,119,6,.2); border-radius:8px; padding:12px; font-size:13px; color:var(--txt-pri); line-height:1.6; margin-bottom:16px; white-space:pre-wrap; }
     .modal-sec textarea { width:100%; min-height:100px; background:#f8fafc; border:1px solid rgba(217,119,6,.25); border-radius:8px; padding:10px 12px; font-size:13px; color:var(--txt-pri); resize:vertical; box-sizing:border-box; outline:none; }
     .modal-sec textarea:focus { border-color:rgba(245,158,11,.6); }
-    .modal-sec input[type=text], .modal-sec input[type=datetime-local] { width:100%; background:#f8fafc; border:1px solid rgba(217,119,6,.25); border-radius:8px; padding:9px 12px; font-size:13px; color:var(--txt-pri); box-sizing:border-box; margin-bottom:12px; outline:none; }
+    .modal-sec input[type=text], .modal-sec input[type=datetime-local], .modal-sec input[type=date] { width:100%; background:#f8fafc; border:1px solid rgba(217,119,6,.25); border-radius:8px; padding:9px 12px; font-size:13px; color:var(--txt-pri); box-sizing:border-box; margin-bottom:12px; outline:none; }
+    .modal-sec input[type=text]:focus, .modal-sec input[type=datetime-local]:focus, .modal-sec input[type=date]:focus { border-color:rgba(245,158,11,.6); }
     .modal-sec-btns { display:flex; gap:10px; margin-top:18px; justify-content:flex-end; }
 
     /* ══ CHAT SECRETARIA — WhatsApp Web Dark ══ */
@@ -1755,6 +1756,72 @@
             <div id="sec-reunioes-contador" style="padding:8px 16px 0;font-size:12px;color:var(--txt-sec)"></div>
             <div id="lista-reunioes-secretaria">
               <div class="vazio-estado"><div class="icone">📅</div><p>A carregar...</p></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal acções de reunião — confirmar / remarcar / recusar / realizada -->
+        <div id="modal-reuniao-acao" class="modal-sec" style="display:none" onclick="if(event.target===this)fecharModalReuniaoAcao()">
+          <div class="modal-sec-card" style="max-width:480px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+              <div class="modal-sec-titulo" id="mra-titulo">—</div>
+              <button onclick="fecharModalReuniaoAcao()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px" title="Fechar">×</button>
+            </div>
+            <!-- Info da reunião -->
+            <div id="mra-info" class="modal-sec-texto" style="margin-bottom:16px"></div>
+
+            <!-- ── MODO CONFIRMAR ── -->
+            <div id="mra-confirmar">
+              <div class="modal-sec-label">Local da reunião <span style="font-weight:400;opacity:.6">(opcional)</span></div>
+              <input type="text" id="mra-local" placeholder="Ex: Sala de reuniões da DMS, piso 1…" maxlength="120">
+              <div class="modal-sec-btns">
+                <button class="btn-sec-sm btn-sec-fech" onclick="fecharModalReuniaoAcao()">Cancelar</button>
+                <button class="btn-sec-sm btn-sec-conf" id="mra-btn-confirmar" onclick="submeterModalReuniaoAcao()">✔ Confirmar reunião</button>
+              </div>
+            </div>
+
+            <!-- ── MODO REMARCAR ── -->
+            <div id="mra-remarcar" style="display:none">
+              <div class="modal-sec-label">Nova data sugerida <span style="color:#f87171">*</span></div>
+              <input type="date" id="mra-data-nova">
+              <div class="modal-sec-label">Período preferido</div>
+              <select id="mra-periodo-novo" style="width:100%;padding:9px 12px;background:#f8fafc;border:1px solid rgba(217,119,6,.25);border-radius:8px;font-size:13px;color:#111827;box-sizing:border-box;margin-bottom:12px;outline:none">
+                <option value="manha">Manhã (08h–12h)</option>
+                <option value="tarde">Tarde (13h30–15h)</option>
+                <option value="indiferente">Indiferente</option>
+              </select>
+              <div class="modal-sec-label">Observações <span style="font-weight:400;opacity:.6">(opcional)</span></div>
+              <textarea id="mra-obs" placeholder="Justificação ou informação adicional para o funcionário…" style="min-height:80px;margin-bottom:4px"></textarea>
+              <div id="mra-remarcar-erro" style="font-size:12px;color:#f87171;min-height:16px;margin-bottom:8px"></div>
+              <div class="modal-sec-btns">
+                <button class="btn-sec-sm btn-sec-fech" onclick="fecharModalReuniaoAcao()">Cancelar</button>
+                <button class="btn-sec-sm" style="background:rgba(99,102,241,.25);color:#a5b4fc" onclick="submeterModalReuniaoAcao()">↷ Sugerir nova data</button>
+              </div>
+            </div>
+
+            <!-- ── MODO RECUSAR ── -->
+            <div id="mra-recusar" style="display:none">
+              <div class="modal-sec-label">Motivo da recusa <span style="color:#f87171">*</span></div>
+              <textarea id="mra-motivo" placeholder="Indique o motivo para que o funcionário possa reagendar ou tomar outra medida…" style="min-height:100px;margin-bottom:4px"></textarea>
+              <div id="mra-recusar-erro" style="font-size:12px;color:#f87171;min-height:16px;margin-bottom:8px"></div>
+              <div class="modal-sec-btns">
+                <button class="btn-sec-sm btn-sec-fech" onclick="fecharModalReuniaoAcao()">Cancelar</button>
+                <button class="btn-sec-sm btn-sec-recus" onclick="submeterModalReuniaoAcao()">✕ Recusar reunião</button>
+              </div>
+            </div>
+
+            <!-- ── MODO REALIZADA ── -->
+            <div id="mra-realizada" style="display:none">
+              <div style="font-size:13px;color:var(--txt-sec);margin-bottom:16px;line-height:1.6">
+                Confirma que esta reunião foi <strong style="color:#c4b5fd">realizada</strong>?<br>
+                <span style="font-size:12px;opacity:.7">O estado será marcado como concluído e não poderá ser alterado.</span>
+              </div>
+              <div class="modal-sec-label">Observações finais <span style="font-weight:400;opacity:.6">(opcional)</span></div>
+              <textarea id="mra-obs-realizada" placeholder="Notas sobre a reunião realizada…" style="min-height:70px"></textarea>
+              <div class="modal-sec-btns">
+                <button class="btn-sec-sm btn-sec-fech" onclick="fecharModalReuniaoAcao()">Cancelar</button>
+                <button class="btn-sec-sm" style="background:rgba(139,92,246,.25);color:#c4b5fd" onclick="submeterModalReuniaoAcao()">✔ Marcar como realizada</button>
+              </div>
             </div>
           </div>
         </div>
@@ -2783,11 +2850,31 @@
         const criado = r.criadoEm?.toDate ? r.criadoEm.toDate().toLocaleDateString('pt-AO') : '—';
         const acoes  = estado === 'pendente' ? `
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-            <button onclick="confirmarReuniao('${r.id}')" style="padding:5px 12px;background:#10b981;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">✔ Confirmar</button>
-            <button onclick="remarcarReuniao('${r.id}')"  style="padding:5px 12px;background:#6366f1;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">↷ Remarcar</button>
-            <button onclick="recusarReuniao('${r.id}')"   style="padding:5px 12px;background:#ef4444;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">✕ Recusar</button>
-          </div>` : (r.dataSugerida ? `<div style="margin-top:6px;font-size:12px;color:var(--txt-sec)">📌 Data sugerida: <strong style="color:var(--txt-pri)">${r.dataSugerida}</strong>${r.local?' · '+r.local:''}</div>` : '')
-                     + (r.motivoRecusa ? `<div style="margin-top:4px;font-size:12px;color:#f87171">Motivo: ${r.motivoRecusa}</div>` : '');
+            <button onclick="abrirModalReuniaoAcao('${r.id}','confirmar')" class="btn-sec-sm btn-sec-conf">✔ Confirmar</button>
+            <button onclick="abrirModalReuniaoAcao('${r.id}','remarcar')"  class="btn-sec-sm" style="background:rgba(99,102,241,.22);color:#a5b4fc">↷ Remarcar</button>
+            <button onclick="abrirModalReuniaoAcao('${r.id}','recusar')"   class="btn-sec-sm btn-sec-recus">✕ Recusar</button>
+          </div>`
+          : estado === 'confirmada' ? `
+          <div style="margin-top:8px">
+            ${r.local ? `<div style="font-size:12px;color:var(--txt-sec);margin-bottom:8px">📍 Local: <strong style="color:var(--txt-pri)">${r.local}</strong></div>` : ''}
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button onclick="abrirModalReuniaoAcao('${r.id}','realizada')" class="btn-sec-sm" style="background:rgba(139,92,246,.22);color:#c4b5fd">✔ Marcar como realizada</button>
+              <button onclick="abrirModalReuniaoAcao('${r.id}','recusar')"   class="btn-sec-sm btn-sec-recus" style="font-size:10px">✕ Cancelar</button>
+            </div>
+          </div>`
+          : estado === 'remarcada' ? `
+          <div style="margin-top:8px">
+            ${r.dataSugerida ? `<div style="font-size:12px;color:var(--txt-sec);margin-bottom:6px">📌 Nova data sugerida: <strong style="color:var(--txt-pri)">${r.dataSugerida}</strong></div>` : ''}
+            ${r.observacoes   ? `<div style="font-size:12px;color:var(--txt-sec);margin-bottom:8px">💬 ${r.observacoes}</div>` : ''}
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button onclick="abrirModalReuniaoAcao('${r.id}','confirmar')" class="btn-sec-sm btn-sec-conf">✔ Confirmar nova data</button>
+              <button onclick="abrirModalReuniaoAcao('${r.id}','recusar')"   class="btn-sec-sm btn-sec-recus">✕ Recusar</button>
+            </div>
+          </div>`
+          : `<div style="margin-top:6px">
+            ${r.motivoRecusa  ? `<div style="font-size:12px;color:#f87171;margin-top:4px">✕ Motivo: ${r.motivoRecusa}</div>` : ''}
+            ${r.observacoes && estado === 'realizada' ? `<div style="font-size:12px;color:var(--txt-sec);margin-top:4px">📝 ${r.observacoes}</div>` : ''}
+          </div>`;
         return `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px 16px;margin-bottom:10px">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
             <div>
@@ -2811,44 +2898,143 @@
     }
   };
 
-  window.confirmarReuniao = async function(id) {
-    const local = prompt('Local da reunião (opcional):') || '';
-    if (local === null) return; // cancelou
+  // ── Modal acções de reunião ─────────────────────────────────
+  let _reuniaoModalId   = null;
+  let _reuniaoModalModo = null;
+
+  window.abrirModalReuniaoAcao = async function(id, modo) {
+    _reuniaoModalId   = id;
+    _reuniaoModalModo = modo;
+
+    // Limpar erros e campos
+    ['mra-local','mra-obs','mra-motivo','mra-obs-realizada'].forEach(i => {
+      const el = document.getElementById(i); if (el) el.value = '';
+    });
+    ['mra-remarcar-erro','mra-recusar-erro'].forEach(i => {
+      const el = document.getElementById(i); if (el) el.textContent = '';
+    });
+    // Data mínima = amanhã
+    const dataInput = document.getElementById('mra-data-nova');
+    if (dataInput) {
+      const amanha = new Date(); amanha.setDate(amanha.getDate()+1);
+      dataInput.min   = amanha.toISOString().slice(0,10);
+      dataInput.value = '';
+    }
+
+    // Carregar info da reunião para o painel de contexto
     try {
-      await updateDoc(doc(db,'reunioes',id), {
-        estado:'confirmada', local, geridoPor:utilizadorActual?.uid,
-        actualizadoEm:serverTimestamp()
-      });
-      mostrarNotif('✅ Reunião confirmada!');
-      carregarReunioesSecretaria();
-    } catch(e) { mostrarNotif('❌ Erro: '+e.message,'erro'); }
+      const snap = await getDoc(doc(db,'reunioes',id));
+      const r    = snap.exists() ? snap.data() : {};
+      const dest = DEST_REUNIAO[r.destinatario] || r.destinatario || '—';
+      document.getElementById('mra-info').innerHTML =
+        `<strong>${r.funcionarioNome||'—'}</strong> · ${r.unidade||'—'}<br>` +
+        `<span style="opacity:.75">📋 ${r.assunto||'—'}</span><br>` +
+        `<span style="opacity:.75">👤 ${dest} · 📅 ${r.dataPreferida||'—'}</span>`;
+    } catch(e) {
+      document.getElementById('mra-info').textContent = '—';
+    }
+
+    // Títulos e visibilidade dos painéis
+    const configs = {
+      confirmar: { titulo:'✔ Confirmar Reunião',       painel:'mra-confirmar' },
+      remarcar:  { titulo:'↷ Sugerir Nova Data',        painel:'mra-remarcar'  },
+      recusar:   { titulo:'✕ Recusar Reunião',          painel:'mra-recusar'   },
+      realizada: { titulo:'✔ Marcar como Realizada',    painel:'mra-realizada' },
+    };
+    const cfg = configs[modo];
+    if (!cfg) return;
+    document.getElementById('mra-titulo').textContent = cfg.titulo;
+    ['mra-confirmar','mra-remarcar','mra-recusar','mra-realizada'].forEach(p => {
+      document.getElementById(p).style.display = p === cfg.painel ? '' : 'none';
+    });
+
+    document.getElementById('modal-reuniao-acao').style.display = 'flex';
+    // Foco no primeiro campo do modo activo
+    setTimeout(() => {
+      const primeiro = document.querySelector(`#${cfg.painel} input, #${cfg.painel} textarea`);
+      if (primeiro) primeiro.focus();
+    }, 80);
   };
 
-  window.recusarReuniao = async function(id) {
-    const motivo = prompt('Motivo da recusa:');
-    if (!motivo) return;
-    try {
-      await updateDoc(doc(db,'reunioes',id), {
-        estado:'recusada', motivoRecusa:motivo, geridoPor:utilizadorActual?.uid,
-        actualizadoEm:serverTimestamp()
-      });
-      mostrarNotif('Reunião recusada.');
-      carregarReunioesSecretaria();
-    } catch(e) { mostrarNotif('❌ Erro: '+e.message,'erro'); }
+  window.fecharModalReuniaoAcao = function() {
+    document.getElementById('modal-reuniao-acao').style.display = 'none';
+    _reuniaoModalId = null; _reuniaoModalModo = null;
   };
 
-  window.remarcarReuniao = async function(id) {
-    const data = prompt('Nova data sugerida (AAAA-MM-DD):');
-    if (!data) return;
-    const obs = prompt('Observações (opcional):') || '';
+  window.submeterModalReuniaoAcao = async function() {
+    if (!_reuniaoModalId || !_reuniaoModalModo) return;
+    const id   = _reuniaoModalId;
+    const modo = _reuniaoModalModo;
+    const btn  = document.querySelector(`#mra-${modo} button:last-child`);
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ A guardar…'; }
+
     try {
-      await updateDoc(doc(db,'reunioes',id), {
-        estado:'remarcada', dataSugerida:data, observacoes:obs,
-        geridoPor:utilizadorActual?.uid, actualizadoEm:serverTimestamp()
-      });
-      mostrarNotif('✅ Reunião remarcada!');
+      if (modo === 'confirmar') {
+        const local = document.getElementById('mra-local').value.trim();
+        await updateDoc(doc(db,'reunioes',id), {
+          estado:'confirmada', local,
+          geridoPor:utilizadorActual?.uid, actualizadoEm:serverTimestamp()
+        });
+        mostrarNotif('✅ Reunião confirmada!');
+
+      } else if (modo === 'remarcar') {
+        const dataNova = document.getElementById('mra-data-nova').value;
+        const erroEl   = document.getElementById('mra-remarcar-erro');
+        if (!dataNova) {
+          erroEl.textContent = '⚠️ Indique a nova data.';
+          if (btn) { btn.disabled=false; btn.textContent='↷ Sugerir nova data'; }
+          return;
+        }
+        if (dataNova <= new Date().toISOString().slice(0,10)) {
+          erroEl.textContent = '⚠️ A data tem de ser futura.';
+          if (btn) { btn.disabled=false; btn.textContent='↷ Sugerir nova data'; }
+          return;
+        }
+        erroEl.textContent = '';
+        const periodo = document.getElementById('mra-periodo-novo').value;
+        const obs     = document.getElementById('mra-obs').value.trim();
+        await updateDoc(doc(db,'reunioes',id), {
+          estado:'remarcada', dataSugerida:dataNova, periodo, observacoes:obs,
+          geridoPor:utilizadorActual?.uid, actualizadoEm:serverTimestamp()
+        });
+        mostrarNotif('✅ Nova data sugerida!');
+
+      } else if (modo === 'recusar') {
+        const motivo = document.getElementById('mra-motivo').value.trim();
+        const erroEl = document.getElementById('mra-recusar-erro');
+        if (!motivo) {
+          erroEl.textContent = '⚠️ O motivo é obrigatório.';
+          if (btn) { btn.disabled=false; btn.textContent='✕ Recusar reunião'; }
+          return;
+        }
+        erroEl.textContent = '';
+        await updateDoc(doc(db,'reunioes',id), {
+          estado:'recusada', motivoRecusa:motivo,
+          geridoPor:utilizadorActual?.uid, actualizadoEm:serverTimestamp()
+        });
+        mostrarNotif('Reunião recusada.');
+
+      } else if (modo === 'realizada') {
+        const obs = document.getElementById('mra-obs-realizada').value.trim();
+        await updateDoc(doc(db,'reunioes',id), {
+          estado:'realizada', observacoes:obs,
+          geridoPor:utilizadorActual?.uid, realizadaEm:serverTimestamp(),
+          actualizadoEm:serverTimestamp()
+        });
+        mostrarNotif('✔ Reunião marcada como realizada.');
+      }
+
+      fecharModalReuniaoAcao();
+      addDoc(collection(db,'auditoria'),{
+        coleccao:'reunioes', docId:id, acao:modo,
+        por:utilizadorActual?.uid, em:serverTimestamp()
+      }).catch(()=>{});
       carregarReunioesSecretaria();
-    } catch(e) { mostrarNotif('❌ Erro: '+e.message,'erro'); }
+
+    } catch(e) {
+      mostrarNotif('❌ Erro: '+e.message, 'erro');
+      if (btn) { btn.disabled=false; }
+    }
   };
 
   async function carregarPedidosSecretaria() {
