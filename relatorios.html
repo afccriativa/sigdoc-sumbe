@@ -242,6 +242,85 @@
           <button class="btn-exp btn-pdf" onclick="exportarFicha()">📄 Gerar Ficha PDF</button>
         </div>
       </div>
+    <!-- SECÇÃO 4: Actividade da Secretaria -->
+    <div class="sec">✉️ Actividade da Secretaria</div>
+    <div class="g2">
+
+      <!-- Relatório de Pedidos -->
+      <div class="rel-card">
+        <div class="rel-card-head">
+          <div class="rel-icon" style="background:rgba(59,130,246,.15)">📨</div>
+          <div class="rel-info">
+            <div class="rel-titulo">Relatório de Pedidos</div>
+            <div class="rel-desc">Volume, estado, assunto, tempo médio de resposta e unidades mais activas.</div>
+          </div>
+        </div>
+        <div class="rel-filtros">
+          <div>
+            <label class="campo-label">Período</label>
+            <select class="campo-select" id="f-sec-periodo">
+              <option value="30">Últimos 30 dias</option>
+              <option value="90" selected>Últimos 90 dias</option>
+              <option value="180">Últimos 180 dias</option>
+              <option value="0">Tudo</option>
+            </select>
+          </div>
+          <div>
+            <label class="campo-label">Estado</label>
+            <select class="campo-select" id="f-sec-estado">
+              <option value="">Todos</option>
+              <option value="novo">Novos</option>
+              <option value="em_analise">Em análise</option>
+              <option value="respondido">Respondidos</option>
+              <option value="fechado">Fechados</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-strip">
+          <button class="btn-exp btn-excel" onclick="exportarRelSecPedidos('csv')">📁 CSV</button>
+          <button class="btn-exp btn-pdf"   onclick="exportarRelSecPedidos('pdf')">📄 PDF</button>
+          <button class="btn-exp" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)" onclick="previsualizarRelSecPedidos()">👁 Prévia</button>
+        </div>
+      </div>
+
+      <!-- Relatório de Reuniões -->
+      <div class="rel-card">
+        <div class="rel-card-head">
+          <div class="rel-icon" style="background:rgba(167,139,250,.15)">📅</div>
+          <div class="rel-info">
+            <div class="rel-titulo">Relatório de Reuniões</div>
+            <div class="rel-desc">Pedidos de reunião com estado, destinatário, data preferida e resultado.</div>
+          </div>
+        </div>
+        <div class="rel-filtros">
+          <div>
+            <label class="campo-label">Período</label>
+            <select class="campo-select" id="f-reun-periodo">
+              <option value="30">Últimos 30 dias</option>
+              <option value="90" selected>Últimos 90 dias</option>
+              <option value="180">Últimos 180 dias</option>
+              <option value="0">Tudo</option>
+            </select>
+          </div>
+          <div>
+            <label class="campo-label">Estado</label>
+            <select class="campo-select" id="f-reun-estado">
+              <option value="">Todos</option>
+              <option value="pendente">Pendente</option>
+              <option value="confirmada">Confirmada</option>
+              <option value="recusada">Recusada</option>
+              <option value="remarcada">Remarcada</option>
+              <option value="realizada">Realizada</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-strip">
+          <button class="btn-exp btn-excel" onclick="exportarRelReuniao('csv')">📁 CSV</button>
+          <button class="btn-exp btn-pdf"   onclick="exportarRelReuniao('pdf')">📄 PDF</button>
+          <button class="btn-exp" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)" onclick="previsualizarRelReuniao()">👁 Prévia</button>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -253,7 +332,7 @@
   import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut }
                                from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, collection, getDocs, doc, getDoc }
+  import { getFirestore, collection, getDocs, doc, getDoc, query, where, orderBy, Timestamp }
                                from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
@@ -683,8 +762,217 @@
   // ════════════════════════════════════════════════════════
   //  UTILITÁRIOS
   // ════════════════════════════════════════════════════════
-  const abrev = n => window.SIGDOC_CONFIG.abrvUnidade(n, _unidades[n]?.nomeAbreviado);
+  const abrev = n => (n||"").replace("Direcção Municipal de Saúde do Sumbe","DMS").replace("Centro de Saúde","CS").replace("Posto de Saúde","PS");
   const hoje  = () => new Date().toISOString().slice(0,10).replace(/-/g,"");
+
+  // ════════════════════════════════════════════════════════
+  //  SECRETARIA — helpers
+  // ════════════════════════════════════════════════════════
+  const ASSUNTOS_REL = {
+    'ferias-licencas':'Férias e Licenças','abonos-salarios':'Abonos e Salários',
+    'documentacao':'Documentação Pessoal','transferencias':'Transferências',
+    'escalas':'Escalas de Serviço','outro':'Outro'
+  };
+  const LABELS_ESTADO_PED = {novo:'Novo',em_analise:'Em análise',respondido:'Respondido',fechado:'Fechado'};
+  const LABELS_ESTADO_REU = {pendente:'Pendente',confirmada:'Confirmada',recusada:'Recusada',remarcada:'Remarcada',realizada:'Realizada'};
+  const DEST_REUN = {'director':'Director Municipal','chefe-rh':'Chefe de RH','medico-chefe':'Médico-Chefe','secretaria':'Secretaria'};
+
+  function toDateRel(ts) {
+    if (!ts) return null;
+    if (ts.toDate) return ts.toDate();
+    if (ts.seconds) return new Date(ts.seconds * 1000);
+    return new Date(ts);
+  }
+
+  async function fetchSecretaria(coleccao, periodoSel, estadoSel) {
+    let filtros = [];
+    const dias = parseInt(periodoSel) || 0;
+    if (dias > 0) {
+      const inicio = new Date(Date.now() - dias * 86400000);
+      filtros.push(where('criadoEm', '>=', Timestamp.fromDate(inicio)));
+    }
+    if (estadoSel) filtros.push(where('estado', '==', estadoSel));
+    const q = filtros.length
+      ? query(collection(db, coleccao), ...filtros, orderBy('criadoEm', 'desc'))
+      : query(collection(db, coleccao), orderBy('criadoEm', 'desc'));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({id:d.id,...d.data()}));
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  RELATÓRIO DE PEDIDOS
+  // ════════════════════════════════════════════════════════
+  const COLS_SEC_PED = ['Data','Funcionário','Nº Agente','Unidade','Assunto','Estado','Última mensagem','Tempo 1ª Resposta','Respondido por'];
+
+  function linhasSecPedidos(pedidos) {
+    return pedidos.map(p => {
+      const criado = toDateRel(p.criadoEm);
+      const resp   = toDateRel(p.respondidoEm);
+      let tempo = '—';
+      if (criado && resp) {
+        const h = (resp - criado) / 3600000;
+        tempo = h < 1 ? Math.round(h*60)+'min' : h < 24 ? h.toFixed(1)+'h' : (h/24).toFixed(1)+'d';
+      }
+      return [
+        criado ? criado.toLocaleDateString('pt-AO') : '—',
+        p.funcionarioNome||'—',
+        p.funcionarioNumero||'—',
+        p.unidade||'—',
+        ASSUNTOS_REL[p.assunto]||p.assunto||'—',
+        LABELS_ESTADO_PED[p.estado]||p.estado||'—',
+        (p.ultimaMensagem||'—').substring(0,60),
+        tempo,
+        p.respondidoPor ? p.respondidoPor.substring(0,20) : '—'
+      ];
+    });
+  }
+
+  window.previsualizarRelSecPedidos = async function() {
+    try {
+      notif('⏳ A carregar pedidos…');
+      const pedidos = await fetchSecretaria(
+        'pedidos_secretaria',
+        document.getElementById('f-sec-periodo').value,
+        document.getElementById('f-sec-estado').value
+      );
+      if (!pedidos.length) { notif('Nenhum pedido encontrado.','erro'); return; }
+      mostrarPrevia('Pedidos da Secretaria', COLS_SEC_PED, linhasSecPedidos(pedidos));
+      notif(`✅ ${pedidos.length} pedidos carregados`);
+    } catch(e) { notif('Erro: '+e.message,'erro'); }
+  };
+
+  window.exportarRelSecPedidos = async function(fmt) {
+    try {
+      notif('⏳ A exportar…');
+      const pedidos = await fetchSecretaria(
+        'pedidos_secretaria',
+        document.getElementById('f-sec-periodo').value,
+        document.getElementById('f-sec-estado').value
+      );
+      if (!pedidos.length) { notif('Nenhum pedido encontrado.','erro'); return; }
+      const linhas = linhasSecPedidos(pedidos);
+      const titulo = 'Relatório de Pedidos — Secretaria';
+      const dataHoje = new Date().toLocaleDateString('pt-AO',{day:'2-digit',month:'long',year:'numeric'});
+
+      // Calcular KPIs sumário
+      const total    = pedidos.length;
+      const fechados = pedidos.filter(p=>p.estado==='fechado').length;
+      const taxa     = total > 0 ? Math.round(fechados/total*100) : 0;
+      const comResp  = pedidos.filter(p=>p.respondidoEm&&p.criadoEm);
+      let mediaTempoStr = '—';
+      if (comResp.length>0) {
+        const h = comResp.reduce((a,p)=>{
+          const d = toDateRel(p.respondidoEm)-toDateRel(p.criadoEm);
+          return a+d;
+        },0) / comResp.length / 3600000;
+        mediaTempoStr = h<24 ? h.toFixed(1)+'h' : (h/24).toFixed(1)+'d';
+      }
+
+      if (fmt === 'csv') {
+        const csv = [COLS_SEC_PED.join(';'), ...linhas.map(l=>l.map(c=>'"'+(c||'').toString().replace(/"/g,'""')+'"').join(';'))].join('\n');
+        const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+        const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+        a.download = 'pedidos_secretaria_'+hoje()+'.csv'; a.click(); URL.revokeObjectURL(a.href);
+        notif('✅ CSV exportado');
+      } else {
+        const rows = linhas.map(l=>`<tr>${l.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');
+        abrirPDF(`
+          <h1>${titulo}</h1>
+          <div class="sub">Direcção Municipal de Saúde do Sumbe</div>
+          <div class="meta">
+            <span>Data: ${dataHoje}</span>
+            <span>Total: ${total} pedidos</span>
+            <span>Taxa resolução: ${taxa}%</span>
+            <span>Tempo médio resposta: ${mediaTempoStr}</span>
+          </div>
+          <table><thead><tr>${COLS_SEC_PED.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+          <tbody>${rows}</tbody></table>
+          <div class="totais">Total pedidos: <strong>${total}</strong> &nbsp;|&nbsp; Fechados: <strong>${fechados}</strong> &nbsp;|&nbsp; Taxa resolução: <strong>${taxa}%</strong></div>
+        `, titulo);
+        notif('✅ PDF aberto');
+      }
+    } catch(e) { notif('Erro: '+e.message,'erro'); }
+  };
+
+  // ════════════════════════════════════════════════════════
+  //  RELATÓRIO DE REUNIÕES
+  // ════════════════════════════════════════════════════════
+  const COLS_REUN = ['Data pedido','Funcionário','Nº Agente','Unidade','Assunto','Destinatário','Data preferida','Período','Estado','Data sugerida','Motivo recusa'];
+
+  function linhasReuniao(reunioes) {
+    return reunioes.map(r => {
+      const criado = toDateRel(r.criadoEm);
+      return [
+        criado ? criado.toLocaleDateString('pt-AO') : '—',
+        r.funcionarioNome||'—',
+        r.funcionarioNumero||'—',
+        r.unidade||'—',
+        r.assunto||'—',
+        DEST_REUN[r.destinatario]||r.destinatario||'—',
+        r.dataPreferida||'—',
+        r.periodo==='manha'?'Manhã':r.periodo==='tarde'?'Tarde':'Indiferente',
+        LABELS_ESTADO_REU[r.estado]||r.estado||'—',
+        r.dataSugerida||'—',
+        r.motivoRecusa||'—'
+      ];
+    });
+  }
+
+  window.previsualizarRelReuniao = async function() {
+    try {
+      notif('⏳ A carregar reuniões…');
+      const reunioes = await fetchSecretaria(
+        'reunioes',
+        document.getElementById('f-reun-periodo').value,
+        document.getElementById('f-reun-estado').value
+      );
+      if (!reunioes.length) { notif('Nenhuma reunião encontrada.','erro'); return; }
+      mostrarPrevia('Reuniões', COLS_REUN, linhasReuniao(reunioes));
+      notif(`✅ ${reunioes.length} reuniões carregadas`);
+    } catch(e) { notif('Erro: '+e.message,'erro'); }
+  };
+
+  window.exportarRelReuniao = async function(fmt) {
+    try {
+      notif('⏳ A exportar…');
+      const reunioes = await fetchSecretaria(
+        'reunioes',
+        document.getElementById('f-reun-periodo').value,
+        document.getElementById('f-reun-estado').value
+      );
+      if (!reunioes.length) { notif('Nenhuma reunião encontrada.','erro'); return; }
+      const linhas  = linhasReuniao(reunioes);
+      const titulo  = 'Relatório de Reuniões — Secretaria';
+      const dataHoje = new Date().toLocaleDateString('pt-AO',{day:'2-digit',month:'long',year:'numeric'});
+      const total   = reunioes.length;
+      const realiz  = reunioes.filter(r=>r.estado==='realizada').length;
+      const recus   = reunioes.filter(r=>r.estado==='recusada').length;
+
+      if (fmt === 'csv') {
+        const csv = [COLS_REUN.join(';'), ...linhas.map(l=>l.map(c=>'"'+(c||'').toString().replace(/"/g,'""')+'"').join(';'))].join('\n');
+        const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+        const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+        a.download = 'reunioes_secretaria_'+hoje()+'.csv'; a.click(); URL.revokeObjectURL(a.href);
+        notif('✅ CSV exportado');
+      } else {
+        const rows = linhas.map(l=>`<tr>${l.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');
+        abrirPDF(`
+          <h1>${titulo}</h1>
+          <div class="sub">Direcção Municipal de Saúde do Sumbe</div>
+          <div class="meta">
+            <span>Data: ${dataHoje}</span>
+            <span>Total: ${total} pedidos de reunião</span>
+            <span>Realizadas: ${realiz}</span>
+            <span>Recusadas: ${recus}</span>
+          </div>
+          <table><thead><tr>${COLS_REUN.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+          <tbody>${rows}</tbody></table>
+          <div class="totais">Total: <strong>${total}</strong> &nbsp;|&nbsp; Realizadas: <strong>${realiz}</strong> &nbsp;|&nbsp; Recusadas: <strong>${recus}</strong></div>
+        `, titulo);
+        notif('✅ PDF aberto');
+      }
+    } catch(e) { notif('Erro: '+e.message,'erro'); }
+  };
 </script>
 </body>
 </html>
