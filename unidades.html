@@ -1192,7 +1192,7 @@ function renderDrawerDMS(u){
         </div>
         <div class="sec-lista" style="display:none;padding-left:4px">
           ${funcs.length ? funcs.map(f=>`
-            <div class="func-item" onclick="window.open('cadastro.html?abrir='+encodeURIComponent(f.id),'_self')" title="Ver ficha de ${f.nome||'—'}">
+            <div class="func-item" onclick="window.open('cadastro.html?abrir=${encodeURIComponent(f.id)}','_self')" title="Ver ficha de ${f.nome||'—'}">
               <div class="func-av">${(f.nome||'?')[0].toUpperCase()}</div>
               <div class="func-info">
                 <div class="func-nome">${f.nome||'—'}</div>
@@ -1226,7 +1226,7 @@ function renderDrawerDMS(u){
       </div>
       <div class="sec-lista" style="display:none;padding-left:4px">
         ${semSeccao.map(f=>`
-          <div class="func-item" onclick="window.open('cadastro.html?abrir='+encodeURIComponent(f.id),'_self')" title="Ver ficha de ${f.nome||'—'}">
+          <div class="func-item" onclick="window.open('cadastro.html?abrir=${encodeURIComponent(f.id)}','_self')" title="Ver ficha de ${f.nome||'—'}">
             <div class="func-av">${(f.nome||'?')[0].toUpperCase()}</div>
             <div class="func-info">
               <div class="func-nome">${f.nome||'—'}</div>
@@ -1363,7 +1363,7 @@ function renderDrawer(u){
       ${funcs.length ? `
         <div style="max-height:220px;overflow-y:auto">
           ${funcs.map(f=>`
-            <div class="func-item" onclick="window.open('cadastro.html?abrir='+encodeURIComponent(f.id),'_self')" title="Ver ficha de ${f.nome||f.nomeCompleto||'—'}">
+            <div class="func-item" onclick="window.open('cadastro.html?abrir=${encodeURIComponent(f.id)}','_self')" title="Ver ficha de ${f.nome||f.nomeCompleto||'—'}">
               <div class="func-av">${(f.nome||f.nomeCompleto||'?')[0].toUpperCase()}</div>
               <div class="func-info">
                 <div class="func-nome">${f.nome||f.nomeCompleto||'—'}</div>
