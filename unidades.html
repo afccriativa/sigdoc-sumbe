@@ -941,8 +941,12 @@ async function seedUnidades(){
       const id  = toId(u.nome);
       const ref = doc(db, 'unidades_sanitarias', id);
       return setDoc(ref, {
-        id, nome: u.nome, tipo: u.tipo, estado: ESTADO_DEFAULT,
+        id, nome: u.nome, tipo: u.tipo,
         servicos: u.servicos,
+        // Nota: 'estado' NÃO está aqui intencionalmente.
+        // setDoc com merge:true sobrescreveria o valor guardado pelo utilizador
+        // a cada carregamento de página. O estadoConfig() usa 'operacional'
+        // como fallback quando o campo não existe no documento.
       }, { merge: true }).catch(e => console.warn('Seed skip:', u.nome, e.code));
     });
   await Promise.allSettled(promises);
