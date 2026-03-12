@@ -24,6 +24,37 @@ window.SIGDOC_CONFIG = (function () {
     appId:             "1:323467521938:web:1e8170bfd3961784241b4b"
   };
 
+  /**
+   * Calcula o nome abreviado canónico de uma unidade sanitária.
+   *
+   * @param {string} nome     - Nome completo da unidade (campo `nome` do Firestore)
+   * @param {string} [override] - Valor do campo `nomeAbreviado` do Firestore (opcional).
+   *                              Quando presente, tem prioridade sobre o cálculo programático.
+   * @returns {string}
+   *
+   * Exemplos:
+   *   abrvUnidade('Centro de Saúde do Assaca')           → 'CS Assaca'
+   *   abrvUnidade('Posto de Saúde do Capolo')            → 'PS Capolo'
+   *   abrvUnidade('Direcção Municipal de Saúde do Sumbe')→ 'DMS'
+   *   abrvUnidade('CS Assaca', 'CS Assaca')              → 'CS Assaca'  (override)
+   */
+  function abrvUnidade(nome, override) {
+    if (override && override.trim()) return override.trim();
+    if (!nome) return '—';
+    return nome
+      .replace('Direcção Municipal de Saúde do Sumbe', 'DMS')
+      .replace('Centro de Saúde de ', 'CS ')
+      .replace('Centro de Saúde do ', 'CS ')
+      .replace('Centro de Saúde da ', 'CS ')
+      .replace('Centro de Saúde', 'CS')
+      .replace('Posto de Saúde de ', 'PS ')
+      .replace('Posto de Saúde do ', 'PS ')
+      .replace('Posto de Saúde da ', 'PS ')
+      .replace('Posto de Saúde', 'PS')
+      .replace('Secção de ', 'Sec. ')
+      .trim();
+  }
+
   return {
     /**
      * Devolve o objecto de configuração para ser passado
@@ -31,7 +62,13 @@ window.SIGDOC_CONFIG = (function () {
      */
     get config() {
       return FIREBASE_CONFIG;
-    }
+    },
+
+    /**
+     * Abreviação canónica de nomes de unidades sanitárias.
+     * Usar em todos os ficheiros em vez de lógica local.
+     */
+    abrvUnidade,
   };
 
 })();
