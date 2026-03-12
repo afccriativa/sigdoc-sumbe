@@ -683,7 +683,7 @@
   // ════════════════════════════════════════════════════════
   //  UTILITÁRIOS
   // ════════════════════════════════════════════════════════
-  const abrev = n => (n||"").replace("Direcção Municipal de Saúde do Sumbe","DMS").replace("Centro de Saúde","CS").replace("Posto de Saúde","PS");
+  const abrev = n => window.SIGDOC_CONFIG.abrvUnidade(n, _unidades[n]?.nomeAbreviado);
   const hoje  = () => new Date().toISOString().slice(0,10).replace(/-/g,"");
 </script>
 </body>
