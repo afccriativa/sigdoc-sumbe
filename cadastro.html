@@ -1365,7 +1365,7 @@
         const lv = f.vinculo === "quadro" ? "Pessoal do Quadro" : f.vinculo === "provisorio" ? "Provimento Provisório" : f.vinculo || "—";
         const be = {activo:"badge-activo",inactivo:"badge-inactivo",licenca:"badge-licenca"}[f.estado] || "badge-activo";
         const le = {activo:"● Em Serviço",inactivo:"○ Inactivo",licenca:"◐ De Licença"}[f.estado] || f.estado || "—";
-        const localCurto = (f.unidade||"—").replace("Direcção Municipal de Saúde do Sumbe","Dir. Municipal").replace("Centro de Saúde","CS").replace("Posto de Saúde","PS");
+        const localCurto = window.SIGDOC_CONFIG.abrvUnidade(f.unidade||'—');
         return `<tr onclick="verFicha('${f.id}')">
           <td><div class="func-nome">${f.nome||"—"}${f.formularioPendente?'<span class="badge-form-pend">📋 Form. pendente</span>':''}</div><div class="func-num">Agente Nº ${f.numero||"—"}</div></td>
           <td>${f.categoria||"—"}</td>
