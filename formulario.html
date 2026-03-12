@@ -842,12 +842,9 @@
     getAuth, onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, getDocs, updateDoc,
+    getFirestore, doc, getDoc, getDocs, setDoc, updateDoc,
     collection, query, where, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import {
-    getStorage, ref, uploadBytes, getDownloadURL
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
@@ -861,7 +858,6 @@
   const app     = initializeApp(firebaseConfig);
   const auth    = getAuth(app);
   const db      = getFirestore(app);
-  const storage = getStorage(app);
 
   let _utilizador = null;
   let _funcDocId  = null;
@@ -1139,28 +1135,56 @@
     err.style.display = 'none';
   };
 
-  // ════════════════════════════════
-  // UPLOAD DE FICHEIROS
-  // ════════════════════════════════
-  // ════════════════════════════════
-  // UPLOAD DE FICHEIROS
-  // ════════════════════════════════
+  // ── Estado em memória dos ficheiros escolhidos ──────────────────────────
+  var _fotoBase64 = null;
+  var _biBase64   = null; var _biNome   = '';
+  var _certBase64 = null; var _certNome = '';
+
+  // Comprime imagem para Base64 (máx. 400px, JPEG 82%)
+  function _comprimirImagem(file) {
+    return new Promise(function(resolve, reject) {
+      var img = new Image();
+      var url = URL.createObjectURL(file);
+      img.onload = function() {
+        var MAX = 400, w = img.width, h = img.height;
+        if (w > MAX || h > MAX) { var r = Math.min(MAX/w, MAX/h); w = Math.round(w*r); h = Math.round(h*r); }
+        var c = document.createElement('canvas'); c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = function() { URL.revokeObjectURL(url); reject(new Error('Erro ao processar imagem.')); };
+      img.src = url;
+    });
+  }
+
+  // Lê qualquer File como Base64 (para BI/Cert)
+  function _lerFicheiroBase64(file) {
+    return new Promise(function(resolve, reject) {
+      var r = new FileReader();
+      r.onload  = function(e) { resolve(e.target.result); };
+      r.onerror = function()  { reject(new Error('Erro ao ler ficheiro.')); };
+      r.readAsDataURL(file);
+    });
+  }
+  // ── FIM helpers ──────────────────────────────────────────────────────────
+
   window.previewFotoForm = function(input) {
     var file = input.files[0]; if(!file) return;
     if(file.size > 2*1024*1024){ alert('Foto demasiado grande (máx. 2MB).'); input.value=''; return; }
     if(!file.type.match(/^image\/(jpeg|png|webp)$/)){ alert('Formato não suportado. Use JPG ou PNG.'); input.value=''; return; }
-    var reader = new FileReader();
-    reader.onload = function(e){
+    var est = document.getElementById('foto-form-estado');
+    if(est){ est.textContent='⏳ A processar…'; est.style.color='#6b7280'; }
+    _comprimirImagem(file).then(function(base64) {
+      _fotoBase64 = base64;
       var prev = document.getElementById('foto-preview-form');
-      var est  = document.getElementById('foto-form-estado');
       var imgAnt = prev.querySelector('img'); if(imgAnt) imgAnt.remove();
       prev.textContent='';
-      var img=document.createElement('img'); img.src=e.target.result;
+      var img=document.createElement('img'); img.src=base64;
       img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%';
       prev.appendChild(img);
       if(est){ est.textContent='✅ Foto pronta'; est.style.color='#16a34a'; }
-    };
-    reader.readAsDataURL(file);
+    }).catch(function(e){ alert('Erro ao processar foto: '+e.message); });
   };
 
   window.tratarUpload = function(input, areaId, nomeId, avisoId, maxMB) {
@@ -1170,18 +1194,28 @@
     const avisoEl  = document.getElementById(avisoId);
     if (!ficheiro) return;
 
-    const tamanhoMB = ficheiro.size / (1024 * 1024);
-    if (tamanhoMB > maxMB) {
-      avisoEl.textContent = `⚠️ Ficheiro demasiado grande (${tamanhoMB.toFixed(1)}MB). Máximo: ${maxMB}MB.`;
+    // Limite reduzido para caber no Firestore (Base64 ~33% maior)
+    const limiteKB = 700;
+    const tamanhoKB = ficheiro.size / 1024;
+    if (tamanhoKB > limiteKB) {
+      avisoEl.textContent = `⚠️ Ficheiro demasiado grande (${(tamanhoKB/1024).toFixed(1)}MB). Máximo: 700KB. Comprima o ficheiro antes de carregar.`;
       avisoEl.style.display = 'block';
       input.value = '';
       return;
     }
 
-    area.classList.add('tem-ficheiro');
-    nomeEl.textContent  = `✅ ${ficheiro.name} (${tamanhoMB.toFixed(2)}MB)`;
-    nomeEl.style.display = 'block';
-    avisoEl.style.display = 'none';
+    // Ler como Base64 e guardar em memória
+    _lerFicheiroBase64(ficheiro).then(function(base64) {
+      if (areaId === 'upload-bi-area')   { _biBase64   = base64; _biNome   = ficheiro.name; }
+      if (areaId === 'upload-cert-area') { _certBase64 = base64; _certNome = ficheiro.name; }
+      area.classList.add('tem-ficheiro');
+      nomeEl.textContent   = `✅ ${ficheiro.name} (${(tamanhoKB/1024).toFixed(2)}MB)`;
+      nomeEl.style.display = 'block';
+      avisoEl.style.display = 'none';
+    }).catch(function(e) {
+      avisoEl.textContent  = '⚠️ Erro ao processar ficheiro: ' + e.message;
+      avisoEl.style.display = 'block';
+    });
   };
 
   // ════════════════════════════════
@@ -1267,40 +1301,30 @@
     try {
       const g = id => document.getElementById(id)?.value?.trim() || '';
 
-      // Fazer upload dos ficheiros se existirem
+      // ── Foto: Base64 comprimido → documento funcionários ──
+      let fotoUrl = _funcDoc?.fotoUrl || '';
+      if (_fotoBase64) fotoUrl = _fotoBase64;
+
+      // ── BI e Cert: Base64 → sub-colecção ficheiros ──
       let urlBI   = _funcDoc?.urlBI   || '';
       let urlCert = _funcDoc?.urlCert || '';
-      let fotoUrl = _funcDoc?.fotoUrl || '';
 
-      const fotoFile = document.getElementById('upload-foto')?.files[0];
-      const biFile   = document.getElementById('upload-bi')?.files[0];
-      const certFile = document.getElementById('upload-cert')?.files[0];
-
-      if (fotoFile) {
-        btn.innerHTML = '<span class="spinner"></span> A carregar fotografia...';
-        try {
-          const refFoto = ref(storage, `fotos/${_funcDocId}/foto_${Date.now()}.${fotoFile.name.split('.').pop()}`);
-          const snapFoto = await uploadBytes(refFoto, fotoFile);
-          fotoUrl = await getDownloadURL(snapFoto.ref);
-        } catch(eUpload) { console.warn('Upload foto falhou:', eUpload); }
+      if (_biBase64) {
+        btn.innerHTML = '<span class="spinner"></span> A guardar Bilhete de Identidade...';
+        await setDoc(doc(db, 'funcionarios', _funcDocId, 'ficheiros', 'bi'), {
+          base64: _biBase64, nome: _biNome,
+          tipo: 'bi', guardadoEm: serverTimestamp()
+        });
+        urlBI = 'local';
       }
 
-      if (biFile) {
-        btn.innerHTML = '<span class="spinner"></span> A carregar Bilhete de Identidade...';
-        try {
-          const refBI = ref(storage, `funcionarios/${_funcDocId}/bi_${Date.now()}_${biFile.name}`);
-          const snapBI = await uploadBytes(refBI, biFile);
-          urlBI = await getDownloadURL(snapBI.ref);
-        } catch(eUpload) { console.warn('Upload BI falhou (Storage pode não estar activado):', eUpload); }
-      }
-
-      if (certFile) {
-        btn.innerHTML = '<span class="spinner"></span> A carregar Certificado...';
-        try {
-          const refCert = ref(storage, `funcionarios/${_funcDocId}/cert_${Date.now()}_${certFile.name}`);
-          const snapCert = await uploadBytes(refCert, certFile);
-          urlCert = await getDownloadURL(snapCert.ref);
-        } catch(eUpload) { console.warn('Upload Cert falhou:', eUpload); }
+      if (_certBase64) {
+        btn.innerHTML = '<span class="spinner"></span> A guardar Certificado...';
+        await setDoc(doc(db, 'funcionarios', _funcDocId, 'ficheiros', 'cert'), {
+          base64: _certBase64, nome: _certNome,
+          tipo: 'cert', guardadoEm: serverTimestamp()
+        });
+        urlCert = 'local';
       }
 
       btn.innerHTML = '<span class="spinner"></span> A guardar no sistema...';
