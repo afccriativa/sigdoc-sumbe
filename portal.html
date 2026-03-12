@@ -2667,7 +2667,7 @@
     _comprimirFotoPerfil(file).then(function(base64) {
       _perfilFotoNovaBase64 = base64;
       // Actualizar todos os avatares visíveis na página
-      ['perf-avatar','pt-avatar','dt-avatar','ds-av','pcv-avatar'].forEach(function(id) {
+      ['perf-avatar','pt-avatar','dt-avatar','ds-av'].forEach(function(id) {
         var av = document.getElementById(id); if (!av) return;
         var imgAnt = av.querySelector('img'); if (imgAnt) imgAnt.remove();
         av.textContent = '';
@@ -2676,7 +2676,7 @@
         img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
         av.appendChild(img);
       });
-      notif('📷 Nova foto pronta — clique em "Guardar alterações" para gravar.', 'notif-ok');
+      notif('📷 Nova foto pronta — clique em "Guardar telefone" para gravar.', 'notif-ok');
     }).catch(function(e) {
       notif('❌ Erro ao processar a foto: ' + e.message, 'notif-erro');
     });
@@ -3040,7 +3040,7 @@
 
       await updateDoc(ref, {
         mensagens:          arr,
-        estado:             'aberto',
+        estado:             'novo',
         ultimaMensagem:     texto.substring(0,80),
         ultimaMensagemEm:   serverTimestamp(),
         naoLidasSecretaria: (p.naoLidasSecretaria||0) + 1,
@@ -3066,7 +3066,7 @@
         unidade:           _funcDoc?.unidade || '',
         assunto,
         mensagens: [{texto:mensagem, autor:'funcionario', nomeAutor:_funcDoc?.nome||_utilizador.email, em:new Date().toISOString()}],
-        estado:            'aberto',
+        estado:            'novo',
         ultimaMensagem:    mensagem.substring(0,80),
         ultimaMensagemEm:  serverTimestamp(),
         criadoEm:          serverTimestamp(),
