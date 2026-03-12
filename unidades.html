@@ -134,6 +134,18 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .tipo-posto {background:rgba(245,158,11,.1);color:var(--amber)}
 .tipo-seccao{background:rgba(139,92,246,.1);color:#7c3aed}
 
+/* ── Badges de estado operacional ── */
+.u-estado-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 9px;border-radius:99px;
+  font-size:10px;font-weight:700;letter-spacing:.3px;
+}
+.est-operacional   {background:rgba(5,150,105,.12);color:#047857;border:1px solid rgba(5,150,105,.25)}
+.est-suspensa      {background:rgba(245,158,11,.12);color:#b45309;border:1px solid rgba(245,158,11,.3)}
+.est-construcao    {background:rgba(59,130,246,.12);color:#1d4ed8;border:1px solid rgba(59,130,246,.25)}
+.est-interditada   {background:rgba(220,38,38,.10);color:#b91c1c;border:1px solid rgba(220,38,38,.22)}
+.est-desactivada   {background:rgba(100,116,139,.10);color:#475569;border:1px solid rgba(100,116,139,.22)}
+
 .u-nome{
   font-size:15px;font-weight:800;color:var(--txt-1);
   line-height:1.3;margin-bottom:4px;
@@ -578,6 +590,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <button class="filtro" data-filtro="posto" onclick="setFiltro(this,'posto')">🏠 Postos</button>
 
       <button class="filtro" data-filtro="incompleto" onclick="setFiltro(this,'incompleto')">⚠️ Cobertura &lt;80%</button>
+      <span style="width:1px;background:var(--border);margin:0 2px;align-self:stretch"></span>
+      <button class="filtro" data-filtro="nao_operacional" onclick="setFiltro(this,'nao_operacional')" title="Suspensas, interditadas, em construção ou desactivadas">🔴 Não Operacionais</button>
     </div>
   </div>
 
@@ -734,6 +748,19 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <!-- TAB: Historial -->
       <div class="mef-tab-panel" id="tab-historial">
         <div class="mef-campo">
+          <label>Estado Operacional</label>
+          <select id="mf-estado">
+            <option value="operacional">🟢 Operacional</option>
+            <option value="temporariamente_suspensa">🟡 Temporariamente Suspensa</option>
+            <option value="em_construcao">🔵 Em Construção / Reabilitação</option>
+            <option value="interditada">🔴 Interditada</option>
+            <option value="desactivada">⚫ Desactivada</option>
+          </select>
+          <div style="font-size:11px;color:var(--txt-3);margin-top:6px">
+            Afecta a visibilidade nos filtros e nos relatórios de cobertura.
+          </div>
+        </div>
+        <div class="mef-campo">
           <label>Data de Inauguração</label>
           <input type="text" id="mf-inauguracao" placeholder="ex: 1987-03-15 ou Março de 1987"/>
         </div>
@@ -827,6 +854,28 @@ let FUNCIONARIOS_MAP = {}; // nome_unidade → [funcionarios]
 let SECCOES_MAP    = {}; // seccao → [funcionarios] (só DMS)
 let FILTRO_ACTIVO = 'todos';
 let DRAWER_ID     = null;
+
+// ── Estado operacional das unidades ─────────────────────────
+const ESTADO_CONFIG = {
+  operacional:          { label:'Operacional',           cls:'est-operacional', ic:'🟢' },
+  temporariamente_suspensa: { label:'Temporariamente Suspensa', cls:'est-suspensa',   ic:'🟡' },
+  em_construcao:        { label:'Em Construção/Reabilitação', cls:'est-construcao', ic:'🔵' },
+  interditada:          { label:'Interditada',           cls:'est-interditada', ic:'🔴' },
+  desactivada:          { label:'Desactivada',           cls:'est-desactivada', ic:'⚫' },
+};
+// Valor por omissão para documentos legados (campo activa:true era o padrão)
+const ESTADO_DEFAULT = 'operacional';
+
+function estadoConfig(u){
+  // Compatibilidade: se o campo ainda for booleano activa, converte
+  if(u.estado) return ESTADO_CONFIG[u.estado] || ESTADO_CONFIG.operacional;
+  if(u.activa === false) return ESTADO_CONFIG.desactivada;
+  return ESTADO_CONFIG.operacional; // default
+}
+function estadoBadgeHTML(u){
+  const cfg = estadoConfig(u);
+  return `<span class="u-estado-badge ${cfg.cls}">${cfg.ic} ${cfg.label}</span>`;
+}
 let MODAL_EF_ID   = null;
 
 // ── ID seguro para Firestore (sem caracteres especiais) ─────
@@ -892,7 +941,7 @@ async function seedUnidades(){
       const id  = toId(u.nome);
       const ref = doc(db, 'unidades_sanitarias', id);
       return setDoc(ref, {
-        id, nome: u.nome, tipo: u.tipo, activa: true,
+        id, nome: u.nome, tipo: u.tipo, estado: ESTADO_DEFAULT,
         servicos: u.servicos,
       }, { merge: true }).catch(e => console.warn('Seed skip:', u.nome, e.code));
     });
@@ -976,6 +1025,11 @@ function render(){
       const pct = u.cadastrados/esp*100;
       if(pct>=80) return false;
     }
+    // Filtro não operacional (tudo excepto operacional)
+    if(FILTRO_ACTIVO === 'nao_operacional'){
+      const ec = estadoConfig(u);
+      if(ec === ESTADO_CONFIG.operacional) return false;
+    }
     // Pesquisa
     if(PESQUISA){
       const haystack = [u.nome, u.tipo, ...(u.servicos||[])].join(' ').toLowerCase();
@@ -1015,7 +1069,10 @@ function cardHTML(u){
   return `
   <div class="u-card" onclick="abrirDrawer('${u.id}')">
     <div class="u-card-top">
-      <span class="u-tipo-badge ${tipoClasse(u.tipo)}">${tipoLabel(u.tipo)}</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;margin-bottom:4px">
+        <span class="u-tipo-badge ${tipoClasse(u.tipo)}">${tipoLabel(u.tipo)}</span>
+        ${estadoBadgeHTML(u)}
+      </div>
       <div class="u-nome">${u.nome}</div>
       <div class="u-local">${u.localizacao?.descricao||'Município do Sumbe, Cuanza Sul'}</div>
     </div>
@@ -1152,6 +1209,7 @@ function renderDrawerDMS(u){
         ${podeEd?`<button class="btn-ver" onclick="abrirModalFicha('${u.id}')">✏️ Editar ficha</button>`:''}
       </div>
       <div class="ds-row"><span class="ds-key">Tipo</span><span class="ds-val">Direcção Municipal de Saúde</span></div>
+      <div class="ds-row"><span class="ds-key">Estado</span><span class="ds-val">${estadoBadgeHTML(u)}</span></div>
       <div class="ds-row"><span class="ds-key">Município</span><span class="ds-val">Sumbe, Cuanza Sul</span></div>
       ${u.responsavel?.nome ? `
         <div class="ds-row"><span class="ds-key">Director</span>
@@ -1232,6 +1290,7 @@ function renderDrawer(u){
       </div>
       ${u.localizacao?.descricao ? `<div class="ds-row"><span class="ds-key">Localização</span><span class="ds-val">${u.localizacao.descricao}</span></div>` : ''}
       <div class="ds-row"><span class="ds-key">Tipo</span><span class="ds-val">${tipoLabel(u.tipo)}</span></div>
+      <div class="ds-row"><span class="ds-key">Estado</span><span class="ds-val">${estadoBadgeHTML(u)}</span></div>
       ${u.responsavel?.nome ? `
         <div class="ds-row"><span class="ds-key">Responsável</span>
           <span class="ds-val">
@@ -1406,6 +1465,7 @@ window.abrirModalFicha = function(id){
   renderChipsEdit();
 
   // Tab: Historial
+  document.getElementById('mf-estado').value      = u.estado || ESTADO_DEFAULT;
   document.getElementById('mf-inauguracao').value    = u.historial?.inauguradoEm||'';
   document.getElementById('mf-inaugurado-por').value = u.historial?.inauguradoPor||'';
   document.getElementById('mf-renovacao').value      = u.historial?.ultimaRenovacao||'';
@@ -1526,8 +1586,9 @@ window.guardarFicha = async function(){
   const u = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
 
   const dados = {
-    nome:          u?.nome   || '',   // garantir que nome nunca desaparece do Firestore
-    tipo:          u?.tipo   || '',   // idem para tipo — usado nos filtros e badges
+    nome:          u?.nome   || '',
+    tipo:          u?.tipo   || '',
+    estado:        document.getElementById('mf-estado').value || ESTADO_DEFAULT,
     responsavel,
     localizacao: {
       descricao:  document.getElementById('mf-localizacao').value.trim(),
