@@ -1235,13 +1235,8 @@
   import { getFirestore, collection, doc, getDoc, getDocs,
            addDoc, updateDoc, serverTimestamp, query, orderBy, where }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import {
-    getStorage, ref as sRef, uploadBytes, getDownloadURL
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
   const firebaseConfig = window.SIGDOC_CONFIG.config;
   const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app);
-  const storage = getStorage(app);
   const etiquetasPerfil={admin:"Administrador do Sistema",director:"Director Municipal",chefe:"Chefe de Secção",tecnico:"Técnico de RH",secretaria:"Secretaria",funcionario:"Funcionário de Unidade"};
   const perfisPermitidos=["admin","tecnico","chefe","director","secretaria"];
   let todosOsFuncionarios=[], utilizadorActual=null, funcionarioEmEdicao=null, _perfilActual=null;
@@ -1631,12 +1626,35 @@
   //  FOTOGRAFIA DO FUNCIONÁRIO — CADASTRO ADMINISTRATIVO
   // ══════════════════════════════════════════════════════
 
-  var _fotoNovaFile = null;     // File a fazer upload (se o utilizador escolheu nova foto)
-  var _fotoUrlActual = '';      // URL da foto já guardada (para não re-fazer upload se não mudou)
+  var _fotoNovaBase64 = null;   // Base64 da nova foto (guardado directamente no Firestore)
+  var _fotoUrlActual  = '';     // Base64 ou URL já guardada (para não re-processar se não mudou)
+
+  // Comprime e converte File para Base64 (máx. 400px, qualidade 0.82)
+  function _comprimirParaBase64(file) {
+    return new Promise(function(resolve, reject) {
+      var img = new Image();
+      var url = URL.createObjectURL(file);
+      img.onload = function() {
+        var MAX = 400;
+        var w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          var ratio = Math.min(MAX / w, MAX / h);
+          w = Math.round(w * ratio); h = Math.round(h * ratio);
+        }
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = function() { URL.revokeObjectURL(url); reject(new Error('Erro ao processar imagem.')); };
+      img.src = url;
+    });
+  }
 
   // Carrega preview da foto no bloco do formulário
   function carregarFotoAdmin(url, nome) {
-    _fotoNovaFile  = null;
+    _fotoNovaBase64 = null;
     _fotoUrlActual = url || '';
     var circulo = document.getElementById('foto-circulo-admin');
     var inicial = document.getElementById('foto-inicial-admin');
@@ -1670,35 +1688,29 @@
     if (!file.type.match(/^image\/(jpeg|png|webp)$/)) {
       notif('Formato não suportado. Use JPG, PNG ou WEBP.', 'erro'); input.value = ''; return;
     }
-    _fotoNovaFile = file;
-    var reader = new FileReader();
-    reader.onload = function(e) {
+    var estado = document.getElementById('foto-bloco-estado');
+    if (estado) { estado.textContent = '⏳ A processar foto…'; estado.style.color = '#6b7280'; }
+    _comprimirParaBase64(file).then(function(base64) {
+      _fotoNovaBase64 = base64;
       var circulo = document.getElementById('foto-circulo-admin');
-      var inicial = document.getElementById('foto-inicial-admin');
-      var estado  = document.getElementById('foto-bloco-estado');
+      var inicial  = document.getElementById('foto-inicial-admin');
       var imgAnterior = circulo.querySelector('img');
       if (imgAnterior) imgAnterior.remove();
       var img = document.createElement('img');
-      img.src = e.target.result; img.alt = 'Preview';
+      img.src = base64; img.alt = 'Preview';
       if (inicial) inicial.style.display = 'none';
       circulo.insertBefore(img, circulo.firstChild);
       if (estado) { estado.textContent = '📷 Nova foto pronta (será guardada ao clicar Guardar)'; estado.style.color = '#d97706'; }
-    };
-    reader.readAsDataURL(file);
+    }).catch(function(e) {
+      notif('Erro ao processar a foto: ' + e.message, 'erro');
+      if (estado) { estado.textContent = 'Sem fotografia'; estado.style.color = ''; }
+    });
   };
 
-  // Faz upload da foto para Storage e devolve URL (ou URL existente se não mudou)
-  async function uploadFotoSeNecessario(funcionarioId) {
-    if (!_fotoNovaFile) return _fotoUrlActual || null;  // sem alteração
-    try {
-      var path = 'fotos/' + funcionarioId + '/foto_' + Date.now() + '.' + _fotoNovaFile.name.split('.').pop();
-      var r = sRef(storage, path);
-      var snap = await uploadBytes(r, _fotoNovaFile);
-      return await getDownloadURL(snap.ref);
-    } catch(e) {
-      console.warn('Upload foto falhou (Storage pode não estar activo):', e);
-      return _fotoUrlActual || null;
-    }
+  // Devolve o Base64 da nova foto (ou o valor actual se não mudou) — sem Storage
+  async function uploadFotoSeNecessario(_ignorado) {
+    if (_fotoNovaBase64) return _fotoNovaBase64;
+    return _fotoUrlActual || null;
   }
 
   // ══════════════════════════════════════════════════════
@@ -1788,30 +1800,19 @@
     const btn = document.getElementById('btn-guardar');
     btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> A guardar...';
     try {
-      // ── Upload de foto (se houver nova foto ou actualização) ──
-      var funcId = funcionarioEmEdicao || null;
-      if (_fotoNovaFile) {
-        btn.innerHTML = '<span class="spinner"></span> A carregar fotografia...';
-        // Para novos funcionários ainda não temos o ID — usamos timestamp como placeholder
-        var uploadId = funcId || ('novo_' + Date.now());
-        var fotoUrl = await uploadFotoSeNecessario(uploadId);
-        if (fotoUrl) dados.fotoUrl = fotoUrl;
+      // ── Foto: Base64 já em memória, apenas atribuir ao objecto dados ──
+      if (_fotoNovaBase64) {
+        dados.fotoUrl = _fotoNovaBase64;
       } else if (_fotoUrlActual) {
         dados.fotoUrl = _fotoUrlActual;
       }
-      btn.innerHTML = '<span class="spinner"></span> A guardar...';
 
       if (funcionarioEmEdicao) {
         await updateDoc(doc(db,'funcionarios',funcionarioEmEdicao), dados);
         notif('✅ Funcionário "' + nome + '" actualizado!');
       } else {
         dados.criadoEm = serverTimestamp(); dados.criadoPor = utilizadorActual.uid;
-        var novoDoc = await addDoc(collection(db,'funcionarios'), dados);
-        // Se havia foto com ID temporário, actualizar para o ID real
-        if (_fotoNovaFile && dados.fotoUrl && dados.fotoUrl.includes('novo_')) {
-          var fotoReal = await uploadFotoSeNecessario(novoDoc.id);
-          if (fotoReal) await updateDoc(doc(db,'funcionarios',novoDoc.id), { fotoUrl: fotoReal });
-        }
+        await addDoc(collection(db,'funcionarios'), dados);
         notif('✅ Funcionário "' + nome + '" registado com sucesso!');
       }
       fecharFormulario(); carregarFuncionarios();
