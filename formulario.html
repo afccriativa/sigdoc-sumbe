@@ -1370,6 +1370,7 @@
         formularioPreenchidoPor: _utilizador.uid,
         formularioPendente: true,   // RH ainda não reviu
         formularioRevistoEm: null,  // preenchido pelo RH ao rever
+        actualizadoEm: serverTimestamp(),
       };
 
       await updateDoc(doc(db, "funcionarios", _funcDocId), dados);
