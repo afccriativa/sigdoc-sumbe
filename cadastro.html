@@ -1302,6 +1302,14 @@
       });
       actualizarIndicadores(); renderizarTabela(todosOsFuncionarios);
       actualizarBadgeFormPend();
+      // ── Deep-link: cadastro.html?abrir=ID (vindo de unidades.html) ──
+      const _deepId = new URLSearchParams(location.search).get('abrir');
+      if(_deepId){
+        // Limpar o param da URL sem recarregar (evita re-trigger em F5)
+        history.replaceState(null,'',location.pathname);
+        // Aguardar o modal estar pronto (render já ocorreu acima)
+        setTimeout(()=>{ window.verFicha && window.verFicha(decodeURIComponent(_deepId)); }, 80);
+      }
     }catch(e){console.error(e);notif("Erro ao carregar funcionários.","erro");}
   }
 
