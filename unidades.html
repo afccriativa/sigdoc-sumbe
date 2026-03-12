@@ -456,6 +456,21 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 }
 .resp-info b{font-size:13px;font-weight:700;color:var(--txt-1)}
 .resp-info small{font-size:11px;color:var(--txt-2)}
+.resp-outra-unidade{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 7px;border-radius:99px;margin-left:6px;
+  font-size:10px;font-weight:700;vertical-align:middle;
+  background:rgba(245,158,11,.12);color:#b45309;
+  border:1px solid rgba(245,158,11,.25);
+}
+.resp-aviso-wrap{
+  display:none;
+  align-items:flex-start;gap:8px;
+  padding:10px 12px;border-radius:var(--r-sm);
+  background:rgba(245,158,11,.08);
+  border:1px solid rgba(245,158,11,.25);
+  margin-bottom:10px;font-size:12px;line-height:1.5;color:#92400e;
+}
 .resp-selecionado{
   display:flex;align-items:center;gap:10px;
   padding:10px 12px;background:rgba(5,150,105,.06);
@@ -661,7 +676,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <!-- TAB: Responsável -->
       <div class="mef-tab-panel activo" id="tab-resp">
         <div style="font-size:13px;color:var(--txt-2);margin-bottom:16px;line-height:1.5">
-          Pesquise pelos funcionários cadastrados nesta unidade e seleccione o responsável / director.
+          Pesquise por qualquer funcionário cadastrado no sistema e seleccione o responsável / director.
         </div>
         <!-- Responsável actual -->
         <div class="resp-selecionado" id="resp-selecionado-wrap">
@@ -672,9 +687,14 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
           </div>
           <button class="resp-limpar" onclick="limparResponsavel()" title="Remover responsável">✕</button>
         </div>
+        <!-- Aviso: funcionário colocado noutra unidade -->
+        <div class="resp-aviso-wrap" id="resp-aviso-wrap">
+          <span style="font-size:16px;flex-shrink:0">⚠️</span>
+          <span id="resp-aviso-txt"></span>
+        </div>
         <!-- Pesquisa -->
         <div class="mef-campo">
-          <label>Pesquisar funcionário desta unidade</label>
+          <label>Pesquisar funcionário no sistema</label>
           <div class="resp-search-wrap">
             <input type="text" id="resp-pesquisa" placeholder="Nome ou número…" oninput="pesquisarResponsavel()"/>
           </div>
@@ -851,6 +871,7 @@ let UTILIZADOR    = null;
 let PERFIL_DOC    = null;
 let TODAS_UNIDADES = [];  // dados mesclados Firestore + base
 let FUNCIONARIOS_MAP = {}; // nome_unidade → [funcionarios]
+let TODOS_FUNCIONARIOS_FLAT = []; // todos os funcionários — para pesquisa de responsável sem restrição de unidade
 let SECCOES_MAP    = {}; // seccao → [funcionarios] (só DMS)
 let FILTRO_ACTIVO = 'todos';
 let DRAWER_ID     = null;
@@ -965,12 +986,15 @@ async function carregarTudo(){
     // 3. Buscar todos os funcionários activos
     const fSnaps = await getDocs(collection(db,'funcionarios'));
     FUNCIONARIOS_MAP = {};
+    TODOS_FUNCIONARIOS_FLAT = [];
     SECCOES_MAP = {};  // secção → [funcionarios] — só para DMS
     fSnaps.forEach(s=>{
       const d = s.data();
       const un = d.unidade||'';
+      const entry = {id:s.id, ...d};
+      TODOS_FUNCIONARIOS_FLAT.push(entry);       // lista plana global
       if(!FUNCIONARIOS_MAP[un]) FUNCIONARIOS_MAP[un]=[];
-      FUNCIONARIOS_MAP[un].push({id:s.id, ...d});
+      FUNCIONARIOS_MAP[un].push(entry);
       // Indexar por secção (apenas quem pertence à DMS)
       if(un === 'Direcção Municipal de Saúde do Sumbe' && d.seccao){
         if(!SECCOES_MAP[d.seccao]) SECCOES_MAP[d.seccao]=[];
@@ -1498,41 +1522,65 @@ window.toggleUrgencia = function(btn){ btn.classList.toggle('on'); };
 
 // ── Pesquisa responsável ───────────────────────────────────
 window.pesquisarResponsavel = function(){
-  const q     = document.getElementById('resp-pesquisa').value.toLowerCase().trim();
-  const u     = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
-  const funcs = FUNCIONARIOS_MAP[u?.nome||'']||[];
-  const box   = document.getElementById('resp-resultados');
+  const q   = document.getElementById('resp-pesquisa').value.toLowerCase().trim();
+  const u   = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
+  const box = document.getElementById('resp-resultados');
 
   if(!q){ box.style.display='none'; return; }
 
-  const resultados = funcs.filter(f=>{
+  // Pesquisar em TODOS os funcionários do sistema (não apenas os desta unidade)
+  const resultados = TODOS_FUNCIONARIOS_FLAT.filter(f=>{
     const nome = (f.nome||'').toLowerCase();
-    const num  = (f.numeroBeneficiario||'').toLowerCase();
+    const num  = (f.numero||f.numeroBeneficiario||'').toLowerCase();
     return nome.includes(q) || num.includes(q);
   });
 
   if(!resultados.length){
-    box.innerHTML='<div style="padding:12px;font-size:13px;color:var(--txt-3)">Nenhum funcionário encontrado nesta unidade.</div>';
+    box.innerHTML='<div style="padding:12px;font-size:13px;color:var(--txt-3)">Nenhum funcionário encontrado.</div>';
     box.style.display='block';
     return;
   }
 
-  box.innerHTML = resultados.slice(0,8).map(f=>`
-    <div class="resp-item" onclick="selecionarResponsavel(${JSON.stringify({
-      id: f.id,
-      nome: f.nome||f.nomeCompleto||'',
-      categoria: f.categoria||f.cargo||''
-    }).replace(/"/g,'&quot;')})">
+  // Ordenar: primeiro os desta unidade, depois os de outras
+  const nomU = u?.nome||'';
+  resultados.sort((a,b)=>{
+    const aLocal = (a.unidade||'') === nomU;
+    const bLocal = (b.unidade||'') === nomU;
+    if(aLocal && !bLocal) return -1;
+    if(!aLocal && bLocal) return 1;
+    return (a.nome||'').localeCompare(b.nome||'');
+  });
+
+  box.innerHTML = resultados.slice(0,10).map(f=>{
+    const nomU2 = u?.nome||'';
+    const outra = f.unidade && f.unidade !== nomU2;
+    const abrevU = (s='') => s
+      .replace('Centro de Saúde','CS')
+      .replace('Posto de Saúde','PS')
+      .replace('Direcção Municipal de Saúde do Sumbe','DMS');
+    const badge = outra
+      ? `<span class="resp-outra-unidade">📍 ${abrevU(f.unidade)}</span>`
+      : '';
+    const payload = JSON.stringify({
+      id:        f.id,
+      nome:      f.nome||f.nomeCompleto||'',
+      categoria: f.categoria||f.cargo||'',
+      unidade:   f.unidade||''
+    }).replace(/"/g,'&quot;');
+    return `<div class="resp-item" onclick="selecionarResponsavel(${payload})">
       <div class="resp-av">${(f.nome||'?')[0].toUpperCase()}</div>
-      <div class="resp-info">
-        <b>${f.nome||f.nomeCompleto||'—'}</b>
-        <small>${f.categoria||f.cargo||''} · Nº${f.numeroBeneficiario||'—'}</small>
+      <div class="resp-info" style="flex:1">
+        <b>${f.nome||f.nomeCompleto||'—'}${badge}</b>
+        <small>${f.categoria||f.cargo||'—'} · Nº ${f.numero||f.numeroBeneficiario||'—'}</small>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   box.style.display='block';
 };
 
 window.selecionarResponsavel = function(fObj){
+  const u    = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
+  const nomU = u?.nome||'';
   RESP_SELECIONADO = fObj;
   document.getElementById('resp-sel-av').textContent    = fObj.nome[0].toUpperCase();
   document.getElementById('resp-sel-nome').textContent  = fObj.nome;
@@ -1540,11 +1588,23 @@ window.selecionarResponsavel = function(fObj){
   document.getElementById('resp-selecionado-wrap').style.display = 'flex';
   document.getElementById('resp-pesquisa').value        = '';
   document.getElementById('resp-resultados').style.display = 'none';
+  // Aviso se o funcionário pertence a outra unidade
+  const avisoWrap = document.getElementById('resp-aviso-wrap');
+  const avisoTxt  = document.getElementById('resp-aviso-txt');
+  if(fObj.unidade && fObj.unidade !== nomU){
+    avisoTxt.innerHTML = '<strong>' + fObj.nome.split(' ')[0] + '</strong>'
+      + ' está actualmente colocado(a) em <strong>' + fObj.unidade + '</strong>.'
+      + ' Confirme a nomeação — a colocação no cadastro não é alterada automaticamente.';
+    avisoWrap.style.display = 'flex';
+  } else {
+    avisoWrap.style.display = 'none';
+  }
 };
 
 window.limparResponsavel = function(){
   RESP_SELECIONADO = null;
   document.getElementById('resp-selecionado-wrap').style.display = 'none';
+  document.getElementById('resp-aviso-wrap').style.display = 'none';
   document.getElementById('resp-cargo').value = '';
 };
 
