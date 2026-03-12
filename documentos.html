@@ -587,6 +587,7 @@
     await carregarFuncionarios();
     document.getElementById("data-emissao").value = new Date().toISOString().split("T")[0];
     await verificarParamsPortal();
+    await verificarParamSecretaria();
   });
 
   async function carregarFuncionarios() {
@@ -713,6 +714,49 @@
       numGuia.scrollIntoView({ behavior: 'smooth', block: 'center' });
       numGuia.style.border = '2px solid #f59e0b';
       numGuia.placeholder = '← Insira aqui o número da guia';
+    }, 300);
+  }
+
+  // Handler para deep-link vindo da Secretaria: documentos.html?func=<docId>&origem=secretaria
+  async function verificarParamSecretaria() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('origem') !== 'secretaria') return;
+    const funcId = params.get('func') || '';
+    const nome   = params.get('nome') ? decodeURIComponent(params.get('nome')) : '';
+    if (!funcId) return;
+
+    // Limpar o param da URL sem recarregar
+    history.replaceState(null, '', location.pathname);
+
+    // Aguardar lista carregada (já deveria estar, mas por segurança)
+    let t = 0;
+    while (todosFuncionarios.length === 0 && t < 20) {
+      await new Promise(r => setTimeout(r, 200)); t++;
+    }
+
+    // Seleccionar o funcionário directamente (doc ID já resolvido em index.html)
+    if (todosFuncionarios.find(f => f.id === funcId)) {
+      seleccionarFuncionario(funcId);
+    }
+
+    // Mostrar banner contextual — reutiliza o banner do portal com texto adaptado
+    const banner  = document.getElementById('banner-portal-origem');
+    const infoTxt = document.getElementById('bp-info-texto');
+    const titulo  = banner?.querySelector('.bp-titulo');
+    const badge   = banner?.querySelector('.bp-badge');
+    if (banner) {
+      if (titulo)  titulo.textContent  = '📋 Acesso via Secretaria';
+      if (infoTxt) infoTxt.textContent = nome
+        ? `Funcionário pré-seleccionado: ${nome}. Escolha o tipo de documento e preencha os campos necessários.`
+        : 'Funcionário pré-seleccionado a partir do chat da Secretaria.';
+      if (badge)   badge.textContent   = '🔗 Dados importados do chat — verifique antes de gerar';
+      banner.style.display = 'block';
+    }
+
+    // Focar no select de tipo de documento — é o próximo passo natural
+    setTimeout(() => {
+      const sel = document.getElementById('tipo-documento');
+      if (sel) { sel.focus(); sel.scrollIntoView({ behavior:'smooth', block:'center' }); }
     }, 300);
   }
 
