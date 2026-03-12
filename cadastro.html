@@ -1985,6 +1985,35 @@
     } catch(e) { console.warn("Auditoria de leitura falhou:", e); }
   }
 
+  // ── Helpers para abrir documentos da sub-colecção ficheiros ────────────
+  function _abrirBase64Cadastro(base64) {
+    try {
+      var parts  = base64.split(',');
+      var mime   = parts[0].match(/:(.*?);/)[1];
+      var binary = atob(parts[1]);
+      var arr    = new Uint8Array(binary.length);
+      for (var i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
+      var blob = new Blob([arr], { type: mime });
+      var url  = URL.createObjectURL(blob);
+      var win  = window.open(url, '_blank');
+      if (win) setTimeout(function() { URL.revokeObjectURL(url); }, 60000);
+    } catch(e) { alert('Erro ao abrir documento: ' + e.message); }
+  }
+
+  window.abrirDocFicha = async function(funcId, tipo, linkEl) {
+    if (linkEl) { linkEl._textoOrig = linkEl.innerHTML; linkEl.innerHTML = '⏳ A carregar…'; linkEl.style.pointerEvents='none'; }
+    try {
+      var snap = await getDoc(doc(db, 'funcionarios', funcId, 'ficheiros', tipo));
+      if (!snap.exists()) { alert('Documento não encontrado no sistema.'); return; }
+      _abrirBase64Cadastro(snap.data().base64);
+    } catch(e) {
+      alert('Erro ao carregar documento: ' + e.message);
+    } finally {
+      if (linkEl) { linkEl.innerHTML = linkEl._textoOrig; linkEl.style.pointerEvents=''; }
+    }
+  };
+  // ── Fim helpers docs ───────────────────────────────────────────────────
+
   window.verFicha=function(id){
     const f=todosOsFuncionarios.find(x=>x.id===id);if(!f)return;
 
@@ -2085,8 +2114,16 @@
       {r:"Estado Actual",v:{activo:"Em Serviço Activo",inactivo:"Inactivo",licenca:"De Licença"}[f.estado]||f.estado},
       {r:"Escolaridade",v:f.escolaridade},{r:"A frequentar curso?",v:acadInfo},
       ...(temDocs?[{r:"Documentos do Formulário",v:
-        (f.urlBI?`<a href="${f.urlBI}" target="_blank" style="color:var(--c-700);font-weight:700;">🪪 Ver BI</a>  `:"") +
-        (f.urlCert?`<a href="${f.urlCert}" target="_blank" style="color:var(--c-700);font-weight:700;">🎓 Ver Certificado</a>`:""),
+        (f.urlBI
+          ? (f.urlBI==='local'
+              ? `<a href="#" onclick="event.preventDefault();abrirDocFicha('${f.id}','bi',this)" style="color:var(--c-700);font-weight:700;">🪪 Ver BI</a>  `
+              : `<a href="${f.urlBI}" target="_blank" style="color:var(--c-700);font-weight:700;">🪪 Ver BI</a>  `)
+          : "") +
+        (f.urlCert
+          ? (f.urlCert==='local'
+              ? `<a href="#" onclick="event.preventDefault();abrirDocFicha('${f.id}','cert',this)" style="color:var(--c-700);font-weight:700;">🎓 Ver Certificado</a>`
+              : `<a href="${f.urlCert}" target="_blank" style="color:var(--c-700);font-weight:700;">🎓 Ver Certificado</a>`)
+          : ""),
         span2:true,html:true}]:[]),
       {r:"Naturalidade",v:(f.municipioNatal&&f.provinciaNatal)?f.municipioNatal+', '+f.provinciaNatal:(f.provinciaNatal||f.municipioNatal||null)},
       {r:"Nº de Assegurado INSS",v:f.inss||null},
