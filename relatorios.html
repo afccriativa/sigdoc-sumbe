@@ -557,6 +557,19 @@
     mostrarPrevia("Mapa — "+abrev(unid), ["Nº","Nome","Categoria","Unidade","Vínculo","Estado"], funcs.map(f=>[f.numero||"—",f.nome||"—",f.categoria||"—",abrev(f.unidade||"—"),lv(f.vinculo),le(f.estado||"activo")]));
   };
 
+  // Helper local: label de estado da unidade para relatórios
+  function estOpLabel(nome){
+    const u = _unidades[nome];
+    if(!u) return 'Operacional';
+    const map = {
+      operacional:'Operacional', temporariamente_suspensa:'Susp. Temporária',
+      em_construcao:'Em Construção', interditada:'Interditada', desactivada:'Desactivada'
+    };
+    if(u.estado) return map[u.estado] || u.estado;
+    if(u.activa===false) return 'Desactivada';
+    return 'Operacional';
+  }
+
   // ════════════════════════════════════════════════════════
   //  COBERTURA
   // ════════════════════════════════════════════════════════
@@ -565,13 +578,13 @@
     _funcs.forEach(f => { const u = f.unidade||"—"; cm[u]=(cm[u]||0)+1; });
     const todas = new Set([...Object.keys(cm),...Object.keys(_unidades)]);
     const lista = [...todas].filter(n=>n!=="—"&&n!=="Não especificada")
-      .map(nome=>({nome,cad:cm[nome]||0,esp:_unidades[nome]?.efectivo?.esperado||0}))
+      .map(nome=>({nome,cad:cm[nome]||0,esp:_unidades[nome]?.efectivo?.esperado||0,estOp:estOpLabel(nome)}))
       .sort((a,b)=>(b.esp||b.cad)-(a.esp||a.cad));
-    const cols   = ["Unidade Sanitária","Cadastrados","Efectivo Esperado","Cobertura (%)","Estado"];
+    const cols   = ["Unidade Sanitária","Est. Operacional","Cadastrados","Efectivo Esperado","Cobertura (%)","Nível"];
     const linhas = lista.map(u => {
       const cob = u.esp>0?Math.round(u.cad/u.esp*100):null;
       const est = cob===null?"Sem meta":cob>=90?"✓ Adequada":cob>=60?"⚠ Parcial":"✗ Crítica";
-      return [u.nome, u.cad, u.esp||"—", cob!==null?cob+"%":"—", est];
+      return [u.nome, u.estOp, u.cad, u.esp||"—", cob!==null?cob+"%":"—", est];
     });
     if (fmt==="excel") { downloadExcel(cols, linhas, "Relatorio_Cobertura_"+hoje()); notif("📊 Excel de cobertura gerado"); }
     else {
@@ -579,11 +592,12 @@
         const cob  = u.esp>0?Math.round(u.cad/u.esp*100):null;
         const ecls = cob===null?"":"badge "+(cob>=90?"ba":cob>=60?"bl":"bi");
         const txt  = cob===null?"s/meta":cob+"%";
-        return `<tr><td>${u.nome}</td><td style="text-align:center">${u.cad}</td><td style="text-align:center">${u.esp||"—"}</td><td style="text-align:center"><span class="${ecls}">${txt}</span></td></tr>`;
+        const naoOp = u.estOp !== 'Operacional';
+        return `<tr${naoOp?' style="opacity:.6"':''}><td>${u.nome}</td><td style="text-align:center;font-size:11px">${u.estOp}</td><td style="text-align:center">${u.cad}</td><td style="text-align:center">${u.esp||"—"}</td><td style="text-align:center"><span class="${ecls}">${txt}</span></td></tr>`;
       }).join("");
       const tot = lista.reduce((s,u)=>s+u.cad,0);
       const totEsp = lista.reduce((s,u)=>s+u.esp,0);
-      abrirPDF(`<h1>Relatório de Cobertura por Unidade</h1><div class="sub">Direcção Municipal de Saúde do Sumbe</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span></div><table><thead><tr><th>Unidade Sanitária</th><th>Cadastrados</th><th>Esperado</th><th>Cobertura</th></tr></thead><tbody>${rows}</tbody></table><div class="totais">Total cadastrados: <strong>${tot}</strong> &nbsp;|&nbsp; Total esperado: <strong>${totEsp||"—"}</strong></div>`, "Relatório de Cobertura");
+      abrirPDF(`<h1>Relatório de Cobertura por Unidade</h1><div class="sub">Direcção Municipal de Saúde do Sumbe</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span></div><table><thead><tr><th>Unidade Sanitária</th><th>Est. Operacional</th><th>Cadastrados</th><th>Esperado</th><th>Cobertura</th></tr></thead><tbody>${rows}</tbody></table><div class="totais">Total cadastrados: <strong>${tot}</strong> &nbsp;|&nbsp; Total esperado: <strong>${totEsp||"—"}</strong></div>`, "Relatório de Cobertura");
       notif("📄 PDF aberto em nova janela");
     }
   };
@@ -593,10 +607,10 @@
     _funcs.forEach(f => { const u = f.unidade||"—"; cm[u]=(cm[u]||0)+1; });
     const todas = new Set([...Object.keys(cm),...Object.keys(_unidades)]);
     const lista = [...todas].filter(n=>n!=="—"&&n!=="Não especificada")
-      .map(nome=>({nome,cad:cm[nome]||0,esp:_unidades[nome]?.efectivo?.esperado||0}))
+      .map(nome=>({nome,cad:cm[nome]||0,esp:_unidades[nome]?.efectivo?.esperado||0,estOp:estOpLabel(nome)}))
       .sort((a,b)=>(b.esp||b.cad)-(a.esp||a.cad));
-    mostrarPrevia("Cobertura", ["Unidade","Cadastrados","Esperado","Cobertura"],
-      lista.map(u=>{const c=u.esp>0?Math.round(u.cad/u.esp*100):null;return[abrev(u.nome),u.cad,u.esp||"—",c!==null?c+"%":"s/meta"];}));
+    mostrarPrevia("Cobertura", ["Unidade","Est. Operacional","Cadastrados","Esperado","Cobertura"],
+      lista.map(u=>{const c=u.esp>0?Math.round(u.cad/u.esp*100):null;return[abrev(u.nome),u.estOp,u.cad,u.esp||"—",c!==null?c+"%":"s/meta"];}));
   };
 
   // ════════════════════════════════════════════════════════
