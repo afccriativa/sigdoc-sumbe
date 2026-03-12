@@ -3013,7 +3013,7 @@
       await updateDoc(ref, {
         mensagens:           arr,
         historico:           hist,
-        estado:              'aberto',
+        estado:              'respondido',
         ultimaMensagem:      texto.substring(0,80),
         ultimaMensagemEm:    serverTimestamp(),
         naoLidasFuncionario: (p.naoLidasFuncionario||0) + 1,
