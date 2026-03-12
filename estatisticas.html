@@ -398,10 +398,8 @@
     const VINCULO_LABEL = { quadro: 'Pessoal do Quadro', provisorio: 'Provisório' };
     const ESTADO_LABEL  = { activo: 'Em Serviço', licenca: 'De Licença', inactivo: 'Inactivo' };
 
-    const abrvUnidade = n => n
-      .replace('Direcção Municipal de Saúde do Sumbe','DMS — Sede')
-      .replace('Centro de Saúde','CS')
-      .replace('Posto de Saúde','PS');
+    // Usar a função centralizada; passa override do Firestore quando disponível
+    const abrvUnidade = n => window.SIGDOC_CONFIG.abrvUnidade(n, _todasUnidades[n]?.nomeAbreviado);
 
     function buildSelect(id, label, opcoes, labelFn) {
       const opts = opcoes.map(v =>
@@ -786,10 +784,7 @@
   }
 
   function renderCobertura(funcs, unidades) {
-    const ab = n => n
-      .replace("Direcção Municipal de Saúde do Sumbe","DMS")
-      .replace("Centro de Saúde","CS")
-      .replace("Posto de Saúde","PS");
+    const ab = n => window.SIGDOC_CONFIG.abrvUnidade(n, unidades[n]?.nomeAbreviado);
 
     const elTit = document.getElementById("cob-titulo");
     const elSub = document.getElementById("cob-sub");
@@ -963,7 +958,7 @@
       });
       return;
     }
-    const ab = n => n.replace("Direcção Municipal de Saúde do Sumbe","DMS").replace("Centro de Saúde","CS").replace("Posto de Saúde","PS");
+    const ab = n => window.SIGDOC_CONFIG.abrvUnidade(n, _todasUnidades[n]?.nomeAbreviado);
     const bu = {}, bc = {};
     cs.forEach(f => {
       const u = ab(f.unidade || "—"); bu[u] = (bu[u] || 0) + Number(f.salarioBase);
