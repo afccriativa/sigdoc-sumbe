@@ -287,8 +287,12 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .func-item{
   display:flex;align-items:center;gap:10px;
   padding:10px 0;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .12s;border-radius:var(--r-sm);
+  padding-left:6px;padding-right:6px;margin-left:-6px;margin-right:-6px;
 }
 .func-item:last-child{border-bottom:none}
+.func-item:hover{background:rgba(18,65,161,.05)}
+.func-item:hover .func-link-ic{opacity:1}
 .func-av{
   width:36px;height:36px;border-radius:50%;
   background:var(--pri-10);color:var(--pri);
@@ -299,6 +303,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .func-nome{font-size:13px;font-weight:700;color:var(--txt-1)}
 .func-cat{font-size:11px;color:var(--txt-2);margin-top:1px}
 .func-num{font-family:var(--mono);font-size:11px;color:var(--txt-3)}
+.func-link-ic{font-size:11px;color:var(--txt-3);opacity:0;transition:opacity .15s;flex-shrink:0}
 
 /* ── MODAL EDITAR EFECTIVO ─────────────────────── */
 .modal-ov{
@@ -1187,13 +1192,15 @@ function renderDrawerDMS(u){
         </div>
         <div class="sec-lista" style="display:none;padding-left:4px">
           ${funcs.length ? funcs.map(f=>`
-            <div class="func-item">
+            <div class="func-item" onclick="window.open('cadastro.html?abrir='+encodeURIComponent(f.id),'_self')" title="Ver ficha de ${f.nome||'—'}">
               <div class="func-av">${(f.nome||'?')[0].toUpperCase()}</div>
               <div class="func-info">
                 <div class="func-nome">${f.nome||'—'}</div>
                 <div class="func-cat">${f.categoria||f.cargo||''}</div>
               </div>
               <div class="func-num">${f.numeroBeneficiario||''}</div>
+              <span class="func-link-ic">→</span>
+            </div>
             </div>`).join('') :
             `<div style="font-size:12px;color:var(--txt-3);padding:10px 0 4px">
                Nenhum funcionário cadastrado nesta secção.
@@ -1219,12 +1226,14 @@ function renderDrawerDMS(u){
       </div>
       <div class="sec-lista" style="display:none;padding-left:4px">
         ${semSeccao.map(f=>`
-          <div class="func-item">
+          <div class="func-item" onclick="window.open('cadastro.html?abrir='+encodeURIComponent(f.id),'_self')" title="Ver ficha de ${f.nome||'—'}">
             <div class="func-av">${(f.nome||'?')[0].toUpperCase()}</div>
             <div class="func-info">
               <div class="func-nome">${f.nome||'—'}</div>
               <div class="func-cat">${f.categoria||f.cargo||''}</div>
             </div>
+            <span class="func-link-ic">→</span>
+          </div>
           </div>`).join('')}
       </div>
     </div>` : '';
@@ -1354,13 +1363,15 @@ function renderDrawer(u){
       ${funcs.length ? `
         <div style="max-height:220px;overflow-y:auto">
           ${funcs.map(f=>`
-            <div class="func-item">
+            <div class="func-item" onclick="window.open('cadastro.html?abrir='+encodeURIComponent(f.id),'_self')" title="Ver ficha de ${f.nome||f.nomeCompleto||'—'}">
               <div class="func-av">${(f.nome||f.nomeCompleto||'?')[0].toUpperCase()}</div>
               <div class="func-info">
                 <div class="func-nome">${f.nome||f.nomeCompleto||'—'}</div>
                 <div class="func-cat">${f.categoria||f.cargo||''}</div>
               </div>
               <div class="func-num">${f.numeroBeneficiario||''}</div>
+              <span class="func-link-ic">→</span>
+            </div>
             </div>`).join('')}
         </div>
       ` : `<div style="font-size:13px;color:var(--txt-3);padding:12px 0">Nenhum funcionário cadastrado nesta unidade.</div>`}
