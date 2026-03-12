@@ -1375,15 +1375,22 @@
       await updateDoc(doc(db, "funcionarios", _funcDocId), dados);
 
       // Esconder formulário, mostrar confirmação
-      document.getElementById('form-wrap') && (document.querySelector('.form-wrap').style.display = 'none');
-      document.querySelector('.progresso-wrap').style.display = 'none';
-      document.querySelector('.hero').style.display = 'none';
-      document.getElementById('nav-form').style.display = 'none';
+      const formWrap = document.querySelector('.form-wrap');
+      if (formWrap) formWrap.style.display = 'none';
+      const progressoWrap = document.querySelector('.progresso-wrap');
+      if (progressoWrap) progressoWrap.style.display = 'none';
+      const hero = document.querySelector('.hero');
+      if (hero) hero.style.display = 'none';
+      const navForm = document.getElementById('nav-form');
+      if (navForm) navForm.style.display = 'none';
       document.getElementById('pagina-conf').style.display = 'block';
       document.getElementById('conf-texto').innerHTML =
         `Os dados de <strong>${dados.nome}</strong> foram guardados com sucesso no sistema da Direcção Municipal da Saúde do Sumbe.<br><br>
         A equipa de RH irá rever e validar as suas informações. Pode regressar ao portal para consultar as suas solicitações.`;
 
+      // Repor botão (embora o formulário já não seja visível)
+      btn.disabled = false;
+      btn.innerHTML = '📤 Confirmar e Submeter Formulário';
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch(e) {
