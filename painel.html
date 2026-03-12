@@ -671,6 +671,77 @@
 
     </div>
 
+    <!-- LINHA 4 — SECRETARIA -->
+    <div class="secao-titulo" style="margin-top:32px">Secretaria — Actividade do Período</div>
+    <div class="grid-graficos-terceiro">
+
+      <!-- KPIs Secretaria -->
+      <div class="card-grafico">
+        <div class="card-cabecalho">
+          <div>
+            <h3>✉️ Pedidos e Reuniões</h3>
+            <p id="sec-kpi-sub">A calcular…</p>
+          </div>
+          <span class="badge-live">● Ao vivo</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px" id="sec-kpi-grid">
+          <div style="text-align:center;padding:14px 8px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.18);border-radius:10px">
+            <div style="font-size:26px;font-weight:800;color:#60a5fa" id="sk-total">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Total pedidos</div>
+          </div>
+          <div style="text-align:center;padding:14px 8px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);border-radius:10px">
+            <div style="font-size:26px;font-weight:800;color:#f87171" id="sk-abertos">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Em aberto</div>
+          </div>
+          <div style="text-align:center;padding:14px 8px;background:rgba(16,200,134,.08);border:1px solid rgba(16,200,134,.18);border-radius:10px">
+            <div style="font-size:26px;font-weight:800;color:#34d399" id="sk-taxa">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Taxa resolução</div>
+          </div>
+        </div>
+        <!-- Tempo médio de resposta -->
+        <div style="display:flex;gap:12px;margin-bottom:20px">
+          <div style="flex:1;padding:12px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.18);border-radius:10px">
+            <div style="font-size:18px;font-weight:800;color:#fbbf24" id="sk-tempo">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Tempo médio 1ª resposta</div>
+          </div>
+          <div style="flex:1;padding:12px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.18);border-radius:10px">
+            <div style="font-size:18px;font-weight:800;color:#c4b5fd" id="sk-reunioes">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Reuniões realizadas</div>
+          </div>
+        </div>
+        <!-- Top unidades solicitantes -->
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Pedidos por unidade (top 5)</div>
+        <div id="sec-top-unidades" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+
+      <!-- Pedidos por assunto -->
+      <div class="card-grafico">
+        <div class="card-cabecalho">
+          <div>
+            <h3>📋 Pedidos por Assunto</h3>
+            <p>Volume acumulado no período</p>
+          </div>
+        </div>
+        <div id="sec-barras-assunto" style="display:flex;flex-direction:column;gap:10px;margin-top:4px"></div>
+      </div>
+
+      <!-- Reuniões por estado -->
+      <div class="card-grafico">
+        <div class="card-cabecalho">
+          <div>
+            <h3>📅 Reuniões por Estado</h3>
+            <p>Distribuição acumulada no período</p>
+          </div>
+        </div>
+        <div id="sec-reunioes-estados" style="display:flex;flex-direction:column;gap:8px;margin-top:4px"></div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Pedidos por estado</div>
+          <div id="sec-pedidos-estados" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+      </div>
+
+    </div>
+
   </div><!-- /conteudo -->
 
   <div class="rodape">SIGDOC-SUMBE · Direcção Municipal da Saúde do Sumbe · Módulo 6 — Painel de Gestão</div>
@@ -806,28 +877,30 @@
     try {
       // funcionarios: sem filtro temporal (dados mestres — não crescem como docs)
       // documentos e sessoes: filtrados pelo período seleccionado
-      const [funcionarios, documentos, sessoes, snapUnidades] = await Promise.all([
+      const [funcionarios, documentos, sessoes, snapUnidades, pedidosSec, reunioes] = await Promise.all([
         fetchColeccao("funcionarios"),
         fetchColeccao("documentos", "geradoEm",  opcoes),
         fetchColeccao("sessoes",    "timestamp", opcoes),
-        getDocs(collection(db, "unidades_sanitarias")).catch(()=>({docs:[],forEach:()=>{}}))
+        getDocs(collection(db, "unidades_sanitarias")).catch(()=>({docs:[],forEach:()=>{}})),
+        fetchColeccao("pedidos_secretaria", "criadoEm", opcoes),
+        fetchColeccao("reunioes",           "criadoEm", opcoes)
       ]);
-      // Mapa nome→esperado + nomeAbreviado a partir da colecção unidades_sanitarias
+      // Mapa nome→esperado a partir da colecção unidades_sanitarias
       const ESPERADO_MAP = {};
-      const ABRV_MAP     = {};
-      snapUnidades.forEach(s=>{ const d=s.data(); if(d.nome){ ESPERADO_MAP[d.nome]=d.efectivo?.esperado||0; ABRV_MAP[d.nome]=d.nomeAbreviado||''; } });
+      snapUnidades.forEach(s=>{ const d=s.data(); if(d.nome) ESPERADO_MAP[d.nome]=d.efectivo?.esperado||0; });
 
       calcularKPIs(funcionarios, documentos);
       renderGraficoMensal(documentos, inicio);
       renderDonut(documentos);
-      renderBarrasUnidades(funcionarios, ESPERADO_MAP, ABRV_MAP);
+      renderBarrasUnidades(funcionarios, ESPERADO_MAP);
       renderBarrasCategorias(funcionarios);
       renderMiniEstat(funcionarios, documentos, sessoes);
-      renderTabelaUnidades(funcionarios, documentos, ESPERADO_MAP, ABRV_MAP);
+      renderTabelaUnidades(funcionarios, documentos, ESPERADO_MAP);
       renderFeed(documentos, sessoes);
+      renderSecretaria(pedidosSec, reunioes);
 
       heroSub.textContent =
-        `${documentos.length} docs · ${funcionarios.length} funcionários · ${labelPeriodo}`;
+        `${documentos.length} docs · ${funcionarios.length} funcionários · ${pedidosSec.length} pedidos sec. · ${labelPeriodo}`;
       mostrarNotif(
         `✅ Painel actualizado — ${documentos.length} docs (${labelPeriodo})`,
         "sucesso"
@@ -1024,7 +1097,7 @@
   }
 
   // ── BARRAS HORIZONTAIS — UNIDADES ──
-  function renderBarrasUnidades(funcs, esperadoMap, abrvMap) {
+  function renderBarrasUnidades(funcs, esperadoMap) {
     // Contar cadastrados por unidade
     const cadMap = {};
     funcs.forEach(f => {
@@ -1067,7 +1140,9 @@
       else if(cobertura >= 60)    { pctClass='cob-pct-amarelo';  fillClass='fill-amarelo-grad'; }
       else                        { pctClass='cob-pct-vermelho'; fillClass='fill-vermelho-grad'; }
 
-      const nomeAbrev = window.SIGDOC_CONFIG.abrvUnidade(u.nome, (abrvMap||{})[u.nome]);
+      const nomeAbrev = u.nome.replace('Centro de Saúde','CS').replace('Posto de Saúde','PS')
+                              .replace('Direcção Municipal de Saúde do Sumbe','DMS')
+                              .replace('Secção de ','Sec. ');
 
       return `
       <div class="cob-item">
@@ -1118,7 +1193,7 @@
   }
 
   // ── TABELA UNIDADES ──
-  function renderTabelaUnidades(funcs, docs, esperadoMap, abrvMap) {
+  function renderTabelaUnidades(funcs, docs, esperadoMap) {
     const unidades = {};
     funcs.forEach(f => {
       const u = f.unidade || 'Não especificada';
@@ -1145,7 +1220,7 @@
       else                cobHTML = `<span class="pill-cob pill-cob-vermelho">↓ ${cob}%</span>`;
 
       return `<tr>
-        <td style="font-weight:600;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${nome}">${window.SIGDOC_CONFIG.abrvUnidade(nome, (abrvMap||{})[nome])}</td>
+        <td style="font-weight:600;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${nome}">${nome}</td>
         <td style="font-family:'DM Mono',monospace;font-weight:800;color:#60a5fa">${u.cadastrados}</td>
         <td style="font-family:'DM Mono',monospace;color:rgba(255,255,255,.4)">${esp||'—'}</td>
         <td>${cobHTML}</td>
@@ -1198,6 +1273,128 @@
         <div class="feed-hora">${fmtDataCurta(e.ts)}<br>${fmtHora(e.ts)}</div>
       </div>`;
     }).join("") || '<div style="text-align:center;padding:30px;color:rgba(255,255,255,.3)">Sem actividade recente.</div>';
+  }
+
+  // ── SECRETARIA ──
+  const ASSUNTOS_PAINEL = {
+    'ferias-licencas':'Férias/Licenças','abonos-salarios':'Abonos/Salários',
+    'documentacao':'Documentação','transferencias':'Transferências',
+    'escalas':'Escalas','outro':'Outro'
+  };
+  const CORES_ASSUNTO = ['#3b82f6','#10c886','#f59e0b','#a78bfa','#ef4444','#22d3ee'];
+
+  function renderSecretaria(pedidos, reunioes) {
+    const labelPer = _periodoActual > 0 ? `últimos ${_periodoActual} dias` : 'todos os registos';
+    document.getElementById('sec-kpi-sub').textContent = `${pedidos.length} pedidos · ${labelPer}`;
+
+    // KPIs principais
+    const total    = pedidos.length;
+    const abertos  = pedidos.filter(p => p.estado !== 'fechado').length;
+    const fechados = pedidos.filter(p => p.estado === 'fechado').length;
+    const taxa     = total > 0 ? Math.round((fechados / total) * 100) : 0;
+    document.getElementById('sk-total').textContent   = total;
+    document.getElementById('sk-abertos').textContent = abertos;
+    document.getElementById('sk-taxa').textContent    = taxa + '%';
+
+    // Tempo médio de 1ª resposta (respondidoEm - criadoEm)
+    const comResposta = pedidos.filter(p => p.respondidoEm && p.criadoEm);
+    let tempoMedio = '—';
+    if (comResposta.length > 0) {
+      const totalMs = comResposta.reduce((acc, p) => {
+        const criado     = toDate(p.criadoEm);
+        const respondido = toDate(p.respondidoEm);
+        return acc + (respondido && criado ? respondido - criado : 0);
+      }, 0);
+      const mediaH = totalMs / comResposta.length / 3600000;
+      tempoMedio = mediaH < 1
+        ? Math.round(mediaH * 60) + ' min'
+        : mediaH < 24 ? mediaH.toFixed(1) + ' h' : (mediaH / 24).toFixed(1) + ' dias';
+    }
+    document.getElementById('sk-tempo').textContent = tempoMedio;
+
+    // Reuniões realizadas
+    const realizadas = reunioes.filter(r => r.estado === 'realizada').length;
+    document.getElementById('sk-reunioes').textContent = realizadas + ' / ' + reunioes.length;
+
+    // Top 5 unidades solicitantes
+    const porUnidade = {};
+    pedidos.forEach(p => { const u = p.unidade||'(sem unidade)'; porUnidade[u]=(porUnidade[u]||0)+1; });
+    const topUnidades = Object.entries(porUnidade).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const maxU = topUnidades[0]?.[1] || 1;
+    const abrvU = window.SIGDOC_CONFIG?.abrvUnidade || (n=>n);
+    document.getElementById('sec-top-unidades').innerHTML = topUnidades.map(([u,n]) => {
+      const pct = Math.round((n/maxU)*100);
+      return `<div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+          <span style="font-size:11px;color:var(--txt)">${abrvU(u)}</span>
+          <span style="font-size:11px;font-weight:700;color:var(--blue)">${n}</span>
+        </div>
+        <div style="height:5px;background:rgba(255,255,255,.07);border-radius:3px">
+          <div style="height:5px;width:${pct}%;background:var(--blue);border-radius:3px"></div>
+        </div>
+      </div>`;
+    }).join('') || '<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">Sem dados</div>';
+
+    // Barras por assunto
+    const porAssunto = {};
+    pedidos.forEach(p => { const a = p.assunto||'outro'; porAssunto[a]=(porAssunto[a]||0)+1; });
+    const assuntos = Object.entries(porAssunto).sort((a,b)=>b[1]-a[1]);
+    const maxA = assuntos[0]?.[1] || 1;
+    document.getElementById('sec-barras-assunto').innerHTML = assuntos.map(([k,n],i) => {
+      const cor = CORES_ASSUNTO[i % CORES_ASSUNTO.length];
+      const pct = Math.round((n/maxA)*100);
+      return `<div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+          <span style="font-size:12px;color:var(--txt)">${ASSUNTOS_PAINEL[k]||k}</span>
+          <span style="font-size:12px;font-weight:700;color:${cor}">${n}</span>
+        </div>
+        <div style="height:6px;background:rgba(255,255,255,.07);border-radius:3px">
+          <div style="height:6px;width:${pct}%;background:${cor};border-radius:3px"></div>
+        </div>
+      </div>`;
+    }).join('') || '<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px">Sem pedidos no período</div>';
+
+    // Reuniões por estado
+    const ESTADOS_REUN = {pendente:'#f59e0b',confirmada:'#10b981',recusada:'#ef4444',remarcada:'#6366f1',realizada:'#8b5cf6'};
+    const LABELS_REUN  = {pendente:'Pendente',confirmada:'Confirmada',recusada:'Recusada',remarcada:'Remarcada',realizada:'Realizada'};
+    const porEstadoR = {};
+    reunioes.forEach(r => { const e = r.estado||'pendente'; porEstadoR[e]=(porEstadoR[e]||0)+1; });
+    const maxR = Math.max(...Object.values(porEstadoR), 1);
+    document.getElementById('sec-reunioes-estados').innerHTML = Object.entries(porEstadoR)
+      .sort((a,b)=>b[1]-a[1]).map(([e,n]) => {
+        const cor = ESTADOS_REUN[e]||'#94a3b8';
+        const pct = Math.round((n/maxR)*100);
+        return `<div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <span style="font-size:12px;color:var(--txt)">${LABELS_REUN[e]||e}</span>
+            <span style="font-size:12px;font-weight:700;color:${cor}">${n}</span>
+          </div>
+          <div style="height:6px;background:rgba(255,255,255,.07);border-radius:3px">
+            <div style="height:6px;width:${pct}%;background:${cor};border-radius:3px"></div>
+          </div>
+        </div>`;
+      }).join('') || '<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">Sem reuniões no período</div>';
+
+    // Pedidos por estado
+    const LABELS_P = {novo:'Novos',em_analise:'Em análise',respondido:'Respondido',fechado:'Fechado'};
+    const CORES_P  = {novo:'#60a5fa',em_analise:'#fcd34d',respondido:'#6ee7b7',fechado:'#94a3b8'};
+    const porEstadoP = {};
+    pedidos.forEach(p => { const e = p.estado||'novo'; porEstadoP[e]=(porEstadoP[e]||0)+1; });
+    const maxP = Math.max(...Object.values(porEstadoP), 1);
+    document.getElementById('sec-pedidos-estados').innerHTML = Object.entries(porEstadoP)
+      .sort((a,b)=>b[1]-a[1]).map(([e,n]) => {
+        const cor = CORES_P[e]||'#94a3b8';
+        const pct = Math.round((n/maxP)*100);
+        return `<div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+            <span style="font-size:11px;color:var(--txt)">${LABELS_P[e]||e}</span>
+            <span style="font-size:11px;font-weight:700;color:${cor}">${n}</span>
+          </div>
+          <div style="height:4px;background:rgba(255,255,255,.07);border-radius:2px">
+            <div style="height:4px;width:${pct}%;background:${cor};border-radius:2px"></div>
+          </div>
+        </div>`;
+      }).join('') || '<div style="font-size:11px;color:var(--muted);text-align:center;padding:6px">—</div>';
   }
 </script>
 <div class="toast" id="notificacao-painel"></div>
