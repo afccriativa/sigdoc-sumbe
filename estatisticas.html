@@ -208,6 +208,26 @@
     #notif{position:fixed;bottom:20px;right:20px;z-index:9999;background:#1e2a3a;border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none}
     #notif.v{opacity:1;transform:translateY(0)}
 
+    /* ── BARRA DE PERÍODO GLOBAL ── */
+    #periodo-global-wrap{background:#fff;border-bottom:1px solid #e2e8f0;padding:8px 24px;display:none;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:56px;z-index:39}
+    .pg-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;white-space:nowrap}
+    .pg-btns{display:flex;gap:6px;flex-wrap:wrap}
+    .pg-btn{padding:5px 14px;border-radius:20px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+    .pg-btn:hover{background:#f1f5f9;border-color:#cbd5e1;color:#0f172a}
+    .pg-btn-activo{background:rgba(16,200,134,.1)!important;border-color:rgba(16,200,134,.35)!important;color:#059669!important}
+    .pg-info{font-size:11px;color:#94a3b8;margin-left:auto;white-space:nowrap}
+    /* ── KPIs DE ACTIVIDADE ── */
+    .act-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+    @media(max-width:700px){.act-strip{grid-template-columns:1fr}}
+    .act-kpi{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;display:flex;align-items:flex-start;gap:14px;transition:box-shadow .2s}
+    .act-kpi:hover{box-shadow:0 4px 16px rgba(0,0,0,.07)}
+    .act-kpi-icone{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+    .act-kpi-corpo{flex:1;min-width:0}
+    .act-kpi-val{font-size:28px;font-weight:800;font-family:'DM Mono',monospace;line-height:1;letter-spacing:-1px}
+    .act-kpi-lbl{font-size:11px;color:#64748b;margin-top:4px;font-weight:500}
+    .act-kpi-delta{font-size:10px;margin-top:6px;padding:2px 8px;border-radius:20px;display:inline-block;font-weight:600}
+    /* ── GRÁFICO EVOLUÇÃO ── */
+    .evo-wrap{overflow-x:auto;padding-bottom:4px}
     /* ── TEMA SIGDOC UNIFICADO — overrides de cor ── */
     body{background:#f8fafc;color:#0f172a}
     .spinner{border:2px solid rgba(0,0,0,.1);border-top-color:#10c886}
@@ -301,6 +321,7 @@
     </div>
   </div>
   <div id="filtros-wrap" style="display:none"></div>
+  <div id="periodo-global-wrap"></div>
   <div class="content" id="content">
     <div style="display:flex;align-items:center;gap:10px;padding:40px;color:rgba(255,255,255,.4);font-size:13px">
       <div class="spinner"></div> A carregar estatísticas…
@@ -335,6 +356,8 @@
   let _pedidosSec    = [];    // pedidos_secretaria — independente dos filtros RH
   let _reunioesSec   = [];    // reunioes — independente dos filtros RH
   let _periodoSec    = 90;    // período activo da secção de secretaria (dias)
+  let _todosOsDocs   = [];    // documentos — actividade temporal
+  let _periodoDocs   = 90;    // período global activo (dias) — 0 = tudo
 
   let _nt;
   function notif(msg) {
@@ -402,11 +425,12 @@
   async function carregarEstatisticas(perfil) {
     _perfilActual = perfil;
     try {
-      const [snapF, snapU, snapP, snapR] = await Promise.all([
+      const [snapF, snapU, snapP, snapR, snapD] = await Promise.all([
         getDocs(collection(db, "funcionarios")),
         getDocs(collection(db, "unidades_sanitarias")).catch(() => null),
         getDocs(query(collection(db,"pedidos_secretaria"), orderBy("criadoEm","desc"))).catch(()=>({docs:[]})),
-        getDocs(query(collection(db,"reunioes"),           orderBy("criadoEm","desc"))).catch(()=>({docs:[]}))
+        getDocs(query(collection(db,"reunioes"),           orderBy("criadoEm","desc"))).catch(()=>({docs:[]})),
+        getDocs(query(collection(db,"documentos"),         orderBy("geradoEm","desc"))).catch(()=>({docs:[]}))
       ]);
 
       _todosOsFuncs = snapF.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -414,6 +438,7 @@
       if (snapU) snapU.forEach(d => { const u = d.data(); if (u.nome) _todasUnidades[u.nome] = u; });
       _pedidosSec  = snapP.docs.map(d => ({id:d.id,...d.data()}));
       _reunioesSec = snapR.docs.map(d => ({id:d.id,...d.data()}));
+      _todosOsDocs = snapD.docs.map(d => ({id:d.id,...d.data()}));
 
       const activos = _todosOsFuncs.filter(f => !f.estado || f.estado === "activo").length;
       document.getElementById("topbar-sub").textContent =
@@ -488,6 +513,17 @@
           <button class="btn-limpar" id="btn-limpar" onclick="window._limparFiltros()">✕ Limpar</button>
         </div>
       </div>`;
+
+    // Barra de período global
+    const pgWrap = document.getElementById('periodo-global-wrap');
+    pgWrap.style.display = 'flex';
+    const PERIODOS = [{dias:30,label:'30 dias'},{dias:90,label:'90 dias'},{dias:180,label:'6 meses'},{dias:365,label:'1 ano'},{dias:0,label:'Tudo'}];
+    pgWrap.innerHTML =
+      `<span class="pg-label">⏱ Período de actividade</span>
+       <div class="pg-btns" id="pg-btns">
+         ${PERIODOS.map(p=>`<button class="pg-btn${_periodoDocs===p.dias?' pg-btn-activo':''}" onclick="window._setPeriodoGlobal(${p.dias})">${p.label}</button>`).join('')}
+       </div>
+       <span class="pg-info" id="pg-info">Afecta documentos, secretaria e evolução</span>`;
   }
 
   window._aplicarFiltros = function() {
@@ -540,6 +576,52 @@
     render(_todosOsFuncs, _todasUnidades, _perfilActual);
   };
 
+  // ── helper: filtrar documentos pelo período global ──
+  function _filtrarDocsPeriodo() {
+    if (!_periodoDocs) return _todosOsDocs;
+    const limiar = Date.now() - _periodoDocs * 86400000;
+    return _todosOsDocs.filter(d => {
+      const ts = d.geradoEm;
+      if (!ts) return false;
+      const ms = ts.toDate ? ts.toDate().getTime() : (ts.seconds ? ts.seconds*1000 : new Date(ts).getTime());
+      return ms >= limiar;
+    });
+  }
+
+  // ── helper: filtrar por criadoEm genérico ──
+  function _filtrarPorData(arr, dias, campo) {
+    if (!dias) return arr;
+    const limiar = Date.now() - dias * 86400000;
+    return arr.filter(d => {
+      const ts = d[campo];
+      if (!ts) return false;
+      const ms = ts.toDate ? ts.toDate().getTime() : (ts.seconds ? ts.seconds*1000 : new Date(ts).getTime());
+      return ms >= limiar;
+    });
+  }
+
+  window._setPeriodoGlobal = function(dias) {
+    _periodoDocs = dias;
+    _periodoSec  = dias;
+    // Actualizar botões
+    document.querySelectorAll('.pg-btn').forEach(b => {
+      b.classList.toggle('pg-btn-activo', parseInt(b.textContent === 'Tudo' ? 0 : 0) === dias || b.onclick.toString().includes('('+dias+')'));
+    });
+    // Forma mais fiável de actualizar botões
+    document.querySelectorAll('#pg-btns .pg-btn').forEach(b => {
+      const onclk = b.getAttribute('onclick') || '';
+      const match = onclk.match(/\((\d+)\)/);
+      const bDias = match ? parseInt(match[1]) : 0;
+      b.classList.toggle('pg-btn-activo', bDias === dias);
+    });
+    // Actualizar info
+    const infoEl = document.getElementById('pg-info');
+    if (infoEl) infoEl.textContent = dias ? `Últimos ${dias} dias` : 'Todo o período disponível';
+    // Re-renderizar só as secções temporais
+    renderActividadePeriodo(_filtrarDocsPeriodo());
+    renderSecretariaEstat();
+  };
+
   // ════════════════════════════════════════════════════════
   //  RENDER PRINCIPAL
   // ════════════════════════════════════════════════════════
@@ -562,6 +644,10 @@
       : '';
 
     document.getElementById("content").innerHTML = bannerFiltro + `
+      <!-- ── ACTIVIDADE NO PERÍODO ── -->
+      <div class="sec" id="sec-act-periodo" style="margin-top:0">📅 Actividade no Período Seleccionado</div>
+      <div id="act-periodo-wrap"></div>
+
       <div class="kpi-strip">
         <div class="kpi"><div class="kpi-icon">👥</div><div class="kpi-val" style="color:#3b82f6">${total}</div><div class="kpi-lbl">Total Funcionários</div><div class="kpi-sub">${activos} em serviço activo</div></div>
         <div class="kpi"><div class="kpi-icon">👨</div><div class="kpi-val" style="color:#3b82f6">${masc}</div><div class="kpi-lbl">Masculino</div><div class="kpi-sub">${total ? Math.round(masc/total*100) : 0}%</div></div>
@@ -578,6 +664,11 @@
         <div class="gc"><div class="gc-titulo">Pirâmide Etária</div><div class="gc-sub">Por faixa etária e sexo</div><div id="piramide"></div></div>
         <div class="gc"><div class="gc-titulo">Tipo de Vínculo</div><div class="gc-sub">Quadro vs Provisório</div><div id="vinculo-wrap"></div></div>
       </div>
+      <div class="g1"><div class="gc" id="evo-cadastros-gc">
+        <div class="gc-titulo">📈 Evolução de Cadastros</div>
+        <div class="gc-sub" id="evo-cadastros-sub">Novos registos por mês</div>
+        <div class="evo-wrap" id="evo-cadastros"></div>
+      </div></div>
 
       <div class="sec">🏥 Distribuição Profissional</div>
       <div class="g2">
@@ -631,12 +722,7 @@
 
       <div class="sec" style="margin-top:32px">
         ✉️ Secretaria — Análise de Interacção
-        <span style="margin-left:12px;display:inline-flex;gap:6px;vertical-align:middle">
-          <button class="btn-per-sec ${_periodoSec===30?'bps-activo':''}"  onclick="window._setPeriodoSec(30)"  style="font-size:10px;padding:3px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.15);background:${_periodoSec===30?'rgba(99,102,241,.3)':'rgba(255,255,255,.06)'};color:${_periodoSec===30?'#a5b4fc':'rgba(255,255,255,.5)'};cursor:pointer;font-weight:700">30d</button>
-          <button class="btn-per-sec ${_periodoSec===90?'bps-activo':''}"  onclick="window._setPeriodoSec(90)"  style="font-size:10px;padding:3px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.15);background:${_periodoSec===90?'rgba(99,102,241,.3)':'rgba(255,255,255,.06)'};color:${_periodoSec===90?'#a5b4fc':'rgba(255,255,255,.5)'};cursor:pointer;font-weight:700">90d</button>
-          <button class="btn-per-sec ${_periodoSec===180?'bps-activo':''}" onclick="window._setPeriodoSec(180)" style="font-size:10px;padding:3px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.15);background:${_periodoSec===180?'rgba(99,102,241,.3)':'rgba(255,255,255,.06)'};color:${_periodoSec===180?'#a5b4fc':'rgba(255,255,255,.5)'};cursor:pointer;font-weight:700">180d</button>
-          <button class="btn-per-sec ${_periodoSec===0?'bps-activo':''}"   onclick="window._setPeriodoSec(0)"   style="font-size:10px;padding:3px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.15);background:${_periodoSec===0?'rgba(99,102,241,.3)':'rgba(255,255,255,.06)'};color:${_periodoSec===0?'#a5b4fc':'rgba(255,255,255,.5)'};cursor:pointer;font-weight:700">Tudo</button>
-        </span>
+        <span style="margin-left:8px;font-size:10px;color:#94a3b8;font-weight:500">(período: ver barra acima)</span>
       </div>
 
       <!-- Linha A: Funil de estados + Waffle taxa + Sparkline tendência -->
@@ -694,6 +780,8 @@
     renderINSS(funcs);
     renderQualidade(funcs);
     renderBarras("bancos",      topN(funcs, "banco", 10), 5);
+    renderActividadePeriodo(_filtrarDocsPeriodo());
+    renderEvolucaoCadastros(_todosOsFuncs);
     renderSecretariaEstat();
   }
 
@@ -1624,6 +1712,177 @@
   };
 
   // ════════════════════════════════════════════════════════
+  //  ACTIVIDADE NO PERÍODO — KPIs temporais + evolução mensal docs
+  // ════════════════════════════════════════════════════════
+  function renderActividadePeriodo(docs) {
+    const el = document.getElementById('act-periodo-wrap');
+    if (!el) return;
+
+    const total     = docs.length;
+    const aprovados = docs.filter(d => d.estado === 'aprovado').length;
+    const pendentes = docs.filter(d => d.estado === 'pendente').length;
+    const comDec    = docs.filter(d => d.estado === 'aprovado' || d.estado === 'rejeitado').length;
+    const taxa      = comDec > 0 ? Math.round(aprovados / comDec * 100) : 0;
+    const labelPer  = _periodoDocs ? `Últimos ${_periodoDocs} dias` : 'Todo o período';
+
+    // 3 KPIs
+    const kpis = `
+      <div class="act-strip">
+        <div class="act-kpi">
+          <div class="act-kpi-icone" style="background:rgba(37,99,235,.1)">📄</div>
+          <div class="act-kpi-corpo">
+            <div class="act-kpi-val" style="color:#2563eb">${total}</div>
+            <div class="act-kpi-lbl">Documentos gerados</div>
+            <span class="act-kpi-delta" style="background:#eff6ff;color:#2563eb">${labelPer}</span>
+          </div>
+        </div>
+        <div class="act-kpi">
+          <div class="act-kpi-icone" style="background:rgba(16,200,134,.1)">✅</div>
+          <div class="act-kpi-corpo">
+            <div class="act-kpi-val" style="color:#059669">${taxa}%</div>
+            <div class="act-kpi-lbl">Taxa de aprovação</div>
+            <span class="act-kpi-delta" style="background:#f0fdf4;color:#059669">${aprovados} aprovados de ${comDec}</span>
+          </div>
+        </div>
+        <div class="act-kpi">
+          <div class="act-kpi-icone" style="background:rgba(245,158,11,.1)">⏳</div>
+          <div class="act-kpi-corpo">
+            <div class="act-kpi-val" style="color:${pendentes>0?'#d97706':'#94a3b8'}">${pendentes}</div>
+            <div class="act-kpi-lbl">Pendentes de decisão</div>
+            <span class="act-kpi-delta" style="background:${pendentes>0?'#fffbeb':'#f8fafc'};color:${pendentes>0?'#d97706':'#94a3b8'}">${pendentes===0?'Nenhum em espera':pendentes+' a aguardar'}</span>
+          </div>
+        </div>
+      </div>`;
+
+    // Gráfico evolução mensal de documentos
+    const agora = new Date();
+    const nMeses = _periodoDocs === 30 ? 1 : _periodoDocs === 90 ? 3 : _periodoDocs === 180 ? 6 : _periodoDocs === 365 ? 12 : 12;
+    const meses = [];
+    for (let i = nMeses - 1; i >= 0; i--) {
+      const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+      meses.push({ ano: d.getFullYear(), mes: d.getMonth(), label: d.toLocaleDateString('pt-AO', {month:'short'}), n: 0 });
+    }
+    docs.forEach(d => {
+      const ts = d.geradoEm;
+      if (!ts) return;
+      const dt = ts.toDate ? ts.toDate() : (ts.seconds ? new Date(ts.seconds*1000) : new Date(ts));
+      const idx = meses.findIndex(m => m.ano === dt.getFullYear() && m.mes === dt.getMonth());
+      if (idx !== -1) meses[idx].n++;
+    });
+
+    const maxN = Math.max(...meses.map(m=>m.n), 1);
+    const svgW = 560, svgH = 140, padL = 28, padR = 8, padT = 10, padB = 28;
+    const barW = Math.floor((svgW - padL - padR) / meses.length);
+    const gap  = meses.length <= 3 ? 24 : meses.length <= 6 ? 16 : 8;
+
+    let bars = '';
+    // linhas guia
+    for (let i = 0; i <= 3; i++) {
+      const y = padT + (svgH - padT - padB) * i / 3;
+      bars += `<line x1="${padL}" y1="${y}" x2="${svgW-padR}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+      bars += `<text x="${padL-4}" y="${y+4}" text-anchor="end" font-size="9" fill="#94a3b8" font-family="DM Mono,monospace">${Math.round(maxN*(3-i)/3)}</text>`;
+    }
+    meses.forEach((m, i) => {
+      const esteM = m.mes === agora.getMonth() && m.ano === agora.getFullYear();
+      const pct = m.n / maxN;
+      const barH = Math.max(pct * (svgH - padT - padB), m.n > 0 ? 4 : 2);
+      const x = padL + i * barW + gap / 2;
+      const y = padT + (svgH - padT - padB) - barH;
+      const cor = esteM ? '#10c886' : '#93c5fd';
+      bars += `<rect x="${x}" y="${y}" width="${barW-gap}" height="${barH}" rx="4" fill="${cor}"/>`;
+      if (m.n > 0) {
+        bars += `<text x="${x+(barW-gap)/2}" y="${y-5}" text-anchor="middle" font-size="9.5" fill="${esteM?'#059669':'#2563eb'}" font-weight="700" font-family="DM Mono,monospace">${m.n}</text>`;
+      }
+    });
+    const eixoX = meses.map((m,i) => {
+      const esteM = m.mes === agora.getMonth() && m.ano === agora.getFullYear();
+      return `<span style="${esteM?'font-weight:700;color:#059669':'color:#94a3b8'};flex:1;text-align:center;font-size:10px">${m.label}</span>`;
+    }).join('');
+
+    const grafico = total === 0
+      ? `<div class="vazio" style="padding:32px;text-align:center">Sem documentos no período seleccionado.</div>`
+      : `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 20px">
+           <div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:2px">Documentos por Mês</div>
+           <div style="font-size:11px;color:#64748b;margin-bottom:14px">Evolução no período — verde = mês actual</div>
+           <div class="evo-wrap">
+             <svg width="100%" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="none">${bars}</svg>
+             <div style="display:flex;padding:4px 0 0 ${padL}px">${eixoX}</div>
+           </div>
+         </div>`;
+
+    el.innerHTML = kpis + grafico;
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  EVOLUÇÃO DE CADASTROS — novos funcionários por mês
+  // ════════════════════════════════════════════════════════
+  function renderEvolucaoCadastros(funcs) {
+    const el = document.getElementById('evo-cadastros');
+    const sub = document.getElementById('evo-cadastros-sub');
+    if (!el) return;
+
+    // Tentar campos de data disponíveis
+    const getDataFunc = f => {
+      const ts = f.criadoEm || f.dataCadastro || f.dataAdmissao;
+      if (!ts) return null;
+      return ts.toDate ? ts.toDate() : (ts.seconds ? new Date(ts.seconds*1000) : new Date(ts));
+    };
+
+    const comData = funcs.filter(f => getDataFunc(f) !== null);
+    if (comData.length === 0) {
+      el.innerHTML = '<div class="vazio" style="padding:20px;text-align:center;font-size:12px">Datas de cadastro não disponíveis nos registos.</div>';
+      return;
+    }
+
+    // Últimos 12 meses
+    const agora = new Date();
+    const meses = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+      meses.push({ ano: d.getFullYear(), mes: d.getMonth(), label: d.toLocaleDateString('pt-AO',{month:'short', year:'2-digit'}), n: 0 });
+    }
+    comData.forEach(f => {
+      const dt = getDataFunc(f);
+      if (!dt) return;
+      const idx = meses.findIndex(m => m.ano === dt.getFullYear() && m.mes === dt.getMonth());
+      if (idx !== -1) meses[idx].n++;
+    });
+
+    const totalMeses = meses.reduce((s,m)=>s+m.n,0);
+    if (sub) sub.textContent = `${comData.length} registos com data · ${totalMeses} cadastros nos últimos 12 meses`;
+
+    const maxN = Math.max(...meses.map(m=>m.n), 1);
+    const svgW = 600, svgH = 120, padL = 28, padR = 8, padT = 8, padB = 28;
+    const barW = Math.floor((svgW - padL - padR) / 12);
+    const gap  = 10;
+
+    let bars = '';
+    for (let i = 0; i <= 3; i++) {
+      const y = padT + (svgH - padT - padB) * i / 3;
+      bars += `<line x1="${padL}" y1="${y}" x2="${svgW-padR}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+      bars += `<text x="${padL-4}" y="${y+4}" text-anchor="end" font-size="9" fill="#94a3b8" font-family="DM Mono,monospace">${Math.round(maxN*(3-i)/3)}</text>`;
+    }
+    meses.forEach((m, i) => {
+      const esteM = m.mes === agora.getMonth() && m.ano === agora.getFullYear();
+      const pct = m.n / maxN;
+      const barH = Math.max(pct * (svgH - padT - padB), m.n > 0 ? 3 : 1);
+      const x = padL + i * barW + gap / 2;
+      const y = padT + (svgH - padT - padB) - barH;
+      bars += `<rect x="${x}" y="${y}" width="${barW-gap}" height="${barH}" rx="3" fill="${esteM?'#10c886':'#a78bfa'}"/>`;
+      if (m.n > 0) {
+        bars += `<text x="${x+(barW-gap)/2}" y="${y-4}" text-anchor="middle" font-size="9" fill="${esteM?'#059669':'#7c3aed'}" font-weight="700" font-family="DM Mono,monospace">${m.n}</text>`;
+      }
+    });
+    const eixo = meses.map(m =>
+      `<span style="flex:1;text-align:center;font-size:9px;color:#94a3b8">${m.label}</span>`
+    ).join('');
+
+    el.innerHTML = `
+      <svg width="100%" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="none">${bars}</svg>
+      <div style="display:flex;padding:3px 0 0 ${padL}px">${eixo}</div>`;
+  }
+
+  // ════════════════════════════════════════════════════════
   //  UTILITÁRIOS
   // ════════════════════════════════════════════════════════
   function topN(funcs, campo, n) {
@@ -1683,6 +1942,7 @@
   };
 
   function renderSecretariaEstat() {
+    _periodoSec = _periodoDocs; // sincronizado com período global
     const pedidos  = filtrarPorPeriodo(_pedidosSec,  _periodoSec);
     const reunioes = filtrarPorPeriodo(_reunioesSec, _periodoSec);
 
