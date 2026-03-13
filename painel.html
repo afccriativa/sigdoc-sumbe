@@ -21,26 +21,26 @@
   </script>
   <style>
     :root {
-      --bg:       #0d1422;
-      --surface:  #111827;
-      --card:     #1a2236;
-      --card2:    #1e2a3a;
-      --border:   rgba(255,255,255,.07);
-      --border2:  rgba(255,255,255,.13);
-      --txt:      #e2e8f0;
-      --muted:    rgba(255,255,255,.4);
-      --dim:      rgba(255,255,255,.22);
+      --bg:       #f8fafc;
+      --surface:  #ffffff;
+      --card:     #ffffff;
+      --card2:    #f1f5f9;
+      --border:   rgba(0,0,0,.08);
+      --border2:  rgba(0,0,0,.14);
+      --txt:      #0f172a;
+      --muted:    #64748b;
+      --dim:      #94a3b8;
       --green:    #10c886;
-      --green-d:  rgba(16,200,134,.14);
-      --green-b:  rgba(16,200,134,.28);
-      --blue:     #3b82f6;
-      --blue-d:   rgba(59,130,246,.14);
+      --green-d:  rgba(16,200,134,.12);
+      --green-b:  rgba(16,200,134,.25);
+      --blue:     #2563eb;
+      --blue-d:   rgba(37,99,235,.12);
       --amber:    #f59e0b;
-      --amber-d:  rgba(245,158,11,.14);
+      --amber-d:  rgba(245,158,11,.12);
       --red:      #ef4444;
-      --red-d:    rgba(239,68,68,.14);
-      --purple:   #a78bfa;
-      --purple-d: rgba(167,139,250,.14);
+      --red-d:    rgba(239,68,68,.12);
+      --purple:   #7c3aed;
+      --purple-d: rgba(124,58,237,.12);
       --font:     'Plus Jakarta Sans', sans-serif;
       --mono:     'DM Mono', monospace;
       --r:        10px;
@@ -456,6 +456,41 @@
     .pill-cob-vermelho{ background: rgba(239,68,68,.15);   color: #ef4444; }
     .pill-cob-vazio   { background: rgba(255,255,255,.06); color: rgba(255,255,255,.3); }
 
+    /* ── TEMA SIGDOC UNIFICADO — overrides de cor ── */
+    .barra-topo { background:linear-gradient(135deg,#052e1c 0%,#0b4f3a 60%,#0d6e4f 100%); border-bottom:none; box-shadow:0 2px 20px rgba(0,0,0,.25); }
+    .titulo-painel h1 { color:#fff; }
+    .titulo-painel p  { color:rgba(255,255,255,.55); }
+    .data-hora .hora  { color:#fff; }
+    .data-hora .data  { color:rgba(255,255,255,.55); }
+    .hero-strip { background:linear-gradient(135deg,#052e1c 0%,#0b4f3a 60%,#0d6e4f 100%); border-bottom:none; }
+    .kpi-num    { color:var(--txt); }
+    .card-cabecalho h3 { color:var(--txt); }
+    .barra-h-val { color:var(--txt); }
+    .legenda-num { color:var(--txt); }
+    .legenda-item { background:var(--card2); border:1px solid var(--border); }
+    .tabela-simples th { background:var(--card2); }
+    .tabela-simples td { border-bottom:1px solid var(--border); }
+    .tabela-simples tr:hover td { background:rgba(0,0,0,.02); }
+    .feed-item:hover { background:rgba(0,0,0,.02); }
+    .mini-estat { background:var(--card2); border:1px solid var(--border); }
+    .barra-h-track { background:rgba(0,0,0,.08); }
+    .barra-mini-track { background:rgba(0,0,0,.08); }
+    .barra-progresso { background:rgba(0,0,0,.1); }
+    .pill-cinza { background:var(--card2); color:var(--muted); }
+    .pill-cob-vazio { background:var(--card2); color:var(--muted); }
+    .cob-track { background:rgba(0,0,0,.08); }
+    .cob-fill-esp { background:rgba(0,0,0,.12); }
+    .cob-legenda { border-bottom:1px solid var(--border); }
+    .cob-leg-item { color:var(--muted); }
+    .cob-nome { color:var(--txt); }
+    .cob-num-sep { color:var(--dim); }
+    .cob-num-esp { color:var(--muted); }
+    .cob-pct-vazio { background:var(--card2); color:var(--muted); }
+    .periodo-label { color:var(--dim); }
+    .p-btn { border:1px solid var(--border); background:var(--card); color:var(--muted); }
+    .p-btn:hover { background:var(--card2); color:var(--txt); }
+    .hero-carregando { color:rgba(255,255,255,.55); }
+    .texto-carregando { color:var(--muted); }
     </style>
 </head>
 <body>
@@ -470,8 +505,8 @@
 <!-- ── ACESSO NEGADO ── -->
 <div id="ecra-negado">
   <div style="font-size:56px">🔒</div>
-  <h2 style="color:#fff;font-size:22px">Acesso Restrito</h2>
-  <p style="color:rgba(255,255,255,.5);font-size:14px">Este painel é exclusivo para o Director Municipal e Administradores.</p>
+  <h2 style="color:var(--txt);font-size:22px">Acesso Restrito</h2>
+  <p style="color:var(--muted);font-size:14px">Este painel é exclusivo para o Director Municipal e Administradores.</p>
   <a href="index.html" style="margin-top:14px;background:var(--blue);color:white;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-family:var(--font)">← Voltar ao Painel</a>
 </div>
 
