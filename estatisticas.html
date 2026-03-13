@@ -265,7 +265,7 @@
   import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut }
                                from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, collection, getDocs, doc, getDoc }
+  import { getFirestore, collection, getDocs, doc, getDoc, query, where, orderBy, Timestamp }
                                from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
@@ -283,6 +283,9 @@
   let _filtros        = { unidade: '', categoria: '', vinculo: '', estado: '', sexo: '' };
   let _funcsFiltrados = [];   // subconjunto actualmente visível — usado pelo exportarCSV
   let _nomeUtilizador = '';   // para o cabeçalho de impressão
+  let _pedidosSec    = [];    // pedidos_secretaria — independente dos filtros RH
+  let _reunioesSec   = [];    // reunioes — independente dos filtros RH
+  let _periodoSec    = 90;    // período activo da secção de secretaria (dias)
 
   let _nt;
   function notif(msg) {
@@ -350,14 +353,18 @@
   async function carregarEstatisticas(perfil) {
     _perfilActual = perfil;
     try {
-      const [snapF, snapU] = await Promise.all([
+      const [snapF, snapU, snapP, snapR] = await Promise.all([
         getDocs(collection(db, "funcionarios")),
-        getDocs(collection(db, "unidades_sanitarias")).catch(() => null)
+        getDocs(collection(db, "unidades_sanitarias")).catch(() => null),
+        getDocs(query(collection(db,"pedidos_secretaria"), orderBy("criadoEm","desc"))).catch(()=>({docs:[]})),
+        getDocs(query(collection(db,"reunioes"),           orderBy("criadoEm","desc"))).catch(()=>({docs:[]}))
       ]);
 
       _todosOsFuncs = snapF.docs.map(d => ({ id: d.id, ...d.data() }));
       _todasUnidades = {};
       if (snapU) snapU.forEach(d => { const u = d.data(); if (u.nome) _todasUnidades[u.nome] = u; });
+      _pedidosSec  = snapP.docs.map(d => ({id:d.id,...d.data()}));
+      _reunioesSec = snapR.docs.map(d => ({id:d.id,...d.data()}));
 
       const activos = _todosOsFuncs.filter(f => !f.estado || f.estado === "activo").length;
       document.getElementById("topbar-sub").textContent =
@@ -398,8 +405,10 @@
     const VINCULO_LABEL = { quadro: 'Pessoal do Quadro', provisorio: 'Provisório' };
     const ESTADO_LABEL  = { activo: 'Em Serviço', licenca: 'De Licença', inactivo: 'Inactivo' };
 
-    // Usar a função centralizada; passa override do Firestore quando disponível
-    const abrvUnidade = n => window.SIGDOC_CONFIG.abrvUnidade(n, _todasUnidades[n]?.nomeAbreviado);
+    const abrvUnidade = n => n
+      .replace('Direcção Municipal de Saúde do Sumbe','DMS — Sede')
+      .replace('Centro de Saúde','CS')
+      .replace('Posto de Saúde','PS');
 
     function buildSelect(id, label, opcoes, labelFn) {
       const opts = opcoes.map(v =>
@@ -569,7 +578,59 @@
       </div>
 
       <div class="sec">🧮 Qualidade do Cadastro</div>
-      <div id="dq-wrap"></div>`;
+      <div id="dq-wrap"></div>
+
+      <div class="sec" style="margin-top:32px">
+        ✉️ Secretaria — Análise de Interacção
+        <span style="margin-left:12px;display:inline-flex;gap:6px;vertical-align:middle">
+          <button class="btn-per-sec ${_periodoSec===30?'bps-activo':''}"  onclick="window._setPeriodoSec(30)"  style="font-size:10px;padding:3px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.15);background:${_periodoSec===30?'rgba(99,102,241,.3)':'rgba(255,255,255,.06)'};color:${_periodoSec===30?'#a5b4fc':'rgba(255,255,255,.5)'};cursor:pointer;font-weight:700">30d</button>
+          <button class="btn-per-sec ${_periodoSec===90?'bps-activo':''}"  onclick="window._setPeriodoSec(90)"  style="font-size:10px;padding:3px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.15);background:${_periodoSec===90?'rgba(99,102,241,.3)':'rgba(255,255,255,.06)'};color:${_periodoSec===90?'#a5b4fc':'rgba(255,255,255,.5)'};cursor:pointer;font-weight:700">90d</button>
+          <button class="btn-per-sec ${_periodoSec===180?'bps-activo':''}" onclick="window._setPeriodoSec(180)" style="font-size:10px;padding:3px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.15);background:${_periodoSec===180?'rgba(99,102,241,.3)':'rgba(255,255,255,.06)'};color:${_periodoSec===180?'#a5b4fc':'rgba(255,255,255,.5)'};cursor:pointer;font-weight:700">180d</button>
+          <button class="btn-per-sec ${_periodoSec===0?'bps-activo':''}"   onclick="window._setPeriodoSec(0)"   style="font-size:10px;padding:3px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.15);background:${_periodoSec===0?'rgba(99,102,241,.3)':'rgba(255,255,255,.06)'};color:${_periodoSec===0?'#a5b4fc':'rgba(255,255,255,.5)'};cursor:pointer;font-weight:700">Tudo</button>
+        </span>
+      </div>
+
+      <!-- Linha A: Funil de estados + Waffle taxa + Sparkline tendência -->
+      <div class="g2">
+        <div class="gc">
+          <div class="gc-titulo">📊 Funil de Pedidos</div>
+          <div class="gc-sub">Pipeline de resolução por estado</div>
+          <div id="sec-funil"></div>
+        </div>
+        <div class="gc">
+          <div class="gc-titulo">🎯 Taxa de Resolução</div>
+          <div class="gc-sub">Pedidos encerrados vs total do período</div>
+          <div id="sec-waffle"></div>
+        </div>
+      </div>
+
+      <!-- Linha B: Sparkline + Heatmap -->
+      <div class="g2" style="margin-top:18px">
+        <div class="gc">
+          <div class="gc-titulo">📈 Tendência Semanal</div>
+          <div class="gc-sub">Pedidos por semana — últimas 12 semanas</div>
+          <div id="sec-spark"></div>
+        </div>
+        <div class="gc">
+          <div class="gc-titulo">🗓 Quando chegam os pedidos?</div>
+          <div class="gc-sub">Dia da semana — concentração relativa</div>
+          <div id="sec-heatmap"></div>
+        </div>
+      </div>
+
+      <!-- Linha C: Lollipop assuntos + Reuniões -->
+      <div class="g2" style="margin-top:18px">
+        <div class="gc">
+          <div class="gc-titulo">💬 Pedidos por Assunto</div>
+          <div class="gc-sub">Volume acumulado no período</div>
+          <div id="sec-lollipop"></div>
+        </div>
+        <div class="gc">
+          <div class="gc-titulo">📅 Reuniões — Resultado</div>
+          <div class="gc-sub">Estado final das reuniões solicitadas</div>
+          <div id="sec-reunioes-ring"></div>
+        </div>
+      </div>`;
 
     renderGeneroCard(funcs);
     renderPiramide(funcs);
@@ -584,6 +645,7 @@
     renderINSS(funcs);
     renderQualidade(funcs);
     renderBarras("bancos",      topN(funcs, "banco", 10), 5);
+    renderSecretariaEstat();
   }
 
   // ════════════════════════════════════════════════════════
@@ -784,7 +846,10 @@
   }
 
   function renderCobertura(funcs, unidades) {
-    const ab = n => window.SIGDOC_CONFIG.abrvUnidade(n, unidades[n]?.nomeAbreviado);
+    const ab = n => n
+      .replace("Direcção Municipal de Saúde do Sumbe","DMS")
+      .replace("Centro de Saúde","CS")
+      .replace("Posto de Saúde","PS");
 
     const elTit = document.getElementById("cob-titulo");
     const elSub = document.getElementById("cob-sub");
@@ -958,7 +1023,7 @@
       });
       return;
     }
-    const ab = n => window.SIGDOC_CONFIG.abrvUnidade(n, _todasUnidades[n]?.nomeAbreviado);
+    const ab = n => n.replace("Direcção Municipal de Saúde do Sumbe","DMS").replace("Centro de Saúde","CS").replace("Posto de Saúde","PS");
     const bu = {}, bc = {};
     cs.forEach(f => {
       const u = ab(f.unidade || "—"); bu[u] = (bu[u] || 0) + Number(f.salarioBase);
@@ -1533,6 +1598,417 @@
     if (v >= 1e6) return (v/1e6).toFixed(1).replace(".",",") + " MKz";
     if (v >= 1e3) return (v/1e3).toFixed(0) + "K Kz";
     return v.toLocaleString("pt-PT") + " Kz";
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  SECRETARIA — selector de período e orquestrador
+  // ════════════════════════════════════════════════════════
+  const ASSUNTOS_EST = {
+    'ferias-licencas':'Férias/Licenças','abonos-salarios':'Abonos/Salários',
+    'documentacao':'Documentação','transferencias':'Transferências',
+    'escalas':'Escalas','outro':'Outro'
+  };
+
+  function filtrarPorPeriodo(arr, dias) {
+    if (!dias) return arr;
+    const limiar = Date.now() - dias * 86400000;
+    return arr.filter(d => {
+      const t = d.criadoEm;
+      if (!t) return false;
+      const ms = t.toDate ? t.toDate().getTime() : (t.seconds ? t.seconds*1000 : new Date(t).getTime());
+      return ms >= limiar;
+    });
+  }
+
+  function toMs(ts) {
+    if (!ts) return null;
+    if (ts.toDate) return ts.toDate().getTime();
+    if (ts.seconds) return ts.seconds * 1000;
+    return new Date(ts).getTime();
+  }
+
+  window._setPeriodoSec = function(dias) {
+    _periodoSec = dias;
+    renderSecretariaEstat();
+    // re-render só re-injecta a secção sem re-fazer tudo
+  };
+
+  function renderSecretariaEstat() {
+    const pedidos  = filtrarPorPeriodo(_pedidosSec,  _periodoSec);
+    const reunioes = filtrarPorPeriodo(_reunioesSec, _periodoSec);
+
+    // Verificar se os containers já existem no DOM (render() pode ainda não ter corrido)
+    if (!document.getElementById('sec-funil')) return;
+
+    renderFunilEstados(pedidos);
+    renderWaffle(pedidos);
+    renderSparkline(pedidos);
+    renderHeatmap(pedidos);
+    renderLollipop(pedidos);
+    renderReunioesRing(reunioes);
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  1. FUNIL DE ESTADOS — SVG trapezoidal
+  // ════════════════════════════════════════════════════════
+  function renderFunilEstados(pedidos) {
+    const el = document.getElementById('sec-funil');
+    if (!el) return;
+    if (!pedidos.length) { el.innerHTML = '<div class="vazio">Sem pedidos no período</div>'; return; }
+
+    const ORDEM   = ['novo','em_analise','respondido','fechado'];
+    const LABELS  = {novo:'Novo',em_analise:'Em análise',respondido:'Respondido',fechado:'Fechado'};
+    const CORES_F = ['#60a5fa','#fcd34d','#6ee7b7','#94a3b8'];
+
+    // Acumulado decrescente (funil: cada nível inclui os posteriores)
+    const counts = {};
+    pedidos.forEach(p => { const e = p.estado||'novo'; counts[e] = (counts[e]||0)+1; });
+    // Totais cumulativos: novo=total, em_analise=total-novo, etc.
+    const total = pedidos.length;
+    const vals = [
+      total,
+      total - (counts['novo']||0),
+      (counts['respondido']||0) + (counts['fechado']||0),
+      counts['fechado']||0
+    ];
+
+    const W = 260, slotH = 48, gap = 4;
+    const svgH = ORDEM.length * (slotH + gap);
+    const maxW = W;
+
+    const traps = ORDEM.map((e, i) => {
+      const wTop = i === 0 ? maxW : maxW * (vals[i] / total);
+      const wBot = i === ORDEM.length-1 ? maxW * (vals[i] / total) * 0.7 : maxW * (vals[i+1] / total);
+      const y    = i * (slotH + gap);
+      const xTop = (maxW - wTop) / 2;
+      const xBot = (maxW - wBot) / 2;
+      return { e, i, wTop, wBot, xTop, xBot, y, n: vals[i], cor: CORES_F[i] };
+    });
+
+    const svgShapes = traps.map(t => {
+      const pts = `${t.xTop},${t.y} ${t.xTop+t.wTop},${t.y} ${t.xBot+t.wBot},${t.y+slotH} ${t.xBot},${t.y+slotH}`;
+      return `<polygon points="${pts}" fill="${t.cor}" fill-opacity=".22" stroke="${t.cor}" stroke-width="1.2" stroke-opacity=".6"/>
+        <text x="${W/2}" y="${t.y+slotH/2+5}" text-anchor="middle" fill="${t.cor}" font-size="13" font-weight="800" font-family="DM Mono,monospace">${t.n}</text>
+        <text x="${W/2}" y="${t.y+slotH/2-8}" text-anchor="middle" fill="rgba(255,255,255,.55)" font-size="9.5" font-weight="700">${LABELS[t.e]}</text>`;
+    }).join('');
+
+    el.innerHTML = `
+      <svg width="100%" viewBox="0 0 ${W} ${svgH}" style="max-width:300px;display:block;margin:8px auto 0">
+        ${svgShapes}
+      </svg>
+      <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:12px">
+        ${ORDEM.map((e,i)=>`
+          <div style="display:flex;align-items:center;gap:5px">
+            <div style="width:9px;height:9px;border-radius:2px;background:${CORES_F[i]}"></div>
+            <span style="font-size:10px;color:rgba(255,255,255,.5)">${LABELS[e]}: <b style="color:${CORES_F[i]}">${counts[e]||0}</b></span>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  2. WAFFLE — grelha 10×10, cada ponto = 1% do total
+  // ════════════════════════════════════════════════════════
+  function renderWaffle(pedidos) {
+    const el = document.getElementById('sec-waffle');
+    if (!el) return;
+    if (!pedidos.length) { el.innerHTML = '<div class="vazio">Sem pedidos no período</div>'; return; }
+
+    const total   = pedidos.length;
+    const fechados = pedidos.filter(p => p.estado === 'fechado').length;
+    const taxa    = total > 0 ? Math.round(fechados / total * 100) : 0;
+
+    // Tempo médio de resposta
+    const comResp = pedidos.filter(p => p.respondidoEm && p.criadoEm);
+    let tempoStr = '—';
+    if (comResp.length > 0) {
+      const h = comResp.reduce((a,p) => a + (toMs(p.respondidoEm)-toMs(p.criadoEm)), 0) / comResp.length / 3600000;
+      tempoStr = h < 1 ? Math.round(h*60)+'min' : h < 24 ? h.toFixed(1)+'h' : (h/24).toFixed(1)+'d';
+    }
+
+    // 10×10 pontos
+    const pontos = Array.from({length:100}, (_,i) => {
+      const cheio = i < taxa;
+      return `<circle cx="${(i%10)*22+11}" cy="${Math.floor(i/10)*22+11}" r="8"
+        fill="${cheio ? '#10c886' : 'rgba(255,255,255,.07)'}"
+        ${cheio ? 'filter="url(#wglow)"' : ''}/>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div style="text-align:center;margin-bottom:10px">
+        <span style="font-size:42px;font-weight:900;font-family:'DM Mono',monospace;color:#10c886;line-height:1">${taxa}%</span>
+        <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">pedidos resolvidos</div>
+      </div>
+      <svg width="220" height="220" viewBox="0 0 220 220" style="display:block;margin:0 auto">
+        <defs>
+          <filter id="wglow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        ${pontos}
+      </svg>
+      <div style="display:flex;justify-content:center;gap:24px;margin-top:10px;flex-wrap:wrap">
+        <div style="text-align:center">
+          <div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:#6ee7b7">${fechados}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:600">Fechados</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:#fbbf24">${tempoStr}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:600">Tempo médio resposta</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:#60a5fa">${total}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:600">Total pedidos</div>
+        </div>
+      </div>`;
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  3. SPARKLINE COM ÁREA — últimas 12 semanas
+  // ════════════════════════════════════════════════════════
+  function renderSparkline(pedidos) {
+    const el = document.getElementById('sec-spark');
+    if (!el) return;
+    if (!pedidos.length) { el.innerHTML = '<div class="vazio">Sem pedidos no período</div>'; return; }
+
+    const N = 12;
+    const agora = Date.now();
+    const semanas = Array.from({length:N}, (_,i) => {
+      const fim    = agora - i * 7 * 86400000;
+      const inicio = fim - 7 * 86400000;
+      const n = pedidos.filter(p => {
+        const ms = toMs(p.criadoEm);
+        return ms && ms >= inicio && ms < fim;
+      }).length;
+      const label = new Date(fim).toLocaleDateString('pt-AO',{day:'2-digit',month:'short'});
+      return { n, label };
+    }).reverse();
+
+    const maxV = Math.max(...semanas.map(s=>s.n), 1);
+    const W = 340, H = 120, pad = 16;
+    const iW = W - pad*2;
+    const iH = H - pad*2;
+    const xStep = iW / (N - 1);
+
+    const pts = semanas.map((s,i) => {
+      const x = pad + i * xStep;
+      const y = pad + iH - (s.n / maxV) * iH;
+      return {x, y, n: s.n, label: s.label};
+    });
+
+    const polyline = pts.map(p=>`${p.x},${p.y}`).join(' ');
+    const areaPath = `M${pts[0].x},${H-pad} ` + pts.map(p=>`L${p.x},${p.y}`).join(' ') + ` L${pts[N-1].x},${H-pad} Z`;
+
+    // Pontos interactivos (title tooltip)
+    const circles = pts.map(p =>
+      `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#6366f1" stroke="rgba(255,255,255,.2)" stroke-width="1.5">
+         <title>${p.label}: ${p.n} pedido${p.n!==1?'s':''}</title>
+       </circle>`
+    ).join('');
+
+    // Labels eixo X — mostrar 1 em cada 3
+    const xLabels = pts.map((p,i) =>
+      i % 3 === 0
+        ? `<text x="${p.x}" y="${H}" text-anchor="middle" fill="rgba(255,255,255,.3)" font-size="8">${p.label}</text>`
+        : ''
+    ).join('');
+
+    // Linha de referência média
+    const media = semanas.reduce((a,s)=>a+s.n,0)/N;
+    const yMed  = pad + iH - (media / maxV) * iH;
+    const mediaLine = `<line x1="${pad}" y1="${yMed}" x2="${W-pad}" y2="${yMed}"
+      stroke="rgba(251,191,36,.3)" stroke-width="1" stroke-dasharray="4 3"/>
+      <text x="${W-pad+2}" y="${yMed+4}" fill="rgba(251,191,36,.5)" font-size="8">med</text>`;
+
+    el.innerHTML = `
+      <svg width="100%" viewBox="0 0 ${W} ${H+12}" style="overflow:visible">
+        <defs>
+          <linearGradient id="spgrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#6366f1" stop-opacity=".35"/>
+            <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        ${mediaLine}
+        <path d="${areaPath}" fill="url(#spgrad)"/>
+        <polyline points="${polyline}" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+        ${circles}
+        ${xLabels}
+      </svg>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:rgba(255,255,255,.35);padding:0 ${pad}px">
+        <span>Semana mais activa: <b style="color:#a5b4fc">${Math.max(...semanas.map(s=>s.n))} pedidos</b></span>
+        <span>Média: <b style="color:#fbbf24">${media.toFixed(1)}/sem</b></span>
+      </div>`;
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  4. HEATMAP DIA DA SEMANA — densidade de chegada
+  // ════════════════════════════════════════════════════════
+  function renderHeatmap(pedidos) {
+    const el = document.getElementById('sec-heatmap');
+    if (!el) return;
+    if (!pedidos.length) { el.innerHTML = '<div class="vazio">Sem pedidos no período</div>'; return; }
+
+    const DIAS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    const counts = Array(7).fill(0);
+    pedidos.forEach(p => {
+      const ms = toMs(p.criadoEm);
+      if (ms) counts[new Date(ms).getDay()]++;
+    });
+    const max = Math.max(...counts, 1);
+
+    const cellW = 38, cellH = 52, pad = 28;
+    const W = DIAS.length * cellW + pad;
+    const H = cellH + 40;
+
+    const cells = DIAS.map((d,i) => {
+      const n    = counts[i];
+      const intensity = n / max;
+      // Cor: escala de índigo escuro → índigo brilhante
+      const alpha = 0.08 + intensity * 0.85;
+      const x = pad + i * cellW;
+      return `
+        <rect x="${x+3}" y="24" width="${cellW-6}" height="${cellH-10}" rx="5"
+          fill="rgba(99,102,241,${alpha.toFixed(2)})" stroke="rgba(99,102,241,.18)" stroke-width="1"/>
+        <text x="${x+cellW/2}" y="${24+cellH-20}" text-anchor="middle"
+          fill="${intensity > 0.5 ? '#e0e7ff' : 'rgba(255,255,255,.55)'}"
+          font-size="14" font-weight="800" font-family="DM Mono,monospace">${n}</text>
+        <text x="${x+cellW/2}" y="${24+cellH-5}" text-anchor="middle"
+          fill="rgba(255,255,255,.3)" font-size="9" font-weight="700">${d}</text>`;
+    }).join('');
+
+    // Legenda de intensidade
+    const legendSteps = 5;
+    const legendW = 100;
+    const lx = (W - legendW) / 2;
+
+    el.innerHTML = `
+      <svg width="100%" viewBox="0 0 ${W} ${H+30}" style="overflow:visible">
+        <text x="${W/2}" y="14" text-anchor="middle" fill="rgba(255,255,255,.3)" font-size="9.5" font-weight="700">DIA DA SEMANA</text>
+        ${cells}
+        <!-- legenda gradiente -->
+        <defs>
+          <linearGradient id="hmgrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%"   stop-color="rgba(99,102,241,.08)"/>
+            <stop offset="100%" stop-color="rgba(99,102,241,.93)"/>
+          </linearGradient>
+        </defs>
+        <rect x="${lx}" y="${H+6}" width="${legendW}" height="8" rx="4" fill="url(#hmgrad)"/>
+        <text x="${lx}"   y="${H+26}" fill="rgba(255,255,255,.3)" font-size="8.5">Menos</text>
+        <text x="${lx+legendW}" y="${H+26}" text-anchor="end" fill="rgba(255,255,255,.3)" font-size="8.5">Mais</text>
+      </svg>
+      <div style="text-align:center;margin-top:4px;font-size:11px;color:rgba(255,255,255,.4)">
+        Dia mais activo: <b style="color:#a5b4fc">${DIAS[counts.indexOf(Math.max(...counts))]}</b>
+        &nbsp;·&nbsp; Dia menos activo: <b style="color:rgba(255,255,255,.4)">${DIAS[counts.indexOf(Math.min(...counts))]}</b>
+      </div>`;
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  5. LOLLIPOP — pedidos por assunto
+  // ════════════════════════════════════════════════════════
+  function renderLollipop(pedidos) {
+    const el = document.getElementById('sec-lollipop');
+    if (!el) return;
+    if (!pedidos.length) { el.innerHTML = '<div class="vazio">Sem pedidos no período</div>'; return; }
+
+    const counts = {};
+    pedidos.forEach(p => { const a = p.assunto||'outro'; counts[a]=(counts[a]||0)+1; });
+    const dados = Object.entries(counts)
+      .sort((a,b)=>b[1]-a[1])
+      .map(([k,v]) => ({label:ASSUNTOS_EST[k]||k, val:v}));
+
+    const CORES_L = ['#6366f1','#10c886','#f59e0b','#f472b6','#22d3ee','#ef4444'];
+    const max  = Math.max(...dados.map(d=>d.val), 1);
+    const rowH = 36;
+    const W    = 280, lPad = 100, rPad = 36, barW = W - lPad - rPad;
+    const H    = dados.length * rowH;
+
+    const rows = dados.map((d,i) => {
+      const cor  = CORES_L[i % CORES_L.length];
+      const x2   = lPad + Math.round(d.val / max * barW);
+      const y    = i * rowH + rowH / 2;
+      return `
+        <text x="${lPad-8}" y="${y+4}" text-anchor="end" fill="rgba(255,255,255,.6)" font-size="11" font-weight="600">${d.label}</text>
+        <line x1="${lPad}" y1="${y}" x2="${x2}" y2="${y}" stroke="${cor}" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>
+        <circle cx="${x2}" cy="${y}" r="7" fill="${cor}" stroke="rgba(255,255,255,.12)" stroke-width="1.5"/>
+        <text x="${x2}" y="${y+4}" text-anchor="middle" fill="rgba(255,255,255,.9)" font-size="9" font-weight="800">${d.val}</text>`;
+    }).join('');
+
+    el.innerHTML = `
+      <svg width="100%" viewBox="0 0 ${W} ${H}" style="overflow:visible;margin-top:6px">
+        <!-- linha de base -->
+        <line x1="${lPad}" y1="0" x2="${lPad}" y2="${H}" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+        ${rows}
+      </svg>`;
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  6. REUNIÕES — Ring chart SVG com animação de stroke
+  // ════════════════════════════════════════════════════════
+  function renderReunioesRing(reunioes) {
+    const el = document.getElementById('sec-reunioes-ring');
+    if (!el) return;
+    if (!reunioes.length) { el.innerHTML = '<div class="vazio">Sem reuniões no período</div>'; return; }
+
+    const ESTADOS_R = ['realizada','confirmada','pendente','remarcada','recusada'];
+    const LABELS_R  = {realizada:'Realizada',confirmada:'Confirmada',pendente:'Pendente',remarcada:'Remarcada',recusada:'Recusada'};
+    const CORES_R   = {realizada:'#8b5cf6',confirmada:'#10b981',pendente:'#f59e0b',remarcada:'#6366f1',recusada:'#ef4444'};
+
+    const counts = {};
+    reunioes.forEach(r => { const e = r.estado||'pendente'; counts[e]=(counts[e]||0)+1; });
+    const total = reunioes.length;
+
+    // Rings concêntricos — cada estado é um anel a raio diferente
+    const estados = ESTADOS_R.filter(e => counts[e] > 0);
+    const rings = estados.map((e, i) => {
+      const r     = 32 + i * 18;
+      const circ  = 2 * Math.PI * r;
+      const pct   = counts[e] / total;
+      const dash  = circ * pct;
+      const cor   = CORES_R[e];
+      // animação CSS via stroke-dashoffset
+      return {e, r, circ, dash, cor, n: counts[e], pct};
+    });
+
+    const maxR = rings.length > 0 ? rings[rings.length-1].r : 50;
+    const sz   = (maxR + 14) * 2;
+    const cx   = sz / 2;
+
+    const svgRings = rings.map(rg =>
+      `<circle cx="${cx}" cy="${cx}" r="${rg.r}" fill="none"
+        stroke="rgba(255,255,255,.05)" stroke-width="12"/>
+       <circle cx="${cx}" cy="${cx}" r="${rg.r}" fill="none"
+        stroke="${rg.cor}" stroke-width="12" stroke-linecap="round"
+        stroke-dasharray="${rg.dash.toFixed(1)} ${rg.circ.toFixed(1)}"
+        stroke-dashoffset="${(rg.circ * 0.25).toFixed(1)}"
+        style="transition:stroke-dasharray .6s ease"/>`
+    ).join('');
+
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div style="position:relative;flex-shrink:0">
+          <svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}">
+            ${svgRings}
+            <text x="${cx}" y="${cx+5}" text-anchor="middle" fill="rgba(255,255,255,.7)"
+              font-size="20" font-weight="900" font-family="DM Mono,monospace">${total}</text>
+            <text x="${cx}" y="${cx+18}" text-anchor="middle" fill="rgba(255,255,255,.3)" font-size="8.5">total</text>
+          </svg>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:130px">
+          ${rings.map(rg => `
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div style="width:10px;height:10px;border-radius:50%;background:${rg.cor}"></div>
+                  <span style="font-size:11px;color:rgba(255,255,255,.65)">${LABELS_R[rg.e]}</span>
+                </div>
+                <span style="font-size:11px;font-weight:800;font-family:'DM Mono',monospace;color:${rg.cor}">${rg.n}</span>
+              </div>
+              <div style="height:3px;background:rgba(255,255,255,.06);border-radius:99px">
+                <div style="height:3px;width:${Math.round(rg.pct*100)}%;background:${rg.cor};border-radius:99px;transition:width .5s"></div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
   }
 </script>
 </body>
