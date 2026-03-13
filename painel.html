@@ -459,38 +459,77 @@
     /* ── TEMA SIGDOC UNIFICADO — overrides de cor ── */
     .barra-topo { background:linear-gradient(135deg,#052e1c 0%,#0b4f3a 60%,#0d6e4f 100%); border-bottom:none; box-shadow:0 2px 20px rgba(0,0,0,.25); }
     .titulo-painel h1 { color:#fff; }
-    .titulo-painel p  { color:rgba(255,255,255,.55); }
+    .titulo-painel p  { color:rgba(255,255,255,.6); }
     .data-hora .hora  { color:#fff; }
-    .data-hora .data  { color:rgba(255,255,255,.55); }
+    .data-hora .data  { color:rgba(255,255,255,.6); }
     .hero-strip { background:linear-gradient(135deg,#052e1c 0%,#0b4f3a 60%,#0d6e4f 100%); border-bottom:none; }
-    .kpi-num    { color:var(--txt); }
+    /* KPI cards — sombra e borda para profundidade */
+    .kpi-card { box-shadow: 0 2px 12px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.06); }
+    .kpi-num  { color:var(--txt); }
+    .kpi-label{ color:var(--muted); }
+    /* Cards gráficos */
+    .card-grafico { box-shadow: 0 2px 12px rgba(0,0,0,.07), 0 0 0 1px rgba(0,0,0,.06); }
+    .card-cabecalho { border-bottom:1px solid #e2e8f0; }
     .card-cabecalho h3 { color:var(--txt); }
-    .barra-h-val { color:var(--txt); }
-    .legenda-num { color:var(--txt); }
-    .legenda-item { background:var(--card2); border:1px solid var(--border); }
-    .tabela-simples th { background:var(--card2); }
-    .tabela-simples td { border-bottom:1px solid var(--border); }
-    .tabela-simples tr:hover td { background:rgba(0,0,0,.02); }
-    .feed-item:hover { background:rgba(0,0,0,.02); }
-    .mini-estat { background:var(--card2); border:1px solid var(--border); }
-    .barra-h-track { background:rgba(0,0,0,.08); }
-    .barra-mini-track { background:rgba(0,0,0,.08); }
-    .barra-progresso { background:rgba(0,0,0,.1); }
-    .pill-cinza { background:var(--card2); color:var(--muted); }
-    .pill-cob-vazio { background:var(--card2); color:var(--muted); }
-    .cob-track { background:rgba(0,0,0,.08); }
-    .cob-fill-esp { background:rgba(0,0,0,.12); }
-    .cob-legenda { border-bottom:1px solid var(--border); }
+    .card-cabecalho p  { color:var(--muted); }
+    .badge-live { background:rgba(16,200,134,.12); color:#059669; border:1px solid rgba(16,200,134,.25); }
+    /* Barras horizontais — tracks visíveis */
+    .barra-h-track  { background:#e2e8f0; }
+    .barra-h-val    { color:var(--txt); }
+    .barra-h-label  { color:var(--txt); }
+    .barra-mini-track { background:#e2e8f0; }
+    /* Legenda donut */
+    .legenda-item { background:#f8fafc; border:1px solid #e2e8f0; }
+    .legenda-texto{ color:var(--txt); }
+    .legenda-num  { color:var(--txt); }
+    /* Cobertura por unidade — tracks com contraste real */
+    .cob-track    { background:#e2e8f0; height:10px; border-radius:99px; }
+    .cob-fill-esp { background:#cbd5e1; height:10px; border-radius:99px; }
+    .cob-item     { border-bottom:1px solid #f1f5f9; padding:10px 0; }
+    .cob-legenda  { border-bottom:1px solid #e2e8f0; }
     .cob-leg-item { color:var(--muted); }
-    .cob-nome { color:var(--txt); }
-    .cob-num-sep { color:var(--dim); }
-    .cob-num-esp { color:var(--muted); }
-    .cob-pct-vazio { background:var(--card2); color:var(--muted); }
-    .periodo-label { color:var(--dim); }
-    .p-btn { border:1px solid var(--border); background:var(--card); color:var(--muted); }
-    .p-btn:hover { background:var(--card2); color:var(--txt); }
-    .hero-carregando { color:rgba(255,255,255,.55); }
+    .cob-nome     { color:var(--txt); font-size:13px; }
+    .cob-num-cad  { color:#2563eb; }
+    .cob-num-sep  { color:var(--dim); }
+    .cob-num-esp  { color:var(--muted); }
+    .cob-pct-vazio{ background:#f1f5f9; color:var(--muted); }
+    /* Mini stats — cards com cor de fundo distinta */
+    .mini-estat   { background:#fff; border:1px solid #e2e8f0; box-shadow:0 1px 4px rgba(0,0,0,.05); border-radius:10px; }
+    .mini-estat .lbl { color:var(--muted); }
+    /* Tabela unidades */
+    .tabela-simples { background:#fff; border-radius:10px; overflow:hidden; }
+    .tabela-simples th { background:#f8fafc; color:var(--dim); border-bottom:1px solid #e2e8f0; }
+    .tabela-simples td { border-bottom:1px solid #f1f5f9; color:var(--txt); }
+    .tabela-simples tr:hover td { background:#f8fafc; }
+    /* Feed actividade */
+    .feed-item    { border-bottom:1px solid #f1f5f9; }
+    .feed-titulo  { color:var(--txt); }
+    .feed-sub     { color:var(--muted); }
+    .feed-hora    { color:var(--dim); }
+    .feed-item:hover { background:#fafafa; }
+    /* Secção títulos */
+    .secao-titulo { color:#64748b; }
+    .secao-titulo::after { background:#e2e8f0; }
+    /* Pills */
+    .pill-cinza   { background:#f1f5f9; color:var(--muted); }
+    .pill-cob-vazio{ background:#f1f5f9; color:var(--muted); }
+    /* Período buttons */
+    .periodo-label{ color:rgba(255,255,255,.7); }
+    .p-btn { border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.1); color:rgba(255,255,255,.85); }
+    .p-btn:hover { background:rgba(255,255,255,.2); color:#fff; }
+    /* Loading */
     .texto-carregando { color:var(--muted); }
+    .barra-progresso { background:#e2e8f0; }
+    .hero-carregando { color:rgba(255,255,255,.6); }
+    /* Rodapé */
+    .rodape { border-top:1px solid #e2e8f0; color:var(--dim); }
+    /* Hero text — sobre fundo escuro verde */
+    .hero-sub2 { color:rgba(255,255,255,.72); }
+    .hero-subtitulo { color:#fff; }
+    /* Delta neutro — fundo transparente era invisível em branco */
+    .delta-neutro { background:#f1f5f9; color:#64748b; }
+    /* Barra progresso loading */
+    .barra-progresso { background:#e2e8f0; }
     </style>
 </head>
 <body>
@@ -633,7 +672,7 @@
             Cadastrados no portal
           </div>
           <div class="cob-leg-item">
-            <div class="cob-leg-dot" style="background:rgba(255,255,255,.15)"></div>
+            <div class="cob-leg-dot" style="background:#cbd5e1"></div>
             Efectivo esperado
           </div>
         </div>
@@ -721,26 +760,26 @@
         </div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px" id="sec-kpi-grid">
           <div style="text-align:center;padding:14px 8px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.18);border-radius:10px">
-            <div style="font-size:26px;font-weight:800;color:#60a5fa" id="sk-total">—</div>
+            <div style="font-size:26px;font-weight:800;color:#1d4ed8" id="sk-total">—</div>
             <div style="font-size:10px;color:var(--muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Total pedidos</div>
           </div>
           <div style="text-align:center;padding:14px 8px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);border-radius:10px">
-            <div style="font-size:26px;font-weight:800;color:#f87171" id="sk-abertos">—</div>
+            <div style="font-size:26px;font-weight:800;color:#dc2626" id="sk-abertos">—</div>
             <div style="font-size:10px;color:var(--muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Em aberto</div>
           </div>
           <div style="text-align:center;padding:14px 8px;background:rgba(16,200,134,.08);border:1px solid rgba(16,200,134,.18);border-radius:10px">
-            <div style="font-size:26px;font-weight:800;color:#34d399" id="sk-taxa">—</div>
+            <div style="font-size:26px;font-weight:800;color:#059669" id="sk-taxa">—</div>
             <div style="font-size:10px;color:var(--muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Taxa resolução</div>
           </div>
         </div>
         <!-- Tempo médio de resposta -->
         <div style="display:flex;gap:12px;margin-bottom:20px">
           <div style="flex:1;padding:12px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.18);border-radius:10px">
-            <div style="font-size:18px;font-weight:800;color:#fbbf24" id="sk-tempo">—</div>
+            <div style="font-size:18px;font-weight:800;color:#d97706" id="sk-tempo">—</div>
             <div style="font-size:10px;color:var(--muted);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Tempo médio 1ª resposta</div>
           </div>
-          <div style="flex:1;padding:12px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.18);border-radius:10px">
-            <div style="font-size:18px;font-weight:800;color:#c4b5fd" id="sk-reunioes">—</div>
+          <div style="flex:1;padding:12px;background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.18);border-radius:10px">
+            <div style="font-size:18px;font-weight:800;color:#6d28d9" id="sk-reunioes">—</div>
             <div style="font-size:10px;color:var(--muted);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Reuniões realizadas</div>
           </div>
         </div>
@@ -1055,9 +1094,9 @@
     // Linhas guia
     for (let i = 0; i <= 4; i++) {
       const y = padT + (svgH - padT - padB) * i / 4;
-      svgContent += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
+      svgContent += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="rgba(0,0,0,0.07)" stroke-width="1"/>`;
       const val = Math.round(max * (4 - i) / 4);
-      svgContent += `<text x="${padL - 4}" y="${y + 4}" text-anchor="end" font-size="9" fill="rgba(255,255,255,0.3)" font-family="DM Mono,monospace">${val}</text>`;
+      svgContent += `<text x="${padL - 4}" y="${y + 4}" text-anchor="end" font-size="9" fill="#94a3b8" font-family="DM Mono,monospace">${val}</text>`;
     }
 
     meses.forEach((m, i) => {
@@ -1066,18 +1105,18 @@
       const x = padL + i * barW + gap / 2;
       const y = padT + (svgH - padT - padB) - barH;
       const esteM = m.mes === agora.getMonth() && m.ano === agora.getFullYear();
-      // cor neutra cinza-azulada para meses anteriores, destaque verde para o mês actual
-      const cor = esteM ? "#10c886" : "rgba(255,255,255,0.12)";
+      // verde para mês actual, azul-acinzentado visível para meses anteriores
+      const cor = esteM ? "#10c886" : "#cbd5e1";
 
       svgContent += `<rect x="${x}" y="${y}" width="${barW - gap}" height="${barH}" rx="5" fill="${cor}"/>`;
       if (m.total > 0) {
-        svgContent += `<text x="${x + (barW - gap)/2}" y="${y - 6}" text-anchor="middle" font-size="10" fill="${esteM ? '#10c886' : 'rgba(255,255,255,0.45)'}" font-weight="700" font-family="DM Mono,monospace">${m.total}</text>`;
+        svgContent += `<text x="${x + (barW - gap)/2}" y="${y - 6}" text-anchor="middle" font-size="10" fill="${esteM ? '#059669' : '#64748b'}" font-weight="700" font-family="DM Mono,monospace">${m.total}</text>`;
       }
     });
 
     document.getElementById("svg-mensal").innerHTML = svgContent;
     document.getElementById("eixo-x-mensal").innerHTML = meses.map(m =>
-      `<span style="${m.mes === agora.getMonth() && m.ano === agora.getFullYear() ? 'font-weight:700;color:#10c886' : 'color:rgba(255,255,255,0.35)'}">${m.label}</span>`
+      `<span style="${m.mes === agora.getMonth() && m.ano === agora.getFullYear() ? 'font-weight:700;color:#059669' : 'color:#94a3b8'}">${m.label}</span>`
     ).join("");
   }
 
@@ -1095,7 +1134,7 @@
       // Caso especial: 100% — desenhar círculo completo
       const cor = CORES_TIPO[0];
       paths += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="${cor}" opacity="0.9"/>`;
-      paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#1a2236"/>`;
+      paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#ffffff"/>`;
     } else {
       let angulo = -Math.PI / 2;
       entries.forEach(([tipo, qtd], i) => {
@@ -1112,12 +1151,12 @@
         paths += `<path d="M${x1.toFixed(2)},${y1.toFixed(2)} A${R},${R} 0 ${grande},1 ${x2.toFixed(2)},${y2.toFixed(2)} L${ix2.toFixed(2)},${iy2.toFixed(2)} A${r},${r} 0 ${grande},0 ${ix1.toFixed(2)},${iy1.toFixed(2)} Z" fill="${cor}" opacity="0.9"/>`;
         angulo = angFim;
       });
-      paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#1a2236"/>`;
+      paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#ffffff"/>`;
     }
 
     // Centro: total
-    paths += `<text x="${cx}" y="${cy - 4}" text-anchor="middle" font-size="18" font-weight="800" fill="#ffffff" font-family="DM Mono,monospace">${total}</text>`;
-    paths += `<text x="${cx}" y="${cy + 13}" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.4)" font-family="Plus Jakarta Sans,sans-serif">TOTAL</text>`;
+    paths += `<text x="${cx}" y="${cy - 4}" text-anchor="middle" font-size="18" font-weight="800" fill="#0f172a" font-family="DM Mono,monospace">${total}</text>`;
+    paths += `<text x="${cx}" y="${cy + 13}" text-anchor="middle" font-size="9" fill="#94a3b8" font-family="Plus Jakarta Sans,sans-serif">TOTAL</text>`;
 
     document.getElementById("svg-donut").innerHTML = paths;
 
@@ -1126,7 +1165,7 @@
       return `<div class="legenda-item">
         <div class="legenda-cor" style="background:${CORES_TIPO[i%CORES_TIPO.length]};border-radius:3px"></div>
         <span class="legenda-texto">${LABELS_TIPO[tipo] || tipo}</span>
-        <span class="legenda-num">${qtd}<span style="font-size:10px;color:rgba(255,255,255,.35);font-weight:400;margin-left:4px">${pct}%</span></span>
+        <span class="legenda-num">${qtd}<span style="font-size:10px;color:#94a3b8;font-weight:400;margin-left:4px">${pct}%</span></span>
       </div>`;
     }).join("");
   }
@@ -1157,7 +1196,7 @@
 
     if(!entries.length){
       document.getElementById('barras-unidades').innerHTML =
-        '<p style="color:rgba(255,255,255,.3);font-size:13px;padding:8px 0">Sem dados de funcionários</p>';
+        '<p style="color:#94a3b8;font-size:13px;padding:8px 0">Sem dados de funcionários</p>';
       return;
     }
 
@@ -1211,7 +1250,7 @@
           <span class="barra-h-val">${qtd}</span>
         </div>
         <div class="barra-h-track"><div class="barra-h-fill" style="width:${Math.round(qtd/max*100)}%;background:${CORES_BARRA[(i+3)%CORES_BARRA.length]}"></div></div>
-      </div>`).join("") || '<p style="color:rgba(255,255,255,.3);font-size:13px;padding:8px 0">Sem dados</p>';
+      </div>`).join("") || '<p style="color:#94a3b8;font-size:13px;padding:8px 0">Sem dados</p>';
   }
 
   // ── MINI ESTATÍSTICAS ──
@@ -1256,12 +1295,12 @@
 
       return `<tr>
         <td style="font-weight:600;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${nome}">${nome}</td>
-        <td style="font-family:'DM Mono',monospace;font-weight:800;color:#60a5fa">${u.cadastrados}</td>
-        <td style="font-family:'DM Mono',monospace;color:rgba(255,255,255,.4)">${esp||'—'}</td>
+        <td style="font-family:'DM Mono',monospace;font-weight:800;color:#2563eb">${u.cadastrados}</td>
+        <td style="font-family:'DM Mono',monospace;color:#94a3b8">${esp||'—'}</td>
         <td>${cobHTML}</td>
         <td style="font-family:'DM Mono',monospace;font-weight:700">${u.docs}</td>
       </tr>`;
-    }).join('') || '<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,.3);padding:20px">Sem dados</td></tr>';
+    }).join('') || '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px">Sem dados</td></tr>';
   }
 
   // ── FEED DE ACTIVIDADE ──
@@ -1294,7 +1333,7 @@
       APROVAR: { bg:"rgba(16,200,134,.15)",  emoji:"✅" },
       REJEITAR:{ bg:"rgba(239,68,68,.15)",   emoji:"❌" },
       LOGIN:   { bg:"rgba(167,139,250,.15)", emoji:"🔑" },
-      LOGOUT:  { bg:"rgba(255,255,255,.07)", emoji:"🚪" }
+      LOGOUT:  { bg:"rgba(0,0,0,.05)",          emoji:"🚪" }
     };
 
     document.getElementById("feed-actividade").innerHTML = eventos.slice(0,10).map(e => {
@@ -1307,7 +1346,7 @@
         </div>
         <div class="feed-hora">${fmtDataCurta(e.ts)}<br>${fmtHora(e.ts)}</div>
       </div>`;
-    }).join("") || '<div style="text-align:center;padding:30px;color:rgba(255,255,255,.3)">Sem actividade recente.</div>';
+    }).join("") || '<div style="text-align:center;padding:30px;color:#94a3b8">Sem actividade recente.</div>';
   }
 
   // ── SECRETARIA ──
@@ -1364,7 +1403,7 @@
           <span style="font-size:11px;color:var(--txt)">${abrvU(u)}</span>
           <span style="font-size:11px;font-weight:700;color:var(--blue)">${n}</span>
         </div>
-        <div style="height:5px;background:rgba(255,255,255,.07);border-radius:3px">
+        <div style="height:5px;background:#e2e8f0;border-radius:3px">
           <div style="height:5px;width:${pct}%;background:var(--blue);border-radius:3px"></div>
         </div>
       </div>`;
@@ -1383,7 +1422,7 @@
           <span style="font-size:12px;color:var(--txt)">${ASSUNTOS_PAINEL[k]||k}</span>
           <span style="font-size:12px;font-weight:700;color:${cor}">${n}</span>
         </div>
-        <div style="height:6px;background:rgba(255,255,255,.07);border-radius:3px">
+        <div style="height:6px;background:#e2e8f0;border-radius:3px">
           <div style="height:6px;width:${pct}%;background:${cor};border-radius:3px"></div>
         </div>
       </div>`;
@@ -1404,7 +1443,7 @@
             <span style="font-size:12px;color:var(--txt)">${LABELS_REUN[e]||e}</span>
             <span style="font-size:12px;font-weight:700;color:${cor}">${n}</span>
           </div>
-          <div style="height:6px;background:rgba(255,255,255,.07);border-radius:3px">
+          <div style="height:6px;background:#e2e8f0;border-radius:3px">
             <div style="height:6px;width:${pct}%;background:${cor};border-radius:3px"></div>
           </div>
         </div>`;
@@ -1412,7 +1451,7 @@
 
     // Pedidos por estado
     const LABELS_P = {novo:'Novos',em_analise:'Em análise',respondido:'Respondido',fechado:'Fechado'};
-    const CORES_P  = {novo:'#60a5fa',em_analise:'#fcd34d',respondido:'#6ee7b7',fechado:'#94a3b8'};
+    const CORES_P  = {novo:'#2563eb',em_analise:'#d97706',respondido:'#059669',fechado:'#94a3b8'};
     const porEstadoP = {};
     pedidos.forEach(p => { const e = p.estado||'novo'; porEstadoP[e]=(porEstadoP[e]||0)+1; });
     const maxP = Math.max(...Object.values(porEstadoP), 1);
@@ -1425,7 +1464,7 @@
             <span style="font-size:11px;color:var(--txt)">${LABELS_P[e]||e}</span>
             <span style="font-size:11px;font-weight:700;color:${cor}">${n}</span>
           </div>
-          <div style="height:4px;background:rgba(255,255,255,.07);border-radius:2px">
+          <div style="height:4px;background:#e2e8f0;border-radius:2px">
             <div style="height:4px;width:${pct}%;background:${cor};border-radius:2px"></div>
           </div>
         </div>`;
