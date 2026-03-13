@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIGDOC-SUMBE — Férias e Ausências</title>
+  <meta name="theme-color" content="#0b4f3a"/>
+  <script src="sigdoc-config.js"></script>
+  <script src="sigdoc-nav.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --c-900:#052e1c;--c-800:#0b4f3a;--c-700:#0d6e4f;--c-600:#12a372;--c-500:#10c886;
+      --c-100:#d1fae5;--c-50:#f0fdf4;
+      --b-800:#1e3a5f;--b-600:#2563eb;--b-100:#dbeafe;
+      --r-600:#dc2626;--r-100:#fee2e2;
+      --a-500:#f59e0b;--a-100:#fef3c7;
+      --p-600:#7c3aed;--p-100:#ede9fe;
+      --neu-900:#0f172a;--neu-700:#334155;--neu-600:#475569;--neu-500:#64748b;
+      --neu-400:#94a3b8;--neu-300:#cbd5e1;--neu-200:#e2e8f0;
+      --neu-100:#f1f5f9;--neu-50:#f8fafc;--white:#ffffff;
+      --r-sm:8px;--r-md:14px;--r-lg:20px;--r-xl:28px;--r-full:999px;
+      --sh-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+      --sh-md:0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.05);
+      --sh-lg:0 20px 60px rgba(0,0,0,.15),0 8px 20px rgba(0,0,0,.08);
+      --font:'Plus Jakarta Sans',sans-serif;--mono:'DM Mono',monospace;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--neu-50);color:var(--neu-900);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+    /* ── ECRÃS DE ESTADO ── */
+    #ecra-carregando{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+    .spinner{width:22px;height:22px;border:2.5px solid var(--neu-200);border-top-color:var(--c-500);border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    #ecra-negado{min-height:100vh;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:20px}
+    #ecra-principal{display:none}
+
+    /* ── TOPBAR ── */
+    .topbar{
+      background:linear-gradient(135deg,var(--c-900) 0%,var(--c-800) 60%,var(--c-700) 100%);
+      padding:0 24px;height:64px;display:flex;align-items:center;gap:14px;
+      position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(0,0,0,.25);
+    }
+    .topbar-titulo{font-size:15px;font-weight:800;color:var(--white);flex:1;letter-spacing:.3px}
+    .topbar-titulo span{display:block;font-size:10px;font-weight:400;opacity:.55;margin-top:1px}
+    .badge-perfil{padding:4px 12px;border-radius:var(--r-full);font-size:10px;font-weight:700;background:rgba(255,255,255,.15);color:var(--white)}
+
+    /* ── HERO ── */
+    .hero{
+      background:linear-gradient(135deg,var(--c-900) 0%,var(--c-800) 60%,var(--c-700) 100%);
+      padding:28px 24px 72px;position:relative;overflow:hidden;
+    }
+    .hero::before{content:'';position:absolute;top:-80px;right:-80px;width:320px;height:320px;background:radial-gradient(circle,rgba(16,200,134,.1) 0%,transparent 65%);border-radius:50%}
+    .hero>*{position:relative;z-index:1}
+    .hero-label{font-size:10px;font-weight:700;color:var(--c-500);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+    .hero-titulo{font-size:22px;font-weight:800;color:var(--white);line-height:1.2}
+    .hero-sub{font-size:13px;color:rgba(255,255,255,.6);margin-top:6px}
+
+    /* ── KPI STRIP ── */
+    .kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:0 24px;margin-top:-44px;position:relative;z-index:10}
+    @media(max-width:900px){.kpi-strip{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:500px){.kpi-strip{grid-template-columns:1fr}}
+    .kpi{background:var(--white);border:1px solid var(--neu-200);border-radius:var(--r-md);padding:18px 16px;box-shadow:var(--sh-sm);transition:box-shadow .2s;position:relative;overflow:hidden}
+    .kpi:hover{box-shadow:var(--sh-md)}
+    .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-md) var(--r-md) 0 0}
+    .kpi:nth-child(1)::before{background:var(--b-600)}
+    .kpi:nth-child(2)::before{background:var(--c-500)}
+    .kpi:nth-child(3)::before{background:var(--a-500)}
+    .kpi:nth-child(4)::before{background:var(--r-600)}
+    .kpi-icon{font-size:18px;margin-bottom:10px;display:block}
+    .kpi-val{font-size:30px;font-weight:800;font-family:var(--mono);line-height:1;letter-spacing:-1px;color:var(--neu-900)}
+    .kpi-lbl{font-size:11px;color:var(--neu-500);margin-top:5px;font-weight:500}
+
+    /* ── LAYOUT PRINCIPAL ── */
+    .layout{display:grid;grid-template-columns:340px 1fr;gap:18px;padding:24px;max-width:1440px;margin:0 auto}
+    @media(max-width:1100px){.layout{grid-template-columns:1fr}}
+
+    /* ── CARD BASE ── */
+    .card{background:var(--white);border:1px solid var(--neu-200);border-radius:var(--r-lg);box-shadow:var(--sh-sm);overflow:hidden}
+    .card-header{padding:18px 20px 14px;border-bottom:1px solid var(--neu-100);display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .card-titulo{font-size:14px;font-weight:800;color:var(--neu-900)}
+    .card-sub{font-size:11px;color:var(--neu-500);margin-top:2px}
+    .card-body{padding:18px 20px}
+
+    /* ── FORMULÁRIO ── */
+    .form-grupo{margin-bottom:16px}
+    .form-label{display:block;font-size:11px;font-weight:700;color:var(--neu-600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+    .form-label .obrig{color:var(--r-600)}
+    .form-input,.form-select,.form-textarea{
+      width:100%;padding:10px 12px;border:1.5px solid var(--neu-200);border-radius:var(--r-sm);
+      font-size:13px;font-family:var(--font);color:var(--neu-900);background:var(--white);
+      transition:border-color .18s,box-shadow .18s;outline:none;
+    }
+    .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--c-600);box-shadow:0 0 0 3px rgba(16,200,134,.12)}
+    .form-input:disabled,.form-select:disabled{background:var(--neu-100);color:var(--neu-400);cursor:not-allowed}
+    .form-textarea{resize:vertical;min-height:80px}
+    .form-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .form-hint{font-size:11px;color:var(--neu-400);margin-top:5px}
+    .form-hint.verde{color:var(--c-700);font-weight:600}
+    .form-hint.vermelho{color:var(--r-600);font-weight:600}
+
+    /* Pesquisa de funcionário */
+    .pesq-wrap{position:relative}
+    .pesq-resultados{
+      position:absolute;top:calc(100% + 4px);left:0;right:0;
+      background:var(--white);border:1.5px solid var(--c-600);border-radius:var(--r-sm);
+      box-shadow:var(--sh-md);z-index:50;max-height:200px;overflow-y:auto;display:none;
+    }
+    .pesq-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--neu-100);transition:background .12s}
+    .pesq-item:last-child{border-bottom:none}
+    .pesq-item:hover{background:var(--c-50)}
+    .pesq-item-nome{font-size:13px;font-weight:600;color:var(--neu-900)}
+    .pesq-item-info{font-size:11px;color:var(--neu-500);margin-top:1px}
+    .pesq-vazio{padding:16px;text-align:center;font-size:12px;color:var(--neu-400)}
+
+    /* ── BOTÕES ── */
+    .btn{padding:11px 20px;border-radius:var(--r-sm);font-size:13px;font-weight:700;font-family:var(--font);cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:8px;border:none}
+    .btn-primary{background:linear-gradient(135deg,var(--c-800),var(--c-600));color:var(--white);width:100%}
+    .btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+    .btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none}
+    .btn-secondary{background:var(--neu-100);color:var(--neu-700);border:1px solid var(--neu-200)}
+    .btn-secondary:hover{background:var(--neu-200)}
+    .btn-aprovar{background:rgba(16,200,134,.12);color:var(--c-700);border:1.5px solid rgba(16,200,134,.25);padding:7px 14px;font-size:12px}
+    .btn-aprovar:hover{background:rgba(16,200,134,.22)}
+    .btn-rejeitar{background:var(--r-100);color:var(--r-600);border:1.5px solid rgba(220,38,38,.2);padding:7px 14px;font-size:12px}
+    .btn-rejeitar:hover{background:#fecaca}
+    .btn-sm{padding:5px 12px;font-size:11px}
+
+    /* ── ABAS ── */
+    .abas{display:flex;border-bottom:1px solid var(--neu-200);background:var(--white)}
+    .aba{flex:1;padding:14px 8px;border:none;background:none;font-size:12px;font-weight:600;color:var(--neu-400);cursor:pointer;border-bottom:2.5px solid transparent;font-family:var(--font);transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px}
+    .aba.activa{color:var(--c-700);border-bottom-color:var(--c-600);background:var(--c-50)}
+    .aba:hover:not(.activa){background:var(--neu-50);color:var(--neu-700)}
+    .badge-aba{background:var(--r-600);color:var(--white);border-radius:var(--r-full);padding:1px 7px;font-size:10px;font-weight:700;display:none}
+    .badge-aba.vis{display:inline-block}
+
+    /* ── FILTROS ── */
+    .filtros-strip{display:flex;gap:8px;flex-wrap:wrap;padding:14px 16px;border-bottom:1px solid var(--neu-100);background:var(--neu-50)}
+    .filtro-sel{padding:6px 10px;border:1.5px solid var(--neu-200);border-radius:var(--r-sm);font-size:12px;font-family:var(--font);color:var(--neu-700);background:var(--white);cursor:pointer;outline:none;transition:border-color .15s}
+    .filtro-sel:focus{border-color:var(--c-600)}
+    .filtro-sel.activo{border-color:var(--c-600);background:var(--c-50);color:var(--c-800)}
+
+    /* ── LISTA DE REGISTOS ── */
+    .lista-wrap{padding:8px 0}
+    .registo-item{
+      padding:14px 16px;border-bottom:1px solid var(--neu-100);
+      transition:background .12s;cursor:pointer;
+    }
+    .registo-item:last-child{border-bottom:none}
+    .registo-item:hover{background:var(--neu-50)}
+    .registo-item.activo{background:var(--c-50);border-left:3px solid var(--c-500)}
+    .reg-cabecalho{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+    .reg-nome{font-size:13px;font-weight:700;color:var(--neu-900)}
+    .reg-tipo{font-size:11px;color:var(--neu-500);margin-top:1px}
+    .reg-datas{font-size:11px;color:var(--neu-600);font-family:var(--mono);margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .reg-datas .dias{font-weight:700;color:var(--neu-800)}
+    .reg-unidade{font-size:10px;color:var(--neu-400);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    /* ── BADGES DE ESTADO ── */
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--r-full);font-size:10px;font-weight:700;white-space:nowrap}
+    .badge-pendente{background:var(--a-100);color:#92400e}
+    .badge-aprovado{background:var(--c-100);color:var(--c-900)}
+    .badge-rejeitado{background:var(--r-100);color:var(--r-600)}
+    .badge-tipo-ferias{background:rgba(37,99,235,.1);color:var(--b-600)}
+    .badge-tipo-licenca-medica{background:rgba(124,58,237,.1);color:var(--p-600)}
+    .badge-tipo-licenca-especial{background:rgba(245,158,11,.1);color:#92400e}
+    .badge-tipo-falta{background:rgba(220,38,38,.1);color:var(--r-600)}
+
+    /* ── DETALHE ── */
+    .detalhe-wrap{padding:18px 20px}
+    .detalhe-campo{margin-bottom:14px}
+    .detalhe-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--neu-400);margin-bottom:4px}
+    .detalhe-val{font-size:13px;font-weight:600;color:var(--neu-800)}
+    .detalhe-val.mono{font-family:var(--mono)}
+    .detalhe-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+    .detalhe-divider{height:1px;background:var(--neu-100);margin:14px 0}
+    .acoes-aprovacao{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--neu-100)}
+    .obs-rejeitado{background:var(--r-100);border:1px solid rgba(220,38,38,.15);border-radius:var(--r-sm);padding:10px 14px;margin-top:12px;font-size:12px;color:var(--r-600);display:none}
+    .obs-input-wrap{display:none;margin-top:10px}
+    .vazio-estado{padding:40px;text-align:center;color:var(--neu-400)}
+    .vazio-estado .icone{font-size:36px;margin-bottom:12px}
+    .vazio-estado p{font-size:13px;font-weight:600}
+    .vazio-estado small{font-size:11px;color:var(--neu-400)}
+
+    /* ── CALENDÁRIO MINI ── */
+    .cal-strip{display:flex;gap:6px;flex-wrap:wrap;padding:12px 0}
+    .cal-dia{width:32px;height:32px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--mono);position:relative}
+    .cal-dia.ferias{background:rgba(37,99,235,.12);color:var(--b-600)}
+    .cal-dia.licenca{background:rgba(124,58,237,.12);color:var(--p-600)}
+    .cal-dia.falta{background:rgba(220,38,38,.1);color:var(--r-600)}
+    .cal-dia.hoje{border:2px solid var(--c-500)}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;bottom:24px;right:24px;padding:12px 18px;border-radius:var(--r-md);font-size:13px;font-weight:600;display:none;z-index:9999;max-width:340px;box-shadow:var(--sh-lg);font-family:var(--font)}
+    .toast-sucesso{background:#064e35;color:#6ee7b7;border-left:4px solid var(--c-500)}
+    .toast-erro{background:#450a0a;color:#fca5a5;border-left:4px solid var(--r-600)}
+    .toast-aviso{background:#1c1200;color:#fcd34d;border-left:4px solid var(--a-500)}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:700px){
+      .hero{padding:20px 16px 64px}
+      .kpi-strip{padding:0 16px;margin-top:-36px}
+      .layout{padding:16px}
+      .form-row2{grid-template-columns:1fr}
+    }
+
+    /* ── MODAL REJEIÇÃO ── */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+    .modal-overlay.vis{display:flex}
+    .modal-box{background:var(--white);border-radius:var(--r-xl);padding:28px;max-width:440px;width:100%;box-shadow:var(--sh-lg)}
+    .modal-titulo{font-size:16px;font-weight:800;margin-bottom:6px}
+    .modal-sub{font-size:13px;color:var(--neu-500);margin-bottom:20px}
+    .modal-acoes{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+  </style>
+</head>
+<body>
+
+<!-- ── CARREGANDO ── -->
+<div id="ecra-carregando">
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:var(--neu-500)">A verificar acesso…</div>
+</div>
+
+<!-- ── ACESSO NEGADO ── -->
+<div id="ecra-negado">
+  <div style="font-size:48px">🔒</div>
+  <h2 style="font-size:18px">Acesso não autorizado</h2>
+  <p style="font-size:13px;color:var(--neu-500)">Esta página requer autenticação no sistema.</p>
+  <a href="index.html" style="margin-top:12px;padding:10px 24px;border-radius:var(--r-sm);background:var(--c-800);color:white;font-size:13px;font-weight:700;text-decoration:none">← Voltar ao Dashboard</a>
+</div>
+
+<!-- ── PRINCIPAL ── -->
+<div id="ecra-principal">
+
+  <div class="topbar">
+    <div class="topbar-titulo">
+      🌴 Férias e Ausências
+      <span>SIGDOC-SUMBE · Módulo de Gestão de Licenças</span>
+    </div>
+    <span class="badge-perfil" id="badge-perfil">—</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-label">Gestão de Licenças</div>
+    <div class="hero-titulo" id="hero-titulo">Férias e Ausências</div>
+    <div class="hero-sub" id="hero-sub">A carregar dados…</div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-strip">
+    <div class="kpi">
+      <span class="kpi-icon">📋</span>
+      <div class="kpi-val" id="kpi-total">—</div>
+      <div class="kpi-lbl">Total de Registos</div>
+    </div>
+    <div class="kpi">
+      <span class="kpi-icon">✅</span>
+      <div class="kpi-val" id="kpi-aprovados">—</div>
+      <div class="kpi-lbl">Aprovados</div>
+    </div>
+    <div class="kpi">
+      <span class="kpi-icon">⏳</span>
+      <div class="kpi-val" id="kpi-pendentes">—</div>
+      <div class="kpi-lbl">Pendentes</div>
+    </div>
+    <div class="kpi">
+      <span class="kpi-icon">🌴</span>
+      <div class="kpi-val" id="kpi-dias">—</div>
+      <div class="kpi-lbl">Dias em Férias (aprovados)</div>
+    </div>
+  </div>
+
+  <!-- LAYOUT -->
+  <div class="layout">
+
+    <!-- ── COLUNA ESQUERDA: Formulário + Lista ── -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+
+      <!-- FORMULÁRIO DE REGISTO -->
+      <div class="card" id="card-form">
+        <div class="card-header">
+          <div>
+            <div class="card-titulo">➕ Novo Registo</div>
+            <div class="card-sub" id="form-sub">Registar férias ou ausência</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-cancelar" onclick="cancelarForm()" style="display:none">Cancelar</button>
+        </div>
+        <div class="card-body">
+
+          <!-- Pesquisa de funcionário (gestão) / só leitura (funcionário) -->
+          <div class="form-grupo" id="grupo-pesquisa">
+            <label class="form-label">Funcionário <span class="obrig">*</span></label>
+            <div class="pesq-wrap">
+              <input type="text" class="form-input" id="input-pesquisa-func"
+                placeholder="Pesquisar por nome ou BI…"
+                autocomplete="off"
+                oninput="pesquisarFunc(this.value)"/>
+              <div class="pesq-resultados" id="pesq-resultados"></div>
+            </div>
+            <input type="hidden" id="func-uid"/>
+            <div class="form-hint" id="func-selecionado-info"></div>
+          </div>
+
+          <div class="form-grupo">
+            <label class="form-label">Tipo de Ausência <span class="obrig">*</span></label>
+            <select class="form-select" id="tipo-ausencia" onchange="onTipoChange()">
+              <option value="">Seleccionar…</option>
+              <option value="ferias">🌴 Férias Anuais</option>
+              <option value="licenca-medica">🏥 Licença Médica</option>
+              <option value="licenca-especial">📝 Licença Especial</option>
+              <option value="licenca-maternidade">🍼 Licença de Maternidade</option>
+              <option value="licenca-paternidade">👶 Licença de Paternidade</option>
+              <option value="falta-justificada">✔ Falta Justificada</option>
+              <option value="falta-injustificada">✖ Falta Injustificada</option>
+            </select>
+          </div>
+
+          <div class="form-row2">
+            <div class="form-grupo">
+              <label class="form-label">Data de Início <span class="obrig">*</span></label>
+              <input type="date" class="form-input" id="data-inicio" onchange="calcularDias()"/>
+            </div>
+            <div class="form-grupo">
+              <label class="form-label">Data de Fim <span class="obrig">*</span></label>
+              <input type="date" class="form-input" id="data-fim" onchange="calcularDias()"/>
+            </div>
+          </div>
+
+          <div class="form-grupo" id="grupo-dias-info" style="display:none">
+            <div class="form-hint verde" id="dias-calculados"></div>
+          </div>
+
+          <div class="form-grupo">
+            <label class="form-label">Observações</label>
+            <textarea class="form-textarea" id="observacoes" placeholder="Informações adicionais, motivo, etc."></textarea>
+          </div>
+
+          <button class="btn btn-primary" id="btn-registar" onclick="submeterRegisto()" disabled>
+            <span id="btn-registar-texto">✔ Registar</span>
+          </button>
+        </div>
+      </div><!-- /card-form -->
+
+    </div><!-- /coluna esquerda -->
+
+    <!-- ── COLUNA DIREITA: Lista + Detalhe ── -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+
+      <!-- LISTA -->
+      <div class="card">
+        <div class="abas" id="abas-wrap">
+          <button class="aba activa" id="aba-todos" onclick="mudarAba('todos')">📋 Todos <span class="badge-aba" id="badge-todos"></span></button>
+          <button class="aba" id="aba-pendentes" onclick="mudarAba('pendentes')">⏳ Pendentes <span class="badge-aba vis" id="badge-pendentes-aba">0</span></button>
+          <button class="aba" id="aba-aprovados" onclick="mudarAba('aprovados')">✅ Aprovados</button>
+          <button class="aba" id="aba-rejeitados" onclick="mudarAba('rejeitados')">❌ Rejeitados</button>
+        </div>
+        <div class="filtros-strip">
+          <select class="filtro-sel" id="fil-tipo" onchange="aplicarFiltros()">
+            <option value="">Todos os tipos</option>
+            <option value="ferias">Férias</option>
+            <option value="licenca-medica">Lic. Médica</option>
+            <option value="licenca-especial">Lic. Especial</option>
+            <option value="licenca-maternidade">Maternidade</option>
+            <option value="licenca-paternidade">Paternidade</option>
+            <option value="falta-justificada">Falta Just.</option>
+            <option value="falta-injustificada">Falta Injust.</option>
+          </select>
+          <select class="filtro-sel" id="fil-unidade" onchange="aplicarFiltros()">
+            <option value="">Todas as unidades</option>
+          </select>
+          <input type="text" class="filtro-sel" id="fil-nome" placeholder="🔍 Nome…" oninput="aplicarFiltros()" style="min-width:140px"/>
+        </div>
+        <div id="lista-registos">
+          <div class="vazio-estado">
+            <div class="icone"><div class="spinner" style="margin:0 auto"></div></div>
+            <p>A carregar registos…</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DETALHE -->
+      <div class="card" id="card-detalhe" style="display:none">
+        <div class="card-header">
+          <div>
+            <div class="card-titulo">🔍 Detalhe do Registo</div>
+            <div class="card-sub" id="detalhe-ref">—</div>
+          </div>
+          <button onclick="fecharDetalhe()" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--neu-400)">✕</button>
+        </div>
+        <div class="detalhe-wrap" id="detalhe-conteudo"></div>
+      </div>
+
+    </div><!-- /coluna direita -->
+
+  </div><!-- /layout -->
+
+</div><!-- /ecra-principal -->
+
+<!-- MODAL REJEIÇÃO -->
+<div class="modal-overlay" id="modal-rejeicao">
+  <div class="modal-box">
+    <div class="modal-titulo" style="color:var(--r-600)">❌ Rejeitar Registo</div>
+    <div class="modal-sub">Indique o motivo da rejeição (obrigatório)</div>
+    <textarea class="form-textarea" id="motivo-rejeicao" placeholder="Motivo da rejeição…" rows="3"></textarea>
+    <div class="modal-acoes">
+      <button class="btn btn-secondary" onclick="fecharModalRejeicao()">Cancelar</button>
+      <button class="btn btn-rejeitar" onclick="confirmarRejeicao()">❌ Confirmar Rejeição</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, collection, getDocs, doc, getDoc, addDoc, updateDoc,
+  query, orderBy, where, Timestamp, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app  = initializeApp(window.SIGDOC_CONFIG.config);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── Estado global ──
+let _user       = null;
+let _perfil     = '';
+let _nome       = '';
+let _todosRegistos   = [];
+let _todosFuncionarios = [];
+let _abaActiva  = 'todos';
+let _registoSelId = null;
+let _toRejeitar = null; // id do registo a rejeitar
+let _abrvUnidade = window.SIGDOC_CONFIG?.abrvUnidade || (n => n);
+
+const PERFIS_GESTAO = ['admin','director','chefe','tecnico','secretaria'];
+const TIPO_LABEL = {
+  'ferias':'Férias Anuais',
+  'licenca-medica':'Licença Médica',
+  'licenca-especial':'Licença Especial',
+  'licenca-maternidade':'Licença de Maternidade',
+  'licenca-paternidade':'Licença de Paternidade',
+  'falta-justificada':'Falta Justificada',
+  'falta-injustificada':'Falta Injustificada'
+};
+const TIPO_BADGE = {
+  'ferias':'badge-tipo-ferias',
+  'licenca-medica':'badge-tipo-licenca-medica',
+  'licenca-especial':'badge-tipo-licenca-especial',
+  'licenca-maternidade':'badge-tipo-licenca-especial',
+  'licenca-paternidade':'badge-tipo-licenca-especial',
+  'falta-justificada':'badge-tipo-licenca-medica',
+  'falta-injustificada':'badge-tipo-falta'
+};
+
+// ── Toast ──
+let _toastTimer;
+function toast(msg, tipo='sucesso') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast toast-${tipo}`;
+  el.style.display = 'block';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.style.display='none', 3600);
+}
+
+// ── Auth ──
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'index.html'; return; }
+  try {
+    const snap  = await getDoc(doc(db, 'utilizadores', user.uid));
+    const dados = snap.exists() ? snap.data() : {};
+    _perfil = dados.perfil || 'funcionario';
+    _nome   = dados.nome   || user.email;
+    _user   = user;
+
+    // Nav lateral
+    window._sigdocAuth = auth;
+    SIGDOC_NAV.mount({
+      pagina: 'ferias',
+      nome:   _nome,
+      perfil: _perfil,
+      onLogout: async () => { await signOut(auth); window.location.href = 'index.html'; }
+    });
+
+    document.getElementById('ecra-carregando').style.display = 'none';
+    document.getElementById('ecra-principal').style.display  = 'block';
+    document.getElementById('badge-perfil').textContent =
+      {admin:'Administrador',director:'Director',chefe:'Chefe RH',tecnico:'Técnico RH',secretaria:'Secretaria',funcionario:'Funcionário'}[_perfil] || _perfil;
+
+    // Funcionário comum só vê os seus registos e pode criar para si mesmo
+    if (!PERFIS_GESTAO.includes(_perfil)) {
+      document.getElementById('grupo-pesquisa').style.display = 'none';
+      document.getElementById('func-uid').value = user.uid;
+      document.getElementById('form-sub').textContent = 'Solicitar férias ou comunicar ausência';
+      document.getElementById('hero-titulo').textContent = 'As Minhas Férias e Ausências';
+    }
+
+    await carregarDados();
+
+  } catch(e) {
+    console.error(e);
+    document.getElementById('ecra-carregando').innerHTML =
+      `<div style="font-size:36px">❌</div>
+       <div style="color:var(--r-600);font-weight:700;font-size:14px">Erro ao carregar: ${e.message||e}</div>
+       <a href="index.html" style="padding:9px 22px;border-radius:8px;background:var(--c-800);color:white;font-size:13px;font-weight:700;text-decoration:none;margin-top:8px">← Voltar</a>`;
+  }
+});
+
+// ── Carregar dados ──
+async function carregarDados() {
+  try {
+    // Funcionários (para pesquisa — só gestão precisa)
+    if (PERFIS_GESTAO.includes(_perfil)) {
+      const snapF = await getDocs(collection(db, 'funcionarios'));
+      _todosFuncionarios = snapF.docs.map(d => ({id:d.id,...d.data()}));
+      populaFiltroUnidades(_todosFuncionarios);
+    }
+
+    // Registos de férias/ausências
+    let q;
+    if (PERFIS_GESTAO.includes(_perfil)) {
+      q = query(collection(db, 'ferias_ausencias'), orderBy('criadoEm', 'desc'));
+    } else {
+      q = query(collection(db, 'ferias_ausencias'),
+                where('funcionarioUid', '==', _user.uid),
+                orderBy('criadoEm', 'desc'));
+    }
+    const snapR = await getDocs(q);
+    _todosRegistos = snapR.docs.map(d => ({id:d.id,...d.data()}));
+
+    actualizarKPIs();
+    renderLista();
+    document.getElementById('hero-sub').textContent =
+      `${_todosRegistos.length} registo${_todosRegistos.length!==1?'s':''} · Actualizado agora`;
+
+  } catch(e) {
+    console.error(e);
+    toast('❌ Erro ao carregar registos. Verifique a ligação.', 'erro');
+  }
+}
+
+function populaFiltroUnidades(funcs) {
+  const unidades = [...new Set(funcs.map(f => f.unidade).filter(Boolean))].sort();
+  const sel = document.getElementById('fil-unidade');
+  unidades.forEach(u => {
+    const o = document.createElement('option');
+    o.value = u; o.textContent = _abrvUnidade(u);
+    sel.appendChild(o);
+  });
+}
+
+// ── KPIs ──
+function actualizarKPIs() {
+  const total     = _todosRegistos.length;
+  const aprovados = _todosRegistos.filter(r => r.estado === 'aprovado').length;
+  const pendentes = _todosRegistos.filter(r => r.estado === 'pendente').length;
+  const diasApr   = _todosRegistos
+    .filter(r => r.estado === 'aprovado')
+    .reduce((s, r) => s + (r.diasSolicitados || 0), 0);
+
+  document.getElementById('kpi-total').textContent     = total;
+  document.getElementById('kpi-aprovados').textContent = aprovados;
+  document.getElementById('kpi-pendentes').textContent = pendentes;
+  document.getElementById('kpi-dias').textContent      = diasApr;
+
+  document.getElementById('badge-pendentes-aba').textContent = pendentes;
+  document.getElementById('badge-pendentes-aba').classList.toggle('vis', pendentes > 0);
+}
+
+// ── Render lista ──
+function aplicarFiltros() { renderLista(); }
+window.mudarAba = function(aba) {
+  _abaActiva = aba;
+  ['todos','pendentes','aprovados','rejeitados'].forEach(a => {
+    document.getElementById('aba-'+a)?.classList.toggle('activa', a === aba);
+  });
+  renderLista();
+};
+
+function renderLista() {
+  const filTipo    = document.getElementById('fil-tipo')?.value || '';
+  const filUnidade = document.getElementById('fil-unidade')?.value || '';
+  const filNome    = (document.getElementById('fil-nome')?.value || '').toLowerCase().trim();
+
+  let lista = _todosRegistos;
+  if (_abaActiva !== 'todos') lista = lista.filter(r => r.estado === _abaActiva.replace('s','').replace('pendente','pendente').replace('aprovado','aprovado').replace('rejeitado','rejeitado'));
+  // corrigir plural
+  if (_abaActiva === 'pendentes') lista = _todosRegistos.filter(r => r.estado === 'pendente');
+  if (_abaActiva === 'aprovados') lista = _todosRegistos.filter(r => r.estado === 'aprovado');
+  if (_abaActiva === 'rejeitados')lista = _todosRegistos.filter(r => r.estado === 'rejeitado');
+  if (filTipo)    lista = lista.filter(r => r.tipo === filTipo);
+  if (filUnidade) lista = lista.filter(r => r.unidade === filUnidade);
+  if (filNome)    lista = lista.filter(r => (r.funcionarioNome||'').toLowerCase().includes(filNome));
+
+  const el = document.getElementById('lista-registos');
+  if (!lista.length) {
+    el.innerHTML = `<div class="vazio-estado"><div class="icone">📂</div><p>Sem registos</p><small>Nenhum registo corresponde aos filtros seleccionados.</small></div>`;
+    return;
+  }
+
+  el.innerHTML = '<div class="lista-wrap">' + lista.map(r => {
+    const badgeEstado = r.estado === 'aprovado'
+      ? '<span class="badge badge-aprovado">✓ Aprovado</span>'
+      : r.estado === 'rejeitado'
+      ? '<span class="badge badge-rejeitado">✗ Rejeitado</span>'
+      : '<span class="badge badge-pendente">⏳ Pendente</span>';
+    const badgeTipo = `<span class="badge ${TIPO_BADGE[r.tipo]||'badge-tipo-ferias'}">${TIPO_LABEL[r.tipo]||r.tipo||'—'}</span>`;
+    const datas = fmtIntervalo(r.dataInicio, r.dataFim);
+    const dias  = r.diasSolicitados ? `<span class="dias">${r.diasSolicitados}d</span>` : '';
+    return `<div class="registo-item${_registoSelId===r.id?' activo':''}" onclick="verDetalhe('${r.id}')">
+      <div class="reg-cabecalho">
+        <div>
+          <div class="reg-nome">${r.funcionarioNome||'—'}</div>
+          <div class="reg-tipo">${badgeTipo} ${badgeEstado}</div>
+        </div>
+      </div>
+      <div class="reg-datas">${datas} ${dias}</div>
+      <div class="reg-unidade">${_abrvUnidade(r.unidade||'—')}</div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+// ── Detalhe ──
+window.verDetalhe = function(id) {
+  _registoSelId = id;
+  renderLista(); // re-render para marcar activo
+  const r = _todosRegistos.find(x => x.id === id);
+  if (!r) return;
+
+  const podeAprovar = ['admin','director','chefe'].includes(_perfil) && r.estado === 'pendente';
+
+  const badgeEstado = r.estado === 'aprovado'
+    ? '<span class="badge badge-aprovado">✓ Aprovado</span>'
+    : r.estado === 'rejeitado'
+    ? '<span class="badge badge-rejeitado">✗ Rejeitado</span>'
+    : '<span class="badge badge-pendente">⏳ Pendente</span>';
+
+  document.getElementById('detalhe-ref').textContent = `ID: ${r.id.slice(-8).toUpperCase()}`;
+  document.getElementById('detalhe-conteudo').innerHTML = `
+    <div class="detalhe-campo"><div class="detalhe-lbl">Funcionário</div><div class="detalhe-val">${r.funcionarioNome||'—'}</div></div>
+    <div class="detalhe-campo"><div class="detalhe-lbl">Unidade</div><div class="detalhe-val">${r.unidade||'—'}</div></div>
+    <div class="detalhe-divider"></div>
+    <div class="detalhe-grid">
+      <div class="detalhe-campo"><div class="detalhe-lbl">Tipo</div><div class="detalhe-val"><span class="badge ${TIPO_BADGE[r.tipo]||'badge-tipo-ferias'}">${TIPO_LABEL[r.tipo]||r.tipo||'—'}</span></div></div>
+      <div class="detalhe-campo"><div class="detalhe-lbl">Estado</div><div class="detalhe-val">${badgeEstado}</div></div>
+      <div class="detalhe-campo"><div class="detalhe-lbl">Data Início</div><div class="detalhe-val mono">${fmtData(r.dataInicio)}</div></div>
+      <div class="detalhe-campo"><div class="detalhe-lbl">Data Fim</div><div class="detalhe-val mono">${fmtData(r.dataFim)}</div></div>
+      <div class="detalhe-campo"><div class="detalhe-lbl">Dias</div><div class="detalhe-val mono">${r.diasSolicitados||'—'} dias</div></div>
+      <div class="detalhe-campo"><div class="detalhe-lbl">Registado em</div><div class="detalhe-val mono">${fmtTimestamp(r.criadoEm)}</div></div>
+    </div>
+    ${r.observacoes ? `<div class="detalhe-campo"><div class="detalhe-lbl">Observações</div><div class="detalhe-val" style="background:var(--neu-50);padding:10px;border-radius:var(--r-sm);font-size:12px;line-height:1.5">${r.observacoes}</div></div>` : ''}
+    ${r.estado === 'rejeitado' && r.motivoRejeicao ? `<div class="detalhe-campo"><div class="detalhe-lbl">Motivo da Rejeição</div><div style="background:var(--r-100);border:1px solid rgba(220,38,38,.15);border-radius:var(--r-sm);padding:10px;font-size:12px;color:var(--r-600)">${r.motivoRejeicao}</div></div>` : ''}
+    ${r.estado !== 'pendente' ? `<div class="detalhe-campo"><div class="detalhe-lbl">Decisão por</div><div class="detalhe-val">${r.aprovadoPor||'—'} · ${fmtTimestamp(r.aprovadoEm)}</div></div>` : ''}
+    ${podeAprovar ? `
+    <div class="acoes-aprovacao">
+      <button class="btn btn-aprovar" onclick="aprovarRegisto('${r.id}')">✓ Aprovar</button>
+      <button class="btn btn-rejeitar" onclick="abrirModalRejeicao('${r.id}')">✗ Rejeitar</button>
+    </div>` : ''}`;
+
+  document.getElementById('card-detalhe').style.display = 'block';
+  document.getElementById('card-detalhe').scrollIntoView({behavior:'smooth', block:'nearest'});
+};
+
+window.fecharDetalhe = function() {
+  _registoSelId = null;
+  document.getElementById('card-detalhe').style.display = 'none';
+  renderLista();
+};
+
+// ── Aprovar ──
+window.aprovarRegisto = async function(id) {
+  try {
+    await updateDoc(doc(db, 'ferias_ausencias', id), {
+      estado:      'aprovado',
+      aprovadoPor: _nome,
+      aprovadoEm:  serverTimestamp()
+    });
+    const idx = _todosRegistos.findIndex(r => r.id === id);
+    if (idx !== -1) {
+      _todosRegistos[idx].estado      = 'aprovado';
+      _todosRegistos[idx].aprovadoPor = _nome;
+    }
+    actualizarKPIs();
+    renderLista();
+    window.verDetalhe(id);
+    toast('✅ Registo aprovado com sucesso.');
+  } catch(e) {
+    toast('❌ Erro ao aprovar: ' + (e.message||e), 'erro');
+  }
+};
+
+// ── Rejeitar ──
+window.abrirModalRejeicao = function(id) {
+  _toRejeitar = id;
+  document.getElementById('motivo-rejeicao').value = '';
+  document.getElementById('modal-rejeicao').classList.add('vis');
+};
+window.fecharModalRejeicao = function() {
+  document.getElementById('modal-rejeicao').classList.remove('vis');
+  _toRejeitar = null;
+};
+window.confirmarRejeicao = async function() {
+  const motivo = document.getElementById('motivo-rejeicao').value.trim();
+  if (!motivo) { toast('⚠ Indique o motivo da rejeição.', 'aviso'); return; }
+  try {
+    await updateDoc(doc(db, 'ferias_ausencias', _toRejeitar), {
+      estado:          'rejeitado',
+      motivoRejeicao:  motivo,
+      aprovadoPor:     _nome,
+      aprovadoEm:      serverTimestamp()
+    });
+    const idx = _todosRegistos.findIndex(r => r.id === _toRejeitar);
+    if (idx !== -1) {
+      _todosRegistos[idx].estado         = 'rejeitado';
+      _todosRegistos[idx].motivoRejeicao = motivo;
+      _todosRegistos[idx].aprovadoPor    = _nome;
+    }
+    const rejId = _toRejeitar;
+    fecharModalRejeicao();
+    actualizarKPIs();
+    renderLista();
+    window.verDetalhe(rejId);
+    toast('❌ Registo rejeitado.');
+  } catch(e) {
+    toast('❌ Erro ao rejeitar: ' + (e.message||e), 'erro');
+  }
+};
+
+// ── Pesquisa de funcionário ──
+window.pesquisarFunc = function(termo) {
+  const res = document.getElementById('pesq-resultados');
+  document.getElementById('func-uid').value = '';
+  document.getElementById('func-selecionado-info').textContent = '';
+  document.getElementById('btn-registar').disabled = true;
+
+  if (termo.length < 2) { res.style.display = 'none'; return; }
+  const t = termo.toLowerCase();
+  const matches = _todosFuncionarios
+    .filter(f => (f.nomeCompleto||f.nome||'').toLowerCase().includes(t) || (f.bi||'').includes(t))
+    .slice(0, 8);
+
+  if (!matches.length) {
+    res.innerHTML = '<div class="pesq-vazio">Sem resultados</div>';
+  } else {
+    res.innerHTML = matches.map(f => {
+      const nome = f.nomeCompleto || f.nome || '—';
+      const cat  = f.categoria || '';
+      const uni  = _abrvUnidade(f.unidade || '');
+      return `<div class="pesq-item" onclick="seleccionarFunc('${f.id}','${nome.replace(/'/g,"\'")}','${uni.replace(/'/g,"\'")}')">
+        <div class="pesq-item-nome">${nome}</div>
+        <div class="pesq-item-info">${cat}${cat&&uni?' · ':''}${uni}</div>
+      </div>`;
+    }).join('');
+  }
+  res.style.display = 'block';
+};
+
+window.seleccionarFunc = function(uid, nome, unidade) {
+  document.getElementById('func-uid').value = uid;
+  document.getElementById('input-pesquisa-func').value = nome;
+  document.getElementById('func-selecionado-info').textContent = '✓ ' + nome + (unidade?' · '+unidade:'');
+  document.getElementById('func-selecionado-info').className = 'form-hint verde';
+  document.getElementById('pesq-resultados').style.display = 'none';
+  validarFormulario();
+};
+
+// Fechar dropdown ao clicar fora
+document.addEventListener('click', e => {
+  if (!e.target.closest('#grupo-pesquisa'))
+    document.getElementById('pesq-resultados').style.display = 'none';
+});
+
+// ── Validação ──
+function validarFormulario() {
+  const uid   = document.getElementById('func-uid').value;
+  const tipo  = document.getElementById('tipo-ausencia').value;
+  const dIni  = document.getElementById('data-inicio').value;
+  const dFim  = document.getElementById('data-fim').value;
+  const ok = uid && tipo && dIni && dFim && new Date(dFim) >= new Date(dIni);
+  document.getElementById('btn-registar').disabled = !ok;
+  return ok;
+}
+
+window.onTipoChange = validarFormulario;
+
+window.calcularDias = function() {
+  const dIni = document.getElementById('data-inicio').value;
+  const dFim = document.getElementById('data-fim').value;
+  const grupoInfo = document.getElementById('grupo-dias-info');
+  const diasEl    = document.getElementById('dias-calculados');
+  if (dIni && dFim) {
+    const diff = Math.ceil((new Date(dFim) - new Date(dIni)) / 86400000) + 1;
+    if (diff > 0) {
+      diasEl.textContent = `✓ ${diff} dia${diff!==1?'s':''}`;
+      grupoInfo.style.display = 'block';
+    } else {
+      diasEl.textContent = '⚠ A data de fim não pode ser anterior à de início.';
+      grupoInfo.style.display = 'block';
+      diasEl.className = 'form-hint vermelho';
+    }
+  }
+  validarFormulario();
+};
+
+// ── Submeter registo ──
+window.submeterRegisto = async function() {
+  if (!validarFormulario()) return;
+
+  const uid   = document.getElementById('func-uid').value;
+  const tipo  = document.getElementById('tipo-ausencia').value;
+  const dIni  = document.getElementById('data-inicio').value;
+  const dFim  = document.getElementById('data-fim').value;
+  const obs   = document.getElementById('observacoes').value.trim();
+  const dias  = Math.ceil((new Date(dFim) - new Date(dIni)) / 86400000) + 1;
+
+  // Nome e unidade do funcionário
+  let funcNome = _nome, funcUnidade = '';
+  if (PERFIS_GESTAO.includes(_perfil)) {
+    const f = _todosFuncionarios.find(x => x.id === uid);
+    funcNome    = f ? (f.nomeCompleto || f.nome || '—') : '—';
+    funcUnidade = f ? (f.unidade || '') : '';
+  } else {
+    // funcionário comum — buscar do próprio perfil
+    const snap = await getDoc(doc(db, 'funcionarios', uid)).catch(() => null);
+    if (snap?.exists()) {
+      funcNome    = snap.data().nomeCompleto || snap.data().nome || _nome;
+      funcUnidade = snap.data().unidade || '';
+    }
+  }
+
+  const btnTexto = document.getElementById('btn-registar-texto');
+  btnTexto.textContent = '⏳ A registar…';
+  document.getElementById('btn-registar').disabled = true;
+
+  try {
+    const novo = {
+      funcionarioUid:  uid,
+      funcionarioNome: funcNome,
+      unidade:         funcUnidade,
+      tipo,
+      dataInicio:      dIni,
+      dataFim:         dFim,
+      diasSolicitados: dias,
+      observacoes:     obs,
+      estado:          'pendente',
+      criadoPor:       _user.uid,
+      criadoPorNome:   _nome,
+      criadoEm:        serverTimestamp()
+    };
+
+    const ref = await addDoc(collection(db, 'ferias_ausencias'), novo);
+    novo.id        = ref.id;
+    novo.criadoEm  = { seconds: Date.now()/1000 }; // aproximação local
+    _todosRegistos.unshift(novo);
+
+    actualizarKPIs();
+    renderLista();
+    limparFormulario();
+    toast('✅ Registo criado com sucesso.');
+    window.verDetalhe(ref.id);
+
+  } catch(e) {
+    toast('❌ Erro ao guardar: ' + (e.message || e), 'erro');
+  } finally {
+    btnTexto.textContent = '✔ Registar';
+    validarFormulario();
+  }
+};
+
+function limparFormulario() {
+  ['input-pesquisa-func','tipo-ausencia','data-inicio','data-fim','observacoes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('func-uid').value = '';
+  document.getElementById('func-selecionado-info').textContent = '';
+  document.getElementById('grupo-dias-info').style.display = 'none';
+  document.getElementById('btn-registar').disabled = true;
+}
+
+window.cancelarForm = limparFormulario;
+
+// ── Formatação ──
+function fmtData(str) {
+  if (!str) return '—';
+  try {
+    const d = new Date(str + 'T00:00:00');
+    return d.toLocaleDateString('pt-AO', {day:'2-digit', month:'short', year:'numeric'});
+  } catch { return str; }
+}
+function fmtIntervalo(ini, fim) {
+  if (!ini) return '—';
+  return fmtData(ini) + ' → ' + fmtData(fim);
+}
+function fmtTimestamp(ts) {
+  if (!ts) return '—';
+  try {
+    const d = ts.toDate ? ts.toDate() : (ts.seconds ? new Date(ts.seconds*1000) : new Date(ts));
+    return d.toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'});
+  } catch { return '—'; }
+}
+
+</script>
+</body>
+</html>
