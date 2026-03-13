@@ -517,16 +517,44 @@
           <select id="filtro-utilizador"><option value="">Todos</option></select>
         </div>
         <div class="filtro-campo">
+          <label>Módulo</label>
+          <select id="filtro-modulo">
+            <option value="">Todos</option>
+            <option value="documentos">📄 Documentos</option>
+            <option value="sessoes">🔑 Sessões</option>
+            <option value="auditoria">👁️ Fichas / Auditoria</option>
+            <option value="secretaria">✉️ Secretaria</option>
+          </select>
+        </div>
+        <div class="filtro-campo">
           <label>Tipo de Evento</label>
           <select id="filtro-accao">
             <option value="">Todos</option>
-            <option value="GERAR">📄 Gerar Documento</option>
-            <option value="APROVAR">✅ Aprovar</option>
-            <option value="REJEITAR">❌ Rejeitar</option>
-            <option value="LOGIN">🔑 Login</option>
-            <option value="LOGOUT">🚪 Logout</option>
-            <option value="VER_FICHA">👁️ Consulta de Ficha</option>
-            <option value="VER_DOCUMENTO">📋 Consulta de Documento</option>
+            <optgroup label="Documentos">
+              <option value="GERAR">📄 Gerar Documento</option>
+              <option value="APROVAR">✅ Aprovar</option>
+              <option value="REJEITAR">❌ Rejeitar</option>
+            </optgroup>
+            <optgroup label="Sessões">
+              <option value="LOGIN">🔑 Login</option>
+              <option value="LOGOUT">🚪 Logout</option>
+            </optgroup>
+            <optgroup label="Fichas">
+              <option value="VER_FICHA">👁️ Consulta de Ficha</option>
+              <option value="VER_DOCUMENTO">📋 Consulta de Documento</option>
+            </optgroup>
+            <optgroup label="Secretaria — Pedidos">
+              <option value="PEDIDO_NOVO">✉️ Pedido Aberto</option>
+              <option value="PEDIDO_RESPOSTA">💬 Resposta no Pedido</option>
+              <option value="PEDIDO_FECHADO">🔒 Pedido Encerrado</option>
+            </optgroup>
+            <optgroup label="Secretaria — Reuniões">
+              <option value="REUNIAO_PEDIDO">📅 Reunião Solicitada</option>
+              <option value="REUNIAO_CONFIRMADA">✅ Reunião Confirmada</option>
+              <option value="REUNIAO_RECUSADA">❌ Reunião Recusada</option>
+              <option value="REUNIAO_REMARCADA">🔄 Reunião Remarcada</option>
+              <option value="REUNIAO_REALIZADA">🎯 Reunião Realizada</option>
+            </optgroup>
           </select>
         </div>
         <div class="filtro-campo" style="display:flex;flex-direction:column;justify-content:flex-end;">
@@ -544,6 +572,7 @@
         <button class="aba-btn activa" onclick="mudarAba('log',this)">📋 Registo de Actividade</button>
         <button class="aba-btn" onclick="mudarAba('utilizadores',this)">👥 Por Utilizador</button>
         <button class="aba-btn" onclick="mudarAba('documentos',this)">📄 Por Tipo de Documento</button>
+        <button class="aba-btn" onclick="mudarAba('secretaria',this)">✉️ Secretaria</button>
         <button class="aba-btn" onclick="mudarAba('timeline',this)">⏱ Linha do Tempo</button>
       </div>
 
@@ -604,6 +633,43 @@
         <div class="grafico-barras" style="padding-top:0">
           <div class="grafico-titulo">Taxa de Aprovação vs Rejeição</div>
           <div id="grafico-estados"></div>
+        </div>
+      </div>
+
+      <!-- ABA: SECRETARIA -->
+      <div id="aba-secretaria" class="aba-conteudo">
+        <div class="cabecalho-painel">
+          <h3>Historial de Atendimento — Secretaria</h3>
+          <div class="cabecalho-acoes">
+            <span class="contagem" id="contagem-sec">— registos</span>
+            <button class="btn-exportar" onclick="exportarCSVSecretaria()">⬇ Exportar CSV</button>
+          </div>
+        </div>
+
+        <!-- KPIs sumário secretaria -->
+        <div id="sec-kpis-aud" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px"></div>
+
+        <!-- Sub-tabs: Pedidos | Reuniões -->
+        <div style="display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:16px">
+          <button id="subtab-pedidos" onclick="mostrarSubtab('pedidos')"
+            style="padding:8px 18px;background:none;border:none;border-bottom:2px solid var(--green);color:var(--green);font-size:13px;font-weight:700;cursor:pointer">
+            ✉️ Pedidos
+          </button>
+          <button id="subtab-reunioes" onclick="mostrarSubtab('reunioes')"
+            style="padding:8px 18px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,.4);font-size:13px;font-weight:700;cursor:pointer">
+            📅 Reuniões
+          </button>
+        </div>
+
+        <div id="subtab-content-pedidos">
+          <div id="sec-pedidos-aud" class="tabela-wrap">
+            <div class="vazio"><div class="icone-vazio">⏳</div><p>A carregar…</p></div>
+          </div>
+        </div>
+        <div id="subtab-content-reunioes" style="display:none">
+          <div id="sec-reunioes-aud" class="tabela-wrap">
+            <div class="vazio"><div class="icone-vazio">⏳</div><p>A carregar…</p></div>
+          </div>
         </div>
       </div>
 
@@ -669,6 +735,8 @@
   let _todosEventos = [];
   let _eventosFiltrados = [];
   let _mapaUtilizadores = {}; // uid → { nome, perfil }
+  let _pedidosSecAud  = [];   // pedidos_secretaria raw — para a aba dedicada
+  let _reunioesSecAud = [];   // reunioes raw — para a aba dedicada
 
   // ── AUTENTICAÇÃO ──
   onAuthStateChanged(auth, async (user) => {
@@ -734,14 +802,19 @@
   window.carregarTudo = async function() {
     mostrarNotif("A carregar dados…", "notif-info");
     try {
-      const [eventosDocumentos, eventosSessoes, eventosAuditoria] = await Promise.all([
+      const [eventosDocumentos, eventosSessoes, eventosAuditoria, dadosSec] = await Promise.all([
         carregarEventosDocumentos(),
         carregarEventosSessoes(),
-        carregarEventosAuditoria()
+        carregarEventosAuditoria(),
+        carregarEventosSecretaria()
       ]);
 
+      // dadosSec = { eventos, pedidos, reunioes }
+      _pedidosSecAud  = dadosSec.pedidos;
+      _reunioesSecAud = dadosSec.reunioes;
+
       // Juntar e ordenar por data (mais recente primeiro)
-      _todosEventos = [...eventosDocumentos, ...eventosSessoes, ...eventosAuditoria]
+      _todosEventos = [...eventosDocumentos, ...eventosSessoes, ...eventosAuditoria, ...dadosSec.eventos]
         .sort((a, b) => b.timestamp - a.timestamp);
       _eventosFiltrados = [..._todosEventos];
 
@@ -751,6 +824,7 @@
       renderRelatorioUtilizadores(_todosEventos);
       renderRelatorioDocumentos(_todosEventos);
       renderTimeline(_todosEventos);
+      renderSecretariaAuditoria();
       mostrarNotif("✅ " + _todosEventos.length + " eventos carregados.", "notif-sucesso");
     } catch(e) {
       console.error("Erro ao carregar:", e);
@@ -786,7 +860,8 @@
             funcionarioVisado: funcionario,
             referencia: numRef,
             observacao: `Documento ${tipoDoc} ${numRef} gerado para ${funcionario}.`,
-            estado: doc.estado || "pendente"
+            estado: doc.estado || "pendente",
+            modulo: "documentos"
           });
         }
 
@@ -810,7 +885,8 @@
             observacao: accao === "APROVAR"
               ? `${tipoDoc} ${numRef} de ${funcionario} aprovado.`
               : `${tipoDoc} ${numRef} de ${funcionario} rejeitado. Motivo: ${doc.observacao || "não especificado"}.`,
-            motivoRejeicao: doc.observacao || ""
+            motivoRejeicao: doc.observacao || "",
+            modulo: "documentos"
           });
         }
       });
@@ -841,7 +917,8 @@
           referencia: "",
           observacao: accao === "LOGIN"
             ? `${nomeUtil} (${perfilUtil}) iniciou sessão no sistema.`
-            : `${nomeUtil} (${perfilUtil}) encerrou a sessão.`
+            : `${nomeUtil} (${perfilUtil}) encerrou a sessão.`,
+          modulo: "sessoes"
         });
       });
     } catch(e) { console.error("Erro sessoes:", e); mostrarNotif("❌ Erro ao carregar eventos de sessões.", "notif-erro"); }
@@ -871,7 +948,9 @@
           observacao:        e.observacao       || "",
           camposAcedidos:    e.camposAcedidos   || [],
           docId:             e.docId            || "",
-          estadoDocumento:   e.estadoDocumento  || ""
+          estadoDocumento:   e.estadoDocumento  || "",
+          modulo: (e.accao||"").startsWith("PEDIDO_") || (e.accao||"").startsWith("REUNIAO_")
+            ? "secretaria" : "auditoria"
         });
       });
     } catch(e) {
@@ -879,6 +958,197 @@
       if (e.code !== "not-found") console.warn("Auditoria:", e);
     }
     return eventos;
+  }
+
+  // ── EVENTOS DAS COLECÇÕES "pedidos_secretaria" e "reunioes" ──
+  async function carregarEventosSecretaria() {
+    const eventos = [];
+    const pedidos  = [];
+    const reunioes = [];
+
+    const ASSUNTOS = {
+      'ferias-licencas':'Férias/Licenças','abonos-salarios':'Abonos/Salários',
+      'documentacao':'Documentação','transferencias':'Transferências',
+      'escalas':'Escalas','outro':'Outro'
+    };
+    const ESTADOS_REU = {
+      pendente:'Pendente',confirmada:'Confirmada',recusada:'Recusada',
+      remarcada:'Remarcada',realizada:'Realizada'
+    };
+
+    function tsToDate(ts) {
+      if (!ts) return null;
+      if (ts.toDate) return ts.toDate();
+      if (ts.seconds) return new Date(ts.seconds * 1000);
+      return new Date(ts);
+    }
+
+    // ── pedidos_secretaria ──
+    try {
+      const snap = await getDocs(query(
+        collection(db, "pedidos_secretaria"), orderBy("criadoEm","desc"), limit(300)
+      ));
+      snap.forEach(d => {
+        const p = d.data();
+        pedidos.push({ id: d.id, ...p });
+
+        const tsAberto   = tsToDate(p.criadoEm);
+        const tsFechado  = tsToDate(p.fechadoEm);
+        const tsResp     = tsToDate(p.respondidoEm);
+        const assunto    = ASSUNTOS[p.assunto] || p.assunto || "—";
+        const func       = p.funcionarioNome || "—";
+        const numAgente  = p.funcionarioNumero ? ` (Ag. ${p.funcionarioNumero})` : "";
+        const unidade    = p.unidade || "—";
+
+        // Evento: pedido aberto
+        if (tsAberto) eventos.push({
+          id: d.id + "_novo",
+          timestamp: tsAberto,
+          accao: "PEDIDO_NOVO",
+          emailUtilizador: p.funcionarioEmail || "—",
+          nomeUtilizador:  func + numAgente,
+          perfilUtilizador: "Funcionário",
+          tipoDocumento: "Pedido Secretaria",
+          funcionarioVisado: func,
+          referencia: assunto,
+          observacao: `${func}${numAgente} abriu pedido: "${assunto}" · Unidade: ${unidade}`,
+          modulo: "secretaria",
+          pedidoId: d.id,
+          unidade
+        });
+
+        // Evento: 1ª resposta da secretaria
+        if (tsResp && p.estado !== "novo") eventos.push({
+          id: d.id + "_resp",
+          timestamp: tsResp,
+          accao: "PEDIDO_RESPOSTA",
+          emailUtilizador: p.respondidoPorEmail || "—",
+          nomeUtilizador:  p.respondidoPor || "Secretaria",
+          perfilUtilizador: "Secretaria",
+          tipoDocumento: "Pedido Secretaria",
+          funcionarioVisado: func,
+          referencia: assunto,
+          observacao: `Resposta dada ao pedido "${assunto}" de ${func}${numAgente}`,
+          modulo: "secretaria",
+          pedidoId: d.id,
+          unidade
+        });
+
+        // Evento: pedido fechado
+        if (tsFechado && p.estado === "fechado") eventos.push({
+          id: d.id + "_fechado",
+          timestamp: tsFechado,
+          accao: "PEDIDO_FECHADO",
+          emailUtilizador: p.respondidoPorEmail || "—",
+          nomeUtilizador:  p.respondidoPor || "Secretaria",
+          perfilUtilizador: "Secretaria",
+          tipoDocumento: "Pedido Secretaria",
+          funcionarioVisado: func,
+          referencia: assunto,
+          observacao: `Pedido "${assunto}" de ${func}${numAgente} encerrado`,
+          modulo: "secretaria",
+          pedidoId: d.id,
+          unidade
+        });
+
+        // Eventos das mensagens intermediárias (array mensagens)
+        if (Array.isArray(p.mensagens)) {
+          p.mensagens.forEach((m, i) => {
+            if (i === 0) return; // já coberto por PEDIDO_NOVO
+            const tmsg = tsToDate(m.em);
+            if (!tmsg) return;
+            const isPerfil = m.perfil && m.perfil !== "funcionario";
+            eventos.push({
+              id: d.id + "_msg_" + i,
+              timestamp: tmsg,
+              accao: isPerfil ? "PEDIDO_RESPOSTA" : "PEDIDO_NOVO",
+              emailUtilizador: m.email || "—",
+              nomeUtilizador:  m.nome  || "—",
+              perfilUtilizador: isPerfil ? "Secretaria" : "Funcionário",
+              tipoDocumento: "Pedido Secretaria",
+              funcionarioVisado: func,
+              referencia: assunto,
+              observacao: `${isPerfil ? "Secretaria" : func} adicionou mensagem no pedido "${assunto}"`,
+              modulo: "secretaria",
+              pedidoId: d.id,
+              unidade
+            });
+          });
+        }
+      });
+    } catch(e) { console.warn("pedidos_secretaria auditoria:", e); }
+
+    // ── reunioes ──
+    try {
+      const ACCOES_REU = {
+        pendente:   "REUNIAO_PEDIDO",
+        confirmada: "REUNIAO_CONFIRMADA",
+        recusada:   "REUNIAO_RECUSADA",
+        remarcada:  "REUNIAO_REMARCADA",
+        realizada:  "REUNIAO_REALIZADA"
+      };
+      const snap = await getDocs(query(
+        collection(db, "reunioes"), orderBy("criadoEm","desc"), limit(200)
+      ));
+      snap.forEach(d => {
+        const r = d.data();
+        reunioes.push({ id: d.id, ...r });
+
+        const func     = r.funcionarioNome || "—";
+        const numAgente = r.funcionarioNumero ? ` (Ag. ${r.funcionarioNumero})` : "";
+        const assunto  = r.assunto || "—";
+        const unidade  = r.unidade || "—";
+        const dest     = r.destinatario || "—";
+
+        // Evento de criação do pedido
+        const tsCria = tsToDate(r.criadoEm);
+        if (tsCria) eventos.push({
+          id: d.id + "_reu_novo",
+          timestamp: tsCria,
+          accao: "REUNIAO_PEDIDO",
+          emailUtilizador: r.funcionarioEmail || "—",
+          nomeUtilizador:  func + numAgente,
+          perfilUtilizador: "Funcionário",
+          tipoDocumento: "Reunião",
+          funcionarioVisado: func,
+          referencia: `${assunto} · ${dest}`,
+          observacao: `${func}${numAgente} solicitou reunião sobre "${assunto}" com ${dest} · Unidade: ${unidade}`,
+          modulo: "secretaria",
+          reuniaoId: d.id,
+          unidade
+        });
+
+        // Evento de actualização de estado (se diferente de pendente)
+        const tsAct = tsToDate(r.actualizadoEm);
+        if (tsAct && r.estado && r.estado !== "pendente") {
+          const accao = ACCOES_REU[r.estado] || "REUNIAO_PEDIDO";
+          const obs = {
+            confirmada: `Reunião sobre "${assunto}" de ${func}${numAgente} confirmada. Local: ${r.local||"—"}, data: ${r.dataSugerida||"a definir"}`,
+            recusada:   `Reunião sobre "${assunto}" de ${func}${numAgente} recusada. Motivo: ${r.motivoRecusa||"não especificado"}`,
+            remarcada:  `Reunião sobre "${assunto}" de ${func}${numAgente} remarcada para ${r.dataSugerida||"data a definir"}`,
+            realizada:  `Reunião sobre "${assunto}" de ${func}${numAgente} marcada como realizada`
+          }[r.estado] || `Reunião sobre "${assunto}" actualizada para: ${ESTADOS_REU[r.estado]||r.estado}`;
+
+          eventos.push({
+            id: d.id + "_reu_" + r.estado,
+            timestamp: tsAct,
+            accao,
+            emailUtilizador: r.geridoPorEmail || "—",
+            nomeUtilizador:  r.geridoPor || "Secretaria",
+            perfilUtilizador: "Secretaria",
+            tipoDocumento: "Reunião",
+            funcionarioVisado: func,
+            referencia: `${assunto} · ${dest}`,
+            observacao: obs,
+            modulo: "secretaria",
+            reuniaoId: d.id,
+            unidade
+          });
+        }
+      });
+    } catch(e) { console.warn("reunioes auditoria:", e); }
+
+    return { eventos, pedidos, reunioes };
   }
 
   // ── MAPEAMENTO DE TIPOS DE DOCUMENTO ──
@@ -925,15 +1195,36 @@
   }
 
   function corAccao(accao) {
-    return { GERAR:"#3b82f6", APROVAR:"#10c886", REJEITAR:"#ef4444", LOGIN:"#a78bfa", LOGOUT:"#6b7280", VER_FICHA:"#f59e0b", VER_DOCUMENTO:"#d97706" }[accao] || "#888";
+    return {
+      GERAR:"#3b82f6", APROVAR:"#10c886", REJEITAR:"#ef4444",
+      LOGIN:"#a78bfa", LOGOUT:"#6b7280",
+      VER_FICHA:"#f59e0b", VER_DOCUMENTO:"#d97706",
+      PEDIDO_NOVO:"#6366f1", PEDIDO_RESPOSTA:"#22d3ee", PEDIDO_FECHADO:"#94a3b8",
+      REUNIAO_PEDIDO:"#8b5cf6", REUNIAO_CONFIRMADA:"#10b981",
+      REUNIAO_RECUSADA:"#ef4444", REUNIAO_REMARCADA:"#f59e0b", REUNIAO_REALIZADA:"#6ee7b7"
+    }[accao] || "#888";
   }
 
   function emojiAccao(accao) {
-    return { GERAR:"📄", APROVAR:"✅", REJEITAR:"❌", LOGIN:"🔑", LOGOUT:"🚪", VER_FICHA:"👁️", VER_DOCUMENTO:"📋" }[accao] || "📋";
+    return {
+      GERAR:"📄", APROVAR:"✅", REJEITAR:"❌",
+      LOGIN:"🔑", LOGOUT:"🚪",
+      VER_FICHA:"👁️", VER_DOCUMENTO:"📋",
+      PEDIDO_NOVO:"✉️", PEDIDO_RESPOSTA:"💬", PEDIDO_FECHADO:"🔒",
+      REUNIAO_PEDIDO:"📅", REUNIAO_CONFIRMADA:"✅",
+      REUNIAO_RECUSADA:"❌", REUNIAO_REMARCADA:"🔄", REUNIAO_REALIZADA:"🎯"
+    }[accao] || "📋";
   }
 
   function labelAccao(accao) {
-    return { GERAR:"📄 Gerar", APROVAR:"✅ Aprovar", REJEITAR:"❌ Rejeitar", LOGIN:"🔑 Login", LOGOUT:"🚪 Logout", VER_FICHA:"👁️ Ver Ficha", VER_DOCUMENTO:"📋 Ver Documento" }[accao] || accao;
+    return {
+      GERAR:"📄 Gerar", APROVAR:"✅ Aprovar", REJEITAR:"❌ Rejeitar",
+      LOGIN:"🔑 Login", LOGOUT:"🚪 Logout",
+      VER_FICHA:"👁️ Ver Ficha", VER_DOCUMENTO:"📋 Ver Documento",
+      PEDIDO_NOVO:"✉️ Pedido Aberto", PEDIDO_RESPOSTA:"💬 Resposta", PEDIDO_FECHADO:"🔒 Encerrado",
+      REUNIAO_PEDIDO:"📅 Reunião Solicitada", REUNIAO_CONFIRMADA:"✅ Confirmada",
+      REUNIAO_RECUSADA:"❌ Recusada", REUNIAO_REMARCADA:"🔄 Remarcada", REUNIAO_REALIZADA:"🎯 Realizada"
+    }[accao] || accao;
   }
 
   function iniciaisNome(nome) {
@@ -963,6 +1254,31 @@
     document.getElementById("ind-logins").textContent = eventos.filter(e => e.accao === "LOGIN").length;
     document.getElementById("ind-leituras").textContent =
       eventos.filter(e => e.accao === "VER_FICHA" || e.accao === "VER_DOCUMENTO").length;
+
+    // KPI secretaria — injectar no container da aba secretaria
+    const kpiEl = document.getElementById("sec-kpis-aud");
+    if (!kpiEl) return;
+    const totalPed  = _pedidosSecAud.length;
+    const fechados  = _pedidosSecAud.filter(p => p.estado === "fechado").length;
+    const abertos   = _pedidosSecAud.filter(p => p.estado !== "fechado").length;
+    const totalReu  = _reunioesSecAud.length;
+    const realizadas = _reunioesSecAud.filter(r => r.estado === "realizada").length;
+    const taxa      = totalPed > 0 ? Math.round(fechados/totalPed*100) : 0;
+
+    const kpi = (icon, val, lbl, cor) =>
+      `<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 18px;min-width:110px;text-align:center">
+        <div style="font-size:20px;margin-bottom:2px">${icon}</div>
+        <div style="font-size:22px;font-weight:900;font-family:'DM Mono',monospace;color:${cor};line-height:1">${val}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:600;margin-top:3px">${lbl}</div>
+      </div>`;
+
+    kpiEl.innerHTML =
+      kpi("✉️", totalPed,   "Total Pedidos",   "#6366f1") +
+      kpi("📬", abertos,    "Em Aberto",        "#f59e0b") +
+      kpi("🔒", fechados,   "Encerrados",       "#10c886") +
+      kpi("📊", taxa + "%", "Taxa Resolução",   taxa >= 70 ? "#10c886" : taxa >= 40 ? "#f59e0b" : "#ef4444") +
+      kpi("📅", totalReu,   "Reuniões",         "#8b5cf6") +
+      kpi("🎯", realizadas, "Realizadas",       "#6ee7b7");
   }
 
   // ── PAGINAÇÃO ──
@@ -1165,12 +1481,14 @@
     const dataFim = document.getElementById("filtro-data-fim").value;
     const email   = document.getElementById("filtro-utilizador").value;
     const accao   = document.getElementById("filtro-accao").value;
+    const modulo  = document.getElementById("filtro-modulo").value;
 
     let f = [..._todosEventos];
     if (dataIni) { const d = new Date(dataIni); f = f.filter(e => e.timestamp >= d); }
     if (dataFim) { const d = new Date(dataFim); d.setHours(23,59,59); f = f.filter(e => e.timestamp <= d); }
-    if (email) f = f.filter(e => e.emailUtilizador === email);
-    if (accao) f = f.filter(e => e.accao === accao);
+    if (email)  f = f.filter(e => e.emailUtilizador === email);
+    if (accao)  f = f.filter(e => e.accao === accao);
+    if (modulo) f = f.filter(e => e.modulo === modulo);
 
     _eventosFiltrados = f;
     renderTabela(f);
@@ -1182,6 +1500,7 @@
     document.getElementById("filtro-data-fim").value = "";
     document.getElementById("filtro-utilizador").value = "";
     document.getElementById("filtro-accao").value = "";
+    document.getElementById("filtro-modulo").value = "";
     _eventosFiltrados = [..._todosEventos];
     renderTabela(_todosEventos);
   };
@@ -1276,6 +1595,221 @@
     el.style.display = "block";
     setTimeout(() => { el.style.display = "none"; }, 3500);
   }
+
+  // ════════════════════════════════════════════════════════
+  //  SECRETARIA — Vista dedicada da aba
+  // ════════════════════════════════════════════════════════
+  const ASSUNTOS_AUD = {
+    'ferias-licencas':'Férias/Licenças','abonos-salarios':'Abonos/Salários',
+    'documentacao':'Documentação','transferencias':'Transferências',
+    'escalas':'Escalas','outro':'Outro'
+  };
+  const ESTADOS_AUD_COR = {
+    novo:'#6366f1', em_analise:'#f59e0b', respondido:'#22d3ee', fechado:'#94a3b8'
+  };
+  const ESTADOS_AUD_LABEL = {
+    novo:'Novo', em_analise:'Em análise', respondido:'Respondido', fechado:'Fechado'
+  };
+  const ESTADOS_REU_COR = {
+    pendente:'#f59e0b', confirmada:'#10b981', recusada:'#ef4444',
+    remarcada:'#6366f1', realizada:'#8b5cf6'
+  };
+  const ESTADOS_REU_LABEL = {
+    pendente:'Pendente', confirmada:'Confirmada', recusada:'Recusada',
+    remarcada:'Remarcada', realizada:'Realizada'
+  };
+
+  function fmtTs(ts) {
+    if (!ts) return "—";
+    const d = ts.toDate ? ts.toDate() : ts.seconds ? new Date(ts.seconds*1000) : new Date(ts);
+    return d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'}) +
+           ' ' + d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  function renderSecretariaAuditoria() {
+    const contEl = document.getElementById("contagem-sec");
+    if (contEl) contEl.textContent = `${_pedidosSecAud.length} pedidos · ${_reunioesSecAud.length} reuniões`;
+    renderPedidosAuditoria();
+    renderReunioesAuditoria();
+  }
+
+  function renderPedidosAuditoria() {
+    const el = document.getElementById("sec-pedidos-aud");
+    if (!el) return;
+    if (!_pedidosSecAud.length) {
+      el.innerHTML = '<div class="vazio"><div class="icone-vazio">✉️</div><p>Nenhum pedido registado.</p></div>';
+      return;
+    }
+
+    const sorted = [..._pedidosSecAud].sort((a,b) => {
+      const ta = a.criadoEm?.seconds||0, tb = b.criadoEm?.seconds||0;
+      return tb - ta;
+    });
+
+    const linhas = sorted.map(p => {
+      const assunto  = ASSUNTOS_AUD[p.assunto] || p.assunto || "—";
+      const estado   = p.estado || "novo";
+      const cor      = ESTADOS_AUD_COR[estado] || "#888";
+      const lbl      = ESTADOS_AUD_LABEL[estado] || estado;
+      const nMsg     = Array.isArray(p.mensagens) ? p.mensagens.length : 0;
+      const func     = p.funcionarioNome || "—";
+      const num      = p.funcionarioNumero ? ` · Ag. ${p.funcionarioNumero}` : "";
+      const unidade  = p.unidade || "—";
+      const dataCria = fmtTs(p.criadoEm);
+      const dataUlt  = fmtTs(p.ultimaMensagemEm || p.criadoEm);
+
+      // Últimas mensagens (até 2)
+      const msgs = Array.isArray(p.mensagens) ? p.mensagens.slice(-2) : [];
+      const msgHtml = msgs.map(m => {
+        const isPerfil = m.perfil && m.perfil !== "funcionario";
+        const bg = isPerfil ? "rgba(34,211,238,.07)" : "rgba(99,102,241,.07)";
+        const bdr = isPerfil ? "rgba(34,211,238,.2)" : "rgba(99,102,241,.2)";
+        return `<div style="background:${bg};border:1px solid ${bdr};border-radius:7px;padding:7px 10px;margin-top:6px;font-size:11px">
+          <span style="font-weight:700;color:rgba(255,255,255,.7)">${isPerfil ? "🏢 Secretaria" : "👤 " + m.nome}</span>
+          <span style="color:rgba(255,255,255,.3);margin-left:8px;font-size:10px">${fmtTs(m.em)}</span>
+          <div style="color:rgba(255,255,255,.55);margin-top:3px;line-height:1.4">${(m.texto||"").slice(0,140)}${(m.texto||"").length>140?"…":""}</div>
+        </div>`;
+      }).join("");
+
+      return `<tr style="border-bottom:1px solid rgba(255,255,255,.05)">
+        <td style="padding:10px 12px;white-space:nowrap;font-size:11px;color:rgba(255,255,255,.4)">${dataCria}</td>
+        <td style="padding:10px 12px">
+          <div style="font-size:12px;font-weight:700;color:#e2e8f0">${func}${num}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4)">${unidade}</div>
+        </td>
+        <td style="padding:10px 12px">
+          <span style="background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;color:#a5b4fc">${assunto}</span>
+        </td>
+        <td style="padding:10px 12px">
+          <span style="background:${cor}22;border:1px solid ${cor}44;border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;color:${cor}">${lbl}</span>
+        </td>
+        <td style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,.4)">${dataUlt}</td>
+        <td style="padding:10px 12px;font-size:12px;font-weight:700;color:rgba(255,255,255,.5)">${nMsg} msg</td>
+        <td style="padding:10px 12px;max-width:320px">
+          ${msgHtml || '<span style="font-size:11px;color:rgba(255,255,255,.25)">—</span>'}
+        </td>
+      </tr>`;
+    }).join("");
+
+    el.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,255,255,.12)">
+            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Data</th>
+            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Funcionário</th>
+            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Assunto</th>
+            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Estado</th>
+            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Últ. actividade</th>
+            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Msgs</th>
+            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Últimas mensagens</th>
+          </tr>
+        </thead>
+        <tbody>${linhas}</tbody>
+      </table>`;
+  }
+
+  function renderReunioesAuditoria() {
+    const el = document.getElementById("sec-reunioes-aud");
+    if (!el) return;
+    if (!_reunioesSecAud.length) {
+      el.innerHTML = '<div class="vazio"><div class="icone-vazio">📅</div><p>Nenhuma reunião registada.</p></div>';
+      return;
+    }
+
+    const sorted = [..._reunioesSecAud].sort((a,b) => {
+      const ta = a.criadoEm?.seconds||0, tb = b.criadoEm?.seconds||0;
+      return tb - ta;
+    });
+
+    const linhas = sorted.map(r => {
+      const estado  = r.estado || "pendente";
+      const cor     = ESTADOS_REU_COR[estado] || "#888";
+      const lbl     = ESTADOS_REU_LABEL[estado] || estado;
+      const func    = r.funcionarioNome || "—";
+      const num     = r.funcionarioNumero ? ` · Ag. ${r.funcionarioNumero}` : "";
+      const unidade = r.unidade || "—";
+      const dest    = r.destinatario || "—";
+      const dataCria = fmtTs(r.criadoEm);
+      const dataSug  = r.dataSugerida || "—";
+      const motivo   = r.motivoRecusa || "";
+
+      return `<tr style="border-bottom:1px solid rgba(255,255,255,.05)">
+        <td style="padding:10px 12px;white-space:nowrap;font-size:11px;color:rgba(255,255,255,.4)">${dataCria}</td>
+        <td style="padding:10px 12px">
+          <div style="font-size:12px;font-weight:700;color:#e2e8f0">${func}${num}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4)">${unidade}</div>
+        </td>
+        <td style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,.65)">${r.assunto||"—"}</td>
+        <td style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,.65)">${dest}</td>
+        <td style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,.5)">${dataSug}</td>
+        <td style="padding:10px 12px">
+          <span style="background:${cor}22;border:1px solid ${cor}44;border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;color:${cor}">${lbl}</span>
+        </td>
+        <td style="padding:10px 12px;font-size:11px;color:rgba(239,68,68,.7);max-width:200px">${motivo ? "⚠️ " + motivo : ""}</td>
+      </tr>`;
+    }).join("");
+
+    el.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,255,255,.12)">
+            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Data pedido</th>
+            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Funcionário</th>
+            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Assunto</th>
+            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Destinatário</th>
+            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Data sugerida</th>
+            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Estado</th>
+            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Motivo recusa</th>
+          </tr>
+        </thead>
+        <tbody>${linhas}</tbody>
+      </table>`;
+  }
+
+  // ── SUB-TABS da aba Secretaria ──
+  window.mostrarSubtab = function(qual) {
+    ["pedidos","reunioes"].forEach(t => {
+      document.getElementById("subtab-content-" + t).style.display = t === qual ? "" : "none";
+      const btn = document.getElementById("subtab-" + t);
+      if (btn) {
+        btn.style.borderBottomColor = t === qual ? "var(--green)" : "transparent";
+        btn.style.color = t === qual ? "var(--green)" : "rgba(255,255,255,.4)";
+      }
+    });
+  };
+
+  // ── EXPORTAR CSV da aba Secretaria ──
+  window.exportarCSVSecretaria = function() {
+    const linhas = [[
+      "Tipo","Data","Funcionário","Nº Agente","Unidade","Assunto","Estado","Data Actividade","Nº Mensagens/Info Extra"
+    ]];
+    _pedidosSecAud.forEach(p => {
+      const ASSUNTOS_E = {'ferias-licencas':'Férias/Licenças','abonos-salarios':'Abonos/Salários','documentacao':'Documentação','transferencias':'Transferências','escalas':'Escalas','outro':'Outro'};
+      linhas.push([
+        "Pedido", fmtTs(p.criadoEm), p.funcionarioNome||"—", p.funcionarioNumero||"—",
+        p.unidade||"—", ASSUNTOS_E[p.assunto]||p.assunto||"—",
+        ESTADOS_AUD_LABEL[p.estado]||p.estado||"—",
+        fmtTs(p.ultimaMensagemEm||p.criadoEm),
+        (Array.isArray(p.mensagens)?p.mensagens.length:0) + " mensagens"
+      ]);
+    });
+    _reunioesSecAud.forEach(r => {
+      linhas.push([
+        "Reunião", fmtTs(r.criadoEm), r.funcionarioNome||"—", r.funcionarioNumero||"—",
+        r.unidade||"—", r.assunto||"—",
+        ESTADOS_REU_LABEL[r.estado]||r.estado||"—",
+        r.dataSugerida||"—",
+        r.destinatario||"—"
+      ]);
+    });
+    const csv = linhas.map(l => l.map(c => `"${(c||"").replace(/"/g,'""')}"`).join(";")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], {type:"text/csv;charset=utf-8;"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url;
+    a.download = "secretaria_auditoria_" + new Date().toISOString().slice(0,10) + ".csv";
+    a.click(); URL.revokeObjectURL(url);
+    mostrarNotif("✅ CSV da Secretaria exportado!", "notif-sucesso");
+  };
 </script>
 </body>
 </html>
