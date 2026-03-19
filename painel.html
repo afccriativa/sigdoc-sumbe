@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <script src="sigdoc-config.js"></script>
   <script src="sigdoc-nav.js"></script>
+  <script src="sigdoc-session.js"></script>
   <script>
   function mostrarNotif(msg, tipo="sucesso") {
     const el = document.getElementById("notificacao-painel");
@@ -898,7 +899,10 @@
         }
       });
 
-      // Mostrar painel antes de carregar dados — evita ecrã em branco
+      // ── Gestão de sessão concorrente ──
+      SIGDOC_SESSION.vigiar(db, user.uid, auth);
+
+            // Mostrar painel antes de carregar dados — evita ecrã em branco
       document.getElementById("ecra-carregando").style.display = "none";
       document.getElementById("ecra-principal").style.display = "block";
 
