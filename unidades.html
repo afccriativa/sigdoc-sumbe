@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="sigdoc-config.js"></script>
 <script src="sigdoc-nav.js"></script>
+  <script src="sigdoc-session.js"></script>
 <style>
 :root{
   --pri:#0b4f3a; --pri-10:rgba(11,79,58,.10); --pri-20:rgba(11,79,58,.20);
@@ -967,7 +968,10 @@ function mostrarPagina(){
       window.location.href = "index.html";
     }
   });
-  // Carregar dados
+      // ── Gestão de sessão concorrente ──
+      SIGDOC_SESSION.vigiar(db, user.uid, auth);
+
+        // Carregar dados
   carregarTudo();
 }
 
