@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <script src="sigdoc-config.js"></script>
   <script src="sigdoc-nav.js"></script>
+  <script src="sigdoc-session.js"></script>
   <style>
     :root {
       /* ── Paleta primária (azul institucional) ─────── */
@@ -2013,6 +2014,8 @@
   window.fazerLogout = async function() {
     if (!confirm("Tem a certeza que deseja sair?")) return;
     if (utilizadorActual && perfilActual) await registarSessao(utilizadorActual, perfilActual, "saída");
+    SIGDOC_SESSION.parar();
+    SIGDOC_SESSION.limparToken();
     await signOut(auth);
   };
 
@@ -2022,7 +2025,9 @@
       if (snap.exists()) {
         const d = snap.data(); perfilActual = d;
         await registarSessao(u, d, "entrada");
-        try { await updateDoc(doc(db,"utilizadores",u.uid), { ultimoAcesso: serverTimestamp() }); } catch(eu) { console.warn("ultimoAcesso:", eu); }
+        // ── Gestão de sessão concorrente ──
+        const _sToken = SIGDOC_SESSION.gerarEPersistirToken();
+        await SIGDOC_SESSION.registarLogin(db, u.uid, _sToken, { updateDoc, doc, serverTimestamp });
         mostrarPainel(u, d);
       } else {
         const d = { nome: u.email.split("@")[0], email: u.email, perfil:"admin",
@@ -2031,6 +2036,9 @@
         await setDoc(doc(db,"utilizadores",u.uid), d);
         perfilActual = d;
         await registarSessao(u, d, "entrada");
+        // ── Gestão de sessão concorrente ──
+        const _sToken = SIGDOC_SESSION.gerarEPersistirToken();
+        await SIGDOC_SESSION.registarLogin(db, u.uid, _sToken, { updateDoc, doc, serverTimestamp });
         mostrarPainel(u, d);
         mostrarNotif("✅ Conta de administrador criada automaticamente!");
       }
@@ -2195,6 +2203,9 @@
       const sino = document.getElementById("sino-btn");
       if (sino) sino.style.display = "none";
     }
+
+    // ── Vigiar sessão concorrente ──
+    SIGDOC_SESSION.vigiar(db, u.uid, auth, { onSnapshot, doc, signOut });
   }
 
   // ── NOTIFICAÇÕES EM TEMPO REAL ──
