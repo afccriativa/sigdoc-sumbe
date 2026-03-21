@@ -2184,7 +2184,6 @@
       if(docs.length===0){div.innerHTML=`<div class="hist-vazio"><div style="font-size:40px;margin-bottom:10px;">📂</div><p>Nenhum documento emitido ainda para <strong>${nome}</strong>.</p></div>`;return;}
       const icones={"guia-ferias":"🏖️","declaracao":"📜","guia-medica":"🏥","oficio":"📋"};
       const tipos={"guia-ferias":"Guia de Férias","declaracao":"Declaração de Serviço","guia-medica":"Guia Médica","oficio":"Ofício"};
-      const estSt={pendente:{cor:"#92400e",fundo:var_a100,icone:"⏳",txt:"Aguarda Aprovação"},aprovado:{cor:"var(--c-700)",fundo:var_c100,icone:"✅",txt:"Aprovado"},rejeitado:{cor:"var(--r-600)",fundo:var_r100,icone:"❌",txt:"Rejeitado"}};
       let html=`<div style="padding:12px 16px;font-size:12px;color:var(--neu-400);border-bottom:1px solid var(--neu-100);font-weight:600;">${docs.length} documento(s) no histórico</div>`;
       docs.forEach(d=>{
         const ts=d.geradoEm?.toDate?.();
