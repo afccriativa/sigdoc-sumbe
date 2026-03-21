@@ -1066,9 +1066,10 @@ window.filtrar = function(){
 };
 
 function render(){
+  const FILTROS_TIPO = ['dms', 'centro', 'posto'];
   const lista = TODAS_UNIDADES.filter(u=>{
-    // Filtro tipo
-    if(FILTRO_ACTIVO !== 'todos' && u.tipo !== FILTRO_ACTIVO) return false;
+    // Filtro tipo — só aplicar quando o filtro activo é mesmo um tipo de unidade
+    if(FILTROS_TIPO.includes(FILTRO_ACTIVO) && u.tipo !== FILTRO_ACTIVO) return false;
     if(FILTRO_ACTIVO === 'incompleto'){
       const esp = u.efectivo?.esperado||0;
       if(esp===0) return true;
