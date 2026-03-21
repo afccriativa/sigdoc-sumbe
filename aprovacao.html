@@ -247,6 +247,9 @@
     .spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:5px}
     @keyframes spin{to{transform:rotate(360deg)}}
 
+    /* Acesso negado */
+    #ecrã-negado{min-height:100vh;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:20px;background:var(--neu-50)}
+
     /* Impressão */
     #area-impressao{display:none}
     @media print{
@@ -442,6 +445,13 @@
 <div id="area-impressao"></div>
 <div class="toast" id="toast"></div>
 
+<div id="ecrã-negado">
+  <div style="font-size:56px">🔒</div>
+  <h2 style="color:var(--c-800);font-size:20px;font-family:var(--font)">Acesso Restrito</h2>
+  <p style="color:var(--neu-500);font-size:14px">Este módulo requer perfil de Chefe, Director, Técnico ou Administrador.</p>
+  <a href="index.html" style="margin-top:8px;background:var(--c-700);color:#fff;padding:10px 24px;border-radius:var(--r-sm);font-size:13px;font-weight:700;text-decoration:none;font-family:var(--font)">← Voltar ao Painel</a>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -486,13 +496,15 @@
   const TIPOS_SOL={"guia-ferias":{nome:"Guia de Férias",icone:"🏖️"},"declaracao-servico":{nome:"Declaração de Serviço",icone:"📜"},"guia-medica":{nome:"Guia Médica",icone:"🏥"},"oficio":{nome:"Ofício / Nota",icone:"📋"}};
   const ESTADOS_SOL={nova:{txt:"🆕 Nova",cls:"b-nova"},processando:{txt:"🔄 A processar",cls:"b-proc"},concluida:{txt:"✅ Concluída",cls:"b-conc"},rejeitada:{txt:"❌ Rejeitada",cls:"b-rej"}};
 
+  const PERFIS_ACESSO = ["admin", "director", "chefe", "tecnico"];
+
   onAuthStateChanged(auth, async u=>{
     if(!u){window.location.href="index.html";return;}
     utilizadorActual=u;
 
     // Buscar perfil do utilizador no Firestore
     let nome = u.displayName || u.email || "Utilizador";
-    let perfil = "chefe";
+    let perfil = "";
     try{
       const snap = await getDoc(doc(db,"utilizadores",u.uid));
       if(snap.exists()){
@@ -500,7 +512,13 @@
         if(d.nome) nome = d.nome;
         if(d.perfil) { perfil = d.perfil; _perfilActual = d.perfil; }
       }
-    }catch(e){ console.warn("Perfil não encontrado, usando padrão.", e); }
+    }catch(e){ console.warn("Perfil não encontrado.", e); }
+
+    // Verificar permissão de acesso
+    if(!PERFIS_ACESSO.includes(perfil)){
+      document.getElementById("ecrã-negado").style.display="flex";
+      return;
+    }
 
     // Montar navegação lateral
     SIGDOC_NAV.mount({
