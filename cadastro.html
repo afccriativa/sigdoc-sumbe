@@ -2249,26 +2249,6 @@
 
   window.fecharFicha=()=>document.getElementById("overlay-ficha").classList.remove("activo");
   window.mudarTab=function(tab,btn){
-    // Faixa de formulário pendente de revisão
-    const fichaConteudo = document.getElementById("tab-dados");
-    const faixaExist = document.getElementById("faixa-form-pend");
-    if (faixaExist) faixaExist.remove();
-    if (f.formularioPendente) {
-      const ts = f.formularioPreenchidoEm?.toDate
-        ? f.formularioPreenchidoEm.toDate().toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric"})
-        : "recentemente";
-      const faixa = document.createElement("div");
-      faixa.id = "faixa-form-pend";
-      faixa.className = "faixa-form-pend";
-      faixa.innerHTML = `
-        <div class="faixa-form-pend-txt">
-          📋 Formulário profissional submetido pelo funcionário
-          <small>Enviado em ${ts} — reveja os dados e marque como revisto</small>
-        </div>
-        <button class="btn-rever-form" onclick="marcarFormRevisto('${f.id}',this)">✅ Marcar como revisto</button>`;
-      fichaConteudo.insertBefore(faixa, fichaConteudo.firstChild);
-    }
-
     document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("activo"));
     document.querySelectorAll(".tab-conteudo").forEach(t=>t.classList.remove("activo"));
     btn.classList.add("activo");
