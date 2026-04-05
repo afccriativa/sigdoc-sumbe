@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="pt">
 <head>
   <meta charset="UTF-8"/>
@@ -209,120 +209,324 @@
     #notif{position:fixed;bottom:20px;right:20px;z-index:9999;background:#1e2a3a;border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none}
     #notif.v{opacity:1;transform:translateY(0)}
 
-    /* ── BARRA DE PERÍODO GLOBAL — REDESENHADA ── */
-#periodo-global-wrap{
-  background:linear-gradient(135deg,#f8fafc 0%,#f0fdf4 100%);
-  border-bottom:1px solid #e2e8f0;
-  border-top:2px solid #10c886;
-  padding:16px 24px;
-  display:none;
-  align-items:center;
-  gap:16px;
-  flex-wrap:wrap;
-  position:sticky;
-  top:56px;
-  z-index:39;
-  box-shadow:0 2px 8px rgba(0,0,0,.04)
-}
+    /* ============================================================
+       NOVA BARRA DE PERÍODO GLOBAL — DESIGN MODERNO
+       Cards tipo "date range picker" com estilo profissional
+    ============================================================ */
+    #periodo-global-wrap {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+      padding: 20px 28px;
+      position: sticky;
+      top: 56px;
+      z-index: 39;
+      backdrop-filter: blur(2px);
+    }
 
-.pg-label{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-size:10px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:1px;
-  color:#0f172a;
-  white-space:nowrap
-}
+    .pg-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
 
-.pg-label::before{
-  content:'📅';
-  font-size:14px;
-  display:flex;
-  align-items:center
-}
+    /* Título da secção */
+    .pg-section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .pg-section-title-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(59, 130, 246, 0.15);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .pg-section-title-text {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    .pg-section-title-highlight {
+      font-size: 14px;
+      font-weight: 800;
+      color: #60a5fa;
+      margin-left: 8px;
+    }
 
-.pg-btns{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  align-items:center
-}
+    /* Grid de cards de período */
+    .pg-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
 
-.pg-btn{
-  padding:7px 16px;
-  border-radius:24px;
-  border:1.5px solid #e2e8f0;
-  background:#fff;
-  color:#64748b;
-  font-size:12px;
-  font-weight:600;
-  cursor:pointer;
-  transition:all .25s cubic-bezier(.4,0,.2,1);
-  font-family:inherit;
-  box-shadow:0 1px 2px rgba(0,0,0,.04)
-}
+    /* Cada card individual */
+    .pg-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 14px 12px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
 
-.pg-btn:hover{
-  background:#f0fdf4;
-  border-color:#10c886;
-  color:#059669;
-  box-shadow:0 2px 6px rgba(16,200,134,.15);
-  transform:translateY(-1px)
-}
+    .pg-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #3b82f6, #10c886);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
 
-.pg-btn:active{
-  transform:scale(.98)
-}
+    .pg-card:hover {
+      background: rgba(59, 130, 246, 0.08);
+      border-color: rgba(59, 130, 246, 0.3);
+      transform: translateY(-2px);
+    }
 
-.pg-btn-activo{
-  background:linear-gradient(135deg,#10c886 0%,#059669 100%)!important;
-  border-color:#10c886!important;
-  color:#fff!important;
-  box-shadow:0 4px 12px rgba(16,200,134,.25)!important;
-  font-weight:700
-}
+    .pg-card-active {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(16, 200, 134, 0.1) 100%);
+      border-color: rgba(59, 130, 246, 0.5);
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+    }
 
-.pg-btn-activo:hover{
-  box-shadow:0 6px 16px rgba(16,200,134,.35)!important;
-  transform:translateY(-2px)
-}
+    .pg-card-active::before {
+      opacity: 1;
+    }
 
-.pg-info{
-  font-size:11px;
-  color:#64748b;
-  margin-left:auto;
-  white-space:nowrap;
-  font-weight:500;
-  padding:6px 12px;
-  background:rgba(16,200,134,.05);
-  border-radius:8px;
-  border:1px solid rgba(16,200,134,.1)
-}
+    .pg-card-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 6px;
+    }
 
-@media(max-width:900px){
-  #periodo-global-wrap{
-    padding:12px 16px;
-    gap:12px
-  }
-  .pg-label{font-size:9px}
-  .pg-btn{padding:6px 13px;font-size:11px}
-  .pg-info{font-size:10px;margin-left:0;width:100%;text-align:center}
-}
+    .pg-card-value {
+      font-size: 20px;
+      font-weight: 800;
+      font-family: 'DM Mono', monospace;
+      background: linear-gradient(135deg, #60a5fa, #34d399);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
 
-@media(max-width:600px){
-  #periodo-global-wrap{
-    flex-direction:column;
-    align-items:stretch;
-    padding:12px
-  }
-  .pg-label{justify-content:center;width:100%;margin-bottom:4px}
-  .pg-btns{width:100%;justify-content:center}
-  .pg-btn{flex:0 1 auto}
-  .pg-info{width:100%;text-align:center;margin-left:0}
-}
+    .pg-card-active .pg-card-value {
+      background: linear-gradient(135deg, #93c5fd, #6ee7b7);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    /* Card especial "Personalizado" */
+    .pg-card-custom {
+      background: rgba(16, 200, 134, 0.05);
+      border-color: rgba(16, 200, 134, 0.2);
+    }
+
+    .pg-card-custom:hover {
+      background: rgba(16, 200, 134, 0.1);
+      border-color: rgba(16, 200, 134, 0.4);
+    }
+
+    /* Barra de info adicional */
+    .pg-info-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: 4px;
+    }
+
+    .pg-period-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pg-period-badge {
+      background: rgba(16, 200, 134, 0.12);
+      padding: 6px 14px;
+      border-radius: 40px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #34d399;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pg-period-badge::before {
+      content: '📅';
+      font-size: 12px;
+    }
+
+    .pg-range-display {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* Date picker personalizado (modal / popup) */
+    .pg-datepicker-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pg-datepicker-modal.active {
+      display: flex;
+    }
+
+    .pg-datepicker-card {
+      background: #1e293b;
+      border-radius: 24px;
+      padding: 28px;
+      width: 90%;
+      max-width: 480px;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .pg-datepicker-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pg-datepicker-fields {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .pg-datepicker-field {
+      flex: 1;
+    }
+
+    .pg-datepicker-field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 6px;
+    }
+
+    .pg-datepicker-field input {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: #e2e8f0;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .pg-datepicker-field input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    .pg-datepicker-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .pg-datepicker-btn {
+      padding: 10px 20px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .pg-datepicker-btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+    }
+
+    .pg-datepicker-btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .pg-datepicker-btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .pg-datepicker-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      #periodo-global-wrap {
+        padding: 16px 20px;
+      }
+      .pg-cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .pg-card {
+        padding: 10px 8px;
+      }
+      .pg-card-label {
+        font-size: 11px;
+      }
+      .pg-card-value {
+        font-size: 16px;
+      }
+      .pg-info-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .pg-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
     /* ── KPIs DE ACTIVIDADE ── */
     .act-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
     @media(max-width:700px){.act-strip{grid-template-columns:1fr}}
@@ -383,6 +587,54 @@
     .dq-acoes-titulo{color:#ef4444}
     .dq-acao-item{background:#f1f5f9;border:1px solid #e2e8f0}
     #notif{background:#fff;border:1px solid #e2e8f0;color:#0f172a}
+
+    /* Ajustes para o novo design no tema claro */
+    #periodo-global-wrap {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      border-bottom: 1px solid #cbd5e1;
+    }
+    .pg-section-title-text {
+      color: #64748b;
+    }
+    .pg-card {
+      background: #ffffff;
+      border-color: #e2e8f0;
+    }
+    .pg-card:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+    .pg-card-active {
+      background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+      border-color: #3b82f6;
+    }
+    .pg-card-label {
+      color: #475569;
+    }
+    .pg-card-value {
+      background: linear-gradient(135deg, #3b82f6, #10c886);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+    .pg-period-badge {
+      background: #dcfce7;
+      color: #059669;
+    }
+    .pg-range-display {
+      color: #64748b;
+    }
+    .pg-datepicker-card {
+      background: #ffffff;
+    }
+    .pg-datepicker-field input {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+      color: #0f172a;
+    }
+    .pg-datepicker-btn-secondary {
+      background: #f1f5f9;
+      color: #475569;
+    }
   </style>
 </head>
 <body>
@@ -624,17 +876,150 @@
         </div>
       </div>`;
 
-    // Barra de período global
-    const pgWrap = document.getElementById('periodo-global-wrap');
-    pgWrap.style.display = 'flex';
-    const PERIODOS = [{dias:30,label:'30 dias'},{dias:90,label:'90 dias'},{dias:180,label:'6 meses'},{dias:365,label:'1 ano'},{dias:0,label:'Tudo'}];
-    pgWrap.innerHTML =
-      `<span class="pg-label">⏱ Período de actividade</span>
-       <div class="pg-btns" id="pg-btns">
-         ${PERIODOS.map(p=>`<button class="pg-btn${_periodoDocs===p.dias?' pg-btn-activo':''}" onclick="window._setPeriodoGlobal(${p.dias})">${p.label}</button>`).join('')}
-       </div>
-       <span class="pg-info" id="pg-info">Afecta documentos, secretaria e evolução</span>`;
+    // Barra de período global - NOVO DESIGN MODERNO
+    renderPeriodoGlobal();
   }
+
+  // Função para renderizar o novo design de período global
+  function renderPeriodoGlobal() {
+    const pgWrap = document.getElementById('periodo-global-wrap');
+    if (!pgWrap) return;
+
+    const PERIODOS = [
+      { dias: 30, label: '30 dias', icon: '📆' },
+      { dias: 90, label: '90 dias', icon: '📅', default: true },
+      { dias: 180, label: '6 meses', icon: '🗓️' },
+      { dias: 365, label: '1 ano', icon: '📊' },
+      { dias: 0, label: 'Tudo', icon: '∞', special: true }
+    ];
+
+    // Formatar intervalo para exibição
+    const getRangeText = () => {
+      if (_periodoDocs === 0) return 'Todo o período disponível';
+      const dataInicio = new Date();
+      dataInicio.setDate(dataInicio.getDate() - _periodoDocs);
+      return `${dataInicio.toLocaleDateString('pt-PT')} → ${new Date().toLocaleDateString('pt-PT')}`;
+    };
+
+    const cardsHtml = PERIODOS.map(p => {
+      const isActive = _periodoDocs === p.dias;
+      const activeClass = isActive ? 'pg-card-active' : '';
+      const specialClass = p.special ? 'pg-card-custom' : '';
+      return `
+        <div class="pg-card ${activeClass} ${specialClass}" onclick="window._setPeriodoGlobal(${p.dias})">
+          <div class="pg-card-label">${p.icon} ${p.label}</div>
+          <div class="pg-card-value">${p.label === 'Tudo' ? '∞' : p.label}</div>
+        </div>
+      `;
+    }).join('');
+
+    pgWrap.innerHTML = `
+      <div class="pg-container">
+        <div class="pg-section-title">
+          <div class="pg-section-title-icon">⏱️</div>
+          <div class="pg-section-title-text">
+            Período de análise
+            <span class="pg-section-title-highlight">| Filtro temporal</span>
+          </div>
+        </div>
+        <div class="pg-cards-grid">
+          ${cardsHtml}
+          <div class="pg-card pg-card-custom" onclick="window._abrirDatepicker()">
+            <div class="pg-card-label">📅 Personalizado</div>
+            <div class="pg-card-value">Intervalo</div>
+          </div>
+        </div>
+        <div class="pg-info-bar">
+          <div class="pg-period-info">
+            <div class="pg-period-badge">
+              Período activo
+            </div>
+            <div class="pg-range-display">
+              📍 ${getRangeText()}
+            </div>
+          </div>
+          <div class="pg-range-display">
+            ${_periodoDocs === 0 ? '📊 Histórico completo' : `📈 Últimos ${_periodoDocs} dias`}
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Adicionar modal de datepicker se não existir
+    if (!document.getElementById('pg-datepicker-modal')) {
+      const modal = document.createElement('div');
+      modal.id = 'pg-datepicker-modal';
+      modal.className = 'pg-datepicker-modal';
+      modal.innerHTML = `
+        <div class="pg-datepicker-card">
+          <div class="pg-datepicker-title">
+            <span>📅</span> Seleccionar intervalo personalizado
+          </div>
+          <div class="pg-datepicker-fields">
+            <div class="pg-datepicker-field">
+              <label>Data inicial</label>
+              <input type="date" id="pg-data-inicio">
+            </div>
+            <div class="pg-datepicker-field">
+              <label>Data final</label>
+              <input type="date" id="pg-data-fim">
+            </div>
+          </div>
+          <div class="pg-datepicker-actions">
+            <button class="pg-datepicker-btn pg-datepicker-btn-secondary" onclick="window._fecharDatepicker()">Cancelar</button>
+            <button class="pg-datepicker-btn pg-datepicker-btn-primary" onclick="window._aplicarIntervaloPersonalizado()">Aplicar</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+  }
+
+  // Funções do datepicker
+  window._abrirDatepicker = function() {
+    const modal = document.getElementById('pg-datepicker-modal');
+    if (modal) {
+      // Preencher com valores actuais
+      const hoje = new Date();
+      const inicio = new Date();
+      inicio.setDate(hoje.getDate() - (_periodoDocs || 90));
+      
+      const inputInicio = document.getElementById('pg-data-inicio');
+      const inputFim = document.getElementById('pg-data-fim');
+      if (inputInicio) inputInicio.value = inicio.toISOString().split('T')[0];
+      if (inputFim) inputFim.value = hoje.toISOString().split('T')[0];
+      
+      modal.classList.add('active');
+    }
+  };
+
+  window._fecharDatepicker = function() {
+    const modal = document.getElementById('pg-datepicker-modal');
+    if (modal) modal.classList.remove('active');
+  };
+
+  window._aplicarIntervaloPersonalizado = function() {
+    const dataInicio = document.getElementById('pg-data-inicio')?.value;
+    const dataFim = document.getElementById('pg-data-fim')?.value;
+    
+    if (dataInicio && dataFim) {
+      const inicio = new Date(dataInicio);
+      const fim = new Date(dataFim);
+      const diffDays = Math.ceil((fim - inicio) / (1000 * 60 * 60 * 24));
+      
+      if (diffDays > 0) {
+        _periodoDocs = diffDays;
+        _periodoSec = diffDays;
+        renderPeriodoGlobal(); // Re-renderizar para mostrar o intervalo
+        renderActividadePeriodo(_filtrarDocsPeriodo());
+        renderSecretariaEstat();
+        notif(`✅ Período alterado: ${diffDays} dias (${dataInicio} → ${dataFim})`);
+      } else {
+        notif('⚠️ Data final deve ser posterior à data inicial');
+      }
+    }
+    window._fecharDatepicker();
+  };
 
   window._aplicarFiltros = function() {
     _filtros.unidade   = document.getElementById('fil-unidade')?.value   || '';
@@ -713,21 +1098,7 @@
   window._setPeriodoGlobal = function(dias) {
     _periodoDocs = dias;
     _periodoSec  = dias;
-    // Actualizar botões
-    document.querySelectorAll('.pg-btn').forEach(b => {
-      b.classList.toggle('pg-btn-activo', parseInt(b.textContent === 'Tudo' ? 0 : 0) === dias || b.onclick.toString().includes('('+dias+')'));
-    });
-    // Forma mais fiável de actualizar botões
-    document.querySelectorAll('#pg-btns .pg-btn').forEach(b => {
-      const onclk = b.getAttribute('onclick') || '';
-      const match = onclk.match(/\((\d+)\)/);
-      const bDias = match ? parseInt(match[1]) : 0;
-      b.classList.toggle('pg-btn-activo', bDias === dias);
-    });
-    // Actualizar info
-    const infoEl = document.getElementById('pg-info');
-    if (infoEl) infoEl.textContent = dias ? `Últimos ${dias} dias` : 'Todo o período disponível';
-    // Re-renderizar só as secções temporais
+    renderPeriodoGlobal(); // Actualizar UI
     renderActividadePeriodo(_filtrarDocsPeriodo());
     renderSecretariaEstat();
   };
@@ -896,7 +1267,7 @@
   }
 
   // ════════════════════════════════════════════════════════
-  //  COMPONENTES
+  //  COMPONENTES (mantidos iguais)
   // ════════════════════════════════════════════════════════
   function renderGeneroCard(funcs) {
     const el = document.getElementById("genero-card-wrap");
