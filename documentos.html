@@ -8,6 +8,7 @@
   <script src="sigdoc-config.js"></script>
   <script src="sigdoc-nav.js"></script>
   <script src="sigdoc-session.js"></script>
+  <script src="guia-medica-builder.js"></script>
   <style>
     :root {
       --font: 'Plus Jakarta Sans', sans-serif; --mono: 'DM Mono', monospace;
@@ -316,7 +317,7 @@
           <select id="tipo-documento">
             <option value="guia-ferias">Guia de Férias</option>
             <option value="declaracao" disabled>Declaração de Serviço (em breve)</option>
-            <option value="guia-medica" disabled>Guia Médica (em breve)</option>
+            <option value="guia-medica">Guia Médica</option>
             <option value="oficio" disabled>Ofício (em breve)</option>
           </select>
         </div>
@@ -907,53 +908,99 @@
   };
 
   window.gerarDocumento = function(silencioso = false) {
-    const numGuia         = document.getElementById("num-guia").value.trim();
-    const anoGuia         = document.getElementById("ano-guia").value.trim();
+    const tipoDoc = document.getElementById("tipo-documento").value;
     const nomeFuncionario = document.getElementById("pesquisa-func").value.trim();
-    const categoria       = document.getElementById("cargo-func").value.trim();   // cargo quando disponível, categoria como fallback
-    const localColocacao  = document.getElementById("local-func").value.trim();
-    const numDias         = document.getElementById("num-dias").value.trim();
-    const dataInicio      = document.getElementById("data-inicio").value;
-    const dataEmissao     = document.getElementById("data-emissao").value;
-    const dataApresentacao= document.getElementById("data-apresentacao").value;
-    const nomeChefe       = document.getElementById("nome-chefe").value.trim();
-    const sexo = funcionarioSeleccionado ? (funcionarioSeleccionado.sexo || "Masculino") : "Masculino";
-
-    if (!silencioso && (!numGuia || !nomeFuncionario || !numDias || !dataInicio || !dataEmissao)) {
-      mostrarNotificacao("⚠️ Preencha todos os campos obrigatórios.");
+    const dataEmissao = document.getElementById("data-emissao").value;
+    
+    if (!silencioso && (!nomeFuncionario || !dataEmissao)) {
+      mostrarNotificacao("⚠️ Preencha Funcionário e Data de Emissão.");
       return;
     }
 
-    const htmlDoc = construirDocumento({
-      numGuia, anoGuia, nomeFuncionario, categoria, localColocacao,
-      numDias, dataInicio, dataEmissao, dataApresentacao, nomeChefe, sexo
-    });
+    let htmlDoc;
+    let tipo = tipoDoc;
 
-    document.getElementById("area-preview").innerHTML =
-      '<div class="doc-wrapper-centrado"><div class="doc-wrapper" style="display:block">' + htmlDoc + '</div></div>';
-    document.getElementById("area-impressao").innerHTML = htmlDoc;
+    if (tipoDoc === 'guia-medica') {
+      // ── GUIA MÉDICA ───
+      if (!window.construirGuiaMedica) {
+        mostrarNotificacao("❌ Erro: Construtor de Guia Médica não carregado.");
+        return;
+      }
+      
+      htmlDoc = construirGuiaMedica({
+        numGuia: document.getElementById("num-guia").value.trim() || 'Nº a preencher',
+        nomeFuncionario: nomeFuncionario,
+        nomePai: funcionarioSeleccionado?.nomePai || '',
+        nomeMae: funcionarioSeleccionado?.nomeMae || '',
+        situacao: funcionarioSeleccionado?.situacao || 'Funcionário',
+        naturalidade: funcionarioSeleccionado?.naturalidade || '',
+        provincia: funcionarioSeleccionado?.provincia || 'Cuanza Sul',
+        idade: funcionarioSeleccionado?.idade || '',
+        sexo: funcionarioSeleccionado?.sexo || '',
+        nomeChefe: document.getElementById("nome-chefe").value.trim() || '',
+        dataEmissao: dataEmissao
+      });
+      
+      // Preview sem scaling para guia médica (é responsiva)
+      document.getElementById("area-preview").innerHTML = 
+        '<div style="padding:20px;">' + htmlDoc + '</div>';
+      document.getElementById("area-impressao").innerHTML = htmlDoc;
+      
+      dadosUltimoDocumento = {
+        tipo: 'guia-medica',
+        numGuia: document.getElementById("num-guia").value.trim(),
+        funcionarioId: funcionarioSeleccionado?.id || null,
+        funcionarioNome: nomeFuncionario,
+        dataEmissao: dataEmissao,
+        nomeChefe: document.getElementById("nome-chefe").value.trim()
+      };
+
+    } else {
+      // ── GUIA DE FÉRIAS (código existente) ───
+      const numGuia = document.getElementById("num-guia").value.trim();
+      const anoGuia = document.getElementById("ano-guia").value.trim();
+      const categoria = document.getElementById("cargo-func").value.trim();
+      const localColocacao = document.getElementById("local-func").value.trim();
+      const numDias = document.getElementById("num-dias").value.trim();
+      const dataInicio = document.getElementById("data-inicio").value;
+      const dataApresentacao = document.getElementById("data-apresentacao").value;
+      const nomeChefe = document.getElementById("nome-chefe").value.trim();
+      const sexo = funcionarioSeleccionado ? (funcionarioSeleccionado.sexo || "Masculino") : "Masculino";
+
+      if (!silencioso && (!numGuia || !nomeFuncionario || !numDias || !dataInicio || !dataEmissao)) {
+        mostrarNotificacao("⚠️ Preencha todos os campos obrigatórios.");
+        return;
+      }
+
+      htmlDoc = construirDocumento({
+        numGuia, anoGuia, nomeFuncionario, categoria, localColocacao,
+        numDias, dataInicio, dataEmissao, dataApresentacao, nomeChefe, sexo
+      });
+
+      document.getElementById("area-preview").innerHTML =
+        '<div class="doc-wrapper-centrado"><div class="doc-wrapper" style="display:block">' + htmlDoc + '</div></div>';
+      document.getElementById("area-impressao").innerHTML = htmlDoc;
+      
+      dadosUltimoDocumento = {
+        tipo: tipoDoc || "guia-ferias",
+        numGuia, anoGuia,
+        funcionarioId: funcionarioSeleccionado ? funcionarioSeleccionado.id : null,
+        funcionarioNome: nomeFuncionario,
+        categoria, localColocacao, numDias,
+        dataInicio, dataEmissao, dataApresentacao, nomeChefe, sexo
+      };
+    }
+
     document.getElementById("btn-imprimir").disabled = false;
     documentoGerado = true;
 
-    // Guardar dados para submissão posterior
-    // NOTA: htmlConteudo NÃO é guardado no Firestore (limite de 1MB).
-    // O HTML é regenerado a partir dos campos de dados quando necessário.
-    dadosUltimoDocumento = {
-      tipo: "guia-ferias",
-      numGuia, anoGuia,
-      funcionarioId: funcionarioSeleccionado ? funcionarioSeleccionado.id : null,
-      funcionarioNome: nomeFuncionario,
-      categoria, localColocacao, numDias,
-      dataInicio, dataEmissao, dataApresentacao, nomeChefe, sexo
-    };
-
-    // Activar botão de submissão se ainda não foi submetido
     if (!documentoSubmetido) {
       document.getElementById("btn-submeter").disabled = false;
     }
 
     if (!silencioso) mostrarNotificacao("✅ Documento gerado! Clique em 'Submeter para Aprovação' para enviar ao Chefe.");
   };
+
 
 
   // ── Helper notificações ─────────────────────────────────────────
