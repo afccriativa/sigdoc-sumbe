@@ -162,508 +162,78 @@
       .content{padding:0 16px!important}
       .kpi-strip{grid-template-columns:repeat(5,1fr)!important}
       .kpi,.gc,.gen-card,.dq-acoes{background:#f8fafc!important;border-color:#e2e8f0!important}
-      .kpi-lbl,.kpi-sub,.gc-sub,.topbar-sub,.cob-esp,.dq-contagem,
-      .gen-det-sub,.gen-stat-lbl,.pir-leg-item{color:#64748b!important}
-      .kpi-val,.gc-titulo,.cob-nome,.bh-lbl,.dq-texto,
-      .gen-det-nome,.gen-stat-val{color:#1e293b!important}
-      .sec{color:#475569!important;page-break-before:auto;margin-top:14px!important}
-      .sec::after{background:#e2e8f0!important}
-      .bh-track,.dq-track,.cob-bar,.pir-bm,.pir-bf{background:#e2e8f0!important}
-      .cob-badge.cv{background:rgba(16,200,134,.15)!important;color:#059669!important}
-      .cob-badge.ca{background:rgba(245,158,11,.15)!important;color:#d97706!important}
-      .cob-badge.cr{background:rgba(239,68,68,.15)!important;color:#dc2626!important}
-      .cob-badge.c0{background:#f1f5f9!important;color:#94a3b8!important}
-      .cob-item{border-bottom-color:#e2e8f0!important}
-      .donut-txt{color:#64748b!important}
-      .donut-n{color:#1e293b!important}
-      .gen-det-card{background:#f1f5f9!important;border-color:#e2e8f0!important}
-      .pir-eixo,.pir-n{color:#475569!important}
-      .dq-acao-item{background:#f1f5f9!important;border-color:#e2e8f0!important}
-      .dq-ok{background:rgba(16,200,134,.06)!important}
-      .dq-acoes-titulo{color:#dc2626!important}
-      .dq-acoes{background:rgba(239,68,68,.04)!important}
-      .g2,.g3,.kpi-strip,.gc,.gen-card{page-break-inside:avoid}
-      .gen-card{margin-bottom:12px!important}
-      .g1,.g2,.g3{margin-bottom:12px!important}
-      @page{margin:15mm 12mm;size:A4 portrait}
-    }
-    /* ── qualidade dos dados ── */
-    .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
-    @media(max-width:1100px){.g3{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:700px){.g3{grid-template-columns:1fr}}
-    .dq-campo{margin-bottom:11px}
-    .dq-campo-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-    .dq-campo-lbl{display:flex;align-items:center;gap:5px;min-width:0}
-    .dq-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-    .dq-texto{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .dq-nums{display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px}
-    .dq-contagem{font-size:10px;color:rgba(255,255,255,.3);font-family:'DM Mono',monospace}
-    .dq-track{height:5px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden}
-    .dq-fill{height:100%;border-radius:99px;transition:width .4s}
-    .dq-acoes{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:14px;padding:18px 20px;margin-top:0}
-    .dq-acoes-titulo{font-size:12px;font-weight:800;color:#fca5a5;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-    .dq-acao-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
-    .dq-acao-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 14px}
-    .dq-ok{background:rgba(16,200,134,.06);border:1px solid rgba(16,200,134,.2);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:10px}
-        /* ── notif ── */
-    #notif{position:fixed;bottom:20px;right:20px;z-index:9999;background:#1e2a3a;border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none}
-    #notif.v{opacity:1;transform:translateY(0)}
-
-    /* ============================================================
-       NOVA BARRA DE PERÍODO GLOBAL — DESIGN MODERNO
-       Cards tipo "date range picker" com estilo profissional
-    ============================================================ */
-    #periodo-global-wrap {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-      padding: 20px 28px;
-      position: sticky;
-      top: 56px;
-      z-index: 39;
-      backdrop-filter: blur(2px);
+      .kpi-lbl,.kpi-sub,.gc-sub,.bh-lbl,.bh-val,.donut-txt,.donut-n,.cob-nome,.cob-cad,.cob-esp,.pir-n,.pir-eixo,.gen-stat-lbl,.gen-stat-val,.gen-det-nome,.gen-det-sub,.gen-det-pct,.gen-det-delta,.gen-card-titulo,.gen-card-sub,.gen-total-pill{color:#1e293b!important}
+      .kpi-val{color:#1d4ed8!important}
+      .bh-track,.cob-bar{background:#e2e8f0!important}
+      .sec{color:#64748b!important;border-bottom:1px solid #e2e8f0;padding-bottom:4px}
+      .sec::after{display:none}
+      .vazio{color:#94a3b8!important}
+      .gen-det-card{background:#fff!important;border:1px solid #e2e8f0!important}
+      .gen-footer{border-top-color:#e2e8f0!important}
+      .donut-dot,.pir-dot,.gen-det-pill{border:1px solid rgba(0,0,0,.05)}
     }
 
-    .pg-container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    /* Título da secção */
-    .pg-section-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-    .pg-section-title-icon {
-      width: 32px;
-      height: 32px;
-      background: rgba(59, 130, 246, 0.15);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-    .pg-section-title-text {
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: rgba(255, 255, 255, 0.5);
-    }
-    .pg-section-title-highlight {
-      font-size: 14px;
-      font-weight: 800;
-      color: #60a5fa;
-      margin-left: 8px;
-    }
-
-    /* Grid de cards de período */
-    .pg-cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    /* Cada card individual */
-    .pg-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 14px 12px;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .pg-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, #3b82f6, #10c886);
-      opacity: 0;
-      transition: opacity 0.25s;
-    }
-
-    .pg-card:hover {
-      background: rgba(59, 130, 246, 0.08);
-      border-color: rgba(59, 130, 246, 0.3);
-      transform: translateY(-2px);
-    }
-
-    .pg-card-active {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(16, 200, 134, 0.1) 100%);
-      border-color: rgba(59, 130, 246, 0.5);
-      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
-    }
-
-    .pg-card-active::before {
-      opacity: 1;
-    }
-
-    .pg-card-label {
-      font-size: 13px;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.7);
-      margin-bottom: 6px;
-    }
-
-    .pg-card-value {
-      font-size: 20px;
-      font-weight: 800;
-      font-family: 'DM Mono', monospace;
-      background: linear-gradient(135deg, #60a5fa, #34d399);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      letter-spacing: -0.5px;
-    }
-
-    .pg-card-active .pg-card-value {
-      background: linear-gradient(135deg, #93c5fd, #6ee7b7);
-      -webkit-background-clip: text;
-      background-clip: text;
-    }
-
-    /* Card especial "Personalizado" */
-    .pg-card-custom {
-      background: rgba(16, 200, 134, 0.05);
-      border-color: rgba(16, 200, 134, 0.2);
-    }
-
-    .pg-card-custom:hover {
-      background: rgba(16, 200, 134, 0.1);
-      border-color: rgba(16, 200, 134, 0.4);
-    }
-
-    /* Barra de info adicional */
-    .pg-info-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      margin-top: 4px;
-    }
-
-    .pg-period-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .pg-period-badge {
-      background: rgba(16, 200, 134, 0.12);
-      padding: 6px 14px;
-      border-radius: 40px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #34d399;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .pg-period-badge::before {
-      content: '📅';
-      font-size: 12px;
-    }
-
-    .pg-range-display {
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.4);
-      font-family: 'DM Mono', monospace;
-    }
-
-    /* Date picker personalizado (modal / popup) */
-    .pg-datepicker-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .pg-datepicker-modal.active {
-      display: flex;
-    }
-
-    .pg-datepicker-card {
-      background: #1e293b;
-      border-radius: 24px;
-      padding: 28px;
-      width: 90%;
-      max-width: 480px;
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    }
-
-    .pg-datepicker-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .pg-datepicker-fields {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-
-    .pg-datepicker-field {
-      flex: 1;
-    }
-
-    .pg-datepicker-field label {
-      display: block;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: rgba(255, 255, 255, 0.5);
-      margin-bottom: 6px;
-    }
-
-    .pg-datepicker-field input {
-      width: 100%;
-      background: #0f172a;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 12px 14px;
-      color: #e2e8f0;
-      font-family: 'DM Mono', monospace;
-      font-size: 13px;
-      transition: all 0.2s;
-    }
-
-    .pg-datepicker-field input:focus {
-      outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-    }
-
-    .pg-datepicker-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-    }
-
-    .pg-datepicker-btn {
-      padding: 10px 20px;
-      border-radius: 40px;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none;
-    }
-
-    .pg-datepicker-btn-primary {
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: white;
-    }
-
-    .pg-datepicker-btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
-
-    .pg-datepicker-btn-secondary {
-      background: rgba(255, 255, 255, 0.05);
-      color: rgba(255, 255, 255, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .pg-datepicker-btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    @media (max-width: 768px) {
-      #periodo-global-wrap {
-        padding: 16px 20px;
-      }
-      .pg-cards-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-      }
-      .pg-card {
-        padding: 10px 8px;
-      }
-      .pg-card-label {
-        font-size: 11px;
-      }
-      .pg-card-value {
-        font-size: 16px;
-      }
-      .pg-info-bar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .pg-cards-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    /* ── KPIs DE ACTIVIDADE ── */
-    .act-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
-    @media(max-width:700px){.act-strip{grid-template-columns:1fr}}
-    .act-kpi{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;display:flex;align-items:flex-start;gap:14px;transition:box-shadow .2s}
-    .act-kpi:hover{box-shadow:0 4px 16px rgba(0,0,0,.07)}
-    .act-kpi-icone{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-    .act-kpi-corpo{flex:1;min-width:0}
-    .act-kpi-val{font-size:28px;font-weight:800;font-family:'DM Mono',monospace;line-height:1;letter-spacing:-1px}
-    .act-kpi-lbl{font-size:11px;color:#64748b;margin-top:4px;font-weight:500}
-    .act-kpi-delta{font-size:10px;margin-top:6px;padding:2px 8px;border-radius:20px;display:inline-block;font-weight:600}
-    /* ── GRÁFICO EVOLUÇÃO ── */
-    .evo-wrap{overflow-x:auto;padding-bottom:4px}
-    /* ── TEMA SIGDOC UNIFICADO — overrides de cor ── */
-    body{background:#f8fafc;color:#0f172a}
-    .spinner{border:2px solid rgba(0,0,0,.1);border-top-color:#10c886}
-    .topbar{background:linear-gradient(135deg,#052e1c 0%,#0b4f3a 60%,#0d6e4f 100%);border-bottom:none;box-shadow:0 2px 20px rgba(0,0,0,.25)}
-    .topbar-sub{color:rgba(255,255,255,.55)}
-    .badge-perfil{background:rgba(16,200,134,.15);color:#10c886}
-    .kpi{background:#fff;border:1px solid #e2e8f0}
-    .kpi-lbl,.kpi-sub{color:#64748b}
-    .sec{color:#64748b}
-    .sec::after{background:#e2e8f0}
-    .gc{background:#fff;border:1px solid #e2e8f0}
-    .gc-sub{color:#64748b}
-    .bh-track{background:rgba(0,0,0,.07)}
-    .pir-n{color:#94a3b8}
-    .pir-eixo{color:#0f172a}
-    .pir-leg-item{color:#64748b}
-    .donut-txt{color:#64748b}
-    .cob-item{border-bottom:1px solid #e2e8f0}
-    .cob-sep{color:#94a3b8}
-    .cob-esp{color:#64748b}
-    .c0{background:#f1f5f9;color:#94a3b8}
-    .cob-bar{background:#e2e8f0}
-    .vazio{color:#94a3b8}
-    .gen-card{background:#fff;border:1px solid #e2e8f0}
-    .gen-card-sub{color:#64748b}
-    .gen-total-pill{background:rgba(16,200,134,.1);border:1px solid rgba(16,200,134,.2);color:#059669}
-    .gen-donut-pct{color:#0f172a}
-    .gen-donut-lbl{color:#94a3b8}
-    .gen-det-card{background:#f1f5f9;border:1px solid #e2e8f0}
-    .gen-det-card:hover{border-color:#cbd5e1}
-    .gen-det-sub{color:#64748b}
-    .gen-det-delta{color:#94a3b8}
-    .gen-footer{border-top:1px solid #e2e8f0}
-    .gen-stat-lbl{color:#94a3b8}
-    #filtros-wrap{background:#fff;border-bottom:1px solid #e2e8f0}
-    .filtro-lbl{color:#94a3b8}
-    .filtro-sel{background:#f8fafc;border:1px solid #e2e8f0;color:#0f172a;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E")}
-    .filtro-sel:focus{border-color:rgba(16,200,134,.6)}
-    .filtro-sel.activo{border-color:#10c886;background-color:#f0fdf4;color:#065f46}
-    .filtros-badge{background:rgba(16,200,134,.1);border:1px solid rgba(16,200,134,.2);color:#059669}
-    .filtros-resultado{color:#94a3b8}
-    .btn-prn{background:rgba(16,200,134,.1);border-color:rgba(16,200,134,.25);color:#059669}
-    .btn-prn:hover{background:rgba(16,200,134,.2);border-color:rgba(16,200,134,.5)}
-    .dq-contagem{color:#94a3b8}
-    .dq-track{background:#e2e8f0}
-    .dq-acoes-titulo{color:#ef4444}
-    .dq-acao-item{background:#f1f5f9;border:1px solid #e2e8f0}
-    #notif{background:#fff;border:1px solid #e2e8f0;color:#0f172a}
-
-    /* Ajustes para o novo design no tema claro */
-    #periodo-global-wrap {
-      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-      border-bottom: 1px solid #cbd5e1;
-    }
-    .pg-section-title-text {
-      color: #64748b;
-    }
-    .pg-card {
-      background: #ffffff;
-      border-color: #e2e8f0;
-    }
-    .pg-card:hover {
-      background: #f8fafc;
-      border-color: #94a3b8;
-    }
-    .pg-card-active {
-      background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
-      border-color: #3b82f6;
-    }
-    .pg-card-label {
-      color: #475569;
-    }
-    .pg-card-value {
-      background: linear-gradient(135deg, #3b82f6, #10c886);
-      -webkit-background-clip: text;
-      background-clip: text;
-    }
-    .pg-period-badge {
-      background: #dcfce7;
-      color: #059669;
-    }
-    .pg-range-display {
-      color: #64748b;
-    }
-    .pg-datepicker-card {
-      background: #ffffff;
-    }
-    .pg-datepicker-field input {
-      background: #f8fafc;
-      border-color: #e2e8f0;
-      color: #0f172a;
-    }
-    .pg-datepicker-btn-secondary {
-      background: #f1f5f9;
-      color: #475569;
-    }
+    /* ── Estilos do Período Global ── */
+    .pg-container { background: #111827; border-bottom: 1px solid rgba(255,255,255,.07); padding: 16px 24px; }
+    .pg-section-title { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .pg-section-title-icon { font-size: 18px; }
+    .pg-section-title-text { font-size: 13px; font-weight: 800; color: #e2e8f0; display: flex; align-items: center; gap: 8px; }
+    .pg-section-title-highlight { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.3); text-transform: uppercase; letter-spacing: .5px; }
+    .pg-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .pg-card { background: #1a2236; border: 1px solid rgba(255,255,255,.07); border-radius: 12px; padding: 10px 14px; cursor: pointer; transition: all .2s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+    .pg-card:hover { border-color: rgba(59,130,246,.4); background: #1e2943; transform: translateY(-2px); }
+    .pg-card-active { border-color: #3b82f6; background: rgba(59,130,246,.1); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+    .pg-card-active::after { content: '✓'; position: absolute; top: 6px; right: 8px; font-size: 10px; color: #3b82f6; font-weight: 900; }
+    .pg-card-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: rgba(255,255,255,.3); margin-bottom: 4px; }
+    .pg-card-value { font-size: 15px; font-weight: 800; color: #e2e8f0; font-family: 'DM Mono', monospace; }
+    .pg-card-active .pg-card-label { color: #60a5fa; }
+    .pg-card-active .pg-card-value { color: #fff; }
+    .pg-info-bar { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.04); }
+    .pg-period-info { display: flex; align-items: center; gap: 12px; }
+    .pg-period-badge { background: rgba(16,200,134,.1); color: #10c886; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: .5px; border: 1px solid rgba(16,200,134,.2); }
+    .pg-range-display { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.4); font-family: 'DM Mono', monospace; }
+    .pg-card-custom { border-style: dashed; border-color: rgba(255,255,255,.15); }
+    .pg-datepicker-modal { position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .pg-datepicker-modal.active { display: flex; }
+    .pg-datepicker-card { background: #1a2236; border: 1px solid rgba(255,255,255,.1); border-radius: 16px; width: 100%; max-width: 340px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+    .pg-datepicker-title { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .pg-datepicker-fields { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+    .pg-datepicker-field { display: flex; flex-direction: column; gap: 6px; }
+    .pg-datepicker-field label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .5px; }
+    .pg-datepicker-field input { background: #0d1422; border: 1px solid rgba(255,255,255,.1); border-radius: 8px; color: #fff; padding: 10px 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; }
+    .pg-datepicker-field input:focus { outline: none; border-color: #3b82f6; }
+    .pg-datepicker-actions { display: flex; gap: 10px; }
+    .pg-datepicker-btn { flex: 1; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s; border: 1px solid transparent; }
+    .pg-datepicker-btn-primary { background: #3b82f6; color: #fff; }
+    .pg-datepicker-btn-primary:hover { background: #2563eb; }
+    .pg-datepicker-btn-secondary { background: rgba(255,255,255,.05); color: rgba(255,255,255,.6); border-color: rgba(255,255,255,.1); }
+    .pg-datepicker-btn-secondary:hover { background: rgba(255,255,255,.1); }
+    @media (max-width: 600px) { .pg-cards-grid { grid-template-columns: 1fr 1fr; } .pg-container { padding: 12px 16px; } }
   </style>
 </head>
 <body>
 
-<!-- Ecrã de carregamento (mostrado até auth confirmar) -->
 <div id="ecra-carregando">
   <div class="spinner"></div>
-  <div style="font-size:13px">A verificar acesso…</div>
+  <div style="font-size:13px;font-weight:600">A carregar estatísticas avançadas…</div>
 </div>
 
-<!-- Ecrã de acesso negado -->
 <div id="ecra-negado">
-  <div style="font-size:40px">🔒</div>
-  <div style="font-size:16px;font-weight:700">Acesso não autorizado</div>
-  <div style="font-size:12px;color:rgba(255,255,255,.4)">Esta página requer perfil de gestão.</div>
-  <a href="index.html" style="margin-top:12px;padding:9px 22px;border-radius:8px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:13px;font-weight:700;text-decoration:none">← Voltar ao Dashboard</a>
+  <div style="font-size:48px">🔒</div>
+  <div style="font-size:18px;font-weight:800">Acesso Negado</div>
+  <div style="font-size:13px;color:rgba(255,255,255,.5);text-align:center;max-width:300px">Esta página é exclusiva para a Direcção e Administração do SIGDOC.</div>
+  <a href="index.html" style="margin-top:16px;padding:10px 24px;background:#3b82f6;color:#fff;border-radius:99px;text-decoration:none;font-weight:700;font-size:13px">Voltar ao Início</a>
 </div>
 
-<!-- Ecrã principal (oculto até auth confirmar) -->
 <div id="ecra-principal">
-
-  <!-- Cabeçalho de impressão — oculto no ecrã, visível no @media print -->
+  <!-- Cabeçalho de Impressão -->
   <div id="print-header">
-    <div class="ph-sistema">Sistema Integrado de Gestão Documental — Direcção Municipal de Saúde do Sumbe</div>
-    <div class="ph-titulo">Relatório de Estatísticas de Recursos Humanos</div>
+    <div class="ph-sistema">SIGDOC-SUMBE — Sistema de Gestão Documental</div>
+    <div class="ph-titulo">Relatório de Estatísticas e Indicadores de RH</div>
     <div class="ph-meta-grid">
-      <div class="ph-meta-item"><span class="ph-meta-lbl">Data de emissão</span><span class="ph-meta-val" id="ph-data">—</span></div>
-      <div class="ph-meta-item"><span class="ph-meta-lbl">Total analisado</span><span class="ph-meta-val" id="ph-total">—</span></div>
-      <div class="ph-meta-item"><span class="ph-meta-lbl">Filtros activos</span><span class="ph-meta-val" id="ph-filtros">Nenhum (efectivo total)</span></div>
+      <div class="ph-meta-item"><span class="ph-meta-lbl">Data de Emissão</span><span class="ph-meta-val" id="ph-data">—</span></div>
+      <div class="ph-meta-item"><span class="ph-meta-lbl">Universo de Dados</span><span class="ph-meta-val" id="ph-total">—</span></div>
+      <div class="ph-meta-item"><span class="ph-meta-lbl">Filtros Aplicados</span><span class="ph-meta-val" id="ph-filtros">—</span></div>
       <div class="ph-meta-item"><span class="ph-meta-lbl">Emitido por</span><span class="ph-meta-val" id="ph-user">—</span></div>
     </div>
   </div>
@@ -694,7 +264,7 @@
   import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut }
                                from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, collection, getDocs, doc, getDoc, query, where, orderBy, Timestamp }
+  import { getFirestore, collection, getDocs, doc, getDoc, query, where, orderBy, Timestamp, limit }
                                from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
@@ -763,7 +333,7 @@
       document.getElementById("badge-perfil").textContent =
         {admin:"Administrador",director:"Director",chefe:"Chefe RH",tecnico:"Técnico RH"}[perfil] || perfil;
 
-      // Carregar dados
+      // Carregar dados iniciais
       await carregarEstatisticas(perfil);
       // Mostrar botões de exportação agora que há dados
       ['btn-csv','btn-prn'].forEach(id => {
@@ -782,25 +352,49 @@
   });
 
   // ════════════════════════════════════════════════════════
-  //  CARREGAR DADOS
+  //  CARREGAR DADOS (OTIMIZADO COM FILTROS DE SERVIDOR)
   // ════════════════════════════════════════════════════════
   async function carregarEstatisticas(perfil) {
     _perfilActual = perfil;
     try {
+      // 1. Calcular data de início baseada no período global
+      const inicio = new Date();
+      if (_periodoDocs > 0) {
+        inicio.setDate(inicio.getDate() - _periodoDocs);
+      } else {
+        inicio.setFullYear(2020, 0, 1); // Fallback para "Tudo"
+      }
+      const tsInicio = Timestamp.fromDate(inicio);
+
+      // 2. Definir queries otimizadas
+      // Funcionários e Unidades: mantemos completo para filtros de RH (necessário para montar selects)
+      // Secretaria e Documentos: filtramos no servidor por data para performance
+      const qPedidos = _periodoDocs > 0 
+        ? query(collection(db, "pedidos_secretaria"), where("criadoEm", ">=", tsInicio), orderBy("criadoEm", "desc"))
+        : query(collection(db, "pedidos_secretaria"), orderBy("criadoEm", "desc"), limit(1000));
+
+      const qReunioes = _periodoDocs > 0
+        ? query(collection(db, "reunioes"), where("criadoEm", ">=", tsInicio), orderBy("criadoEm", "desc"))
+        : query(collection(db, "reunioes"), orderBy("criadoEm", "desc"), limit(500));
+
+      const qDocs = _periodoDocs > 0
+        ? query(collection(db, "documentos"), where("geradoEm", ">=", tsInicio), orderBy("geradoEm", "desc"))
+        : query(collection(db, "documentos"), orderBy("geradoEm", "desc"), limit(1000));
+
       const [snapF, snapU, snapP, snapR, snapD] = await Promise.all([
         getDocs(collection(db, "funcionarios")),
         getDocs(collection(db, "unidades_sanitarias")).catch(() => null),
-        getDocs(query(collection(db,"pedidos_secretaria"), orderBy("criadoEm","desc"))).catch(()=>({docs:[]})),
-        getDocs(query(collection(db,"reunioes"),           orderBy("criadoEm","desc"))).catch(()=>({docs:[]})),
-        getDocs(query(collection(db,"documentos"),         orderBy("geradoEm","desc"))).catch(()=>({docs:[]}))
+        getDocs(qPedidos).catch(() => ({ docs: [] })),
+        getDocs(qReunioes).catch(() => ({ docs: [] })),
+        getDocs(qDocs).catch(() => ({ docs: [] }))
       ]);
 
       _todosOsFuncs = snapF.docs.map(d => ({ id: d.id, ...d.data() }));
       _todasUnidades = {};
       if (snapU) snapU.forEach(d => { const u = d.data(); if (u.nome) _todasUnidades[u.nome] = u; });
-      _pedidosSec  = snapP.docs.map(d => ({id:d.id,...d.data()}));
-      _reunioesSec = snapR.docs.map(d => ({id:d.id,...d.data()}));
-      _todosOsDocs = snapD.docs.map(d => ({id:d.id,...d.data()}));
+      _pedidosSec  = snapP.docs.map(d => ({ id: d.id, ...d.data() }));
+      _reunioesSec = snapR.docs.map(d => ({ id: d.id, ...d.data() }));
+      _todosOsDocs = snapD.docs.map(d => ({ id: d.id, ...d.data() }));
 
       const activos = _todosOsFuncs.filter(f => !f.estado || f.estado === "activo").length;
       document.getElementById("topbar-sub").textContent =
@@ -847,13 +441,11 @@
       .replace('Posto de Saúde','PS');
 
     function buildSelect(id, label, opcoes, labelFn) {
-      const opts = opcoes.map(v =>
-        `<option value="${v}">${labelFn ? labelFn(v) : v}</option>`
-      ).join('');
+      const opts = opcoes.map(v => `<option value="${v}">${labelFn ? labelFn(v) : v}</option>`).join('');
       return `
         <div class="filtro-grupo">
-          <span class="filtro-lbl">${label}</span>
-          <select class="filtro-sel" id="fil-${id}" onchange="window._aplicarFiltros()">
+          <label class="filtro-lbl">${label}</label>
+          <select id="fil-${id}" class="filtro-sel" onchange="window._aplicarFiltros()">
             <option value="">Todos</option>
             ${opts}
           </select>
@@ -864,38 +456,36 @@
     wrap.style.display = 'block';
     wrap.innerHTML = `
       <div class="filtros-inner">
-        ${buildSelect('unidade',   'Unidade',   unidades,  abrvUnidade)}
-        ${buildSelect('categoria', 'Categoria', categorias, null)}
-        ${buildSelect('vinculo',   'Vínculo',   vinculos,  v => VINCULO_LABEL[v]||v)}
-        ${buildSelect('estado',    'Estado',    estados,   v => ESTADO_LABEL[v]||v)}
-        ${buildSelect('sexo',      'Sexo',      sexos,     null)}
+        ${buildSelect('unidade',   'Unidade Sanitária', unidades, abrvUnidade)}
+        ${buildSelect('categoria', 'Categoria',         categorias)}
+        ${buildSelect('vinculo',   'Vínculo',           vinculos, v => VINCULO_LABEL[v])}
+        ${buildSelect('estado',    'Estado',            estados,  v => ESTADO_LABEL[v])}
+        ${buildSelect('sexo',      'Sexo',              sexos)}
+        
         <div class="filtros-acoes">
-          <span class="filtros-resultado" id="fil-resultado">${funcs.length} funcionários</span>
-          <span class="filtros-badge" id="fil-badge">0 filtros</span>
-          <button class="btn-limpar" id="btn-limpar" onclick="window._limparFiltros()">✕ Limpar</button>
+          <div id="fil-badge" class="filtros-badge">0 filtros</div>
+          <button id="btn-limpar" class="btn-limpar" onclick="window._limparFiltros()">Limpar</button>
+          <div id="fil-resultado" class="filtros-resultado">${funcs.length} funcionários</div>
         </div>
       </div>`;
-
-    // Barra de período global - NOVO DESIGN MODERNO
+      
     renderPeriodoGlobal();
   }
 
-  // Função para renderizar o novo design de período global
   function renderPeriodoGlobal() {
     const pgWrap = document.getElementById('periodo-global-wrap');
     if (!pgWrap) return;
 
     const PERIODOS = [
-      { dias: 30, label: '30 dias', icon: '📆' },
-      { dias: 90, label: '90 dias', icon: '📅', default: true },
-      { dias: 180, label: '6 meses', icon: '🗓️' },
-      { dias: 365, label: '1 ano', icon: '📊' },
-      { dias: 0, label: 'Tudo', icon: '∞', special: true }
+      { label: '7 dias',  dias: 7,   icon: '⚡' },
+      { label: '30 dias', dias: 30,  icon: '📅' },
+      { label: '90 dias', dias: 90,  icon: '📊' },
+      { label: '180 dias',dias: 180, icon: '🗓️' },
+      { label: 'Tudo',    dias: 0,   icon: '🌎' }
     ];
 
-    // Formatar intervalo para exibição
     const getRangeText = () => {
-      if (_periodoDocs === 0) return 'Todo o período disponível';
+      if (_periodoDocs === 0) return 'Todo o histórico';
       const dataInicio = new Date();
       dataInicio.setDate(dataInicio.getDate() - _periodoDocs);
       return `${dataInicio.toLocaleDateString('pt-PT')} → ${new Date().toLocaleDateString('pt-PT')}`;
@@ -904,9 +494,8 @@
     const cardsHtml = PERIODOS.map(p => {
       const isActive = _periodoDocs === p.dias;
       const activeClass = isActive ? 'pg-card-active' : '';
-      const specialClass = p.special ? 'pg-card-custom' : '';
       return `
-        <div class="pg-card ${activeClass} ${specialClass}" onclick="window._setPeriodoGlobal(${p.dias})">
+        <div class="pg-card ${activeClass}" onclick="window._setPeriodoGlobal(${p.dias})">
           <div class="pg-card-label">${p.icon} ${p.label}</div>
           <div class="pg-card-value">${p.label === 'Tudo' ? '∞' : p.label}</div>
         </div>
@@ -931,12 +520,8 @@
         </div>
         <div class="pg-info-bar">
           <div class="pg-period-info">
-            <div class="pg-period-badge">
-              Período activo
-            </div>
-            <div class="pg-range-display">
-              📍 ${getRangeText()}
-            </div>
+            <div class="pg-period-badge">Período activo</div>
+            <div class="pg-range-display">📍 ${getRangeText()}</div>
           </div>
           <div class="pg-range-display">
             ${_periodoDocs === 0 ? '📊 Histórico completo' : `📈 Últimos ${_periodoDocs} dias`}
@@ -945,80 +530,65 @@
       </div>
     `;
 
-    // Adicionar modal de datepicker se não existir
+    // Modal de datepicker
     if (!document.getElementById('pg-datepicker-modal')) {
       const modal = document.createElement('div');
       modal.id = 'pg-datepicker-modal';
       modal.className = 'pg-datepicker-modal';
       modal.innerHTML = `
         <div class="pg-datepicker-card">
-          <div class="pg-datepicker-title">
-            <span>📅</span> Seleccionar intervalo personalizado
-          </div>
+          <div class="pg-datepicker-title"><span>📅</span> Seleccionar intervalo</div>
           <div class="pg-datepicker-fields">
-            <div class="pg-datepicker-field">
-              <label>Data inicial</label>
-              <input type="date" id="pg-data-inicio">
-            </div>
-            <div class="pg-datepicker-field">
-              <label>Data final</label>
-              <input type="date" id="pg-data-fim">
-            </div>
+            <div class="pg-datepicker-field"><label>Data inicial</label><input type="date" id="pg-data-inicio"></div>
+            <div class="pg-datepicker-field"><label>Data final</label><input type="date" id="pg-data-fim"></div>
           </div>
           <div class="pg-datepicker-actions">
             <button class="pg-datepicker-btn pg-datepicker-btn-secondary" onclick="window._fecharDatepicker()">Cancelar</button>
             <button class="pg-datepicker-btn pg-datepicker-btn-primary" onclick="window._aplicarIntervaloPersonalizado()">Aplicar</button>
           </div>
-        </div>
-      `;
+        </div>`;
       document.body.appendChild(modal);
     }
   }
 
-  // Funções do datepicker
   window._abrirDatepicker = function() {
     const modal = document.getElementById('pg-datepicker-modal');
     if (modal) {
-      // Preencher com valores actuais
       const hoje = new Date();
       const inicio = new Date();
       inicio.setDate(hoje.getDate() - (_periodoDocs || 90));
-      
-      const inputInicio = document.getElementById('pg-data-inicio');
-      const inputFim = document.getElementById('pg-data-fim');
-      if (inputInicio) inputInicio.value = inicio.toISOString().split('T')[0];
-      if (inputFim) inputFim.value = hoje.toISOString().split('T')[0];
-      
+      document.getElementById('pg-data-inicio').value = inicio.toISOString().split('T')[0];
+      document.getElementById('pg-data-fim').value = hoje.toISOString().split('T')[0];
       modal.classList.add('active');
     }
   };
 
-  window._fecharDatepicker = function() {
-    const modal = document.getElementById('pg-datepicker-modal');
-    if (modal) modal.classList.remove('active');
-  };
+  window._fecharDatepicker = () => document.getElementById('pg-datepicker-modal')?.classList.remove('active');
 
   window._aplicarIntervaloPersonalizado = function() {
     const dataInicio = document.getElementById('pg-data-inicio')?.value;
     const dataFim = document.getElementById('pg-data-fim')?.value;
-    
     if (dataInicio && dataFim) {
       const inicio = new Date(dataInicio);
       const fim = new Date(dataFim);
       const diffDays = Math.ceil((fim - inicio) / (1000 * 60 * 60 * 24));
-      
       if (diffDays > 0) {
         _periodoDocs = diffDays;
         _periodoSec = diffDays;
-        renderPeriodoGlobal(); // Re-renderizar para mostrar o intervalo
-        renderActividadePeriodo(_filtrarDocsPeriodo());
-        renderSecretariaEstat();
-        notif(`✅ Período alterado: ${diffDays} dias (${dataInicio} → ${dataFim})`);
+        window._fecharDatepicker();
+        carregarEstatisticas(_perfilActual);
+        notif(`✅ Período alterado: ${diffDays} dias`);
       } else {
         notif('⚠️ Data final deve ser posterior à data inicial');
       }
     }
-    window._fecharDatepicker();
+  };
+
+  window._setPeriodoGlobal = function(dias) {
+    _periodoDocs = dias;
+    _periodoSec  = dias;
+    carregarEstatisticas(_perfilActual);
+    notif(`✅ Período alterado para ${dias || 'todo o histórico'}`);
   };
 
   window._aplicarFiltros = function() {
@@ -1035,20 +605,14 @@
     if (_filtros.estado)    resultado = resultado.filter(f => (f.estado||'activo') === _filtros.estado);
     if (_filtros.sexo)      resultado = resultado.filter(f => f.sexo      === _filtros.sexo);
 
-    // Actualizar badge e resultado
     const nActivos = Object.values(_filtros).filter(Boolean).length;
-    const badge  = document.getElementById('fil-badge');
-    const btnLimpar = document.getElementById('btn-limpar');
-    const resEl  = document.getElementById('fil-resultado');
+    document.getElementById('fil-badge')?.classList.toggle('vis', nActivos > 0);
+    document.getElementById('fil-badge').textContent = nActivos + (nActivos === 1 ? ' filtro' : ' filtros');
+    document.getElementById('btn-limpar')?.classList.toggle('vis', nActivos > 0);
+    document.getElementById('fil-resultado').textContent = `${resultado.length} de ${_todosOsFuncs.length} funcionários`;
 
-    if (badge)    { badge.textContent = nActivos + (nActivos === 1 ? ' filtro' : ' filtros'); badge.classList.toggle('vis', nActivos > 0); }
-    if (btnLimpar){ btnLimpar.classList.toggle('vis', nActivos > 0); }
-    if (resEl)    { resEl.textContent = `${resultado.length} de ${_todosOsFuncs.length} funcionários`; }
-
-    // Marcar selects activos visualmente
     ['unidade','categoria','vinculo','estado','sexo'].forEach(k => {
-      const sel = document.getElementById('fil-' + k);
-      if (sel) sel.classList.toggle('activo', !!_filtros[k]);
+      document.getElementById('fil-' + k)?.classList.toggle('activo', !!_filtros[k]);
     });
 
     _funcsFiltrados = resultado;
@@ -1061,17 +625,14 @@
       const sel = document.getElementById('fil-' + k);
       if (sel) { sel.value = ''; sel.classList.remove('activo'); }
     });
-    const badge   = document.getElementById('fil-badge');
-    const btnLimpar = document.getElementById('btn-limpar');
-    const resEl   = document.getElementById('fil-resultado');
-    if (badge)    { badge.classList.remove('vis'); }
-    if (btnLimpar){ btnLimpar.classList.remove('vis'); }
-    if (resEl)    { resEl.textContent = `${_todosOsFuncs.length} funcionários`; }
+    document.getElementById('fil-badge')?.classList.remove('vis');
+    document.getElementById('btn-limpar')?.classList.remove('vis');
+    document.getElementById('fil-resultado').textContent = `${_todosOsFuncs.length} funcionários`;
     _funcsFiltrados = _todosOsFuncs;
     render(_todosOsFuncs, _todasUnidades, _perfilActual);
   };
 
-  // ── helper: filtrar documentos pelo período global ──
+  // ── helpers de filtragem local (para sub-recortes já carregados) ──
   function _filtrarDocsPeriodo() {
     if (!_periodoDocs) return _todosOsDocs;
     const limiar = Date.now() - _periodoDocs * 86400000;
@@ -1082,26 +643,6 @@
       return ms >= limiar;
     });
   }
-
-  // ── helper: filtrar por criadoEm genérico ──
-  function _filtrarPorData(arr, dias, campo) {
-    if (!dias) return arr;
-    const limiar = Date.now() - dias * 86400000;
-    return arr.filter(d => {
-      const ts = d[campo];
-      if (!ts) return false;
-      const ms = ts.toDate ? ts.toDate().getTime() : (ts.seconds ? ts.seconds*1000 : new Date(ts).getTime());
-      return ms >= limiar;
-    });
-  }
-
-  window._setPeriodoGlobal = function(dias) {
-    _periodoDocs = dias;
-    _periodoSec  = dias;
-    renderPeriodoGlobal(); // Actualizar UI
-    renderActividadePeriodo(_filtrarDocsPeriodo());
-    renderSecretariaEstat();
-  };
 
   // ════════════════════════════════════════════════════════
   //  RENDER PRINCIPAL
@@ -1114,27 +655,24 @@
     const idMed  = idadeMedia(funcs);
     const activos = funcs.filter(f => !f.estado || f.estado === "activo").length;
 
-    // Banner de contexto quando filtros estão activos
     const nFiltrosActivos = Object.values(_filtros).filter(Boolean).length;
     const bannerFiltro = nFiltrosActivos > 0
       ? `<div style="display:flex;align-items:center;gap:10px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.18);border-radius:10px;padding:10px 16px;margin-bottom:16px;flex-wrap:wrap">
            <span style="font-size:13px;font-weight:700;color:#60a5fa">🔍 Visualização filtrada</span>
-           <span style="font-size:12px;color:rgba(255,255,255,.5)">Mostrando <strong style="color:#e2e8f0">${total}</strong> de <strong style="color:#e2e8f0">${_todosOsFuncs.length}</strong> funcionários com base nos filtros seleccionados.</span>
-           <button onclick="window._limparFiltros()" style="margin-left:auto;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:#60a5fa;border-radius:6px;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer">✕ Limpar filtros</button>
-         </div>`
-      : '';
+           <span style="font-size:12px;color:rgba(255,255,255,.5)">Mostrando <strong style="color:#e2e8f0">${total}</strong> de <strong style="color:#e2e8f0">${_todosOsFuncs.length}</strong> funcionários.</span>
+           <button onclick="window._limparFiltros()" style="margin-left:auto;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:#60a5fa;border-radius:6px;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer">✕ Limpar</button>
+         </div>` : '';
 
     document.getElementById("content").innerHTML = bannerFiltro + `
-      <!-- ── ACTIVIDADE NO PERÍODO ── -->
-      <div class="sec" id="sec-act-periodo" style="margin-top:0">📅 Actividade no Período Seleccionado</div>
+      <div class="sec" style="margin-top:0">📅 Actividade no Período</div>
       <div id="act-periodo-wrap"></div>
 
       <div class="kpi-strip">
-        <div class="kpi"><div class="kpi-icon">👥</div><div class="kpi-val" style="color:#3b82f6">${total}</div><div class="kpi-lbl">Total Funcionários</div><div class="kpi-sub">${activos} em serviço activo</div></div>
+        <div class="kpi"><div class="kpi-icon">👥</div><div class="kpi-val" style="color:#3b82f6">${total}</div><div class="kpi-lbl">Total Funcionários</div><div class="kpi-sub">${activos} activos</div></div>
         <div class="kpi"><div class="kpi-icon">👨</div><div class="kpi-val" style="color:#3b82f6">${masc}</div><div class="kpi-lbl">Masculino</div><div class="kpi-sub">${total ? Math.round(masc/total*100) : 0}%</div></div>
         <div class="kpi"><div class="kpi-icon">👩</div><div class="kpi-val" style="color:#f472b6">${fem}</div><div class="kpi-lbl">Feminino</div><div class="kpi-sub">${total ? Math.round(fem/total*100) : 0}%</div></div>
         <div class="kpi"><div class="kpi-icon">🎂</div><div class="kpi-val" style="color:#f59e0b">${idMed || "—"}</div><div class="kpi-lbl">Idade Média</div><div class="kpi-sub">anos</div></div>
-        <div class="kpi"><div class="kpi-icon">💰</div><div class="kpi-val" style="color:#10c886;font-size:${massa ? "17px" : "26px"}">${massa ? fmtKz(massa) : "—"}</div><div class="kpi-lbl">Massa Salarial</div><div class="kpi-sub">${funcs.filter(f => f.salarioBase).length} registos</div></div>
+        <div class="kpi"><div class="kpi-icon">💰</div><div class="kpi-val" style="color:#10c886;font-size:17px">${massa ? fmtKz(massa) : "—"}</div><div class="kpi-lbl">Massa Salarial</div><div class="kpi-sub">${funcs.filter(f => f.salarioBase).length} registos</div></div>
       </div>
 
       <div class="sec">👤 Distribuição por Género</div>
@@ -1142,251 +680,112 @@
 
       <div class="sec">📊 Composição do Pessoal</div>
       <div class="g2">
-        <div class="gc"><div class="gc-titulo">Pirâmide Etária</div><div class="gc-sub">Por faixa etária e sexo</div><div id="piramide"></div></div>
-        <div class="gc"><div class="gc-titulo">Tipo de Vínculo</div><div class="gc-sub">Quadro vs Provisório</div><div id="vinculo-wrap"></div></div>
+        <div class="gc"><div class="gc-titulo">Pirâmide Etária</div><div id="piramide"></div></div>
+        <div class="gc"><div class="gc-titulo">Tipo de Vínculo</div><div id="vinculo-wrap"></div></div>
       </div>
-      <div class="g1"><div class="gc" id="evo-cadastros-gc">
+      
+      <div class="g1"><div class="gc">
         <div class="gc-titulo">📈 Evolução de Cadastros</div>
         <div class="gc-sub" id="evo-cadastros-sub">Novos registos por mês</div>
-        <div class="evo-wrap" id="evo-cadastros"></div>
+        <div id="evo-cadastros"></div>
       </div></div>
 
-      <div class="sec">🏥 Distribuição Profissional</div>
-      <div class="g2">
-        <div class="gc"><div class="gc-titulo">Top Categorias</div><div class="gc-sub">Categorias mais frequentes</div><div id="top-cat"></div></div>
-        <div class="gc"><div class="gc-titulo">Estado do Serviço</div><div class="gc-sub">Activos, licenças e inactivos</div><div id="estado-wrap"></div></div>
-      </div>
-
-      <div class="sec">📍 Cobertura por Unidade</div>
-      <div class="g1"><div class="gc">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:4px">
-          <div>
-            <div class="gc-titulo" id="cob-titulo">Cadastrados vs Efectivo Esperado</div>
-            <div class="gc-sub" id="cob-sub">Por unidade sanitária</div>
-          </div>
-          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;font-weight:600;color:var(--txt-2);white-space:nowrap">
-            <input type="checkbox" id="chk-excluir-nao-op" onchange="window._aplicarFiltros()"
-              style="width:14px;height:14px;accent-color:#1241a1;cursor:pointer"/>
-            Excluir não operacionais
-          </label>
-        </div>
-        <div id="cobertura"></div>
-      </div></div>
-
-      <div class="sec">🏢 Secções Internas da DMS</div>
-      <div class="g1" id="dms-seccoes-wrap"></div>
-
-      <div class="sec">🗺 Naturalidade</div>
-      <div class="g2">
-        <div class="gc"><div class="gc-titulo">Por Província</div><div class="gc-sub">Província de naturalidade</div><div id="geo-prov"></div></div>
-        <div class="gc"><div class="gc-titulo">Top Municípios</div><div class="gc-sub">Municípios mais frequentes</div><div id="geo-mun"></div></div>
-      </div>
-
-      <div class="sec">💰 Massa Salarial</div>
-      <div class="g2">
-        <div class="gc"><div class="gc-titulo">Por Unidade</div><div class="gc-sub">Soma dos salários base</div><div id="sal-unit"></div></div>
-        <div class="gc"><div class="gc-titulo">Por Categoria</div><div class="gc-sub">Top 8 por massa salarial</div><div id="sal-cat"></div></div>
-      </div>
-
-      <div class="sec">🏦 INSS e Domiciliação Bancária</div>
-      <div class="g2">
-        <div class="gc" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;min-height:160px">
-          <div style="font-size:22px">🔐</div>
-          <div class="inss-big" id="inss-pct">—</div>
-          <div style="font-size:12px;color:rgba(255,255,255,.4);text-align:center;font-weight:600">com Nº INSS registado<br><span id="inss-sub" style="color:rgba(255,255,255,.2)">—</span></div>
-        </div>
-        <div class="gc"><div class="gc-titulo">Banco de Domiciliação</div><div class="gc-sub">Distribuição por banco</div><div id="bancos"></div></div>
-      </div>
-
-      <div class="sec">🧮 Qualidade do Cadastro</div>
+      <div class="sec">🛡️ Qualidade do Cadastro</div>
       <div id="dq-wrap"></div>
 
-      <div class="sec" style="margin-top:32px">
-        ✉️ Secretaria — Análise de Interacção
-        <span style="margin-left:8px;font-size:10px;color:#94a3b8;font-weight:500">(período: ver barra acima)</span>
-      </div>
-
-      <!-- Linha A: Funil de estados + Waffle taxa + Sparkline tendência -->
+      <div class="sec">🏥 Distribuição por Unidade</div>
       <div class="g2">
-        <div class="gc">
-          <div class="gc-titulo">📊 Funil de Pedidos</div>
-          <div class="gc-sub">Pipeline de resolução por estado</div>
-          <div id="sec-funil"></div>
-        </div>
-        <div class="gc">
-          <div class="gc-titulo">🎯 Taxa de Resolução</div>
-          <div class="gc-sub">Pedidos encerrados vs total do período</div>
-          <div id="sec-waffle"></div>
-        </div>
+        <div class="gc"><div class="gc-titulo">Top 8 Unidades</div><div id="cobertura"></div></div>
+        <div class="gc"><div class="gc-titulo">Massa Salarial por Unidade</div><div id="sal-unit"></div></div>
       </div>
 
-      <!-- Linha B: Sparkline + Heatmap -->
-      <div class="g2" style="margin-top:18px">
-        <div class="gc">
-          <div class="gc-titulo">📈 Tendência Semanal</div>
-          <div class="gc-sub">Pedidos por semana — últimas 12 semanas</div>
-          <div id="sec-spark"></div>
-        </div>
-        <div class="gc">
-          <div class="gc-titulo">🗓 Quando chegam os pedidos?</div>
-          <div class="gc-sub">Dia da semana — concentração relativa</div>
-          <div id="sec-heatmap"></div>
-        </div>
+      <div class="sec">📂 Documentos e Secretaria</div>
+      <div class="g2">
+        <div class="gc"><div class="gc-titulo">Funil de Pedidos</div><div id="sec-funil"></div></div>
+        <div class="gc"><div class="gc-titulo">Taxa de Resolução</div><div id="sec-waffle"></div></div>
       </div>
+      <div class="g2">
+        <div class="gc"><div class="gc-titulo">Tendência Semanal</div><div id="sec-spark"></div></div>
+        <div class="gc"><div class="gc-titulo">Assuntos Frequentes</div><div id="sec-lollipop"></div></div>
+      </div>
+      <div class="g2">
+        <div class="gc"><div class="gc-titulo">Densidade por Dia</div><div id="sec-heatmap"></div></div>
+        <div class="gc"><div class="gc-titulo">Gestão de Reuniões</div><div id="sec-reunioes-ring"></div></div>
+      </div>
+    `;
 
-      <!-- Linha C: Lollipop assuntos + Reuniões -->
-      <div class="g2" style="margin-top:18px">
-        <div class="gc">
-          <div class="gc-titulo">💬 Pedidos por Assunto</div>
-          <div class="gc-sub">Volume acumulado no período</div>
-          <div id="sec-lollipop"></div>
-        </div>
-        <div class="gc">
-          <div class="gc-titulo">📅 Reuniões — Resultado</div>
-          <div class="gc-sub">Estado final das reuniões solicitadas</div>
-          <div id="sec-reunioes-ring"></div>
-        </div>
-      </div>`;
-
-    renderGeneroCard(funcs);
-    renderPiramide(funcs);
-    renderDonut("vinculo-wrap", calcGrupo(funcs, "vinculo", {quadro:"Quadro", provisorio:"Provisório"}));
-    renderBarras("top-cat",     topN(funcs, "categoria", 8), 0);
-    renderDonut("estado-wrap",  calcGrupo(funcs, "estado", {activo:"Em Serviço", licenca:"De Licença", inactivo:"Inactivo"}));
-    renderCobertura(funcs, unidades);
-    renderSeccoesDMS(funcs);
-    renderBarras("geo-prov",    topN(funcs, "provinciaNatal", 10), 4);
-    renderBarras("geo-mun",     topN(funcs, "municipioNatal",  10), 3);
-    renderSalarial(funcs);
-    renderINSS(funcs);
-    renderQualidade(funcs);
-    renderBarras("bancos",      topN(funcs, "banco", 10), 5);
     renderActividadePeriodo(_filtrarDocsPeriodo());
-    renderEvolucaoCadastros(_todosOsFuncs);
+    renderGenero(funcs);
+    renderPiramide(funcs);
+    renderDonut("vinculo-wrap", calcGrupo(funcs, "vinculo", {quadro:"Quadro",provisorio:"Provisório"}));
+    renderEvolucaoCadastros(funcs);
+    renderQualidade(funcs);
+    renderCobertura(funcs, unidades);
+    renderSalarial(funcs);
     renderSecretariaEstat();
   }
 
-  // ════════════════════════════════════════════════════════
-  //  COMPONENTES (mantidos iguais)
-  // ════════════════════════════════════════════════════════
-  function renderGeneroCard(funcs) {
-    const el = document.getElementById("genero-card-wrap");
-    if (!el) return;
-
-    const total   = funcs.length;
-    const masc    = funcs.filter(f => f.sexo === "Masculino").length;
-    const fem     = funcs.filter(f => f.sexo === "Feminino").length;
-    const outro   = total - masc - fem;
-    const pctM    = total ? Math.round(masc / total * 100) : 0;
-    const pctF    = total ? Math.round(fem  / total * 100) : 0;
-    const activosM = funcs.filter(f => f.sexo === "Masculino" && (!f.estado || f.estado === "activo")).length;
-    const activosF = funcs.filter(f => f.sexo === "Feminino"  && (!f.estado || f.estado === "activo")).length;
-
-    function idMediaSexo(sexo) {
-      const lista = funcs.filter(f => f.sexo === sexo && f.nascimento);
-      if (!lista.length) return "—";
-      const soma = lista.reduce((s,f) => s + (new Date().getFullYear() - new Date(f.nascimento).getFullYear()), 0);
-      return (soma / lista.length).toFixed(1);
-    }
-    const idM = idMediaSexo("Masculino");
-    const idF = idMediaSexo("Feminino");
-
-    // SVG donut: r=40, circ=251.3, começa no topo
-    const R = 40, circ = 2 * Math.PI * R;
-    const segM = circ * pctM / 100;
-    const segF = circ * pctF / 100;
-    const offM = circ * 0.25;                // topo = offset 25%
-    const offF = circ * 0.25 - segM;         // a seguir ao masculino
-
-    // Barra de proporção (vínculo visual simples)
-    const barM = pctM;
-    const barF = pctF;
-
-    el.innerHTML =
-      '<div class="gc" style="margin-bottom:0">' +
-        // topo: título + total
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">' +
-          '<div>' +
-            '<div class="gc-titulo">Distribuição por Género</div>' +
-            '<div class="gc-sub">Efectivo total: ' + total + ' funcionários</div>' +
-          '</div>' +
-          '<div style="display:flex;gap:8px">' +
-            '<span style="padding:4px 12px;border-radius:99px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.2);font-size:11px;font-weight:700;color:#60a5fa">👨 ' + masc + ' M</span>' +
-            '<span style="padding:4px 12px;border-radius:99px;background:rgba(244,114,182,.12);border:1px solid rgba(244,114,182,.2);font-size:11px;font-weight:700;color:#f472b6">👩 ' + fem + ' F</span>' +
-          '</div>' +
-        '</div>' +
-
-        // corpo: donut + dados
-        '<div style="display:flex;align-items:center;gap:28px;flex-wrap:wrap">' +
-
-          // --- donut SVG compacto ---
-          '<div style="position:relative;flex-shrink:0;width:140px;height:140px">' +
-            '<svg width="140" height="140" viewBox="0 0 100 100" style="transform:rotate(-90deg)">' +
-              '<circle cx="50" cy="50" r="' + R + '" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="14"/>' +
-              '<circle cx="50" cy="50" r="' + R + '" fill="none" stroke="#3b82f6" stroke-width="14" stroke-linecap="round"' +
-                ' stroke-dasharray="' + segM.toFixed(1) + ' ' + (circ - segM).toFixed(1) + '"' +
-                ' stroke-dashoffset="' + offM.toFixed(1) + '"/>' +
-              '<circle cx="50" cy="50" r="' + R + '" fill="none" stroke="#f472b6" stroke-width="14" stroke-linecap="round"' +
-                ' stroke-dasharray="' + segF.toFixed(1) + ' ' + (circ - segF).toFixed(1) + '"' +
-                ' stroke-dashoffset="' + offF.toFixed(1) + '"/>' +
-            '</svg>' +
-            '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">' +
-              '<div style="font-size:28px;font-weight:900;font-family:\'DM Mono\',monospace;color:#e2e8f0;line-height:1">' + total + '</div>' +
-              '<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.3);margin-top:3px">total</div>' +
-            '</div>' +
-          '</div>' +
-
-          // --- linhas de dados ---
-          '<div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:14px">' +
-
-            // Masculino
-            '<div>' +
-              '<div style="display:flex;justify-content:space-between;margin-bottom:5px;align-items:baseline">' +
-                '<span style="font-size:13px;font-weight:700;color:#e2e8f0">👨 Masculino</span>' +
-                '<span style="font-family:\'DM Mono\',monospace;font-size:22px;font-weight:800;color:#3b82f6">' + pctM + '%</span>' +
-              '</div>' +
-              '<div style="height:8px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;margin-bottom:5px">' +
-                '<div style="width:' + barM + '%;height:100%;background:linear-gradient(90deg,#1d4ed8,#3b82f6);border-radius:99px"></div>' +
-              '</div>' +
-              '<div style="display:flex;gap:16px">' +
-                '<span style="font-size:11px;color:rgba(255,255,255,.4)">' + masc + ' funcionários</span>' +
-                '<span style="font-size:11px;color:rgba(255,255,255,.3)">·</span>' +
-                '<span style="font-size:11px;color:rgba(255,255,255,.4)">activos: <b style="color:#60a5fa">' + activosM + '</b></span>' +
-                '<span style="font-size:11px;color:rgba(255,255,255,.3)">·</span>' +
-                '<span style="font-size:11px;color:rgba(255,255,255,.4)">idade média: <b style="color:#f59e0b">' + idM + '</b></span>' +
-              '</div>' +
-            '</div>' +
-
-            // Feminino
-            '<div>' +
-              '<div style="display:flex;justify-content:space-between;margin-bottom:5px;align-items:baseline">' +
-                '<span style="font-size:13px;font-weight:700;color:#e2e8f0">👩 Feminino</span>' +
-                '<span style="font-family:\'DM Mono\',monospace;font-size:22px;font-weight:800;color:#f472b6">' + pctF + '%</span>' +
-              '</div>' +
-              '<div style="height:8px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;margin-bottom:5px">' +
-                '<div style="width:' + barF + '%;height:100%;background:linear-gradient(90deg,#be185d,#f472b6);border-radius:99px"></div>' +
-              '</div>' +
-              '<div style="display:flex;gap:16px">' +
-                '<span style="font-size:11px;color:rgba(255,255,255,.4)">' + fem + ' funcionárias</span>' +
-                '<span style="font-size:11px;color:rgba(255,255,255,.3)">·</span>' +
-                '<span style="font-size:11px;color:rgba(255,255,255,.4)">activas: <b style="color:#f472b6">' + activosF + '</b></span>' +
-                '<span style="font-size:11px;color:rgba(255,255,255,.3)">·</span>' +
-                '<span style="font-size:11px;color:rgba(255,255,255,.4)">idade média: <b style="color:#f59e0b">' + idF + '</b></span>' +
-              '</div>' +
-            '</div>' +
-
-            // Não especificado — só se existir
-            (outro > 0
-              ? '<div style="padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07)">' +
-                  '<span style="font-size:11px;color:rgba(255,255,255,.3)">⚠ ' + outro + ' sem sexo registado</span>' +
-                '</div>'
-              : '') +
-
-          '</div>' + // fim dados
-        '</div>' +  // fim corpo
-      '</div>';     // fim gc
+  function renderActividadePeriodo(docs) {
+    const wrap = document.getElementById('act-periodo-wrap');
+    if (!wrap) return;
+    const n = docs.length;
+    wrap.innerHTML = `
+      <div style="background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.15);border-radius:12px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:24px;font-weight:900;color:#60a5fa;font-family:'DM Mono',monospace">${n}</div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px">Documentos gerados no período</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:4px">Média diária</div>
+          <div style="font-size:16px;font-weight:800;color:#e2e8f0;font-family:'DM Mono',monospace">${_periodoDocs ? (n/_periodoDocs).toFixed(1) : '—'}</div>
+        </div>
+      </div>`;
   }
 
+  function renderGenero(funcs) {
+    const el = document.getElementById('genero-card-wrap'); if (!el) return;
+    const total = funcs.length;
+    if (!total) return;
+    const masc = funcs.filter(f => f.sexo === "Masculino").length;
+    const fem  = funcs.filter(f => f.sexo === "Feminino").length;
+    const outro = total - masc - fem;
+    const pctM = Math.round(masc/total*100), pctF = Math.round(fem/total*100);
+    const activosM = funcs.filter(f => f.sexo === "Masculino" && (!f.estado || f.estado === "activo")).length;
+    const activosF = funcs.filter(f => f.sexo === "Feminino" && (!f.estado || f.estado === "activo")).length;
+    const idM = idadeMedia(funcs.filter(f => f.sexo === "Masculino")) || "—";
+    const idF = idadeMedia(funcs.filter(f => f.sexo === "Feminino")) || "—";
+    const R = 40, circ = 2 * Math.PI * R;
+    const segM = circ * (masc/total), segF = circ * (fem/total);
+    const offM = circ * 0.25, offF = offM - segM;
+
+    el.innerHTML = `
+      <div class="gen-card">
+        <div class="gen-card-header">
+          <div><div class="gen-card-titulo">Distribuição por Género</div><div class="gen-card-sub">Efectivo total do universo seleccionado</div></div>
+          <div class="gen-total-pill">👥 ${total} Total</div>
+        </div>
+        <div class="gen-body">
+          <div class="gen-donut-wrap">
+            <svg width="160" height="160" viewBox="0 0 100 100" style="transform:rotate(-90deg)">
+              <circle cx="50" cy="50" r="${R}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="12"/>
+              <circle cx="50" cy="50" r="${R}" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round" stroke-dasharray="${segM} ${circ-segM}" stroke-dashoffset="${offM}"/>
+              <circle cx="50" cy="50" r="${R}" fill="none" stroke="#f472b6" stroke-width="12" stroke-linecap="round" stroke-dasharray="${segF} ${circ-segF}" stroke-dashoffset="${offF}"/>
+            </svg>
+            <div class="gen-donut-center"><div class="gen-donut-pct">${pctM}%</div><div class="gen-donut-lbl">Masculino</div></div>
+          </div>
+          <div class="gen-details">
+            <div class="gen-det-card"><div class="gen-det-left"><div class="gen-det-pill" style="background:#3b82f6"></div><div><div class="gen-det-nome">Masculino</div><div class="gen-det-sub">${masc} funcionários</div></div></div><div class="gen-det-right"><div class="gen-det-pct" style="color:#3b82f6">${pctM}%</div></div></div>
+            <div class="gen-det-card"><div class="gen-det-left"><div class="gen-det-pill" style="background:#f472b6"></div><div><div class="gen-det-nome">Feminino</div><div class="gen-det-sub">${fem} funcionárias</div></div></div><div class="gen-det-right"><div class="gen-det-pct" style="color:#f472b6">${pctF}%</div></div></div>
+          </div>
+        </div>
+        <div class="gen-footer">
+          <div><div class="gen-stat-lbl">Activos M</div><div class="gen-stat-val" style="color:#60a5fa">${activosM}</div></div>
+          <div><div class="gen-stat-lbl">Activas F</div><div class="gen-stat-val" style="color:#f472b6">${activosF}</div></div>
+          <div><div class="gen-stat-lbl">Idade Média M</div><div class="gen-stat-val">${idM}</div></div>
+          <div><div class="gen-stat-lbl">Idade Média F</div><div class="gen-stat-val">${idF}</div></div>
+        </div>
+      </div>`;
+  }
 
   function renderPiramide(funcs) {
     const fx = ["0–24","25–29","30–34","35–39","40–44","45–49","50–54","55–59","60+"];
@@ -1398,19 +797,9 @@
       f.sexo === "Masculino" ? d[i].m++ : d[i].fem++;
     });
     const mx = Math.max(...d.map(x => Math.max(x.m, x.fem)), 1);
-    document.getElementById("piramide").innerHTML =
-      [...d].reverse().map(x =>
-        `<div class="pir-linha">
-          <div class="pir-n">${x.m}</div>
-          <div style="display:flex;justify-content:flex-end;width:100%"><div class="pir-bm" style="width:${Math.round(x.m/mx*100)}%"></div></div>
-          <div class="pir-eixo">${x.f}</div>
-          <div style="width:100%"><div class="pir-bf" style="width:${Math.round(x.fem/mx*100)}%"></div></div>
-          <div class="pir-n">${x.fem}</div>
-        </div>`).join("") +
-      `<div class="pir-leg">
-        <div class="pir-leg-item"><div class="pir-dot" style="background:#60a5fa"></div>Masculino</div>
-        <div class="pir-leg-item"><div class="pir-dot" style="background:#f472b6"></div>Feminino</div>
-      </div>`;
+    document.getElementById("piramide").innerHTML = [...d].reverse().map(x =>
+      `<div class="pir-linha"><div class="pir-n">${x.m}</div><div style="display:flex;justify-content:flex-end;width:100%"><div class="pir-bm" style="width:${Math.round(x.m/mx*100)}%"></div></div><div class="pir-eixo">${x.f}</div><div style="width:100%"><div class="pir-bf" style="width:${Math.round(x.fem/mx*100)}%"></div></div><div class="pir-n">${x.fem}</div></div>`).join("") +
+      `<div class="pir-leg"><div class="pir-leg-item"><div class="pir-dot" style="background:#60a5fa"></div>Masculino</div><div class="pir-leg-item"><div class="pir-dot" style="background:#f472b6"></div>Feminino</div></div>`;
   }
 
   function renderDonut(id, dados) {
@@ -1424,1382 +813,152 @@
       const s = { ...d, pct, offset: cm, color: CORES[i % CORES.length] };
       cm += pct; return s;
     });
-    el.innerHTML = `
-      <div class="donut-wrap">
-        <svg width="140" height="140" viewBox="0 0 140 140">
-          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="${sw}"/>
-          ${segs.map(s =>
-            `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}"
-             stroke-width="${sw}"
-             stroke-dasharray="${circ*s.pct/100} ${circ*(1-s.pct/100)}"
-             stroke-dashoffset="${circ*(25-s.offset)/100}"/>`).join("")}
-          <text x="${cx}" y="${cy+6}" text-anchor="middle" fill="rgba(255,255,255,.7)"
-            font-size="22" font-weight="800" font-family="DM Mono,monospace">${total}</text>
-        </svg>
-        <div class="donut-leg">
-          ${segs.map(s =>
-            `<div class="donut-item">
-               <div class="donut-dot" style="background:${s.color}"></div>
-               <div class="donut-txt">${s.label}</div>
-               <div class="donut-n">${s.val}</div>
-             </div>`).join("")}
-        </div>
-      </div>`;
+    el.innerHTML = `<div class="donut-wrap"><svg width="140" height="140" viewBox="0 0 140 140"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="${sw}"/>${segs.map(s => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${sw}" stroke-dasharray="${circ*s.pct/100} ${circ*(1-s.pct/100)}" stroke-dashoffset="${circ*(25-s.offset)/100}"/>`).join("")}<text x="${cx}" y="${cy+6}" text-anchor="middle" fill="rgba(255,255,255,.7)" font-size="22" font-weight="800" font-family="DM Mono,monospace">${total}</text></svg><div class="donut-leg">${segs.map(s => `<div class="donut-item"><div class="donut-dot" style="background:${s.color}"></div><div class="donut-txt">${s.label}</div><div class="donut-n">${s.val}</div></div>`).join("")}</div></div>`;
   }
 
-  function renderBarras(id, dados, ci) {
-    const el = document.getElementById(id); if (!el) return;
-    if (!dados.length) { el.innerHTML = '<div class="vazio">Sem dados registados</div>'; return; }
-    const max = Math.max(...dados.map(d => d.val), 1);
-    el.innerHTML = dados.map((d, i) =>
-      `<div class="bh">
-        <div class="bh-head">
-          <span class="bh-lbl" title="${d.label}">${d.label}</span>
-          <span class="bh-val">${d.kz ? fmtKz(d.val) : d.val}</span>
-        </div>
-        <div class="bh-track">
-          <div class="bh-fill" style="width:${Math.round(d.val/max*100)}%;background:${CORES[(ci+i)%CORES.length]}"></div>
-        </div>
-      </div>`).join("");
-  }
-
-  function renderCobertura(funcs, unidades) {
-    const ab = n => n
-      .replace("Direcção Municipal de Saúde do Sumbe","DMS")
-      .replace("Centro de Saúde","CS")
-      .replace("Posto de Saúde","PS");
-
-    const elTit = document.getElementById("cob-titulo");
-    const elSub = document.getElementById("cob-sub");
-    const elCob = document.getElementById("cobertura");
-    if (!elCob) return;
-
-    // ── Detectar modo com base nos filtros activos ──
-    const fUnidade   = _filtros.unidade;
-    const outrosFilt = _filtros.categoria || _filtros.vinculo || _filtros.estado || _filtros.sexo;
-    const excluirNaoOp = document.getElementById('chk-excluir-nao-op')?.checked ?? false;
-
-    // Helper: verdadeiro se a unidade tem estado operacional
-    const isOperacional = nome => {
-      const u = unidades[nome];
-      if (!u) return true; // sem ficha = assumir operacional (dados históricos)
-      if (u.estado) return u.estado === 'operacional';
-      if (u.activa === false) return false; // compatibilidade booleano legado
-      return true;
-    };
-
-    // ════════════════════════════════════════════════
-    // MODO A — Sem filtros: Cobertura total (comportamento original)
-    // ════════════════════════════════════════════════
-    if (!fUnidade && !outrosFilt) {
-      if (elTit) elTit.textContent = "Cadastrados vs Efectivo Esperado";
-      if (elSub) elSub.textContent = "Por unidade sanitária";
-
-      const cm = {};
-      funcs.forEach(f => { const u = f.unidade || "—"; cm[u] = (cm[u] || 0) + 1; });
-      const todas = new Set([...Object.keys(cm), ...Object.keys(unidades)]);
-      const lista = [...todas]
-        .filter(n => n !== "—" && n !== "Não especificada")
-        .filter(n => !excluirNaoOp || isOperacional(n))
-        .map(nome => ({ nome, cad: cm[nome] || 0, esp: unidades[nome]?.efectivo?.esperado || 0 }))
-        .sort((a, b) => (b.esp || b.cad) - (a.esp || a.cad));
-      const max = Math.max(...lista.map(u => Math.max(u.esp, u.cad)), 1);
-
-      elCob.innerHTML = lista.length
-        ? lista.map(u => {
-            const cob = u.esp > 0 ? Math.round(u.cad / u.esp * 100) : null;
-            const cls = cob === null ? "c0" : cob >= 90 ? "cv" : cob >= 60 ? "ca" : "cr";
-            const fc  = cob === null ? "#3b82f6" : cob >= 90 ? "#10c886" : cob >= 60 ? "#f59e0b" : "#ef4444";
-            return `<div class="cob-item">
-              <div class="cob-nome" title="${u.nome}">${ab(u.nome)}</div>
-              <div class="cob-bar">
-                <div style="position:absolute;inset:0;width:${Math.round(Math.min(u.esp/max,1)*100)}%;background:rgba(255,255,255,.12);border-radius:99px"></div>
-                <div class="cob-bar-fill" style="width:${Math.round(Math.min(u.cad/max,1)*100)}%;background:${fc}"></div>
-              </div>
-              <div class="cob-nums">
-                <span class="cob-cad">${u.cad}</span><span class="cob-sep">/</span><span class="cob-esp">${u.esp || "—"}</span>
-              </div>
-              <span class="cob-badge ${cls}">${cob !== null ? cob+"%" : "s/meta"}</span>
-            </div>`;
-          }).join("")
-        : '<div class="vazio">Sem dados de unidades</div>';
-      return;
-    }
-
-    // ════════════════════════════════════════════════
-    // MODO B — Filtro só por Unidade: Foco numa unidade
-    // ════════════════════════════════════════════════
-    if (fUnidade && !outrosFilt) {
-      const nomeUnidade = fUnidade;
-      // Usar dataset COMPLETO para cobertura real da unidade
-      const totalUnidade = _todosOsFuncs.filter(f => f.unidade === nomeUnidade).length;
-      const esp = unidades[nomeUnidade]?.efectivo?.esperado || 0;
-      const cob = esp > 0 ? Math.round(totalUnidade / esp * 100) : null;
-      const cls = cob === null ? "c0" : cob >= 90 ? "cv" : cob >= 60 ? "ca" : "cr";
-      const fc  = cob === null ? "#3b82f6" : cob >= 90 ? "#10c886" : cob >= 60 ? "#f59e0b" : "#ef4444";
-      const pct = esp > 0 ? Math.round(totalUnidade / esp * 100) : null;
-
-      if (elTit) elTit.textContent = "Foco: " + ab(nomeUnidade);
-      if (elSub) elSub.textContent = "Cobertura real desta unidade";
-
-      elCob.innerHTML = `
-        <div style="display:flex;flex-direction:column;gap:16px;padding:8px 0">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-            <div>
-              <div style="font-size:16px;font-weight:800;color:#e2e8f0;margin-bottom:3px">${ab(nomeUnidade)}</div>
-              <div style="font-size:11px;color:rgba(255,255,255,.35)">${nomeUnidade}</div>
-            </div>
-            <span class="cob-badge ${cls}" style="font-size:13px;padding:4px 12px">
-              ${cob !== null ? cob+"%" : "s/meta"}
-            </span>
-          </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-              <span style="font-size:11px;color:rgba(255,255,255,.4)">Cadastrados</span>
-              <span style="font-family:'DM Mono',monospace;font-weight:800;color:${fc}">${totalUnidade}</span>
-            </div>
-            <div style="height:10px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;margin-bottom:10px">
-              <div style="height:100%;width:${Math.min(pct||0,100)}%;background:${fc};border-radius:99px;transition:width .4s"></div>
-            </div>
-            <div style="display:flex;justify-content:space-between">
-              <span style="font-size:11px;color:rgba(255,255,255,.4)">Efectivo esperado</span>
-              <span style="font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,.4)">${esp || "Não definido"}</span>
-            </div>
-          </div>
-          ${esp > 0 ? `
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 14px">
-              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-bottom:6px">Em falta</div>
-              <div style="font-size:22px;font-weight:800;font-family:'DM Mono',monospace;color:#ef4444">${Math.max(esp - totalUnidade, 0)}</div>
-              <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:2px">vagas por preencher</div>
-            </div>
-            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 14px">
-              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-bottom:6px">Cobertura</div>
-              <div style="font-size:22px;font-weight:800;font-family:'DM Mono',monospace;color:${fc}">${pct}%</div>
-              <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:2px">do efectivo previsto</div>
-            </div>
-          </div>` : ''}
-        </div>`;
-      return;
-    }
-
-    // ════════════════════════════════════════════════
-    // MODO C — Filtros por atributo (categoria/vínculo/estado/sexo)
-    // Mostrar distribuição do subconjunto filtrado por unidade
-    // ════════════════════════════════════════════════
-    const labelFiltro = [
-      _filtros.categoria && `Categoria: ${_filtros.categoria}`,
-      _filtros.vinculo   && `Vínculo: ${{ quadro:"Quadro", provisorio:"Provisório" }[_filtros.vinculo] || _filtros.vinculo}`,
-      _filtros.estado    && `Estado: ${{ activo:"Em Serviço", licenca:"De Licença", inactivo:"Inactivo" }[_filtros.estado] || _filtros.estado}`,
-      _filtros.sexo      && `Sexo: ${_filtros.sexo}`,
-      _filtros.unidade   && `Unidade: ${ab(_filtros.unidade)}`,
-    ].filter(Boolean).join(" · ");
-
-    if (elTit) elTit.textContent = "Distribuição por Unidade";
-    if (elSub) elSub.textContent = labelFiltro || "Subconjunto filtrado";
-
-    // Contar apenas quem passa no filtro, por unidade — ignorar zeros
-    const cm = {};
-    funcs.forEach(f => { const u = f.unidade || "—"; cm[u] = (cm[u] || 0) + 1; });
-    const lista = Object.entries(cm)
-      .filter(([n]) => n !== "—" && n !== "Não especificada")
-      .map(([nome, cad]) => ({ nome, cad }))
-      .sort((a, b) => b.cad - a.cad);
-
-    if (!lista.length) {
-      elCob.innerHTML = '<div class="vazio">Nenhum resultado para os filtros seleccionados</div>';
-      return;
-    }
-
-    const maxCad = Math.max(...lista.map(u => u.cad), 1);
-    const totalFiltrado = lista.reduce((s, u) => s + u.cad, 0);
-
-    elCob.innerHTML = lista.map((u, i) => {
-      const pct  = Math.round(u.cad / totalFiltrado * 100);
-      const fc   = ['#3b82f6','#10c886','#f59e0b','#a78bfa','#22d3ee','#f472b6','#84cc16','#fb923c'][i % 8];
-      return `<div class="cob-item">
-        <div class="cob-nome" title="${u.nome}">${ab(u.nome)}</div>
-        <div class="cob-bar" style="width:100px">
-          <div class="cob-bar-fill" style="width:${Math.round(u.cad/maxCad*100)}%;background:${fc}"></div>
-        </div>
-        <div class="cob-nums">
-          <span class="cob-cad" style="color:${fc}">${u.cad}</span>
-          <span class="cob-sep">·</span>
-          <span class="cob-esp">${pct}%</span>
-        </div>
-        <span class="cob-badge" style="background:rgba(255,255,255,.05);color:rgba(255,255,255,.4)">${i+1}º</span>
-      </div>`;
-    }).join("");
-  }
-
-  function renderSalarial(funcs) {
-    const cs = funcs.filter(f => f.salarioBase && Number(f.salarioBase) > 0);
-    if (!cs.length) {
-      ["sal-unit","sal-cat"].forEach(id => {
-        const e = document.getElementById(id);
-        if (e) e.innerHTML = '<div class="vazio">Sem salários registados</div>';
-      });
-      return;
-    }
-    const ab = n => n.replace("Direcção Municipal de Saúde do Sumbe","DMS").replace("Centro de Saúde","CS").replace("Posto de Saúde","PS");
-    const bu = {}, bc = {};
-    cs.forEach(f => {
-      const u = ab(f.unidade || "—"); bu[u] = (bu[u] || 0) + Number(f.salarioBase);
-      const c = f.categoria || "—"; bc[c] = (bc[c] || 0) + Number(f.salarioBase);
-    });
-    const toArr = (obj, n) => Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([l,v])=>({label:l,val:v,kz:true}));
-    renderBarras("sal-unit", toArr(bu, 8), 1);
-    renderBarras("sal-cat",  toArr(bc, 8), 2);
-  }
-
-  function renderINSS(funcs) {
-    const t = funcs.length, c = funcs.filter(f => f.inss?.trim()).length;
-    const p = document.getElementById("inss-pct"); if (p) p.textContent = (t ? Math.round(c/t*100) : 0) + "%";
-    const s = document.getElementById("inss-sub"); if (s) s.textContent = `${c} de ${t} funcionários`;
-  }
-
-
-  // ════════════════════════════════════════════════════════
-  //  QUALIDADE DO CADASTRO — Data Completeness Score
-  // ════════════════════════════════════════════════════════
-  function renderQualidade(funcs) {
-    const el = document.getElementById('dq-wrap');
-    if (!el) return;
-    const total = funcs.length;
-    if (!total) { el.innerHTML = '<div class="vazio">Sem dados</div>'; return; }
-
-    const CAMPOS = [
-      // Identificação
-      { key:'bi',          label:'Bilhete de Identidade',   grupo:'id',  critico:true  },
-      { key:'nascimento',  label:'Data de Nascimento',      grupo:'id',  critico:true  },
-      { key:'sexo',        label:'Sexo',                    grupo:'id',  critico:false },
-      { key:'estadoCivil', label:'Estado Civil',            grupo:'id',  critico:false },
-      { key:'telefone',    label:'Contacto Telefónico',     grupo:'id',  critico:false },
-      { key:'morada',      label:'Morada',                  grupo:'id',  critico:false },
-      // Serviço
-      { key:'categoria',   label:'Categoria Profissional',  grupo:'svc', critico:true  },
-      { key:'unidade',     label:'Unidade Sanitária',       grupo:'svc', critico:true  },
-      { key:'vinculo',     label:'Tipo de Vínculo',         grupo:'svc', critico:true  },
-      { key:'admissao',    label:'Data de Admissão',        grupo:'svc', critico:true  },
-      { key:'escolaridade',label:'Habilitações Literárias', grupo:'svc', critico:false },
-      { key:'seccao',      label:'Secção Interna',          grupo:'svc', critico:false },
-      // Financeiro
-      { key:'inss',        label:'Número de INSS',          grupo:'fin', critico:true  },
-      { key:'banco',       label:'Banco de Domiciliação',   grupo:'fin', critico:true  },
-      { key:'salarioBase', label:'Salário Base',            grupo:'fin', critico:true  },
-      // numeroConta: crítico apenas quando o banco já está registado
-      { key:'numeroConta', label:'Nº de Conta Bancária',    grupo:'fin', critico:true,
-        fn: f => { const v = f['numeroConta']; return !!(v && String(v).trim() !== ''); },
-        fnBase: f => !!f['banco']  // só conta funcionários que têm banco
-      },
-    ];
-
-    // ── Completude por campo ──
-    const campos = CAMPOS.map(c => {
-      // fnBase: universo restrito (ex: só quem tem banco)
-      const universo = c.fnBase ? funcs.filter(c.fnBase) : funcs;
-      const base = universo.length;
-      const preench = universo.filter(f => {
-        if (c.fn) return c.fn(f);
-        const v = f[c.key];
-        return v !== undefined && v !== null && String(v).trim() !== '' && Number(v) !== 0;
-      }).length;
-      const pct = base ? Math.round(preench / base * 100) : 100; // se base=0, 100% (não há o que preencher)
-      return { ...c, preench, base, pct };
-    });
-
-    // ── Score global (campos críticos = peso 2) ──
-    const somaPesos = campos.reduce((s, c) => s + (c.critico ? 2 : 1), 0);
-    const somaScore = campos.reduce((s, c) => s + c.pct * (c.critico ? 2 : 1), 0);
-    const scoreGlobal = Math.round(somaScore / somaPesos);
-
-    // ── Scores por grupo ──
-    const GRUPOS = {
-      id:  { label:'🪪 Identificação', campos: campos.filter(c => c.grupo === 'id')  },
-      svc: { label:'🏥 Serviço',       campos: campos.filter(c => c.grupo === 'svc') },
-      fin: { label:'💰 Financeiro',    campos: campos.filter(c => c.grupo === 'fin') },
-    };
-    Object.values(GRUPOS).forEach(g => {
-      const sp = g.campos.reduce((s, c) => s + (c.critico ? 2 : 1), 0);
-      const ss = g.campos.reduce((s, c) => s + c.pct * (c.critico ? 2 : 1), 0);
-      g.score = Math.round(ss / sp);
-    });
-
-    // ── Funções auxiliares de cor ──
-    const cor  = p => p >= 85 ? '#10c886' : p >= 65 ? '#f59e0b' : '#ef4444';
-    const cls  = p => p >= 85 ? 'cv'      : p >= 65 ? 'ca'      : 'cr';
-
-    // ── Gauge SVG ──
-    const R = 52, circ = 2 * Math.PI * R;
-    const dash = circ * scoreGlobal / 100;
-    const corScore = cor(scoreGlobal);
-
-    const camposTotais  = campos.length;
-    const camposOk      = campos.filter(c => c.pct >= 85).length;
-    const totalFiltrado = Object.values(_filtros).some(Boolean);
-
-    // ── Itens de acção: campos abaixo de 70%, dos mais críticos/piores primeiro ──
-    const acoes = campos
-      .filter(c => c.pct < 70)
-      .sort((a, b) => (b.critico ? 1 : 0) - (a.critico ? 1 : 0) || a.pct - b.pct)
-      .slice(0, 6);
-
-    // ── Análise de validade do BI ──
-    const hoje = new Date(); hoje.setHours(0,0,0,0);
-    const d90  = new Date(hoje); d90.setDate(d90.getDate() + 90);
-    const biStats = funcs.reduce((acc, f) => {
-      let dataVal = null;
-      if(f.biValidade){ dataVal = new Date(f.biValidade + 'T00:00:00'); }
-      else if(f.biEmissao){
-        const em = new Date(f.biEmissao + 'T00:00:00');
-        if(!isNaN(em)) { dataVal = new Date(em); dataVal.setFullYear(dataVal.getFullYear() + 10); }
-      }
-      if(!dataVal || isNaN(dataVal)){   acc.semDados++;  }
-      else if(dataVal < hoje){          acc.expirados++; acc.listExpirados.push(f); }
-      else if(dataVal <= d90){          acc.aExpirar++;  acc.listAExpirar.push(f);  }
-      else {                            acc.validos++;   }
-      return acc;
-    }, { expirados:0, aExpirar:0, validos:0, semDados:0, listExpirados:[], listAExpirar:[] });
-
-    const biAlerta = (biStats.expirados > 0 || biStats.aExpirar > 0) ? [
-      '<div style="margin-top:16px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:12px;padding:16px 18px">',
-        '<div style="font-size:12px;font-weight:800;color:#fca5a5;margin-bottom:10px;display:flex;align-items:center;gap:8px">',
-          '🪪 ALERTAS DE BILHETE DE IDENTIDADE',
-        '</div>',
-        '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:' + (biStats.listExpirados.length ? '14' : '0') + 'px">',
-          (biStats.expirados ? '<div style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px 14px;flex:1;min-width:140px"><div style="font-size:22px;font-weight:900;color:#ef4444;font-family:\'DM Mono\',monospace">' + biStats.expirados + '</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.5);margin-top:2px">BI EXPIRADO' + (biStats.expirados !== 1 ? 'S' : '') + '</div></div>' : ''),
-          (biStats.aExpirar ? '<div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:10px 14px;flex:1;min-width:140px"><div style="font-size:22px;font-weight:900;color:#f59e0b;font-family:\'DM Mono\',monospace">' + biStats.aExpirar + '</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.5);margin-top:2px">EXPIRA NOS PRÓX. 90 DIAS</div></div>' : ''),
-          '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:10px 14px;flex:1;min-width:140px"><div style="font-size:22px;font-weight:900;color:rgba(255,255,255,.3);font-family:\'DM Mono\',monospace">' + biStats.semDados + '</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);margin-top:2px">SEM DATA BI REGISTADA</div></div>',
-        '</div>',
-        (biStats.listExpirados.length ? (function(){
-          var tags = biStats.listExpirados.slice(0,12).map(function(f){
-            var dv = f.biValidade ? new Date(f.biValidade+'T00:00:00') : (function(){ var d=new Date(f.biEmissao+'T00:00:00'); d.setFullYear(d.getFullYear()+10); return d; })();
-            var dias = Math.round((hoje - dv)/(1000*60*60*24));
-            var nome = f.nome.split(' ').slice(0,2).join(' ');
-            return '<span style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.25);padding:3px 9px;border-radius:99px;font-size:10px;font-weight:600;color:#fca5a5" title="Expirou há '+dias+' dias">'+nome+'</span>';
-          });
-          if(biStats.listExpirados.length > 12) tags.push('<span style="font-size:10px;color:rgba(255,255,255,.3);align-self:center">+' + (biStats.listExpirados.length-12) + ' mais</span>');
-          return '<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Funcionários com BI expirado:</div><div style="display:flex;flex-wrap:wrap;gap:6px">'+tags.join('')+'</div>';
-        })() : ''),
-      '</div>'
-    ].join('') : (biStats.validos > 0 ? [
-      '<div style="margin-top:16px;background:rgba(16,200,134,.05);border:1px solid rgba(16,200,134,.15);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px">',
-        '<span style="font-size:18px">🪪</span>',
-        '<div>',
-          '<div style="font-size:12px;font-weight:700;color:#10c886">BIs sem alertas</div>',
-          '<div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:1px">' + biStats.validos + ' funcionário' + (biStats.validos !== 1 ? 's' : '') + ' com BI válido registado.</div>',
-        '</div>',
-      '</div>'
-    ].join('') : '');
-
-    el.innerHTML = `
-
-      <!-- ── Score global ── -->
-      <div class="gc" style="margin-bottom:16px">
-        <div style="display:flex;align-items:center;gap:28px;flex-wrap:wrap">
-
-          <!-- Gauge circular -->
-          <div style="position:relative;flex-shrink:0;width:140px;height:140px">
-            <svg width="140" height="140" viewBox="0 0 140 140">
-              <circle cx="70" cy="70" r="${R}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="14"/>
-              <circle cx="70" cy="70" r="${R}" fill="none" stroke="${corScore}" stroke-width="14"
-                stroke-dasharray="${dash.toFixed(1)} ${(circ-dash).toFixed(1)}"
-                stroke-dashoffset="${(circ*0.25).toFixed(1)}"
-                stroke-linecap="round"/>
-            </svg>
-            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
-              <div style="font-size:32px;font-weight:900;font-family:'DM Mono',monospace;color:${corScore};line-height:1">${scoreGlobal}%</div>
-              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-top:4px">score global</div>
-            </div>
-          </div>
-
-          <!-- Info e group scores -->
-          <div style="flex:1;min-width:220px">
-            <div style="font-size:17px;font-weight:800;letter-spacing:-.3px;margin-bottom:3px">
-              Qualidade do Cadastro
-              ${totalFiltrado ? '<span style="font-size:11px;font-weight:600;color:rgba(59,130,246,.7);margin-left:8px">· Subconjunto filtrado</span>' : ''}
-            </div>
-            <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:18px">
-              ${total} funcionário${total !== 1 ? 's' : ''} analisados ·
-              <strong style="color:${corScore}">${camposOk}</strong> de ${camposTotais} campos com cobertura total (≥85%)
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-              ${Object.values(GRUPOS).map(g => `
-                <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 14px">
-                  <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);margin-bottom:6px">${g.label}</div>
-                  <div style="font-size:24px;font-weight:800;font-family:'DM Mono',monospace;color:${cor(g.score)}">${g.score}%</div>
-                  <div style="margin-top:8px;height:4px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden">
-                    <div style="height:100%;width:${g.score}%;background:${cor(g.score)};border-radius:99px"></div>
-                  </div>
-                </div>`).join('')}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Campo a campo ── -->
-      <div class="g3">
-        ${Object.values(GRUPOS).map(g => `
-          <div class="gc">
-            <div class="gc-titulo">${g.label}</div>
-            <div class="gc-sub" style="margin-bottom:14px">
-              ${g.campos.filter(c=>c.pct>=85).length} de ${g.campos.length} campos completos
-            </div>
-            ${g.campos.map(c => `
-              <div class="dq-campo">
-                <div class="dq-campo-row">
-                  <div class="dq-campo-lbl">
-                    <span class="dq-dot" style="background:${c.critico ? '#ef4444' : 'rgba(255,255,255,.15)'}" title="${c.critico ? 'Campo crítico' : 'Campo complementar'}"></span>
-                    <span class="dq-texto" title="${c.label}">${c.label}</span>
-                  </div>
-                  <div class="dq-nums">
-                    <span class="dq-contagem">${c.preench}/${c.base}</span>
-                    <span class="cob-badge ${cls(c.pct)}">${c.pct}%</span>
-                  </div>
-                </div>
-                <div class="dq-track">
-                  <div class="dq-fill" style="width:${c.pct}%;background:${cor(c.pct)}"></div>
-                </div>
-              </div>`).join('')}
-          </div>`).join('')}
-      </div>
-
-      <!-- ── Itens de acção ── -->
-      ${acoes.length ? `
-        <div class="dq-acoes">
-          <div class="dq-acoes-titulo">
-            ⚠ Itens de Acção — ${acoes.length} campo${acoes.length > 1 ? 's' : ''} abaixo de 70%
-          </div>
-          <div class="dq-acao-grid">
-            ${acoes.map(c => {
-              const emFalta  = c.base - c.preench;
-              const universoLabel = c.fnBase ? ` (de ${c.base} com banco)` : '';
-              const urgencia = c.pct < 40 ? 'Urgente' : c.pct < 60 ? 'Prioritário' : 'Recomendado';
-              const uCor     = c.pct < 40 ? '#ef4444' : c.pct < 60 ? '#f59e0b'     : '#60a5fa';
-              return `<div class="dq-acao-item">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
-                  <span style="font-size:12px;font-weight:700">${c.label}</span>
-                  <span style="font-size:9px;font-weight:800;padding:2px 7px;border-radius:99px;background:rgba(255,255,255,.05);color:${uCor};white-space:nowrap;margin-left:6px">${urgencia}</span>
-                </div>
-                <div style="font-size:11px;color:rgba(255,255,255,.4)">
-                  <strong style="color:#fca5a5">${emFalta}</strong> funcionário${emFalta !== 1 ? 's' : ''} sem este campo${universoLabel}
-                </div>
-                <div style="margin-top:8px;height:4px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden">
-                  <div style="height:100%;width:${c.pct}%;background:${cor(c.pct)};border-radius:99px"></div>
-                </div>
-              </div>`;
-            }).join('')}
-          </div>
-        </div>` : `
-        <div class="dq-ok">
-          <span style="font-size:22px">✅</span>
-          <div>
-            <div style="font-size:13px;font-weight:700;color:#10c886">Cadastro em bom estado</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">Todos os campos acima de 70% de completude.</div>
-          </div>
-        </div>`}
-    ` + biAlerta;
-  }
-
-
-
-  // ════════════════════════════════════════════════════════
-  //  SECÇÕES INTERNAS DA DMS
-  // ════════════════════════════════════════════════════════
-
-  // Nome exacto da DMS — deve coincidir com o valor em unidades_sanitarias no Firestore
-  const DMS_NOME = 'Direcção Municipal de Saúde do Sumbe';
-
-  // Nomes oficiais das secções — idênticos ao SECCOES_DMS em unidades.html
-  // NÃO alterar aqui sem alterar também em unidades.html
-  const SECCOES_DMS_NOMES = [
-    'Secção de Planeamento, Estatística e Recursos Humanos',
-    'Secção de Saúde Pública',
-    'Secção de Inspecção Sanitária',
-    'Secção de Logística Hospitalar e Medicamentos',
-    'Secretaria',
-  ];
-
-  function renderSeccoesDMS(funcs) {
-    const wrap = document.getElementById('dms-seccoes-wrap');
-    if (!wrap) return;
-
-    // ── Filtrar apenas funcionários da DMS no conjunto activo ──
-    const dmsFunc = funcs.filter(f => (f.unidade || '').trim() === DMS_NOME);
-
-    if (!dmsFunc.length) {
-      wrap.innerHTML = `
-        <div class="gc">
-          <div style="padding:20px;text-align:center;color:rgba(255,255,255,.25);font-size:12px">
-            Nenhum funcionário da DMS no conjunto actualmente seleccionado.
-          </div>
-        </div>`;
-      return;
-    }
-
-    const total     = dmsFunc.length;
-    const comSeccao = dmsFunc.filter(f => (f.seccao || '').trim()).length;
-    const semSeccao = total - comSeccao;
-
-    // ── Contar por secção ──
-    const contagem = {};
-    dmsFunc.forEach(f => {
-      const s = (f.seccao || '').trim();
-      if (s) contagem[s] = (contagem[s] || 0) + 1;
-    });
-
-    // ── Ler metas do Firestore (via _todasUnidades já em memória) ──
-    const metasDMS = _todasUnidades[DMS_NOME]?.efectivo?.seccoes || {};
-
-    // ── Construir lista: secções oficiais primeiro, depois ad-hoc ──
-    const seccoesNoDados   = Object.keys(contagem);
-    const seccoesAdHoc     = seccoesNoDados.filter(s => !SECCOES_DMS_NOMES.includes(s));
-    const todasSeccoes     = [
-      ...SECCOES_DMS_NOMES.filter(s => contagem[s] || metasDMS[s]),  // oficiais com dados ou meta
-      ...seccoesAdHoc,                                                 // ad-hoc do campo seccao
-    ];
-
-    if (!todasSeccoes.length && !semSeccao) {
-      wrap.innerHTML = `<div class="gc"><div class="vazio">Nenhum dado de secção disponível.</div></div>`;
-      return;
-    }
-
-    // ── Escala das barras ──
-    const maxCad = Math.max(...todasSeccoes.map(s => contagem[s] || 0), semSeccao, 1);
-    const maxEsp = Math.max(...todasSeccoes.map(s => metasDMS[s] || 0), 1);
-    const maxBar = Math.max(maxCad, maxEsp);
-
-    // ── Cor / badge ──
-    const cor = pct => pct >= 90 ? '#10c886' : pct >= 60 ? '#f59e0b' : '#ef4444';
-    const cls = pct => pct >= 90 ? 'cv'      : pct >= 60 ? 'ca'      : 'cr';
-
-    // ── Score global DMS (só secções com meta definida e > 0) ──
-    const secsComMeta   = todasSeccoes.filter(s => metasDMS[s] > 0);
-    const totalEsperado = secsComMeta.reduce((a, s) => a + metasDMS[s], 0);
-    const totalCadMeta  = secsComMeta.reduce((a, s) => a + (contagem[s] || 0), 0);
-    const scoreDMS      = totalEsperado > 0 ? Math.round(totalCadMeta / totalEsperado * 100) : null;
-    const corScore      = scoreDMS !== null ? cor(scoreDMS) : '#3b82f6';
-
-    // ── Linhas por secção ──
-    const linhas = todasSeccoes.map(s => {
-      const cad  = contagem[s] || 0;
-      const esp  = metasDMS[s] > 0 ? metasDMS[s] : null;
-      const pct  = esp !== null ? Math.round(cad / esp * 100) : null;
-      const fc   = pct === null ? '#3b82f6' : cor(pct);
-      const barEspW = esp !== null ? Math.round(Math.min(esp / maxBar, 1) * 100) : 0;
-      const barCadW = Math.round(Math.min(cad / maxBar, 1) * 100);
-      return `
-        <div class="cob-item">
-          <div class="cob-nome" title="${s}">${s}</div>
-          <div class="cob-bar" style="width:90px">
-            ${esp !== null
-              ? `<div style="position:absolute;inset:0;width:${barEspW}%;background:rgba(255,255,255,.12);border-radius:99px"></div>`
-              : ''}
-            <div class="cob-bar-fill" style="width:${barCadW}%;background:${fc}"></div>
-          </div>
-          <div class="cob-nums">
-            <span class="cob-cad" style="color:${fc}">${cad}</span>
-            <span class="cob-sep">/</span>
-            <span class="cob-esp">${esp !== null ? esp : '—'}</span>
-          </div>
-          <span class="cob-badge ${pct !== null ? cls(pct) : 'c0'}">
-            ${pct !== null ? pct + '%' : 's/meta'}
-          </span>
-        </div>`;
-    }).join('');
-
-    // ── Linha "Sem secção registada" ──
-    const linhaSemSec = semSeccao > 0 ? `
-      <div class="cob-item" style="opacity:.5">
-        <div class="cob-nome" style="font-style:italic;color:rgba(255,255,255,.3)">Sem secção registada</div>
-        <div class="cob-bar" style="width:90px">
-          <div class="cob-bar-fill" style="width:${Math.round(semSeccao / maxBar * 100)}%;background:rgba(255,255,255,.15)"></div>
-        </div>
-        <div class="cob-nums">
-          <span class="cob-cad" style="color:rgba(255,255,255,.3)">${semSeccao}</span>
-          <span class="cob-sep">/</span><span class="cob-esp">—</span>
-        </div>
-        <span class="cob-badge c0">s/secção</span>
-      </div>` : '';
-
-    // ── Aviso de metas não configuradas ──
-    const semMeta = todasSeccoes.filter(s => !metasDMS[s] || metasDMS[s] === 0);
-    const avisoMeta = semMeta.length > 0 ? `
-      <div style="display:flex;align-items:flex-start;gap:8px;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.18);border-radius:8px;padding:9px 12px;margin-bottom:14px">
-        <span>ℹ️</span>
-        <span style="font-size:11px;color:rgba(255,255,255,.5);line-height:1.5">
-          <strong style="color:#60a5fa">${semMeta.length} secção(ões)</strong> sem meta definida.
-          Configura em <strong>Unidades → DMS → Editar meta</strong> para ver cobertura por secção.
-        </span>
-      </div>` : '';
-
-    wrap.innerHTML = `
-      <div class="gc">
-        <!-- cabeçalho com mini-KPIs -->
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px">
-          <div>
-            <div class="gc-titulo">Secções Internas — DMS Sede</div>
-            <div class="gc-sub">Direcção Municipal de Saúde do Sumbe</div>
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:8px 14px;text-align:center">
-              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-bottom:3px">Total DMS</div>
-              <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:#3b82f6">${total}</div>
-            </div>
-            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:8px 14px;text-align:center">
-              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-bottom:3px">Com Secção</div>
-              <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:${comSeccao === total ? '#10c886' : '#f59e0b'}">${comSeccao}</div>
-            </div>
-            ${scoreDMS !== null ? `
-            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:8px 14px;text-align:center">
-              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-bottom:3px">Cobertura DMS</div>
-              <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:${corScore}">${scoreDMS}%</div>
-            </div>` : ''}
-          </div>
-        </div>
-
-        ${semSeccao > 0 && (semSeccao / total) > 0.2 ? `
-        <div style="display:flex;align-items:center;gap:8px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:8px 12px;margin-bottom:14px">
-          <span>⚠️</span>
-          <span style="font-size:11px;color:#f59e0b;font-weight:600">${semSeccao} funcionário${semSeccao > 1 ? 's' : ''} da DMS sem secção registada (${Math.round(semSeccao / total * 100)}%).</span>
-        </div>` : ''}
-
-        ${avisoMeta}
-
-        ${secsComMeta.length ? `
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
-          <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:5px;border-radius:99px;background:rgba(255,255,255,.2)"></div><span style="font-size:10px;color:rgba(255,255,255,.3)">Esperado</span></div>
-          <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:5px;border-radius:99px;background:#3b82f6"></div><span style="font-size:10px;color:rgba(255,255,255,.3)">Cadastrado</span></div>
-          <div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:2px;background:rgba(16,200,134,.2)"></div><span style="font-size:10px;color:rgba(255,255,255,.3)">≥90%</span></div>
-          <div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:2px;background:rgba(245,158,11,.2)"></div><span style="font-size:10px;color:rgba(255,255,255,.3)">60–89%</span></div>
-          <div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:2px;background:rgba(239,68,68,.2)"></div><span style="font-size:10px;color:rgba(255,255,255,.3)">&lt;60%</span></div>
-        </div>` : ''}
-
-        ${linhas}
-        ${linhaSemSec}
-      </div>`;
-  }
-
-  // ════════════════════════════════════════════════════════
-  //  EXPORTAÇÃO — CSV + Impressão
-  // ════════════════════════════════════════════════════════
-
-  // Campos exportados no CSV — ordem e cabeçalhos
-  const CSV_CAMPOS = [
-    { key: 'numero',       label: 'Nº Funcionário'       },
-    { key: 'nome',         label: 'Nome Completo'         },
-    { key: 'sexo',         label: 'Sexo'                  },
-    { key: 'nascimento',   label: 'Data de Nascimento'    },
-    { key: 'estadoCivil',  label: 'Estado Civil'          },
-    { key: 'telefone',     label: 'Telefone'              },
-    { key: 'bi',           label: 'Nº BI'                 },
-    { key: 'biEmissao',    label: 'Data Emissão BI'       },
-    { key: 'categoria',    label: 'Categoria Profissional' },
-    { key: 'cargo',        label: 'Cargo / Função'         },
-    { key: 'unidade',      label: 'Unidade Sanitária'     },
-    { key: 'seccao',       label: 'Secção'                },
-    { key: 'area',         label: 'Área'                  },
-    { key: 'vinculo',      label: 'Vínculo'               },
-    { key: 'admissao',     label: 'Data de Admissão'      },
-    { key: 'estado',       label: 'Estado'                },
-    { key: 'escolaridade', label: 'Habilitações'          },
-    { key: 'provinciaNatal',label:'Província Natal'       },
-    { key: 'municipioNatal',label:'Município Natal'       },
-    { key: 'inss',         label: 'Nº INSS'              },
-    { key: 'banco',        label: 'Banco'                 },
-    { key: 'numeroConta',  label: 'Nº Conta / IBAN'      },
-    { key: 'salarioBase',  label: 'Salário Base (Kz)'    },
-    { key: 'morada',       label: 'Morada'                },
-  ];
-
-  window._exportarCSV = function() {
-    const funcs = _funcsFiltrados.length ? _funcsFiltrados : _todosOsFuncs;
-    if (!funcs.length) { notif('⚠ Sem dados para exportar'); return; }
-
-    // Cabeçalho
-    const cabecalho = CSV_CAMPOS.map(f => `"${f.label}"`).join(';');
-
-    // Linhas de dados — aspas duplas em todos os campos, ; como separador (Excel PT)
-    const linhas = funcs.map(f => {
-      return CSV_CAMPOS.map(col => {
-        let v = f[col.key];
-        if (v === undefined || v === null) v = '';
-        // Normalizar vínculo e estado para texto legível
-        if (col.key === 'vinculo')
-          v = v === 'quadro' ? 'Quadro' : v === 'provisorio' ? 'Provisório' : v;
-        if (col.key === 'estado')
-          v = v === 'activo' ? 'Em Serviço' : v === 'licenca' ? 'De Licença' : v === 'inactivo' ? 'Inactivo' : v || 'Em Serviço';
-        // Escapar aspas internas
-        v = String(v).replace(/"/g, '""');
-        return `"${v}"`;
-      }).join(';');
-    });
-
-    // Montar conteúdo com BOM UTF-8 (Excel precisa para acentos)
-    const bom     = '\uFEFF';
-    const metaLinha1 = `"# SIGDOC-SUMBE — Direcção Municipal de Saúde do Sumbe"`;
-    const metaLinha2 = `"# Exportado em: ${new Date().toLocaleString('pt-PT')}"`;
-    const metaLinha3 = `"# Total de registos: ${funcs.length} de ${_todosOsFuncs.length}"`;
-    const filtrosActivos = Object.entries(_filtros)
-      .filter(([,v]) => v)
-      .map(([k,v]) => `${k}=${v}`)
-      .join(', ');
-    const metaLinha4 = filtrosActivos
-      ? `"# Filtros aplicados: ${filtrosActivos}"`
-      : `"# Filtros: Nenhum (efectivo total)"`;
-    const conteudo = [bom, metaLinha1, metaLinha2, metaLinha3, metaLinha4, '', cabecalho, ...linhas].join('\n');
-
-    // Download
-    const blob = new Blob([conteudo], { type: 'text/csv;charset=utf-8;' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    const data = new Date().toISOString().slice(0,10);
-    a.href     = url;
-    a.download = `SIGDOC_Estatisticas_${data}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    notif(`✅ CSV exportado — ${funcs.length} registos`);
-  };
-
-  // Actualizar cabeçalho de impressão imediatamente antes de imprimir
-  window.onbeforeprint = function() {
-    const agora    = new Date();
-    const dataFmt  = agora.toLocaleDateString('pt-PT', { day:'2-digit', month:'long', year:'numeric' });
-    const horaFmt  = agora.toLocaleTimeString('pt-PT', { hour:'2-digit', minute:'2-digit' });
-    const filtAtivos = Object.entries(_filtros)
-      .filter(([,v]) => v)
-      .map(([k,v]) => {
-        const LABELS = {
-          unidade:'Unidade', categoria:'Categoria',
-          vinculo:'Vínculo', estado:'Estado', sexo:'Sexo'
-        };
-        const VINC = { quadro:'Quadro', provisorio:'Provisório' };
-        const ESTA = { activo:'Em Serviço', licenca:'De Licença', inactivo:'Inactivo' };
-        const vLabel = k === 'vinculo' ? (VINC[v] || v) : k === 'estado' ? (ESTA[v] || v) : v;
-        return `${LABELS[k]||k}: ${vLabel}`;
-      }).join(' · ');
-
-    const elData    = document.getElementById('ph-data');
-    const elTotal   = document.getElementById('ph-total');
-    const elFiltros = document.getElementById('ph-filtros');
-    const elUser    = document.getElementById('ph-user');
-    if (elData)    elData.textContent    = `${dataFmt} às ${horaFmt}`;
-    if (elTotal)   elTotal.textContent   = `${_funcsFiltrados.length || _todosOsFuncs.length} funcionários`;
-    if (elFiltros) elFiltros.textContent = filtAtivos || 'Nenhum (efectivo total)';
-    if (elUser)    elUser.textContent    = _nomeUtilizador || '—';
-  };
-
-  // ════════════════════════════════════════════════════════
-  //  ACTIVIDADE NO PERÍODO — KPIs temporais + evolução mensal docs
-  // ════════════════════════════════════════════════════════
-  function renderActividadePeriodo(docs) {
-    const el = document.getElementById('act-periodo-wrap');
-    if (!el) return;
-
-    const total     = docs.length;
-    const aprovados = docs.filter(d => d.estado === 'aprovado').length;
-    const pendentes = docs.filter(d => d.estado === 'pendente').length;
-    const comDec    = docs.filter(d => d.estado === 'aprovado' || d.estado === 'rejeitado').length;
-    const taxa      = comDec > 0 ? Math.round(aprovados / comDec * 100) : 0;
-    const labelPer  = _periodoDocs ? `Últimos ${_periodoDocs} dias` : 'Todo o período';
-
-    // 3 KPIs
-    const kpis = `
-      <div class="act-strip">
-        <div class="act-kpi">
-          <div class="act-kpi-icone" style="background:rgba(37,99,235,.1)">📄</div>
-          <div class="act-kpi-corpo">
-            <div class="act-kpi-val" style="color:#2563eb">${total}</div>
-            <div class="act-kpi-lbl">Documentos gerados</div>
-            <span class="act-kpi-delta" style="background:#eff6ff;color:#2563eb">${labelPer}</span>
-          </div>
-        </div>
-        <div class="act-kpi">
-          <div class="act-kpi-icone" style="background:rgba(16,200,134,.1)">✅</div>
-          <div class="act-kpi-corpo">
-            <div class="act-kpi-val" style="color:#059669">${taxa}%</div>
-            <div class="act-kpi-lbl">Taxa de aprovação</div>
-            <span class="act-kpi-delta" style="background:#f0fdf4;color:#059669">${aprovados} aprovados de ${comDec}</span>
-          </div>
-        </div>
-        <div class="act-kpi">
-          <div class="act-kpi-icone" style="background:rgba(245,158,11,.1)">⏳</div>
-          <div class="act-kpi-corpo">
-            <div class="act-kpi-val" style="color:${pendentes>0?'#d97706':'#94a3b8'}">${pendentes}</div>
-            <div class="act-kpi-lbl">Pendentes de decisão</div>
-            <span class="act-kpi-delta" style="background:${pendentes>0?'#fffbeb':'#f8fafc'};color:${pendentes>0?'#d97706':'#94a3b8'}">${pendentes===0?'Nenhum em espera':pendentes+' a aguardar'}</span>
-          </div>
-        </div>
-      </div>`;
-
-    // Gráfico evolução mensal de documentos
-    const agora = new Date();
-    const nMeses = _periodoDocs === 30 ? 1 : _periodoDocs === 90 ? 3 : _periodoDocs === 180 ? 6 : _periodoDocs === 365 ? 12 : 12;
-    const meses = [];
-    for (let i = nMeses - 1; i >= 0; i--) {
-      const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
-      meses.push({ ano: d.getFullYear(), mes: d.getMonth(), label: d.toLocaleDateString('pt-AO', {month:'short'}), n: 0 });
-    }
-    docs.forEach(d => {
-      const ts = d.geradoEm;
-      if (!ts) return;
-      const dt = ts.toDate ? ts.toDate() : (ts.seconds ? new Date(ts.seconds*1000) : new Date(ts));
-      const idx = meses.findIndex(m => m.ano === dt.getFullYear() && m.mes === dt.getMonth());
-      if (idx !== -1) meses[idx].n++;
-    });
-
-    const maxN = Math.max(...meses.map(m=>m.n), 1);
-    const svgW = 560, svgH = 140, padL = 28, padR = 8, padT = 10, padB = 28;
-    const barW = Math.floor((svgW - padL - padR) / meses.length);
-    const gap  = meses.length <= 3 ? 24 : meses.length <= 6 ? 16 : 8;
-
-    let bars = '';
-    // linhas guia
-    for (let i = 0; i <= 3; i++) {
-      const y = padT + (svgH - padT - padB) * i / 3;
-      bars += `<line x1="${padL}" y1="${y}" x2="${svgW-padR}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
-      bars += `<text x="${padL-4}" y="${y+4}" text-anchor="end" font-size="9" fill="#94a3b8" font-family="DM Mono,monospace">${Math.round(maxN*(3-i)/3)}</text>`;
-    }
-    meses.forEach((m, i) => {
-      const esteM = m.mes === agora.getMonth() && m.ano === agora.getFullYear();
-      const pct = m.n / maxN;
-      const barH = Math.max(pct * (svgH - padT - padB), m.n > 0 ? 4 : 2);
-      const x = padL + i * barW + gap / 2;
-      const y = padT + (svgH - padT - padB) - barH;
-      const cor = esteM ? '#10c886' : '#93c5fd';
-      bars += `<rect x="${x}" y="${y}" width="${barW-gap}" height="${barH}" rx="4" fill="${cor}"/>`;
-      if (m.n > 0) {
-        bars += `<text x="${x+(barW-gap)/2}" y="${y-5}" text-anchor="middle" font-size="9.5" fill="${esteM?'#059669':'#2563eb'}" font-weight="700" font-family="DM Mono,monospace">${m.n}</text>`;
-      }
-    });
-    const eixoX = meses.map((m,i) => {
-      const esteM = m.mes === agora.getMonth() && m.ano === agora.getFullYear();
-      return `<span style="${esteM?'font-weight:700;color:#059669':'color:#94a3b8'};flex:1;text-align:center;font-size:10px">${m.label}</span>`;
-    }).join('');
-
-    const grafico = total === 0
-      ? `<div class="vazio" style="padding:32px;text-align:center">Sem documentos no período seleccionado.</div>`
-      : `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 20px">
-           <div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:2px">Documentos por Mês</div>
-           <div style="font-size:11px;color:#64748b;margin-bottom:14px">Evolução no período — verde = mês actual</div>
-           <div class="evo-wrap">
-             <svg width="100%" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="none">${bars}</svg>
-             <div style="display:flex;padding:4px 0 0 ${padL}px">${eixoX}</div>
-           </div>
-         </div>`;
-
-    el.innerHTML = kpis + grafico;
-  }
-
-  // ════════════════════════════════════════════════════════
-  //  EVOLUÇÃO DE CADASTROS — novos funcionários por mês
-  // ════════════════════════════════════════════════════════
   function renderEvolucaoCadastros(funcs) {
-    const el = document.getElementById('evo-cadastros');
-    const sub = document.getElementById('evo-cadastros-sub');
-    if (!el) return;
-
-    // Tentar campos de data disponíveis
+    const el = document.getElementById('evo-cadastros'); if (!el) return;
     const getDataFunc = f => {
       const ts = f.criadoEm || f.dataCadastro || f.dataAdmissao;
       if (!ts) return null;
       return ts.toDate ? ts.toDate() : (ts.seconds ? new Date(ts.seconds*1000) : new Date(ts));
     };
-
     const comData = funcs.filter(f => getDataFunc(f) !== null);
-    if (comData.length === 0) {
-      el.innerHTML = '<div class="vazio" style="padding:20px;text-align:center;font-size:12px">Datas de cadastro não disponíveis nos registos.</div>';
-      return;
-    }
-
-    // Últimos 12 meses
-    const agora = new Date();
-    const meses = [];
+    if (!comData.length) { el.innerHTML = '<div class="vazio">Sem datas disponíveis</div>'; return; }
+    const agora = new Date(), meses = [];
     for (let i = 11; i >= 0; i--) {
       const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
       meses.push({ ano: d.getFullYear(), mes: d.getMonth(), label: d.toLocaleDateString('pt-AO',{month:'short', year:'2-digit'}), n: 0 });
     }
     comData.forEach(f => {
-      const dt = getDataFunc(f);
-      if (!dt) return;
+      const dt = getDataFunc(f); if (!dt) return;
       const idx = meses.findIndex(m => m.ano === dt.getFullYear() && m.mes === dt.getMonth());
       if (idx !== -1) meses[idx].n++;
     });
-
-    const totalMeses = meses.reduce((s,m)=>s+m.n,0);
-    if (sub) sub.textContent = `${comData.length} registos com data · ${totalMeses} cadastros nos últimos 12 meses`;
-
-    const maxN = Math.max(...meses.map(m=>m.n), 1);
-    const svgW = 600, svgH = 120, padL = 28, padR = 8, padT = 8, padB = 28;
-    const barW = Math.floor((svgW - padL - padR) / 12);
-    const gap  = 10;
-
+    const maxN = Math.max(...meses.map(m=>m.n), 1), svgW = 600, svgH = 120, padL = 28, padR = 8, padT = 8, padB = 28, barW = Math.floor((svgW - padL - padR) / 12), gap = 10;
     let bars = '';
     for (let i = 0; i <= 3; i++) {
       const y = padT + (svgH - padT - padB) * i / 3;
-      bars += `<line x1="${padL}" y1="${y}" x2="${svgW-padR}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
-      bars += `<text x="${padL-4}" y="${y+4}" text-anchor="end" font-size="9" fill="#94a3b8" font-family="DM Mono,monospace">${Math.round(maxN*(3-i)/3)}</text>`;
+      bars += `<line x1="${padL}" y1="${y}" x2="${svgW-padR}" y2="${y}" stroke="#e2e8f0" stroke-width="1" opacity=".1"/>`;
     }
     meses.forEach((m, i) => {
       const esteM = m.mes === agora.getMonth() && m.ano === agora.getFullYear();
-      const pct = m.n / maxN;
-      const barH = Math.max(pct * (svgH - padT - padB), m.n > 0 ? 3 : 1);
-      const x = padL + i * barW + gap / 2;
-      const y = padT + (svgH - padT - padB) - barH;
+      const barH = Math.max((m.n/maxN) * (svgH-padT-padB), m.n > 0 ? 3 : 1);
+      const x = padL + i * barW + gap/2, y = padT + (svgH-padT-padB) - barH;
       bars += `<rect x="${x}" y="${y}" width="${barW-gap}" height="${barH}" rx="3" fill="${esteM?'#10c886':'#a78bfa'}"/>`;
-      if (m.n > 0) {
-        bars += `<text x="${x+(barW-gap)/2}" y="${y-4}" text-anchor="middle" font-size="9" fill="${esteM?'#059669':'#7c3aed'}" font-weight="700" font-family="DM Mono,monospace">${m.n}</text>`;
-      }
+      if (m.n > 0) bars += `<text x="${x+(barW-gap)/2}" y="${y-4}" text-anchor="middle" font-size="9" fill="${esteM?'#10c886':'#a78bfa'}" font-weight="700" font-family="DM Mono,monospace">${m.n}</text>`;
     });
-    const eixo = meses.map(m =>
-      `<span style="flex:1;text-align:center;font-size:9px;color:#94a3b8">${m.label}</span>`
-    ).join('');
-
-    el.innerHTML = `
-      <svg width="100%" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="none">${bars}</svg>
-      <div style="display:flex;padding:3px 0 0 ${padL}px">${eixo}</div>`;
+    el.innerHTML = `<svg width="100%" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="none">${bars}</svg><div style="display:flex;padding:3px 0 0 ${padL}px">${meses.map(m => `<span style="flex:1;text-align:center;font-size:9px;color:#94a3b8">${m.label}</span>`).join('')}</div>`;
   }
 
-  // ════════════════════════════════════════════════════════
-  //  UTILITÁRIOS
-  // ════════════════════════════════════════════════════════
-  function topN(funcs, campo, n) {
-    const m = {};
-    funcs.forEach(f => { const v = (f[campo] || "").trim(); if (v) m[v] = (m[v] || 0) + 1; });
-    return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([l,v])=>({label:l,val:v}));
+  function renderQualidade(funcs) {
+    const el = document.getElementById('dq-wrap'); if (!el) return;
+    const total = funcs.length; if (!total) return;
+    const CAMPOS = [
+      { key:'bi', label:'BI', critico:true }, { key:'nascimento', label:'Nasc.', critico:true },
+      { key:'categoria', label:'Cat.', critico:true }, { key:'unidade', label:'Unid.', critico:true },
+      { key:'inss', label:'INSS', critico:true }, { key:'banco', label:'Banco', critico:true }
+    ];
+    const score = Math.round(CAMPOS.reduce((acc, c) => acc + (funcs.filter(f => f[c.key]).length / total * 100), 0) / CAMPOS.length);
+    const cor = p => p >= 85 ? '#10c886' : p >= 65 ? '#f59e0b' : '#ef4444';
+    el.innerHTML = `<div style="background:#1a2236;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:20px;display:flex;align-items:center;gap:24px"><div style="text-align:center"><div style="font-size:32px;font-weight:900;color:${cor(score)};font-family:'DM Mono',monospace">${score}%</div><div style="font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase">Score Global</div></div><div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:12px">${CAMPOS.map(c => { const p = Math.round(funcs.filter(f => f[c.key]).length/total*100); return `<div><div style="font-size:9px;color:rgba(255,255,255,.4);margin-bottom:3px">${c.label}</div><div style="height:4px;background:rgba(255,255,255,.05);border-radius:2px"><div style="height:100%;width:${p}%;background:${cor(p)};border-radius:2px"></div></div></div>`; }).join('')}</div></div>`;
   }
 
-  function calcGrupo(funcs, campo, labels) {
-    const m = {};
-    funcs.forEach(f => { const k = f[campo] || "activo"; m[k] = (m[k] || 0) + 1; });
-    return Object.entries(m).map(([k,v])=>({label:labels[k]||k,val:v})).sort((a,b)=>b.val-a.val);
+  function renderCobertura(funcs, unidades) {
+    const el = document.getElementById("cobertura"); if (!el) return;
+    const cm = {}; funcs.forEach(f => { const u = f.unidade || "—"; cm[u] = (cm[u] || 0) + 1; });
+    const lista = Object.entries(cm).filter(([n]) => n !== "—").sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const max = Math.max(...lista.map(u=>u[1]), 1);
+    el.innerHTML = lista.map(([n,v], i) => `<div class="bh"><div class="bh-head"><span class="bh-lbl">${n}</span><span class="bh-val">${v}</span></div><div class="bh-track"><div class="bh-fill" style="width:${Math.round(v/max*100)}%;background:${CORES[i%CORES.length]}"></div></div></div>`).join("");
   }
 
-  function idadeMedia(funcs) {
-    const ids = funcs.filter(f=>f.nascimento).map(f=>new Date().getFullYear()-new Date(f.nascimento).getFullYear());
-    return ids.length ? Math.round(ids.reduce((a,b)=>a+b,0)/ids.length) : null;
+  function renderSalarial(funcs) {
+    const cs = funcs.filter(f => f.salarioBase && Number(f.salarioBase) > 0);
+    const el = document.getElementById("sal-unit"); if (!el || !cs.length) return;
+    const bu = {}; cs.forEach(f => { const u = f.unidade || "—"; bu[u] = (bu[u] || 0) + Number(f.salarioBase); });
+    const lista = Object.entries(bu).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const max = Math.max(...lista.map(u=>u[1]), 1);
+    el.innerHTML = lista.map(([n,v], i) => `<div class="bh"><div class="bh-head"><span class="bh-lbl">${n}</span><span class="bh-val">${fmtKz(v)}</span></div><div class="bh-track"><div class="bh-fill" style="width:${Math.round(v/max*100)}%;background:${CORES[(i+2)%CORES.length]}"></div></div></div>`).join("");
   }
 
-  function fmtKz(v) {
-    if (v >= 1e6) return (v/1e6).toFixed(1).replace(".",",") + " MKz";
-    if (v >= 1e3) return (v/1e3).toFixed(0) + "K Kz";
-    return v.toLocaleString("pt-PT") + " Kz";
-  }
-
-  // ════════════════════════════════════════════════════════
-  //  SECRETARIA — selector de período e orquestrador
-  // ════════════════════════════════════════════════════════
-  const ASSUNTOS_EST = {
-    'ferias-licencas':'Férias/Licenças','abonos-salarios':'Abonos/Salários',
-    'documentacao':'Documentação','transferencias':'Transferências',
-    'escalas':'Escalas','outro':'Outro'
-  };
-
-  function filtrarPorPeriodo(arr, dias) {
-    if (!dias) return arr;
-    const limiar = Date.now() - dias * 86400000;
-    return arr.filter(d => {
-      const t = d.criadoEm;
-      if (!t) return false;
-      const ms = t.toDate ? t.toDate().getTime() : (t.seconds ? t.seconds*1000 : new Date(t).getTime());
-      return ms >= limiar;
-    });
-  }
-
-  function toMs(ts) {
-    if (!ts) return null;
-    if (ts.toDate) return ts.toDate().getTime();
-    if (ts.seconds) return ts.seconds * 1000;
-    return new Date(ts).getTime();
-  }
-
-  window._setPeriodoSec = function(dias) {
-    _periodoSec = dias;
-    renderSecretariaEstat();
-    // re-render só re-injecta a secção sem re-fazer tudo
-  };
+  function fmtKz(v) { return v >= 1e6 ? (v/1e6).toFixed(1).replace(".",",") + " MKz" : v >= 1e3 ? (v/1e3).toFixed(0) + "K Kz" : v.toLocaleString("pt-PT") + " Kz"; }
+  function idadeMedia(funcs) { const ids = funcs.filter(f=>f.nascimento).map(f=>new Date().getFullYear()-new Date(f.nascimento).getFullYear()); return ids.length ? Math.round(ids.reduce((a,b)=>a+b,0)/ids.length) : null; }
+  function calcGrupo(funcs, campo, labels) { const m = {}; funcs.forEach(f => { const k = f[campo] || "activo"; m[k] = (m[k] || 0) + 1; }); return Object.entries(m).map(([k,v])=>({label:labels[k]||k,val:v})).sort((a,b)=>b.val-a.val); }
+  function toMs(ts) { if (!ts) return null; if (ts.toDate) return ts.toDate().getTime(); if (ts.seconds) return ts.seconds * 1000; return new Date(ts).getTime(); }
 
   function renderSecretariaEstat() {
-    _periodoSec = _periodoDocs; // sincronizado com período global
-    const pedidos  = filtrarPorPeriodo(_pedidosSec,  _periodoSec);
-    const reunioes = filtrarPorPeriodo(_reunioesSec, _periodoSec);
-
-    // Verificar se os containers já existem no DOM (render() pode ainda não ter corrido)
+    const limiar = _periodoSec ? Date.now() - _periodoSec * 86400000 : 0;
+    const filtrar = arr => limiar ? arr.filter(d => toMs(d.criadoEm) >= limiar) : arr;
+    const p = filtrar(_pedidosSec), r = filtrar(_reunioesSec);
     if (!document.getElementById('sec-funil')) return;
-
-    renderFunilEstados(pedidos);
-    renderWaffle(pedidos);
-    renderSparkline(pedidos);
-    renderHeatmap(pedidos);
-    renderLollipop(pedidos);
-    renderReunioesRing(reunioes);
+    renderFunilEstados(p); renderWaffle(p); renderSparkline(p); renderHeatmap(p); renderLollipop(p); renderReunioesRing(r);
   }
 
-  // ════════════════════════════════════════════════════════
-  //  1. FUNIL DE ESTADOS — SVG trapezoidal
-  // ════════════════════════════════════════════════════════
   function renderFunilEstados(pedidos) {
-    const el = document.getElementById('sec-funil');
-    if (!el) return;
-    if (!pedidos.length) { el.innerHTML = '<div class="vazio">Sem pedidos no período</div>'; return; }
-
-    const ORDEM   = ['novo','em_analise','respondido','fechado'];
-    const LABELS  = {novo:'Novo',em_analise:'Em análise',respondido:'Respondido',fechado:'Fechado'};
-    const CORES_F = ['#60a5fa','#fcd34d','#6ee7b7','#94a3b8'];
-
-    // Acumulado decrescente (funil: cada nível inclui os posteriores)
-    const counts = {};
-    pedidos.forEach(p => { const e = p.estado||'novo'; counts[e] = (counts[e]||0)+1; });
-    // Totais cumulativos: novo=total, em_analise=total-novo, etc.
-    const total = pedidos.length;
-    const vals = [
-      total,
-      total - (counts['novo']||0),
-      (counts['respondido']||0) + (counts['fechado']||0),
-      counts['fechado']||0
-    ];
-
-    const W = 260, slotH = 48, gap = 4;
-    const svgH = ORDEM.length * (slotH + gap);
-    const maxW = W;
-
-    const traps = ORDEM.map((e, i) => {
-      const wTop = i === 0 ? maxW : maxW * (vals[i] / total);
-      const wBot = i === ORDEM.length-1 ? maxW * (vals[i] / total) * 0.7 : maxW * (vals[i+1] / total);
-      const y    = i * (slotH + gap);
-      const xTop = (maxW - wTop) / 2;
-      const xBot = (maxW - wBot) / 2;
-      return { e, i, wTop, wBot, xTop, xBot, y, n: vals[i], cor: CORES_F[i] };
-    });
-
-    const svgShapes = traps.map(t => {
-      const pts = `${t.xTop},${t.y} ${t.xTop+t.wTop},${t.y} ${t.xBot+t.wBot},${t.y+slotH} ${t.xBot},${t.y+slotH}`;
-      return `<polygon points="${pts}" fill="${t.cor}" fill-opacity=".22" stroke="${t.cor}" stroke-width="1.2" stroke-opacity=".6"/>
-        <text x="${W/2}" y="${t.y+slotH/2+5}" text-anchor="middle" fill="${t.cor}" font-size="13" font-weight="800" font-family="DM Mono,monospace">${t.n}</text>
-        <text x="${W/2}" y="${t.y+slotH/2-8}" text-anchor="middle" fill="rgba(255,255,255,.55)" font-size="9.5" font-weight="700">${LABELS[t.e]}</text>`;
-    }).join('');
-
-    el.innerHTML = `
-      <svg width="100%" viewBox="0 0 ${W} ${svgH}" style="max-width:300px;display:block;margin:8px auto 0">
-        ${svgShapes}
-      </svg>
-      <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:12px">
-        ${ORDEM.map((e,i)=>`
-          <div style="display:flex;align-items:center;gap:5px">
-            <div style="width:9px;height:9px;border-radius:2px;background:${CORES_F[i]}"></div>
-            <span style="font-size:10px;color:rgba(255,255,255,.5)">${LABELS[e]}: <b style="color:${CORES_F[i]}">${counts[e]||0}</b></span>
-          </div>`).join('')}
-      </div>`;
+    const el = document.getElementById('sec-funil'); if (!el || !pedidos.length) return;
+    const O = ['novo','em_analise','respondido','fechado'], L = {novo:'Novo',em_analise:'Análise',respondido:'Resp.',fechado:'Fechado'}, C = ['#60a5fa','#fcd34d','#6ee7b7','#94a3b8'];
+    const counts = {}; pedidos.forEach(p => { const e = p.estado||'novo'; counts[e] = (counts[e]||0)+1; });
+    const total = pedidos.length, vals = [total, total-(counts['novo']||0), (counts['respondido']||0)+(counts['fechado']||0), counts['fechado']||0];
+    const W = 260, slotH = 40, gap = 4;
+    el.innerHTML = `<svg width="100%" viewBox="0 0 ${W} ${O.length*(slotH+gap)}" style="margin:8px auto">${O.map((e,i) => { const wT = i===0?W:W*(vals[i]/total), wB = i===3?W*(vals[i]/total)*0.7:W*(vals[i+1]/total), y = i*(slotH+gap), xT = (W-wT)/2, xB = (W-wB)/2; return `<polygon points="${xT},${y} ${xT+wT},${y} ${xB+wB},${y+slotH} ${xB},${y+slotH}" fill="${C[i]}" fill-opacity=".2" stroke="${C[i]}" stroke-width="1"/><text x="${W/2}" y="${y+slotH/2+4}" text-anchor="middle" fill="${C[i]}" font-size="11" font-weight="800">${vals[i]} ${L[e]}</text>`; }).join('')}</svg>`;
   }
 
-  // ════════════════════════════════════════════════════════
-  //  2. WAFFLE — grelha 10×10, cada ponto = 1% do total
-  // ════════════════════════════════════════════════════════
   function renderWaffle(pedidos) {
-    const el = document.getElementById('sec-waffle');
-    if (!el) return;
-    if (!pedidos.length) { el.innerHTML = '<div class="vazio">Sem pedidos no período</div>'; return; }
-
-    const total   = pedidos.length;
-    const fechados = pedidos.filter(p => p.estado === 'fechado').length;
-    const taxa    = total > 0 ? Math.round(fechados / total * 100) : 0;
-
-    // Tempo médio de resposta
-    const comResp = pedidos.filter(p => p.respondidoEm && p.criadoEm);
-    let tempoStr = '—';
-    if (comResp.length > 0) {
-      const h = comResp.reduce((a,p) => a + (toMs(p.respondidoEm)-toMs(p.criadoEm)), 0) / comResp.length / 3600000;
-      tempoStr = h < 1 ? Math.round(h*60)+'min' : h < 24 ? h.toFixed(1)+'h' : (h/24).toFixed(1)+'d';
-    }
-
-    // 10×10 pontos
-    const pontos = Array.from({length:100}, (_,i) => {
-      const cheio = i < taxa;
-      return `<circle cx="${(i%10)*22+11}" cy="${Math.floor(i/10)*22+11}" r="8"
-        fill="${cheio ? '#10c886' : 'rgba(255,255,255,.07)'}"
-        ${cheio ? 'filter="url(#wglow)"' : ''}/>`;
-    }).join('');
-
-    el.innerHTML = `
-      <div style="text-align:center;margin-bottom:10px">
-        <span style="font-size:42px;font-weight:900;font-family:'DM Mono',monospace;color:#10c886;line-height:1">${taxa}%</span>
-        <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">pedidos resolvidos</div>
-      </div>
-      <svg width="220" height="220" viewBox="0 0 220 220" style="display:block;margin:0 auto">
-        <defs>
-          <filter id="wglow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="2" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-        ${pontos}
-      </svg>
-      <div style="display:flex;justify-content:center;gap:24px;margin-top:10px;flex-wrap:wrap">
-        <div style="text-align:center">
-          <div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:#6ee7b7">${fechados}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:600">Fechados</div>
-        </div>
-        <div style="text-align:center">
-          <div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:#fbbf24">${tempoStr}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:600">Tempo médio resposta</div>
-        </div>
-        <div style="text-align:center">
-          <div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:#60a5fa">${total}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:600">Total pedidos</div>
-        </div>
-      </div>`;
+    const el = document.getElementById('sec-waffle'); if (!el || !pedidos.length) return;
+    const taxa = Math.round(pedidos.filter(p=>p.estado==='fechado').length/pedidos.length*100);
+    let pts = ''; for(let i=0; i<100; i++) pts += `<circle cx="${(i%10)*20+10}" cy="${Math.floor(i/10)*20+10}" r="7" fill="${i<taxa?'#10c886':'rgba(255,255,255,.05)'}"/>`;
+    el.innerHTML = `<div style="text-align:center"><div style="font-size:32px;font-weight:900;color:#10c886">${taxa}%</div><svg width="200" height="200" viewBox="0 0 200 200">${pts}</svg></div>`;
   }
 
-  // ════════════════════════════════════════════════════════
-  //  3. SPARKLINE COM ÁREA — últimas 12 semanas
-  // ════════════════════════════════════════════════════════
   function renderSparkline(pedidos) {
-    const el = document.getElementById('sec-spark');
-    if (!el) return;
-    if (!pedidos.length) { el.innerHTML = '<div class="vazio">Sem pedidos no período</div>'; return; }
-
-    const N = 12;
-    const agora = Date.now();
-    const semanas = Array.from({length:N}, (_,i) => {
-      const fim    = agora - i * 7 * 86400000;
-      const inicio = fim - 7 * 86400000;
-      const n = pedidos.filter(p => {
-        const ms = toMs(p.criadoEm);
-        return ms && ms >= inicio && ms < fim;
-      }).length;
-      const label = new Date(fim).toLocaleDateString('pt-AO',{day:'2-digit',month:'short'});
-      return { n, label };
-    }).reverse();
-
-    const maxV = Math.max(...semanas.map(s=>s.n), 1);
-    const W = 340, H = 120, pad = 16;
-    const iW = W - pad*2;
-    const iH = H - pad*2;
-    const xStep = iW / (N - 1);
-
-    const pts = semanas.map((s,i) => {
-      const x = pad + i * xStep;
-      const y = pad + iH - (s.n / maxV) * iH;
-      return {x, y, n: s.n, label: s.label};
-    });
-
-    const polyline = pts.map(p=>`${p.x},${p.y}`).join(' ');
-    const areaPath = `M${pts[0].x},${H-pad} ` + pts.map(p=>`L${p.x},${p.y}`).join(' ') + ` L${pts[N-1].x},${H-pad} Z`;
-
-    // Pontos interactivos (title tooltip)
-    const circles = pts.map(p =>
-      `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#6366f1" stroke="rgba(255,255,255,.2)" stroke-width="1.5">
-         <title>${p.label}: ${p.n} pedido${p.n!==1?'s':''}</title>
-       </circle>`
-    ).join('');
-
-    // Labels eixo X — mostrar 1 em cada 3
-    const xLabels = pts.map((p,i) =>
-      i % 3 === 0
-        ? `<text x="${p.x}" y="${H}" text-anchor="middle" fill="rgba(255,255,255,.3)" font-size="8">${p.label}</text>`
-        : ''
-    ).join('');
-
-    // Linha de referência média
-    const media = semanas.reduce((a,s)=>a+s.n,0)/N;
-    const yMed  = pad + iH - (media / maxV) * iH;
-    const mediaLine = `<line x1="${pad}" y1="${yMed}" x2="${W-pad}" y2="${yMed}"
-      stroke="rgba(251,191,36,.3)" stroke-width="1" stroke-dasharray="4 3"/>
-      <text x="${W-pad+2}" y="${yMed+4}" fill="rgba(251,191,36,.5)" font-size="8">med</text>`;
-
-    el.innerHTML = `
-      <svg width="100%" viewBox="0 0 ${W} ${H+12}" style="overflow:visible">
-        <defs>
-          <linearGradient id="spgrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stop-color="#6366f1" stop-opacity=".35"/>
-            <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-        ${mediaLine}
-        <path d="${areaPath}" fill="url(#spgrad)"/>
-        <polyline points="${polyline}" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
-        ${circles}
-        ${xLabels}
-      </svg>
-      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:rgba(255,255,255,.35);padding:0 ${pad}px">
-        <span>Semana mais activa: <b style="color:#a5b4fc">${Math.max(...semanas.map(s=>s.n))} pedidos</b></span>
-        <span>Média: <b style="color:#fbbf24">${media.toFixed(1)}/sem</b></span>
-      </div>`;
+    const el = document.getElementById('sec-spark'); if (!el || !pedidos.length) return;
+    const N = 12, agora = Date.now(), semanas = Array.from({length:N}, (_,i) => { const f = agora - i*7*86400000, in_ = f - 7*86400000; return pedidos.filter(p => { const ms = toMs(p.criadoEm); return ms && ms >= in_ && ms < f; }).length; }).reverse();
+    const max = Math.max(...semanas, 1), W = 300, H = 80, step = W/(N-1);
+    const pts = semanas.map((n,i) => `${i*step},${H-(n/max*H)}`).join(' ');
+    el.innerHTML = `<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}"><polyline points="${pts}" fill="none" stroke="#6366f1" stroke-width="2"/></svg>`;
   }
 
-  // ════════════════════════════════════════════════════════
-  //  4. HEATMAP DIA DA SEMANA — densidade de chegada
-  // ════════════════════════════════════════════════════════
   function renderHeatmap(pedidos) {
-    const el = document.getElementById('sec-heatmap');
-    if (!el) return;
-    if (!pedidos.length) { el.innerHTML = '<div class="vazio">Sem pedidos no período</div>'; return; }
-
-    const DIAS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-    const counts = Array(7).fill(0);
-    pedidos.forEach(p => {
-      const ms = toMs(p.criadoEm);
-      if (ms) counts[new Date(ms).getDay()]++;
-    });
-    const max = Math.max(...counts, 1);
-
-    const cellW = 38, cellH = 52, pad = 28;
-    const W = DIAS.length * cellW + pad;
-    const H = cellH + 40;
-
-    const cells = DIAS.map((d,i) => {
-      const n    = counts[i];
-      const intensity = n / max;
-      // Cor: escala de índigo escuro → índigo brilhante
-      const alpha = 0.08 + intensity * 0.85;
-      const x = pad + i * cellW;
-      return `
-        <rect x="${x+3}" y="24" width="${cellW-6}" height="${cellH-10}" rx="5"
-          fill="rgba(99,102,241,${alpha.toFixed(2)})" stroke="rgba(99,102,241,.18)" stroke-width="1"/>
-        <text x="${x+cellW/2}" y="${24+cellH-20}" text-anchor="middle"
-          fill="${intensity > 0.5 ? '#e0e7ff' : 'rgba(255,255,255,.55)'}"
-          font-size="14" font-weight="800" font-family="DM Mono,monospace">${n}</text>
-        <text x="${x+cellW/2}" y="${24+cellH-5}" text-anchor="middle"
-          fill="rgba(255,255,255,.3)" font-size="9" font-weight="700">${d}</text>`;
-    }).join('');
-
-    // Legenda de intensidade
-    const legendSteps = 5;
-    const legendW = 100;
-    const lx = (W - legendW) / 2;
-
-    el.innerHTML = `
-      <svg width="100%" viewBox="0 0 ${W} ${H+30}" style="overflow:visible">
-        <text x="${W/2}" y="14" text-anchor="middle" fill="rgba(255,255,255,.3)" font-size="9.5" font-weight="700">DIA DA SEMANA</text>
-        ${cells}
-        <!-- legenda gradiente -->
-        <defs>
-          <linearGradient id="hmgrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"   stop-color="rgba(99,102,241,.08)"/>
-            <stop offset="100%" stop-color="rgba(99,102,241,.93)"/>
-          </linearGradient>
-        </defs>
-        <rect x="${lx}" y="${H+6}" width="${legendW}" height="8" rx="4" fill="url(#hmgrad)"/>
-        <text x="${lx}"   y="${H+26}" fill="rgba(255,255,255,.3)" font-size="8.5">Menos</text>
-        <text x="${lx+legendW}" y="${H+26}" text-anchor="end" fill="rgba(255,255,255,.3)" font-size="8.5">Mais</text>
-      </svg>
-      <div style="text-align:center;margin-top:4px;font-size:11px;color:rgba(255,255,255,.4)">
-        Dia mais activo: <b style="color:#a5b4fc">${DIAS[counts.indexOf(Math.max(...counts))]}</b>
-        &nbsp;·&nbsp; Dia menos activo: <b style="color:rgba(255,255,255,.4)">${DIAS[counts.indexOf(Math.min(...counts))]}</b>
-      </div>`;
+    const el = document.getElementById('sec-heatmap'); if (!el || !pedidos.length) return;
+    const counts = Array(7).fill(0); pedidos.forEach(p => { const ms = toMs(p.criadoEm); if(ms) counts[new Date(ms).getDay()]++; });
+    const max = Math.max(...counts, 1), DIAS = ['D','S','T','Q','Q','S','S'];
+    el.innerHTML = `<div style="display:flex;gap:4px;justify-content:center">${counts.map((n,i) => `<div style="flex:1;text-align:center"><div style="height:40px;background:rgba(99,102,241,${0.1+(n/max)*0.8});border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">${n}</div><div style="font-size:9px;margin-top:4px;color:rgba(255,255,255,.3)">${DIAS[i]}</div></div>`).join('')}</div>`;
   }
 
-  // ════════════════════════════════════════════════════════
-  //  5. LOLLIPOP — pedidos por assunto
-  // ════════════════════════════════════════════════════════
   function renderLollipop(pedidos) {
-    const el = document.getElementById('sec-lollipop');
-    if (!el) return;
-    if (!pedidos.length) { el.innerHTML = '<div class="vazio">Sem pedidos no período</div>'; return; }
-
-    const counts = {};
-    pedidos.forEach(p => { const a = p.assunto||'outro'; counts[a]=(counts[a]||0)+1; });
-    const dados = Object.entries(counts)
-      .sort((a,b)=>b[1]-a[1])
-      .map(([k,v]) => ({label:ASSUNTOS_EST[k]||k, val:v}));
-
-    const CORES_L = ['#6366f1','#10c886','#f59e0b','#f472b6','#22d3ee','#ef4444'];
-    const max  = Math.max(...dados.map(d=>d.val), 1);
-    const rowH = 36;
-    const W    = 280, lPad = 100, rPad = 36, barW = W - lPad - rPad;
-    const H    = dados.length * rowH;
-
-    const rows = dados.map((d,i) => {
-      const cor  = CORES_L[i % CORES_L.length];
-      const x2   = lPad + Math.round(d.val / max * barW);
-      const y    = i * rowH + rowH / 2;
-      return `
-        <text x="${lPad-8}" y="${y+4}" text-anchor="end" fill="rgba(255,255,255,.6)" font-size="11" font-weight="600">${d.label}</text>
-        <line x1="${lPad}" y1="${y}" x2="${x2}" y2="${y}" stroke="${cor}" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>
-        <circle cx="${x2}" cy="${y}" r="7" fill="${cor}" stroke="rgba(255,255,255,.12)" stroke-width="1.5"/>
-        <text x="${x2}" y="${y+4}" text-anchor="middle" fill="rgba(255,255,255,.9)" font-size="9" font-weight="800">${d.val}</text>`;
-    }).join('');
-
-    el.innerHTML = `
-      <svg width="100%" viewBox="0 0 ${W} ${H}" style="overflow:visible;margin-top:6px">
-        <!-- linha de base -->
-        <line x1="${lPad}" y1="0" x2="${lPad}" y2="${H}" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
-        ${rows}
-      </svg>`;
+    const el = document.getElementById('sec-lollipop'); if (!el || !pedidos.length) return;
+    const counts = {}; pedidos.forEach(p => { const a = p.assunto||'outro'; counts[a]=(counts[a]||0)+1; });
+    const dados = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const max = Math.max(...dados.map(d=>d[1]), 1);
+    el.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px">${dados.map(([k,v],i) => `<div style="display:flex;align-items:center;gap:10px"><div style="width:80px;font-size:10px;color:rgba(255,255,255,.5);overflow:hidden;text-overflow:ellipsis">${ASSUNTOS_EST[k]||k}</div><div style="flex:1;height:2px;background:rgba(255,255,255,.1);position:relative"><div style="position:absolute;right:0;top:-4px;width:10px;height:10px;border-radius:50%;background:${CORES[i%CORES.length]}"></div><div style="height:100%;width:${v/max*100}%;background:${CORES[i%CORES.length]}"></div></div><div style="font-size:10px;font-weight:800">${v}</div></div>`).join('')}</div>`;
   }
 
-  // ════════════════════════════════════════════════════════
-  //  6. REUNIÕES — Ring chart SVG com animação de stroke
-  // ════════════════════════════════════════════════════════
   function renderReunioesRing(reunioes) {
-    const el = document.getElementById('sec-reunioes-ring');
-    if (!el) return;
-    if (!reunioes.length) { el.innerHTML = '<div class="vazio">Sem reuniões no período</div>'; return; }
-
-    const ESTADOS_R = ['realizada','confirmada','pendente','remarcada','recusada'];
-    const LABELS_R  = {realizada:'Realizada',confirmada:'Confirmada',pendente:'Pendente',remarcada:'Remarcada',recusada:'Recusada'};
-    const CORES_R   = {realizada:'#8b5cf6',confirmada:'#10b981',pendente:'#f59e0b',remarcada:'#6366f1',recusada:'#ef4444'};
-
-    const counts = {};
-    reunioes.forEach(r => { const e = r.estado||'pendente'; counts[e]=(counts[e]||0)+1; });
-    const total = reunioes.length;
-
-    // Rings concêntricos — cada estado é um anel a raio diferente
-    const estados = ESTADOS_R.filter(e => counts[e] > 0);
-    const rings = estados.map((e, i) => {
-      const r     = 32 + i * 18;
-      const circ  = 2 * Math.PI * r;
-      const pct   = counts[e] / total;
-      const dash  = circ * pct;
-      const cor   = CORES_R[e];
-      // animação CSS via stroke-dashoffset
-      return {e, r, circ, dash, cor, n: counts[e], pct};
-    });
-
-    const maxR = rings.length > 0 ? rings[rings.length-1].r : 50;
-    const sz   = (maxR + 14) * 2;
-    const cx   = sz / 2;
-
-    const svgRings = rings.map(rg =>
-      `<circle cx="${cx}" cy="${cx}" r="${rg.r}" fill="none"
-        stroke="rgba(255,255,255,.05)" stroke-width="12"/>
-       <circle cx="${cx}" cy="${cx}" r="${rg.r}" fill="none"
-        stroke="${rg.cor}" stroke-width="12" stroke-linecap="round"
-        stroke-dasharray="${rg.dash.toFixed(1)} ${rg.circ.toFixed(1)}"
-        stroke-dashoffset="${(rg.circ * 0.25).toFixed(1)}"
-        style="transition:stroke-dasharray .6s ease"/>`
-    ).join('');
-
-    el.innerHTML = `
-      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-        <div style="position:relative;flex-shrink:0">
-          <svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}">
-            ${svgRings}
-            <text x="${cx}" y="${cx+5}" text-anchor="middle" fill="rgba(255,255,255,.7)"
-              font-size="20" font-weight="900" font-family="DM Mono,monospace">${total}</text>
-            <text x="${cx}" y="${cx+18}" text-anchor="middle" fill="rgba(255,255,255,.3)" font-size="8.5">total</text>
-          </svg>
-        </div>
-        <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:130px">
-          ${rings.map(rg => `
-            <div>
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-                <div style="display:flex;align-items:center;gap:6px">
-                  <div style="width:10px;height:10px;border-radius:50%;background:${rg.cor}"></div>
-                  <span style="font-size:11px;color:rgba(255,255,255,.65)">${LABELS_R[rg.e]}</span>
-                </div>
-                <span style="font-size:11px;font-weight:800;font-family:'DM Mono',monospace;color:${rg.cor}">${rg.n}</span>
-              </div>
-              <div style="height:3px;background:rgba(255,255,255,.06);border-radius:99px">
-                <div style="height:3px;width:${Math.round(rg.pct*100)}%;background:${rg.cor};border-radius:99px;transition:width .5s"></div>
-              </div>
-            </div>`).join('')}
-        </div>
-      </div>`;
+    const el = document.getElementById('sec-reunioes-ring'); if (!el || !reunioes.length) return;
+    const total = reunioes.length, c = {}; reunioes.forEach(r => { const e = r.estado||'pendente'; c[e]=(c[e]||0)+1; });
+    const E = ['realizada','confirmada','pendente'], CO = {realizada:'#8b5cf6',confirmada:'#10b981',pendente:'#f59e0b'};
+    el.innerHTML = `<div style="display:flex;align-items:center;gap:15px"><div style="font-size:24px;font-weight:900;font-family:'DM Mono',monospace">${total}</div><div style="flex:1;display:flex;flex-direction:column;gap:5px">${E.map(e => `<div style="display:flex;justify-content:space-between;font-size:10px"><span>${e}</span><span style="color:${CO[e]}">${c[e]||0}</span></div><div style="height:3px;background:rgba(255,255,255,.05);border-radius:2px"><div style="height:100%;width:${(c[e]||0)/total*100}%;background:${CO[e]};border-radius:2px"></div></div>`).join('')}</div></div>`;
   }
+
+  // ════════════════════════════════════════════════════════
+  //  EXPORTAÇÃO CSV
+  // ════════════════════════════════════════════════════════
+  window._exportarCSV = function() {
+    const funcs = _funcsFiltrados.length ? _funcsFiltrados : _todosOsFuncs;
+    if (!funcs.length) { notif('⚠ Sem dados'); return; }
+    const CAMPOS = [{k:'numero',l:'Nº'},{k:'nome',l:'Nome'},{k:'categoria',l:'Cat.'},{k:'unidade',l:'Unid.'},{k:'estado',l:'Estado'}];
+    const cab = CAMPOS.map(c => `"${c.l}"`).join(';');
+    const lns = funcs.map(f => CAMPOS.map(c => `"${String(f[c.k]||'').replace(/"/g,'""')}"`).join(';'));
+    const blob = new Blob(['\uFEFF' + [cab, ...lns].join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `SIGDOC_Estat_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+    notif(`✅ CSV exportado: ${funcs.length} registos`);
+  };
+
+  window.onbeforeprint = function() {
+    document.getElementById('ph-data').textContent = new Date().toLocaleString();
+    document.getElementById('ph-total').textContent = `${_funcsFiltrados.length || _todosOsFuncs.length} funcionários`;
+    document.getElementById('ph-user').textContent = _nomeUtilizador;
+  };
 </script>
 </body>
 </html>
