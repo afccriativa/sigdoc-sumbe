@@ -1393,9 +1393,9 @@
               <div class="campo-ok-msg"  aria-live="polite" id="ok-data-inicio"></div>
             </div>
             <div class="campo-g">
-              <label>Finalidade / Motivo <span style="font-size:10px;font-weight:400;color:var(--txt-4)">(opcional)</span></label>
+              <label id="lbl-sol-motivo">Finalidade / Motivo <span style="font-size:10px;font-weight:400;color:var(--txt-4)">(opcional)</span></label>
               <textarea id="sol-motivo" class="campo-inp" rows="4" placeholder="Descreva brevemente o motivo…" style="resize:vertical"></textarea>
-              <div class="campo-hint">Opcional — ajuda a RH a processar mais rapidamente.</div>
+              <div class="campo-hint" id="hint-sol-motivo">Opcional — ajuda a RH a processar mais rapidamente.</div>
             </div>
           </div>
           <button class="btn-submeter" id="btn-submeter-sol" onclick="submeterSolicitacao()">
@@ -2141,6 +2141,23 @@
     const cd=document.getElementById("campo-data-inicio-wrap");
     cd.style.display=tipo==="guia-ferias"?"block":"none";
     if(tipo!=="guia-ferias")document.getElementById("sol-data-inicio").value="";
+    
+    // ✅ Actualizar label e placeholder conforme tipo
+    const lblMotivo = document.getElementById("lbl-sol-motivo");
+    const inpMotivo = document.getElementById("sol-motivo");
+    const hintMotivo = document.getElementById("hint-sol-motivo");
+    
+    if(tipo === "guia-medica") {
+      lblMotivo.innerHTML = 'Unidade Sanitária a Consultar <span style="font-size:10px;font-weight:400;color:var(--txt-4)">(obrigatório)</span>';
+      inpMotivo.placeholder = "Ex: Hospital Municipal do Sumbe, Centro Médico, etc";
+      hintMotivo.textContent = "Indique a unidade sanitária onde vai fazer a consulta.";
+      inpMotivo.style.borderColor = "var(--amber)";
+    } else {
+      lblMotivo.innerHTML = 'Finalidade / Motivo <span style="font-size:10px;font-weight:400;color:var(--txt-4)">(opcional)</span>';
+      inpMotivo.placeholder = "Descreva brevemente o motivo…";
+      hintMotivo.textContent = "Opcional — ajuda a RH a processar mais rapidamente.";
+      inpMotivo.style.borderColor = "";
+    }
   };
 
   window.validarDataInicio=function(){
@@ -2210,13 +2227,23 @@
       </div>`;
       return;
     }
+    
     const motivo=document.getElementById("sol-motivo").value.trim();
     const btn=document.getElementById("btn-submeter-sol");
     const msg=document.getElementById("msg-solicitacao");
     btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A verificar…';
+    
     try{
       const dataInicio=_tipoSel==="guia-ferias"?document.getElementById("sol-data-inicio").value:"";
       if(_tipoSel==="guia-ferias"&&!dataInicio){msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>data de início das férias</strong>.</div>`;btn.disabled=false;btn.innerHTML="📤 Enviar solicitação";return;}
+      
+      // ✅ Validação para Guia Médica — unidade sanitária obrigatória
+      if(_tipoSel==="guia-medica"&&!motivo){
+        msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>unidade sanitária</strong> onde vai fazer a consulta.</div>`;
+        btn.disabled=false;
+        btn.innerHTML="📤 Enviar solicitação";
+        return;
+      }
 
       // ── VALIDAÇÃO DE DUPLICADOS ──
       // Verificar se já existe uma solicitação activa do mesmo tipo
@@ -2242,7 +2269,35 @@
       }
 
       btn.innerHTML='<span class="spinner"></span> A enviar…';
-      await addDoc(collection(db,"solicitacoes"),{funcionarioId:_funcDocId||null,funcionarioNome:_funcDoc?.nome||_utilizador.email,funcionarioEmail:_utilizador.email,funcionarioUid:_utilizador.uid,tipo:_tipoSel,motivo:motivo||"",dataInicioFerias:dataInicio,estado:"nova",criadaEm:serverTimestamp(),unidade:_funcDoc?.unidade||"",categoria:_funcDoc?.categoria||"",admissao:_funcDoc?.admissao||"",numero:_funcDoc?.numero||"",bi:_funcDoc?.bi||"",sexo:_funcDoc?.sexo||""});
+      
+      // ✅ Guardar dados no Firebase com campo correcto
+      const dadosSolicitacao = {
+        funcionarioId: _funcDocId || null,
+        funcionarioNome: _funcDoc?.nome || _utilizador.email,
+        funcionarioEmail: _utilizador.email,
+        funcionarioUid: _utilizador.uid,
+        tipo: _tipoSel,
+        dataInicioFerias: dataInicio,
+        estado: "nova",
+        criadaEm: serverTimestamp(),
+        unidade: _funcDoc?.unidade || "",
+        categoria: _funcDoc?.categoria || "",
+        admissao: _funcDoc?.admissao || "",
+        numero: _funcDoc?.numero || "",
+        bi: _funcDoc?.bi || "",
+        sexo: _funcDoc?.sexo || "",
+        naturalidade: _funcDoc?.naturalidade || "" // ✅ Guardar naturalidade
+      };
+      
+      // ✅ Para Guia Médica, guardar como "unidadeSanitaria"; para outros, guardar como "motivo"
+      if(_tipoSel === "guia-medica") {
+        dadosSolicitacao.unidadeSanitaria = motivo; // Unidade sanitária
+      } else {
+        dadosSolicitacao.motivo = motivo; // Motivo genérico
+      }
+      
+      await addDoc(collection(db,"solicitacoes"), dadosSolicitacao);
+      
       msg.innerHTML=`<div class="alerta alerta-sucesso">✅ <strong>Solicitação enviada!</strong> A Secção de RH irá processar o seu pedido brevemente. Pode acompanhar na aba "Os meus documentos".</div>`;
       btn.innerHTML="📤 Enviar solicitação"; btn.disabled=false;
       _tipoSel=null;
