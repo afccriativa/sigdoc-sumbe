@@ -314,7 +314,7 @@
       <div class="cartao-corpo">
         <div>
           <label>Seleccione o documento a gerar</label>
-          <select id="tipo-documento">
+          <select id="tipo-documento" onchange="actualizarCamposFormulario()">
             <option value="guia-ferias">Guia de Férias</option>
             <option value="declaracao" disabled>Declaração de Serviço (em breve)</option>
             <option value="guia-medica">Guia Médica</option>
@@ -343,6 +343,13 @@
             <div class="resultados-pesquisa" id="resultados-pesquisa"></div>
           </div>
           <div id="alerta-bi" style="display:none;margin-top:6px;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:600;line-height:1.4"></div>
+        </div>
+
+        <!-- ✅ CAMPO DINÂMICO: Unidade Sanitária (aparece para guia-medica) -->
+        <div id="campo-unidade-sanitaria" style="display:none">
+          <label>Unidade Sanitária a Consultar <span style="color:var(--c-700)">*</span></label>
+          <input type="text" id="unidade-sanitaria" placeholder="Ex: Hospital Municipal do Sumbe, Centro Médico..." oninput="actualizarPreview()"/>
+          <div style="font-size:10px;color:#6b7280;margin-top:4px;font-style:italic">Será preenchido automaticamente na guia: "Vai apresentar-se ao..."</div>
         </div>
 
         <div>
@@ -806,6 +813,28 @@
     }
   };
 
+  // ✅ Actualizar campos do formulário conforme tipo de documento
+  window.actualizarCamposFormulario = function() {
+    const tipoDoc = document.getElementById("tipo-documento").value;
+    const campoUnidade = document.getElementById("campo-unidade-sanitaria");
+    
+    if (tipoDoc === "guia-medica") {
+      // Mostrar campo unidade sanitária para guia médica
+      campoUnidade.style.display = "block";
+      // Carregar unidade de uma solicitação do portal se existir
+      const urlParams = new URLSearchParams(window.location.search);
+      const unidadeParam = urlParams.get('unidade');
+      if (unidadeParam) {
+        document.getElementById("unidade-sanitaria").value = decodeURIComponent(unidadeParam);
+      }
+    } else {
+      // Esconder campo para outros documentos
+      campoUnidade.style.display = "none";
+      document.getElementById("unidade-sanitaria").value = "";
+    }
+    actualizarPreview();
+  };
+
   window.pesquisarFuncionario = function(termo) {
     const div = document.getElementById("resultados-pesquisa");
     if (!termo || termo.length < 2) { div.style.display = "none"; return; }
@@ -927,19 +956,22 @@
         return;
       }
       
+      // ✅ Obter unidade sanitária do formulário
+      const unidadeSanitaria = document.getElementById("unidade-sanitaria").value.trim() || 'Hospital Municipal do Sumbe';
+      
       htmlDoc = construirGuiaMedica({
         numGuia: document.getElementById("num-guia").value.trim() || 'Nº a preencher',
         nomeFuncionario: nomeFuncionario,
         nomePai: funcionarioSeleccionado?.nomePai || '',
         nomeMae: funcionarioSeleccionado?.nomeMae || '',
         situacao: funcionarioSeleccionado?.situacao || 'Funcionário',
-        naturalidade: funcionarioSeleccionado?.naturalidade || '',
+        naturalidade: funcionarioSeleccionado?.naturalidade || '', // ✅ Naturalidade automática
         provincia: funcionarioSeleccionado?.provincia || 'Cuanza Sul',
         idade: funcionarioSeleccionado?.idade || '',
         sexo: funcionarioSeleccionado?.sexo || '',
         nomeChefe: document.getElementById("nome-chefe").value.trim() || '',
         dataEmissao: dataEmissao
-      });
+      }, unidadeSanitaria); // ✅ Passar unidade sanitária
       
       // Preview sem scaling para guia médica (é responsiva)
       document.getElementById("area-preview").innerHTML = 
@@ -952,7 +984,9 @@
         funcionarioId: funcionarioSeleccionado?.id || null,
         funcionarioNome: nomeFuncionario,
         dataEmissao: dataEmissao,
-        nomeChefe: document.getElementById("nome-chefe").value.trim()
+        nomeChefe: document.getElementById("nome-chefe").value.trim(),
+        unidadeSanitaria: unidadeSanitaria, // ✅ Guardar unidade
+        naturalidade: funcionarioSeleccionado?.naturalidade || '' // ✅ Guardar naturalidade
       };
 
     } else {
