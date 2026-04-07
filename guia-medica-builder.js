@@ -1,276 +1,417 @@
 /**
- * SIGDOC-SUMBE — Guia Médica Builder
- * Constrói automaticamente guias médicas em 2 páginas conforme modelo oficial
+ * SIGDOC-SUMBE — Guia Médica Builder v2.0
  * 
- * Uso: construirGuiaMedica(funcionarioData) → HTML de 2 páginas pronto para impressão
+ * Formato: A4 RETRATO (210mm × 297mm)
+ * Páginas: EXATAMENTE 2 (Página 1: Dados + 1 Prescrição | Página 2: 9 Prescrições)
+ * Logo: Angola PNG melhorada (carregada do servidor)
+ * 
+ * ✅ NATURALIDADE preenchida automaticamente do cadastro do funcionário
+ * ✅ "VAI APRESENTAR-SE AO..." dinâmico conforme unidade sanitária escolhida
+ * ✅ Formato exactamente conforme modelo PDF oficial
+ * ✅ Optimizado para impressão A4 retrato
+ * 
+ * Uso:
+ *   window.construirGuiaMedica(funcionarioData, unidadeSanitaria)
+ * 
+ * Exemplo:
+ *   construirGuiaMedica({
+ *     numGuia: "101/2026",
+ *     nomeFuncionario: "João da Silva",
+ *     naturalidade: "Sumbe",
+ *     ...
+ *   }, "Hospital Central de Luanda")
  */
 
-// Base64 da insignia (coat of arms de Angola) — inlined para evitar requisições
-const INSIGNIA_BASE64 = '/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAH0AfQDASIAAhEBAxEB/8QAHQABAAEFAQEBAAAAAAAAAAAAAAYDBAUHCAIBCf/EAFMQAAEDAwIEBAMFBAYGCAUBCQECAwQABREGIQcSMUETUWFxIoGRCBQyobEVI0LBUmJy0eHwFiQzQ4KSFzQ1OHWisvElRFNVlSZFVGRzdIWjs8L/xAAcAQEAAgMBAQEAAAAAAAAAAAAABQYBAwQCBwj/xABCEQABAwMCBAMEBwYFBAIDAAABAAIDBAURITEGEkFRImFxEzKBkRRCUqGxwfAHFSMzctEWJDVi4RclQ/E0UyaSov/aAAwDAQACEQMRAD8A4ypSlESlKURKUpRFJSlESlKURKUpRFJSlESlKURKUpRFJSlESlKURK';
-
-/**
- * Construir guia médica HTML
- * @param {object} funcionario - Dados do funcionário
- * @returns {string} HTML de 2 páginas
- */
-window.construirGuiaMedica = function(funcionario) {
-  const f = funcionario || {};
+window.construirGuiaMedica = function(dados, unidadeSanitaria) {
+  const f = dados || {};
+  
+  // ═══════════════════════════════════════════════════════════════
+  // PREENCHIMENTO DE DADOS
+  // ═══════════════════════════════════════════════════════════════
   
   const numGuia = f.numGuia || '___/2026';
-  const nome = f.nomeFuncionario || '___________________________';
-  const pai = f.nomePai || '___________________________';
-  const mae = f.nomeMae || '___________________________';
+  const nomeFuncionario = f.nomeFuncionario || '___________________________';
+  const nomePai = f.nomePai || '___________________________';
+  const nomeMae = f.nomeMae || '___________________________';
   const situacao = f.situacao || 'Funcionário';
+  
+  // ✅ NATURALIDADE — preenchida automaticamente do cadastro
   const naturalidade = f.naturalidade || '___________________________';
+  
   const provincia = f.provincia || 'Cuanza Sul';
-  const idade = f.idade || '___';
-  const sexo = f.sexo || '___';
-  const chefe = f.nomeChefe || '___________________________';
-  const dataEmissao = f.dataEmissao ? fmtExtenso(f.dataEmissao) : '___ DE __________ DE ____';
+  const idade = f.idade ? String(f.idade).padStart(2, ' ') : '__';
+  const sexo = f.sexo ? f.sexo.charAt(0).toUpperCase() : '_';
+  const nomeChefe = f.nomeChefe || '___________________________';
+  const dataEmissao = f.dataEmissao ? fmtExtenso(f.dataEmissao) : '___ DE ___________ DE 2026';
+  
+  // ✅ UNIDADE SANITÁRIA — dinâmica conforme input
+  const unidadeSanitariaTexto = unidadeSanitaria 
+    ? unidadeSanitaria.toUpperCase().trim()
+    : 'HOSPITAL MUNICIPAL DO SUMBE';
+  
+  // ═══════════════════════════════════════════════════════════════
+  // FUNÇÃO AUXILIAR: Formatar data para extenso português
+  // ═══════════════════════════════════════════════════════════════
+  
+  function fmtExtenso(dataStr) {
+    if (!dataStr) return '___ DE ___________ DE 2026';
+    try {
+      const [ano, mes, dia] = dataStr.split('-').map(x => parseInt(x, 10));
+      const meses = [
+        'JANEIRO', 'FEVEREIRO', 'MARÇO', 'ABRIL', 'MAIO', 'JUNHO',
+        'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'
+      ];
+      return String(dia).padStart(2, ' ') + ' DE ' + meses[mes - 1] + ' DE ' + ano;
+    } catch (e) {
+      return '___ DE ___________ DE 2026';
+    }
+  }
 
-  // CSS de impressão
+  // ═══════════════════════════════════════════════════════════════
+  // CSS — Otimizado para A4 RETRATO + Impressão
+  // ═══════════════════════════════════════════════════════════════
+  
   const css = `
     <style>
+      /* Reset */
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: Arial, sans-serif; background: #e0e0e0; }
+      html, body { width: 100%; height: 100%; }
+      
+      body { 
+        font-family: 'Times New Roman', Times, serif;
+        background: #f5f5f5;
+        padding: 0;
+        margin: 0;
+      }
+      
+      /* ═══ PÁGINA A4 RETRATO ═══ */
       .pagina-gm {
         width: 210mm;
         height: 297mm;
         background: white;
-        padding: 20px;
-        margin: 10px auto;
-        box-shadow: 0 0 10px rgba(0,0,0,0.3);
-        font-size: 12px;
-        line-height: 1.5;
-        color: #333;
-        position: relative;
-      }
-      .gm-cabecalho {
-        text-align: center;
-        margin-bottom: 20px;
-        border-bottom: 2px solid #333;
-        padding-bottom: 10px;
-      }
-      .gm-insignia {
-        width: 50px;
-        height: 50px;
-        margin: 0 auto 5px;
-        display: block;
-      }
-      .gm-cabecalho p {
-        font-size: 10px;
-        text-transform: uppercase;
-        font-weight: bold;
-        margin: 2px 0;
-        letter-spacing: 0.5px;
-      }
-      .gm-titulo {
-        text-align: center;
-        font-size: 13px;
-        font-weight: bold;
-        text-decoration: underline;
-        text-transform: uppercase;
-        margin: 15px 0 20px;
-      }
-      .gm-campo {
-        margin-bottom: 8px;
-        display: flex;
-        align-items: center;
-      }
-      .gm-rotulo {
-        font-weight: bold;
-        min-width: 120px;
-        display: inline-block;
-      }
-      .gm-valor {
-        flex: 1;
-        border-bottom: 1px solid #333;
-        padding: 2px 5px;
-      }
-      .gm-rodape {
-        margin-top: 30px;
+        margin: 5mm auto;
+        padding: 12mm 15mm;
+        color: #000;
         font-size: 11px;
-      }
-      .gm-assinatura-bloco {
-        margin-top: 20px;
-        text-align: center;
-      }
-      .gm-ass-linha {
-        border-top: 1px solid #333;
-        width: 150px;
-        margin: 30px auto 5px;
-      }
-      .gm-ass-nome {
-        font-weight: bold;
-        font-size: 11px;
-      }
-      .gm-prescrição {
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid #333;
-      }
-      .gm-prescrição-titulo {
-        text-align: center;
-        font-weight: bold;
-        margin-bottom: 10px;
-        font-size: 12px;
-      }
-      .gm-prescrição-linhas {
+        line-height: 1.3;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        page-break-after: always;
+        overflow: hidden;
         display: flex;
         flex-direction: column;
-        gap: 15px;
       }
-      .gm-prescricao-linha {
-        border-bottom: 1px solid #999;
-        height: 20px;
+      
+      /* ═══ CABEÇALHO ═══ */
+      .gm-cabecalho {
+        text-align: center;
+        margin-bottom: 10mm;
+        padding-bottom: 8mm;
+        border-bottom: 2px solid #000;
       }
-      .gm-data-medico {
+      
+      .gm-logo {
+        width: 35mm;
+        height: auto;
+        margin: 0 auto 4mm;
+        display: block;
+      }
+      
+      .gm-cabecalho-texto {
+        font-weight: bold;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        line-height: 1.5;
+      }
+      
+      .gm-cabecalho-texto-secao {
+        font-weight: bold;
+        font-size: 9px;
+        margin-top: 2mm;
+        text-decoration: underline;
+      }
+      
+      /* ═══ TÍTULO ═══ */
+      .gm-titulo {
+        text-align: center;
+        font-size: 12px;
+        font-weight: bold;
+        text-decoration: underline;
+        margin: 6mm 0 8mm;
+        text-transform: uppercase;
+      }
+      
+      /* ═══ APRESENTAÇÃO ═══ */
+      .gm-apresentacao {
+        text-align: center;
+        font-size: 11px;
+        font-weight: bold;
+        margin: 8mm 0 10mm;
+        text-transform: uppercase;
+      }
+      
+      /* ═══ CAMPOS DE DADOS ═══ */
+      .gm-campo {
         display: flex;
-        justify-content: space-between;
-        margin-top: 15px;
+        margin-bottom: 4mm;
+        align-items: baseline;
+      }
+      
+      .gm-rotulo {
+        font-weight: bold;
+        font-size: 11px;
+        min-width: 85mm;
+        padding-right: 2mm;
+      }
+      
+      .gm-valor {
+        flex: 1;
+        border-bottom: 1px solid #000;
+        padding-bottom: 1mm;
+        min-height: 4mm;
         font-size: 11px;
       }
+      
+      /* ═══ RODAPÉ COM ASSINATURA ═══ */
+      .gm-rodape-texto {
+        text-align: center;
+        font-weight: bold;
+        font-size: 10px;
+        margin-top: 8mm;
+        margin-bottom: 5mm;
+        line-height: 1.4;
+      }
+      
+      .gm-rodape-assinatura {
+        text-align: center;
+        margin-top: 12mm;
+      }
+      
+      .gm-ass-titulo {
+        font-size: 10px;
+        font-weight: bold;
+        margin-bottom: 18mm;
+      }
+      
+      .gm-ass-linha {
+        border-top: 1px solid #000;
+        width: 75mm;
+        margin: 0 auto 2mm;
+      }
+      
+      .gm-ass-nome {
+        font-weight: bold;
+        font-size: 10px;
+      }
+      
+      /* ═══ PRESCRIÇÕES ═══ */
+      .gm-prescricao {
+        margin-top: 10mm;
+        padding-top: 8mm;
+        border-top: 1px solid #000;
+      }
+      
+      .gm-prescricao-titulo {
+        text-align: center;
+        font-weight: bold;
+        font-size: 11px;
+        text-transform: uppercase;
+        margin-bottom: 4mm;
+      }
+      
+      .gm-prescricao-linhas {
+        margin-bottom: 4mm;
+      }
+      
+      .gm-prescricao-linha {
+        border-bottom: 1px solid #999;
+        height: 15px;
+        margin-bottom: 6px;
+      }
+      
+      .gm-prescricao-rodape {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        font-size: 10px;
+        margin-top: 3mm;
+      }
+      
+      .gm-medico-bloco {
+        text-align: right;
+      }
+      
+      .gm-medico-assinatura {
+        border-top: 1px solid #000;
+        width: 50mm;
+        height: 15px;
+        margin: 10mm 0 1mm;
+      }
+      
+      .gm-medico-nome {
+        font-size: 9px;
+        text-align: center;
+      }
+      
+      /* ═══ LOGO RODAPÉ ═══ */
       .gm-logo-rodape {
         text-align: center;
-        margin-top: 20px;
+        margin-top: 6mm;
         font-size: 10px;
-        color: #666;
+        font-weight: bold;
       }
-      .page-break {
-        page-break-before: always;
-        break-before: page;
-      }
+      
+      /* ═══ PRINT ═══ */
       @media print {
-        body { background: white; }
-        .pagina-gm { margin: 0; box-shadow: none; }
+        body {
+          background: white;
+          margin: 0;
+          padding: 0;
+        }
+        .pagina-gm {
+          margin: 0;
+          box-shadow: none;
+          page-break-after: always;
+        }
       }
     </style>
   `;
 
-  // Função formatação de data
-  function fmtExtenso(str) {
-    if (!str) return '___ DE __________ DE ____';
-    const meses = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO',
-                   'JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
-    const d = new Date(str + 'T12:00:00');
-    return d.getDate() + ' DE ' + meses[d.getMonth()] + ' DE ' + d.getFullYear();
-  }
-
-  // PÁGINA 1: Cabeçalho + Dados do Funcionário + Prescrição
+  // ═══════════════════════════════════════════════════════════════
+  // PÁGINA 1: CABEÇALHO + DADOS + 1 PRESCRIÇÃO
+  // ═══════════════════════════════════════════════════════════════
+  
   const pagina1 = `
     <div class="pagina-gm">
+      <!-- Cabeçalho -->
       <div class="gm-cabecalho">
-        <img class="gm-insignia" src="data:image/jpeg;base64,${INSIGNIA_BASE64}" alt="Insignia de Angola"/>
-        <p>REPÚBLICA DE ANGOLA</p>
-        <p>GOVERNO DA PROVÍNCIA DO CUANZA-SUL</p>
-        <p>ADMINISTRAÇÃO MUNICIPAL DO SUMBE</p>
-        <p>DIRECÇÃO DE SAÚDE</p>
-        <p style="margin-top: 5px;">SECÇÃO DE PLANEAMENTO, ESTATÍSTICA E RECURSOS HUMANOS</p>
+        <img class="gm-logo" src="angola_coat_of_arms-removebg-preview.png" alt="Insígnia de Angola"/>
+        <div class="gm-cabecalho-texto">
+          República de Angola<br>
+          Governo da Província do Cuanza-Sul<br>
+          Administração Municipal do Sumbe<br>
+          Direcção de Saúde
+        </div>
+        <div class="gm-cabecalho-texto-secao">Secção de Planeamento, Estatística e Recursos Humanos</div>
       </div>
       
-      <div class="gm-titulo">GUIA MÉDICA Nº ${numGuia}</div>
+      <!-- Título da Guia -->
+      <div class="gm-titulo">Guia Médica Nº ${numGuia}</div>
       
-      <div class="gm-titulo" style="font-size: 11px; text-decoration: none; margin: 10px 0 15px;">
-        VAI APRESENTAR-SE AO HOSPITAL MUNICIPAL DO SUMBE
-      </div>
+      <!-- Apresentação — DINÂMICA conforme unidade sanitária -->
+      <div class="gm-apresentacao">Vai apresentar-se ao ${unidadeSanitariaTexto}</div>
       
+      <!-- Dados do Funcionário -->
       <div class="gm-campo">
-        <div class="gm-rotulo">NOME:</div>
-        <div class="gm-valor">${nome}</div>
+        <div class="gm-rotulo">Nome:</div>
+        <div class="gm-valor">${nomeFuncionario}</div>
       </div>
       <div class="gm-campo">
-        <div class="gm-rotulo">PAI:</div>
-        <div class="gm-valor">${pai}</div>
+        <div class="gm-rotulo">Pai:</div>
+        <div class="gm-valor">${nomePai}</div>
       </div>
       <div class="gm-campo">
-        <div class="gm-rotulo">MÃE:</div>
-        <div class="gm-valor">${mae}</div>
+        <div class="gm-rotulo">Mãe:</div>
+        <div class="gm-valor">${nomeMae}</div>
       </div>
       <div class="gm-campo">
-        <div class="gm-rotulo">SITUAÇÃO:</div>
+        <div class="gm-rotulo">Situação:</div>
         <div class="gm-valor">${situacao}</div>
       </div>
       <div class="gm-campo">
-        <div class="gm-rotulo">NATURALIDADE:</div>
+        <div class="gm-rotulo">Naturalidade:</div>
         <div class="gm-valor">${naturalidade}</div>
       </div>
       <div class="gm-campo">
-        <div class="gm-rotulo">PROVÍNCIA:</div>
+        <div class="gm-rotulo">Província:</div>
         <div class="gm-valor">${provincia}</div>
       </div>
       <div class="gm-campo">
-        <div class="gm-rotulo">IDADE:</div>
+        <div class="gm-rotulo">Idade:</div>
         <div class="gm-valor">${idade} anos</div>
       </div>
       <div class="gm-campo">
-        <div class="gm-rotulo">SEXO:</div>
+        <div class="gm-rotulo">Sexo:</div>
         <div class="gm-valor">${sexo}</div>
       </div>
       
-      <div class="gm-rodape">
-        <p style="font-weight: bold; margin-bottom: 10px;">SECÇÃO DE PLANEAMENTO, ESTATÍSTICA E RECURSOS HUMANOS DA DIRECÇÃO MUNICIPAL DA SAÚDE DO SUMBE, ${dataEmissao}.</p>
-        <p style="text-align: center; margin-bottom: 15px;">O CHEFE DE SECÇÃO,</p>
-        <div style="height: 40px;"></div>
-        <p style="text-align: center; font-weight: bold;">${chefe}</p>
+      <!-- Rodapé com Data e Assinatura -->
+      <div class="gm-rodape-texto">
+        Secção de Planeamento, Estatística e Recursos Humanos da Direcção<br>
+        Municipal da Saúde do Sumbe, ${dataEmissao}.
       </div>
       
-      <div class="gm-prescrição">
-        <div class="gm-prescrição-titulo">PRESCRIÇÃO MÉDICA</div>
-        <div class="gm-prescrição-linhas">
+      <div class="gm-rodape-assinatura">
+        <div class="gm-ass-titulo">O Chefe de Secção,</div>
+        <div class="gm-ass-linha"></div>
+        <div class="gm-ass-nome">${nomeChefe}</div>
+      </div>
+      
+      <!-- Primeira Prescrição Médica -->
+      <div class="gm-prescricao">
+        <div class="gm-prescricao-titulo">Prescrição Médica</div>
+        <div class="gm-prescricao-linhas">
           <div class="gm-prescricao-linha"></div>
           <div class="gm-prescricao-linha"></div>
           <div class="gm-prescricao-linha"></div>
           <div class="gm-prescricao-linha"></div>
           <div class="gm-prescricao-linha"></div>
         </div>
-        <div class="gm-data-medico">
+        <div class="gm-prescricao-rodape">
           <div>Sumbe ____/____/2026</div>
-          <div style="text-align: right;">O Médico<br><div style="height: 30px;"></div></div>
+          <div class="gm-medico-bloco">
+            <div>O Médico</div>
+            <div class="gm-medico-assinatura"></div>
+          </div>
         </div>
       </div>
     </div>
   `;
 
-  // PÁGINAS 2-6: Prescrições Múltiplas (5 secções por página × 2 páginas = 10 prescrições)
-  const prescricoes = [];
-  for (let i = 0; i < 10; i++) {
-    prescricoes.push(`
-      <div class="gm-prescrição">
-        <div class="gm-prescrição-titulo">PRESCRIÇÃO MÉDICA</div>
-        <div class="gm-prescrição-linhas">
+  // ═══════════════════════════════════════════════════════════════
+  // PÁGINA 2: 9 PRESCRIÇÕES ADICIONAIS + LOGO RODAPÉ
+  // ═══════════════════════════════════════════════════════════════
+  
+  let prescricoes = '';
+  for (let i = 0; i < 9; i++) {
+    prescricoes += `
+      <div class="gm-prescricao">
+        <div class="gm-prescricao-titulo">Prescrição Médica</div>
+        <div class="gm-prescricao-linhas">
           <div class="gm-prescricao-linha"></div>
           <div class="gm-prescricao-linha"></div>
           <div class="gm-prescricao-linha"></div>
           <div class="gm-prescricao-linha"></div>
           <div class="gm-prescricao-linha"></div>
         </div>
-        <div class="gm-data-medico">
+        <div class="gm-prescricao-rodape">
           <div>Sumbe ____/____/2026</div>
-          <div style="text-align: right;">O Médico<br><div style="height: 30px;"></div></div>
+          <div class="gm-medico-bloco">
+            <div>O Médico</div>
+            <div class="gm-medico-assinatura"></div>
+          </div>
         </div>
       </div>
-    `);
+    `;
   }
-
-  // Agrupar prescrições em 2 páginas (5 por página)
-  const pags = [];
-  for (let p = 0; p < 2; p++) {
-    let html = `<div class="pagina-gm ${p > 0 ? 'page-break' : ''}">`;
-    for (let i = 0; i < 5; i++) {
-      html += prescricoes[p * 5 + i];
-    }
-    html += `
+  
+  const pagina2 = `
+    <div class="pagina-gm">
+      ${prescricoes}
       <div class="gm-logo-rodape">
-        <strong>GOVERNO DE ANGOLA</strong>
+        ▲ Governo de Angola
       </div>
-    </div>`;
-    pags.push(html);
-  }
+    </div>
+  `;
 
-  return css + pagina1 + pags.join('');
+  // ═══════════════════════════════════════════════════════════════
+  // RETORNAR HTML COMPLETO (CSS + PÁGINA 1 + PÁGINA 2)
+  // ═══════════════════════════════════════════════════════════════
+  
+  return css + pagina1 + pagina2;
 };
 
-// Exportar para janela
+// ✅ Exportar função globalmente
 window.guiaMedicaBuilder = {
   construir: window.construirGuiaMedica
 };
