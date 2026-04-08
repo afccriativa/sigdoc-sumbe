@@ -2045,12 +2045,30 @@
     let extra="";
     if(s.observacao)extra+=`<div class="alerta alerta-${s.estado==='rejeitada'||s.estado==='rejeitado'?'erro':'sucesso'}" style="margin-top:12px">💬 <strong>Observação de RH:</strong> ${s.observacao}</div>`;
     if(s.numGuia)extra+=`<div class="alerta alerta-sucesso" style="margin-top:8px">📄 Referência: Guia Nº ${s.numGuia}/${s.anoGuia}</div>`;
+    
+    // ✅ Botão "Tomar a Cargo" para Guia Médica (redireciona para documentos.html)
+    let btnTomarCargo = "";
+    if(s.tipo === "guia-medica" && s.estado === "nova") {
+      const params = new URLSearchParams({
+        tipo: "guia-medica",
+        funcionarioId: s.funcionarioId || "",
+        funcionarioNome: s.funcionarioNome || "",
+        unidadeSanitaria: encodeURIComponent(s.unidadeSanitaria || "")
+      });
+      btnTomarCargo = `<div style="margin-top:16px;display:flex;gap:8px">
+        <button class="btn-gerar-portal" onclick="window.location.href='documentos.html?${params.toString()}'" style="flex:1;padding:10px;background:var(--c-700);color:white;border:none;border-radius:var(--r-sm);font-weight:600;cursor:pointer">
+          ✏️ Tomar a Cargo
+        </button>
+      </div>`;
+    }
+    
     document.getElementById("modal-sol-corpo").innerHTML=`<div style="display:flex;flex-direction:column;gap:10px">
       <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--neu-400)">Estado</span><span class="badge-est-portal ${estInfo.classe}">${estInfo.texto}</span></div>
       <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--neu-400)">Tipo</span><span style="font-size:13px;font-weight:700">${info.nome}</span></div>
-      ${s.motivo?`<div style="background:var(--neu-50);border-radius:var(--r-sm);padding:12px;font-size:13px"><strong>Motivo:</strong> ${s.motivo}</div>`:""}
+      ${s.motivo?`<div style="background:var(--neu-50);border-radius:var(--r-sm);padding:12px;font-size:13px"><strong>${s.tipo==='guia-medica'?'Unidade Sanitária':'Motivo'}:</strong> ${s.motivo||s.unidadeSanitaria}</div>`:""}
       ${s.dataInicio?`<div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--neu-400)">Início férias</span><span style="font-size:13px;font-weight:700">${s.dataInicio}</span></div>`:""}
       ${extra}
+      ${btnTomarCargo}
     </div>`;
     document.getElementById("overlay-detalhe-sol").classList.add("activo");
   };
