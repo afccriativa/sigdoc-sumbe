@@ -776,7 +776,7 @@
     if (!wrap) return;
     const n = docs.length;
     wrap.innerHTML = `
-      <div onclick="window._abrirDrill('Actividade no Período', 'Todos os documentos gerados no intervalo selecionado', _filtrarDocsPeriodo(), 'documento')" 
+      <div onclick="window._abrirDrill('Actividade no Período', 'Todos os documentos gerados no intervalo selecionado', _todosOsDocs, 'documento')" 
            style="background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.15);border-radius:12px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer">
         <div>
           <div style="font-size:24px;font-weight:900;color:#60a5fa;font-family:'DM Mono',monospace">${n}</div>
@@ -955,8 +955,8 @@
         if (i === 2) return pedidos.filter(p => ['respondido','fechado'].includes(p.estado));
         return pedidos.filter(p => p.estado !== 'novo');
       };
-      // Usar uma string global para passar os dados filtrados (simplificação para o onclick no SVG)
-      const dataStr = i === 0 ? 'pedidos' : i === 3 ? "pedidos.filter(p => p.estado === 'fechado')" : i === 2 ? "pedidos.filter(p => ['respondido','fechado'].includes(p.estado))" : "pedidos.filter(p => p.estado !== 'novo')";
+      // Usar _pedidosSec global para garantir acesso no onclick
+      const dataStr = i === 0 ? '_pedidosSec' : i === 3 ? "_pedidosSec.filter(p => p.estado === 'fechado')" : i === 2 ? "_pedidosSec.filter(p => ['respondido','fechado'].includes(p.estado))" : "_pedidosSec.filter(p => p.estado !== 'novo')";
       
       return `<g style="cursor:pointer" onclick="window._abrirDrill('Funil: ${L[e]}', 'Pedidos que atingiram o estado ${e}', ${dataStr}, 'pedido')">
                 <polygon points="${xT},${y} ${xT+wT},${y} ${xB+wB},${y+slotH} ${xB},${y+slotH}" fill="${C[i]}" fill-opacity=".2" stroke="${C[i]}" stroke-width="1"/>
@@ -993,7 +993,7 @@
     const dados = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
     const max = Math.max(...dados.map(d=>d[1]), 1);
     el.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px">${dados.map(([k,v],i) => `
-      <div onclick="window._abrirDrill('Assunto: ${ASSUNTOS_EST[k]||k}', 'Lista de pedidos sobre este tema', pedidos.filter(p => (p.assunto||'outro') === '${k}'), 'pedido')" 
+      <div onclick="window._abrirDrill('Assunto: ${ASSUNTOS_EST[k]||k}', 'Lista de pedidos sobre este tema', _pedidosSec.filter(p => (p.assunto||'outro') === '${k}'), 'pedido')" 
            style="display:flex;align-items:center;gap:10px;cursor:pointer">
         <div style="width:80px;font-size:10px;color:rgba(255,255,255,.5);overflow:hidden;text-overflow:ellipsis">${ASSUNTOS_EST[k]||k}</div>
         <div style="flex:1;height:2px;background:rgba(255,255,255,.1);position:relative">
@@ -1009,10 +1009,10 @@
     const total = reunioes.length, c = {}; reunioes.forEach(r => { const e = r.estado||'pendente'; c[e]=(c[e]||0)+1; });
     const E = ['realizada','confirmada','pendente'], CO = {realizada:'#8b5cf6',confirmada:'#10b981',pendente:'#f59e0b'};
     el.innerHTML = `<div style="display:flex;align-items:center;gap:15px">
-      <div onclick="window._abrirDrill('Todas as Reuniões', 'Lista completa de reuniões no período', reunioes, 'reuniao')" 
+      <div onclick="window._abrirDrill('Todas as Reuniões', 'Lista completa de reuniões no período', _reunioesSec, 'reuniao')" 
            style="font-size:24px;font-weight:900;font-family:'DM Mono',monospace;cursor:pointer">${total}</div>
       <div style="flex:1;display:flex;flex-direction:column;gap:5px">${E.map(e => `
-        <div onclick="window._abrirDrill('Reuniões: ${e}', 'Lista de reuniões com estado ${e}', reunioes.filter(r => (r.estado||'pendente') === '${e}'), 'reuniao')" 
+        <div onclick="window._abrirDrill('Reuniões: ${e}', 'Lista de reuniões com estado ${e}', _reunioesSec.filter(r => (r.estado||'pendente') === '${e}'), 'reuniao')" 
              style="cursor:pointer">
           <div style="display:flex;justify-content:space-between;font-size:10px">
             <span>${e}</span>
@@ -1062,11 +1062,9 @@
     if (!dados || dados.length === 0) {
       cEl.innerHTML = `<div class="drill-empty"><div class="drill-empty-icon">📂</div><p>Nenhum registo encontrado para este indicador.</p></div>`;
     } else {
-      let html = `<table class="drill-table"><thead><tr>`;
+      let html = '';
       
       if (tipo === 'pedido') {
-        html += `<th>Data</th><th>Assunto</th><th>Requerente</th><th>Estado</th></tr></thead><tbody>`;
-        html.innerHTML = ''; // Reset
         html = `<table class="drill-table"><thead><tr><th>Data</th><th>Assunto</th><th>Requerente</th><th>Estado</th></tr></thead><tbody>`;
         dados.forEach(d => {
           const data = new Date(toMs(d.criadoEm)).toLocaleDateString('pt-PT');
