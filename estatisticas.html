@@ -209,6 +209,31 @@
     .pg-datepicker-btn-secondary { background: rgba(255,255,255,.05); color: rgba(255,255,255,.6); border-color: rgba(255,255,255,.1); }
     .pg-datepicker-btn-secondary:hover { background: rgba(255,255,255,.1); }
     @media (max-width: 600px) { .pg-cards-grid { grid-template-columns: 1fr 1fr; } .pg-container { padding: 12px 16px; } }
+
+    /* ── Estilos do Modal de Detalhes (Drill-down) ── */
+    .modal-drill { position: fixed; inset: 0; background: rgba(13,20,34,.85); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; animation: fadeIn .2s ease; }
+    .modal-drill.active { display: flex; }
+    .modal-drill-card { background: #1a2236; border: 1px solid rgba(255,255,255,.1); border-radius: 20px; width: 100%; max-width: 800px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 30px 60px rgba(0,0,0,.5); overflow: hidden; }
+    .modal-drill-header { padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,.07); display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,.02); }
+    .modal-drill-title { display: flex; flex-direction: column; gap: 2px; }
+    .modal-drill-title h3 { font-size: 16px; font-weight: 800; color: #fff; }
+    .modal-drill-title p { font-size: 11px; color: rgba(255,255,255,.4); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    .modal-drill-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: rgba(255,255,255,.05); color: rgba(255,255,255,.5); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all .2s; }
+    .modal-drill-close:hover { background: rgba(239,68,68,.15); color: #ef4444; }
+    .modal-drill-body { padding: 0; overflow-y: auto; flex: 1; }
+    .drill-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .drill-table th { position: sticky; top: 0; background: #1e2943; padding: 12px 16px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,.3); font-weight: 800; border-bottom: 1px solid rgba(255,255,255,.07); z-index: 10; }
+    .drill-table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,.04); color: rgba(255,255,255,.8); }
+    .drill-table tr:hover td { background: rgba(255,255,255,.02); }
+    .drill-badge { padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .drill-empty { padding: 60px; text-align: center; color: rgba(255,255,255,.2); display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .drill-empty-icon { font-size: 40px; opacity: .5; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+    
+    /* Cursor pointer para elementos clicáveis nos gráficos */
+    [onclick] { cursor: pointer; }
+    .gc circle, .gc rect, .gc polygon { transition: opacity .2s, transform .2s; }
+    .gc circle:hover, .gc rect:hover, .gc polygon:hover { opacity: 0.8; filter: brightness(1.2); }
   </style>
 </head>
 <body>
@@ -259,6 +284,22 @@
 </div>
 
 <div id="notif"></div>
+
+<!-- Modal de Detalhes (Drill-down) -->
+<div id="modal-drill" class="modal-drill" onclick="if(event.target===this) window._fecharDrill()">
+  <div class="modal-drill-card">
+    <div class="modal-drill-header">
+      <div class="modal-drill-title">
+        <p id="drill-subtitle">Detalhes do Indicador</p>
+        <h3 id="drill-title">Lista de Registos</h3>
+      </div>
+      <button class="modal-drill-close" onclick="window._fecharDrill()">✕</button>
+    </div>
+    <div class="modal-drill-body" id="drill-content">
+      <!-- Conteúdo dinâmico aqui -->
+    </div>
+  </div>
+</div>
 
 <script type="module">
   import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -735,7 +776,8 @@
     if (!wrap) return;
     const n = docs.length;
     wrap.innerHTML = `
-      <div style="background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.15);border-radius:12px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
+      <div onclick="window._abrirDrill('Actividade no Período', 'Todos os documentos gerados no intervalo selecionado', _filtrarDocsPeriodo(), 'documento')" 
+           style="background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.15);border-radius:12px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer">
         <div>
           <div style="font-size:24px;font-weight:900;color:#60a5fa;font-family:'DM Mono',monospace">${n}</div>
           <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px">Documentos gerados no período</div>
@@ -905,7 +947,22 @@
     const counts = {}; pedidos.forEach(p => { const e = p.estado||'novo'; counts[e] = (counts[e]||0)+1; });
     const total = pedidos.length, vals = [total, total-(counts['novo']||0), (counts['respondido']||0)+(counts['fechado']||0), counts['fechado']||0];
     const W = 260, slotH = 40, gap = 4;
-    el.innerHTML = `<svg width="100%" viewBox="0 0 ${W} ${O.length*(slotH+gap)}" style="margin:8px auto">${O.map((e,i) => { const wT = i===0?W:W*(vals[i]/total), wB = i===3?W*(vals[i]/total)*0.7:W*(vals[i+1]/total), y = i*(slotH+gap), xT = (W-wT)/2, xB = (W-wB)/2; return `<polygon points="${xT},${y} ${xT+wT},${y} ${xB+wB},${y+slotH} ${xB},${y+slotH}" fill="${C[i]}" fill-opacity=".2" stroke="${C[i]}" stroke-width="1"/><text x="${W/2}" y="${y+slotH/2+4}" text-anchor="middle" fill="${C[i]}" font-size="11" font-weight="800">${vals[i]} ${L[e]}</text>`; }).join('')}</svg>`;
+    el.innerHTML = `<svg width="100%" viewBox="0 0 ${W} ${O.length*(slotH+gap)}" style="margin:8px auto">${O.map((e,i) => { 
+      const wT = i===0?W:W*(vals[i]/total), wB = i===3?W*(vals[i]/total)*0.7:W*(vals[i+1]/total), y = i*(slotH+gap), xT = (W-wT)/2, xB = (W-wB)/2; 
+      const filtrarPedidos = () => {
+        if (i === 0) return pedidos;
+        if (i === 3) return pedidos.filter(p => p.estado === 'fechado');
+        if (i === 2) return pedidos.filter(p => ['respondido','fechado'].includes(p.estado));
+        return pedidos.filter(p => p.estado !== 'novo');
+      };
+      // Usar uma string global para passar os dados filtrados (simplificação para o onclick no SVG)
+      const dataStr = i === 0 ? 'pedidos' : i === 3 ? "pedidos.filter(p => p.estado === 'fechado')" : i === 2 ? "pedidos.filter(p => ['respondido','fechado'].includes(p.estado))" : "pedidos.filter(p => p.estado !== 'novo')";
+      
+      return `<g style="cursor:pointer" onclick="window._abrirDrill('Funil: ${L[e]}', 'Pedidos que atingiram o estado ${e}', ${dataStr}, 'pedido')">
+                <polygon points="${xT},${y} ${xT+wT},${y} ${xB+wB},${y+slotH} ${xB},${y+slotH}" fill="${C[i]}" fill-opacity=".2" stroke="${C[i]}" stroke-width="1"/>
+                <text x="${W/2}" y="${y+slotH/2+4}" text-anchor="middle" fill="${C[i]}" font-size="11" font-weight="800">${vals[i]} ${L[e]}</text>
+              </g>`; 
+    }).join('')}</svg>`;
   }
 
   function renderWaffle(pedidos) {
@@ -935,14 +992,37 @@
     const counts = {}; pedidos.forEach(p => { const a = p.assunto||'outro'; counts[a]=(counts[a]||0)+1; });
     const dados = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
     const max = Math.max(...dados.map(d=>d[1]), 1);
-    el.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px">${dados.map(([k,v],i) => `<div style="display:flex;align-items:center;gap:10px"><div style="width:80px;font-size:10px;color:rgba(255,255,255,.5);overflow:hidden;text-overflow:ellipsis">${ASSUNTOS_EST[k]||k}</div><div style="flex:1;height:2px;background:rgba(255,255,255,.1);position:relative"><div style="position:absolute;right:0;top:-4px;width:10px;height:10px;border-radius:50%;background:${CORES[i%CORES.length]}"></div><div style="height:100%;width:${v/max*100}%;background:${CORES[i%CORES.length]}"></div></div><div style="font-size:10px;font-weight:800">${v}</div></div>`).join('')}</div>`;
+    el.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px">${dados.map(([k,v],i) => `
+      <div onclick="window._abrirDrill('Assunto: ${ASSUNTOS_EST[k]||k}', 'Lista de pedidos sobre este tema', pedidos.filter(p => (p.assunto||'outro') === '${k}'), 'pedido')" 
+           style="display:flex;align-items:center;gap:10px;cursor:pointer">
+        <div style="width:80px;font-size:10px;color:rgba(255,255,255,.5);overflow:hidden;text-overflow:ellipsis">${ASSUNTOS_EST[k]||k}</div>
+        <div style="flex:1;height:2px;background:rgba(255,255,255,.1);position:relative">
+          <div style="position:absolute;right:0;top:-4px;width:10px;height:10px;border-radius:50%;background:${CORES[i%CORES.length]}"></div>
+          <div style="height:100%;width:${v/max*100}%;background:${CORES[i%CORES.length]}"></div>
+        </div>
+        <div style="font-size:10px;font-weight:800">${v}</div>
+      </div>`).join('')}</div>`;
   }
 
   function renderReunioesRing(reunioes) {
     const el = document.getElementById('sec-reunioes-ring'); if (!el || !reunioes.length) return;
     const total = reunioes.length, c = {}; reunioes.forEach(r => { const e = r.estado||'pendente'; c[e]=(c[e]||0)+1; });
     const E = ['realizada','confirmada','pendente'], CO = {realizada:'#8b5cf6',confirmada:'#10b981',pendente:'#f59e0b'};
-    el.innerHTML = `<div style="display:flex;align-items:center;gap:15px"><div style="font-size:24px;font-weight:900;font-family:'DM Mono',monospace">${total}</div><div style="flex:1;display:flex;flex-direction:column;gap:5px">${E.map(e => `<div style="display:flex;justify-content:space-between;font-size:10px"><span>${e}</span><span style="color:${CO[e]}">${c[e]||0}</span></div><div style="height:3px;background:rgba(255,255,255,.05);border-radius:2px"><div style="height:100%;width:${(c[e]||0)/total*100}%;background:${CO[e]};border-radius:2px"></div></div>`).join('')}</div></div>`;
+    el.innerHTML = `<div style="display:flex;align-items:center;gap:15px">
+      <div onclick="window._abrirDrill('Todas as Reuniões', 'Lista completa de reuniões no período', reunioes, 'reuniao')" 
+           style="font-size:24px;font-weight:900;font-family:'DM Mono',monospace;cursor:pointer">${total}</div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:5px">${E.map(e => `
+        <div onclick="window._abrirDrill('Reuniões: ${e}', 'Lista de reuniões com estado ${e}', reunioes.filter(r => (r.estado||'pendente') === '${e}'), 'reuniao')" 
+             style="cursor:pointer">
+          <div style="display:flex;justify-content:space-between;font-size:10px">
+            <span>${e}</span>
+            <span style="color:${CO[e]}">${c[e]||0}</span>
+          </div>
+          <div style="height:3px;background:rgba(255,255,255,.05);border-radius:2px">
+            <div style="height:100%;width:${(c[e]||0)/total*100}%;background:${CO[e]};border-radius:2px"></div>
+          </div>
+        </div>`).join('')}</div>
+    </div>`;
   }
 
   // ════════════════════════════════════════════════════════
@@ -963,6 +1043,77 @@
     document.getElementById('ph-data').textContent = new Date().toLocaleString();
     document.getElementById('ph-total').textContent = `${_funcsFiltrados.length || _todosOsFuncs.length} funcionários`;
     document.getElementById('ph-user').textContent = _nomeUtilizador;
+  };
+
+  // ════════════════════════════════════════════════════════
+  //  DRILL-DOWN (INTERATIVIDADE)
+  // ════════════════════════════════════════════════════════
+  window._abrirDrill = function(titulo, subtitulo, dados, tipo) {
+    const modal = document.getElementById('modal-drill');
+    const tEl = document.getElementById('drill-title');
+    const sEl = document.getElementById('drill-subtitle');
+    const cEl = document.getElementById('drill-content');
+    
+    if (!modal || !cEl) return;
+    
+    tEl.textContent = titulo;
+    sEl.textContent = subtitulo;
+    
+    if (!dados || dados.length === 0) {
+      cEl.innerHTML = `<div class="drill-empty"><div class="drill-empty-icon">📂</div><p>Nenhum registo encontrado para este indicador.</p></div>`;
+    } else {
+      let html = `<table class="drill-table"><thead><tr>`;
+      
+      if (tipo === 'pedido') {
+        html += `<th>Data</th><th>Assunto</th><th>Requerente</th><th>Estado</th></tr></thead><tbody>`;
+        html.innerHTML = ''; // Reset
+        html = `<table class="drill-table"><thead><tr><th>Data</th><th>Assunto</th><th>Requerente</th><th>Estado</th></tr></thead><tbody>`;
+        dados.forEach(d => {
+          const data = new Date(toMs(d.criadoEm)).toLocaleDateString('pt-PT');
+          const assunto = ASSUNTOS_EST[d.assunto] || d.assunto || '—';
+          const cor = d.estado === 'fechado' ? '#10c886' : d.estado === 'respondido' ? '#3b82f6' : '#f59e0b';
+          html += `<tr>
+            <td>${data}</td>
+            <td style="font-weight:700">${assunto}</td>
+            <td>${d.nome || '—'}</td>
+            <td><span class="drill-badge" style="background:${cor}20;color:${cor}">${d.estado || 'novo'}</span></td>
+          </tr>`;
+        });
+      } else if (tipo === 'reuniao') {
+        html += `<th>Data</th><th>Assunto</th><th>Participantes</th><th>Estado</th></tr></thead><tbody>`;
+        dados.forEach(d => {
+          const data = new Date(toMs(d.criadoEm)).toLocaleDateString('pt-PT');
+          const cor = d.estado === 'realizada' ? '#8b5cf6' : d.estado === 'confirmada' ? '#10b981' : '#f59e0b';
+          html += `<tr>
+            <td>${data}</td>
+            <td style="font-weight:700">${d.assunto || '—'}</td>
+            <td>${d.participantes || '—'}</td>
+            <td><span class="drill-badge" style="background:${cor}20;color:${cor}">${d.estado || 'pendente'}</span></td>
+          </tr>`;
+        });
+      } else if (tipo === 'documento') {
+        html += `<th>Data</th><th>Tipo/Nome</th><th>Gerado por</th></tr></thead><tbody>`;
+        dados.forEach(d => {
+          const data = new Date(toMs(d.geradoEm)).toLocaleDateString('pt-PT');
+          html += `<tr>
+            <td>${data}</td>
+            <td style="font-weight:700">${d.tipo || d.nome || 'Documento'}</td>
+            <td>${d.utilizadorNome || '—'}</td>
+          </tr>`;
+        });
+      }
+      
+      html += `</tbody></table>`;
+      cEl.innerHTML = html;
+    }
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window._fecharDrill = function() {
+    document.getElementById('modal-drill')?.classList.remove('active');
+    document.body.style.overflow = '';
   };
 </script>
 </body>
