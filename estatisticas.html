@@ -9,6 +9,9 @@
   <script src="sigdoc-config.js"></script>
   <script src="sigdoc-nav.js"></script>
   <script src="sigdoc-session.js"></script>
+  <!-- Bibliotecas para Exportação (Excel e PDF) -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Plus Jakarta Sans',sans-serif;background:#0d1422;color:#e2e8f0;min-height:100vh}
@@ -138,8 +141,10 @@
     .topbar-actions{display:flex;align-items:center;gap:8px}
     .btn-exp{display:none;align-items:center;gap:5px;padding:6px 13px;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .18s;border:1px solid;white-space:nowrap}
     .btn-exp.pronto{display:flex}
-    .btn-csv{background:rgba(16,200,134,.1);border-color:rgba(16,200,134,.25);color:#10c886}
-    .btn-csv:hover{background:rgba(16,200,134,.22);border-color:rgba(16,200,134,.5)}
+    .btn-xls{background:rgba(16,200,134,.1);border-color:rgba(16,200,134,.25);color:#10c886}
+    .btn-xls:hover{background:rgba(16,200,134,.22);border-color:rgba(16,200,134,.5)}
+    .btn-pdf{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.25);color:#a78bfa}
+    .btn-pdf:hover{background:rgba(167,139,250,.22);border-color:rgba(167,139,250,.5)}
     .btn-prn{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.25);color:#60a5fa}
     .btn-prn:hover{background:rgba(59,130,246,.22);border-color:rgba(59,130,246,.5)}
     /* ── cabeçalho de impressão (oculto no ecrã) ── */
@@ -269,8 +274,9 @@
       <div class="topbar-sub" id="topbar-sub">A carregar dados…</div>
     </div>
     <div class="topbar-actions">
-      <button class="btn-exp btn-csv" id="btn-csv" onclick="window._exportarCSV()">📥 Exportar CSV</button>
-      <button class="btn-exp btn-prn" id="btn-prn" onclick="window.print()">🖨️ Imprimir</button>
+      <button class="btn-exp btn-xls pronto" id="btn-xls" onclick="window._exportarExcel()">📗 Exportar Excel</button>
+      <button class="btn-exp btn-pdf pronto" id="btn-pdf" onclick="window._exportarPDF()">📕 Relatório PDF</button>
+      <button class="btn-exp btn-prn pronto" id="btn-prn" onclick="window.print()">🖨️ Imprimir</button>
       <span class="badge-perfil" id="badge-perfil">—</span>
     </div>
   </div>
@@ -1026,17 +1032,91 @@
   }
 
   // ════════════════════════════════════════════════════════
-  //  EXPORTAÇÃO CSV
+  //  EXPORTAÇÃO MULTI-FORMATO (EXCEL & PDF)
   // ════════════════════════════════════════════════════════
-  window._exportarCSV = function() {
+  window._exportarExcel = function() {
+    if (typeof XLSX === 'undefined') { notif('⚠ Erro: Biblioteca Excel não carregada'); return; }
+    
+    const wb = XLSX.utils.book_new();
+    const dataStr = new Date().toISOString().slice(0,10);
+
+    // 1. Aba RH (Funcionários)
     const funcs = _funcsFiltrados.length ? _funcsFiltrados : _todosOsFuncs;
-    if (!funcs.length) { notif('⚠ Sem dados'); return; }
-    const CAMPOS = [{k:'numero',l:'Nº'},{k:'nome',l:'Nome'},{k:'categoria',l:'Cat.'},{k:'unidade',l:'Unid.'},{k:'estado',l:'Estado'}];
-    const cab = CAMPOS.map(c => `"${c.l}"`).join(';');
-    const lns = funcs.map(f => CAMPOS.map(c => `"${String(f[c.k]||'').replace(/"/g,'""')}"`).join(';'));
-    const blob = new Blob(['\uFEFF' + [cab, ...lns].join('\n')], { type: 'text/csv;charset=utf-8;' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `SIGDOC_Estat_${new Date().toISOString().slice(0,10)}.csv`; a.click();
-    notif(`✅ CSV exportado: ${funcs.length} registos`);
+    const wsRH = XLSX.utils.json_to_sheet(funcs.map(f => ({
+      'Nº': f.numero || '',
+      'Nome Completo': f.nome || '',
+      'Categoria': f.categoria || '',
+      'Unidade': f.unidade || '',
+      'Vínculo': f.vinculo || '',
+      'Estado': f.estado || 'activo',
+      'BI': f.bi || '',
+      'INSS': f.inss || '',
+      'Sexo': f.sexo || ''
+    })));
+    XLSX.utils.book_append_sheet(wb, wsRH, "RH - Funcionários");
+
+    // 2. Aba Secretaria (Pedidos)
+    if (_pedidosSec.length) {
+      const wsPed = XLSX.utils.json_to_sheet(_pedidosSec.map(p => ({
+        'Data': new Date(toMs(p.criadoEm)).toLocaleDateString('pt-PT'),
+        'Assunto': ASSUNTOS_EST[p.assunto] || p.assunto || 'Outro',
+        'Requerente': p.nome || '',
+        'Estado': p.estado || 'novo',
+        'Descrição': p.descricao || ''
+      })));
+      XLSX.utils.book_append_sheet(wb, wsPed, "Secretaria - Pedidos");
+    }
+
+    // 3. Aba Reuniões
+    if (_reunioesSec.length) {
+      const wsReu = XLSX.utils.json_to_sheet(_reunioesSec.map(r => ({
+        'Data': new Date(toMs(r.criadoEm)).toLocaleDateString('pt-PT'),
+        'Assunto': r.assunto || '',
+        'Participantes': r.participantes || '',
+        'Estado': r.estado || 'pendente'
+      })));
+      XLSX.utils.book_append_sheet(wb, wsReu, "Reuniões");
+    }
+
+    // 4. Aba Documentos (Atividade)
+    if (_todosOsDocs.length) {
+      const wsDocs = XLSX.utils.json_to_sheet(_todosOsDocs.map(d => ({
+        'Data': new Date(toMs(d.geradoEm)).toLocaleDateString('pt-PT'),
+        'Tipo': d.tipo || d.nome || 'Documento',
+        'Gerado por': d.utilizadorNome || ''
+      })));
+      XLSX.utils.book_append_sheet(wb, wsDocs, "Atividade Documental");
+    }
+
+    XLSX.writeFile(wb, `SIGDOC_Relatorio_Completo_${dataStr}.xlsx`);
+    notif('✅ Excel exportado com sucesso!');
+  };
+
+  window._exportarPDF = function() {
+    if (typeof html2pdf === 'undefined') { notif('⚠ Erro: Biblioteca PDF não carregada'); return; }
+    
+    notif('⏳ A gerar PDF... aguarde.');
+    const element = document.getElementById('ecra-principal');
+    const opt = {
+      margin:       [10, 10],
+      filename:     `SIGDOC_Relatorio_Executivo_${new Date().toISOString().slice(0,10)}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0d1422' },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // Esconder botões e elementos de navegação antes de gerar
+    const actions = document.querySelector('.topbar-actions');
+    if (actions) actions.style.display = 'none';
+    
+    html2pdf().set(opt).from(element).save().then(() => {
+      if (actions) actions.style.display = 'flex';
+      notif('✅ Relatório PDF gerado!');
+    }).catch(err => {
+      console.error('PDF Error:', err);
+      if (actions) actions.style.display = 'flex';
+      notif('❌ Erro ao gerar PDF');
+    });
   };
 
   window.onbeforeprint = function() {
