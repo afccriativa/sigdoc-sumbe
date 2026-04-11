@@ -431,8 +431,16 @@
     
     /* PRINT */
     @media print {
+      @page { size: A4 portrait; margin: 0; }
+      body * { visibility: hidden; }
+      #area-impressao, #area-impressao * { visibility: visible; }
+      #area-impressao { position: absolute; top: 0; left: 0; width: 100%; }
+      
       .documento-gm {
         background: white;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
       }
       .gm-pagina {
         width: 210mm;
@@ -442,6 +450,75 @@
         page-break-after: always;
         page-break-inside: avoid;
         box-shadow: none;
+        display: flex;
+        flex-direction: column;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        line-height: 1.35;
+      }
+      .gm-cabecalho {
+        border-bottom: 1px solid #000;
+        padding-bottom: 6mm;
+        margin-bottom: 6mm;
+      }
+      .gm-logo {
+        width: 30mm;
+        height: auto;
+        margin: 0 auto 4mm;
+      }
+      .gm-titulo {
+        font-size: 11px;
+        font-weight: bold;
+        margin: 4mm 0 5mm;
+      }
+      .gm-apresentacao {
+        font-size: 10px;
+        font-weight: bold;
+        margin: 4mm 0 6mm;
+      }
+      .gm-campo {
+        margin-bottom: 3mm;
+        line-height: 1.2;
+      }
+      .gm-label {
+        font-weight: bold;
+        width: 80mm;
+        padding-right: 2mm;
+        display: inline-block;
+        flex-shrink: 0;
+      }
+      .gm-valor {
+        border-bottom: 1px solid #000;
+        padding: 0 1mm;
+        display: inline-block;
+        width: calc(100% - 82mm);
+      }
+      .gm-rodape {
+        margin-top: 6mm;
+        text-align: center;
+        font-size: 9px;
+        page-break-inside: avoid;
+      }
+      .gm-linha-assinatura {
+        border-top: 1px solid #000;
+        width: 65mm;
+        height: 1px;
+        margin: 0 auto 1.5mm;
+      }
+      .gm-prescricao {
+        margin-top: 6mm;
+        page-break-inside: avoid;
+      }
+      .gm-linha {
+        border-bottom: 1px solid #666;
+        height: 12px;
+        margin-bottom: 3px;
+      }
+      .gm-linha-assinatura-medico {
+        border-top: 1px solid #000;
+        width: 40mm;
+        height: 1px;
+        margin: 8mm 0 0;
       }
     }
 
@@ -1177,36 +1254,53 @@
         return;
       }
       
-      // ✅ Obter unidade sanitária do formulário
-      const unidadeSanitaria = document.getElementById("unidade-sanitaria").value.trim() || 'Hospital Municipal do Sumbe';
+      // ✅ Validações específicas para Guia Médica
+      const unidadeSanitaria = document.getElementById("unidade-sanitaria").value.trim();
+      const numGuia = document.getElementById("num-guia").value.trim();
+      
+      if (!silencioso) {
+        if (!unidadeSanitaria) {
+          mostrarNotificacao("⚠️ Indique a Unidade Sanitária a consultar.");
+          document.getElementById("unidade-sanitaria").focus();
+          return;
+        }
+        if (!numGuia) {
+          mostrarNotificacao("⚠️ Insira o Número da Guia.");
+          document.getElementById("num-guia").focus();
+          return;
+        }
+        if (!funcionarioSeleccionado) {
+          mostrarNotificacao("⚠️ Seleccione um funcionário da lista para obter os dados de filiação.");
+          return;
+        }
+      }
       
       htmlDoc = construirGuiaMedica({
-        numGuia: document.getElementById("num-guia").value.trim() || 'Nº a preencher',
+        numGuia: numGuia || '___',
         nomeFuncionario: nomeFuncionario,
-        nomePai: funcionarioSeleccionado?.nomePai || '',
-        nomeMae: funcionarioSeleccionado?.nomeMae || '',
-        situacao: funcionarioSeleccionado?.situacao || 'Funcionário',
-        naturalidade: funcionarioSeleccionado?.municipioNatal || '', // ✅ Usar municipioNatal do cadastro
-        provincia: funcionarioSeleccionado?.provincia || 'Cuanza Sul',
-        idade: funcionarioSeleccionado?.idade || '',
-        sexo: funcionarioSeleccionado?.sexo || '',
-        nomeChefe: document.getElementById("nome-chefe").value.trim() || '',
+        nomePai: funcionarioSeleccionado?.nomePai || '__________________________________________',
+        nomeMae: funcionarioSeleccionado?.nomeMae || '__________________________________________',
+        situacao: funcionarioSeleccionado?.vinculo || funcionarioSeleccionado?.situacao || 'FUNCIONÁRIO',
+        naturalidade: funcionarioSeleccionado?.municipioNatal || '___________________',
+        provincia: funcionarioSeleccionado?.provinciaNatal || funcionarioSeleccionado?.provincia || 'CUANZA SUL',
+        idade: funcionarioSeleccionado?.idade || '____',
+        sexo: funcionarioSeleccionado?.sexo || '__________',
+        nomeChefe: document.getElementById("nome-chefe").value.trim() || 'Hildebrando M.T. Cassacula',
         dataEmissao: dataEmissao
-      }, unidadeSanitaria); // ✅ Passar unidade sanitária
+      }, unidadeSanitaria || 'Hospital Municipal do Sumbe');
       
-      // Preview para guia médica (sem wrapper extra)
       document.getElementById("area-preview").innerHTML = htmlDoc;
       document.getElementById("area-impressao").innerHTML = htmlDoc;
       
       dadosUltimoDocumento = {
         tipo: 'guia-medica',
-        numGuia: document.getElementById("num-guia").value.trim(),
+        numGuia: numGuia,
         funcionarioId: funcionarioSeleccionado?.id || null,
         funcionarioNome: nomeFuncionario,
         dataEmissao: dataEmissao,
         nomeChefe: document.getElementById("nome-chefe").value.trim(),
         unidadeSanitaria: unidadeSanitaria,
-        naturalidade: funcionarioSeleccionado?.municipioNatal || '' // ✅ Usar municipioNatal
+        naturalidade: funcionarioSeleccionado?.municipioNatal || ''
       };
 
     } else {
@@ -1403,13 +1497,32 @@
       // Se veio de solicitação do portal → marcar solicitação como "concluida"
       if (window._solicitacaoOrigemId) {
         try {
-          await updateDoc(doc(db, "solicitacoes", window._solicitacaoOrigemId), {
+          const updateData = {
             estado: "concluida",
             concluidoPor: utilizadorActual.uid,
             concluidoPorEmail: utilizadorActual.email,
             concluidoEm: serverTimestamp(),
             documentoGeradoId: docRef.id
-          });
+          };
+          
+          // Se for Guia Médica, garantir que a unidade sanitária final fica registada
+          if (dadosUltimoDocumento.tipo === 'guia-medica') {
+            updateData.unidadeSanitariaFinal = dadosUltimoDocumento.unidadeSanitaria;
+          }
+
+          await updateDoc(doc(db, "solicitacoes", window._solicitacaoOrigemId), updateData);
+          
+          // Notificar no chat do pedido (opcional, mas melhora a experiência)
+          try {
+            await addDoc(collection(db, "solicitacoes", window._solicitacaoOrigemId, "mensagens"), {
+              texto: `✅ O seu documento (${dadosUltimoDocumento.tipo}) foi gerado e está pronto para levantamento/impressão.`,
+              remetenteUid: utilizadorActual.uid,
+              remetenteNome: "Sistema RH",
+              criadaEm: serverTimestamp(),
+              sistema: true
+            });
+          } catch(eChat) { console.warn("Erro ao enviar msg chat:", eChat); }
+
           window._solicitacaoOrigemId = null;
         } catch(eUpd) { console.warn("Não actualizou solicitação:", eUpd); }
       }
