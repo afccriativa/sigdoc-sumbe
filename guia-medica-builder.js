@@ -43,15 +43,11 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         margin: 0 auto;
       }
       .gm-pagina {
-        width: 210mm;
-        height: 297mm;
-        padding: 15mm 20mm;
-        box-sizing: border-box;
-        position: relative;
-        page-break-after: always;
-        background: white;
-        border: none;
-      }
+  width: 210mm;
+  height: 297mm;
+  padding: 15mm 20mm;
+  box-sizing: border-box;
+  position: relative;      }
       .gm-cabecalho {
         text-align: center;
         margin-bottom: 5mm;
