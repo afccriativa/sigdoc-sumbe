@@ -61,11 +61,9 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         align-items: center;
       }
       .gm-logo {
-        width: 25mm;
-        height: 25mm;
-        object-fit: contain;
-        margin-bottom: 3mm;
-        display: block;
+        background: white;
+border-radius: 2px;
+padding: 2px;
       }
       .gm-cabecalho p {
         margin: 0;
