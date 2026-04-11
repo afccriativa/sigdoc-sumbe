@@ -1275,6 +1275,17 @@
         }
       }
       
+      // ✅ Cálculo automático da idade com base na data de nascimento
+      let idadeCalculada = '____';
+      if (funcionarioSeleccionado?.nascimento) {
+        const nasc = new Date(funcionarioSeleccionado.nascimento + "T12:00:00");
+        const hoje = new Date();
+        idadeCalculada = hoje.getFullYear() - nasc.getFullYear();
+        if (hoje.getMonth() < nasc.getMonth() || (hoje.getMonth() === nasc.getMonth() && hoje.getDate() < nasc.getDate())) {
+          idadeCalculada--;
+        }
+      }
+
       htmlDoc = construirGuiaMedica({
         numGuia: numGuia || '___',
         nomeFuncionario: nomeFuncionario,
@@ -1283,7 +1294,7 @@
         situacao: funcionarioSeleccionado?.vinculo || funcionarioSeleccionado?.situacao || 'FUNCIONÁRIO',
         naturalidade: funcionarioSeleccionado?.municipioNatal || '___________________',
         provincia: funcionarioSeleccionado?.provinciaNatal || funcionarioSeleccionado?.provincia || 'CUANZA SUL',
-        idade: funcionarioSeleccionado?.idade || '____',
+        idade: idadeCalculada,
         sexo: funcionarioSeleccionado?.sexo || '__________',
         nomeChefe: document.getElementById("nome-chefe").value.trim() || 'Hildebrando M.T. Cassacula',
         dataEmissao: dataEmissao
