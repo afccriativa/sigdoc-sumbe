@@ -242,7 +242,7 @@ padding: 2px;
 
       <!-- PÁGINA 2 -->
       <div class="gm-pagina">
-        ${[1, 2, 3].map(() => `
+        ${[1, 2].map(() => `
           <div class="gm-prescricao-bloco" style="margin-top: 5mm; border-top: none;">
             <div class="gm-prescricao-titulo">PRESCRIÇÃO MÉDICA</div>
             <div class="gm-linhas-prescricao">
