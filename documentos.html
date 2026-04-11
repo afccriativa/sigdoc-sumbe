@@ -1300,7 +1300,8 @@
         dataEmissao: dataEmissao
       }, unidadeSanitaria || 'Hospital Municipal do Sumbe');
       
-      document.getElementById("area-preview").innerHTML = htmlDoc;
+      // Para Guia Médica, não usamos o wrapper escalado da Guia de Férias
+      document.getElementById("area-preview").innerHTML = '<div style="transform: scale(0.6); transform-origin: top center; margin-bottom: -400px;">' + htmlDoc + '</div>';
       document.getElementById("area-impressao").innerHTML = htmlDoc;
       
       dadosUltimoDocumento = {
