@@ -290,7 +290,23 @@ padding: 2px;
             </div>
           </div>
         </div>
-
+        <div class="gm-prescricao-bloco">
+          <div class="gm-prescricao-titulo">PRESCRIÇÃO MÉDICA</div>
+          <div class="gm-linhas-prescricao">
+            <div class="gm-linha-vazia"></div>
+            <div class="gm-linha-vazia"></div>
+            <div class="gm-linha-vazia"></div>
+            <div class="gm-linha-vazia"></div>
+          </div>
+          <div class="gm-prescricao-rodape">
+            <div class="gm-data-linha">SUMBE ____/____/${anoAtual}</div>
+            <div class="gm-medico-assinatura">
+              <div class="gm-linha-medico"></div>
+              <div>O MÉDICO</div>
+            </div>
+          </div>
+        </div>
+        
         <img class="gm-logo-rodape" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Logo_Governo_de_Angola.png/640px-Logo_Governo_de_Angola.png" alt="Governo de Angola"/>
       </div>
     </div>
