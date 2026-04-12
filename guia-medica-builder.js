@@ -235,7 +235,7 @@ padding: 2px;
           </div>
         </div>
 
-        <img class="gm-logo-rodape" src="Imagem1.png" alt="Governo de Angola"/>
+        <img class="gm-logo-rodape" src="Imagem1."/>
 
             <!-- PÁGINA 2 -->
       <div class="gm-pagina">
@@ -306,7 +306,7 @@ padding: 2px;
           </div>
         </div>
         
-        <img class="gm-logo-rodape" src="Imagem1.png" alt="Governo de Angola"/>
+        <img class="gm-logo-rodape" src="Imagem1.png"/>
       </div>
     </div>
   `;
