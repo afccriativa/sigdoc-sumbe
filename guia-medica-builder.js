@@ -31,7 +31,7 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
   }
 
   // 2. CORRIGIDO: Insígnia de Angola usando arquivo PNG físico
-  const INSIGNIA_SRC = "angola_coat_of_arms-removebg-preview.png";
+  const INSIGNIA_SRC = "insignia.jpeg";
 
   return `
     <style>
