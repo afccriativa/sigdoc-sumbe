@@ -8,7 +8,7 @@
   <script src="sigdoc-config.js"></script>
   <script src="sigdoc-nav.js"></script>
   <script src="sigdoc-session.js"></script>
-  <script src="guia-medica-builder.js"></script>
+  <!-- Guia Médica integrada diretamente -->
   <style>
     :root {
       --font: 'Plus Jakarta Sans', sans-serif; --mono: 'DM Mono', monospace;
@@ -230,7 +230,7 @@
        IMPRESSÃO — A4 paisagem, só o documento
        ================================================ */
     @media print {
-      @page { size: A4 landscape; margin: 3mm; }
+      @page { size: auto; margin: 0; }
       /* Esconder absolutamente tudo — incluindo sidebar injectada pelo sigdoc-nav.js */
       body * { visibility: hidden; }
       /* Mostrar apenas o conteúdo do documento */
@@ -1286,22 +1286,20 @@
         }
       }
 
-      htmlDoc = construirGuiaMedica({
+      htmlDoc = construirGuiaMedicaInterna({
         numGuia: numGuia || '___',
         nomeFuncionario: nomeFuncionario,
         nomePai: funcionarioSeleccionado?.nomePai || '__________________________________________',
         nomeMae: funcionarioSeleccionado?.nomeMae || '__________________________________________',
-        situacao: funcionarioSeleccionado?.vinculo || funcionarioSeleccionado?.situacao || 'FUNCIONÁRIO',
         naturalidade: funcionarioSeleccionado?.municipioNatal || '___________________',
         provincia: funcionarioSeleccionado?.provinciaNatal || funcionarioSeleccionado?.provincia || 'CUANZA SUL',
         idade: idadeCalculada,
         sexo: funcionarioSeleccionado?.sexo || '__________',
-        nomeChefe: document.getElementById("nome-chefe").value.trim() || 'Hildebrando M.T. Cassacula',
+        nomeChefe: document.getElementById("nome-chefe").value.trim() || 'HILDEBRANDO M.T. CASSACULA',
         dataEmissao: dataEmissao
       }, unidadeSanitaria || 'Hospital Municipal do Sumbe');
       
-      // Para Guia Médica, não usamos o wrapper escalado da Guia de Férias
-      document.getElementById("area-preview").innerHTML = '<div style="transform: scale(0.6); transform-origin: top center; margin-bottom: -400px;">' + htmlDoc + '</div>';
+      document.getElementById("area-preview").innerHTML = '<div class="doc-wrapper-centrado"><div class="doc-wrapper" style="display:block">' + htmlDoc + '</div></div>';
       document.getElementById("area-impressao").innerHTML = htmlDoc;
       
       dadosUltimoDocumento = {
@@ -1362,6 +1360,120 @@
   };
 
 
+
+  // ── GUIA MÉDICA (Fiel ao Modelo PDF) ────────────────────────────
+  function construirGuiaMedicaInterna(dados, unidadeSanitaria) {
+    const {
+      numGuia = '___',
+      nomeFuncionario = '__________________________________________',
+      nomePai = '__________________________________________',
+      nomeMae = '__________________________________________',
+      naturalidade = '___________________',
+      provincia = 'Cuanza Sul',
+      idade = '____',
+      sexo = 'Masculino',
+      nomeChefe = 'HILDEBRANDO M.T. CASSACULA',
+      dataEmissao = ''
+    } = dados;
+
+    const situacaoAuto = (sexo.toLowerCase() === 'feminino' || sexo.toLowerCase() === 'f') ? 'FUNCIONÁRIA' : 'FUNCIONÁRIO';
+
+    const meses = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
+                   "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
+    
+    const anoAtual = new Date().getFullYear();
+    let dataFmt = `____ DE __________ DE ${anoAtual}`;
+    if (dataEmissao) {
+      const d = new Date(dataEmissao + "T12:00:00");
+      dataFmt = d.getDate() + " DE " + meses[d.getMonth()] + " DE " + d.getFullYear();
+    }
+
+    return `
+      <div class="documento-oficial" style="display: block; width: 210mm; background: white; padding: 0; border: none;">
+        <!-- PÁGINA 1 -->
+        <div class="doc-metade" style="width: 210mm; height: 297mm; padding: 15mm 20mm; box-sizing: border-box; border: none; page-break-after: always; position: relative;">
+          <div class="doc-cabecalho" style="margin-bottom: 5mm;">
+            <img class="doc-insignia" src="\${INSIGNIA_SRC}" alt="Insignia de Angola" style="width: 25mm; height: 25mm; margin-bottom: 3mm;"/>
+            <p class="negrito" style="font-size: 10pt;">REPÚBLICA DE ANGOLA</p>
+            <p class="negrito" style="font-size: 10pt;">GOVERNO DA PROVÍNCIA DO CUANZA-SUL</p>
+            <p class="negrito" style="font-size: 10pt;">ADMINISTRAÇÃO MUNICIPAL DO SUMBE</p>
+            <p class="negrito" style="font-size: 10pt;">DIRECÇÃO DE SAÚDE</p>
+            <p class="negrito" style="font-size: 10pt;">SECÇÃO DE PLANEAMENTO, ESTATÍSTICA E RECURSOS HUMANOS</p>
+          </div>
+
+          <div class="doc-titulo" style="font-size: 12pt; margin: 5mm 0;">GUIA MÉDICA N.º \${numGuia}/\${anoAtual}</div>
+
+          <div style="font-weight: bold; font-size: 11pt; margin-bottom: 8mm; text-transform: uppercase; text-align: center;">
+            VAI APRESENTAR-SE AO \${unidadeSanitaria.toUpperCase()}
+          </div>
+
+          <div style="margin-bottom: 10mm;">
+            <div style="display: flex; margin-bottom: 4mm; font-size: 11pt;"><div style="font-weight: bold; width: 45mm;">NOME:</div><div style="flex: 1;">\${nomeFuncionario.toUpperCase()}</div></div>
+            <div style="display: flex; margin-bottom: 4mm; font-size: 11pt;"><div style="font-weight: bold; width: 45mm;">PAI:</div><div style="flex: 1;">\${nomePai.toUpperCase()}</div></div>
+            <div style="display: flex; margin-bottom: 4mm; font-size: 11pt;"><div style="font-weight: bold; width: 45mm;">MÃE:</div><div style="flex: 1;">\${nomeMae.toUpperCase()}</div></div>
+            <div style="display: flex; margin-bottom: 4mm; font-size: 11pt;"><div style="font-weight: bold; width: 45mm;">SITUAÇÃO:</div><div style="flex: 1;">\${situacaoAuto}</div></div>
+            <div style="display: flex; margin-bottom: 4mm; font-size: 11pt;"><div style="font-weight: bold; width: 45mm;">NATURALIDADE:</div><div style="flex: 1;">\${naturalidade.toUpperCase()}</div></div>
+            <div style="display: flex; margin-bottom: 4mm; font-size: 11pt;"><div style="font-weight: bold; width: 45mm;">PROVINCIA:</div><div style="flex: 1;">\${provincia.toUpperCase()}</div></div>
+            <div style="display: flex; margin-bottom: 4mm; font-size: 11pt;"><div style="font-weight: bold; width: 45mm;">IDADE:</div><div style="flex: 1;">\${idade} ANOS</div></div>
+            <div style="display: flex; margin-bottom: 4mm; font-size: 11pt;"><div style="font-weight: bold; width: 45mm;">SEXO:</div><div style="flex: 1;">\${sexo.toUpperCase()}</div></div>
+          </div>
+
+          <div style="font-size: 10pt; font-weight: bold; text-align: justify; margin: 10mm 0; text-transform: uppercase; line-height: 1.4;">
+            SECÇÃO DE PLANEAMENTO, ESTATÍSTICA E RECURSOS HUMANOS DA DIRECÇÃO MUNICIPAL DA SAÚDE DO SUMBE, \${dataFmt}.
+          </div>
+
+          <div style="text-align: center; margin-top: 10mm;">
+            <div style="font-size: 10pt; font-weight: bold;">O CHEFE DE SECÇÃO,</div>
+            <div style="font-size: 11pt; font-weight: bold; margin-top: 2mm;">\${nomeChefe.toUpperCase()}</div>
+          </div>
+
+          <div style="margin-top: 10mm; border-top: 1px solid #000; padding-top: 5mm;">
+            <div style="font-weight: bold; text-decoration: underline; font-size: 10pt; margin-bottom: 3mm;">PRESCRIÇÃO MÉDICA</div>
+            <div style="margin-bottom: 5mm;">
+              <div style="border-bottom: 1px solid #000; height: 8mm;"></div>
+              <div style="border-bottom: 1px solid #000; height: 8mm;"></div>
+              <div style="border-bottom: 1px solid #000; height: 8mm;"></div>
+              <div style="border-bottom: 1px solid #000; height: 8mm;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; font-size: 10pt; margin-top: 5mm;">
+              <div style="width: 50mm;">SUMBE ____/____/\${anoAtual}</div>
+              <div style="text-align: center;">
+                <div style="border-top: 1px solid #000; width: 50mm; margin-bottom: 1mm;"></div>
+                <div>O MÉDICO</div>
+              </div>
+            </div>
+          </div>
+
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Logo_Governo_de_Angola.png/640px-Logo_Governo_de_Angola.png" alt="Governo de Angola" style="position: absolute; bottom: 10mm; left: 50%; transform: translateX(-50%); width: 60mm;"/>
+        </div>
+
+        <!-- PÁGINA 2 -->
+        <div class="doc-metade" style="width: 210mm; height: 297mm; padding: 15mm 20mm; box-sizing: border-box; border: none; position: relative;">
+          \${[1, 2, 3, 4].map(() => \`
+            <div style="margin-top: 5mm;">
+              <div style="font-weight: bold; text-decoration: underline; font-size: 10pt; margin-bottom: 3mm;">PRESCRIÇÃO MÉDICA</div>
+              <div style="margin-bottom: 5mm;">
+                <div style="border-bottom: 1px solid #000; height: 8mm;"></div>
+                <div style="border-bottom: 1px solid #000; height: 8mm;"></div>
+                <div style="border-bottom: 1px solid #000; height: 8mm;"></div>
+                <div style="border-bottom: 1px solid #000; height: 8mm;"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-end; font-size: 10pt; margin-top: 5mm;">
+                <div style="width: 50mm;">SUMBE ____/____/\${anoAtual}</div>
+                <div style="text-align: center;">
+                  <div style="border-top: 1px solid #000; width: 50mm; margin-bottom: 1mm;"></div>
+                  <div>O MÉDICO</div>
+                </div>
+              </div>
+            </div>
+            <div style="height: 10mm;"></div>
+          \`).join('')}
+
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Logo_Governo_de_Angola.png/640px-Logo_Governo_de_Angola.png" alt="Governo de Angola" style="position: absolute; bottom: 10mm; left: 50%; transform: translateX(-50%); width: 60mm;"/>
+        </div>
+      </div>
+    \`;
+  }
 
   // ── Helper notificações ─────────────────────────────────────────
   async function criarNotificacao(destinatarioUid, tipo, titulo, corpo, extra={}) {
