@@ -96,8 +96,11 @@ padding: 2px;
         width: 45mm;
       }
       .gm-valor {
-        flex: 1;
-      }
+  flex: 1;
+  text-decoration: none;
+  border: none;
+  border-bottom: none !important;
+}
       .gm-texto-final {
         font-size: 10pt;
         font-weight: bold;
