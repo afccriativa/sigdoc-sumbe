@@ -124,7 +124,6 @@ padding: 2px;
       }
       .gm-prescricao-bloco {
         margin-top: 10mm;
-        border-top: 1px solid #000;
         padding-top: 5mm;
       }
       .gm-prescricao-titulo {
