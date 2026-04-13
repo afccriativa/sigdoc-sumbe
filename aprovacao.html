@@ -832,7 +832,14 @@
       ...(s.dataInicioFerias?[{l:"📅 Início das Férias",v:fmtData(s.dataInicioFerias)}]:[]),
     ].map(d=>`<div class="sol-dado"><div class="lbl">${d.l}</div><div class="val">${d.v}</div></div>`).join("");
     const mBox=document.getElementById("sol-motivo-box");
-    if(s.motivo){mBox.innerHTML="💬 <strong>Motivo:</strong> "+s.motivo;mBox.style.display="block";}
+    const detalheSolicitacao = s.tipo === "guia-medica"
+      ? (s.unidadeSanitaria || s.unidadeSanitariaFinal || "")
+      : (s.motivo || "");
+    if(detalheSolicitacao){
+      const rotuloDetalhe = s.tipo === "guia-medica" ? "Unidade Sanitária" : "Motivo";
+      mBox.innerHTML="💬 <strong>"+rotuloDetalhe+":</strong> "+detalheSolicitacao;
+      mBox.style.display="block";
+    }
     else mBox.style.display="none";
     const accoes=document.getElementById("sol-accoes");
     const sfinal=document.getElementById("sol-estado-final");
@@ -867,9 +874,38 @@
     if(!solSel)return;
     try{
       await updateDoc(doc(db,"solicitacoes",solSel.id),{estado:"processando",processadoPor:utilizadorActual.uid,processadoPorEmail:utilizadorActual.email,processadoEm:serverTimestamp()});
+      if (solSel.funcionarioUid) {
+        const nomeTipo = (TIPOS_SOL[solSel.tipo]?.nome || "Documento");
+        await criarNotificacao(
+          solSel.funcionarioUid,
+          "sistema",
+          "🔄 " + nomeTipo + " em processamento",
+          "A Secção de RH tomou o seu pedido a cargo e está a preparar o documento.",
+          { solicitacaoId: solSel.id, tipoDoc: solSel.tipo }
+        );
+      }
       notif("🔄 Marcada como 'A Processar'.");
-      if(solSel.tipo==="guia-ferias"){
-        const p=new URLSearchParams({sol:solSel.id,func:solSel.funcionarioId||"",nome:solSel.funcionarioNome||"",inicio:solSel.dataInicioFerias||"",unid:solSel.unidade||"",cat:solSel.categoria||"",adm:solSel.admissao||"",sexo:solSel.sexo||"",origem:"portal"});
+      if(solSel.tipo==="guia-ferias" || solSel.tipo==="guia-medica"){
+        const p=new URLSearchParams({
+          sol: solSel.id,
+          func: solSel.funcionarioId || "",
+          funcionarioId: solSel.funcionarioId || "",
+          funcionarioUid: solSel.funcionarioUid || "",
+          nome: solSel.funcionarioNome || "",
+          funcionarioNome: solSel.funcionarioNome || "",
+          cat: solSel.categoria || "",
+          unid: solSel.unidade || "",
+          adm: solSel.admissao || "",
+          sexo: solSel.sexo || "",
+          origem: "portal",
+          tipo: solSel.tipo || ""
+        });
+        if (solSel.tipo === "guia-ferias") {
+          p.set("inicio", solSel.dataInicioFerias || "");
+        }
+        if (solSel.tipo === "guia-medica") {
+          p.set("unidadeSanitaria", solSel.unidadeSanitaria || "");
+        }
         setTimeout(()=>{window.location.href="documentos.html?"+p.toString();},800);
         notif("📄 A abrir geração de guia...");return;
       }
