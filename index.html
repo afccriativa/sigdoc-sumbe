@@ -1299,6 +1299,537 @@
     /* Quick action txt */
     .qa-txt { color: var(--txt-1) !important; }
 
+    /* ═══════════════════════════════════════════════════════
+       REFRESH VISUAL 2026
+       Mantém a lógica do sistema e melhora o layout geral
+    ═══════════════════════════════════════════════════════ */
+    body{
+      background:
+        radial-gradient(circle at top left, rgba(16,200,134,.10), transparent 24%),
+        radial-gradient(circle at top right, rgba(37,99,235,.12), transparent 28%),
+        linear-gradient(180deg, #eef4f8 0%, #f7fafc 42%, #edf4f7 100%) !important;
+    }
+
+    #ecrã-loading{
+      background:
+        radial-gradient(circle at 20% 20%, rgba(16,200,134,.20), transparent 20%),
+        radial-gradient(circle at 80% 80%, rgba(59,130,246,.20), transparent 24%),
+        linear-gradient(135deg,#082317 0%,#0b4f3a 55%,#1241a1 100%) !important;
+    }
+
+    #ecrã-login{
+      align-items:center !important;
+      justify-content:center !important;
+      padding:32px 24px !important;
+      background:
+        radial-gradient(circle at top left, rgba(16,200,134,.18), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(59,130,246,.20), transparent 28%),
+        linear-gradient(135deg, #061b13 0%, #0a3e2d 42%, #0f3f7c 100%) !important;
+    }
+    #ecrã-login::before{
+      background:
+        radial-gradient(circle at 12% 18%, rgba(255,255,255,.10), transparent 0 18%),
+        radial-gradient(circle at 85% 82%, rgba(255,255,255,.08), transparent 0 16%),
+        radial-gradient(circle at center, rgba(255,255,255,.04), transparent 52%) !important;
+      animation:none !important;
+    }
+    #ecrã-login::after{
+      background-image:
+        linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px) !important;
+      background-size: 72px 72px !important;
+      opacity:.55;
+    }
+
+    .login-shell{
+      width:min(1180px,100%);
+      display:grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(380px, 460px);
+      align-items:stretch;
+      gap:28px;
+      position:relative;
+      z-index:1;
+    }
+    .login-showcase{
+      min-height:640px;
+      padding:38px;
+      border-radius:32px;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      background:
+        linear-gradient(155deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.04) 42%, rgba(255,255,255,.08) 100%);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 28px 80px rgba(3,10,18,.26);
+      backdrop-filter: blur(14px);
+      overflow:hidden;
+      position:relative;
+    }
+    .login-showcase::before{
+      content:'';
+      position:absolute;
+      inset:auto -80px -90px auto;
+      width:280px;
+      height:280px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,.18) 0%, transparent 68%);
+      pointer-events:none;
+    }
+    .login-showcase::after{
+      content:'';
+      position:absolute;
+      inset:26px auto auto 26px;
+      width:82px;
+      height:82px;
+      border-radius:24px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      transform:rotate(12deg);
+      pointer-events:none;
+    }
+    .login-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.14);
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      width:max-content;
+    }
+    .login-showcase h2{
+      font-size:clamp(36px,4.4vw,58px);
+      line-height:1.02;
+      letter-spacing:-.05em;
+      font-weight:800;
+      margin:18px 0 14px;
+      max-width:8.5ch;
+    }
+    .login-showcase p{
+      max-width:560px;
+      font-size:15px;
+      line-height:1.72;
+      color:rgba(255,255,255,.82);
+    }
+    .login-highlights{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:30px;
+    }
+    .login-highlight{
+      padding:18px;
+      border-radius:22px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      min-height:124px;
+    }
+    .login-highlight strong{
+      display:block;
+      font-size:15px;
+      margin-bottom:8px;
+      font-weight:800;
+    }
+    .login-highlight span{
+      display:block;
+      font-size:12px;
+      line-height:1.65;
+      color:rgba(255,255,255,.72);
+    }
+    .login-showcase-foot{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:30px;
+    }
+    .login-stat{
+      padding:16px 18px;
+      border-radius:20px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .login-stat strong{
+      display:block;
+      font-size:24px;
+      font-weight:800;
+      letter-spacing:-.04em;
+    }
+    .login-stat span{
+      display:block;
+      margin-top:4px;
+      font-size:11px;
+      color:rgba(255,255,255,.72);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .login-card{
+      width:100% !important;
+      max-width:none !important;
+      min-height:640px;
+      padding:34px 34px 28px !important;
+      border-radius:32px !important;
+      border:1px solid rgba(15,23,42,.06);
+      box-shadow:0 30px 90px rgba(15,23,42,.18) !important;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      position:relative;
+      overflow:hidden;
+    }
+    .login-card::before{
+      content:'';
+      position:absolute;
+      inset:0 0 auto 0;
+      height:6px;
+      background:linear-gradient(90deg,#0d6e4f 0%, #10c886 42%, #2563eb 100%);
+    }
+    .login-brand-row{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:20px;
+    }
+    .login-seal{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .login-emblema{
+      width:72px !important;
+      height:72px !important;
+      border-radius:22px !important;
+      font-size:32px !important;
+      margin:0 !important;
+      background:linear-gradient(145deg,#0d6e4f,#10c886) !important;
+      box-shadow:0 18px 36px rgba(13,110,79,.26) !important;
+    }
+    .login-mini-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:#eff6ff;
+      color:#1d4ed8;
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      white-space:nowrap;
+    }
+    .login-titulo{
+      text-align:left !important;
+      margin-bottom:24px !important;
+    }
+    .login-titulo h1{
+      font-size:30px !important;
+      line-height:1.05;
+      letter-spacing:-.06em !important;
+      color:#0f172a !important;
+    }
+    .login-titulo p{
+      font-size:13px !important;
+      margin-top:10px !important;
+      color:#64748b !important;
+      max-width:32ch;
+    }
+    .login-form{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .campo-login{
+      margin-bottom:0 !important;
+    }
+    .campo-login label{
+      font-size:11px !important;
+      font-weight:800 !important;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:#475569 !important;
+      margin-bottom:8px !important;
+    }
+    .input-wrap{
+      position:relative;
+    }
+    .input-icon{
+      left:16px !important;
+      font-size:15px !important;
+      color:#64748b !important;
+    }
+    .campo-login input{
+      min-height:56px;
+      padding:15px 16px 15px 46px !important;
+      border-radius:18px !important;
+      border:1px solid #dbe5ee !important;
+      background:#f8fbfd !important;
+      font-size:14px !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+    }
+    .campo-login input:focus{
+      border-color:#10c886 !important;
+      background:#fff !important;
+      box-shadow:0 0 0 4px rgba(16,200,134,.12) !important;
+    }
+    .toggle-senha{
+      right:14px !important;
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      color:#475569 !important;
+      background:rgba(148,163,184,.12) !important;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .btn-entrar{
+      min-height:58px;
+      margin-top:8px !important;
+      border-radius:18px !important;
+      font-size:15px !important;
+      letter-spacing:.01em !important;
+      background:linear-gradient(135deg,#0d6e4f 0%,#10c886 52%,#0ea5e9 100%) !important;
+      box-shadow:0 16px 34px rgba(16,200,134,.22) !important;
+    }
+    .btn-entrar:hover{
+      transform:translateY(-2px) !important;
+      box-shadow:0 22px 40px rgba(16,200,134,.26) !important;
+    }
+    .login-meta-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:18px;
+    }
+    .login-meta-pill{
+      flex:1 1 160px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      font-size:11px;
+      line-height:1.55;
+      color:#475569;
+    }
+    .login-meta-pill strong{
+      display:block;
+      font-size:12px;
+      color:#0f172a;
+      margin-bottom:3px;
+    }
+    .msg-erro-login{
+      margin-top:16px !important;
+      border-radius:16px !important;
+      padding:12px 14px !important;
+    }
+    .rodape-login{
+      margin-top:22px !important;
+      padding-top:18px !important;
+      border-top:1px solid #e2e8f0 !important;
+      color:#64748b !important;
+      text-align:left !important;
+    }
+
+    #ecrã-painel{
+      background:transparent !important;
+    }
+    .main-wrap{
+      background:transparent !important;
+    }
+    .topbar{
+      background:rgba(255,255,255,.82) !important;
+      backdrop-filter: blur(14px);
+      border-bottom:1px solid rgba(148,163,184,.18) !important;
+      box-shadow:0 8px 30px rgba(15,23,42,.05);
+      padding:14px 22px !important;
+    }
+    .conteudo{
+      padding:24px 24px 112px !important;
+    }
+    .dash-header{
+      margin-bottom:22px !important;
+    }
+    .dash-header h2{
+      font-size:clamp(28px,3vw,40px) !important;
+      letter-spacing:-.06em !important;
+      color:#0f172a !important;
+    }
+    .dash-header p{
+      font-size:15px !important;
+      color:#64748b !important;
+      max-width:62ch;
+    }
+    .kpi-grid{
+      gap:14px !important;
+      margin-bottom:24px !important;
+    }
+    .kpi-card{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.96), rgba(244,249,251,.94)) !important;
+      border:1px solid rgba(15,23,42,.06) !important;
+      box-shadow:0 18px 40px rgba(15,23,42,.07) !important;
+      border-radius:22px !important;
+      padding:20px !important;
+    }
+    .kpi-card:hover{
+      transform:translateY(-4px) !important;
+      box-shadow:0 24px 46px rgba(15,23,42,.10) !important;
+      border-color:rgba(16,200,134,.22) !important;
+    }
+    .kpi-num{
+      color:#0f172a !important;
+      letter-spacing:-.05em;
+    }
+    .kpi-label{
+      color:#64748b !important;
+      font-size:12px !important;
+      font-weight:700 !important;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+    .trend-stable{
+      background:#eef2f7 !important;
+      color:#475569 !important;
+    }
+    .dash-grid{
+      gap:18px !important;
+    }
+    .d-card,
+    .painel-card,
+    .modulo-card{
+      border-radius:22px !important;
+      border:1px solid rgba(15,23,42,.06) !important;
+      box-shadow:0 16px 36px rgba(15,23,42,.06) !important;
+      background:rgba(255,255,255,.96) !important;
+    }
+    .d-card-header,
+    .painel-card-header{
+      padding:18px 20px !important;
+    }
+    .portal-banner{
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,.16), transparent 22%),
+        linear-gradient(135deg, #0b4f3a 0%, #10c886 42%, #1241a1 100%) !important;
+      border:none !important;
+      box-shadow:0 20px 42px rgba(9,53,83,.18) !important;
+      border-radius:26px !important;
+      overflow:hidden;
+    }
+    .portal-banner p{
+      max-width:52ch !important;
+    }
+    .modulo-card{
+      min-height:126px;
+    }
+    .modulo-card:hover{
+      transform:translateY(-3px) !important;
+      border-color:rgba(16,200,134,.24) !important;
+      box-shadow:0 22px 40px rgba(15,23,42,.10) !important;
+    }
+    .modulo-nome{
+      font-size:15px !important;
+      color:#0f172a !important;
+    }
+    .modulo-desc{
+      color:#64748b !important;
+    }
+    .topbar-btn-new.hero-data{
+      background:linear-gradient(135deg,#1241a1,#2563eb) !important;
+      color:#fff !important;
+      box-shadow:0 10px 24px rgba(37,99,235,.18);
+    }
+    .hero-data{
+      background:#ffffff !important;
+      border:1px solid rgba(15,23,42,.08) !important;
+      box-shadow:0 8px 20px rgba(15,23,42,.05);
+      border-radius:14px !important;
+    }
+    .hero-data-txt{
+      color:#334155 !important;
+      font-weight:700 !important;
+    }
+    .topbar-search{
+      border:1px solid rgba(148,163,184,.22) !important;
+      background:#fff !important;
+      box-shadow:0 8px 20px rgba(15,23,42,.04);
+    }
+    .topbar-search-ic,
+    #topbar-search-input::placeholder{
+      color:#94a3b8 !important;
+    }
+    .topbar-notif{
+      background:#ffffff !important;
+      border:1px solid rgba(148,163,184,.20) !important;
+      box-shadow:0 8px 18px rgba(15,23,42,.05);
+    }
+
+    @media (max-width: 1080px){
+      .login-shell{
+        grid-template-columns:1fr !important;
+      }
+      .login-showcase{
+        min-height:auto;
+        padding:28px;
+      }
+      .login-showcase h2{
+        max-width:12ch;
+      }
+      .login-card{
+        min-height:auto;
+      }
+    }
+
+    @media (max-width: 768px){
+      #ecrã-login{
+        padding:18px 14px 24px !important;
+      }
+      .login-shell{
+        gap:16px;
+      }
+      .login-showcase{
+        padding:22px;
+        border-radius:24px;
+      }
+      .login-showcase h2{
+        font-size:32px !important;
+      }
+      .login-highlights,
+      .login-showcase-foot{
+        grid-template-columns:1fr;
+      }
+      .login-card{
+        padding:26px 20px 22px !important;
+        border-radius:24px !important;
+      }
+      .login-brand-row{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .conteudo{
+        padding:18px 16px 100px !important;
+      }
+      .topbar{
+        padding:10px 14px !important;
+      }
+      .kpi-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+        gap:10px !important;
+      }
+      .kpi-card{
+        padding:16px !important;
+      }
+      .portal-banner{
+        border-radius:22px !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1316,32 +1847,96 @@
 
 <!-- LOGIN -->
 <div id="ecrã-login">
-  <div class="login-card">
-    <div class="login-emblema">🏥</div>
-    <div class="login-titulo">
-      <h1>SIGDOC-SUMBE</h1>
-      <p>Direcção Municipal da Saúde — Sumbe, Kwanza Sul</p>
-    </div>
-    <div class="campo-login">
-      <label for="email-login">Endereço de E-mail</label>
-      <div class="input-wrap">
-        <span class="input-icon">✉</span>
-        <input type="email" id="email-login" placeholder="utilizador@saude.gov.ao" autocomplete="email"/>
+  <div class="login-shell">
+    <section class="login-showcase">
+      <div>
+        <div class="login-chip">SIGDOC 2026 · Plataforma Institucional</div>
+        <h2>Gestão documental e RH numa só experiência.</h2>
+        <p>Centralize cadastro, documentos, aprovações, secretaria e acompanhamento do portal do funcionário com uma interface mais clara, rápida e preparada para o trabalho diário das unidades de saúde.</p>
+        <div class="login-highlights">
+          <div class="login-highlight">
+            <strong>Fluxos integrados</strong>
+            <span>Do pedido do funcionário até à geração e validação documental, tudo no mesmo ecossistema.</span>
+          </div>
+          <div class="login-highlight">
+            <strong>Operação mais ágil</strong>
+            <span>Menus curtos, ações rápidas e leitura mais limpa para equipas administrativas e RH.</span>
+          </div>
+          <div class="login-highlight">
+            <strong>Visão em tempo real</strong>
+            <span>Pendências, sessões activas, aprovações e interações do portal num painel unificado.</span>
+          </div>
+          <div class="login-highlight">
+            <strong>Pronto para mobile</strong>
+            <span>Layout adaptado para desktop e telemóvel, sem sacrificar legibilidade nem controlo.</span>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="campo-login">
-      <label for="senha-login">Senha</label>
-      <div class="input-wrap">
-        <span class="input-icon">🔒</span>
-        <input type="password" id="senha-login" placeholder="••••••••" autocomplete="current-password"/>
-        <button class="toggle-senha" type="button" onclick="toggleSenha()">👁</button>
+      <div class="login-showcase-foot">
+        <div class="login-stat">
+          <strong>RH</strong>
+          <span>Fluxo central</span>
+        </div>
+        <div class="login-stat">
+          <strong>Portal</strong>
+          <span>Pedidos acompanhados</span>
+        </div>
+        <div class="login-stat">
+          <strong>24/7</strong>
+          <span>Acesso institucional</span>
+        </div>
       </div>
-    </div>
-    <button class="btn-entrar" id="btn-entrar" onclick="fazerLogin()">Entrar no Sistema →</button>
-    <div class="msg-erro-login" id="msg-erro"></div>
-    <div class="rodape-login">
-      Sistema Integrado de Gestão Documental e Recursos Humanos<br>
-      © 2026 · Kwanza Sul, Angola
+    </section>
+
+    <div class="login-card">
+      <div>
+        <div class="login-brand-row">
+          <div class="login-seal">
+            <div class="login-emblema">🏥</div>
+            <div class="login-titulo">
+              <h1>SIGDOC-SUMBE</h1>
+              <p>Direcção Municipal da Saúde do Sumbe<br>Kwanza Sul, Angola</p>
+            </div>
+          </div>
+          <div class="login-mini-badge">Acesso Seguro</div>
+        </div>
+
+        <div class="login-form">
+          <div class="campo-login">
+            <label for="email-login">Endereço de E-mail</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉</span>
+              <input type="email" id="email-login" placeholder="utilizador@saude.gov.ao" autocomplete="email"/>
+            </div>
+          </div>
+          <div class="campo-login">
+            <label for="senha-login">Senha</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="senha-login" placeholder="••••••••" autocomplete="current-password"/>
+              <button class="toggle-senha" type="button" onclick="toggleSenha()">👁</button>
+            </div>
+          </div>
+          <button class="btn-entrar" id="btn-entrar" onclick="fazerLogin()">Entrar no Sistema →</button>
+          <div class="msg-erro-login" id="msg-erro"></div>
+        </div>
+
+        <div class="login-meta-row">
+          <div class="login-meta-pill">
+            <strong>Ambiente institucional</strong>
+            Acesso reservado a perfis autorizados da plataforma SIGDOC.
+          </div>
+          <div class="login-meta-pill">
+            <strong>Suporte operacional</strong>
+            Em caso de falha de acesso, contacte a equipa administrativa.
+          </div>
+        </div>
+      </div>
+
+      <div class="rodape-login">
+        Sistema Integrado de Gestão Documental e Recursos Humanos<br>
+        © 2026 · Governo Provincial do Kwanza Sul
+      </div>
     </div>
   </div>
 </div>
