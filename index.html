@@ -1699,7 +1699,46 @@
       color:#475569 !important;
     }
     .dash-grid{
-      gap:18px !important;
+      grid-template-columns:minmax(0,1.42fr) minmax(280px,340px) !important;
+      gap:22px !important;
+      align-items:start;
+    }
+    .dash-main-column,
+    .dash-side-column{
+      display:flex;
+      flex-direction:column;
+      gap:22px;
+      min-width:0;
+    }
+    .dashboard-block{
+      position:relative;
+      padding:0;
+    }
+    .dash-section-head{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-bottom:16px;
+    }
+    .dash-section-kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      width:max-content;
+      padding:6px 11px;
+      border-radius:999px;
+      background:rgba(18,65,161,.08);
+      color:#1241a1;
+      font-size:10px;
+      font-weight:800;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+    }
+    .dash-section-sub{
+      font-size:13px;
+      line-height:1.65;
+      color:#64748b;
+      max-width:62ch;
     }
     .d-card,
     .painel-card,
@@ -1725,20 +1764,184 @@
     .portal-banner p{
       max-width:52ch !important;
     }
+    .quick-actions-grid{
+      grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+      gap:14px !important;
+    }
+    .qa-btn{
+      min-height:132px;
+      border-radius:20px !important;
+      align-items:flex-start !important;
+      text-align:left !important;
+      padding:18px 18px 16px !important;
+      background:linear-gradient(180deg,#ffffff,#f8fbfd) !important;
+      box-shadow:0 12px 28px rgba(15,23,42,.05) !important;
+    }
+    .qa-btn:hover{
+      transform:translateY(-2px) !important;
+      box-shadow:0 18px 34px rgba(15,23,42,.08) !important;
+    }
+    .qa-ic-wrap{
+      width:52px !important;
+      height:52px !important;
+      border-radius:16px !important;
+      background:linear-gradient(145deg,rgba(18,65,161,.10),rgba(18,65,161,.04)) !important;
+    }
+    .qa-btn:hover .qa-ic-wrap{
+      background:linear-gradient(145deg,#1241a1,#2563eb) !important;
+      filter:none !important;
+    }
+    .qa-txt{
+      text-align:left !important;
+      line-height:1.45 !important;
+    }
+
+    .modulos-grid{
+      display:grid !important;
+      grid-template-columns:repeat(12,minmax(0,1fr)) !important;
+      gap:14px !important;
+      grid-auto-flow:dense;
+    }
     .modulo-card{
-      min-height:126px;
+      grid-column:span 4;
+      min-height:188px;
+      display:flex !important;
+      flex-direction:column !important;
+      align-items:stretch !important;
+      gap:16px !important;
+      padding:20px 20px 18px !important;
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.98), rgba(246,250,252,.96)) !important;
+      box-shadow:0 16px 34px rgba(15,23,42,.06) !important;
+    }
+    .modulo-card::before{
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height:4px;
+      background:var(--mod-accent,#1241a1);
+      opacity:.95;
+    }
+    .modulo-card::after{
+      content:'';
+      position:absolute;
+      right:-28px;
+      bottom:-36px;
+      width:140px;
+      height:140px;
+      border-radius:50%;
+      background:var(--mod-soft, rgba(18,65,161,.08));
+      pointer-events:none;
     }
     .modulo-card:hover{
-      transform:translateY(-3px) !important;
-      border-color:rgba(16,200,134,.24) !important;
-      box-shadow:0 22px 40px rgba(15,23,42,.10) !important;
+      transform:translateY(-2px) !important;
+      border-color:rgba(15,23,42,.10) !important;
+      box-shadow:0 22px 42px rgba(15,23,42,.09) !important;
+    }
+    .modulo-card-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      position:relative;
+      z-index:1;
+    }
+    .modulo-icon{
+      width:54px !important;
+      height:54px !important;
+      border-radius:18px !important;
+      font-size:24px !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.65);
+    }
+    .modulo-tag{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      min-height:28px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:var(--mod-soft, rgba(18,65,161,.08));
+      color:var(--mod-accent,#1241a1);
+      font-size:10px;
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .modulo-copy{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      flex:1;
+      min-width:0;
+      position:relative;
+      z-index:1;
     }
     .modulo-nome{
-      font-size:15px !important;
+      font-size:16px !important;
+      line-height:1.2;
+      letter-spacing:-.03em;
       color:#0f172a !important;
+      max-width:18ch;
     }
     .modulo-desc{
+      display:block !important;
+      font-size:13px !important;
+      line-height:1.68 !important;
       color:#64748b !important;
+      max-width:34ch;
+    }
+    .modulo-footer{
+      margin-top:auto;
+      display:flex !important;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      position:relative;
+      z-index:1;
+    }
+    .modulo-link{
+      font-size:12px;
+      font-weight:700;
+      color:#334155;
+      letter-spacing:.01em;
+    }
+    .modulo-seta{
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      background:rgba(255,255,255,.86);
+      color:#0f172a !important;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:15px !important;
+      font-weight:800;
+      box-shadow:0 6px 14px rgba(15,23,42,.08);
+      transform:none !important;
+    }
+    .modulo-card:hover .modulo-seta{
+      color:var(--mod-accent,#1241a1) !important;
+      background:#fff;
+    }
+    .modulo-badge{ display:none !important; }
+    .modulo-card:nth-child(1){ grid-column:span 7; }
+    .modulo-card:nth-child(2){ grid-column:span 5; }
+    .modulo-card:nth-child(3){ grid-column:span 4; }
+    .modulo-card:nth-child(4){ grid-column:span 4; }
+    .modulo-card:nth-child(5){ grid-column:span 4; }
+    .modulo-card:nth-child(6){ grid-column:span 5; }
+    .modulo-card:nth-child(7){ grid-column:span 3; }
+    .modulo-card:nth-child(8){ grid-column:span 4; }
+    .modulo-card:nth-child(9){ grid-column:span 12; min-height:156px; }
+
+    .dash-side-column .d-card{
+      position:sticky;
+      top:90px;
     }
     .topbar-btn-new.hero-data{
       background:linear-gradient(135deg,#1241a1,#2563eb) !important;
@@ -1784,6 +1987,21 @@
       .login-card{
         min-height:auto;
       }
+      .dash-grid{
+        grid-template-columns:1fr !important;
+      }
+      .dash-side-column .d-card{
+        position:relative;
+        top:auto;
+      }
+      .modulos-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+      }
+      .modulo-card,
+      .modulo-card:nth-child(n){
+        grid-column:span 1 !important;
+        min-height:182px;
+      }
     }
 
     @media (max-width: 768px){
@@ -1824,6 +2042,22 @@
       }
       .kpi-card{
         padding:16px !important;
+      }
+      .quick-actions-grid,
+      .modulos-grid{
+        grid-template-columns:1fr !important;
+      }
+      .qa-btn{
+        min-height:116px;
+      }
+      .modulo-card,
+      .modulo-card:nth-child(n){
+        grid-column:span 1 !important;
+        min-height:auto;
+        padding:18px 18px 16px !important;
+      }
+      .modulo-nome{
+        max-width:none;
       }
       .portal-banner{
         border-radius:22px !important;
@@ -2118,101 +2352,163 @@
         <!-- Grid Principal -->
         <div class="dash-grid" id="menu-modulos">
           <!-- Módulos -->
-          <div>
+          <div class="dash-main-column">
             <!-- Acções Rápidas -->
-            <div style="margin-bottom:24px">
-              <div class="dash-sec-titulo">
-                <span class="sec-ic">⚡</span> Acções Rápidas
+            <section class="dashboard-block">
+              <div class="dash-section-head">
+                <span class="dash-section-kicker">Operação diária</span>
+                <div class="dash-sec-titulo">
+                  <span class="sec-ic">⚡</span> Acções Rápidas
+                </div>
+                <div class="dash-section-sub">Atalhos de uso frequente para reduzir cliques e colocar as tarefas mais urgentes logo na frente.</div>
               </div>
               <div class="quick-actions-grid" id="quick-actions-grid">
                 <!-- preenchido por JS -->
               </div>
-            </div>
+            </section>
 
             <!-- Módulos do Sistema -->
-            <div>
-              <div class="dash-sec-titulo" style="margin-top:4px">
-                <span class="sec-ic">🗂</span> Módulos do Sistema
+            <section class="dashboard-block">
+              <div class="dash-section-head">
+                <span class="dash-section-kicker">Ecossistema SIGDOC</span>
+                <div class="dash-sec-titulo">
+                  <span class="sec-ic">🗂</span> Módulos do Sistema
+                </div>
+                <div class="dash-section-sub">Cada módulo foi reposicionado para uma leitura mais natural: menos grelha mecânica, mais hierarquia entre as áreas operacionais, analíticas e de suporte.</div>
               </div>
               <div class="modulos-grid">
-                <a href="cadastro.html" class="modulo-card" id="mod-cadastro-card">
-                  <div class="modulo-icon" style="background:rgba(59,130,246,.12)">👨‍💼</div>
-                  <div style="flex:1;min-width:0">
+                <a href="cadastro.html" class="modulo-card" id="mod-cadastro-card" style="--mod-accent:#2563eb;--mod-soft:rgba(37,99,235,.10)">
+                  <div class="modulo-card-top">
+                    <div class="modulo-icon" style="background:rgba(59,130,246,.12)">👨‍💼</div>
+                    <span class="modulo-tag">RH Base</span>
+                  </div>
+                  <div class="modulo-copy">
                     <div class="modulo-nome">Cadastro de Funcionários</div>
-                    <div class="modulo-desc">Registe, pesquise e gira os funcionários.</div>
+                    <div class="modulo-desc">Registe, actualize e pesquise o quadro de pessoal com acesso rápido aos dados centrais de cada colaborador.</div>
                   </div>
-                  <span class="modulo-seta">›</span>
+                  <div class="modulo-footer">
+                    <span class="modulo-link">Abrir módulo</span>
+                    <span class="modulo-seta">↗</span>
+                  </div>
                 </a>
-                <a href="documentos.html" class="modulo-card" id="mod-documentos-card">
-                  <div class="modulo-icon" style="background:rgba(245,158,11,.12)">📄</div>
-                  <div style="flex:1;min-width:0">
+                <a href="documentos.html" class="modulo-card" id="mod-documentos-card" style="--mod-accent:#d97706;--mod-soft:rgba(217,119,6,.10)">
+                  <div class="modulo-card-top">
+                    <div class="modulo-icon" style="background:rgba(245,158,11,.12)">📄</div>
+                    <span class="modulo-tag">Produção</span>
+                  </div>
+                  <div class="modulo-copy">
                     <div class="modulo-nome">Geração de Documentos</div>
-                    <div class="modulo-desc">Guias, declarações e ofícios automáticos.</div>
+                    <div class="modulo-desc">Emita guias, declarações e outros documentos com pré-preenchimento, consistência visual e menos retrabalho.</div>
                   </div>
-                  <span class="modulo-seta">›</span>
+                  <div class="modulo-footer">
+                    <span class="modulo-link">Abrir módulo</span>
+                    <span class="modulo-seta">↗</span>
+                  </div>
                 </a>
-                <a href="aprovacao.html" class="modulo-card" id="mod-aprovacao-card">
-                  <div class="modulo-icon" style="background:rgba(16,185,129,.12)">✅</div>
-                  <div style="flex:1;min-width:0">
+                <a href="aprovacao.html" class="modulo-card" id="mod-aprovacao-card" style="--mod-accent:#0d9488;--mod-soft:rgba(13,148,136,.10)">
+                  <div class="modulo-card-top">
+                    <div class="modulo-icon" style="background:rgba(16,185,129,.12)">✅</div>
+                    <span class="modulo-tag">Fluxos</span>
+                  </div>
+                  <div class="modulo-copy">
                     <div class="modulo-nome">Aprovação e Solicitações</div>
-                    <div class="modulo-desc">Valide documentos e solicitações.</div>
+                    <div class="modulo-desc">Acompanhe pedidos, valide documentos e mantenha cada processo com rastreio claro até à conclusão.</div>
                   </div>
-                  <span class="modulo-seta">›</span>
+                  <div class="modulo-footer">
+                    <span class="modulo-link">Abrir módulo</span>
+                    <span class="modulo-seta">↗</span>
+                  </div>
                 </a>
-                <a href="auditoria.html" class="modulo-card" id="mod-auditoria-card">
-                  <div class="modulo-icon" style="background:rgba(139,92,246,.12)">🔍</div>
-                  <div style="flex:1;min-width:0">
+                <a href="auditoria.html" class="modulo-card" id="mod-auditoria-card" style="--mod-accent:#7c3aed;--mod-soft:rgba(124,58,237,.10)">
+                  <div class="modulo-card-top">
+                    <div class="modulo-icon" style="background:rgba(139,92,246,.12)">🔍</div>
+                    <span class="modulo-tag">Controlo</span>
+                  </div>
+                  <div class="modulo-copy">
                     <div class="modulo-nome">Auditoria e Rastreabilidade</div>
-                    <div class="modulo-desc">Histórico completo de acções.</div>
+                    <div class="modulo-desc">Consulte o histórico das acções do sistema e reforce transparência, responsabilização e conformidade operacional.</div>
                   </div>
-                  <span class="modulo-seta">›</span>
+                  <div class="modulo-footer">
+                    <span class="modulo-link">Abrir módulo</span>
+                    <span class="modulo-seta">↗</span>
+                  </div>
                 </a>
-                <a href="painel.html" class="modulo-card" id="mod-painel-card">
-                  <div class="modulo-icon" style="background:rgba(239,68,68,.12)">📊</div>
-                  <div style="flex:1;min-width:0">
+                <a href="painel.html" class="modulo-card" id="mod-painel-card" style="--mod-accent:#dc2626;--mod-soft:rgba(220,38,38,.10)">
+                  <div class="modulo-card-top">
+                    <div class="modulo-icon" style="background:rgba(239,68,68,.12)">📊</div>
+                    <span class="modulo-tag">Gestão</span>
+                  </div>
+                  <div class="modulo-copy">
                     <div class="modulo-nome">Painel de Gestão</div>
-                    <div class="modulo-desc">Indicadores e relatórios executivos.</div>
+                    <div class="modulo-desc">Leia indicadores executivos, acompanhe volume operacional e suporte decisões com uma visão mais sintética.</div>
                   </div>
-                  <span class="modulo-seta">›</span>
+                  <div class="modulo-footer">
+                    <span class="modulo-link">Abrir módulo</span>
+                    <span class="modulo-seta">↗</span>
+                  </div>
                 </a>
-                <a href="unidades.html" class="modulo-card" id="mod-unidades-card">
-                  <div class="modulo-icon" style="background:rgba(18,65,161,.12)">🏥</div>
-                  <div style="flex:1;min-width:0">
+                <a href="unidades.html" class="modulo-card" id="mod-unidades-card" style="--mod-accent:#1241a1;--mod-soft:rgba(18,65,161,.10)">
+                  <div class="modulo-card-top">
+                    <div class="modulo-icon" style="background:rgba(18,65,161,.12)">🏥</div>
+                    <span class="modulo-tag">Cobertura</span>
+                  </div>
+                  <div class="modulo-copy">
                     <div class="modulo-nome">Unidades Sanitárias</div>
-                    <div class="modulo-desc">Directório e cobertura por unidade.</div>
+                    <div class="modulo-desc">Organize o directório das unidades, o enquadramento territorial e a distribuição de cobertura por estrutura.</div>
                   </div>
-                  <span class="modulo-seta">›</span>
+                  <div class="modulo-footer">
+                    <span class="modulo-link">Abrir módulo</span>
+                    <span class="modulo-seta">↗</span>
+                  </div>
                 </a>
-                <a href="estatisticas.html" class="modulo-card" id="mod-estatisticas-card">
-                  <div class="modulo-icon" style="background:rgba(124,58,237,.12)">📊</div>
-                  <div style="flex:1;min-width:0">
+                <a href="estatisticas.html" class="modulo-card" id="mod-estatisticas-card" style="--mod-accent:#6d28d9;--mod-soft:rgba(109,40,217,.10)">
+                  <div class="modulo-card-top">
+                    <div class="modulo-icon" style="background:rgba(124,58,237,.12)">📊</div>
+                    <span class="modulo-tag">Análise</span>
+                  </div>
+                  <div class="modulo-copy">
                     <div class="modulo-nome">Estatísticas Avançadas</div>
-                    <div class="modulo-desc">Pirâmide etária, cobertura, massa salarial.</div>
+                    <div class="modulo-desc">Explore pirâmide etária, cobertura e outros recortes analíticos com leitura mais estratégica do quadro institucional.</div>
                   </div>
-                  <span class="modulo-seta">›</span>
+                  <div class="modulo-footer">
+                    <span class="modulo-link">Abrir módulo</span>
+                    <span class="modulo-seta">↗</span>
+                  </div>
                 </a>
-                <a href="relatorios.html" class="modulo-card" id="mod-relatorios-card">
-                  <div class="modulo-icon" style="background:rgba(245,158,11,.12)">📋</div>
-                  <div style="flex:1;min-width:0">
+                <a href="relatorios.html" class="modulo-card" id="mod-relatorios-card" style="--mod-accent:#b45309;--mod-soft:rgba(180,83,9,.10)">
+                  <div class="modulo-card-top">
+                    <div class="modulo-icon" style="background:rgba(245,158,11,.12)">📋</div>
+                    <span class="modulo-tag">Saída</span>
+                  </div>
+                  <div class="modulo-copy">
                     <div class="modulo-nome">Relatórios e Exportação</div>
-                    <div class="modulo-desc">Mapas de pessoal em PDF e Excel.</div>
+                    <div class="modulo-desc">Produza mapas de pessoal, listagens e exportações para partilha institucional ou análise externa.</div>
                   </div>
-                  <span class="modulo-seta">›</span>
+                  <div class="modulo-footer">
+                    <span class="modulo-link">Abrir módulo</span>
+                    <span class="modulo-seta">↗</span>
+                  </div>
                 </a>
-                <a href="ferias.html" class="modulo-card" id="mod-ferias-card">
-                  <div class="modulo-icon" style="background:rgba(16,200,134,.12)">🌴</div>
-                  <div style="flex:1;min-width:0">
-                    <div class="modulo-nome">Férias e Ausências</div>
-                    <div class="modulo-desc">Registo e controlo de licenças e faltas.</div>
+                <a href="ferias.html" class="modulo-card" id="mod-ferias-card" style="--mod-accent:#0f766e;--mod-soft:rgba(15,118,110,.10)">
+                  <div class="modulo-card-top">
+                    <div class="modulo-icon" style="background:rgba(16,200,134,.12)">🌴</div>
+                    <span class="modulo-tag">Planeamento</span>
                   </div>
-                  <span class="modulo-seta">›</span>
+                  <div class="modulo-copy">
+                    <div class="modulo-nome">Férias e Ausências</div>
+                    <div class="modulo-desc">Registe licenças, controle faltas e acompanhe o calendário de ausências com melhor previsibilidade de equipa.</div>
+                  </div>
+                  <div class="modulo-footer">
+                    <span class="modulo-link">Abrir módulo</span>
+                    <span class="modulo-seta">↗</span>
+                  </div>
                 </a>
               </div>
-            </div>
+            </section>
           </div>
 
           <!-- Painel direito (desktop) -->
-          <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="dash-side-column">
             <div class="d-card" id="secção-sessoes-mini">
               <div class="d-card-header">
                 <div class="d-card-titulo">🕐 Acessos Recentes</div>
