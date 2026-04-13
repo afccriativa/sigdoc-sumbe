@@ -112,8 +112,10 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         width: 45mm;
       }
       .gm-valor {
-        flex: 1;
-      }
+  flex: 1;
+  padding: 0 1mm;
+  /* REMOVE ESTA LINHA SE EXISTIR: border-bottom: 1px solid #000; */
+}
       .gm-texto-final {
         font-size: 10pt;
         font-weight: bold;
