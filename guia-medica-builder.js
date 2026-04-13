@@ -1,10 +1,10 @@
 /**
- * SIGDOC-SUMBE â€” Construtor de Guia MÃ©dica (Fiel ao Modelo PDF)
- * Gera um documento A4 Retrato com 2 pÃ¡ginas.
+ * SIGDOC-SUMBE — Construtor de Guia Médica (Fiel ao Modelo PDF)
+ * Gera um documento A4 Retrato com 2 páginas.
  *
- * INSTRUÃ‡ÃƒO DE MANUTENÃ‡ÃƒO:
- * A constante insignia_BASE64 abaixo contÃ©m a InsÃ­gnia de Angola em Base64.
- * Para actualizar, use o utilitÃ¡rio "conversor-base64.html" incluÃ­do no repositÃ³rio.
+ * INSTRUÇÃO DE MANUTENÇÃO:
+ * A constante insignia_BASE64 abaixo contém a Insígnia de Angola em Base64.
+ * Para actualizar, use o utilitário "conversor-base64.html" incluído no repositório.
  */
 
 // ============================================================
@@ -29,9 +29,9 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
     dataEmissao = ''
   } = dados;
 
-  const situacaoAuto = (sexo.toLowerCase() === 'feminino' || sexo.toLowerCase() === 'f') ? 'FUNCIONÃRIA' : 'FUNCIONÃRIO';
+  const situacaoAuto = (sexo.toLowerCase() === 'feminino' || sexo.toLowerCase() === 'f') ? 'FUNCIONÁRIA' : 'FUNCIONÁRIO';
 
-  const meses = ["JANEIRO", "FEVEREIRO", "MARÃ‡O", "ABRIL", "MAIO", "JUNHO",
+  const meses = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
                  "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
 
   const anoAtual = new Date().getFullYear();
@@ -41,7 +41,7 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
     dataFmt = d.getDate() + " DE " + meses[d.getMonth()] + " DE " + d.getFullYear();
   }
 
-  // Usa Base64 embutida; fallback para URL caso ainda nÃ£o tenha sido preenchida
+  // Usa Base64 embutida; fallback para URL caso ainda não tenha sido preenchida
   const INSIGNIA_SRC = (INSIGNIA_BASE64 && INSIGNIA_BASE64 !== "BASE64_AQUI")
     ? INSIGNIA_BASE64
     : "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Coat_of_arms_of_Angola.svg/200px-Coat_of_arms_of_Angola.svg.png";
@@ -62,10 +62,6 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         box-sizing: border-box;
         position: relative;
         overflow: hidden;
-      }
-      .gm-pagina:last-child {
-        page-break-after: auto !important;
-        break-after: auto !important;
       }
       .gm-cabecalho {
         text-align: center;
@@ -117,9 +113,10 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         width: 45mm;
       }
       .gm-valor {
-        flex: 1;
-        padding: 0 1mm;
-      }
+  flex: 1;
+  padding: 0 1mm;
+  /* REMOVE ESTA LINHA SE EXISTIR: border-bottom: 1px solid #000; */
+}
       .gm-texto-final {
         font-size: 10pt;
         font-weight: bold;
@@ -198,32 +195,27 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
           border: none;
           margin: 0;
           height: 297mm;
-          page-break-after: always !important;
-          break-after: page !important;
+          page-break-after: always;
           display: block !important;
           visibility: visible !important;
-        }
-        .gm-pagina:last-child {
-          page-break-after: auto !important;
-          break-after: auto !important;
         }
         .gm-pagina * { visibility: visible !important; }
       }
     </style>
 
     <div class="gm-documento">
-      <!-- PÃGINA 1 -->
+      <!-- PÁGINA 1 -->
       <div class="gm-pagina">
         <div class="gm-cabecalho">
-          <img class="gm-logo" src="${INSIGNIA_SRC}" alt="InsÃ­gnia de Angola"/>
-          <p class="negrito">REPÃšBLICA DE ANGOLA</p>
-          <p class="negrito">GOVERNO DA PROVÃNCIA DO CUANZA-SUL</p>
-          <p class="negrito">ADMINISTRAÃ‡ÃƒO MUNICIPAL DO SUMBE</p>
-          <p class="negrito">DIRECÃ‡ÃƒO DE SAÃšDE</p>
-          <p class="negrito">SECÃ‡ÃƒO DE PLANEAMENTO, ESTATÃSTICA E RECURSOS HUMANOS</p>
+          <img class="gm-logo" src="${INSIGNIA_SRC}" alt="Insígnia de Angola"/>
+          <p class="negrito">REPÚBLICA DE ANGOLA</p>
+          <p class="negrito">GOVERNO DA PROVÍNCIA DO CUANZA-SUL</p>
+          <p class="negrito">ADMINISTRAÇÃO MUNICIPAL DO SUMBE</p>
+          <p class="negrito">DIRECÇÃO DE SAÚDE</p>
+          <p class="negrito">SECÇÃO DE PLANEAMENTO, ESTATÍSTICA E RECURSOS HUMANOS</p>
         </div>
 
-        <div class="gm-titulo">GUIA MÃ‰DICA N.Âº ${numGuia}/${anoAtual}</div>
+        <div class="gm-titulo">GUIA MÉDICA N.º ${numGuia}/${anoAtual}</div>
 
         <div class="gm-apresentacao">
           VAI APRESENTAR-SE AO ${unidadeSanitaria.toUpperCase()}
@@ -232,8 +224,8 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         <div class="gm-campos">
           <div class="gm-campo"><div class="gm-label">NOME:</div><div class="gm-valor">${nomeFuncionario.toUpperCase()}</div></div>
           <div class="gm-campo"><div class="gm-label">PAI:</div><div class="gm-valor">${nomePai.toUpperCase()}</div></div>
-          <div class="gm-campo"><div class="gm-label">MÃƒE:</div><div class="gm-valor">${nomeMae.toUpperCase()}</div></div>
-          <div class="gm-campo"><div class="gm-label">SITUAÃ‡ÃƒO:</div><div class="gm-valor">${situacaoAuto}</div></div>
+          <div class="gm-campo"><div class="gm-label">MÃE:</div><div class="gm-valor">${nomeMae.toUpperCase()}</div></div>
+          <div class="gm-campo"><div class="gm-label">SITUAÇÃO:</div><div class="gm-valor">${situacaoAuto}</div></div>
           <div class="gm-campo"><div class="gm-label">NATURALIDADE:</div><div class="gm-valor">${naturalidade.toUpperCase()}</div></div>
           <div class="gm-campo"><div class="gm-label">PROVINCIA:</div><div class="gm-valor">${provincia.toUpperCase()}</div></div>
           <div class="gm-campo"><div class="gm-label">IDADE:</div><div class="gm-valor">${idade} ANOS</div></div>
@@ -241,16 +233,16 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         </div>
 
         <div class="gm-texto-final">
-          SECÃ‡ÃƒO DE PLANEAMENTO, ESTATÃSTICA E RECURSOS HUMANOS DA DIRECÃ‡ÃƒO MUNICIPAL DA SAÃšDE DO SUMBE, ${dataFmt}.
+          SECÇÃO DE PLANEAMENTO, ESTATÍSTICA E RECURSOS HUMANOS DA DIRECÇÃO MUNICIPAL DA SAÚDE DO SUMBE, ${dataFmt}.
         </div>
 
         <div class="gm-assinatura-bloco">
-          <div class="gm-cargo-chefe">O CHEFE DE SECÃ‡ÃƒO,</div>
+          <div class="gm-cargo-chefe">O CHEFE DE SECÇÃO,</div>
           <div class="gm-nome-chefe">${nomeChefe.toUpperCase()}</div>
         </div>
 
         <div class="gm-prescricao-bloco">
-          <div class="gm-prescricao-titulo">PRESCRIÃ‡ÃƒO MÃ‰DICA</div>
+          <div class="gm-prescricao-titulo">PRESCRIÇÃO MÉDICA</div>
           <div class="gm-linhas-prescricao">
             <div class="gm-linha-vazia"></div>
             <div class="gm-linha-vazia"></div>
@@ -261,18 +253,18 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
             <div class="gm-data-linha">SUMBE ____/____/${anoAtual}</div>
             <div class="gm-medico-assinatura">
               <div class="gm-linha-medico"></div>
-              <div>O MÃ‰DICO</div>
+              <div>O MÉDICO</div>
             </div>
           </div>
         </div>
 
-        <img class="gm-logo-rodape" src="Imagem1.png" alt="Rodape da guia"/>
+       <img class="gm-logo-rodape" src="Imagem1.png" alt="Rodape da guia"/>
       </div>
 
-      <!-- PÃGINA 2 -->
+      <!-- PÁGINA 2 -->
       <div class="gm-pagina">
         <div class="gm-prescricao-bloco">
-          <div class="gm-prescricao-titulo">PRESCRIÃ‡ÃƒO MÃ‰DICA</div>
+          <div class="gm-prescricao-titulo">PRESCRIÇÃO MÉDICA</div>
           <div class="gm-linhas-prescricao">
             <div class="gm-linha-vazia"></div>
             <div class="gm-linha-vazia"></div>
@@ -283,13 +275,13 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
             <div class="gm-data-linha">SUMBE ____/____/${anoAtual}</div>
             <div class="gm-medico-assinatura">
               <div class="gm-linha-medico"></div>
-              <div>O MÃ‰DICO</div>
+              <div>O MÉDICO</div>
             </div>
           </div>
         </div>
 
         <div class="gm-prescricao-bloco">
-          <div class="gm-prescricao-titulo">PRESCRIÃ‡ÃƒO MÃ‰DICA</div>
+          <div class="gm-prescricao-titulo">PRESCRIÇÃO MÉDICA</div>
           <div class="gm-linhas-prescricao">
             <div class="gm-linha-vazia"></div>
             <div class="gm-linha-vazia"></div>
@@ -300,13 +292,13 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
             <div class="gm-data-linha">SUMBE ____/____/${anoAtual}</div>
             <div class="gm-medico-assinatura">
               <div class="gm-linha-medico"></div>
-              <div>O MÃ‰DICO</div>
+              <div>O MÉDICO</div>
             </div>
           </div>
         </div>
 
         <div class="gm-prescricao-bloco">
-          <div class="gm-prescricao-titulo">PRESCRIÃ‡ÃƒO MÃ‰DICA</div>
+          <div class="gm-prescricao-titulo">PRESCRIÇÃO MÉDICA</div>
           <div class="gm-linhas-prescricao">
             <div class="gm-linha-vazia"></div>
             <div class="gm-linha-vazia"></div>
@@ -317,13 +309,13 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
             <div class="gm-data-linha">SUMBE ____/____/${anoAtual}</div>
             <div class="gm-medico-assinatura">
               <div class="gm-linha-medico"></div>
-              <div>O MÃ‰DICO</div>
+              <div>O MÉDICO</div>
             </div>
           </div>
         </div>
 
         <div class="gm-prescricao-bloco">
-          <div class="gm-prescricao-titulo">PRESCRIÃ‡ÃƒO MÃ‰DICA</div>
+          <div class="gm-prescricao-titulo">PRESCRIÇÃO MÉDICA</div>
           <div class="gm-linhas-prescricao">
             <div class="gm-linha-vazia"></div>
             <div class="gm-linha-vazia"></div>
@@ -334,7 +326,7 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
             <div class="gm-data-linha">SUMBE ____/____/${anoAtual}</div>
             <div class="gm-medico-assinatura">
               <div class="gm-linha-medico"></div>
-              <div>O MÃ‰DICO</div>
+              <div>O MÉDICO</div>
             </div>
           </div>
         </div>
