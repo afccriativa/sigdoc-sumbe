@@ -58,9 +58,10 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
       .gm-pagina {
         width: 210mm;
         height: 297mm;
-        padding: 15mm 20mm;
+        padding: 15mm 20mm 30mm;
         box-sizing: border-box;
         position: relative;
+        overflow: hidden;
       }
       .gm-cabecalho {
         text-align: center;
@@ -175,10 +176,17 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
       }
       .gm-logo-rodape {
         position: absolute;
-        bottom: 10mm;
         left: 50%;
+        bottom: 8mm;
         transform: translateX(-50%);
         width: 60mm;
+        max-width: calc(100% - 40mm);
+        max-height: 16mm;
+        height: auto;
+        object-fit: contain;
+        object-position: center;
+        display: block;
+        pointer-events: none;
       }
       @media print {
         body { margin: 0; padding: 0; }
@@ -250,7 +258,8 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
           </div>
         </div>
 
-       <img class="gm-logo-rodape" src="Imagem1.png"/>
+       <img class="gm-logo-rodape" src="Imagem1.png" alt="Rodape da guia"/>
+      </div>
 
       <!-- PÁGINA 2 -->
       <div class="gm-pagina">
@@ -322,7 +331,8 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
           </div>
         </div>
 
-        <img class="gm-logo-rodape" src="Imagem1.png"/>
+        <img class="gm-logo-rodape" src="Imagem1.png" alt="Rodape da guia"/>
+      </div>
     </div>
   `;
 };
