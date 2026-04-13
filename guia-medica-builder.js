@@ -31,8 +31,7 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
   }
 
   // 2. CORRIGIDO: Insígnia de Angola usando arquivo PNG físico
-  const INSIGNIA_SRC = "angola_coat_of_arms-removebg-preview.png";
-
+  const INSIGNIA_SRC = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Coat_of_arms_of_Angola.svg/200px-Coat_of_arms_of_Angola.svg.png";
   return `
     <style>
       .gm-documento {
@@ -57,10 +56,14 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         align-items: center;
       }
       .gm-logo {
-        background: white;
-border-radius: 2px;
-padding: 2px;
-      }
+  width: 25mm;
+  height: 25mm;
+  object-fit: contain;
+  margin-bottom: 3mm;
+  display: block;
+  background: transparent;
+  filter: drop-shadow(0 0 2px rgba(0,0,0,0.1));
+}
       .gm-cabecalho p {
         margin: 0;
         font-size: 10pt;
