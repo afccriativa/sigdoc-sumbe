@@ -250,8 +250,7 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
           </div>
         </div>
 
-        <img class="gm-logo-rodape" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Logo_Governo_de_Angola.png/640px-Logo_Governo_de_Angola.png" alt="Governo de Angola"/>
-      </div>
+       <img class="gm-logo-rodape" src="Imagem1.png"/>
 
       <!-- PÁGINA 2 -->
       <div class="gm-pagina">
@@ -323,8 +322,7 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
           </div>
         </div>
 
-        <img class="gm-logo-rodape" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Logo_Governo_de_Angola.png/640px-Logo_Governo_de_Angola.png" alt="Governo de Angola"/>
-      </div>
+        <img class="gm-logo-rodape" src="Imagem1.png"/>
     </div>
   `;
 };
