@@ -563,14 +563,18 @@
     </div>
 
     <div class="cartao">
-      <div class="cartao-cabecalho">&#127958; Dados da Guia de Férias</div>
+      <div class="cartao-cabecalho" id="titulo-dados-documento">&#127958; Dados da Guia de Férias</div>
       <div class="cartao-corpo">
 
         <div>
           <label>Número da Guia</label>
-          <div class="row2">
-            <input type="number" id="num-guia" placeholder="Ex: 12" min="1" oninput="actualizarPreview()"/>
-            <input type="number" id="ano-guia" placeholder="Ano" value="2026" oninput="actualizarPreview()"/>
+          <div class="row2" id="linha-numero-guia">
+            <div id="campo-num-guia">
+              <input type="number" id="num-guia" placeholder="Ex: 12" min="1" oninput="actualizarPreview()"/>
+            </div>
+            <div id="campo-ano-guia">
+              <input type="number" id="ano-guia" placeholder="Ano" value="2026" oninput="actualizarPreview()"/>
+            </div>
           </div>
         </div>
 
@@ -590,36 +594,36 @@
           <div style="font-size:10px;color:#6b7280;margin-top:4px;font-style:italic">Será preenchido automaticamente na guia: "Vai apresentar-se ao..."</div>
         </div>
 
-        <div>
+        <div id="campo-cargo-categoria">
           <label>Cargo / Categoria</label>
           <input type="text" id="cargo-func" placeholder="Preenchido automaticamente" readonly/>
           <input type="text" id="categoria-func" style="display:none" readonly/>
           <div id="hint-cargo-cat" style="display:none;font-size:10px;color:#6b7280;margin-top:4px;font-style:italic"></div>
         </div>
 
-        <div>
+        <div id="campo-local-colocacao">
           <label>Local de Colocação</label>
           <input type="text" id="local-func" placeholder="Preenchido automaticamente" readonly/>
         </div>
 
-        <div class="row2">
-          <div>
+        <div class="row2" id="linha-ferias-periodo">
+          <div id="campo-num-dias">
             <label>Dias úteis com direito</label>
             <input type="number" id="num-dias" placeholder="Auto calculado" readonly/>
             <div id="info-dias" class="info-calc"></div>
           </div>
-          <div>
+          <div id="campo-data-inicio">
             <label>Data de início das férias</label>
             <input type="date" id="data-inicio" oninput="calcularApresentacao(); actualizarPreview()"/>
           </div>
         </div>
 
-        <div class="row2">
-          <div>
+        <div class="row2" id="linha-ferias-datas">
+          <div id="campo-data-emissao">
             <label>Data de emissão</label>
             <input type="date" id="data-emissao" oninput="actualizarPreview()"/>
           </div>
-          <div>
+          <div id="campo-data-apresentacao">
             <label>Data de apresentação</label>
             <input type="date" id="data-apresentacao" readonly/>
             <div id="info-apresentacao" class="info-calc">&#128197; Calculada (excluindo fins-de-semana e feriados)</div>
@@ -647,7 +651,7 @@
   <div class="painel-preview">
     <div class="preview-cabecalho">
       &#128193; Pré-visualização do Documento
-      <span class="badge-preview">Guia de Férias</span>
+      <span class="badge-preview" id="badge-preview-documento">Guia de Férias</span>
     </div>
     <div class="area-preview" id="area-preview">
       <div class="vazio-preview">
@@ -837,6 +841,7 @@
 
     await carregarFuncionarios();
     document.getElementById("data-emissao").value = new Date().toISOString().split("T")[0];
+    actualizarCamposFormulario();
     await verificarParamsPortal();
     await verificarParamSecretaria();
   });
@@ -1143,8 +1148,44 @@
   window.actualizarCamposFormulario = function() {
     const tipoDoc = document.getElementById("tipo-documento").value;
     const campoUnidade = document.getElementById("campo-unidade-sanitaria");
-    
-    if (tipoDoc === "guia-medica") {
+    const isGuiaMedica = tipoDoc === "guia-medica";
+    const tituloDados = document.getElementById("titulo-dados-documento");
+    const badgePreview = document.getElementById("badge-preview-documento");
+    const linhaNumeroGuia = document.getElementById("linha-numero-guia");
+    const campoAnoGuia = document.getElementById("campo-ano-guia");
+    const camposSoFerias = [
+      "campo-cargo-categoria",
+      "campo-local-colocacao",
+      "linha-ferias-periodo",
+      "linha-ferias-datas",
+      "info-feriados"
+    ];
+
+    if (tituloDados) {
+      tituloDados.innerHTML = isGuiaMedica
+        ? "&#127973; Dados da Guia Médica"
+        : "&#127958; Dados da Guia de Férias";
+    }
+    if (badgePreview) {
+      badgePreview.textContent = isGuiaMedica ? "Guia Médica" : "Guia de Férias";
+    }
+
+    camposSoFerias.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = isGuiaMedica ? "none" : "";
+    });
+
+    if (campoAnoGuia) {
+      campoAnoGuia.style.display = isGuiaMedica ? "none" : "";
+    }
+    if (linhaNumeroGuia) {
+      linhaNumeroGuia.style.gridTemplateColumns = isGuiaMedica ? "1fr" : "";
+    }
+
+    if (isGuiaMedica) {
+      if (!document.getElementById("data-emissao").value) {
+        document.getElementById("data-emissao").value = new Date().toISOString().split("T")[0];
+      }
       // Mostrar campo unidade sanitária para guia médica
       campoUnidade.style.display = "block";
       // Carregar unidade de uma solicitação do portal se existir
