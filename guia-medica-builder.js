@@ -8,11 +8,11 @@
  */
 
 // ============================================================
-// INSIGNIA_Base64 (PNG 200px)
+// insignia_Base64 (PNG 200px)
 // Cole aqui o valor gerado pelo conversor-base64.html
 // Formato: data:image/png;base64,XXXXXXX...
 // ============================================================
-const INSIGNIA_BASE64 = "./Imagem1.png";
+const INSIGNIA_BASE64 = "./insignia.jpeg";
 // ============================================================
 
 window.construirGuiaMedica = function(dados, unidadeSanitaria) {
