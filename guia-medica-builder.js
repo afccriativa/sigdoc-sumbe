@@ -3,7 +3,7 @@
  * Gera um documento A4 Retrato com 2 páginas.
  *
  * INSTRUÇÃO DE MANUTENÇÃO:
- * A constante INSIGNIA_BASE64 abaixo contém a Insígnia de Angola em Base64.
+ * A constante insignia_BASE64 abaixo contém a Insígnia de Angola em Base64.
  * Para actualizar, use o utilitário "conversor-base64.html" incluído no repositório.
  */
 
@@ -12,7 +12,7 @@
 // Cole aqui o valor gerado pelo conversor-base64.html
 // Formato: data:image/png;base64,XXXXXXX...
 // ============================================================
-const INSIGNIA_BASE64 = "./insignia.jpeg";
+const INSIGNIA_BASE64 = "insignia.jpeg";
 // ============================================================
 
 window.construirGuiaMedica = function(dados, unidadeSanitaria) {
