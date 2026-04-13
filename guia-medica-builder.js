@@ -398,9 +398,6 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
           ${renderBlocoPrescricao("gm-prescricao-bloco--pagina1")}
         </div>
 
-        <img class="gm-logo-rodape" src="${rodapeSrc}" alt="Rodape da guia" />
-      </div>
-
       <div class="gm-pagina gm-pagina--prescricoes">
         ${blocosPagina2}
         <img class="gm-logo-rodape" src="${rodapeSrc}" alt="Rodape da guia" />
