@@ -1,7 +1,19 @@
 /**
  * SIGDOC-SUMBE — Construtor de Guia Médica (Fiel ao Modelo PDF)
  * Gera um documento A4 Retrato com 2 páginas.
+ *
+ * INSTRUÇÃO DE MANUTENÇÃO:
+ * A constante INSIGNIA_BASE64 abaixo contém a Insígnia de Angola em Base64.
+ * Para actualizar, use o utilitário "conversor-base64.html" incluído no repositório.
  */
+
+// ============================================================
+// INSÍGNIA DE ANGOLA — Base64 (PNG 200px)
+// Cole aqui o valor gerado pelo conversor-base64.html
+// Formato: data:image/png;base64,XXXXXXX...
+// ============================================================
+const INSIGNIA_BASE64 = "BASE64_AQUI";
+// ============================================================
 
 window.construirGuiaMedica = function(dados, unidadeSanitaria) {
   const {
@@ -17,12 +29,11 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
     dataEmissao = ''
   } = dados;
 
-  // 1. Ajuste de Gênero Automático
   const situacaoAuto = (sexo.toLowerCase() === 'feminino' || sexo.toLowerCase() === 'f') ? 'FUNCIONÁRIA' : 'FUNCIONÁRIO';
 
   const meses = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
                  "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
-  
+
   const anoAtual = new Date().getFullYear();
   let dataFmt = `____ DE __________ DE ${anoAtual}`;
   if (dataEmissao) {
@@ -30,8 +41,11 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
     dataFmt = d.getDate() + " DE " + meses[d.getMonth()] + " DE " + d.getFullYear();
   }
 
-  // 2. CORRIGIDO: Insígnia de Angola usando arquivo PNG físico
-  const INSIGNIA_SRC = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Coat_of_arms_of_Angola.svg/200px-Coat_of_arms_of_Angola.svg.png";
+  // Usa Base64 embutida; fallback para URL caso ainda não tenha sido preenchida
+  const INSIGNIA_SRC = (INSIGNIA_BASE64 && INSIGNIA_BASE64 !== "BASE64_AQUI")
+    ? INSIGNIA_BASE64
+    : "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Coat_of_arms_of_Angola.svg/200px-Coat_of_arms_of_Angola.svg.png";
+
   return `
     <style>
       .gm-documento {
@@ -42,11 +56,12 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         margin: 0 auto;
       }
       .gm-pagina {
-  width: 210mm;
-  height: 297mm;
-  padding: 15mm 20mm;
-  box-sizing: border-box;
-  position: relative;      }
+        width: 210mm;
+        height: 297mm;
+        padding: 15mm 20mm;
+        box-sizing: border-box;
+        position: relative;
+      }
       .gm-cabecalho {
         text-align: center;
         margin-bottom: 5mm;
@@ -56,14 +71,12 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         align-items: center;
       }
       .gm-logo {
-  width: 25mm;
-  height: 25mm;
-  object-fit: contain;
-  margin-bottom: 3mm;
-  display: block;
-  background: transparent;
-  filter: drop-shadow(0 0 2px rgba(0,0,0,0.1));
-}
+        width: 28mm;
+        height: 28mm;
+        object-fit: contain;
+        margin-bottom: 3mm;
+        display: block;
+      }
       .gm-cabecalho p {
         margin: 0;
         font-size: 10pt;
@@ -99,11 +112,8 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         width: 45mm;
       }
       .gm-valor {
-  flex: 1;
-  text-decoration: none;
-  border: none;
-  border-bottom: none !important;
-}
+        flex: 1;
+      }
       .gm-texto-final {
         font-size: 10pt;
         font-weight: bold;
@@ -134,6 +144,7 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         text-decoration: underline;
         font-size: 10pt;
         margin-bottom: 3mm;
+        text-align: center;
       }
       .gm-linhas-prescricao {
         margin-bottom: 5mm;
@@ -167,15 +178,14 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         transform: translateX(-50%);
         width: 60mm;
       }
-      
       @media print {
         body { margin: 0; padding: 0; }
         .gm-documento { width: 210mm; }
-        .gm-pagina { 
-          border: none; 
-          margin: 0; 
-          height: 297mm; 
-          page-break-after: always; 
+        .gm-pagina {
+          border: none;
+          margin: 0;
+          height: 297mm;
+          page-break-after: always;
           display: block !important;
           visibility: visible !important;
         }
@@ -238,10 +248,10 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
           </div>
         </div>
 
-      <img class="gm-logo-rodape" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Logo_Governo_de_Angola.png/640px-Logo_Governo_de_Angola.png" alt="Governo de Angola"/>
+        <img class="gm-logo-rodape" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Logo_Governo_de_Angola.png/640px-Logo_Governo_de_Angola.png" alt="Governo de Angola"/>
       </div>
 
-            <!-- PÁGINA 2 -->
+      <!-- PÁGINA 2 -->
       <div class="gm-pagina">
         <div class="gm-prescricao-bloco">
           <div class="gm-prescricao-titulo">PRESCRIÇÃO MÉDICA</div>
@@ -293,6 +303,7 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
             </div>
           </div>
         </div>
+
         <div class="gm-prescricao-bloco">
           <div class="gm-prescricao-titulo">PRESCRIÇÃO MÉDICA</div>
           <div class="gm-linhas-prescricao">
@@ -309,9 +320,8 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
             </div>
           </div>
         </div>
-        
+
         <img class="gm-logo-rodape" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Logo_Governo_de_Angola.png/640px-Logo_Governo_de_Angola.png" alt="Governo de Angola"/>
-      </div>
       </div>
     </div>
   `;
