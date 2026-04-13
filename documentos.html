@@ -808,6 +808,8 @@
   let dadosUltimoDocumento = null; // guarda os dados para submissão
   let utilizadorActual = null;     // utilizador autenticado
   let documentoSubmetido = false;  // evita dupla submissão
+  window._solicitacaoOrigemId = null;
+  window._solicitacaoOrigemFuncionarioUid = null;
 
   onAuthStateChanged(auth, async (u) => {
     if (!u) { window.location.href = "index.html"; return; }
@@ -855,36 +857,49 @@
     const params = new URLSearchParams(window.location.search);
     const origem = params.get('origem');
     const tipo = params.get('tipo');
-    
-    // ✅ Suporte para GUIA MÉDICA vindo do portal
-    if (tipo === 'guia-medica') {
+
+    if (origem === 'portal' && tipo === 'guia-medica') {
+      const solId = params.get('sol') || '';
       const funcId = params.get('funcionarioId') || '';
+      const funcUid = params.get('funcionarioUid') || '';
       const nome = params.get('funcionarioNome') || '';
       const unidade = decodeURIComponent(params.get('unidadeSanitaria') || '');
-      
-      // Mostrar banner
+      const cat = params.get('cat') || '';
+      const unid = params.get('unid') || '';
+
+      document.getElementById('tipo-documento').value = 'guia-medica';
+      actualizarCamposFormulario();
+
       const banner = document.getElementById('banner-portal-origem');
       const infoTxt = document.getElementById('bp-info-texto');
       if (banner) {
         banner.style.display = 'block';
         infoTxt.textContent = `Solicitação: Guia Médica para ${unidade || '(unidade não indicada)'}. Preencha o número da guia e clique em Gerar.`;
       }
-      
-      // Aguardar funcionários
+
       let tentativas = 0;
       while (todosFuncionarios.length === 0 && tentativas < 20) {
         await new Promise(r => setTimeout(r, 200));
         tentativas++;
       }
-      
-      // Preencher funcionário
+
       if (nome) {
         const campoNome = document.getElementById('pesquisa-func');
         campoNome.value = nome;
         campoNome.classList.add('campo-preenchido');
       }
-      
-      // Preencher unidade sanitária
+      if (cat) {
+        const campoCargo = document.getElementById('cargo-func');
+        const campoCategoria = document.getElementById('categoria-func');
+        campoCargo.value = cat;
+        campoCargo.classList.add('campo-preenchido');
+        campoCategoria.value = cat;
+      }
+      if (unid) {
+        const campoLoc = document.getElementById('local-func');
+        campoLoc.value = unid;
+        campoLoc.classList.add('campo-preenchido');
+      }
       if (unidade) {
         const campoUnidade = document.getElementById('unidade-sanitaria');
         if (campoUnidade) {
@@ -892,28 +907,39 @@
           campoUnidade.classList.add('campo-preenchido');
         }
       }
-      
-      // Seleccionar funcionário
+
       let funcObj = null;
       if (funcId && todosFuncionarios.length > 0) {
         funcObj = todosFuncionarios.find(f => f.id === funcId);
       }
       if (!funcObj && nome) {
         funcObj = todosFuncionarios.find(f =>
-          (f.nome||'').toLowerCase() === nome.toLowerCase()
+          (f.nome || '').toLowerCase() === nome.toLowerCase()
         );
       }
-      
+
       if (funcObj) {
         funcionarioSeleccionado = funcObj;
-        // Preencher campos automáticamente com dados do funcionário
-        document.getElementById('cargo-func').value = funcObj.cargo || funcObj.categoria || '';
+        document.getElementById('cargo-func').value = funcObj.cargo || funcObj.categoria || cat || '';
         document.getElementById('cargo-func').classList.add('campo-preenchido');
+        document.getElementById('categoria-func').value = funcObj.categoria || cat || '';
+        document.getElementById('local-func').value = funcObj.unidade || unid || '';
       }
-      
-      return; // Não continua para origem='portal'
+
+      window._solicitacaoOrigemId = solId || null;
+      window._solicitacaoOrigemFuncionarioUid = funcUid || null;
+
+      setTimeout(() => {
+        const numGuia = document.getElementById('num-guia');
+        numGuia.focus();
+        numGuia.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        numGuia.style.border = '2px solid #f59e0b';
+        numGuia.placeholder = '← Insira aqui o número da guia';
+      }, 300);
+
+      return;
     }
-    
+
     if (origem !== 'portal') return;
 
     const solId  = params.get('sol')   || '';
@@ -924,6 +950,7 @@
     const unid   = params.get('unid')  || '';
     const adm    = params.get('adm')   || '';
     const sexo   = params.get('sexo')  || '';
+    const funcUid = params.get('funcionarioUid') || '';
 
     // Mostrar banner
     const banner = document.getElementById('banner-portal-origem');
@@ -1014,7 +1041,8 @@
     }
 
     // Guardar ID da solicitação para actualizar estado depois de submeter
-    window._solicitacaoOrigemId = solId;
+    window._solicitacaoOrigemId = solId || null;
+    window._solicitacaoOrigemFuncionarioUid = funcUid || null;
 
     // Focar no campo do número da guia (único que falta preencher)
     setTimeout(() => {
@@ -1121,7 +1149,7 @@
       campoUnidade.style.display = "block";
       // Carregar unidade de uma solicitação do portal se existir
       const urlParams = new URLSearchParams(window.location.search);
-      const unidadeParam = urlParams.get('unidade');
+      const unidadeParam = urlParams.get('unidadeSanitaria') || urlParams.get('unidade');
       if (unidadeParam) {
         document.getElementById("unidade-sanitaria").value = decodeURIComponent(unidadeParam);
       }
@@ -1307,7 +1335,9 @@
       dadosUltimoDocumento = {
         tipo: 'guia-medica',
         numGuia: numGuia,
+        anoGuia: new Date().getFullYear(),
         funcionarioId: funcionarioSeleccionado?.id || null,
+        funcionarioUid: funcionarioSeleccionado?.uidUtilizador || window._solicitacaoOrigemFuncionarioUid || null,
         funcionarioNome: nomeFuncionario,
         dataEmissao: dataEmissao,
         nomeChefe: document.getElementById("nome-chefe").value.trim(),
@@ -1345,6 +1375,7 @@
         tipo: tipoDoc || "guia-ferias",
         numGuia, anoGuia,
         funcionarioId: funcionarioSeleccionado ? funcionarioSeleccionado.id : null,
+        funcionarioUid: funcionarioSeleccionado?.uidUtilizador || window._solicitacaoOrigemFuncionarioUid || null,
         funcionarioNome: nomeFuncionario,
         categoria, localColocacao, numDias,
         dataInicio, dataEmissao, dataApresentacao, nomeChefe, sexo
@@ -1482,7 +1513,7 @@
       btnSub.style.display = "none";
 
       // ── Notificar funcionário que o documento foi submetido ───────
-      const _funcUid = funcionarioSeleccionado?.uidUtilizador || null;
+      const _funcUid = dadosUltimoDocumento?.funcionarioUid || funcionarioSeleccionado?.uidUtilizador || window._solicitacaoOrigemFuncionarioUid || null;
       if (_funcUid) {
         const _tipoLabel = {
           'guia-ferias':        'Guia de Férias',
@@ -1494,7 +1525,7 @@
           _funcUid,
           'doc_gerado',
           '📄 ' + _tipoLabel + ' submetido para aprovação',
-          'O seu ' + _tipoLabel + ' foi gerado e aguarda aprovação do responsável.',
+          'O seu ' + _tipoLabel + ' foi gerado e segue agora para validação do responsável.',
           { docId: docRef.id, tipoDoc: dadosUltimoDocumento?.tipo }
         );
       }
@@ -1514,7 +1545,9 @@
             concluidoPor: utilizadorActual.uid,
             concluidoPorEmail: utilizadorActual.email,
             concluidoEm: serverTimestamp(),
-            documentoGeradoId: docRef.id
+            documentoGeradoId: docRef.id,
+            numGuia: dadosUltimoDocumento.numGuia || null,
+            anoGuia: dadosUltimoDocumento.anoGuia || null
           };
           
           // Se for Guia Médica, garantir que a unidade sanitária final fica registada
@@ -1536,6 +1569,7 @@
           } catch(eChat) { console.warn("Erro ao enviar msg chat:", eChat); }
 
           window._solicitacaoOrigemId = null;
+          window._solicitacaoOrigemFuncionarioUid = null;
         } catch(eUpd) { console.warn("Não actualizou solicitação:", eUpd); }
       }
 
