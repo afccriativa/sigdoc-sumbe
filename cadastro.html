@@ -682,6 +682,7 @@
       </div>
       <button class="btn-fechar" onclick="fecharFormulario()">✕</button>
     </div>
+    <form id="form-funcionario" autocomplete="on">
     <div class="modal-corpo">
       <input type="hidden" id="funcionario-id"/>
 
@@ -1072,9 +1073,10 @@
 
     </div>
     <div class="modal-foot">
-      <button class="btn-cancelar" onclick="fecharFormulario()">Cancelar</button>
-      <button class="btn-guardar" id="btn-guardar" onclick="guardarFuncionario()">💾 Guardar Funcionário</button>
+      <button type="button" class="btn-cancelar" onclick="fecharFormulario()">Cancelar</button>
+      <button type="submit" class="btn-guardar" id="btn-guardar">💾 Guardar Funcionário</button>
     </div>
+    </form>
   </div>
 </div>
 
@@ -1205,7 +1207,10 @@
   function toggleCategoriaOutra(sel) {
     var manual = document.getElementById('f-categoria-manual');
     if (!manual) return;
-    if (sel.value === '__outra__') {
+    var activo = sel.value === '__outra__';
+    manual.disabled = !activo;
+    manual.required = activo;
+    if (activo) {
       manual.style.display = 'block';
       manual.focus();
     } else {
@@ -1216,7 +1221,10 @@
   function toggleCargoOutro(sel) {
     var manual = document.getElementById('f-cargo-manual');
     if (!manual) return;
-    if (sel.value === '__outro_cargo__') {
+    var activo = sel.value === '__outro_cargo__';
+    manual.disabled = !activo;
+    manual.required = activo;
+    if (activo) {
       manual.style.display = 'block';
       manual.focus();
     } else {
@@ -1259,6 +1267,40 @@
     if (!utilizadorActual) return false;
     return perfisPermitidos.includes(_perfilActual);
   }
+
+  function configurarFormularioCadastro() {
+    ["f-nome","f-sexo","f-numero","f-categoria","f-unidade","f-vinculo","f-admissao"].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.required = true;
+    });
+    var nome = document.getElementById("f-nome");
+    if (nome) nome.autocomplete = "name";
+    var tel = document.getElementById("f-telefone");
+    if (tel) tel.autocomplete = "tel";
+    var email = document.getElementById("f-email");
+    if (email) email.autocomplete = "email";
+    var numero = document.getElementById("f-numero");
+    if (numero) numero.inputMode = "numeric";
+
+    var categoriaManual = document.getElementById("f-categoria-manual");
+    if (categoriaManual) categoriaManual.disabled = true;
+    var cargoManual = document.getElementById("f-cargo-manual");
+    if (cargoManual) cargoManual.disabled = true;
+    var seccao = document.getElementById("f-seccao");
+    if (seccao) seccao.disabled = true;
+    var area = document.getElementById("f-area");
+    if (area) area.disabled = true;
+
+    var form = document.getElementById("form-funcionario");
+    if (form) {
+      form.addEventListener("submit", function(e) {
+        e.preventDefault();
+        window.guardarFuncionario();
+      });
+    }
+  }
+
+  configurarFormularioCadastro();
 
 
   onAuthStateChanged(auth, async u=>{
@@ -1343,6 +1385,66 @@
     if(anos>=30)return 31; if(anos>=20)return 28; if(anos>=10)return 25; return 22;
   }
 
+  function textoOuTraco(valor) {
+    return valor === 0 ? "0" : (valor ? String(valor) : "—");
+  }
+
+  function criarNo(tag, className, text) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text !== undefined && text !== null) el.textContent = text;
+    return el;
+  }
+
+  function limparConteudo(el) {
+    if (el) el.textContent = "";
+  }
+
+  function obterUrlSegura(url) {
+    if (!url) return "";
+    try {
+      const parsed = new URL(url, window.location.href);
+      return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : "";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function criarLinkDocumento(funcId, tipo, url, texto) {
+    if (!url) return null;
+    const link = criarNo("a", null, texto);
+    link.style.color = "var(--c-700)";
+    link.style.fontWeight = "700";
+    if (url === "local") {
+      link.href = "#";
+      link.addEventListener("click", function(event) {
+        event.preventDefault();
+        window.abrirDocFicha(funcId, tipo, link);
+      });
+      return link;
+    }
+
+    const segura = obterUrlSegura(url);
+    if (!segura) {
+      const aviso = criarNo("span", null, texto + " indisponível");
+      aviso.style.color = "var(--neu-500)";
+      return aviso;
+    }
+
+    link.href = segura;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    return link;
+  }
+
+  function renderMensagemDup(msgEl, destaque, antes, depois) {
+    limparConteudo(msgEl);
+    msgEl.append(document.createTextNode(antes));
+    const strong = criarNo("strong", null, destaque || "—");
+    msgEl.appendChild(strong);
+    msgEl.append(document.createTextNode(depois));
+  }
+
   // ── PAGINAÇÃO ──
   const PAG_TAMANHO = 20;
   let _listaActual = [];
@@ -1367,29 +1469,72 @@
 
     // Tabela
     const tb = document.getElementById("corpo-tabela");
+    limparConteudo(tb);
     if (total === 0) {
-      tb.innerHTML = `<tr><td colspan="6"><div class="vazio-tabela"><div class="icone">👥</div><p>Nenhum funcionário encontrado.</p><small>Clique em "+ Novo Funcionário" para começar.</small></div></td></tr>`;
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = 6;
+      const vazio = criarNo("div", "vazio-tabela");
+      vazio.appendChild(criarNo("div", "icone", "👥"));
+      vazio.appendChild(criarNo("p", null, "Nenhum funcionário encontrado."));
+      vazio.appendChild(criarNo("small", null, "Clique em \"+ Novo Funcionário\" para começar."));
+      td.appendChild(vazio);
+      tr.appendChild(td);
+      tb.appendChild(tr);
     } else {
-      tb.innerHTML = fatia.map(f => {
+      const frag = document.createDocumentFragment();
+      fatia.forEach(function(f) {
         const bv = f.vinculo === "quadro" ? "badge-quadro" : "badge-provisorio";
         const lv = f.vinculo === "quadro" ? "Pessoal do Quadro" : f.vinculo === "provisorio" ? "Provimento Provisório" : f.vinculo || "—";
         const be = {activo:"badge-activo",inactivo:"badge-inactivo",licenca:"badge-licenca"}[f.estado] || "badge-activo";
         const le = {activo:"● Em Serviço",inactivo:"○ Inactivo",licenca:"◐ De Licença"}[f.estado] || f.estado || "—";
         const localCurto = window.SIGDOC_CONFIG.abrvUnidade(f.unidade||'—');
-        return `<tr onclick="verFicha('${f.id}')">
-          <td><div class="func-nome">${f.nome||"—"}${f.formularioPendente?'<span class="badge-form-pend">📋 Form. pendente</span>':''}</div><div class="func-num">Agente Nº ${f.numero||"—"}</div></td>
-          <td>${f.categoria||"—"}</td>
-          <td>${localCurto}${f.seccao?`<br><small style="color:var(--neu-400);font-size:11px">${f.seccao}</small>`:""}</td>
-          <td><span class="badge ${bv}">${lv}</span></td>
-          <td><span class="badge ${be}">${le}</span></td>
-          <td onclick="event.stopPropagation()">
-            <div class="acoes-linha">
-              <button class="btn-ver-linha" onclick="verFicha('${f.id}')">Ver</button>
-              <button class="btn-editar-linha" onclick="editarFuncionario('${f.id}')">Editar</button>
-            </div>
-          </td>
-        </tr>`;
-      }).join("");
+        const tr = document.createElement("tr");
+        tr.addEventListener("click", function() { window.verFicha(f.id); });
+
+        const tdNome = document.createElement("td");
+        const nome = criarNo("div", "func-nome", f.nome || "—");
+        if (f.formularioPendente) {
+          const badgePend = criarNo("span", "badge-form-pend", "📋 Form. pendente");
+          nome.appendChild(badgePend);
+        }
+        tdNome.appendChild(nome);
+        tdNome.appendChild(criarNo("div", "func-num", "Agente Nº " + (f.numero || "—")));
+
+        const tdCategoria = criarNo("td", null, f.categoria || "—");
+
+        const tdLocal = document.createElement("td");
+        tdLocal.appendChild(document.createTextNode(localCurto));
+        if (f.seccao) {
+          tdLocal.appendChild(document.createElement("br"));
+          const seccao = criarNo("small", null, f.seccao);
+          seccao.style.color = "var(--neu-400)";
+          seccao.style.fontSize = "11px";
+          tdLocal.appendChild(seccao);
+        }
+
+        const tdVinculo = document.createElement("td");
+        tdVinculo.appendChild(criarNo("span", "badge " + bv, lv));
+
+        const tdEstado = document.createElement("td");
+        tdEstado.appendChild(criarNo("span", "badge " + be, le));
+
+        const tdAcoes = document.createElement("td");
+        tdAcoes.addEventListener("click", function(event) { event.stopPropagation(); });
+        const acoes = criarNo("div", "acoes-linha");
+        const btnVer = criarNo("button", "btn-ver-linha", "Ver");
+        btnVer.type = "button";
+        btnVer.addEventListener("click", function() { window.verFicha(f.id); });
+        const btnEditar = criarNo("button", "btn-editar-linha", "Editar");
+        btnEditar.type = "button";
+        btnEditar.addEventListener("click", function() { window.editarFuncionario(f.id); });
+        acoes.append(btnVer, btnEditar);
+        tdAcoes.appendChild(acoes);
+
+        tr.append(tdNome, tdCategoria, tdLocal, tdVinculo, tdEstado, tdAcoes);
+        frag.appendChild(tr);
+      });
+      tb.appendChild(frag);
     }
 
     // Controlos de paginação
@@ -1497,10 +1642,19 @@
     const v=document.getElementById("f-unidade").value;
     const eDir=v==="Direcção Municipal de Saúde do Sumbe";
     const eCentro=v.startsWith("Centro de Saúde");
+    const seccao=document.getElementById("f-seccao");
+    const area=document.getElementById("f-area");
     document.getElementById("campo-seccao-wrap").classList.toggle("campo-oculto",!eDir);
     document.getElementById("campo-area-wrap").classList.toggle("campo-oculto",!eCentro);
-    if(!eDir)document.getElementById("f-seccao").value="";
-    if(!eCentro)document.getElementById("f-area").value="";
+    if(seccao){
+      seccao.disabled=!eDir;
+      seccao.required=eDir;
+      if(!eDir)seccao.value="";
+    }
+    if(area){
+      area.disabled=!eCentro;
+      if(!eCentro)area.value="";
+    }
   };
 
   window.abrirFormulario=function(){
@@ -1576,6 +1730,7 @@
       } else {
         sel.value=f.categoria||"";
       }
+      toggleCategoriaOutra(sel);
     })();
     // Cargo — verificar se está na lista ou é manual
     (function(){
@@ -1589,6 +1744,7 @@
       } else {
         sel.value=f.cargo||"";
       }
+      toggleCargoOutro(sel);
     })();
     document.getElementById("f-estado").value=f.estado||"activo";
     verificarDireccao();
@@ -1606,9 +1762,9 @@
   function limparForm(){
     ["f-nome","f-bi","f-telefone","f-numero","f-admissao","f-observacoes","f-nascimento"].forEach(id=>document.getElementById(id).value="");
     ["f-sexo","f-categoria","f-unidade","f-vinculo","f-escolaridade","f-seccao","f-area"].forEach(id=>document.getElementById(id).value="");
-    const _mc=document.getElementById("f-categoria-manual"); if(_mc){_mc.value="";_mc.style.display="none";}
+    const _mc=document.getElementById("f-categoria-manual"); if(_mc){_mc.value="";_mc.style.display="none";_mc.disabled=true;_mc.required=false;}
     const _cg=document.getElementById("f-cargo"); if(_cg) _cg.value="";
-    const _cgm=document.getElementById("f-cargo-manual"); if(_cgm){_cgm.value="";_cgm.style.display="none";}
+    const _cgm=document.getElementById("f-cargo-manual"); if(_cgm){_cgm.value="";_cgm.style.display="none";_cgm.disabled=true;_cgm.required=false;}
     if(document.getElementById('f-inss'))          document.getElementById('f-inss').value          = '';
     if(document.getElementById('f-banco'))         document.getElementById('f-banco').value         = '';
     if(document.getElementById('f-numeroConta')){ document.getElementById('f-numeroConta').value=''; }
@@ -1635,6 +1791,10 @@
     document.getElementById("f-estado").value="activo";
     document.getElementById("campo-seccao-wrap").classList.add("campo-oculto");
     document.getElementById("campo-area-wrap").classList.add("campo-oculto");
+    var seccao = document.getElementById("f-seccao");
+    if(seccao){ seccao.disabled = true; seccao.required = false; }
+    var area = document.getElementById("f-area");
+    if(area) area.disabled = true;
   }
 
   // ══════════════════════════════════════════════════════
@@ -1866,8 +2026,12 @@
       icon.textContent = '🚫';
       titulo.textContent = 'Número de Agente Já Registado';
       sub.textContent    = 'Operação bloqueada — corrija antes de continuar';
-      msg.innerHTML = 'O número de agente <strong>' + nomeNovo.numero + '</strong> já existe no sistema. '
-        + 'Dois funcionários não podem ter o mesmo número de agente.';
+      renderMensagemDup(
+        msg,
+        nomeNovo.numero,
+        'O número de agente ',
+        ' já existe no sistema. Dois funcionários não podem ter o mesmo número de agente.'
+      );
       // Bloqueante: esconder botão "Guardar mesmo assim"
       btnP.style.display = 'none';
     } else if (tipo === 'bi') {
@@ -1875,16 +2039,24 @@
       icon.textContent = '⚠️';
       titulo.textContent = 'Bilhete de Identidade Duplicado';
       sub.textContent    = 'Confirme se pretende continuar';
-      msg.innerHTML = 'O BI <strong>' + nomeNovo.bi + '</strong> já consta no registo de outro funcionário. '
-        + 'Pode ser um erro de digitação. Verifique a ficha abaixo antes de prosseguir.';
+      renderMensagemDup(
+        msg,
+        nomeNovo.bi,
+        'O BI ',
+        ' já consta no registo de outro funcionário. Pode ser um erro de digitação. Verifique a ficha abaixo antes de prosseguir.'
+      );
       btnP.style.display = 'inline-block';
     } else {
       head.className   = 'dup-head dup-head-aviso';
       icon.textContent = '⚠️';
       titulo.textContent = 'Possível Registo Duplicado';
       sub.textContent    = 'Nome e data de nascimento coincidem';
-      msg.innerHTML = 'Já existe um funcionário com o nome <strong>' + nomeNovo.nome + '</strong> '
-        + 'e a mesma data de nascimento. Pode ser a mesma pessoa registada em duplicado.';
+      renderMensagemDup(
+        msg,
+        nomeNovo.nome,
+        'Já existe um funcionário com o nome ',
+        ' e a mesma data de nascimento. Pode ser a mesma pessoa registada em duplicado.'
+      );
       btnP.style.display = 'inline-block';
     }
 
@@ -1893,6 +2065,8 @@
 
   window.guardarFuncionario=async function(){
     if(!_exigirPerfil(["admin","chefe","tecnico"])){console.warn("Acesso negado: guardarFuncionario");return;}
+    const form=document.getElementById("form-funcionario");
+    if(form && !form.reportValidity()) return;
     const nome=document.getElementById("f-nome").value.trim();
     const sexo=document.getElementById("f-sexo").value;
     const numero=document.getElementById("f-numero").value.trim();
@@ -2136,15 +2310,119 @@
       {r:"Observações",v:f.observacoes,span2:true},
     ];
     const grid=document.getElementById("ficha-grid-dados");
-    grid.innerHTML=campos.map(c=>`
-      <div class="ficha-campo${c.span2?" destaque":""}">
-        <div class="rotulo">${c.r}</div>
-        <div class="valor">${
-          c.html?(c.v||"—"):
-          c.badge&&c.bval!==null?`<span class="badge-anos">${c.v}</span>`:
-          (c.v||"—")
-        }</div>
-      </div>`).join("");
+    const camposSeguro=[
+      {r:"Nome Completo",v:f.nome,span2:true},
+      {r:"Nº de Agente",v:f.numero},{r:"Sexo",v:f.sexo},
+      {r:"Bilhete de Identidade",v:f.bi},
+      {r:"Data de Emissão do BI",v:f.biEmissao?fmtData(f.biEmissao):null},
+      {r:"Data de Nascimento",v:f.nascimento?fmtData(f.nascimento):null},
+      {r:"Estado Civil",v:f.estadoCivil},{r:"Nome do Pai",v:f.nomePai},
+      {r:"Nome da Mãe",v:f.nomeMae},{r:"Morada",v:f.morada,span2:true},
+      {r:"Telefone",v:f.telefone},{r:"E-mail",v:f.email},
+      {r:"Categoria Profissional",v:f.categoria,span2:true},
+      ...(f.cargo ? [{r:"Cargo / Função",v:f.cargo,span2:true}] : []),
+      {r:"Local de Colocação",span2:true,render:function(valor){
+        if(!f.unidade){ valor.textContent="—"; return; }
+        valor.appendChild(document.createTextNode(f.unidade));
+        const link = criarNo("a", null, "🏥 Ver unidade");
+        link.href = "unidades.html";
+        link.title = "Ver ficha da unidade";
+        link.style.display = "inline-flex";
+        link.style.alignItems = "center";
+        link.style.gap = "4px";
+        link.style.padding = "2px 8px";
+        link.style.borderRadius = "99px";
+        link.style.background = "rgba(18,65,161,.10)";
+        link.style.color = "#1241a1";
+        link.style.fontSize = "11px";
+        link.style.fontWeight = "700";
+        link.style.textDecoration = "none";
+        link.style.verticalAlign = "middle";
+        link.style.marginLeft = "4px";
+        link.style.border = "1px solid rgba(18,65,161,.15)";
+        link.addEventListener("click", function(event){ event.stopPropagation(); });
+        valor.appendChild(document.createTextNode(" "));
+        valor.appendChild(link);
+      }},
+      ...(subLocal?[{r:f.unidade==="Direcção Municipal de Saúde do Sumbe"?"Secção":"Área / Serviço",v:subLocal,span2:true}]:[]),
+      ...(_unidadesRespMap[f.id] ? [{
+        r:"Responsável pela Unidade",
+        span2:true,
+        render:function(valor){
+          const resp = _unidadesRespMap[f.id];
+          valor.appendChild(document.createTextNode(resp.nomeUnidade || "—"));
+          const badge = criarNo("span", null, "📑 Em funções" + (resp.dataInicio ? " desde " + fmtData(resp.dataInicio) : ""));
+          badge.style.display = "inline-flex";
+          badge.style.alignItems = "center";
+          badge.style.gap = "4px";
+          badge.style.padding = "2px 9px";
+          badge.style.borderRadius = "99px";
+          badge.style.background = "rgba(5,150,105,.12)";
+          badge.style.color = "#059669";
+          badge.style.fontSize = "11px";
+          badge.style.fontWeight = "700";
+          badge.style.verticalAlign = "middle";
+          badge.style.marginLeft = "6px";
+          badge.style.border = "1px solid rgba(5,150,105,.22)";
+          valor.appendChild(document.createTextNode(" "));
+          valor.appendChild(badge);
+          if(resp.cargo){
+            valor.appendChild(document.createElement("br"));
+            const cargoResp = criarNo("span", null, resp.cargo);
+            cargoResp.style.fontSize = "11px";
+            cargoResp.style.color = "var(--neu-400)";
+            cargoResp.style.marginTop = "3px";
+            cargoResp.style.display = "block";
+            valor.appendChild(cargoResp);
+          }
+        }
+      }] : []),
+      {r:"Data de Admissão",v:f.admissao?fmtData(f.admissao):null},
+      {r:"Anos de Serviço",v:anos!==null?anos+" anos":"—",badge:true,bval:anos},
+      {r:"Dias de Férias com Direito",v:dias+" dias úteis"},
+      {r:"Estado Actual",v:{activo:"Em Serviço Activo",inactivo:"Inactivo",licenca:"De Licença"}[f.estado]||f.estado},
+      {r:"Escolaridade",v:f.escolaridade},{r:"A frequentar curso?",v:acadInfo},
+      ...(temDocs?[{r:"Documentos do Formulário",span2:true,render:function(valor){
+        let adicionou = false;
+        const linkBI = criarLinkDocumento(f.id, "bi", f.urlBI, "🪪 Ver BI");
+        if(linkBI){
+          valor.appendChild(linkBI);
+          adicionou = true;
+        }
+        const linkCert = criarLinkDocumento(f.id, "cert", f.urlCert, "🎓 Ver Certificado");
+        if(linkCert){
+          if(adicionou) valor.appendChild(document.createTextNode("  "));
+          valor.appendChild(linkCert);
+          adicionou = true;
+        }
+        if(!adicionou) valor.textContent = "—";
+      }}]:[]),
+      {r:"Naturalidade",v:(f.municipioNatal&&f.provinciaNatal)?f.municipioNatal+', '+f.provinciaNatal:(f.provinciaNatal||f.municipioNatal||null)},
+      {r:"Nº de Assegurado INSS",v:f.inss||null},
+      {r:"Banco de Domiciliação",v:f.banco||null},
+      {r:"Número de Conta / IBAN",v:f.numeroConta||null},
+      ...(['admin','chefe','tecnico'].includes(_perfilActual) && f.salarioBase
+        ? [{r:"Salário Base",v:Number(f.salarioBase).toLocaleString('pt-PT')+' Kz'}]
+        : []),
+      {r:"Observações",v:f.observacoes,span2:true},
+    ];
+    limparConteudo(grid);
+    const fragCampos=document.createDocumentFragment();
+    camposSeguro.forEach(function(c){
+      const campo=criarNo("div","ficha-campo"+(c.span2?" destaque":""));
+      campo.appendChild(criarNo("div","rotulo",c.r));
+      const valor=criarNo("div","valor");
+      if(typeof c.render==="function"){
+        c.render(valor);
+      } else if(c.badge&&c.bval!==null){
+        valor.appendChild(criarNo("span","badge-anos",c.v));
+      } else {
+        valor.textContent=textoOuTraco(c.v);
+      }
+      campo.appendChild(valor);
+      fragCampos.appendChild(campo);
+    });
+    grid.appendChild(fragCampos);
     // Faixa de formulário pendente de revisão
     const fichaConteudo = document.getElementById("tab-dados");
     const faixaExist = document.getElementById("faixa-form-pend");
@@ -2156,12 +2434,12 @@
       const faixa = document.createElement("div");
       faixa.id = "faixa-form-pend";
       faixa.className = "faixa-form-pend";
-      faixa.innerHTML = `
-        <div class="faixa-form-pend-txt">
-          📋 Formulário profissional submetido pelo funcionário
-          <small>Enviado em ${ts} — reveja os dados e marque como revisto</small>
-        </div>
-        <button class="btn-rever-form" onclick="marcarFormRevisto('${f.id}',this)">✅ Marcar como revisto</button>`;
+      const faixaTxt = criarNo("div", "faixa-form-pend-txt", "📋 Formulário profissional submetido pelo funcionário");
+      faixaTxt.appendChild(criarNo("small", null, "Enviado em " + ts + " — reveja os dados e marque como revisto"));
+      const btnRevisto = criarNo("button", "btn-rever-form", "✅ Marcar como revisto");
+      btnRevisto.type = "button";
+      btnRevisto.addEventListener("click", function(){ marcarFormRevisto(f.id, btnRevisto); });
+      faixa.append(faixaTxt, btnRevisto);
       fichaConteudo.insertBefore(faixa, fichaConteudo.firstChild);
     }
 
@@ -2176,15 +2454,41 @@
 
   async function carregarHistorico(funcId,nome){
     const div=document.getElementById("ficha-historico");
-    div.innerHTML=`<div class="hist-vazio"><div style="font-size:32px;margin-bottom:8px;">⏳</div><p>A carregar histórico...</p></div>`;
+    limparConteudo(div);
+    const loading = criarNo("div","hist-vazio");
+    const loadingIcon = criarNo("div", null, "⏳");
+    loadingIcon.style.fontSize = "32px";
+    loadingIcon.style.marginBottom = "8px";
+    loading.append(loadingIcon, criarNo("p", null, "A carregar histórico..."));
+    div.appendChild(loading);
     try{
       const snap=await getDocs(query(collection(db,"documentos"),where("funcionarioId","==",funcId)));
       const docs=snap.docs.map(d=>({id:d.id,...d.data()}));
       docs.sort((a,b)=>(b.geradoEm?.toDate?.().getTime()||0)-(a.geradoEm?.toDate?.().getTime()||0));
-      if(docs.length===0){div.innerHTML=`<div class="hist-vazio"><div style="font-size:40px;margin-bottom:10px;">📂</div><p>Nenhum documento emitido ainda para <strong>${nome}</strong>.</p></div>`;return;}
+      if(docs.length===0){
+        limparConteudo(div);
+        const vazio = criarNo("div","hist-vazio");
+        const icone = criarNo("div", null, "📂");
+        icone.style.fontSize = "40px";
+        icone.style.marginBottom = "10px";
+        const texto = criarNo("p");
+        texto.appendChild(document.createTextNode("Nenhum documento emitido ainda para "));
+        texto.appendChild(criarNo("strong", null, nome));
+        texto.appendChild(document.createTextNode("."));
+        vazio.append(icone, texto);
+        div.appendChild(vazio);
+        return;
+      }
       const icones={"guia-ferias":"🏖️","declaracao":"📜","guia-medica":"🏥","oficio":"📋"};
       const tipos={"guia-ferias":"Guia de Férias","declaracao":"Declaração de Serviço","guia-medica":"Guia Médica","oficio":"Ofício"};
-      let html=`<div style="padding:12px 16px;font-size:12px;color:var(--neu-400);border-bottom:1px solid var(--neu-100);font-weight:600;">${docs.length} documento(s) no histórico</div>`;
+      limparConteudo(div);
+      const cabecalho = criarNo("div", null, docs.length + " documento(s) no histórico");
+      cabecalho.style.padding = "12px 16px";
+      cabecalho.style.fontSize = "12px";
+      cabecalho.style.color = "var(--neu-400)";
+      cabecalho.style.borderBottom = "1px solid var(--neu-100)";
+      cabecalho.style.fontWeight = "600";
+      div.appendChild(cabecalho);
       docs.forEach(d=>{
         const ts=d.geradoEm?.toDate?.();
         const dataFmt=ts?ts.toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric"}):"—";
@@ -2197,19 +2501,53 @@
         const estCores={pendente:{c:"#92400e",bg:"var(--a-100)"},aprovado:{c:"var(--c-700)",bg:"var(--c-100)"},rejeitado:{c:"var(--r-600)",bg:"var(--r-100)"}};
         const est=estCores[d.estado]||estCores.pendente;
         const estTxt={pendente:"⏳ Aguarda",aprovado:"✅ Aprovado",rejeitado:"❌ Rejeitado"}[d.estado]||d.estado;
-        html+=`<div class="hist-item">
-          <div class="hist-icon">${icone}</div>
-          <div class="hist-info">
-            <div class="hist-tipo">${tipo} ${numFmt}</div>
-            <div class="hist-det">${dias} ${inicio} <span style="margin-left:4px;padding:2px 8px;border-radius:var(--r-full);font-size:10px;font-weight:700;background:${est.bg};color:${est.c}">${estTxt}</span></div>
-            <div class="hist-det" style="margin-top:2px;">Por: ${d.geradoPorEmail||"—"}</div>
-            ${d.observacao?`<div class="hist-det" style="font-style:italic;">💬 "${d.observacao}"</div>`:""}
-          </div>
-          <div class="hist-data">${dataFmt}<br><span style="color:var(--neu-300)">${horaFmt}</span></div>
-        </div>`;
+        const item = criarNo("div","hist-item");
+        item.appendChild(criarNo("div","hist-icon",icone));
+
+        const info = criarNo("div","hist-info");
+        info.appendChild(criarNo("div","hist-tipo", (tipo + " " + numFmt).trim()));
+
+        const detLinha = criarNo("div","hist-det");
+        const resumo = [dias, inicio].filter(Boolean).join(" ");
+        if (resumo) detLinha.appendChild(document.createTextNode(resumo + " "));
+        const badge = criarNo("span", null, estTxt);
+        badge.style.marginLeft = "4px";
+        badge.style.padding = "2px 8px";
+        badge.style.borderRadius = "var(--r-full)";
+        badge.style.fontSize = "10px";
+        badge.style.fontWeight = "700";
+        badge.style.background = est.bg;
+        badge.style.color = est.c;
+        detLinha.appendChild(badge);
+        info.appendChild(detLinha);
+
+        const porLinha = criarNo("div","hist-det", "Por: " + (d.geradoPorEmail||"—"));
+        porLinha.style.marginTop = "2px";
+        info.appendChild(porLinha);
+
+        if (d.observacao) {
+          const obs = criarNo("div","hist-det", '💬 "' + d.observacao + '"');
+          obs.style.fontStyle = "italic";
+          info.appendChild(obs);
+        }
+
+        const data = criarNo("div","hist-data", dataFmt);
+        data.appendChild(document.createElement("br"));
+        const hora = criarNo("span", null, horaFmt);
+        hora.style.color = "var(--neu-300)";
+        data.appendChild(hora);
+
+        item.append(info, data);
+        div.appendChild(item);
       });
-      div.innerHTML=html;
-    }catch(e){div.innerHTML=`<div class="hist-vazio"><p style="color:var(--r-600)">⚠️ Erro ao carregar histórico.</p></div>`;}
+    }catch(e){
+      limparConteudo(div);
+      const erro = criarNo("div","hist-vazio");
+      const texto = criarNo("p", null, "⚠️ Erro ao carregar histórico.");
+      texto.style.color = "var(--r-600)";
+      erro.appendChild(texto);
+      div.appendChild(erro);
+    }
   }
 
   async function carregarSolicitacoesFicha(funcId,nome){
@@ -2219,31 +2557,73 @@
       const snap=await getDocs(query(collection(db,"solicitacoes"),where("funcionarioId","==",funcId)));
       const sols=snap.docs.map(d=>({id:d.id,...d.data()}));
       sols.sort((a,b)=>(b.criadaEm?.toDate?.().getTime()||0)-(a.criadaEm?.toDate?.().getTime()||0));
-      if(sols.length===0){div.innerHTML=`<div class="hist-vazio"><div style="font-size:36px;margin-bottom:10px;">📩</div><p>Nenhuma solicitação enviada ainda.</p></div>`;if(badge)badge.style.display="none";return;}
+      if(sols.length===0){
+        limparConteudo(div);
+        const vazio = criarNo("div","hist-vazio");
+        const icone = criarNo("div", null, "📩");
+        icone.style.fontSize = "36px";
+        icone.style.marginBottom = "10px";
+        vazio.append(icone, criarNo("p", null, "Nenhuma solicitação enviada ainda."));
+        div.appendChild(vazio);
+        if(badge)badge.style.display="none";
+        return;
+      }
       const pend=sols.filter(s=>s.estado==="nova"||s.estado==="processando").length;
       if(badge&&pend>0){badge.textContent=pend;badge.style.display="inline";}else if(badge)badge.style.display="none";
       const TIPOS={"guia-ferias":"🏖️ Guia de Férias","declaracao-servico":"📜 Declaração","guia-medica":"🏥 Guia Médica","oficio":"📋 Ofício"};
       const ESTADOS={nova:"🆕 Nova",processando:"🔄 A processar",concluida:"✅ Concluída",rejeitada:"❌ Rejeitada"};
       const COR={nova:{bg:"#ede9fe",c:"#5b21b6"},processando:{bg:"var(--b-100)",c:"var(--b-800)"},concluida:{bg:"var(--c-100)",c:"var(--c-700)"},rejeitada:{bg:"var(--r-100)",c:"var(--r-600)"}};
-      let html=`<div style="padding:12px 16px;font-size:12px;color:var(--neu-400);border-bottom:1px solid var(--neu-100);font-weight:600;">${sols.length} solicitação(ões)</div>`;
+      limparConteudo(div);
+      const cabecalho = criarNo("div", null, sols.length + " solicitação(ões)");
+      cabecalho.style.padding = "12px 16px";
+      cabecalho.style.fontSize = "12px";
+      cabecalho.style.color = "var(--neu-400)";
+      cabecalho.style.borderBottom = "1px solid var(--neu-100)";
+      cabecalho.style.fontWeight = "600";
+      div.appendChild(cabecalho);
       sols.forEach(s=>{
         const ts=s.criadaEm?.toDate?.();
         const data=ts?ts.toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric"}):"—";
         const tipo=TIPOS[s.tipo]||s.tipo||"Documento";
         const cor=COR[s.estado]||COR.nova;
-        html+=`<div class="hist-item">
-          <div class="hist-icon" style="background:${cor.bg};color:${cor.c}">${tipo.split(" ")[0]}</div>
-          <div class="hist-info">
-            <div class="hist-tipo">${tipo.substring(tipo.indexOf(" ")+1)}</div>
-            <div class="hist-det">Enviado em ${data}</div>
-            ${s.dataInicioFerias?`<div class="hist-det">📅 Início férias: ${fmtDataSim(s.dataInicioFerias)}</div>`:""}
-            ${s.motivo?`<div class="hist-det">💬 ${s.motivo}</div>`:""}
-          </div>
-          <span style="padding:3px 10px;border-radius:var(--r-full);font-size:10px;font-weight:700;background:${cor.bg};color:${cor.c};white-space:nowrap;align-self:flex-start;">${ESTADOS[s.estado]||s.estado}</span>
-        </div>`;
+        const item = criarNo("div","hist-item");
+        const icon = criarNo("div","hist-icon",tipo.split(" ")[0]);
+        icon.style.background = cor.bg;
+        icon.style.color = cor.c;
+        item.appendChild(icon);
+
+        const info = criarNo("div","hist-info");
+        info.appendChild(criarNo("div","hist-tipo", tipo.substring(tipo.indexOf(" ")+1)));
+        info.appendChild(criarNo("div","hist-det", "Enviado em " + data));
+        if (s.dataInicioFerias) {
+          info.appendChild(criarNo("div","hist-det", "📅 Início férias: " + fmtDataSim(s.dataInicioFerias)));
+        }
+        if (s.motivo) {
+          info.appendChild(criarNo("div","hist-det", "💬 " + s.motivo));
+        }
+        item.appendChild(info);
+
+        const estado = criarNo("span", null, ESTADOS[s.estado]||s.estado);
+        estado.style.padding = "3px 10px";
+        estado.style.borderRadius = "var(--r-full)";
+        estado.style.fontSize = "10px";
+        estado.style.fontWeight = "700";
+        estado.style.background = cor.bg;
+        estado.style.color = cor.c;
+        estado.style.whiteSpace = "nowrap";
+        estado.style.alignSelf = "flex-start";
+        item.appendChild(estado);
+
+        div.appendChild(item);
       });
-      div.innerHTML=html;
-    }catch(e){div.innerHTML=`<div class="hist-vazio"><div style="font-size:32px">⚠️</div><p>Sem acesso às solicitações.</p></div>`;}
+    }catch(e){
+      limparConteudo(div);
+      const erro = criarNo("div","hist-vazio");
+      const icone = criarNo("div", null, "⚠️");
+      icone.style.fontSize = "32px";
+      erro.append(icone, criarNo("p", null, "Sem acesso às solicitações."));
+      div.appendChild(erro);
+    }
   }
 
   window.fecharFicha=()=>document.getElementById("overlay-ficha").classList.remove("activo");
