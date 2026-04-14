@@ -844,7 +844,7 @@
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import {
     getFirestore, doc, getDoc, getDocs, setDoc, updateDoc,
-    collection, query, where, serverTimestamp
+    collection, query, where, serverTimestamp, runTransaction
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -1291,6 +1291,70 @@
   // ════════════════════════════════
   // SUBMISSÃO FINAL
   // ════════════════════════════════
+  function normBIFormulario(bi) {
+    return (bi || '').replace(/\s/g, '').toUpperCase();
+  }
+
+  function normalizarNumeroFormulario(numero) {
+    return (numero || '').replace(/\s/g, '').trim();
+  }
+
+  function refIndiceFuncionario(tipo, valor) {
+    return doc(db, "funcionarios_indices", tipo + "_" + valor);
+  }
+
+  async function actualizarFuncionarioComIndices(funcId, dadosBase) {
+    const numeroNormalizado = normalizarNumeroFormulario(dadosBase.numero);
+    const biNormalizado = normBIFormulario(dadosBase.bi);
+    const funcRef = doc(db, "funcionarios", funcId);
+
+    await runTransaction(db, async function(transaction) {
+      const snapActual = await transaction.get(funcRef);
+      const actual = snapActual.exists() ? snapActual.data() : {};
+      const numeroAnterior = normalizarNumeroFormulario(actual.numeroNormalizado || actual.numero || "");
+      const biAnterior = normBIFormulario(actual.biNormalizado || actual.bi || "");
+
+      transaction.update(funcRef, {
+        ...dadosBase,
+        numeroNormalizado,
+        biNormalizado,
+      });
+
+      const numeroRef = refIndiceFuncionario("numero", numeroNormalizado);
+      const numeroSnap = await transaction.get(numeroRef);
+      if (numeroSnap.exists() && numeroSnap.data().funcionarioId !== funcId) {
+        throw new Error("NUMERO_DUPLICADO_BACKEND");
+      }
+      transaction.set(numeroRef, {
+        tipo: "numero",
+        valor: numeroNormalizado,
+        funcionarioId: funcId,
+        actualizadoEm: serverTimestamp()
+      });
+
+      if (biNormalizado) {
+        const biRef = refIndiceFuncionario("bi", biNormalizado);
+        const biSnap = await transaction.get(biRef);
+        if (biSnap.exists() && biSnap.data().funcionarioId !== funcId) {
+          throw new Error("BI_DUPLICADO_BACKEND");
+        }
+        transaction.set(biRef, {
+          tipo: "bi",
+          valor: biNormalizado,
+          funcionarioId: funcId,
+          actualizadoEm: serverTimestamp()
+        });
+      }
+
+      if (numeroAnterior && numeroAnterior !== numeroNormalizado) {
+        transaction.delete(refIndiceFuncionario("numero", numeroAnterior));
+      }
+      if (biAnterior && biAnterior !== biNormalizado) {
+        transaction.delete(refIndiceFuncionario("bi", biAnterior));
+      }
+    });
+  }
+
   window.submeterFormulario = async function() {
     if (!_utilizador || !_funcDocId) {
       mostrarNotif('❌ Sessão expirada. Por favor, entre novamente no portal.', 'notif-erro');
@@ -1377,7 +1441,7 @@
         actualizadoEm: serverTimestamp(),
       };
 
-      await updateDoc(doc(db, "funcionarios", _funcDocId), dados);
+      await actualizarFuncionarioComIndices(_funcDocId, dados);
 
       // Esconder formulário, mostrar confirmação
       const formWrap = document.querySelector('.form-wrap');
@@ -1400,8 +1464,13 @@
 
     } catch(e) {
       console.error(e);
+      const msgErro = (
+        e?.message === "NUMERO_DUPLICADO_BACKEND" || e?.message === "BI_DUPLICADO_BACKEND"
+      )
+        ? '❌ Conflito detectado no sistema. O número de agente ou BI já foi associado a outro registo.'
+        : '❌ Erro ao guardar os dados. Verifique a ligação e tente novamente.';
       document.getElementById('msg-submissao').innerHTML =
-        `<div class="alerta alerta-erro">❌ Erro ao guardar os dados. Verifique a ligação e tente novamente.</div>`;
+        `<div class="alerta alerta-erro">${msgErro}</div>`;
       btn.disabled = false;
       btn.innerHTML = '📤 Confirmar e Submeter Formulário';
     }
