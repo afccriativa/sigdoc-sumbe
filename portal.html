@@ -2884,6 +2884,32 @@
     if(frame) frame.srcdoc = "";
     document.getElementById("overlay-viewer-doc").classList.remove("activo");
   };
+  window.abrirVisualizacaoPortalPorDocId = async function(docId) {
+    if (!docId) return false;
+    const emCache = (window._minhasSolicitacoes || []).find(x => x.id === docId && x.htmlArquivo);
+    if (emCache) {
+      abrirVisualizacaoPortal(docId);
+      return true;
+    }
+    try {
+      const snap = await getDoc(doc(db, "documentos", docId));
+      if (!snap.exists()) return false;
+      const dados = { id: snap.id, ...snap.data() };
+      if (_utilizador?.uid && dados.funcionarioUid && dados.funcionarioUid !== _utilizador.uid) return false;
+      if (_funcDocId && dados.funcionarioId && dados.funcionarioId !== _funcDocId) return false;
+      if (!dados.htmlArquivo) return false;
+      const lista = window._minhasSolicitacoes || [];
+      const idx = lista.findIndex(x => x.id === dados.id);
+      if (idx >= 0) lista[idx] = { ...lista[idx], ...dados, _origem: "documento" };
+      else lista.push({ ...dados, _origem: "documento" });
+      window._minhasSolicitacoes = lista;
+      abrirVisualizacaoPortal(dados.id);
+      return true;
+    } catch (e) {
+      console.warn("abrirVisualizacaoPortalPorDocId:", e);
+      return false;
+    }
+  };
   window.imprimirSegundaViaPortal = function(id) { abrirVisualizacaoPortal(id); };
 
   // ── COMPLETUDE DO FORMULÁRIO ──
@@ -4144,6 +4170,14 @@
       }, 120);
     } else if (['doc_aprovado','doc_rejeitado','doc_gerado','sistema'].includes(n.tipo)) {
       navegarAba('aba-docs');
+      const docId = n.extra?.docId || n.extra?.documentoId || null;
+      const podeAbrir = ['doc_aprovado','doc_gerado'].includes(n.tipo) && docId;
+      if (podeAbrir) {
+        setTimeout(async () => {
+          const abriu = await abrirVisualizacaoPortalPorDocId(docId);
+          if (!abriu) notif('📄 Documento localizado, mas ainda nao foi possivel abrir a visualizacao.', 'notif-info');
+        }, 180);
+      }
     }
   };
 
