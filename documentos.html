@@ -82,6 +82,13 @@
       overflow: visible;
     }
 
+    @media (max-width: 760px) {
+      .arquivo-topo { align-items:stretch; }
+      .arquivo-filtro { max-width:none; }
+      .guia-emitida-item { flex-direction:column; align-items:flex-start; }
+      .guia-emitida-acoes { width:100%; justify-content:space-between; }
+      .btn-arquivo-acao { width:100%; }
+    }
     /* ================================================
        DOCUMENTO OFICIAL — fiel ao modelo físico
        Dimensões A4 paisagem: 297mm x 210mm
@@ -220,6 +227,35 @@
     .notif-aviso { background: #d97706 !important; }
     .notif-info  { background: #2563eb !important; }
 
+    .arquivo-wrap { max-width: 1500px; margin: 0 auto 24px; padding: 0 20px; }
+    .arquivo-topo { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+    .arquivo-sub { font-size:12px; color:#6b7280; line-height:1.5; }
+    .arquivo-badge { font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; background:#e8f4f8; color:var(--azul); }
+    .arquivo-filtro { width:100%; max-width:340px; }
+    .lista-guias-emitidas { display:flex; flex-direction:column; gap:10px; max-height:420px; overflow:auto; }
+    .guia-emitida-item {
+      display:flex; align-items:center; justify-content:space-between; gap:14px;
+      padding:14px 16px; border:1px solid #e5e7eb; border-radius:12px; background:#fbfcfd;
+    }
+    .guia-emitida-main { min-width:0; flex:1; }
+    .guia-emitida-titulo { font-size:13px; font-weight:800; color:#0f172a; }
+    .guia-emitida-meta { font-size:12px; color:#6b7280; margin-top:4px; line-height:1.45; }
+    .guia-emitida-acoes { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+    .guia-estado {
+      font-size:11px; font-weight:700; padding:5px 9px; border-radius:999px;
+      background:#eef6ff; color:#1d4ed8;
+    }
+    .guia-estado.concluida, .guia-estado.aprovado { background:#e8f8f0; color:#1e8449; }
+    .guia-estado.gerado, .guia-estado.pendente { background:#fff7ed; color:#c2410c; }
+    .btn-arquivo-acao {
+      border:none; border-radius:10px; background:var(--azul); color:white;
+      padding:9px 12px; font-size:12px; font-weight:700; cursor:pointer;
+    }
+    .btn-arquivo-acao:disabled { opacity:.45; cursor:not-allowed; }
+    .arquivo-vazio {
+      padding:20px; text-align:center; border:1px dashed #d1d5db; border-radius:12px;
+      font-size:13px; color:#6b7280; background:#fafafa;
+    }
     @media (max-width: 1000px) {
       .layout { grid-template-columns: 1fr; }
       .doc-wrapper { transform: scale(0.34); margin-bottom: -520px; }
@@ -663,6 +699,24 @@
 
 </div>
 
+<div class="arquivo-wrap">
+  <div class="cartao">
+    <div class="cartao-cabecalho">&#128450; Arquivo de Guias Medicas Emitidas</div>
+    <div class="cartao-corpo">
+      <div class="arquivo-topo">
+        <div>
+          <div class="arquivo-sub">Consulte as guias medicas ja geradas a partir da coleccao <strong>documentos</strong> e abra qualquer uma directamente no painel de pre-visualizacao.</div>
+        </div>
+        <span class="arquivo-badge" id="arquivo-guias-total">0 guias</span>
+      </div>
+      <input class="arquivo-filtro" type="text" id="pesquisa-guia-emitida" placeholder="Pesquisar por numero, funcionario ou unidade..." oninput="filtrarGuiasEmitidas()"/>
+      <div class="lista-guias-emitidas" id="lista-guias-emitidas">
+        <div class="arquivo-vazio">A carregar arquivo de guias medicas...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="area-impressao"></div>
 <div class="notificacao" id="notificacao"></div>
 
@@ -812,6 +866,8 @@
   let dadosUltimoDocumento = null; // guarda os dados para submissão
   let utilizadorActual = null;     // utilizador autenticado
   let documentoSubmetido = false;  // evita dupla submissão
+  let guiasEmitidasCache = [];
+  let unsubGuiasEmitidas = null;
   window._solicitacaoOrigemId = null;
   window._solicitacaoOrigemFuncionarioUid = null;
 
@@ -844,6 +900,7 @@
     actualizarCamposFormulario();
     await verificarParamsPortal();
     await verificarParamSecretaria();
+    carregarGuiasEmitidas();
   });
 
   async function carregarFuncionarios() {
@@ -1623,6 +1680,116 @@
       btnSub.innerHTML = "&#128228; Guardar Documento";
     }
   }
+
+  function renderizarPreviewArquivo(d) {
+    if (!d || !d.htmlArquivo) {
+      mostrarNotificacao("⚠️ Esta guia ainda nao tem arquivo visual disponivel.", "aviso");
+      return;
+    }
+    const areaPreview = document.getElementById("area-preview");
+    const areaImpressao = document.getElementById("area-impressao");
+    const badgePreview = document.getElementById("badge-preview-documento");
+    const badgeEstado = document.getElementById("badge-estado");
+    if ((d.tipo || "") === "guia-medica") {
+      areaPreview.innerHTML = '<div style="transform: scale(0.6); transform-origin: top center; margin-bottom: -400px;">' + d.htmlArquivo + '</div>';
+    } else {
+      areaPreview.innerHTML = '<div class="doc-wrapper-centrado"><div class="doc-wrapper" style="display:block">' + d.htmlArquivo + '</div></div>';
+    }
+    areaImpressao.innerHTML = d.htmlArquivo;
+    if (badgePreview) badgePreview.textContent = "Guia Medica arquivada";
+    if (badgeEstado) {
+      badgeEstado.style.display = "flex";
+      badgeEstado.style.background = "#eff6ff";
+      badgeEstado.style.color = "#1d4ed8";
+      badgeEstado.style.border = "1.5px solid #93c5fd";
+      badgeEstado.textContent = "Arquivo historico aberto para consulta e reimpressao";
+    }
+    document.getElementById("btn-imprimir").disabled = false;
+    document.getElementById("btn-submeter").disabled = true;
+    dadosUltimoDocumento = null;
+    documentoGerado = false;
+    documentoSubmetido = false;
+    document.querySelector(".painel-preview")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    mostrarNotificacao("📄 Guia medica arquivada aberta na pre-visualizacao.");
+  }
+
+  function renderizarListaGuiasEmitidas() {
+    const lista = document.getElementById("lista-guias-emitidas");
+    const badge = document.getElementById("arquivo-guias-total");
+    const termo = (document.getElementById("pesquisa-guia-emitida")?.value || "").trim().toLowerCase();
+    const docs = guiasEmitidasCache.filter(d => {
+      const alvo = [
+        d.numGuia ? String(d.numGuia) : "",
+        d.anoGuia ? String(d.anoGuia) : "",
+        d.funcionarioNome || "",
+        d.unidadeSanitaria || "",
+        d.estado || ""
+      ].join(" ").toLowerCase();
+      return !termo || alvo.includes(termo);
+    });
+    if (badge) badge.textContent = `${guiasEmitidasCache.length} guias`;
+    if (!docs.length) {
+      lista.innerHTML = `<div class="arquivo-vazio">Nenhuma guia medica encontrada para o filtro actual.</div>`;
+      return;
+    }
+    lista.innerHTML = docs.map(d => {
+      const data = d.geradoEm?.toDate?.()
+        ? d.geradoEm.toDate().toLocaleDateString("pt-AO", { day:"2-digit", month:"short", year:"numeric" })
+        : "—";
+      const ref = d.numGuia && d.anoGuia ? `Nº ${d.numGuia}/${d.anoGuia}` : "Sem numero";
+      const unidade = d.unidadeSanitaria || "Unidade nao indicada";
+      const estado = d.estado || "gerado";
+      const podeVer = !!d.htmlArquivo;
+      return `
+        <div class="guia-emitida-item">
+          <div class="guia-emitida-main">
+            <div class="guia-emitida-titulo">${ref} · ${d.funcionarioNome || "Funcionario nao identificado"}</div>
+            <div class="guia-emitida-meta">${data} · ${unidade}</div>
+          </div>
+          <div class="guia-emitida-acoes">
+            <span class="guia-estado ${estado}">${estado}</span>
+            <button class="btn-arquivo-acao" onclick="abrirGuiaEmitida('${d.id}')" ${podeVer ? "" : "disabled"}>Ver no painel</button>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  function carregarGuiasEmitidas() {
+    const lista = document.getElementById("lista-guias-emitidas");
+    if (!lista) return;
+    if (unsubGuiasEmitidas) { unsubGuiasEmitidas(); unsubGuiasEmitidas = null; }
+    lista.innerHTML = `<div class="arquivo-vazio">A carregar arquivo de guias medicas...</div>`;
+    unsubGuiasEmitidas = onSnapshot(
+      query(collection(db, "documentos"), where("tipo", "==", "guia-medica")),
+      snap => {
+        guiasEmitidasCache = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => {
+            const ta = a.geradoEm?.toDate ? a.geradoEm.toDate() : new Date(0);
+            const tb = b.geradoEm?.toDate ? b.geradoEm.toDate() : new Date(0);
+            return tb - ta;
+          });
+        renderizarListaGuiasEmitidas();
+      },
+      err => {
+        console.error("Guias emitidas:", err);
+        lista.innerHTML = `<div class="arquivo-vazio">Nao foi possivel carregar o arquivo de guias medicas.</div>`;
+      }
+    );
+  }
+
+  window.filtrarGuiasEmitidas = function() {
+    renderizarListaGuiasEmitidas();
+  };
+
+  window.abrirGuiaEmitida = function(id) {
+    const docSel = guiasEmitidasCache.find(d => d.id === id);
+    if (!docSel) {
+      mostrarNotificacao("❌ Guia medica nao encontrada.", "erro");
+      return;
+    }
+    renderizarPreviewArquivo(docSel);
+  };
 
   window.imprimirDocumento = function() { window.print(); };
 
