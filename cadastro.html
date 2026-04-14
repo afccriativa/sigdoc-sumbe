@@ -1253,7 +1253,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getFirestore, collection, doc, getDoc, getDocs,
-           addDoc, updateDoc, serverTimestamp, query, orderBy, where }
+           addDoc, updateDoc, serverTimestamp, query, orderBy, where, runTransaction }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
   const firebaseConfig = window.SIGDOC_CONFIG.config;
   const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app);
@@ -1899,6 +1899,78 @@
   // Normaliza BI para comparação: maiúsculas, sem espaços
   function normBI(bi) { return (bi||'').replace(/\s/g,'').toUpperCase(); }
 
+  function normalizarNumero(numero) {
+    return (numero || '').replace(/\s/g, '').trim();
+  }
+
+  function refIndiceFuncionario(tipo, valor) {
+    return doc(db, "funcionarios_indices", tipo + "_" + valor);
+  }
+
+  async function gravarFuncionarioComIndices(dadosBase) {
+    const numeroNormalizado = normalizarNumero(dadosBase.numero);
+    const biNormalizado = normBI(dadosBase.bi);
+    const funcRef = funcionarioEmEdicao
+      ? doc(db, "funcionarios", funcionarioEmEdicao)
+      : doc(collection(db, "funcionarios"));
+
+    await runTransaction(db, async function(transaction) {
+      const snapActual = await transaction.get(funcRef);
+      const actual = snapActual.exists() ? snapActual.data() : {};
+      const numeroAnterior = normalizarNumero(actual.numeroNormalizado || actual.numero || "");
+      const biAnterior = normBI(actual.biNormalizado || actual.bi || "");
+
+      const dados = {
+        ...dadosBase,
+        numeroNormalizado,
+        biNormalizado,
+      };
+
+      if (funcionarioEmEdicao) {
+        transaction.update(funcRef, dados);
+      } else {
+        transaction.set(funcRef, {
+          ...dados,
+          criadoEm: serverTimestamp(),
+          criadoPor: utilizadorActual.uid
+        });
+      }
+
+      const numeroRef = refIndiceFuncionario("numero", numeroNormalizado);
+      const numeroSnap = await transaction.get(numeroRef);
+      if (numeroSnap.exists() && numeroSnap.data().funcionarioId !== funcRef.id) {
+        throw new Error("NUMERO_DUPLICADO_BACKEND");
+      }
+      transaction.set(numeroRef, {
+        tipo: "numero",
+        valor: numeroNormalizado,
+        funcionarioId: funcRef.id,
+        actualizadoEm: serverTimestamp()
+      });
+
+      if (biNormalizado) {
+        const biRef = refIndiceFuncionario("bi", biNormalizado);
+        const biSnap = await transaction.get(biRef);
+        if (biSnap.exists() && biSnap.data().funcionarioId !== funcRef.id) {
+          throw new Error("BI_DUPLICADO_BACKEND");
+        }
+        transaction.set(biRef, {
+          tipo: "bi",
+          valor: biNormalizado,
+          funcionarioId: funcRef.id,
+          actualizadoEm: serverTimestamp()
+        });
+      }
+
+      if (numeroAnterior && numeroAnterior !== numeroNormalizado) {
+        transaction.delete(refIndiceFuncionario("numero", numeroAnterior));
+      }
+      if (biAnterior && biAnterior !== biNormalizado) {
+        transaction.delete(refIndiceFuncionario("bi", biAnterior));
+      }
+    });
+  }
+
   // Normaliza nome: minúsculas, sem espaços múltiplos, sem acentos
   function normNome(n) {
     return (n||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
@@ -1982,17 +2054,21 @@
         dados.fotoUrl = _fotoUrlActual;
       }
 
+      await gravarFuncionarioComIndices(dados);
+
       if (funcionarioEmEdicao) {
-        await updateDoc(doc(db,'funcionarios',funcionarioEmEdicao), dados);
         notif('✅ Funcionário "' + nome + '" actualizado!');
       } else {
-        dados.criadoEm = serverTimestamp(); dados.criadoPor = utilizadorActual.uid;
-        await addDoc(collection(db,'funcionarios'), dados);
         notif('✅ Funcionário "' + nome + '" registado com sucesso!');
       }
       fecharFormulario(); carregarFuncionarios();
     } catch(e) {
-      console.error(e); notif('Erro ao guardar. Verifique a conexão.','erro');
+      console.error(e);
+      if (e?.message === "NUMERO_DUPLICADO_BACKEND" || e?.message === "BI_DUPLICADO_BACKEND") {
+        notif('Conflito detectado no servidor. Recarregue a lista e verifique número e BI antes de guardar.','erro');
+      } else {
+        notif('Erro ao guardar. Verifique a conexão.','erro');
+      }
     } finally {
       btn.disabled = false; btn.innerHTML = '💾 Guardar Funcionário';
     }
