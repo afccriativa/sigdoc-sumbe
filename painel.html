@@ -7,6 +7,7 @@
   <meta name="theme-color" content="#0d1422"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <script src="sigdoc-config.js"></script>
+  <script src="sigdoc-unidades.js"></script>
   <script src="sigdoc-nav.js"></script>
   <script src="sigdoc-session.js"></script>
   <script>
@@ -1558,7 +1559,8 @@
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import {
     getFirestore, collection, getDocs, query,
-    orderBy, limit, where, Timestamp, doc, getDoc, onSnapshot
+    orderBy, limit, where, Timestamp, doc, getDoc, onSnapshot,
+    setDoc, writeBatch, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
@@ -1706,8 +1708,13 @@
     return query(collection(db, nome), orderBy(campoOrdem, "desc"), limit(maxDocs || 500));
   }
 
+  function normalizarColeccaoPainel(nome, registos) {
+    if (nome !== "unidades_sanitarias") return registos;
+    return window.SIGDOC_UNIDADES.ordenarUnidades((registos || []).map(r => window.SIGDOC_UNIDADES.normalizarUnidade(r)));
+  }
+
   function actualizarColeccaoLocal(nome, registos, silencioso = true) {
-    _dadosBrutos[nome] = registos;
+    _dadosBrutos[nome] = normalizarColeccaoPainel(nome, registos);
     _ultimaSincronizacao = new Date();
     _sincronizacaoActiva = true;
     if (!_dadosIniciaisCarregados) return;
@@ -1766,11 +1773,14 @@
   async function carregarTudo(notificar = false) {
     document.getElementById("hero-sub").innerHTML = `A carregar… <span class="hero-carregando">⏳</span>`;
     try {
+      const unidadesPromise = window.SIGDOC_UNIDADES.garantirCatalogoMinimo(db, {
+        collection, getDocs, doc, setDoc, writeBatch, serverTimestamp
+      });
       const [funcionarios, documentos, sessoes, unidades, pedidosSec, reunioes, solicitacoes, ferias] = await Promise.all([
         fetchColeccao("funcionarios"),
         fetchColeccao("documentos", "geradoEm", { maxDocs: LIMITES_LIVE.documentos }),
         fetchColeccao("sessoes", "timestamp", { maxDocs: LIMITES_LIVE.sessoes }),
-        fetchColeccao("unidades_sanitarias"),
+        unidadesPromise,
         fetchColeccao("pedidos_secretaria", "criadoEm", { maxDocs: LIMITES_LIVE.pedidos_secretaria }),
         fetchColeccao("reunioes", "criadoEm", { maxDocs: LIMITES_LIVE.reunioes }),
         fetchColeccao("solicitacoes", "criadoEm", { maxDocs: LIMITES_LIVE.solicitacoes }),
@@ -1811,7 +1821,7 @@
         ? query(collection(db, nome), ...filtros, orderBy(campoOrdem, "desc"), limit(maxDocs))
         : collection(db, nome);
       const snap = await getDocs(q);
-      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      return normalizarColeccaoPainel(nome, snap.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch (e) {
       console.error("Erro " + nome, e);
       mostrarNotif(`❌ Erro ao carregar "${nome}". Verifique a ligação.`, "erro");
