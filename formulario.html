@@ -836,6 +836,7 @@
 <div class="notif" id="notif"></div>
 
 <!-- ══════════ FIREBASE + LÓGICA ══════════ -->
+<script src="sigdoc-unidades.js"></script>
 <script src="sigdoc-session.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -844,7 +845,7 @@
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import {
     getFirestore, doc, getDoc, getDocs, setDoc, updateDoc,
-    collection, query, where, serverTimestamp, runTransaction
+    collection, query, where, serverTimestamp, runTransaction, writeBatch
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -863,6 +864,27 @@
   let _utilizador = null;
   let _funcDocId  = null;
   let _funcDoc    = null;
+  let _unidadesCatalogo = [];
+
+  function renderSelectsUnidadesFormulario() {
+    window.SIGDOC_UNIDADES.renderUnidadeSelect(document.getElementById("f-unidade"), _unidadesCatalogo, {
+      includeBlank: true,
+      blankLabel: "Seleccionar unidade...",
+      selected: document.getElementById("f-unidade")?.value || ""
+    });
+    window.SIGDOC_UNIDADES.renderSeccaoSelect(document.getElementById("f-seccao"), {
+      includeBlank: true,
+      blankLabel: "Seleccione a Seccao...",
+      selected: document.getElementById("f-seccao")?.value || ""
+    });
+  }
+
+  async function carregarCatalogoUnidadesFormulario() {
+    _unidadesCatalogo = await window.SIGDOC_UNIDADES.garantirCatalogoMinimo(db, {
+      collection, getDocs, doc, setDoc, writeBatch, serverTimestamp
+    });
+    renderSelectsUnidadesFormulario();
+  }
 
   // ── Verificar autenticação ──
   onAuthStateChanged(auth, async (user) => {
@@ -875,6 +897,7 @@
 
     // ── Gestão de sessão concorrente ──
     SIGDOC_SESSION.vigiar(db, user.uid, auth);
+    await carregarCatalogoUnidadesFormulario();
 
     // Carregar dados existentes do funcionário
     // 1ª tentativa: leitura directa por ID (get — mais rápido e seguro)
