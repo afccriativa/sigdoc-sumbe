@@ -1876,6 +1876,14 @@
     return toDate(bruto);
   }
 
+  function infoUnidadeFuncionarioPainel(f) {
+    const base = window.SIGDOC_UNIDADES.obterBase(f?.unidadeId || f?.unidade || "") || {};
+    return {
+      id: f?.unidadeId || base.id || "",
+      nome: base.nome || f?.unidade || "Não especificada"
+    };
+  }
+
   function obterMapaEsperado(unidades) {
     const mapa = {};
     unidades.forEach(u => {
@@ -1887,7 +1895,7 @@
   function calcularCoberturaUnidades(funcs, esperadoMap) {
     const cadMap = {};
     funcs.forEach(f => {
-      const unidade = f.unidade || "Não especificada";
+      const unidade = infoUnidadeFuncionarioPainel(f).nome;
       cadMap[unidade] = (cadMap[unidade] || 0) + 1;
     });
 
@@ -2445,7 +2453,7 @@
     document.getElementById("kpi-taxa-delta").textContent = aprovados + " aprovados de " + comDecisao.length;
     document.getElementById("kpi-taxa-delta").className = "kpi-delta " + (taxa >= 80 ? "delta-positivo" : taxa >= 50 ? "delta-neutro" : "delta-negativo");
 
-    const totalUnidades = unidadesMeta.length || Object.keys(esperadoMap).length || new Set(funcs.map(f => f.unidade).filter(Boolean)).size;
+    const totalUnidades = unidadesMeta.length || Object.keys(esperadoMap).length || new Set(funcs.map(f => infoUnidadeFuncionarioPainel(f).nome).filter(Boolean)).size;
     const unidadesActivas = new Set(docs.map(d => d.localColocacao).filter(Boolean)).size;
     document.getElementById("kpi-unidades").textContent = totalUnidades || "—";
     document.getElementById("kpi-unid-delta").textContent = `${unidadesActivas} com actividade no período`;
@@ -2574,7 +2582,7 @@
     // Contar cadastrados por unidade
     const cadMap = {};
     funcs.forEach(f => {
-      const u = f.unidade || 'Não especificada';
+      const u = infoUnidadeFuncionarioPainel(f).nome;
       cadMap[u] = (cadMap[u]||0) + 1;
     });
 
@@ -2669,7 +2677,7 @@
   function renderTabelaUnidades(funcs, docs, esperadoMap) {
     const unidades = {};
     funcs.forEach(f => {
-      const u = f.unidade || 'Não especificada';
+      const u = infoUnidadeFuncionarioPainel(f).nome;
       if (!unidades[u]) unidades[u] = { cadastrados: 0, docs: 0 };
       unidades[u].cadastrados++;
     });
