@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="sigdoc-config.js"></script>
+<script src="sigdoc-unidades.js"></script>
 <script src="sigdoc-nav.js"></script>
   <script src="sigdoc-session.js"></script>
 <style>
@@ -873,10 +874,61 @@ const UNIDADES_BASE = [
 ];
 
 // ── Estado global ───────────────────────────────────────────
+const SECCOES_DMS_SHARED = window.SIGDOC_UNIDADES.seccoesDms();
+
+function obterInfoUnidade(valor){
+  if(!valor) return null;
+  if(typeof valor === 'object'){
+    const idObj = valor.id || valor.unidadeId || '';
+    const nomeObj = valor.nome || valor.unidade || '';
+    if(idObj || nomeObj){
+      const baseObj = window.SIGDOC_UNIDADES.obterBase(idObj || nomeObj) || {};
+      return {
+        id: idObj || baseObj.id || '',
+        nome: nomeObj || baseObj.nome || ''
+      };
+    }
+  }
+  const base = window.SIGDOC_UNIDADES.obterBase(valor) || {};
+  return {
+    id: base.id || '',
+    nome: base.nome || (typeof valor === 'string' ? valor : '')
+  };
+}
+
+function chaveUnidadeFuncionario(f){
+  const info = obterInfoUnidade({ id: f?.unidadeId || '', nome: f?.unidade || '' });
+  return info.id || info.nome || '';
+}
+
+function indexarFuncionarioUnidade(mapa, f){
+  const chave = chaveUnidadeFuncionario(f);
+  if(!chave) return;
+  if(!mapa[chave]) mapa[chave] = [];
+  mapa[chave].push(f);
+}
+
+function funcionariosDaUnidade(unidade){
+  const info = obterInfoUnidade(unidade);
+  return (info?.id && FUNCIONARIOS_MAP[info.id]) || (info?.nome && FUNCIONARIOS_MAP[info.nome]) || [];
+}
+
+function normalizarResponsavelSelecionado(resp){
+  if(!resp) return null;
+  return {
+    id: resp.id || resp.funcionarioId || '',
+    funcionarioId: resp.funcionarioId || resp.id || '',
+    nome: resp.nome || '',
+    categoria: resp.categoria || resp.cargo || '',
+    cargo: resp.cargo || resp.categoria || '',
+    unidade: resp.unidade || ''
+  };
+}
+
 let UTILIZADOR    = null;
 let PERFIL_DOC    = null;
 let TODAS_UNIDADES = [];  // dados mesclados Firestore + base
-let FUNCIONARIOS_MAP = {}; // nome_unidade → [funcionarios]
+let FUNCIONARIOS_MAP = {}; // unidadeId (preferencial) ou nome → [funcionarios]
 let TODOS_FUNCIONARIOS_FLAT = []; // todos os funcionários — para pesquisa de responsável sem restrição de unidade
 let SECCOES_MAP    = {}; // seccao → [funcionarios] (só DMS)
 let FILTRO_ACTIVO = 'todos';
@@ -972,7 +1024,7 @@ function mostrarPagina(){
       SIGDOC_SESSION.vigiar(db, UTILIZADOR.uid, auth);
 
         // Carregar dados
-  carregarTudo();
+  carregarTudoFonteUnica();
 }
 
 // ── SEED automático: garantir que todas as unidades existem no Firestore ──
@@ -997,46 +1049,50 @@ async function seedUnidades(){
 
 // ── Carregar tudo em paralelo ───────────────────────────────
 async function carregarTudo(){
+  // Mantido apenas por compatibilidade com chamadas antigas.
+  return carregarTudoFonteUnica();
+}
+
+async function carregarTudoFonteUnica(){
   document.getElementById('grid').innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
   try{
-    // 1. Seed não-bloqueante
-    try{ await seedUnidades(); }catch(e){ console.warn('Seed:',e.code); }
-    // 2. Buscar documentos das unidades
-    const uSnaps = await getDocs(collection(db,'unidades_sanitarias'));
-    const uMap = {};
-    uSnaps.forEach(s=>{ uMap[s.id] = s.data(); });
-    // 3. Buscar todos os funcionários activos
+    const unidadesSistema = await window.SIGDOC_UNIDADES.garantirCatalogoMinimo(db,{
+      collection, getDocs, doc, setDoc, writeBatch, serverTimestamp
+    });
+    const unidadesPorNome = {};
+    unidadesSistema.forEach(u => {
+      const normalizada = window.SIGDOC_UNIDADES.normalizarUnidade(u);
+      unidadesPorNome[normalizada.nome] = normalizada;
+    });
+
     const fSnaps = await getDocs(collection(db,'funcionarios'));
     FUNCIONARIOS_MAP = {};
     TODOS_FUNCIONARIOS_FLAT = [];
-    SECCOES_MAP = {};  // secção → [funcionarios] — só para DMS
+    SECCOES_MAP = {};
+
     fSnaps.forEach(s=>{
       const d = s.data();
-      const un = d.unidade||'';
       const entry = {id:s.id, ...d};
-      TODOS_FUNCIONARIOS_FLAT.push(entry);       // lista plana global
-      if(!FUNCIONARIOS_MAP[un]) FUNCIONARIOS_MAP[un]=[];
-      FUNCIONARIOS_MAP[un].push(entry);
-      // Indexar por secção (apenas quem pertence à DMS)
-      if(un === 'Direcção Municipal de Saúde do Sumbe' && d.seccao){
+      TODOS_FUNCIONARIOS_FLAT.push(entry);
+      indexarFuncionarioUnidade(FUNCIONARIOS_MAP, entry);
+      if((entry.unidadeId === window.SIGDOC_UNIDADES.DMS_ID || entry.unidade === window.SIGDOC_UNIDADES.DMS_NOME) && d.seccao){
         if(!SECCOES_MAP[d.seccao]) SECCOES_MAP[d.seccao]=[];
         SECCOES_MAP[d.seccao].push({id:s.id, ...d});
       }
     });
-    // 4. Mesclar base + Firestore
-    TODAS_UNIDADES = UNIDADES_BASE.map(u=>{
-      const id  = toId(u.nome);
-      const fs  = uMap[id]||{};
-      const cadastrados = (FUNCIONARIOS_MAP[u.nome]||[]).length;
-      return { id, ...u, ...fs, cadastrados };
-    });
-    // 5. Actualizar KPIs
+
+    TODAS_UNIDADES = window.SIGDOC_UNIDADES.ordenarUnidades(
+      Object.values(unidadesPorNome).map(u => ({
+        ...u,
+        cadastrados: funcionariosDaUnidade(u).length
+      }))
+    );
+
     actualizarKPIs();
-    // 6. Render
     render();
   } catch(e){
     console.error(e);
-    document.getElementById('grid').innerHTML='<div class="vazio"><div class="vazio-ic">⚠️</div><p>Erro ao carregar dados. Verifique a ligação.</p></div>';
+    document.getElementById('grid').innerHTML='<div class="vazio"><div class="vazio-ic">âš ï¸</div><p>Erro ao carregar dados. Verifique a ligaÃ§Ã£o.</p></div>';
   }
 }
 
@@ -1180,7 +1236,7 @@ window.fecharDrawer = function(){
 // ── Drawer especial para a DMS — breakdown por secção ──────
 function renderDrawerDMS(u){
   const podeEd   = PODE_EDITAR.includes(PERFIL_DOC?.perfil);
-  const todosFunc= FUNCIONARIOS_MAP[u.nome]||[];
+  const todosFunc= funcionariosDaUnidade(u);
   const esp      = u.efectivo?.esperado||0;
   const cad      = todosFunc.length;
   const pct      = esp>0 ? Math.min(Math.round(cad/esp*100),100) : null;
@@ -1190,7 +1246,7 @@ function renderDrawerDMS(u){
   // Funcionários sem secção definida
   const semSeccao = todosFunc.filter(f=>!f.seccao||f.seccao==='');
 
-  const seccaoHTML = SECCOES_DMS.map(sec=>{
+  const seccaoHTML = SECCOES_DMS_SHARED.map(sec=>{
     const funcs = SECCOES_MAP[sec]||[];
     if(!funcs.length && !SECCOES_MAP[sec]) return ''; // só mostrar se tiver alguém OU sempre
     return `
@@ -1333,7 +1389,7 @@ function renderDrawer(u){
   const esp  = u.efectivo?.esperado||0;
   const cad  = u.cadastrados||0;
   const podeEd = PODE_EDITAR.includes(PERFIL_DOC?.perfil);
-  const funcs  = FUNCIONARIOS_MAP[u.nome]||[];
+  const funcs  = funcionariosDaUnidade(u);
   const largura = cob.pct!==null ? Math.min(cob.pct,100) : 0;
 
   const html = `
@@ -1490,7 +1546,7 @@ window.abrirModalFicha = function(id){
   // Tab: Responsável
   const respWrap = document.getElementById('resp-selecionado-wrap');
   if(u.responsavel?.nome){
-    RESP_SELECIONADO = u.responsavel;
+    RESP_SELECIONADO = normalizarResponsavelSelecionado(u.responsavel);
     document.getElementById('resp-sel-av').textContent    = u.responsavel.nome[0].toUpperCase();
     document.getElementById('resp-sel-nome').textContent  = u.responsavel.nome;
     document.getElementById('resp-sel-cargo').textContent = u.responsavel.cargo||'';
@@ -1607,7 +1663,7 @@ window.pesquisarResponsavel = function(){
 window.selecionarResponsavel = function(fObj){
   const u    = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
   const nomU = u?.nome||'';
-  RESP_SELECIONADO = fObj;
+  RESP_SELECIONADO = normalizarResponsavelSelecionado(fObj);
   document.getElementById('resp-sel-av').textContent    = fObj.nome[0].toUpperCase();
   document.getElementById('resp-sel-nome').textContent  = fObj.nome;
   document.getElementById('resp-sel-cargo').textContent = document.getElementById('resp-cargo').value || fObj.categoria;
@@ -1667,11 +1723,11 @@ window.guardarFicha = async function(){
   const cargoDigitado = document.getElementById('resp-cargo').value.trim();
   const dataInicio    = document.getElementById('resp-data-inicio').value||'';
   const responsavel   = RESP_SELECIONADO ? {
-    funcionarioId: RESP_SELECIONADO.id||'',
+    funcionarioId: RESP_SELECIONADO.funcionarioId || RESP_SELECIONADO.id || '',
     nome:          RESP_SELECIONADO.nome,
     cargo:         cargoDigitado || RESP_SELECIONADO.categoria||'',
     dataInicio:    dataInicio,
-  } : { nome:'', cargo:'', dataInicio:'' };
+  } : { funcionarioId:'', nome:'', cargo:'', dataInicio:'' };
 
   const u = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
 
