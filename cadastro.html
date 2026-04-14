@@ -1570,11 +1570,14 @@
   }
 
   function renderCatalogoUnidadesCadastro() {
+    const filtroActualRaw = document.getElementById("filtro-local")?.value || "";
+    const filtroActualBase = window.SIGDOC_UNIDADES.obterBase(filtroActualRaw) || {};
     window.SIGDOC_UNIDADES.renderUnidadeSelect(document.getElementById("filtro-local"), _unidadesCatalogo, {
       includeBlank: true,
       blankLabel: "Todos os Locais",
+      valueField: "id",
       useAbbreviation: true,
-      selected: document.getElementById("filtro-local")?.value || ""
+      selected: filtroActualBase.id || filtroActualRaw
     });
     window.SIGDOC_UNIDADES.renderUnidadeSelect(document.getElementById("f-unidade"), _unidadesCatalogo, {
       includeBlank: true,
@@ -1586,6 +1589,47 @@
       blankLabel: "Seleccione a Seccao...",
       selected: document.getElementById("f-seccao")?.value || ""
     });
+  }
+
+  function resolverUnidadeRef(valor) {
+    const bruto = valor && typeof valor === "object"
+      ? { id: valor.id || valor.unidadeId || "", nome: valor.nome || valor.unidade || "" }
+      : { id: "", nome: valor || "" };
+    const base = window.SIGDOC_UNIDADES.obterBase(bruto.id || bruto.nome) || {};
+    return {
+      id: bruto.id || base.id || "",
+      nome: bruto.nome || base.nome || "",
+      tipo: base.tipo || ""
+    };
+  }
+
+  function infoUnidadeFuncionario(f) {
+    return resolverUnidadeRef({ id: f?.unidadeId || "", nome: f?.unidade || "" });
+  }
+
+  function nomeUnidadeFuncionario(f) {
+    const info = infoUnidadeFuncionario(f);
+    return info.nome || f?.unidade || "";
+  }
+
+  function obterUnidadeSelecionadaCadastro() {
+    const sel = document.getElementById("f-unidade");
+    if (!sel) return { id: "", nome: "", tipo: "" };
+    const opt = sel.selectedOptions && sel.selectedOptions[0];
+    return resolverUnidadeRef({
+      id: opt?.dataset?.unidadeId || "",
+      nome: sel.value || ""
+    });
+  }
+
+  function normalizarUnidadeFuncionario(f) {
+    const info = infoUnidadeFuncionario(f);
+    return {
+      ...f,
+      unidadeId: info.id || f?.unidadeId || "",
+      unidade: info.nome || f?.unidade || "",
+      unidadeTipo: info.tipo || f?.unidadeTipo || ""
+    };
   }
 
   configurarFormularioCadastro();
@@ -1631,7 +1675,7 @@
       _unidadesCatalogo = unidades;
       renderCatalogoUnidadesCadastro();
       todosOsFuncionarios=[];
-      snap.forEach(d=>todosOsFuncionarios.push({id:d.id,...d.data()}));
+      snap.forEach(d=>todosOsFuncionarios.push(normalizarUnidadeFuncionario({id:d.id,...d.data()})));
       // Construir mapa de responsabilidades: funcionarioId → dados da unidade
       _unidadesRespMap = {};
       (_unidadesCatalogo || []).forEach(u=>{
@@ -1779,7 +1823,7 @@
         const lv = f.vinculo === "quadro" ? "Pessoal do Quadro" : f.vinculo === "provisorio" ? "Provimento Provisório" : f.vinculo || "—";
         const be = {activo:"badge-activo",inactivo:"badge-inactivo",licenca:"badge-licenca"}[f.estado] || "badge-activo";
         const le = {activo:"● Em Serviço",inactivo:"○ Inactivo",licenca:"◐ De Licença"}[f.estado] || f.estado || "—";
-        const localCurto = window.SIGDOC_CONFIG.abrvUnidade(f.unidade||'—');
+        const localCurto = window.SIGDOC_CONFIG.abrvUnidade(nomeUnidadeFuncionario(f)||'—');
         const tr = document.createElement("tr");
         tr.addEventListener("click", function() { window.verFicha(f.id); });
 
@@ -1869,7 +1913,7 @@
     const l = document.getElementById("filtro-local").value;
     renderizarTabela(todosOsFuncionarios.filter(f => {
       const mt = !t || (f.nome||"").toLowerCase().includes(t) || (f.numero||"").toLowerCase().includes(t) || (f.categoria||"").toLowerCase().includes(t);
-      const ml = !l || f.unidade === l;
+      const ml = !l || infoUnidadeFuncionario(f).id === l;
       return mt && ml;
     }));
   };
@@ -1930,9 +1974,9 @@
   };
 
   window.verificarDireccao=function(){
-    const v=document.getElementById("f-unidade").value;
-    const eDir=v==="Direcção Municipal de Saúde do Sumbe";
-    const eCentro=v.startsWith("Centro de Saúde");
+    const un = obterUnidadeSelecionadaCadastro();
+    const eDir = window.SIGDOC_UNIDADES.isDms(un);
+    const eCentro = window.SIGDOC_UNIDADES.isCentro(un);
     const seccao=document.getElementById("f-seccao");
     const area=document.getElementById("f-area");
     document.getElementById("campo-seccao-wrap").classList.toggle("campo-oculto",!eDir);
@@ -1969,6 +2013,9 @@
     ["nome","sexo","nascimento","bi","telefone","numero","unidade","vinculo","admissao","escolaridade","observacoes","inss","banco","provinciaNatal","municipioNatal"].forEach(k=>{
       const el=document.getElementById("f-"+k); if(el) el.value=f[k]||"";
     });
+    const unidadeEdit = infoUnidadeFuncionario(f);
+    const elUnidade = document.getElementById("f-unidade");
+    if(elUnidade) elUnidade.value = unidadeEdit.nome || "";
     // ── Novos campos: Complementares ──
     var camposCompl = {
       'f-estadoCivil': f.estadoCivil||'',
@@ -2439,14 +2486,15 @@
     const numero=document.getElementById("f-numero").value.trim();
     const categoria=lerCategoria();
     const cargo=lerCargo();
-    const unidade=document.getElementById("f-unidade").value;
+    const unidadeInfo = obterUnidadeSelecionadaCadastro();
+    const unidade = unidadeInfo.nome;
     const vinculo=document.getElementById("f-vinculo").value;
     const admissao=document.getElementById("f-admissao").value;
     const seccao=document.getElementById("f-seccao").value;
     if(!nome||!sexo||!numero||!categoria||!unidade||!vinculo||!admissao){
       notif("Preencha todos os campos obrigatórios (*)","erro");return;
     }
-    if(unidade==="Direcção Municipal de Saúde do Sumbe"&&!seccao){
+    if(window.SIGDOC_UNIDADES.isDms(unidadeInfo) && !seccao){
       notif("Indique a Secção da Direcção Municipal.","erro");return;
     }
 
@@ -2454,7 +2502,9 @@
     const bi=document.getElementById("f-bi").value.trim();
     const dados={
       nome,sexo,numero,categoria,cargo,unidade,vinculo,admissao,seccao,
-      area:document.getElementById("f-area").value,
+      unidadeId: unidadeInfo.id || "",
+      unidadeTipo: unidadeInfo.tipo || window.SIGDOC_UNIDADES.obterTipo(unidadeInfo.nome) || "",
+      area: window.SIGDOC_UNIDADES.isCentro(unidadeInfo) ? document.getElementById("f-area").value : "",
       provinciaNatal: document.getElementById("f-provinciaNatal")?.value?.trim()||'',
       municipioNatal: document.getElementById("f-municipioNatal")?.value?.trim()||'',
       nascimento:document.getElementById("f-nascimento").value,
@@ -2597,13 +2647,17 @@
         if(btnDl) btnDl.style.display='none';
       }
     })();
+    const unidadeInfoFicha = infoUnidadeFuncionario(f);
+    const unidadeNomeFicha = unidadeInfoFicha.nome || "—";
+    const eDirFicha = window.SIGDOC_UNIDADES.isDms(unidadeInfoFicha);
+    const eCentroFicha = window.SIGDOC_UNIDADES.isCentro(unidadeInfoFicha);
     document.getElementById("ficha-nome").textContent=f.nome||"—";
-    document.getElementById("ficha-cargo").textContent=(f.cargo||f.categoria||"—")+" · "+(f.unidade||"—");
+    document.getElementById("ficha-cargo").textContent=(f.cargo||f.categoria||"—")+" · "+unidadeNomeFicha;
     document.getElementById("ficha-numero").textContent="Agente Nº "+(f.numero||"—")+" · BI: "+(f.bi||"—");
     const lv=f.vinculo==="quadro"?"Pessoal do Quadro":f.vinculo==="provisorio"?"Provimento Provisório":f.vinculo||"—";
-    const subLocal=f.unidade==="Direcção Municipal de Saúde do Sumbe"
+    const subLocal=eDirFicha
       ?(f.seccao||"Secção não especificada")
-      :f.unidade?.startsWith("Centro de Saúde")&&f.area?"Área: "+f.area:null;
+      :eCentroFicha&&f.area?"Área: "+f.area:null;
     const acadInfo=f.estudando
       ?`Sim — ${f.curso||""}${f.anoCurso?" ("+f.anoCurso+"º ano)":""}${f.instituicao?", "+f.instituicao:""}`
       :(f.estudando===false?"Não":"—");
@@ -2620,8 +2674,8 @@
       {r:"Categoria Profissional",v:f.categoria,span2:true},
       ...(f.cargo ? [{r:"Cargo / Função", v:f.cargo, span2:true}] : []),
       {r:"Local de Colocação",
-       v:f.unidade
-         ? f.unidade + `&nbsp;<a href="unidades.html" title="Ver ficha da unidade"
+       v:unidadeNomeFicha && unidadeNomeFicha !== "—"
+         ? unidadeNomeFicha + `&nbsp;<a href="unidades.html" title="Ver ficha da unidade"
              style="display:inline-flex;align-items:center;gap:4px;
                     padding:2px 8px;border-radius:99px;
                     background:rgba(18,65,161,.10);color:#1241a1;
@@ -2631,7 +2685,7 @@
              onclick="event.stopPropagation()">🏥 Ver unidade</a>`
          : null,
        span2:true, html:true},
-      ...(subLocal?[{r:f.unidade==="Direcção Municipal de Saúde do Sumbe"?"Secção":"Área / Serviço",v:subLocal,span2:true}]:[]),
+      ...(subLocal?[{r:eDirFicha?"Secção":"Área / Serviço",v:subLocal,span2:true}]:[]),
       // ── Campo derivado: responsabilidade de direcção ──────────────────────
       ...(_unidadesRespMap[f.id] ? [{
         r: 'Responsável pela Unidade',
@@ -2689,8 +2743,8 @@
       {r:"Categoria Profissional",v:f.categoria,span2:true},
       ...(f.cargo ? [{r:"Cargo / Função",v:f.cargo,span2:true}] : []),
       {r:"Local de Colocação",span2:true,render:function(valor){
-        if(!f.unidade){ valor.textContent="—"; return; }
-        valor.appendChild(document.createTextNode(f.unidade));
+        if(!unidadeNomeFicha || unidadeNomeFicha === "—"){ valor.textContent="—"; return; }
+        valor.appendChild(document.createTextNode(unidadeNomeFicha));
         const link = criarNo("a", null, "🏥 Ver unidade");
         link.href = "unidades.html";
         link.title = "Ver ficha da unidade";
@@ -2711,7 +2765,7 @@
         valor.appendChild(document.createTextNode(" "));
         valor.appendChild(link);
       }},
-      ...(subLocal?[{r:f.unidade==="Direcção Municipal de Saúde do Sumbe"?"Secção":"Área / Serviço",v:subLocal,span2:true}]:[]),
+      ...(subLocal?[{r:eDirFicha?"Secção":"Área / Serviço",v:subLocal,span2:true}]:[]),
       ...(_unidadesRespMap[f.id] ? [{
         r:"Responsável pela Unidade",
         span2:true,
