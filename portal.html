@@ -1185,6 +1185,22 @@
       padding: 7px 10px;
       background: #fff;
     }
+    .btn-visualizar-portal {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(12,95,71,.16);
+      background: rgba(12,95,71,.08);
+      color: #0c5f47;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .16s;
+      white-space: nowrap;
+    }
+    .btn-visualizar-portal:hover {
+      background: rgba(12,95,71,.14);
+      border-color: rgba(12,95,71,.24);
+    }
     .perfil-card-verde,
     .perfil-header-aba {
       background:
@@ -1424,6 +1440,72 @@
     .chat-box {
       border-radius: 28px 28px 0 0;
     }
+    .modal-viewer {
+      width: min(1100px, calc(100vw - 20px));
+      max-width: 1100px;
+      height: min(92vh, 900px);
+      max-height: 92vh;
+      border-radius: 24px;
+      overflow: hidden;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      background: #f5f7fa;
+    }
+    .modal-viewer::before { display:none; }
+    .viewer-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(15,23,42,.08);
+      background: rgba(255,255,255,.92);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .viewer-titulo {
+      font-size: 15px;
+      font-weight: 800;
+      color: #10261f;
+    }
+    .viewer-sub {
+      font-size: 12px;
+      color: #6b7e79;
+      margin-top: 4px;
+    }
+    .viewer-close {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid rgba(15,23,42,.08);
+      background: white;
+      color: #445955;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
+    .viewer-aviso {
+      padding: 10px 18px;
+      font-size: 12px;
+      color: #7c5c11;
+      background: #fff7db;
+      border-bottom: 1px solid #f2df9d;
+      flex-shrink: 0;
+    }
+    .viewer-body {
+      flex: 1;
+      background: #dde3e8;
+      padding: 12px;
+      overflow: hidden;
+    }
+    .viewer-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 18px;
+      background: white;
+      box-shadow: inset 0 0 0 1px rgba(15,23,42,.06);
+    }
 
     @media (max-width: 419px) {
       .tipo-grid {
@@ -1438,6 +1520,22 @@
       }
       .bottom-nav {
         width: calc(100% - 12px);
+      }
+      .modal-viewer {
+        width: 100%;
+        height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 22px 22px 0 0;
+      }
+      .viewer-head {
+        padding: 14px 14px 12px;
+      }
+      .viewer-aviso {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+      .viewer-body {
+        padding: 8px;
       }
     }
 
@@ -2226,6 +2324,21 @@
     <div class="caixa-rodape"><button class="btn btn-sec" onclick="document.getElementById('overlay-detalhe-sol').classList.remove('activo')">Fechar</button></div>
   </div>
 </div>
+<div class="overlay-modal" id="overlay-viewer-doc" onclick="if(event.target===this)fecharVisualizacaoPortal()">
+  <div class="modal-caixa modal-viewer">
+    <div class="viewer-head">
+      <div>
+        <div class="viewer-titulo" id="viewer-doc-titulo">Guia Medica</div>
+        <div class="viewer-sub" id="viewer-doc-sub">Visualizacao apenas de leitura</div>
+      </div>
+      <button class="viewer-close" onclick="fecharVisualizacaoPortal()" aria-label="Fechar visualizacao" title="Fechar">×</button>
+    </div>
+    <div class="viewer-aviso">Documento disponivel apenas para consulta visual no portal do funcionario.</div>
+    <div class="viewer-body">
+      <iframe class="viewer-frame" id="viewer-doc-frame" sandbox="allow-same-origin"></iframe>
+    </div>
+  </div>
+</div>
 
 <div class="notif" id="notif"></div>
 
@@ -2645,8 +2758,8 @@
         const temArquivo = s._origem === "documento" && s.htmlArquivo &&
           (s.estado === "aprovado" || s.estado === "concluida");
         const btnSegVia = temArquivo
-          ? `<button class="btn-segunda-via-portal" onclick="event.stopPropagation();imprimirSegundaViaPortal('${s.id}')"
-               title="Imprimir segunda via do documento arquivado">📋 2ª Via</button>`
+          ? `<button class="btn-visualizar-portal" onclick="event.stopPropagation();abrirVisualizacaoPortal('${s.id}')"
+               title="Ver guia concluida">Visualizar</button>`
           : "";
         return `<div class="item-doc-portal${isNovo ? ' item-actualizado' : ''}" onclick="abrirDetalheDoc('${s.id}','${s._origem}')">
           <div class="doc-ic-portal" style="background:${info.bg}">${info.icone}</div>
@@ -2733,6 +2846,12 @@
     let extra="";
     if(s.observacao)extra+=`<div class="alerta alerta-${s.estado==='rejeitada'||s.estado==='rejeitado'?'erro':'sucesso'}" style="margin-top:12px">💬 <strong>Observação de RH:</strong> ${s.observacao}</div>`;
     if(s.numGuia)extra+=`<div class="alerta alerta-sucesso" style="margin-top:8px">📄 Referência: Guia Nº ${s.numGuia}/${s.anoGuia}</div>`;
+    const temArquivo = origem==="documento" && s.htmlArquivo &&
+      (s.estado === "aprovado" || s.estado === "concluida");
+    if(temArquivo){
+      extra+=`<button class="btn-visualizar-portal" style="align-self:flex-start;margin-top:10px" onclick="abrirVisualizacaoPortal('${s.id}')">Visualizar guia concluida</button>`;
+      extra+=`<div class="alerta alerta-info" style="margin-top:10px">Visualizacao apenas de leitura. Download e impressao nao estao disponiveis no portal do funcionario.</div>`;
+    }
     
     document.getElementById("modal-sol-corpo").innerHTML=`<div style="display:flex;flex-direction:column;gap:10px">
       <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--neu-400)">Estado</span><span class="badge-est-portal ${estInfo.classe}">${estInfo.texto}</span></div>
@@ -2745,64 +2864,27 @@
     document.getElementById("overlay-detalhe-sol").classList.add("activo");
   };
 
-  // ── SEGUNDA VIA ──
-  window.imprimirSegundaViaPortal = function(id) {
+  // ── VISUALIZACAO CONTROLADA ──
+  window.abrirVisualizacaoPortal = function(id) {
     const s = (window._minhasSolicitacoes || []).find(x => x.id === id);
-    if (!s || !s.htmlArquivo) { notif("❌ Arquivo não disponível.", "notif-erro"); return; }
+    if (!s || !s.htmlArquivo) { notif("❌ Arquivo nao disponivel.", "notif-erro"); return; }
     const tipo = s.tipo || s.tipoDocumento || "Documento";
-    const ref  = s.numGuia ? ` Nº ${s.numGuia}/${s.anoGuia}` : "";
-    const win  = window.open("", "_blank");
-    win.document.write(`<!DOCTYPE html><html><head>
-      <meta charset="UTF-8">
-      <title>Segunda Via — ${tipo}${ref}</title>
-      <style>
-        body{margin:0;padding:0;font-family:Arial,sans-serif}
-        @media print{@page{size:A4 landscape;margin:0}}
-      </style>
-    </head><body>${s.htmlArquivo}<script>window.onload=function(){window.print();window.close();}<\/script>
-<!-- ── SINO DROPDOWN ── -->
-<div class="sino-drop-overlay" id="sino-overlay" onclick="fecharSinoPortal()"></div>
-<div class="sino-drop" id="sino-drop">
-  <div class="sino-drop-header">
-    <span class="sino-drop-titulo">🔔 Notificações</span>
-    <button class="sino-drop-fechar" onclick="fecharSinoPortal()" aria-label="Fechar notificações" title="Fechar">×</button>
-  </div>
-  <div class="sino-drop-body" id="sino-drop-body">
-    <div class="sino-vazio">
-      <div class="sino-vazio-ic">🔔</div>
-      <div class="sino-vazio-txt">Sem notificações</div>
-    </div>
-  </div>
-  <div class="sino-drop-footer">
-    <button class="sino-marcar-lidas" onclick="marcarTodasLidas()">✓ Marcar todas como lidas</button>
-  </div>
-</div>
-
-
-<!-- ── CHAT PEDIDO OVERLAY ── -->
-<div class="chat-overlay" id="chat-overlay" onclick="if(event.target===this)fecharChatPortal()">
-  <div class="chat-box">
-    <div class="chat-header">
-      <div class="chat-header-av">✉️</div>
-      <div class="chat-header-info">
-        <div class="chat-header-titulo" id="chat-titulo">Conversa</div>
-        <div class="chat-header-sub" id="chat-sub">Secretaria · DMS Sumbe</div>
-      </div>
-      <button class="chat-header-fechar" onclick="fecharChatPortal()" aria-label="Fechar chat" title="Fechar">×</button>
-    </div>
-    <div class="chat-estado-bar aberto" id="chat-estado-bar">● Conversa aberta</div>
-    <div class="chat-msgs" id="chat-msgs"></div>
-    <div class="chat-input-row" id="chat-input-row">
-      <textarea class="chat-input" id="chat-input" rows="1" placeholder="Escreva a sua mensagem…"
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemChatPortal();}"></textarea>
-      <button class="chat-enviar" onclick="enviarMensagemChatPortal()" id="btn-chat-enviar" title="Enviar" style="font-size:20px">➤</button>
-    </div>
-  </div>
-</div>
-
-</body></html>`);
-    win.document.close();
+    const ref  = s.numGuia ? `Nº ${s.numGuia}/${s.anoGuia}` : "Documento concluido";
+    const frame = document.getElementById("viewer-doc-frame");
+    const titulo = document.getElementById("viewer-doc-titulo");
+    const subtitulo = document.getElementById("viewer-doc-sub");
+    if(frame) frame.srcdoc = s.htmlArquivo;
+    if(titulo) titulo.textContent = `${tipo === 'guia-medica' ? 'Guia Medica' : tipo} · ${ref}`;
+    if(subtitulo) subtitulo.textContent = "Visualizacao apenas de leitura no portal do funcionario";
+    document.getElementById("overlay-detalhe-sol").classList.remove("activo");
+    document.getElementById("overlay-viewer-doc").classList.add("activo");
   };
+  window.fecharVisualizacaoPortal = function() {
+    const frame = document.getElementById("viewer-doc-frame");
+    if(frame) frame.srcdoc = "";
+    document.getElementById("overlay-viewer-doc").classList.remove("activo");
+  };
+  window.imprimirSegundaViaPortal = function(id) { abrirVisualizacaoPortal(id); };
 
   // ── COMPLETUDE DO FORMULÁRIO ──
   // Campos mínimos obrigatórios para gerar qualquer documento oficial.
