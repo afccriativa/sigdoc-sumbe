@@ -1359,6 +1359,22 @@
       const actual = snapActual.exists() ? snapActual.data() : {};
       const numeroAnterior = normalizarNumeroFormulario(actual.numeroNormalizado || actual.numero || "");
       const biAnterior = normBIFormulario(actual.biNormalizado || actual.bi || "");
+      const numeroRef = refIndiceFuncionario("numero", numeroNormalizado);
+      const numeroSnap = await transaction.get(numeroRef);
+      let biRef = null;
+      let biSnap = null;
+
+      if (numeroSnap.exists() && numeroSnap.data().funcionarioId !== funcId) {
+        throw new Error("NUMERO_DUPLICADO_BACKEND");
+      }
+
+      if (biNormalizado) {
+        biRef = refIndiceFuncionario("bi", biNormalizado);
+        biSnap = await transaction.get(biRef);
+        if (biSnap.exists() && biSnap.data().funcionarioId !== funcId) {
+          throw new Error("BI_DUPLICADO_BACKEND");
+        }
+      }
 
       transaction.update(funcRef, {
         ...dadosBase,
@@ -1366,11 +1382,6 @@
         biNormalizado,
       });
 
-      const numeroRef = refIndiceFuncionario("numero", numeroNormalizado);
-      const numeroSnap = await transaction.get(numeroRef);
-      if (numeroSnap.exists() && numeroSnap.data().funcionarioId !== funcId) {
-        throw new Error("NUMERO_DUPLICADO_BACKEND");
-      }
       transaction.set(numeroRef, {
         tipo: "numero",
         valor: numeroNormalizado,
@@ -1378,12 +1389,7 @@
         actualizadoEm: serverTimestamp()
       });
 
-      if (biNormalizado) {
-        const biRef = refIndiceFuncionario("bi", biNormalizado);
-        const biSnap = await transaction.get(biRef);
-        if (biSnap.exists() && biSnap.data().funcionarioId !== funcId) {
-          throw new Error("BI_DUPLICADO_BACKEND");
-        }
+      if (biRef) {
         transaction.set(biRef, {
           tipo: "bi",
           valor: biNormalizado,
