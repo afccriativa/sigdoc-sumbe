@@ -866,6 +866,28 @@
   let _funcDoc    = null;
   let _unidadesCatalogo = [];
 
+  function resolverUnidadeFormulario(valor) {
+    const bruto = valor && typeof valor === "object"
+      ? { id: valor.id || valor.unidadeId || "", nome: valor.nome || valor.unidade || "" }
+      : { id: "", nome: valor || "" };
+    const base = window.SIGDOC_UNIDADES.obterBase(bruto.id || bruto.nome) || {};
+    return {
+      id: bruto.id || base.id || "",
+      nome: bruto.nome || base.nome || "",
+      tipo: base.tipo || ""
+    };
+  }
+
+  function obterUnidadeSelecionadaFormulario() {
+    const sel = document.getElementById("f-unidade");
+    if (!sel) return { id: "", nome: "", tipo: "" };
+    const opt = sel.selectedOptions && sel.selectedOptions[0];
+    return resolverUnidadeFormulario({
+      id: opt?.dataset?.unidadeId || "",
+      nome: sel.value || ""
+    });
+  }
+
   function renderSelectsUnidadesFormulario() {
     window.SIGDOC_UNIDADES.renderUnidadeSelect(document.getElementById("f-unidade"), _unidadesCatalogo, {
       includeBlank: true,
@@ -952,7 +974,8 @@
     preencher('f-admissao',     f.admissao);
     preencher('f-categoria',    f.categoria);
     preencher('f-vinculo',      f.vinculo);
-    preencher('f-unidade',      f.unidade);
+    const unidadeExistente = resolverUnidadeFormulario({ id: f.unidadeId || "", nome: f.unidade || "" });
+    preencher('f-unidade',      unidadeExistente.nome);
     preencher('f-seccao',       f.seccao);
     preencher('f-area',         f.area);
     preencher('f-estado',       f.estado);
@@ -1015,12 +1038,12 @@
     }
     if (passo === 2) {
       erros.push(...validarCampos(['f-numero','f-admissao','f-categoria','f-vinculo','f-unidade','f-estado']));
-      const unid = document.getElementById('f-unidade').value;
-      if (unid === 'Direcção Municipal de Saúde do Sumbe') {
+      const un = obterUnidadeSelecionadaFormulario();
+      if (window.SIGDOC_UNIDADES.isDms(un)) {
         if (!document.getElementById('f-seccao').value) {
           mostrarNotif('⚠️ Indique a Secção da Direcção Municipal.', 'notif-erro'); return false;
         }
-      } else if (unid.startsWith('Centro de Saúde')) {
+      } else if (window.SIGDOC_UNIDADES.isCentro(un)) {
         if (!document.getElementById('f-area').value) {
           mostrarNotif('⚠️ Indique a Área onde desempenha funções.', 'notif-erro'); return false;
         }
@@ -1127,9 +1150,9 @@
   // LÓGICA CONDICIONAL
   // ════════════════════════════════
   window.mostrarCampoArea = function() {
-    const unid = document.getElementById('f-unidade').value;
-    const eDir     = unid === 'Direcção Municipal de Saúde do Sumbe';
-    const eCentro  = unid.startsWith('Centro de Saúde');
+    const un = obterUnidadeSelecionadaFormulario();
+    const eDir     = window.SIGDOC_UNIDADES.isDms(un);
+    const eCentro  = window.SIGDOC_UNIDADES.isCentro(un);
     const ePostoOuVazio = !eDir && !eCentro;
 
     const campoDir    = document.getElementById('campo-seccao-dir');
@@ -1252,10 +1275,10 @@
     const g = id => document.getElementById(id)?.value || '—';
     const gTxt = id => document.getElementById(id)?.options[document.getElementById(id)?.selectedIndex]?.text || '—';
 
-    const unid = g('f-unidade');
+    const un = obterUnidadeSelecionadaFormulario();
     let areaExtra = '';
-    if (unid === 'Direcção Municipal de Saúde do Sumbe') areaExtra = `<div class="rev-linha"><span>Secção</span><strong>${g('f-seccao') || '—'}</strong></div>`;
-    else if (unid.startsWith('Centro de Saúde')) areaExtra = `<div class="rev-linha"><span>Área</span><strong>${g('f-area') || '—'}</strong></div>`;
+    if (window.SIGDOC_UNIDADES.isDms(un)) areaExtra = `<div class="rev-linha"><span>Secção</span><strong>${g('f-seccao') || '—'}</strong></div>`;
+    else if (window.SIGDOC_UNIDADES.isCentro(un)) areaExtra = `<div class="rev-linha"><span>Área</span><strong>${g('f-area') || '—'}</strong></div>`;
 
     const estudando = g('f-estudando');
     let cursoInfo = '';
@@ -1420,9 +1443,10 @@
 
       btn.innerHTML = '<span class="spinner"></span> A guardar no sistema...';
 
-      const unid = g('f-unidade');
-      const eDir = unid === 'Direcção Municipal de Saúde do Sumbe';
-      const eCentro = unid.startsWith('Centro de Saúde');
+      const unidadeInfo = obterUnidadeSelecionadaFormulario();
+      const unid = unidadeInfo.nome;
+      const eDir = window.SIGDOC_UNIDADES.isDms(unidadeInfo);
+      const eCentro = window.SIGDOC_UNIDADES.isCentro(unidadeInfo);
 
       const dados = {
         nome:        g('f-nome'),
@@ -1443,6 +1467,8 @@
         categoria:   g('f-categoria'),
         vinculo:     g('f-vinculo'),
         unidade:     unid,
+        unidadeId:   unidadeInfo.id || "",
+        unidadeTipo: unidadeInfo.tipo || window.SIGDOC_UNIDADES.obterTipo(unid) || "",
         seccao:      eDir    ? g('f-seccao') : '',
         area:        eCentro ? g('f-area')   : '',
         estado:      g('f-estado'),
