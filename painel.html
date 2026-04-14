@@ -531,6 +531,569 @@
     .delta-neutro { background:#f1f5f9; color:#64748b; }
     /* Barra progresso loading */
     .barra-progresso { background:#e2e8f0; }
+    body {
+      background:
+        radial-gradient(circle at top right, rgba(14,116,144,.08), transparent 26%),
+        linear-gradient(180deg, #eef8f3 0px, #f8fafc 210px, #f6f8fb 100%);
+    }
+    #ecra-principal { background: transparent; }
+    .topo-btn {
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+      font-family: var(--font);
+    }
+    .topo-btn:hover {
+      background: rgba(255,255,255,.18);
+      border-color: rgba(255,255,255,.38);
+      transform: translateY(-1px);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 360px);
+      gap: 18px;
+      align-items: end;
+      margin-top: 18px;
+    }
+    .hero-copy { min-width: 0; }
+    .hero-panel {
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 22px;
+      padding: 18px;
+      max-width: 360px;
+      margin: 18px 0 0 auto;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 12px 30px rgba(2,20,11,.22);
+      backdrop-filter: blur(10px);
+    }
+    .hero-panel-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .hero-panel-kicker {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: rgba(255,255,255,.68);
+      font-weight: 700;
+    }
+    .hero-sync-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.09);
+      color: rgba(255,255,255,.92);
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .hero-pulse-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .hero-mini {
+      border-radius: 16px;
+      padding: 12px 13px;
+      background: rgba(3,28,19,.2);
+      border: 1px solid rgba(255,255,255,.09);
+    }
+    .hero-mini span {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: rgba(255,255,255,.62);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .hero-mini strong {
+      display: block;
+      font-size: 22px;
+      color: #fff;
+      line-height: 1;
+      font-family: var(--mono);
+    }
+    .hero-mini small {
+      display: block;
+      margin-top: 6px;
+      color: rgba(255,255,255,.68);
+      font-size: 11px;
+    }
+    .comando-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 360px);
+      gap: 18px;
+    }
+    .comando-stack {
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+    .card-intenso {
+      background:
+        linear-gradient(135deg, rgba(16,88,67,.05), rgba(37,99,235,.03)),
+        var(--card);
+    }
+    .prioridade-lista,
+    .agenda-lista,
+    .fila-lista {
+      display: grid;
+      gap: 12px;
+      padding: 18px 20px 20px;
+    }
+    .prioridade-item,
+    .agenda-item,
+    .fila-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 15px 16px;
+      border-radius: 16px;
+      border: 1px solid #e6edf3;
+      background: linear-gradient(180deg, #fff, #f8fafc);
+    }
+    .prioridade-marca,
+    .fila-marca {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .agenda-data {
+      width: 58px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #0f766e, #155e75);
+      color: #fff;
+      padding: 9px 8px;
+      text-align: center;
+      box-shadow: 0 10px 20px rgba(14,116,144,.18);
+    }
+    .agenda-dia {
+      display: block;
+      font-size: 21px;
+      font-weight: 800;
+      line-height: 1;
+      font-family: var(--mono);
+    }
+    .agenda-mes {
+      display: block;
+      margin-top: 4px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: rgba(255,255,255,.78);
+      font-weight: 700;
+    }
+    .sev-critico { background: rgba(239,68,68,.12); color: #dc2626; }
+    .sev-atencao { background: rgba(245,158,11,.15); color: #d97706; }
+    .sev-ok      { background: rgba(16,185,129,.12); color: #059669; }
+    .sev-info    { background: rgba(37,99,235,.12); color: #2563eb; }
+    .prioridade-corpo,
+    .agenda-corpo,
+    .fila-corpo {
+      min-width: 0;
+    }
+    .prioridade-tag,
+    .agenda-tag,
+    .fila-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4338ca;
+      padding: 4px 9px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 8px;
+    }
+    .prioridade-titulo,
+    .agenda-titulo,
+    .fila-titulo {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--txt);
+      line-height: 1.35;
+    }
+    .prioridade-sub,
+    .agenda-sub,
+    .fila-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.45;
+    }
+    .prioridade-acoes,
+    .agenda-meta,
+    .fila-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .prioridade-valor,
+    .fila-valor {
+      font-size: 24px;
+      line-height: 1;
+      font-family: var(--mono);
+      font-weight: 800;
+      color: var(--txt);
+    }
+    .util-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid #d7e2ea;
+      color: #0f766e;
+      background: #f0fdfa;
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .util-link:hover {
+      transform: translateY(-1px);
+      border-color: #99f6e4;
+      background: #ecfeff;
+    }
+    .score-card {
+      padding: 20px;
+      background:
+        radial-gradient(circle at top right, rgba(34,197,94,.16), transparent 40%),
+        linear-gradient(180deg, #0f3d34, #0f2c26 82%);
+      color: #fff;
+      overflow: hidden;
+    }
+    .score-card .card-cabecalho {
+      border-bottom-color: rgba(255,255,255,.12);
+      padding: 0 0 16px;
+      margin-bottom: 16px;
+    }
+    .score-card .card-cabecalho h3,
+    .score-card .card-cabecalho p {
+      color: #fff;
+    }
+    .score-numero {
+      font-size: 64px;
+      line-height: .95;
+      font-weight: 800;
+      font-family: var(--mono);
+      letter-spacing: -2px;
+      color: #fff;
+    }
+    .score-estado {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.1);
+      color: rgba(255,255,255,.92);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+    }
+    .score-texto {
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: rgba(255,255,255,.76);
+    }
+    .score-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .score-chip {
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .score-chip span {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: rgba(255,255,255,.62);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .score-chip strong {
+      display: block;
+      font-size: 20px;
+      color: #fff;
+      line-height: 1;
+      font-family: var(--mono);
+    }
+    .quick-actions {
+      padding: 18px 20px 20px;
+      display: grid;
+      gap: 10px;
+    }
+    .quick-action {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 15px;
+      border-radius: 16px;
+      border: 1px solid #e6edf3;
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+      text-decoration: none;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+      color: inherit;
+    }
+    .quick-action:hover {
+      transform: translateY(-1px);
+      border-color: #bae6fd;
+      box-shadow: 0 10px 20px rgba(14,116,144,.08);
+    }
+    .quick-icone {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      background: #ecfeff;
+      color: #0f766e;
+      flex-shrink: 0;
+    }
+    .quick-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--txt);
+    }
+    .quick-sub {
+      display: block;
+      margin-top: 2px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 4px;
+    }
+    .module-card {
+      border-radius: 20px;
+      border: 1px solid #e6edf3;
+      background:
+        radial-gradient(circle at top right, rgba(191,219,254,.28), transparent 38%),
+        linear-gradient(180deg, #fff, #f8fafc 84%);
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(15,23,42,.05);
+      display: grid;
+      gap: 14px;
+    }
+    .module-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .module-eyebrow {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      color: var(--dim);
+      margin-bottom: 6px;
+    }
+    .module-titulo {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--txt);
+      line-height: 1.25;
+    }
+    .module-chip {
+      flex-shrink: 0;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+    .tone-critico { background: rgba(239,68,68,.14); color: #dc2626; }
+    .tone-alerta  { background: rgba(245,158,11,.16); color: #d97706; }
+    .tone-ok      { background: rgba(16,185,129,.14); color: #059669; }
+    .tone-info    { background: rgba(37,99,235,.12); color: #2563eb; }
+    .module-kpi {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .module-num {
+      font-size: 36px;
+      line-height: 1;
+      font-weight: 800;
+      font-family: var(--mono);
+      color: var(--txt);
+    }
+    .module-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .module-metricas {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .module-meta {
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #e7eef4;
+      padding: 10px 11px;
+    }
+    .module-meta span {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      font-weight: 700;
+      color: var(--dim);
+      margin-bottom: 4px;
+    }
+    .module-meta strong {
+      font-size: 18px;
+      line-height: 1;
+      font-family: var(--mono);
+      color: var(--txt);
+    }
+    .module-rodape {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-top: 2px;
+    }
+    .module-status {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .agenda-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+    .empty-util {
+      padding: 26px 18px;
+      border-radius: 16px;
+      border: 1px dashed #cbd5e1;
+      background: #f8fafc;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .empty-util strong {
+      display: block;
+      color: var(--txt);
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .agenda-meta {
+      gap: 6px;
+    }
+    .agenda-meta span,
+    .fila-meta span,
+    .prioridade-acoes span {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .agenda-hora {
+      font-size: 18px;
+      line-height: 1;
+      font-family: var(--mono);
+      font-weight: 800;
+      color: var(--txt);
+    }
+    .secao-titulo + .comando-grid,
+    .secao-titulo + .module-grid,
+    .secao-titulo + .agenda-grid {
+      margin-top: 0;
+    }
+    @media (max-width: 1200px) {
+      .hero-grid,
+      .comando-grid,
+      .agenda-grid {
+        grid-template-columns: 1fr;
+      }
+      .module-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 700px) {
+      .hero-grid,
+      .comando-grid,
+      .agenda-grid,
+      .module-grid,
+      .hero-pulse-grid,
+      .score-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-strip {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      .hero-panel,
+      .score-card {
+        border-radius: 18px;
+      }
+      .prioridade-item,
+      .agenda-item,
+      .fila-item {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+      }
+      .prioridade-acoes,
+      .agenda-meta,
+      .fila-meta {
+        align-items: flex-start;
+        text-align: left;
+        white-space: normal;
+      }
+      .topo-btn {
+        display: none;
+      }
+    }
     </style>
 </head>
 <body>
@@ -560,6 +1123,7 @@
       <p>Módulo 6 — SIGDOC-SUMBE · Visão Executiva</p>
     </div>
     <div class="topo-direita">
+      <button class="topo-btn" onclick="forcarSincronizacao()">Actualizar agora</button>
       <div class="data-hora">
         <div class="hora" id="relogio">00:00</div>
         <div class="data" id="data-topo">—</div>
@@ -569,7 +1133,7 @@
 
   <!-- HERO -->
   <div class="hero-strip">
-    <div class="hero-titulo">Visão Executiva</div>
+    <div class="hero-titulo">Centro de comando</div>
     <div class="hero-subtitulo" id="hero-saudacao">Bom dia, Director</div>
     <div class="hero-sub2">
       <span class="hero-ponto"></span>
@@ -583,6 +1147,34 @@
         <button class="p-btn" data-dias="180" onclick="selecionarPeriodo(180)">6 meses</button>
         <button class="p-btn" data-dias="365" onclick="selecionarPeriodo(365)">1 ano</button>
         <button class="p-btn" data-dias="0"   onclick="selecionarPeriodo(0)">Tudo</button>
+      </div>
+    </div>
+    <div class="hero-panel">
+      <div class="hero-panel-top">
+        <div class="hero-panel-kicker">Pulso operacional</div>
+        <div class="hero-sync-pill">Ao vivo <strong id="hero-sync">--:--</strong></div>
+      </div>
+      <div class="hero-pulse-grid">
+        <div class="hero-mini">
+          <span>Alertas activos</span>
+          <strong id="hero-alertas">0</strong>
+          <small id="hero-alertas-sub">A calcular</small>
+        </div>
+        <div class="hero-mini">
+          <span>Filas em aberto</span>
+          <strong id="hero-filas">0</strong>
+          <small id="hero-filas-sub">A calcular</small>
+        </div>
+        <div class="hero-mini">
+          <span>Reunioes proximas</span>
+          <strong id="hero-reunioes">0</strong>
+          <small id="hero-reunioes-sub">Sem agenda</small>
+        </div>
+        <div class="hero-mini">
+          <span>Cobertura critica</span>
+          <strong id="hero-cobertura">0</strong>
+          <small id="hero-cobertura-sub">Sem desvios graves</small>
+        </div>
       </div>
     </div>
   </div>
@@ -623,6 +1215,143 @@
 
   <!-- CONTEÚDO -->
   <div class="conteudo">
+
+    <div class="secao-titulo">Centro de comando</div>
+    <div class="comando-grid">
+      <div class="card-grafico card-intenso">
+        <div class="card-cabecalho">
+          <div>
+            <h3>Prioridades do momento</h3>
+            <p id="prioridades-sub">A analisar filas e desvios do sistema</p>
+          </div>
+          <span class="badge-live" id="badge-sincronizacao">A sincronizar</span>
+        </div>
+        <div class="prioridade-lista" id="lista-prioridades">
+          <div class="empty-util">
+            <strong>A preparar a leitura operacional</strong>
+            O painel esta a consolidar documentos, secretaria, portal, ferias e cobertura das unidades.
+          </div>
+        </div>
+      </div>
+
+      <div class="comando-stack">
+        <div class="card-grafico score-card">
+          <div class="card-cabecalho">
+            <div>
+              <h3>Saude operacional</h3>
+              <p id="score-sub">Score global do ecossistema RH</p>
+            </div>
+          </div>
+          <div class="score-numero" id="score-operacional">--</div>
+          <div class="score-estado" id="score-estado">A sincronizar</div>
+          <div class="score-texto" id="score-texto">A avaliar backlog, cobertura, secretaria e fluxo documental.</div>
+          <div class="score-grid">
+            <div class="score-chip">
+              <span>Backlog total</span>
+              <strong id="score-backlog">0</strong>
+            </div>
+            <div class="score-chip">
+              <span>Modulos sob pressao</span>
+              <strong id="score-modulos">0</strong>
+            </div>
+            <div class="score-chip">
+              <span>Docs sem decisao</span>
+              <strong id="score-documentos">0</strong>
+            </div>
+            <div class="score-chip">
+              <span>Pontos de atencao</span>
+              <strong id="score-alertas">0</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-grafico">
+          <div class="card-cabecalho">
+            <div>
+              <h3>Atalhos de gestao</h3>
+              <p>Entradas rapidas para as frentes que precisam de acao</p>
+            </div>
+          </div>
+          <div class="quick-actions">
+            <a class="quick-action" href="aprovacao.html">
+              <div class="quick-icone">OK</div>
+              <div>
+                <span class="quick-label">Fila de aprovacoes</span>
+                <span class="quick-sub">Despachar documentos em validacao e rejeicao.</span>
+              </div>
+            </a>
+            <a class="quick-action" href="cadastro.html">
+              <div class="quick-icone">RH</div>
+              <div>
+                <span class="quick-label">Cadastro RH</span>
+                <span class="quick-sub">Conferir admissoes, formularios pendentes e dados mestres.</span>
+              </div>
+            </a>
+            <a class="quick-action" href="ferias.html">
+              <div class="quick-icone">FX</div>
+              <div>
+                <span class="quick-label">Ferias e ausencias</span>
+                <span class="quick-sub">Aprovar pedidos e antecipar impactos na lotacao.</span>
+              </div>
+            </a>
+            <a class="quick-action" href="unidades.html">
+              <div class="quick-icone">UN</div>
+              <div>
+                <span class="quick-label">Cobertura das unidades</span>
+                <span class="quick-sub">Comparar efectivo esperado com o quadro registado.</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="secao-titulo">Modulos do sistema</div>
+    <div class="module-grid" id="module-grid">
+      <div class="module-card">
+        <div class="module-top">
+          <div>
+            <div class="module-eyebrow">SIGDOC</div>
+            <div class="module-titulo">A sincronizar modulos</div>
+          </div>
+          <span class="module-chip tone-info">Live</span>
+        </div>
+        <div class="module-desc">A consolidar as frentes documental, secretaria, portal, ferias, cadastro e cobertura.</div>
+      </div>
+    </div>
+
+    <div class="secao-titulo">Agenda e filas</div>
+    <div class="agenda-grid">
+      <div class="card-grafico">
+        <div class="card-cabecalho">
+          <div>
+            <h3>Proximas reunioes</h3>
+            <p id="agenda-sub">A ordenar agenda e confirmacoes</p>
+          </div>
+        </div>
+        <div class="agenda-lista" id="agenda-reunioes">
+          <div class="empty-util">
+            <strong>Agenda em preparacao</strong>
+            Assim que as reunioes forem consolidadas, o painel mostra o que precisa de confirmacao e acompanhamento.
+          </div>
+        </div>
+      </div>
+
+      <div class="card-grafico">
+        <div class="card-cabecalho">
+          <div>
+            <h3>Filas operacionais</h3>
+            <p id="filas-sub">A calcular volumes que exigem seguimento</p>
+          </div>
+        </div>
+        <div class="fila-lista" id="fila-operacional">
+          <div class="empty-util">
+            <strong>Sem filas carregadas</strong>
+            O painel vai listar aqui os volumes mais praticos para actuacao imediata.
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- LINHA 1 -->
     <div class="secao-titulo">Actividade Documental</div>
@@ -829,7 +1558,7 @@
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import {
     getFirestore, collection, getDocs, query,
-    orderBy, limit, where, Timestamp, doc, getDoc
+    orderBy, limit, where, Timestamp, doc, getDoc, onSnapshot
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
@@ -850,6 +1579,31 @@
   };
   const CORES_TIPO  = ["#3b82f6","#10c886","#f59e0b","#a78bfa","#ef4444","#22d3ee"];
   const CORES_BARRA = ["#3b82f6","#10c886","#f59e0b","#a78bfa","#ef4444","#22d3ee","#fb923c","#34d399"];
+  const LIMITES_LIVE = {
+    documentos: 1500,
+    sessoes: 500,
+    pedidos_secretaria: 500,
+    reunioes: 300,
+    solicitacoes: 700,
+    ferias_ausencias: 350
+  };
+  let _periodoActual = 90;
+  let _dadosBrutos = {
+    funcionarios: [],
+    documentos: [],
+    sessoes: [],
+    unidades_sanitarias: [],
+    pedidos_secretaria: [],
+    reunioes: [],
+    solicitacoes: [],
+    ferias_ausencias: []
+  };
+  let _ultimaSincronizacao = null;
+  let _sincronizacaoActiva = false;
+  let _sincronizacaoIniciada = false;
+  let _dadosIniciaisCarregados = false;
+  let _renderTempoReal = null;
+  let _unsubsPainel = [];
 
   // ── RELÓGIO ──
   function actualizarRelogio() {
@@ -908,7 +1662,8 @@
 
       // Carregar dados — erros aqui são de rede/Firestore, não de acesso
       // carregarTudo() tem o seu próprio try/catch e mostra notificações
-      await carregarTudo();
+      await carregarTudo(true);
+      iniciarSincronizacaoTempoReal();
 
     } catch(e) {
       // Só chega aqui se falhar a leitura de /utilizadores — erro real de auth
@@ -925,65 +1680,118 @@
     }
   });
 
-  // ── CARREGAR TUDO ──
-  let _periodoActual = 90; // dias — padrão 90 dias
-
-  window.selecionarPeriodo = function(dias) {
-    _periodoActual = dias;
-    // Actualizar botões
-    document.querySelectorAll('.p-btn').forEach(b => {
-      b.classList.toggle('p-btn-activo', parseInt(b.dataset.dias) === dias);
-    });
-    carregarTudo();
-  };
-
-  async function carregarTudo() {
-    // Calcular janela temporal
-    const fim   = new Date();
+  function obterJanelaPeriodo() {
+    const fim = new Date();
     const inicio = _periodoActual > 0
       ? new Date(fim.getTime() - _periodoActual * 24 * 60 * 60 * 1000)
       : null;
-    const opcoes = inicio ? { inicio, fim } : {};
-    const labelPeriodo = _periodoActual > 0
-      ? `últimos ${_periodoActual} dias`
-      : `todos os registos`;
+    return {
+      inicio,
+      fim,
+      label: _periodoActual > 0 ? `últimos ${_periodoActual} dias` : "todos os registos"
+    };
+  }
 
-    // Indicador de carregamento na hero
-    const heroSub = document.getElementById("hero-sub");
-    heroSub.innerHTML = `A carregar… <span class="hero-carregando">⏳</span>`;
+  function filtrarPorPeriodo(lista, campo) {
+    const { inicio, fim } = obterJanelaPeriodo();
+    if (!inicio && !fim) return [...lista];
+    return lista.filter(item => {
+      const d = toDate(item?.[campo]);
+      return d && (!inicio || d >= inicio) && (!fim || d <= fim);
+    });
+  }
 
+  function referenciaTempoReal(nome, campoOrdem, maxDocs) {
+    if (!campoOrdem) return collection(db, nome);
+    return query(collection(db, nome), orderBy(campoOrdem, "desc"), limit(maxDocs || 500));
+  }
+
+  function actualizarColeccaoLocal(nome, registos, silencioso = true) {
+    _dadosBrutos[nome] = registos;
+    _ultimaSincronizacao = new Date();
+    _sincronizacaoActiva = true;
+    if (!_dadosIniciaisCarregados) return;
+    clearTimeout(_renderTempoReal);
+    _renderTempoReal = setTimeout(() => renderPainel({ mostrarNotif: !silencioso }), 60);
+  }
+
+  function iniciarSincronizacaoTempoReal() {
+    if (_sincronizacaoIniciada) return;
+    _sincronizacaoIniciada = true;
+
+    const watchers = [
+      { nome: "funcionarios" },
+      { nome: "unidades_sanitarias" },
+      { nome: "documentos", campo: "geradoEm", max: LIMITES_LIVE.documentos },
+      { nome: "sessoes", campo: "timestamp", max: LIMITES_LIVE.sessoes },
+      { nome: "pedidos_secretaria", campo: "criadoEm", max: LIMITES_LIVE.pedidos_secretaria },
+      { nome: "reunioes", campo: "criadoEm", max: LIMITES_LIVE.reunioes },
+      { nome: "solicitacoes", campo: "criadoEm", max: LIMITES_LIVE.solicitacoes },
+      { nome: "ferias_ausencias", campo: "criadoEm", max: LIMITES_LIVE.ferias_ausencias }
+    ];
+
+    _unsubsPainel = watchers.map(item =>
+      onSnapshot(
+        referenciaTempoReal(item.nome, item.campo, item.max),
+        snap => {
+          const dados = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          actualizarColeccaoLocal(item.nome, dados, true);
+        },
+        err => {
+          console.warn("Watcher painel:", item.nome, err?.code || err?.message || err);
+          _sincronizacaoActiva = false;
+          const badge = document.getElementById("badge-sincronizacao");
+          if (badge) badge.textContent = "Ligação instável";
+        }
+      )
+    );
+  }
+
+  window.forcarSincronizacao = function() {
+    carregarTudo(true);
+  };
+
+  window.selecionarPeriodo = function(dias) {
+    _periodoActual = dias;
+    document.querySelectorAll('.p-btn').forEach(b => {
+      b.classList.toggle('p-btn-activo', parseInt(b.dataset.dias, 10) === dias);
+    });
+    if (_dadosIniciaisCarregados) {
+      renderPainel({ mostrarNotif: true });
+    } else {
+      carregarTudo(false);
+    }
+  };
+
+  async function carregarTudo(notificar = false) {
+    document.getElementById("hero-sub").innerHTML = `A carregar… <span class="hero-carregando">⏳</span>`;
     try {
-      // funcionarios: sem filtro temporal (dados mestres — não crescem como docs)
-      // documentos e sessoes: filtrados pelo período seleccionado
-      const [funcionarios, documentos, sessoes, snapUnidades, pedidosSec, reunioes] = await Promise.all([
+      const [funcionarios, documentos, sessoes, unidades, pedidosSec, reunioes, solicitacoes, ferias] = await Promise.all([
         fetchColeccao("funcionarios"),
-        fetchColeccao("documentos", "geradoEm",  opcoes),
-        fetchColeccao("sessoes",    "timestamp", opcoes),
-        getDocs(collection(db, "unidades_sanitarias")).catch(()=>({docs:[],forEach:()=>{}})),
-        fetchColeccao("pedidos_secretaria", "criadoEm", opcoes),
-        fetchColeccao("reunioes",           "criadoEm", opcoes)
+        fetchColeccao("documentos", "geradoEm", { maxDocs: LIMITES_LIVE.documentos }),
+        fetchColeccao("sessoes", "timestamp", { maxDocs: LIMITES_LIVE.sessoes }),
+        fetchColeccao("unidades_sanitarias"),
+        fetchColeccao("pedidos_secretaria", "criadoEm", { maxDocs: LIMITES_LIVE.pedidos_secretaria }),
+        fetchColeccao("reunioes", "criadoEm", { maxDocs: LIMITES_LIVE.reunioes }),
+        fetchColeccao("solicitacoes", "criadoEm", { maxDocs: LIMITES_LIVE.solicitacoes }),
+        fetchColeccao("ferias_ausencias", "criadoEm", { maxDocs: LIMITES_LIVE.ferias_ausencias })
       ]);
-      // Mapa nome→esperado a partir da colecção unidades_sanitarias
-      const ESPERADO_MAP = {};
-      snapUnidades.forEach(s=>{ const d=s.data(); if(d.nome) ESPERADO_MAP[d.nome]=d.efectivo?.esperado||0; });
 
-      calcularKPIs(funcionarios, documentos);
-      renderGraficoMensal(documentos, inicio);
-      renderDonut(documentos);
-      renderBarrasUnidades(funcionarios, ESPERADO_MAP);
-      renderBarrasCategorias(funcionarios);
-      renderMiniEstat(funcionarios, documentos, sessoes);
-      renderTabelaUnidades(funcionarios, documentos, ESPERADO_MAP);
-      renderFeed(documentos, sessoes);
-      renderSecretaria(pedidosSec, reunioes);
-
-      heroSub.textContent =
-        `${documentos.length} docs · ${funcionarios.length} funcionários · ${pedidosSec.length} pedidos sec. · ${labelPeriodo}`;
-      mostrarNotif(
-        `✅ Painel actualizado — ${documentos.length} docs (${labelPeriodo})`,
-        "sucesso"
-      );
-    } catch(e) {
+      _dadosBrutos = {
+        funcionarios,
+        documentos,
+        sessoes,
+        unidades_sanitarias: unidades,
+        pedidos_secretaria: pedidosSec,
+        reunioes,
+        solicitacoes,
+        ferias_ausencias: ferias
+      };
+      _dadosIniciaisCarregados = true;
+      _sincronizacaoActiva = true;
+      _ultimaSincronizacao = new Date();
+      renderPainel({ mostrarNotif: notificar });
+    } catch (e) {
       console.error(e);
       mostrarNotif("❌ Erro ao carregar o painel. Verifique a ligação.", "erro");
     }
@@ -1004,7 +1812,7 @@
         : collection(db, nome);
       const snap = await getDocs(q);
       return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } catch(e) {
+    } catch (e) {
       console.error("Erro " + nome, e);
       mostrarNotif(`❌ Erro ao carregar "${nome}". Verifique a ligação.`, "erro");
       return [];
@@ -1027,13 +1835,587 @@
     return d.toLocaleDateString("pt-AO", { day:"2-digit", month:"short" });
   }
 
+  function escapeHtml(valor) {
+    return String(valor ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function fmtRelativo(d) {
+    if (!d) return "—";
+    const diffMs = d.getTime() - Date.now();
+    const futuro = diffMs >= 0;
+    const absMin = Math.round(Math.abs(diffMs) / 60000);
+    if (absMin < 60) return futuro ? `em ${Math.max(absMin, 1)} min` : `há ${Math.max(absMin, 1)} min`;
+    const absHoras = Math.round(absMin / 60);
+    if (absHoras < 48) return futuro ? `em ${absHoras} h` : `há ${absHoras} h`;
+    const absDias = Math.round(absHoras / 24);
+    return futuro ? `em ${absDias} dias` : `há ${absDias} dias`;
+  }
+
+  function obterDataReuniao(reuniao) {
+    const bruto = reuniao?.dataSugerida || reuniao?.dataPreferida;
+    if (!bruto) return null;
+    if (bruto instanceof Date) return bruto;
+    if (typeof bruto === "string" && /^\d{4}-\d{2}-\d{2}$/.test(bruto)) {
+      return new Date(`${bruto}T09:00:00`);
+    }
+    return toDate(bruto);
+  }
+
+  function obterMapaEsperado(unidades) {
+    const mapa = {};
+    unidades.forEach(u => {
+      if (u?.nome) mapa[u.nome] = u.efectivo?.esperado || 0;
+    });
+    return mapa;
+  }
+
+  function calcularCoberturaUnidades(funcs, esperadoMap) {
+    const cadMap = {};
+    funcs.forEach(f => {
+      const unidade = f.unidade || "Não especificada";
+      cadMap[unidade] = (cadMap[unidade] || 0) + 1;
+    });
+
+    return [...new Set([...Object.keys(cadMap), ...Object.keys(esperadoMap)])]
+      .filter(nome => nome !== "Não especificada")
+      .map(nome => {
+        const cadastrados = cadMap[nome] || 0;
+        const esperado = esperadoMap[nome] || 0;
+        const cobertura = esperado > 0 ? Math.round((cadastrados / esperado) * 100) : null;
+        return { nome, cadastrados, esperado, cobertura };
+      })
+      .sort((a, b) => {
+        const aRank = a.cobertura === null ? 999 : a.cobertura;
+        const bRank = b.cobertura === null ? 999 : b.cobertura;
+        if (aRank !== bRank) return aRank - bRank;
+        return (b.esperado || 0) - (a.esperado || 0);
+      });
+  }
+
+  function prepararContextoPainel() {
+    const janela = obterJanelaPeriodo();
+    const funcionarios = [..._dadosBrutos.funcionarios];
+    const documentos = filtrarPorPeriodo(_dadosBrutos.documentos, "geradoEm");
+    const sessoes = filtrarPorPeriodo(_dadosBrutos.sessoes, "timestamp");
+    const pedidos = filtrarPorPeriodo(_dadosBrutos.pedidos_secretaria, "criadoEm");
+    const reunioes = filtrarPorPeriodo(_dadosBrutos.reunioes, "criadoEm");
+    const solicitacoes = filtrarPorPeriodo(_dadosBrutos.solicitacoes, "criadoEm");
+    const ferias = filtrarPorPeriodo(_dadosBrutos.ferias_ausencias, "criadoEm");
+    const unidades = [..._dadosBrutos.unidades_sanitarias];
+    const esperadoMap = obterMapaEsperado(unidades);
+    const cobertura = calcularCoberturaUnidades(funcionarios, esperadoMap);
+    const docsFila = documentos.filter(d => ["pendente", "gerado"].includes(d.estado)).length;
+    const docsAprovados = documentos.filter(d => d.estado === "aprovado").length;
+    const docsRejeitados = documentos.filter(d => d.estado === "rejeitado").length;
+    const pedidosAbertos = pedidos.filter(p => p.estado !== "fechado").length;
+    const pedidosNovos = pedidos.filter(p => p.estado === "novo" || (p.naoLidasSecretaria || 0) > 0).length;
+    const reunioesPendentes = reunioes.filter(r => ["pendente", "remarcada"].includes(r.estado)).length;
+    const solicitacoesAtivas = solicitacoes.filter(s => ["nova", "processando", "pendente", "gerado"].includes(s.estado)).length;
+    const solicitacoesNovas = solicitacoes.filter(s => s.estado === "nova").length;
+    const solicitacoesProc = solicitacoes.filter(s => s.estado === "processando").length;
+    const feriasPendentes = ferias.filter(f => f.estado === "pendente").length;
+    const formulariosPendentes = funcionarios.filter(f => f.formularioPendente === true).length;
+    const coberturaCritica = cobertura.filter(u => u.cobertura !== null && u.cobertura < 60);
+    const coberturaMedia = cobertura.filter(u => u.cobertura !== null).length
+      ? Math.round(cobertura.filter(u => u.cobertura !== null).reduce((acc, u) => acc + u.cobertura, 0) / cobertura.filter(u => u.cobertura !== null).length)
+      : null;
+    const proximasReunioes = reunioes
+      .map(r => ({ ...r, _dataPainel: obterDataReuniao(r) }))
+      .filter(r => r._dataPainel && r._dataPainel >= new Date() && !["recusada", "realizada"].includes(r.estado))
+      .sort((a, b) => a._dataPainel - b._dataPainel);
+    const backlogTotal = docsFila + pedidosAbertos + solicitacoesAtivas + feriasPendentes + formulariosPendentes;
+
+    return {
+      janela,
+      funcionarios,
+      documentos,
+      sessoes,
+      pedidos,
+      reunioes,
+      solicitacoes,
+      ferias,
+      unidades,
+      esperadoMap,
+      cobertura,
+      proximasReunioes,
+      indicadores: {
+        docsFila,
+        docsAprovados,
+        docsRejeitados,
+        pedidosAbertos,
+        pedidosNovos,
+        reunioesPendentes,
+        solicitacoesAtivas,
+        solicitacoesNovas,
+        solicitacoesProc,
+        feriasPendentes,
+        formulariosPendentes,
+        coberturaCritica,
+        coberturaMedia,
+        backlogTotal
+      }
+    };
+  }
+
+  function gerarPrioridades(contexto) {
+    const { indicadores: i, cobertura } = contexto;
+    const prioridades = [];
+    const abrvU = window.SIGDOC_CONFIG?.abrvUnidade || (n => n);
+
+    if (i.docsFila > 0) {
+      prioridades.push({
+        nivel: i.docsFila >= 8 ? "critico" : "atencao",
+        tag: "Aprovações",
+        titulo: `${i.docsFila} documentos aguardam despacho`,
+        sub: `${i.docsAprovados} aprovados e ${i.docsRejeitados} rejeitados no período seleccionado.`,
+        valor: i.docsFila,
+        icone: "📄",
+        href: "aprovacao.html",
+        acao: "Abrir fila"
+      });
+    }
+
+    if (i.pedidosAbertos > 0 || i.reunioesPendentes > 0) {
+      prioridades.push({
+        nivel: i.pedidosNovos + i.reunioesPendentes >= 6 ? "critico" : "atencao",
+        tag: "Secretaria",
+        titulo: `${i.pedidosAbertos} pedidos abertos e ${i.reunioesPendentes} reuniões pendentes`,
+        sub: `${i.pedidosNovos} conversas novas ou por responder exigem seguimento.`,
+        valor: i.pedidosAbertos + i.reunioesPendentes,
+        icone: "✉️",
+        href: "index.html",
+        acao: "Ir para secretaria"
+      });
+    }
+
+    if (i.solicitacoesAtivas > 0) {
+      prioridades.push({
+        nivel: i.solicitacoesAtivas >= 10 ? "critico" : "atencao",
+        tag: "Portal",
+        titulo: `${i.solicitacoesAtivas} solicitações activas no portal`,
+        sub: `${i.solicitacoesNovas} novas e ${i.solicitacoesProc} em processamento.`,
+        valor: i.solicitacoesAtivas,
+        icone: "🧾",
+        href: "portal.html",
+        acao: "Abrir portal"
+      });
+    }
+
+    if (i.feriasPendentes > 0) {
+      prioridades.push({
+        nivel: i.feriasPendentes >= 5 ? "atencao" : "info",
+        tag: "Férias",
+        titulo: `${i.feriasPendentes} pedidos de férias ou ausências por decidir`,
+        sub: `Avalie impacto no quadro antes de aprovar novas saídas.`,
+        valor: i.feriasPendentes,
+        icone: "🗓️",
+        href: "ferias.html",
+        acao: "Gerir férias"
+      });
+    }
+
+    if (i.formulariosPendentes > 0) {
+      prioridades.push({
+        nivel: i.formulariosPendentes >= 4 ? "atencao" : "info",
+        tag: "Cadastro",
+        titulo: `${i.formulariosPendentes} formulários aguardam validação`,
+        sub: `Há colaboradores com integração incompleta no cadastro RH.`,
+        valor: i.formulariosPendentes,
+        icone: "👥",
+        href: "cadastro.html",
+        acao: "Validar cadastro"
+      });
+    }
+
+    if (i.coberturaCritica.length > 0) {
+      const unidadeCritica = cobertura.find(u => u.cobertura !== null && u.cobertura < 60);
+      prioridades.push({
+        nivel: "critico",
+        tag: "Cobertura",
+        titulo: `${i.coberturaCritica.length} unidades estão abaixo de 60%`,
+        sub: unidadeCritica
+          ? `${abrvU(unidadeCritica.nome)} está com ${unidadeCritica.cobertura}% de cobertura face ao esperado.`
+          : `Reveja o equilíbrio entre efectivos esperados e colaboradores registados.`,
+        valor: i.coberturaCritica.length,
+        icone: "🏥",
+        href: "unidades.html",
+        acao: "Ver unidades"
+      });
+    }
+
+    if (!prioridades.length) {
+      prioridades.push({
+        nivel: "ok",
+        tag: "Operação",
+        titulo: "Sem frentes críticas neste período",
+        sub: "O painel não detectou filas urgentes nem desvios graves nas colecções monitorizadas.",
+        valor: 0,
+        icone: "✓",
+        href: "relatorios.html",
+        acao: "Abrir relatórios"
+      });
+    }
+
+    const ordem = { critico: 0, atencao: 1, info: 2, ok: 3 };
+    return prioridades.sort((a, b) => (ordem[a.nivel] - ordem[b.nivel]) || (b.valor - a.valor));
+  }
+
+  function calcularScoreOperacional(contexto, prioridades) {
+    const i = contexto.indicadores;
+    let valor = 100;
+    valor -= Math.min(i.docsFila * 2, 26);
+    valor -= Math.min(i.pedidosAbertos * 2, 14);
+    valor -= Math.min(i.solicitacoesAtivas * 2, 18);
+    valor -= Math.min(i.feriasPendentes * 3, 12);
+    valor -= Math.min(i.formulariosPendentes * 2, 10);
+    valor -= Math.min(i.coberturaCritica.length * 8, 24);
+    valor = Math.max(22, Math.round(valor));
+
+    const modulosSobPressao = [
+      i.docsFila > 0,
+      i.pedidosAbertos > 0 || i.reunioesPendentes > 0,
+      i.solicitacoesAtivas > 0,
+      i.feriasPendentes > 0,
+      i.formulariosPendentes > 0,
+      i.coberturaCritica.length > 0
+    ].filter(Boolean).length;
+
+    let estado = "Operação estável";
+    let texto = "Fluxos principais controlados e sem gargalos relevantes.";
+    if (valor < 85) {
+      estado = "Atenção moderada";
+      texto = "Há frentes a exigir seguimento, mas ainda sem pressão crítica generalizada.";
+    }
+    if (valor < 70) {
+      estado = "Pressão operacional";
+      texto = "O volume pendente já afecta múltiplos módulos e pede actuação coordenada.";
+    }
+    if (valor < 55) {
+      estado = "Intervenção imediata";
+      texto = "Há sinais críticos em filas e cobertura; convém actuar nas prioridades do topo.";
+    }
+
+    return {
+      valor,
+      estado,
+      texto,
+      modulosSobPressao,
+      alertasActivos: prioridades.filter(p => p.nivel !== "ok").length
+    };
+  }
+
+  function renderCentroComando(contexto) {
+    const prioridades = gerarPrioridades(contexto);
+    const score = calcularScoreOperacional(contexto, prioridades);
+    const badge = document.getElementById("badge-sincronizacao");
+    const heroSync = document.getElementById("hero-sync");
+    const heroAlertas = prioridades.filter(p => p.nivel !== "ok").length;
+    const primeiraReuniao = contexto.proximasReunioes[0];
+
+    document.getElementById("prioridades-sub").textContent = `${heroAlertas} prioridades activas · ${contexto.janela.label}`;
+    document.getElementById("lista-prioridades").innerHTML = prioridades.map(p => `
+      <div class="prioridade-item">
+        <div class="prioridade-marca sev-${p.nivel}">${p.icone}</div>
+        <div class="prioridade-corpo">
+          <div class="prioridade-tag">${escapeHtml(p.tag)}</div>
+          <div class="prioridade-titulo">${escapeHtml(p.titulo)}</div>
+          <div class="prioridade-sub">${escapeHtml(p.sub)}</div>
+        </div>
+        <div class="prioridade-acoes">
+          <div class="prioridade-valor">${p.valor}</div>
+          <a class="util-link" href="${p.href}">${escapeHtml(p.acao)}</a>
+        </div>
+      </div>
+    `).join("");
+
+    document.getElementById("score-operacional").textContent = score.valor;
+    document.getElementById("score-estado").textContent = score.estado;
+    document.getElementById("score-texto").textContent = score.texto;
+    document.getElementById("score-sub").textContent = `${contexto.janela.label} · leitura consolidada do ecossistema`;
+    document.getElementById("score-backlog").textContent = contexto.indicadores.backlogTotal;
+    document.getElementById("score-modulos").textContent = score.modulosSobPressao;
+    document.getElementById("score-documentos").textContent = contexto.indicadores.docsFila;
+    document.getElementById("score-alertas").textContent = score.alertasActivos;
+
+    if (badge) badge.textContent = _sincronizacaoActiva && _ultimaSincronizacao ? `Ao vivo ${fmtHora(_ultimaSincronizacao)}` : "Ligação instável";
+    if (heroSync) heroSync.textContent = _ultimaSincronizacao ? fmtHora(_ultimaSincronizacao) : "--:--";
+
+    document.getElementById("hero-alertas").textContent = heroAlertas;
+    document.getElementById("hero-alertas-sub").textContent = prioridades[0] ? prioridades[0].tag : "Sem alertas";
+    document.getElementById("hero-filas").textContent = contexto.indicadores.backlogTotal;
+    document.getElementById("hero-filas-sub").textContent = `${contexto.indicadores.docsFila} docs · ${contexto.indicadores.solicitacoesAtivas} solicitações`;
+    document.getElementById("hero-reunioes").textContent = contexto.proximasReunioes.length;
+    document.getElementById("hero-reunioes-sub").textContent = primeiraReuniao
+      ? `${fmtDataCurta(primeiraReuniao._dataPainel)} · ${fmtRelativo(primeiraReuniao._dataPainel)}`
+      : "Sem agenda";
+    document.getElementById("hero-cobertura").textContent = contexto.indicadores.coberturaCritica.length;
+    document.getElementById("hero-cobertura-sub").textContent = contexto.indicadores.coberturaCritica.length
+      ? `${contexto.indicadores.coberturaCritica.length} unidades abaixo de 60%`
+      : "Sem desvios graves";
+  }
+
+  function renderModuleGrid(contexto) {
+    const i = contexto.indicadores;
+    const modulos = [
+      {
+        eyebrow: "Fluxo documental",
+        titulo: "Aprovações",
+        numero: i.docsFila,
+        chip: i.docsFila > 0 ? "Em fila" : "Controlado",
+        tone: i.docsFila > 7 ? "tone-critico" : i.docsFila > 0 ? "tone-alerta" : "tone-ok",
+        desc: "Documentos gerados ou pendentes à espera de decisão.",
+        meta1: ["Aprovados", i.docsAprovados],
+        meta2: ["Rejeitados", i.docsRejeitados],
+        status: `Período ${contexto.janela.label}.`,
+        href: "aprovacao.html",
+        acao: "Abrir fila"
+      },
+      {
+        eyebrow: "Portal",
+        titulo: "Solicitações RH",
+        numero: i.solicitacoesAtivas,
+        chip: i.solicitacoesAtivas > 0 ? "Activo" : "Estável",
+        tone: i.solicitacoesAtivas > 9 ? "tone-critico" : i.solicitacoesAtivas > 0 ? "tone-alerta" : "tone-ok",
+        desc: "Pedidos submetidos pelos colaboradores e ainda sem fecho.",
+        meta1: ["Novas", i.solicitacoesNovas],
+        meta2: ["Em curso", i.solicitacoesProc],
+        status: "Inclui estados nova, processando, pendente e gerado.",
+        href: "portal.html",
+        acao: "Abrir portal"
+      },
+      {
+        eyebrow: "Secretaria",
+        titulo: "Pedidos e reuniões",
+        numero: i.pedidosAbertos + i.reunioesPendentes,
+        chip: i.pedidosAbertos + i.reunioesPendentes > 0 ? "Seguimento" : "Controlado",
+        tone: i.pedidosNovos + i.reunioesPendentes > 6 ? "tone-critico" : i.pedidosAbertos + i.reunioesPendentes > 0 ? "tone-alerta" : "tone-ok",
+        desc: "Conversas abertas com funcionários e agenda de reuniões por confirmar.",
+        meta1: ["Pedidos", i.pedidosAbertos],
+        meta2: ["Reuniões", i.reunioesPendentes],
+        status: `${i.pedidosNovos} entradas novas aguardam resposta.`,
+        href: "index.html",
+        acao: "Ir para secretaria"
+      },
+      {
+        eyebrow: "Ausências",
+        titulo: "Férias e licenças",
+        numero: i.feriasPendentes,
+        chip: i.feriasPendentes > 0 ? "Pendências" : "Estável",
+        tone: i.feriasPendentes > 4 ? "tone-alerta" : i.feriasPendentes > 0 ? "tone-info" : "tone-ok",
+        desc: "Pedidos de ausência ainda sem aprovação final.",
+        meta1: ["Pendentes", i.feriasPendentes],
+        meta2: ["Agenda", contexto.proximasReunioes.length],
+        status: "Use o módulo para validar impacto na lotação.",
+        href: "ferias.html",
+        acao: "Gerir férias"
+      },
+      {
+        eyebrow: "Cadastro",
+        titulo: "Qualidade dos dados RH",
+        numero: i.formulariosPendentes,
+        chip: i.formulariosPendentes > 0 ? "Validar" : "Conforme",
+        tone: i.formulariosPendentes > 3 ? "tone-alerta" : i.formulariosPendentes > 0 ? "tone-info" : "tone-ok",
+        desc: "Formulários pendentes e colaboradores a precisar de conferência.",
+        meta1: ["Activos", contexto.funcionarios.filter(f => f.estado === "activo" || !f.estado).length],
+        meta2: ["Pendentes", i.formulariosPendentes],
+        status: "Ajuda a manter o ecossistema sincronizado com o portal.",
+        href: "cadastro.html",
+        acao: "Validar cadastro"
+      },
+      {
+        eyebrow: "Cobertura",
+        titulo: "Unidades sanitárias",
+        numero: i.coberturaMedia !== null ? `${i.coberturaMedia}%` : "—",
+        chip: i.coberturaCritica.length > 0 ? "Crítico" : "Balanceado",
+        tone: i.coberturaCritica.length > 0 ? "tone-critico" : "tone-ok",
+        desc: "Comparação entre efectivos esperados e colaboradores registados.",
+        meta1: ["Críticas", i.coberturaCritica.length],
+        meta2: ["Unidades", contexto.unidades.length],
+        status: "Use este indicador para orientar reforços e limpeza de dados.",
+        href: "unidades.html",
+        acao: "Ver unidades"
+      }
+    ];
+
+    document.getElementById("module-grid").innerHTML = modulos.map(m => `
+      <div class="module-card">
+        <div class="module-top">
+          <div>
+            <div class="module-eyebrow">${escapeHtml(m.eyebrow)}</div>
+            <div class="module-titulo">${escapeHtml(m.titulo)}</div>
+          </div>
+          <span class="module-chip ${m.tone}">${escapeHtml(m.chip)}</span>
+        </div>
+        <div class="module-kpi">
+          <div class="module-num">${escapeHtml(m.numero)}</div>
+          <div class="module-desc">${escapeHtml(m.desc)}</div>
+        </div>
+        <div class="module-metricas">
+          <div class="module-meta">
+            <span>${escapeHtml(m.meta1[0])}</span>
+            <strong>${escapeHtml(m.meta1[1])}</strong>
+          </div>
+          <div class="module-meta">
+            <span>${escapeHtml(m.meta2[0])}</span>
+            <strong>${escapeHtml(m.meta2[1])}</strong>
+          </div>
+        </div>
+        <div class="module-rodape">
+          <div class="module-status">${escapeHtml(m.status)}</div>
+          <a class="util-link" href="${m.href}">${escapeHtml(m.acao)}</a>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function renderAgendaReunioes(contexto) {
+    const abrvU = window.SIGDOC_CONFIG?.abrvUnidade || (n => n);
+    const lista = contexto.proximasReunioes.slice(0, 5);
+    document.getElementById("agenda-sub").textContent = lista.length
+      ? `${lista.length} reuniões com seguimento nas próximas datas`
+      : `Sem reuniões futuras em ${contexto.janela.label}`;
+
+    document.getElementById("agenda-reunioes").innerHTML = lista.length ? lista.map(r => `
+      <div class="agenda-item">
+        <div class="agenda-data">
+          <span class="agenda-dia">${r._dataPainel.getDate().toString().padStart(2, "0")}</span>
+          <span class="agenda-mes">${r._dataPainel.toLocaleDateString("pt-AO", { month:"short" })}</span>
+        </div>
+        <div class="agenda-corpo">
+          <div class="agenda-tag">${escapeHtml(r.estado || "pendente")}</div>
+          <div class="agenda-titulo">${escapeHtml(r.assunto || "Reunião sem assunto")}</div>
+          <div class="agenda-sub">${escapeHtml((r.funcionarioNome || "Sem nome") + " · " + (abrvU(r.unidade || "Sem unidade")) + " · " + (r.destinatarioNome || "Sem destinatário"))}</div>
+        </div>
+        <div class="agenda-meta">
+          <div class="agenda-hora">${fmtHora(r._dataPainel)}</div>
+          <span>${fmtRelativo(r._dataPainel)}</span>
+          <a class="util-link" href="index.html">Abrir</a>
+        </div>
+      </div>
+    `).join("") : `
+      <div class="empty-util">
+        <strong>Agenda sem pressão</strong>
+        Não foram encontradas reuniões futuras a exigir confirmação no período actual.
+      </div>
+    `;
+  }
+
+  function renderFilaOperacional(contexto) {
+    const i = contexto.indicadores;
+    const filas = [
+      {
+        tag: "Documentos",
+        titulo: "Fila de aprovação",
+        sub: "Gerados e pendentes ainda sem despacho final.",
+        valor: i.docsFila,
+        icone: "📄",
+        href: "aprovacao.html",
+        acao: "Ver fila"
+      },
+      {
+        tag: "Secretaria",
+        titulo: "Pedidos em aberto",
+        sub: `${i.pedidosNovos} entradas novas ou sem resposta.`,
+        valor: i.pedidosAbertos,
+        icone: "✉️",
+        href: "index.html",
+        acao: "Abrir"
+      },
+      {
+        tag: "Portal",
+        titulo: "Solicitações activas",
+        sub: `${i.solicitacoesNovas} novas e ${i.solicitacoesProc} em processamento.`,
+        valor: i.solicitacoesAtivas,
+        icone: "🧾",
+        href: "portal.html",
+        acao: "Abrir"
+      },
+      {
+        tag: "Férias",
+        titulo: "Pedidos por decidir",
+        sub: "Ausências pendentes com impacto operacional.",
+        valor: i.feriasPendentes,
+        icone: "🗓️",
+        href: "ferias.html",
+        acao: "Gerir"
+      },
+      {
+        tag: "Cadastro",
+        titulo: "Formulários por validar",
+        sub: "Registos ainda não consolidados no RH.",
+        valor: i.formulariosPendentes,
+        icone: "👥",
+        href: "cadastro.html",
+        acao: "Rever"
+      }
+    ].filter(item => item.valor > 0);
+
+    document.getElementById("filas-sub").textContent = filas.length
+      ? `${i.backlogTotal} itens operacionais distribuídos pelos módulos`
+      : "Sem filas críticas no período seleccionado";
+
+    document.getElementById("fila-operacional").innerHTML = filas.length ? filas.map(item => `
+      <div class="fila-item">
+        <div class="fila-marca sev-${item.valor >= 8 ? "critico" : item.valor >= 3 ? "atencao" : "info"}">${item.icone}</div>
+        <div class="fila-corpo">
+          <div class="fila-tag">${escapeHtml(item.tag)}</div>
+          <div class="fila-titulo">${escapeHtml(item.titulo)}</div>
+          <div class="fila-sub">${escapeHtml(item.sub)}</div>
+        </div>
+        <div class="fila-meta">
+          <div class="fila-valor">${item.valor}</div>
+          <a class="util-link" href="${item.href}">${escapeHtml(item.acao)}</a>
+        </div>
+      </div>
+    `).join("") : `
+      <div class="empty-util">
+        <strong>Sem filas pendentes</strong>
+        O painel não detectou volumes operacionais relevantes a exigir acção imediata.
+      </div>
+    `;
+  }
+
+  function renderPainel({ mostrarNotif: notificar = false } = {}) {
+    if (!_dadosIniciaisCarregados) return;
+    const contexto = prepararContextoPainel();
+    const heroSub = document.getElementById("hero-sub");
+
+    calcularKPIs(contexto.funcionarios, contexto.documentos, contexto.esperadoMap, contexto.indicadores, contexto.unidades);
+    renderCentroComando(contexto);
+    renderModuleGrid(contexto);
+    renderAgendaReunioes(contexto);
+    renderFilaOperacional(contexto);
+    renderGraficoMensal(contexto.documentos, contexto.janela.inicio);
+    renderDonut(contexto.documentos);
+    renderBarrasUnidades(contexto.funcionarios, contexto.esperadoMap);
+    renderBarrasCategorias(contexto.funcionarios);
+    renderMiniEstat(contexto.funcionarios, contexto.documentos, contexto.sessoes, contexto.solicitacoes, contexto.ferias);
+    renderTabelaUnidades(contexto.funcionarios, contexto.documentos, contexto.esperadoMap);
+    renderFeed(contexto.documentos, contexto.sessoes, contexto.pedidos, contexto.reunioes, contexto.solicitacoes, contexto.ferias);
+    renderSecretaria(contexto.pedidos, contexto.reunioes);
+
+    heroSub.textContent = `${contexto.documentos.length} docs · ${contexto.pedidos.length} pedidos sec. · ${contexto.solicitacoes.length} solicitações · ${contexto.janela.label}`;
+
+    if (notificar) {
+      mostrarNotif(`✅ Painel actualizado — ${contexto.documentos.length} docs (${contexto.janela.label})`, "sucesso");
+    }
+  }
+
   // ── KPIs ──
-  function calcularKPIs(funcs, docs) {
+  function calcularKPIs(funcs, docs, esperadoMap = {}, indicadores = {}, unidadesMeta = []) {
     const funcActivos = funcs.filter(f => f.estado === "activo" || !f.estado).length;
     document.getElementById("kpi-funcionarios").textContent = funcActivos;
     const funcInactivos = funcs.filter(f => f.estado === "inactivo").length;
-    document.getElementById("kpi-func-delta").textContent = funcInactivos > 0 ? funcInactivos + " inactivos" : "Todos activos";
-    document.getElementById("kpi-func-delta").className = "kpi-delta " + (funcInactivos > 0 ? "delta-negativo" : "delta-positivo");
+    const formsPendentes = indicadores.formulariosPendentes || 0;
+    document.getElementById("kpi-func-delta").textContent = formsPendentes > 0
+      ? `${formsPendentes} formulários por validar`
+      : (funcInactivos > 0 ? `${funcInactivos} inactivos` : "Todos activos");
+    document.getElementById("kpi-func-delta").className = "kpi-delta " + ((formsPendentes > 0 || funcInactivos > 0) ? "delta-negativo" : "delta-positivo");
 
     const agora = new Date();
     const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
@@ -1053,14 +2435,17 @@
     document.getElementById("kpi-taxa-delta").textContent = aprovados + " aprovados de " + comDecisao.length;
     document.getElementById("kpi-taxa-delta").className = "kpi-delta " + (taxa >= 80 ? "delta-positivo" : taxa >= 50 ? "delta-neutro" : "delta-negativo");
 
-    const unidades = new Set(docs.map(d => d.localColocacao).filter(Boolean));
-    document.getElementById("kpi-unidades").textContent = unidades.size || "—";
-    document.getElementById("kpi-unid-delta").textContent = unidades.size + " unidades com actividade";
+    const totalUnidades = unidadesMeta.length || Object.keys(esperadoMap).length || new Set(funcs.map(f => f.unidade).filter(Boolean)).size;
+    const unidadesActivas = new Set(docs.map(d => d.localColocacao).filter(Boolean)).size;
+    document.getElementById("kpi-unidades").textContent = totalUnidades || "—";
+    document.getElementById("kpi-unid-delta").textContent = `${unidadesActivas} com actividade no período`;
     document.getElementById("kpi-unid-delta").className = "kpi-delta delta-neutro";
 
-    const pendentes = docs.filter(d => d.estado === "pendente").length;
+    const pendentes = docs.filter(d => ["pendente", "gerado"].includes(d.estado)).length;
     document.getElementById("kpi-pendentes").textContent = pendentes;
-    document.getElementById("kpi-pend-delta").textContent = pendentes === 0 ? "Nenhum pendente" : pendentes + " a aguardar decisão";
+    document.getElementById("kpi-pend-delta").textContent = pendentes === 0
+      ? "Nenhum documento em fila"
+      : `${pendentes} a aguardar decisão`;
     document.getElementById("kpi-pend-delta").className = "kpi-delta " + (pendentes === 0 ? "delta-positivo" : "delta-negativo");
   }
 
@@ -1258,16 +2643,16 @@
   }
 
   // ── MINI ESTATÍSTICAS ──
-  function renderMiniEstat(funcs, docs, sessoes) {
+  function renderMiniEstat(funcs, docs, sessoes, solicitacoes = [], ferias = []) {
     const quadro = funcs.filter(f => f.vinculo === "quadro").length;
     const prov   = funcs.filter(f => f.vinculo === "provisorio").length;
-    const rejei  = docs.filter(d => d.estado === "rejeitado").length;
-    const logins = sessoes.filter(s => s.tipo === "entrada").length;
+    const solicitudesActivas = solicitacoes.filter(s => ["nova", "processando", "pendente", "gerado"].includes(s.estado)).length;
+    const feriasPendentes = ferias.filter(f => f.estado === "pendente").length;
     document.getElementById("mini-estat").innerHTML = `
       <div class="mini-estat"><div class="num" style="color:#3b82f6">${quadro}</div><div class="lbl">Pessoal do Quadro</div></div>
       <div class="mini-estat"><div class="num" style="color:#f59e0b">${prov}</div><div class="lbl">Prov. Provisório</div></div>
-      <div class="mini-estat"><div class="num" style="color:#ef4444">${rejei}</div><div class="lbl">Docs. Rejeitados</div></div>
-      <div class="mini-estat"><div class="num" style="color:#10c886">${logins}</div><div class="lbl">Logins Registados</div></div>`;
+      <div class="mini-estat"><div class="num" style="color:#0f766e">${solicitudesActivas}</div><div class="lbl">Solicitações Activas</div></div>
+      <div class="mini-estat"><div class="num" style="color:#ef4444">${feriasPendentes}</div><div class="lbl">Férias Pendentes</div></div>`;
   }
 
   // ── TABELA UNIDADES ──
@@ -1308,7 +2693,7 @@
   }
 
   // ── FEED DE ACTIVIDADE ──
-  function renderFeed(docs, sessoes) {
+  function renderFeed(docs, sessoes, pedidos = [], reunioes = [], solicitacoes = [], ferias = []) {
     const eventos = [];
     docs.slice(0, 15).forEach(d => {
       const ts = toDate(d.geradoEm);
@@ -1330,6 +2715,42 @@
         sub: s.email || "—"
       });
     });
+    pedidos.slice(0, 6).forEach(p => {
+      const ts = toDate(p.ultimaMensagemEm || p.criadoEm);
+      if (ts) eventos.push({
+        ts,
+        tipo: "PEDIDO",
+        texto: `Pedido secretaria — ${(ASSUNTOS_PAINEL[p.assunto] || p.assunto || "Outro")} · ${p.funcionarioNome || "—"}`,
+        sub: p.estado || "novo"
+      });
+    });
+    reunioes.slice(0, 5).forEach(r => {
+      const ts = toDate(r.actualizadoEm || r.criadoEm) || obterDataReuniao(r);
+      if (ts) eventos.push({
+        ts,
+        tipo: "REUNIAO",
+        texto: `Reunião ${r.estado || "pendente"} — ${r.assunto || "Sem assunto"}`,
+        sub: r.funcionarioNome || r.destinatarioNome || "—"
+      });
+    });
+    solicitacoes.slice(0, 5).forEach(s => {
+      const ts = toDate(s.criadoEm);
+      if (ts) eventos.push({
+        ts,
+        tipo: "SOLICITACAO",
+        texto: `Solicitação ${s.estado || "nova"} — ${s.tipo || "documento"}`,
+        sub: s.nomeFuncionario || s.funcionarioNome || s.numero || "—"
+      });
+    });
+    ferias.slice(0, 5).forEach(f => {
+      const ts = toDate(f.criadoEm);
+      if (ts) eventos.push({
+        ts,
+        tipo: "FERIAS",
+        texto: `Ausência ${f.estado || "pendente"} — ${f.funcionarioNome || "—"}`,
+        sub: `${f.dataInicio || "—"} → ${f.dataFim || "—"}`
+      });
+    });
     eventos.sort((a,b) => b.ts - a.ts);
 
     const cfg = {
@@ -1337,7 +2758,11 @@
       APROVAR: { bg:"rgba(16,200,134,.15)",  emoji:"✅" },
       REJEITAR:{ bg:"rgba(239,68,68,.15)",   emoji:"❌" },
       LOGIN:   { bg:"rgba(167,139,250,.15)", emoji:"🔑" },
-      LOGOUT:  { bg:"rgba(0,0,0,.05)",          emoji:"🚪" }
+      LOGOUT:  { bg:"rgba(0,0,0,.05)",       emoji:"🚪" },
+      PEDIDO:  { bg:"rgba(14,165,233,.14)",  emoji:"✉️" },
+      REUNIAO: { bg:"rgba(245,158,11,.16)",  emoji:"📅" },
+      SOLICITACAO:{ bg:"rgba(15,118,110,.14)", emoji:"🧾" },
+      FERIAS:  { bg:"rgba(239,68,68,.12)",   emoji:"🗓️" }
     };
 
     document.getElementById("feed-actividade").innerHTML = eventos.slice(0,10).map(e => {
@@ -1345,8 +2770,8 @@
       return `<div class="feed-item">
         <div class="feed-dot" style="background:${c.bg}">${c.emoji}</div>
         <div class="feed-corpo">
-          <div class="feed-titulo">${e.texto}</div>
-          <div class="feed-sub">${e.sub}</div>
+          <div class="feed-titulo">${escapeHtml(e.texto)}</div>
+          <div class="feed-sub">${escapeHtml(e.sub)}</div>
         </div>
         <div class="feed-hora">${fmtDataCurta(e.ts)}<br>${fmtHora(e.ts)}</div>
       </div>`;
