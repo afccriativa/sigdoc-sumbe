@@ -171,9 +171,17 @@
     .campo-input.ok     { border-color: #86efac; background: #f0fdf4; }
     .campo-input.erro   { border-color: var(--vermelho); }
     .campo-input[readonly] { background: #f9fafb; color: var(--suave); cursor: default; }
+    .campo-input::placeholder { color: #9ca3af; }
     .campo-mono { font-family: 'DM Mono', monospace; letter-spacing: 2px; }
     .campo-hint { font-size: 11px; color: var(--suave); }
     .campo-erro { font-size: 11px; color: var(--vermelho); font-weight: 600; display: none; }
+    .campo-subtitulo {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--verde);
+      padding-top: 4px;
+      margin-bottom: -4px;
+    }
 
     .grelha-2  { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .grelha-3  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
@@ -183,6 +191,46 @@
     /* Condicional oculto */
     .campo-condicional { display: none; }
     .campo-condicional.visivel { display: flex; flex-direction: column; gap: 5px; }
+
+    .bloco-opcional {
+      border: 1px solid var(--borda);
+      border-radius: 12px;
+      background: #f8fafc;
+      overflow: hidden;
+    }
+    .bloco-opcional summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--texto);
+    }
+    .bloco-opcional summary::-webkit-details-marker { display: none; }
+    .bloco-opcional[open] { background: white; }
+    .bloco-opcional-corpo {
+      padding: 0 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      border-top: 1px solid var(--borda);
+    }
+    .etiqueta-opcional {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: var(--verde);
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
 
     /* Toggle Sim/Não */
     .toggle-grupo { display: flex; gap: 8px; }
@@ -352,53 +400,57 @@
     <div class="secção-corpo">
 
       <div class="alerta alerta-info">
-        ℹ️ Os campos marcados com <strong style="color:var(--vermelho)">*</strong> são de preenchimento obrigatório. Preencha todos os dados com exactidão — serão usados nos documentos oficiais.
+        Preencha primeiro os dados exactamente como constam no Bilhete de Identidade. Isso reduz correcções futuras nos documentos oficiais.
       </div>
 
-      <div class="span-2">
-        <div class="campo-grupo">
-          <label>Nome Completo <span class="obrig">*</span></label>
-          <input type="text" id="f-nome" class="campo-input" placeholder="Nome completo conforme o Bilhete de Identidade"
-            oninput="validarCampo(this)"/>
-          <div class="campo-erro" id="err-nome">Campo obrigatório.</div>
-        </div>
+      <div class="campo-subtitulo">Documento e dados pessoais</div>
+
+      <div class="campo-grupo">
+        <label>Nome Completo <span class="obrig">*</span></label>
+        <input type="text" id="f-nome" class="campo-input" required autocomplete="name"
+          placeholder="Ex.: Maria Fernanda da Silva"
+          oninput="validarCampo(this)"/>
+        <div class="campo-hint">Use o nome exactamente como aparece no seu BI.</div>
+        <div class="campo-erro" id="err-nome">Informe o nome completo.</div>
       </div>
 
       <div class="campo-grupo">
         <label>Sexo <span class="obrig">*</span></label>
-        <select id="f-sexo" class="campo-input" onchange="validarCampo(this)">
+        <select id="f-sexo" class="campo-input" required onchange="validarCampo(this)">
           <option value="">Seleccione...</option>
           <option value="Masculino">Masculino</option>
           <option value="Feminino">Feminino</option>
         </select>
-        <div class="campo-erro" id="err-sexo">Campo obrigatório.</div>
+        <div class="campo-erro" id="err-sexo">Seleccione o sexo.</div>
       </div>
 
       <div class="grelha-2">
         <div class="campo-grupo">
           <label>Número do Bilhete de Identidade <span class="obrig">*</span></label>
-          <input type="text" id="f-bi" class="campo-input campo-mono" maxlength="14"
-            placeholder="00000000LA000"
-            oninput="this.value=this.value.toUpperCase(); validarBI()"/>
-          <div class="campo-hint">14 caracteres — ex: 00123456LA083</div>
-          <div class="campo-erro" id="err-bi">BI deve ter 14 caracteres.</div>
+          <input type="text" id="f-bi" class="campo-input campo-mono" maxlength="14" minlength="14"
+            inputmode="text" autocomplete="off" required
+            placeholder="123456789LA042"
+            oninput="formatarBI(this)"/>
+          <div class="campo-hint">Formato esperado: 9 dígitos, 2 letras e 3 dígitos.</div>
+          <div class="campo-erro" id="err-bi">Use um BI no formato 123456789LA042.</div>
         </div>
         <div class="campo-grupo">
           <label>Data de Emissão do BI <span class="obrig">*</span></label>
-          <input type="date" id="f-bi-emissao" class="campo-input" oninput="validarCampo(this)"/>
-          <div class="campo-erro" id="err-bi-emissao">Campo obrigatório.</div>
+          <input type="date" id="f-bi-emissao" class="campo-input" required oninput="validarDataBI()"/>
+          <div class="campo-hint">Escolha a data impressa no documento.</div>
+          <div class="campo-erro" id="err-bi-emissao">Informe uma data de emissão válida.</div>
         </div>
       </div>
 
       <div class="grelha-2">
         <div class="campo-grupo">
           <label>Data de Nascimento <span class="obrig">*</span></label>
-          <input type="date" id="f-nascimento" class="campo-input" oninput="validarNascimento()"/>
-          <div class="campo-erro" id="err-nascimento">Data inválida ou menor de 18 anos.</div>
+          <input type="date" id="f-nascimento" class="campo-input" required autocomplete="bday" oninput="validarNascimento()"/>
+          <div class="campo-erro" id="err-nascimento">Informe uma data válida para uma idade entre 16 e 80 anos.</div>
         </div>
         <div class="campo-grupo">
           <label>Estado Civil <span class="obrig">*</span></label>
-          <select id="f-estado-civil" class="campo-input" onchange="validarCampo(this)">
+          <select id="f-estado-civil" class="campo-input" required onchange="validarCampo(this)">
             <option value="">Seleccionar...</option>
             <option>Solteiro(a)</option>
             <option>Casado(a)</option>
@@ -406,64 +458,83 @@
             <option>Divorciado(a)</option>
             <option>Viúvo(a)</option>
           </select>
-          <div class="campo-erro" id="err-estado-civil">Campo obrigatório.</div>
+          <div class="campo-erro" id="err-estado-civil">Seleccione o estado civil.</div>
         </div>
       </div>
+
+      <div class="campo-subtitulo">Filiação e naturalidade</div>
 
       <div class="grelha-2">
         <div class="campo-grupo">
           <label>Nome do Pai <span class="obrig">*</span></label>
-          <input type="text" id="f-pai" class="campo-input" placeholder="Nome completo do pai"
+          <input type="text" id="f-pai" class="campo-input" required autocomplete="off"
+            placeholder="Ex.: António Manuel da Silva"
             oninput="validarCampo(this)"/>
-          <div class="campo-erro" id="err-pai">Campo obrigatório.</div>
+          <div class="campo-erro" id="err-pai">Informe o nome do pai.</div>
         </div>
         <div class="campo-grupo">
           <label>Nome da Mãe <span class="obrig">*</span></label>
-          <input type="text" id="f-mae" class="campo-input" placeholder="Nome completo da mãe"
+          <input type="text" id="f-mae" class="campo-input" required autocomplete="off"
+            placeholder="Ex.: Rosa Maria Fernandes"
             oninput="validarCampo(this)"/>
-          <div class="campo-erro" id="err-mae">Campo obrigatório.</div>
+          <div class="campo-erro" id="err-mae">Informe o nome da mãe.</div>
         </div>
       </div>
 
       <div class="campo-grupo">
         <label>Morada Actual <span class="obrig">*</span></label>
-        <input type="text" id="f-morada" class="campo-input" placeholder="Ex: Bairro Boavista, Rua 14, Nº 27, Sumbe"
+        <input type="text" id="f-morada" class="campo-input" required autocomplete="street-address"
+          placeholder="Ex.: Bairro Boavista, Rua 14, Casa n.º 27, Sumbe"
           oninput="validarCampo(this)"/>
-        <div class="campo-erro" id="err-morada">Campo obrigatório.</div>
+        <div class="campo-erro" id="err-morada">Informe a morada actual.</div>
       </div>
 
 
       <div class="grelha-2">
         <div class="campo-grupo">
           <label>Província de Naturalidade <span class="obrig">*</span></label>
-          <input type="text" id="f-provincia-natal" class="campo-input"
-            placeholder="ex: Cuanza Sul"
+          <input type="text" id="f-provincia-natal" class="campo-input" required autocomplete="address-level1"
+            placeholder="Ex.: Cuanza Sul"
             oninput="validarCampo(this)"/>
-          <div class="campo-erro" id="err-provincia-natal">Campo obrigatório.</div>
+          <div class="campo-erro" id="err-provincia-natal">Informe a província de naturalidade.</div>
         </div>
         <div class="campo-grupo">
           <label>Município de Naturalidade <span class="obrig">*</span></label>
-          <input type="text" id="f-municipio-natal" class="campo-input"
-            placeholder="ex: Sumbe"
+          <input type="text" id="f-municipio-natal" class="campo-input" required autocomplete="address-level2"
+            placeholder="Ex.: Sumbe"
             oninput="validarCampo(this)"/>
-          <div class="campo-erro" id="err-municipio-natal">Campo obrigatório.</div>
+          <div class="campo-erro" id="err-municipio-natal">Informe o município de naturalidade.</div>
         </div>
       </div>
 
-      <div class="grelha-2">
-        <div class="campo-grupo">
-          <label>Contacto Telefónico <span class="obrig">*</span></label>
-          <input type="tel" id="f-telefone" class="campo-input campo-mono"
-            placeholder="9XX XXX XXX"
-            oninput="validarCampo(this)"/>
-          <div class="campo-erro" id="err-telefone">Campo obrigatório.</div>
-        </div>
-        <div class="campo-grupo">
-          <label>Endereço de E-mail</label>
-          <input type="email" id="f-email" class="campo-input" placeholder="exemplo@correo.com"/>
-          <div class="campo-hint">Opcional — se tiver um e-mail activo</div>
-        </div>
+      <div class="campo-subtitulo">Contacto</div>
+
+      <div class="campo-grupo">
+        <label>Contacto Telefónico <span class="obrig">*</span></label>
+        <input type="tel" id="f-telefone" class="campo-input campo-mono"
+          inputmode="numeric" autocomplete="tel" required maxlength="11"
+          placeholder="923 456 789"
+          oninput="formatarTelefone()"/>
+        <div class="campo-hint">Introduza 9 dígitos do contacto principal.</div>
+        <div class="campo-erro" id="err-telefone">Use um número válido, por exemplo 923 456 789.</div>
       </div>
+
+      <details class="bloco-opcional" id="bloco-email-opcional">
+        <summary>
+          <span>Adicionar contacto digital</span>
+          <span class="etiqueta-opcional">Opcional</span>
+        </summary>
+        <div class="bloco-opcional-corpo">
+          <div class="campo-grupo">
+            <label>Endereço de E-mail</label>
+            <input type="email" id="f-email" class="campo-input" autocomplete="email"
+              placeholder="Ex.: nome@dominio.com"
+              oninput="validarEmail()"/>
+            <div class="campo-hint">Se deixar em branco, usamos o e-mail da sua conta de acesso.</div>
+            <div class="campo-erro" id="err-email">Introduza um e-mail válido ou deixe o campo vazio.</div>
+          </div>
+        </div>
+      </details>
 
     </div>
   </div>
@@ -479,10 +550,15 @@
     </div>
     <div class="secção-corpo">
 
+      <div class="alerta alerta-info">
+        Comece pelo número de agente e escolha a unidade onde trabalha. Os campos adicionais só aparecem quando forem necessários.
+      </div>
+
       <div class="grelha-2">
         <div class="campo-grupo">
           <label>Número de Agente <span class="obrig">*</span></label>
           <input type="text" id="f-numero" class="campo-input campo-mono" maxlength="8"
+            inputmode="numeric" autocomplete="off" required
             placeholder="00000000"
             oninput="this.value=this.value.replace(/\D/g,''); validarNumero()"/>
           <div class="campo-hint">8 dígitos numéricos</div>
@@ -490,16 +566,16 @@
         </div>
         <div class="campo-grupo">
           <label>Data de Início de Funções <span class="obrig">*</span></label>
-          <input type="date" id="f-admissao" class="campo-input" oninput="validarCampo(this); calcularTempo()"/>
+          <input type="date" id="f-admissao" class="campo-input" required oninput="validarAdmissao(); calcularTempo()"/>
           <div class="campo-hint" id="info-tempo-servico"></div>
-          <div class="campo-erro" id="err-admissao">Campo obrigatório.</div>
+          <div class="campo-erro" id="err-admissao">Informe uma data de início válida.</div>
         </div>
       </div>
 
       <div class="grelha-2">
         <div class="campo-grupo">
           <label>Categoria / Cargo <span class="obrig">*</span></label>
-          <select id="f-categoria" class="campo-input" onchange="validarCampo(this)">
+          <select id="f-categoria" class="campo-input" required onchange="validarCampo(this)">
             <option value="">Seleccionar categoria...</option>
               <optgroup label="Pessoal Médico">
                 <option>Médico Geral</option>
@@ -543,22 +619,22 @@
                 <option>Auxiliar de Serviços Gerais</option>
               </optgroup>
           </select>
-          <div class="campo-erro" id="err-categoria">Campo obrigatório.</div>
+          <div class="campo-erro" id="err-categoria">Seleccione a categoria ou cargo.</div>
         </div>
         <div class="campo-grupo">
           <label>Vínculo Laboral <span class="obrig">*</span></label>
-          <select id="f-vinculo" class="campo-input" onchange="validarCampo(this)">
+          <select id="f-vinculo" class="campo-input" required onchange="validarCampo(this)">
             <option value="">Seleccionar...</option>
             <option value="quadro">Pessoal do Quadro</option>
             <option value="provisorio">Provimento Provisório</option>
           </select>
-          <div class="campo-erro" id="err-vinculo">Campo obrigatório.</div>
+          <div class="campo-erro" id="err-vinculo">Seleccione o tipo de vínculo laboral.</div>
         </div>
       </div>
 
       <div class="campo-grupo">
         <label>Local de Colocação (Unidade Sanitária) <span class="obrig">*</span></label>
-        <select id="f-unidade" class="campo-input" onchange="validarCampo(this); mostrarCampoArea()">
+        <select id="f-unidade" class="campo-input" required onchange="validarCampo(this); mostrarCampoArea()">
           <option value="">Seleccionar unidade...</option>
           <option value="Direcção Municipal de Saúde do Sumbe">Direcção Municipal de Saúde do Sumbe</option>
           <optgroup label="Centros de Saúde">
@@ -582,13 +658,14 @@
             <option value="Posto de Saúde da Santa Cruz">Posto de Saúde da Santa Cruz</option>
           </optgroup>
         </select>
-        <div class="campo-erro" id="err-unidade">Campo obrigatório.</div>
+        <div class="campo-hint">Seleccione a unidade principal onde está colocado(a).</div>
+        <div class="campo-erro" id="err-unidade">Seleccione a unidade sanitária.</div>
       </div>
 
       <!-- CONDICIONAL: Secção da Direcção Municipal -->
       <div class="campo-condicional" id="campo-seccao-dir">
         <label>Secção da Direcção Municipal <span class="obrig">*</span></label>
-        <select id="f-seccao" class="campo-input">
+        <select id="f-seccao" class="campo-input" disabled onchange="validarCampo(this)">
           <option value="">Seleccione a Secção...</option>
           <option value="Secção de Planeamento, Estatística e Recursos Humanos">Secção de Planeamento, Estatística e Recursos Humanos</option>
           <option value="Secção de Saúde Pública">Secção de Saúde Pública</option>
@@ -597,12 +674,13 @@
           <option value="Secretaria">Secretaria</option>
         </select>
         <div class="campo-hint">Indique a Secção onde está integrado(a) na Direcção Municipal.</div>
+        <div class="campo-erro" id="err-seccao">Seleccione a secção correspondente.</div>
       </div>
 
       <!-- CONDICIONAL: Área do Centro de Saúde -->
       <div class="campo-condicional" id="campo-area-centro">
         <label>Área / Serviço no Centro de Saúde <span class="obrig">*</span></label>
-        <select id="f-area" class="campo-input">
+        <select id="f-area" class="campo-input" disabled onchange="validarCampo(this)">
           <option value="">Seleccionar área...</option>
           <option>Consulta Externa / Triagem</option>
           <option>Consultório de Medicina Geral</option>
@@ -622,17 +700,18 @@
           <option>Outro</option>
         </select>
         <div class="campo-hint">Indique a área onde desempenha funções dentro do centro de saúde.</div>
+        <div class="campo-erro" id="err-area">Seleccione a área de trabalho.</div>
       </div>
 
       <div class="campo-grupo">
         <label>Estado do Serviço <span class="obrig">*</span></label>
-        <select id="f-estado" class="campo-input" onchange="validarCampo(this)">
+        <select id="f-estado" class="campo-input" required onchange="validarCampo(this)">
           <option value="">Seleccionar...</option>
           <option value="activo">Em Serviço Activo</option>
           <option value="licenca">De Licença</option>
           <option value="inactivo">Inactivo</option>
         </select>
-        <div class="campo-erro" id="err-estado">Campo obrigatório.</div>
+        <div class="campo-erro" id="err-estado">Seleccione o estado do serviço.</div>
       </div>
 
     </div>
@@ -649,9 +728,13 @@
     </div>
     <div class="secção-corpo">
 
+      <div class="alerta alerta-info">
+        Seleccione a formação mais alta concluída. Se não estiver a estudar neste momento, basta marcar "Não" e seguir.
+      </div>
+
       <div class="campo-grupo">
         <label>Nível de Habilitações Literárias <span class="obrig">*</span></label>
-        <select id="f-escolaridade" class="campo-input" onchange="validarCampo(this)">
+        <select id="f-escolaridade" class="campo-input" required onchange="validarCampo(this)">
           <option value="">Seleccione...</option>
           <option value="Ensino Primário (4ª Classe)">Ensino Primário (4ª Classe)</option>
           <option value="Ensino Básico (6ª Classe)">Ensino Básico (6ª Classe)</option>
@@ -664,14 +747,14 @@
           <option value="Mestrado">Mestrado</option>
           <option value="Doutoramento">Doutoramento</option>
         </select>
-        <div class="campo-erro" id="err-escolaridade">Campo obrigatório.</div>
+        <div class="campo-erro" id="err-escolaridade">Seleccione o nível de habilitações.</div>
       </div>
 
       <div class="campo-grupo">
         <label>Está actualmente a frequentar algum curso? <span class="obrig">*</span></label>
         <div class="toggle-grupo">
-          <button type="button" class="toggle-btn" id="btn-estuda-sim" onclick="toggleEstuda(true)">✅ Sim, estou a estudar</button>
-          <button type="button" class="toggle-btn" id="btn-estuda-nao" onclick="toggleEstuda(false)">❌ Não</button>
+          <button type="button" class="toggle-btn" id="btn-estuda-sim" onclick="toggleEstuda(true)">Sim</button>
+          <button type="button" class="toggle-btn" id="btn-estuda-nao" onclick="toggleEstuda(false)">Não</button>
         </div>
         <input type="hidden" id="f-estudando" value=""/>
         <div class="campo-erro" id="err-estudando">Por favor, seleccione uma opção.</div>
@@ -686,16 +769,20 @@
           <div class="grelha-2">
             <div class="campo-grupo">
               <label>Nome do Curso <span class="obrig">*</span></label>
-              <input type="text" id="f-curso" class="campo-input" placeholder="Ex: Licenciatura em Enfermagem"/>
+              <input type="text" id="f-curso" class="campo-input" disabled
+                placeholder="Ex.: Licenciatura em Enfermagem" oninput="validarCampo(this)"/>
+              <div class="campo-erro" id="err-curso">Informe o nome do curso.</div>
             </div>
             <div class="campo-grupo">
               <label>Instituição de Ensino <span class="obrig">*</span></label>
-              <input type="text" id="f-instituicao" class="campo-input" placeholder="Ex: UCAN, ISPKS, IMAP..."/>
+              <input type="text" id="f-instituicao" class="campo-input" disabled
+                placeholder="Ex.: UCAN, ISPKS, IMAP" oninput="validarCampo(this)"/>
+              <div class="campo-erro" id="err-instituicao">Informe a instituição de ensino.</div>
             </div>
           </div>
           <div class="campo-grupo">
             <label>Ano de Frequência <span class="obrig">*</span></label>
-            <select id="f-ano-curso" class="campo-input">
+            <select id="f-ano-curso" class="campo-input" disabled onchange="validarCampo(this)">
               <option value="">Seleccionar ano...</option>
               <option value="1">1º Ano</option>
               <option value="2">2º Ano</option>
@@ -704,16 +791,26 @@
               <option value="5">5º Ano</option>
               <option value="6">6º Ano</option>
             </select>
+            <div class="campo-erro" id="err-ano-curso">Seleccione o ano que está a frequentar.</div>
           </div>
         </div>
       </div>
 
-      <div class="campo-grupo">
-        <label>Observações Adicionais</label>
-        <textarea id="f-observacoes" class="campo-input" rows="3"
-          placeholder="Informações adicionais relevantes para o seu processo administrativo (opcional)..."
-          style="resize:vertical;"></textarea>
-      </div>
+      <details class="bloco-opcional" id="bloco-observacoes">
+        <summary>
+          <span>Adicionar observações complementares</span>
+          <span class="etiqueta-opcional">Opcional</span>
+        </summary>
+        <div class="bloco-opcional-corpo">
+          <div class="campo-grupo">
+            <label>Observações Adicionais</label>
+            <textarea id="f-observacoes" class="campo-input" rows="3"
+              placeholder="Ex.: informações relevantes para progressão, formação ou situação administrativa."
+              style="resize:vertical;"></textarea>
+            <div class="campo-hint">Use este campo apenas se houver algo importante que o RH precise considerar.</div>
+          </div>
+        </div>
+      </details>
 
     </div>
   </div>
@@ -730,29 +827,7 @@
     <div class="secção-corpo">
 
       <div class="alerta alerta-aviso">
-        ⚠️ <strong>Formatos aceites:</strong> PDF, JPG ou PNG. <strong>Tamanho máximo:</strong> 3MB por ficheiro. Certifique-se que os documentos são legíveis.
-      </div>
-
-      <!-- Upload Fotografia tipo passe -->
-      <div class="campo-grupo">
-        <label>📷 Fotografia tipo passe <span style="color:var(--neu-400);font-weight:400">(opcional)</span></label>
-        <div style="display:flex;align-items:center;gap:16px;padding:14px;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:10px;">
-          <div id="foto-preview-form" style="width:72px;height:72px;border-radius:50%;background:#e2e8f0;border:3px solid #cbd5e1;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;overflow:hidden;cursor:pointer;" onclick="document.getElementById('upload-foto').click()">
-            🧑
-          </div>
-          <input type="file" id="upload-foto" accept="image/jpeg,image/png,image/webp" style="display:none"
-            onchange="previewFotoForm(this)"/>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:4px">Fotografia para o registo</div>
-            <div style="font-size:11px;color:#6b7280;line-height:1.5">Fundo neutro, rosto bem visível.<br>JPG ou PNG · máx. 2MB</div>
-            <div id="foto-form-estado" style="font-size:11px;font-weight:600;color:#9ca3af;margin-top:6px">Sem fotografia</div>
-          </div>
-          <button type="button" onclick="document.getElementById('upload-foto').click()"
-            style="font-size:12px;font-weight:700;padding:7px 14px;border:2px solid #6366f1;border-radius:8px;color:#6366f1;background:white;cursor:pointer;white-space:nowrap;flex-shrink:0;">
-            Escolher
-          </button>
-        </div>
-        <div class="campo-hint">Campo opcional mas recomendado. A fotografia será associada ao seu registo e visível no portal.</div>
+        Para evitar falhas no envio, use ficheiros legíveis. O BI e o certificado aceitam até 700 KB; a fotografia tipo passe aceita até 2 MB.
       </div>
 
       <!-- Upload Bilhete de Identidade -->
@@ -760,30 +835,60 @@
         <label>Bilhete de Identidade (frente e verso)</label>
         <div class="upload-area" id="upload-bi-area">
           <input type="file" id="upload-bi" accept=".pdf,.jpg,.jpeg,.png"
-            onchange="tratarUpload(this, 'upload-bi-area', 'upload-bi-nome', 'upload-bi-aviso', 3)"/>
+            onchange="tratarUpload(this, 'upload-bi-area', 'upload-bi-nome', 'upload-bi-aviso', 700)"/>
           <div class="upload-icone">🪪</div>
           <div class="upload-titulo">Carregar Bilhete de Identidade</div>
-          <div class="upload-sub">Clique aqui ou arraste o ficheiro · PDF, JPG ou PNG</div>
+          <div class="upload-sub">Clique aqui ou arraste o ficheiro · PDF, JPG ou PNG · até 700 KB</div>
           <div class="upload-nome" id="upload-bi-nome"></div>
           <div class="upload-aviso" id="upload-bi-aviso"></div>
         </div>
-        <div class="campo-hint">Pode ser uma fotografia nítida ou cópia digitalizada dos dois lados do BI.</div>
+        <div class="campo-hint">Anexe uma foto nítida ou digitalização dos dois lados do BI para acelerar a validação.</div>
       </div>
 
-      <!-- Upload Certificados -->
-      <div class="campo-grupo">
-        <label>Certificado de Habilitações / Diploma</label>
-        <div class="upload-area" id="upload-cert-area">
-          <input type="file" id="upload-cert" accept=".pdf,.jpg,.jpeg,.png"
-            onchange="tratarUpload(this, 'upload-cert-area', 'upload-cert-nome', 'upload-cert-aviso', 3)"/>
-          <div class="upload-icone">🎓</div>
-          <div class="upload-titulo">Carregar Certificado ou Diploma</div>
-          <div class="upload-sub">Clique aqui ou arraste o ficheiro · PDF, JPG ou PNG</div>
-          <div class="upload-nome" id="upload-cert-nome"></div>
-          <div class="upload-aviso" id="upload-cert-aviso"></div>
+      <details class="bloco-opcional" id="bloco-docs-opcionais">
+        <summary>
+          <span>Adicionar documentos complementares</span>
+          <span class="etiqueta-opcional">Opcional</span>
+        </summary>
+        <div class="bloco-opcional-corpo">
+          <!-- Upload Fotografia tipo passe -->
+          <div class="campo-grupo">
+            <label>📷 Fotografia tipo passe</label>
+            <div style="display:flex;align-items:center;gap:16px;padding:14px;background:#f8fafc;border:1.5px dashed #bbf7d0;border-radius:10px;">
+              <div id="foto-preview-form" style="width:72px;height:72px;border-radius:50%;background:#dcfce7;border:3px solid #bbf7d0;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;overflow:hidden;cursor:pointer;" onclick="document.getElementById('upload-foto').click()">
+                🧑
+              </div>
+              <input type="file" id="upload-foto" accept="image/jpeg,image/png,image/webp" style="display:none"
+                onchange="previewFotoForm(this)"/>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:12px;font-weight:700;color:#166534;margin-bottom:4px">Fotografia para o registo</div>
+                <div style="font-size:11px;color:#6b7280;line-height:1.5">Fundo neutro, rosto bem visível.<br>JPG, PNG ou WEBP · máx. 2MB</div>
+                <div id="foto-form-estado" style="font-size:11px;font-weight:600;color:#9ca3af;margin-top:6px">Sem fotografia</div>
+              </div>
+              <button type="button" onclick="document.getElementById('upload-foto').click()"
+                style="font-size:12px;font-weight:700;padding:7px 14px;border:2px solid #0a6e4f;border-radius:8px;color:#0a6e4f;background:white;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                Escolher
+              </button>
+            </div>
+            <div class="campo-hint">Opcional, mas recomendada para facilitar a identificação no portal.</div>
+          </div>
+
+          <!-- Upload Certificados -->
+          <div class="campo-grupo">
+            <label>Certificado de Habilitações / Diploma</label>
+            <div class="upload-area" id="upload-cert-area">
+              <input type="file" id="upload-cert" accept=".pdf,.jpg,.jpeg,.png"
+                onchange="tratarUpload(this, 'upload-cert-area', 'upload-cert-nome', 'upload-cert-aviso', 700)"/>
+              <div class="upload-icone">🎓</div>
+              <div class="upload-titulo">Carregar Certificado ou Diploma</div>
+              <div class="upload-sub">Clique aqui ou arraste o ficheiro · PDF, JPG ou PNG · até 700 KB</div>
+              <div class="upload-nome" id="upload-cert-nome"></div>
+              <div class="upload-aviso" id="upload-cert-aviso"></div>
+            </div>
+            <div class="campo-hint">Indique a última habilitação académica concluída, se já tiver o documento disponível.</div>
+          </div>
         </div>
-        <div class="campo-hint">Última habilitação académica concluída. Campo opcional mas recomendado.</div>
-      </div>
+      </details>
 
     </div>
   </div>
@@ -908,6 +1013,22 @@
     renderSelectsUnidadesFormulario();
   }
 
+  function preencherEmailDaConta() {
+    const el = document.getElementById('f-email');
+    if (!el || !_utilizador?.email || el.value.trim()) return;
+    el.value = _utilizador.email;
+  }
+
+  function aplicarLimitesDatas() {
+    const hoje = new Date().toISOString().split('T')[0];
+    ['f-nascimento', 'f-bi-emissao', 'f-admissao'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.max = hoje;
+    });
+  }
+
+  aplicarLimitesDatas();
+
   // ── Verificar autenticação ──
   onAuthStateChanged(auth, async (user) => {
     if (!user || user.isAnonymous) {
@@ -916,6 +1037,7 @@
       return;
     }
     _utilizador = user;
+    preencherEmailDaConta();
 
     // ── Gestão de sessão concorrente ──
     SIGDOC_SESSION.vigiar(db, user.uid, auth);
@@ -946,6 +1068,7 @@
         try { await updateDoc(doc(db, "utilizadores", user.uid), { funcionarioId: _funcDocId }); } catch(_) {}
       }
     } catch(e) { console.warn("Pré-preenchimento (query):", e); }
+    preencherEmailDaConta();
   });
 
 
@@ -983,6 +1106,10 @@
     preencher('f-observacoes',  f.observacoes);
     preencher('f-inss',         f.inss||'');
     preencher('f-banco',        f.banco||'');
+    preencherEmailDaConta();
+
+    if (f.email) document.getElementById('bloco-email-opcional').open = true;
+    if (f.observacoes) document.getElementById('bloco-observacoes').open = true;
 
     // Estudando
     if (f.estudando === true)       { toggleEstuda(true); preencher('f-curso', f.curso); preencher('f-instituicao', f.instituicao); preencher('f-ano-curso', f.anoCurso); }
@@ -990,7 +1117,47 @@
 
     // Área condicional
     mostrarCampoArea();
+    formatarBI(document.getElementById('f-bi'));
+    formatarTelefone();
     if (f.admissao) calcularTempo();
+
+    if (f.urlBI) {
+      const area = document.getElementById('upload-bi-area');
+      const nome = document.getElementById('upload-bi-nome');
+      if (area && nome) {
+        area.classList.add('tem-ficheiro');
+        nome.textContent = 'Já existe um BI guardado no sistema.';
+        nome.style.display = 'block';
+      }
+    }
+
+    if (f.urlCert) {
+      const area = document.getElementById('upload-cert-area');
+      const nome = document.getElementById('upload-cert-nome');
+      if (area && nome) {
+        document.getElementById('bloco-docs-opcionais').open = true;
+        area.classList.add('tem-ficheiro');
+        nome.textContent = 'Já existe um certificado guardado no sistema.';
+        nome.style.display = 'block';
+      }
+    }
+
+    if (f.fotoUrl) {
+      const prev = document.getElementById('foto-preview-form');
+      const est = document.getElementById('foto-form-estado');
+      if (prev) {
+        prev.textContent = '';
+        const img = document.createElement('img');
+        img.src = f.fotoUrl;
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
+        prev.appendChild(img);
+      }
+      if (est) {
+        est.textContent = 'Já existe uma fotografia guardada';
+        est.style.color = '#16a34a';
+      }
+      document.getElementById('bloco-docs-opcionais').open = true;
+    }
   }
 
   // ════════════════════════════════
@@ -1030,33 +1197,99 @@
   // ════════════════════════════════
   // VALIDAÇÕES POR PASSO
   // ════════════════════════════════
+  function definirEstadoCampo(el, errEl, valido, mensagem) {
+    if (!el) return false;
+    if (errEl && !errEl.dataset.defaultMessage) errEl.dataset.defaultMessage = errEl.textContent;
+    const textoErro = mensagem || errEl?.dataset?.defaultMessage || 'Campo obrigatório.';
+
+    el.classList.toggle('ok', !!valido);
+    el.classList.toggle('erro', !valido);
+
+    if (errEl) {
+      errEl.textContent = textoErro;
+      errEl.style.display = valido ? 'none' : 'block';
+    }
+    return !!valido;
+  }
+
+  function limparEstadoCampo(id) {
+    const el = document.getElementById(id);
+    const errEl = document.getElementById('err-' + id.replace('f-', ''));
+    if (!el) return;
+    el.classList.remove('ok', 'erro');
+    if (errEl) errEl.style.display = 'none';
+  }
+
+  function focarPrimeiroErro(ids) {
+    const mapaFoco = { 'f-estudando': 'btn-estuda-sim' };
+    const alvoId = ids.find(id => {
+      const realId = mapaFoco[id] || id;
+      return !!document.getElementById(realId);
+    });
+    if (!alvoId) return;
+
+    const el = document.getElementById(mapaFoco[alvoId] || alvoId);
+    if (!el) return;
+    el.focus({ preventScroll: true });
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function soDigitos(valor) {
+    return (valor || '').replace(/\D/g, '');
+  }
+
+  function normalizarTelefone(valor) {
+    const digitos = soDigitos(valor).slice(0, 9);
+    if (digitos.length <= 3) return digitos;
+    if (digitos.length <= 6) return digitos.replace(/(\d{3})(\d+)/, '$1 $2');
+    return digitos.replace(/(\d{3})(\d{3})(\d+)/, '$1 $2 $3');
+  }
+
+  function idadeEmAnos(dataBase, dataRef) {
+    let anos = dataRef.getFullYear() - dataBase.getFullYear();
+    if (
+      dataRef.getMonth() < dataBase.getMonth() ||
+      (dataRef.getMonth() === dataBase.getMonth() && dataRef.getDate() < dataBase.getDate())
+    ) anos--;
+    return anos;
+  }
+
   function validarPasso(passo) {
     const erros = [];
     if (passo === 1) {
       erros.push(...validarCampos(['f-nome','f-sexo','f-bi','f-bi-emissao','f-nascimento','f-estado-civil','f-pai','f-mae','f-morada','f-telefone','f-provincia-natal','f-municipio-natal']));
-      if (!validarBIFormato()) { erros.push('bi'); }
+      if (document.getElementById('f-bi').value.trim() && !validarBI()) erros.push('f-bi');
+      if (document.getElementById('f-bi-emissao').value && !validarDataBI()) erros.push('f-bi-emissao');
+      if (document.getElementById('f-nascimento').value && !validarNascimento()) erros.push('f-nascimento');
+      if (document.getElementById('f-telefone').value.trim() && !validarTelefone()) erros.push('f-telefone');
+      if (!validarEmail()) erros.push('f-email');
     }
     if (passo === 2) {
       erros.push(...validarCampos(['f-numero','f-admissao','f-categoria','f-vinculo','f-unidade','f-estado']));
+      if (document.getElementById('f-numero').value.trim() && !validarNumero()) erros.push('f-numero');
+      if (document.getElementById('f-admissao').value && !validarAdmissao()) erros.push('f-admissao');
       const un = obterUnidadeSelecionadaFormulario();
       if (window.SIGDOC_UNIDADES.isDms(un)) {
-        if (!document.getElementById('f-seccao').value) {
-          mostrarNotif('⚠️ Indique a Secção da Direcção Municipal.', 'notif-erro'); return false;
-        }
+        if (!validarCampo(document.getElementById('f-seccao'))) erros.push('f-seccao');
       } else if (window.SIGDOC_UNIDADES.isCentro(un)) {
-        if (!document.getElementById('f-area').value) {
-          mostrarNotif('⚠️ Indique a Área onde desempenha funções.', 'notif-erro'); return false;
-        }
+        if (!validarCampo(document.getElementById('f-area'))) erros.push('f-area');
       }
     }
     if (passo === 3) {
       erros.push(...validarCampos(['f-escolaridade']));
       const est = document.getElementById('f-estudando').value;
-      if (!est) { document.getElementById('err-estudando').style.display = 'block'; erros.push('estudando'); }
-      else document.getElementById('err-estudando').style.display = 'none';
+      if (!est) {
+        document.getElementById('err-estudando').style.display = 'block';
+        erros.push('f-estudando');
+      } else {
+        document.getElementById('err-estudando').style.display = 'none';
+        if (est === 'true') erros.push(...validarCampos(['f-curso','f-instituicao','f-ano-curso']));
+      }
     }
-    if (erros.length > 0) {
+    const errosUnicos = [...new Set(erros)];
+    if (errosUnicos.length > 0) {
       mostrarNotif('⚠️ Corrija os campos assinalados a vermelho.', 'notif-erro');
+      focarPrimeiroErro(errosUnicos);
       return false;
     }
     return true;
@@ -1066,75 +1299,180 @@
     const erros = [];
     ids.forEach(id => {
       const el = document.getElementById(id);
-      const errEl = document.getElementById('err-' + id.replace('f-',''));
       if (!el) return;
-      if (!el.value.trim()) {
-        el.classList.add('erro'); el.classList.remove('ok');
-        if (errEl) errEl.style.display = 'block';
+      const valor = typeof el.value === 'string' ? el.value.trim() : el.value;
+      if (!valor) {
+        const errEl = document.getElementById('err-' + id.replace('f-',''));
+        definirEstadoCampo(el, errEl, false);
         erros.push(id);
-      } else {
-        el.classList.remove('erro'); el.classList.add('ok');
-        if (errEl) errEl.style.display = 'none';
+        return;
       }
+      if (!validarCampo(el)) erros.push(id);
     });
     return erros;
   }
 
   window.validarCampo = function(el) {
-    const id = el.id.replace('f-','');
-    const errEl = document.getElementById('err-' + id);
-    if (el.value.trim()) {
-      el.classList.remove('erro'); el.classList.add('ok');
-      if (errEl) errEl.style.display = 'none';
-    } else {
-      el.classList.remove('ok'); el.classList.add('erro');
-      if (errEl) errEl.style.display = 'block';
+    if (!el) return false;
+    switch (el.id) {
+      case 'f-bi': return validarBI();
+      case 'f-bi-emissao': return validarDataBI();
+      case 'f-nascimento': return validarNascimento();
+      case 'f-telefone': return validarTelefone();
+      case 'f-email': return validarEmail();
+      case 'f-numero': return validarNumero();
+      case 'f-admissao': return validarAdmissao();
+      default: {
+        const id = el.id.replace('f-','');
+        const errEl = document.getElementById('err-' + id);
+        const valor = (el.value || '').trim();
+        return definirEstadoCampo(el, errEl, !!valor);
+      }
     }
+  };
+
+  window.formatarBI = function(input) {
+    if (!input) return;
+    input.value = (input.value || '').replace(/\s+/g, '').toUpperCase().slice(0, 14);
+    validarBI();
   };
 
   window.validarBI = function() {
     const el = document.getElementById('f-bi');
     const err = document.getElementById('err-bi');
-    if (el.value.length === 14) {
-      el.classList.remove('erro'); el.classList.add('ok');
-      err.style.display = 'none';
-    } else {
-      el.classList.remove('ok');
-      if (el.value.length > 0) { el.classList.add('erro'); err.style.display = 'block'; }
+    const valor = (el.value || '').replace(/\s+/g, '').toUpperCase();
+    const regex = /^\d{9}[A-Z]{2}\d{3}$/;
+    el.value = valor.slice(0, 14);
+    if (!el.value) {
+      limparEstadoCampo('f-bi');
+      return false;
     }
+    return definirEstadoCampo(el, err, regex.test(el.value), 'Use um BI no formato 123456789LA042.');
   };
 
   function validarBIFormato() {
-    return document.getElementById('f-bi').value.length === 14;
+    return validarBI();
   }
 
   window.validarNumero = function() {
     const el = document.getElementById('f-numero');
     const err = document.getElementById('err-numero');
-    if (el.value.length === 8) {
-      el.classList.remove('erro'); el.classList.add('ok'); err.style.display = 'none';
-    } else if (el.value.length > 0) {
-      el.classList.add('erro'); err.style.display = 'block';
+    el.value = soDigitos(el.value).slice(0, 8);
+    if (!el.value) {
+      limparEstadoCampo('f-numero');
+      return false;
     }
+    return definirEstadoCampo(el, err, /^\d{8}$/.test(el.value), 'Número de agente deve ter exactamente 8 dígitos.');
+  };
+
+  window.formatarTelefone = function() {
+    const el = document.getElementById('f-telefone');
+    if (!el) return;
+    el.value = normalizarTelefone(el.value);
+    validarTelefone();
+  };
+
+  window.validarTelefone = function() {
+    const el = document.getElementById('f-telefone');
+    const err = document.getElementById('err-telefone');
+    const valor = normalizarTelefone(el.value);
+    el.value = valor;
+    if (!valor) {
+      limparEstadoCampo('f-telefone');
+      return false;
+    }
+    const digitos = soDigitos(valor);
+    const valido = /^9\d{8}$/.test(digitos);
+    return definirEstadoCampo(el, err, valido, 'Use um número válido, por exemplo 923 456 789.');
+  };
+
+  window.validarEmail = function() {
+    const el = document.getElementById('f-email');
+    const err = document.getElementById('err-email');
+    if (!el) return true;
+    const valor = (el.value || '').trim();
+    if (!valor) {
+      limparEstadoCampo('f-email');
+      return true;
+    }
+    const valido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor);
+    return definirEstadoCampo(el, err, valido, 'Introduza um e-mail válido ou deixe o campo vazio.');
+  };
+
+  window.validarDataBI = function() {
+    const el = document.getElementById('f-bi-emissao');
+    const err = document.getElementById('err-bi-emissao');
+    if (!el.value) {
+      limparEstadoCampo('f-bi-emissao');
+      return false;
+    }
+
+    const emissao = new Date(el.value + 'T12:00:00');
+    const hoje = new Date();
+    const nascimento = document.getElementById('f-nascimento')?.value;
+    let valido = emissao <= hoje;
+    let mensagem = 'Informe uma data de emissão válida.';
+
+    if (valido && nascimento) {
+      const nasc = new Date(nascimento + 'T12:00:00');
+      if (emissao < nasc) {
+        valido = false;
+        mensagem = 'A emissão do BI não pode ser anterior ao nascimento.';
+      }
+    }
+    return definirEstadoCampo(el, err, valido, mensagem);
   };
 
   window.validarNascimento = function() {
     const el = document.getElementById('f-nascimento');
     const err = document.getElementById('err-nascimento');
-    if (!el.value) return;
+    if (!el.value) {
+      limparEstadoCampo('f-nascimento');
+      return false;
+    }
     const nasc = new Date(el.value + 'T12:00:00');
     const hoje = new Date();
-    const idade = Math.floor((hoje - nasc) / (365.25 * 24 * 3600 * 1000));
-    if (idade < 16 || idade > 80) {
-      el.classList.add('erro'); err.style.display = 'block';
-    } else {
-      el.classList.remove('erro'); el.classList.add('ok'); err.style.display = 'none';
+    const idade = idadeEmAnos(nasc, hoje);
+    const valido = nasc <= hoje && idade >= 16 && idade <= 80;
+    const resultado = definirEstadoCampo(el, err, valido, 'Informe uma data válida para uma idade entre 16 e 80 anos.');
+
+    if (document.getElementById('f-bi-emissao')?.value) validarDataBI();
+    if (document.getElementById('f-admissao')?.value) validarAdmissao();
+    return resultado;
+  };
+
+  window.validarAdmissao = function() {
+    const el = document.getElementById('f-admissao');
+    const err = document.getElementById('err-admissao');
+    if (!el.value) {
+      limparEstadoCampo('f-admissao');
+      document.getElementById('info-tempo-servico').textContent = '';
+      return false;
     }
+
+    const admissao = new Date(el.value + 'T12:00:00');
+    const hoje = new Date();
+    const nascimento = document.getElementById('f-nascimento')?.value;
+    let valido = admissao <= hoje;
+    let mensagem = 'Informe uma data de início válida.';
+
+    if (valido && nascimento) {
+      const nasc = new Date(nascimento + 'T12:00:00');
+      const idadeNoInicio = idadeEmAnos(nasc, admissao);
+      if (idadeNoInicio < 16) {
+        valido = false;
+        mensagem = 'A data de início não pode ser anterior aos 16 anos.';
+      }
+    }
+    return definirEstadoCampo(el, err, valido, mensagem);
   };
 
   window.calcularTempo = function() {
     const adm = document.getElementById('f-admissao').value;
-    if (!adm) return;
+    if (!adm || !validarAdmissao()) {
+      document.getElementById('info-tempo-servico').textContent = '';
+      return;
+    }
     const d = new Date(adm + 'T12:00:00');
     const hoje = new Date();
     let anos = hoje.getFullYear() - d.getFullYear();
@@ -1157,12 +1495,24 @@
 
     const campoDir    = document.getElementById('campo-seccao-dir');
     const campoCentro = document.getElementById('campo-area-centro');
+    const selectDir   = document.getElementById('f-seccao');
+    const selectArea  = document.getElementById('f-area');
 
     campoDir.classList.toggle('visivel', eDir);
     campoCentro.classList.toggle('visivel', eCentro);
+    selectDir.disabled = !eDir;
+    selectArea.disabled = !eCentro;
     if (ePostoOuVazio) {
       campoDir.classList.remove('visivel');
       campoCentro.classList.remove('visivel');
+    }
+    if (!eDir) {
+      selectDir.value = '';
+      limparEstadoCampo('f-seccao');
+    }
+    if (!eCentro) {
+      selectArea.value = '';
+      limparEstadoCampo('f-area');
     }
   };
 
@@ -1172,15 +1522,30 @@
     const btnNao = document.getElementById('btn-estuda-nao');
     const input  = document.getElementById('f-estudando');
     const err    = document.getElementById('err-estudando');
+    const curso  = document.getElementById('f-curso');
+    const inst   = document.getElementById('f-instituicao');
+    const ano    = document.getElementById('f-ano-curso');
 
     if (sim) {
       campoCurso.classList.add('visivel');
       btnSim.classList.add('activo-sim'); btnNao.classList.remove('activo-nao');
       input.value = 'true';
+      curso.disabled = false;
+      inst.disabled = false;
+      ano.disabled = false;
     } else {
       campoCurso.classList.remove('visivel');
       btnNao.classList.add('activo-nao'); btnSim.classList.remove('activo-sim');
       input.value = 'false';
+      curso.value = '';
+      inst.value = '';
+      ano.value = '';
+      curso.disabled = true;
+      inst.disabled = true;
+      ano.disabled = true;
+      limparEstadoCampo('f-curso');
+      limparEstadoCampo('f-instituicao');
+      limparEstadoCampo('f-ano-curso');
     }
     err.style.display = 'none';
   };
@@ -1221,8 +1586,8 @@
 
   window.previewFotoForm = function(input) {
     var file = input.files[0]; if(!file) return;
-    if(file.size > 2*1024*1024){ alert('Foto demasiado grande (máx. 2MB).'); input.value=''; return; }
-    if(!file.type.match(/^image\/(jpeg|png|webp)$/)){ alert('Formato não suportado. Use JPG ou PNG.'); input.value=''; return; }
+    if(file.size > 2*1024*1024){ mostrarNotif('❌ Foto demasiado grande. O máximo permitido é 2MB.', 'notif-erro'); input.value=''; return; }
+    if(!file.type.match(/^image\/(jpeg|png|webp)$/)){ mostrarNotif('❌ Formato não suportado. Use JPG, PNG ou WEBP.', 'notif-erro'); input.value=''; return; }
     var est = document.getElementById('foto-form-estado');
     if(est){ est.textContent='⏳ A processar…'; est.style.color='#6b7280'; }
     _comprimirImagem(file).then(function(base64) {
@@ -1234,21 +1599,26 @@
       img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%';
       prev.appendChild(img);
       if(est){ est.textContent='✅ Foto pronta'; est.style.color='#16a34a'; }
-    }).catch(function(e){ alert('Erro ao processar foto: '+e.message); });
+    }).catch(function(e){
+      if(est){ est.textContent='Sem fotografia'; est.style.color='#9ca3af'; }
+      mostrarNotif('❌ Erro ao processar foto: ' + e.message, 'notif-erro');
+    });
   };
 
-  window.tratarUpload = function(input, areaId, nomeId, avisoId, maxMB) {
+  window.tratarUpload = function(input, areaId, nomeId, avisoId, maxKB) {
     const ficheiro = input.files[0];
     const area     = document.getElementById(areaId);
     const nomeEl   = document.getElementById(nomeId);
     const avisoEl  = document.getElementById(avisoId);
     if (!ficheiro) return;
 
-    // Limite reduzido para caber no Firestore (Base64 ~33% maior)
-    const limiteKB = 700;
+    const limiteKB = maxKB || 700;
+    const limiteLabel = limiteKB >= 1024 ? `${(limiteKB/1024).toFixed(1)}MB` : `${limiteKB}KB`;
     const tamanhoKB = ficheiro.size / 1024;
     if (tamanhoKB > limiteKB) {
-      avisoEl.textContent = `⚠️ Ficheiro demasiado grande (${(tamanhoKB/1024).toFixed(1)}MB). Máximo: 700KB. Comprima o ficheiro antes de carregar.`;
+      area.classList.remove('tem-ficheiro');
+      nomeEl.style.display = 'none';
+      avisoEl.textContent = `⚠️ Ficheiro demasiado grande (${(tamanhoKB/1024).toFixed(1)}MB). Máximo: ${limiteLabel}. Comprima o ficheiro antes de carregar.`;
       avisoEl.style.display = 'block';
       input.value = '';
       return;
@@ -1290,6 +1660,21 @@
 
     const biFile   = document.getElementById('upload-bi')?.files[0];
     const certFile = document.getElementById('upload-cert')?.files[0];
+    const emailResumo = g('f-email');
+    const observacoesResumo = g('f-observacoes');
+    const emailLinha = emailResumo && emailResumo !== '—'
+      ? `<div class="rev-linha"><span>E-mail</span><strong>${emailResumo}</strong></div>`
+      : '';
+    const observacoesLinha = observacoesResumo && observacoesResumo !== '—'
+      ? `<div class="rev-linha"><span>Observações</span><strong>${observacoesResumo}</strong></div>`
+      : '';
+    const estadoBI = biFile
+      ? '✅ ' + biFile.name
+      : (_funcDoc?.urlBI ? 'Já guardado no sistema' : 'Não carregado');
+    const estadoCert = certFile
+      ? '✅ ' + certFile.name
+      : (_funcDoc?.urlCert ? 'Já guardado no sistema' : 'Não carregado');
+    const estadoFoto = _fotoBase64 || _funcDoc?.fotoUrl ? 'Disponível' : 'Não carregada';
 
     document.getElementById('resumo-dados').innerHTML = `
       <style>
@@ -1310,6 +1695,7 @@
         <div class="rev-linha"><span>Morada</span><strong>${g('f-morada')}</strong></div>
           <div class="rev-linha"><span>Naturalidade</span><strong>${g('f-municipio-natal')||'—'}, ${g('f-provincia-natal')||'—'}</strong></div>
         <div class="rev-linha"><span>Contacto</span><strong>${g('f-telefone')}</strong></div>
+        ${emailLinha}
       </div>
       <div class="rev-bloco">
         <div class="rev-titulo">💼 Dados Profissionais</div>
@@ -1326,11 +1712,13 @@
         <div class="rev-linha"><span>Habilitações</span><strong>${g('f-escolaridade')}</strong></div>
         <div class="rev-linha"><span>A estudar?</span><strong>${estudando === 'true' ? 'Sim' : 'Não'}</strong></div>
         ${cursoInfo}
+        ${observacoesLinha}
       </div>
       <div class="rev-bloco">
         <div class="rev-titulo">📎 Documentos</div>
-        <div class="rev-linha"><span>Bilhete de Identidade</span><strong>${biFile ? '✅ ' + biFile.name : 'Não carregado'}</strong></div>
-        <div class="rev-linha"><span>Certificado</span><strong>${certFile ? '✅ ' + certFile.name : 'Não carregado'}</strong></div>
+        <div class="rev-linha"><span>Fotografia</span><strong>${estadoFoto}</strong></div>
+        <div class="rev-linha"><span>Bilhete de Identidade</span><strong>${estadoBI}</strong></div>
+        <div class="rev-linha"><span>Certificado</span><strong>${estadoCert}</strong></div>
       </div>
     `;
   }
