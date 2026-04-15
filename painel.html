@@ -1095,6 +1095,334 @@
         display: none;
       }
     }
+
+    /* SimplificaÃ§Ã£o mÃ¡xima para uso sem treinamento */
+    :root {
+      --bg: #f5f7f9;
+      --surface: #ffffff;
+      --card: #ffffff;
+      --card2: #f8fafc;
+      --border: #dbe3ea;
+      --border2: #c7d2dc;
+      --txt: #0f172a;
+      --muted: #52606d;
+      --dim: #708090;
+      --blue: #1d4ed8;
+      --blue-d: #eff6ff;
+      --amber: #b45309;
+      --amber-d: #fff7ed;
+      --red: #b42318;
+      --red-d: #fef3f2;
+      --green: #0f766e;
+      --green-d: #ecfdf5;
+      --green-b: #99f6e4;
+      --purple: #475467;
+      --purple-d: #f2f4f7;
+      --r: 14px;
+      --rlg: 18px;
+    }
+    body {
+      background: var(--bg);
+      color: var(--txt);
+    }
+    .barra-topo {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      box-shadow: none;
+      padding: 18px 28px;
+      height: auto;
+    }
+    .titulo-painel h1 {
+      color: var(--txt);
+      font-size: 24px;
+    }
+    .titulo-painel-simples h1,
+    .titulo-painel-simples p {
+      display: none;
+    }
+    .titulo-simples {
+      display: grid;
+      gap: 4px;
+    }
+    .titulo-simples strong {
+      font-size: 24px;
+      line-height: 1.1;
+      color: var(--txt);
+    }
+    .titulo-simples span {
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .titulo-painel p,
+    .data-hora .hora,
+    .data-hora .data {
+      color: var(--muted);
+    }
+    .topo-btn {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+      box-shadow: none;
+      padding: 10px 16px;
+    }
+    .topo-btn:hover {
+      background: #1e40af;
+      border-color: #1e40af;
+      transform: none;
+    }
+    .hero-strip {
+      background: transparent;
+      padding: 24px 28px 12px;
+      border-bottom: none;
+    }
+    .hero-strip::before,
+    .hero-strip::after,
+    .hero-titulo,
+    .hero-panel,
+    .score-card,
+    .secao-avancada,
+    .card-secundario,
+    .kpi-secundario {
+      display: none !important;
+    }
+    .kpi-grid > .kpi-card.kpi-secundario:first-child {
+      display: block !important;
+    }
+    .kpi-grid > .kpi-card:nth-child(4) {
+      display: none !important;
+    }
+    .hero-subtitulo {
+      color: var(--txt);
+      font-size: 30px;
+      letter-spacing: -.02em;
+      max-width: 720px;
+    }
+    .hero-sub2 {
+      color: var(--muted);
+      font-size: 15px;
+      margin-top: 10px;
+    }
+    .hero-ponto {
+      width: 10px;
+      height: 10px;
+      box-shadow: none;
+      background: var(--green);
+    }
+    .periodo-bar {
+      margin-top: 18px;
+      padding: 12px;
+      gap: 10px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .periodo-label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .periodo-btns {
+      gap: 8px;
+    }
+    .p-btn {
+      padding: 8px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .p-btn:hover {
+      background: var(--card2);
+      color: var(--txt);
+    }
+    .p-btn-activo {
+      background: var(--blue-d) !important;
+      border-color: #bfdbfe !important;
+      color: var(--blue) !important;
+    }
+    .kpi-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      padding: 0 28px;
+      margin-top: 12px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--rlg);
+      box-shadow: none;
+      padding: 18px;
+    }
+    .kpi-card:hover {
+      transform: none;
+      border-color: var(--border);
+    }
+    .kpi-card::after {
+      height: 4px;
+    }
+    .kpi-icone {
+      display: none;
+    }
+    .kpi-num {
+      color: var(--txt);
+      font-size: 32px;
+    }
+    .kpi-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+    .kpi-delta {
+      margin-top: 12px;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+    .delta-neutro {
+      background: #f2f4f7;
+      color: var(--muted);
+    }
+    .conteudo {
+      padding: 24px 28px 48px;
+      display: grid;
+      gap: 28px;
+    }
+    .secao-titulo {
+      margin: 0 0 14px;
+      font-size: 18px;
+      font-weight: 800;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--txt);
+    }
+    .secao-titulo::after {
+      display: none;
+    }
+    .comando-grid,
+    .agenda-grid,
+    .grid-graficos-terceiro {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .conteudo > div:nth-of-type(11) > .card-grafico:first-child,
+    .conteudo > div:nth-of-type(12) {
+      display: none !important;
+    }
+    .conteudo > div:nth-of-type(10) {
+      font-size: 0;
+    }
+    .conteudo > div:nth-of-type(10)::before {
+      content: 'Actividade recente';
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--txt);
+    }
+    .comando-stack {
+      gap: 16px;
+    }
+    .card-grafico {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--rlg);
+      box-shadow: none;
+    }
+    .card-intenso {
+      background: var(--surface);
+    }
+    .card-cabecalho {
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-cabecalho h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--txt);
+    }
+    .card-cabecalho p {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .badge-live {
+      background: var(--green-d);
+      border-color: #b7ead7;
+      color: var(--green);
+    }
+    .prioridade-lista,
+    .agenda-lista,
+    .fila-lista,
+    .quick-actions {
+      padding: 16px 18px 18px;
+    }
+    .prioridade-item,
+    .agenda-item,
+    .fila-item,
+    .quick-action {
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: none;
+    }
+    .quick-action {
+      padding: 16px;
+    }
+    .quick-action:hover {
+      transform: none;
+      border-color: var(--border2);
+      box-shadow: none;
+    }
+    .quick-icone {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      font-size: 16px;
+      background: var(--blue-d);
+      color: var(--blue);
+    }
+    .quick-label {
+      font-size: 15px;
+    }
+    .quick-sub {
+      font-size: 12px;
+    }
+    .empty-util {
+      padding: 20px 16px;
+      border-radius: 14px;
+    }
+    .feed-wrap {
+      padding: 4px 0;
+    }
+    .feed-item {
+      padding: 14px 18px;
+    }
+    .feed-dot {
+      width: 28px;
+      height: 28px;
+      font-size: 12px;
+    }
+    .rodape {
+      padding: 18px 28px;
+      background: transparent;
+    }
+    @media (max-width: 1100px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 700px) {
+      .barra-topo,
+      .hero-strip,
+      .conteudo,
+      .rodape {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      .kpi-grid {
+        grid-template-columns: 1fr;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      .periodo-bar {
+        align-items: flex-start;
+      }
+    }
     </style>
 </head>
 <body>
@@ -1119,12 +1447,16 @@
 
   <!-- BARRA TOPO -->
   <div class="barra-topo">
-    <div class="titulo-painel">
+    <div class="titulo-painel titulo-painel-simples">
+      <div class="titulo-simples">
+        <strong>Painel principal</strong>
+        <span>Veja rapidamente o que precisa de atencao hoje</span>
+      </div>
       <h1>Painel de Gestão</h1>
       <p>Módulo 6 — SIGDOC-SUMBE · Visão Executiva</p>
     </div>
     <div class="topo-direita">
-      <button class="topo-btn" onclick="forcarSincronizacao()">Actualizar agora</button>
+      <button class="topo-btn" onclick="forcarSincronizacao()">Actualizar dados</button>
       <div class="data-hora">
         <div class="hora" id="relogio">00:00</div>
         <div class="data" id="data-topo">—</div>
@@ -1134,7 +1466,7 @@
 
   <!-- HERO -->
   <div class="hero-strip">
-    <div class="hero-titulo">Centro de comando</div>
+    <div class="hero-titulo">Resumo</div>
     <div class="hero-subtitulo" id="hero-saudacao">Bom dia, Director</div>
     <div class="hero-sub2">
       <span class="hero-ponto"></span>
@@ -1182,7 +1514,7 @@
 
   <!-- KPI CARDS -->
   <div class="kpi-grid">
-    <div class="kpi-card">
+    <div class="kpi-card kpi-secundario">
       <span class="kpi-icone">👥</span>
       <div class="kpi-num" id="kpi-funcionarios">—</div>
       <div class="kpi-label">Funcionários Activos</div>
@@ -1217,7 +1549,7 @@
   <!-- CONTEÚDO -->
   <div class="conteudo">
 
-    <div class="secao-titulo">Centro de comando</div>
+    <div class="secao-titulo">O que precisa de atencao</div>
     <div class="comando-grid">
       <div class="card-grafico card-intenso">
         <div class="card-cabecalho">
@@ -1236,7 +1568,7 @@
       </div>
 
       <div class="comando-stack">
-        <div class="card-grafico score-card">
+        <div class="card-grafico score-card card-secundario">
           <div class="card-cabecalho">
             <div>
               <h3>Saude operacional</h3>
@@ -1269,37 +1601,37 @@
         <div class="card-grafico">
           <div class="card-cabecalho">
             <div>
-              <h3>Atalhos de gestao</h3>
-              <p>Entradas rapidas para as frentes que precisam de acao</p>
+              <h3>Acoes rapidas</h3>
+              <p>Abra directamente a area que precisa de tratar</p>
             </div>
           </div>
           <div class="quick-actions">
             <a class="quick-action" href="aprovacao.html">
               <div class="quick-icone">OK</div>
               <div>
-                <span class="quick-label">Fila de aprovacoes</span>
-                <span class="quick-sub">Despachar documentos em validacao e rejeicao.</span>
+                <span class="quick-label">Aprovar documentos</span>
+                <span class="quick-sub">Ver pedidos pendentes e decidir.</span>
               </div>
             </a>
             <a class="quick-action" href="cadastro.html">
               <div class="quick-icone">RH</div>
               <div>
-                <span class="quick-label">Cadastro RH</span>
-                <span class="quick-sub">Conferir admissoes, formularios pendentes e dados mestres.</span>
+                <span class="quick-label">Actualizar cadastro</span>
+                <span class="quick-sub">Consultar e corrigir dados dos funcionarios.</span>
               </div>
             </a>
             <a class="quick-action" href="ferias.html">
               <div class="quick-icone">FX</div>
               <div>
-                <span class="quick-label">Ferias e ausencias</span>
-                <span class="quick-sub">Aprovar pedidos e antecipar impactos na lotacao.</span>
+                <span class="quick-label">Gerir ferias</span>
+                <span class="quick-sub">Acompanhar ausencias e pedidos.</span>
               </div>
             </a>
             <a class="quick-action" href="unidades.html">
               <div class="quick-icone">UN</div>
               <div>
-                <span class="quick-label">Cobertura das unidades</span>
-                <span class="quick-sub">Comparar efectivo esperado com o quadro registado.</span>
+                <span class="quick-label">Ver unidades</span>
+                <span class="quick-sub">Comparar equipa registada por unidade.</span>
               </div>
             </a>
           </div>
@@ -1307,8 +1639,8 @@
       </div>
     </div>
 
-    <div class="secao-titulo">Modulos do sistema</div>
-    <div class="module-grid" id="module-grid">
+    <div class="secao-titulo secao-avancada">Modulos do sistema</div>
+    <div class="module-grid secao-avancada" id="module-grid">
       <div class="module-card">
         <div class="module-top">
           <div>
@@ -1321,7 +1653,7 @@
       </div>
     </div>
 
-    <div class="secao-titulo">Agenda e filas</div>
+    <div class="secao-titulo">Proximos passos</div>
     <div class="agenda-grid">
       <div class="card-grafico">
         <div class="card-cabecalho">
@@ -1355,8 +1687,8 @@
     </div>
 
     <!-- LINHA 1 -->
-    <div class="secao-titulo">Actividade Documental</div>
-    <div class="grid-graficos-principal">
+    <div class="secao-titulo secao-avancada">Actividade Documental</div>
+    <div class="grid-graficos-principal secao-avancada">
 
       <div class="card-grafico">
         <div class="card-cabecalho">
@@ -1388,7 +1720,7 @@
     </div>
 
     <!-- LINHA 2 -->
-    <div class="grid-graficos-secundario">
+    <div class="grid-graficos-secundario secao-avancada">
 
       <div class="card-grafico">
         <div class="card-cabecalho">
@@ -1478,7 +1810,7 @@
 
     <!-- LINHA 4 — SECRETARIA -->
     <div class="secao-titulo" style="margin-top:32px">Secretaria — Actividade do Período</div>
-    <div class="grid-graficos-terceiro">
+    <div class="grid-graficos-terceiro secao-avancada">
 
       <!-- KPIs Secretaria -->
       <div class="card-grafico">
