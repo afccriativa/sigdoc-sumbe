@@ -1288,9 +1288,10 @@
             <!-- Salário Base -->
             <div id="campo-salario-wrap" style="display:none;margin-top:12px">
               <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:6px">Salário Base (Kz)</label>
-              <input type="number" id="f-salario-base" min="0" step="100"
-                placeholder="Ex: 75000"
+              <input type="text" id="f-salario-base" inputmode="decimal" maxlength="24"
+                placeholder="Ex: 150.000,00 Kz"
                 style="width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;box-sizing:border-box"/>
+              <span class="campo-hint">Aceita 150000, 150.000 ou 150.000,00 Kz. O sistema normaliza automaticamente.</span>
               <div style="font-size:11px;color:var(--c-700);background:var(--c-50);border:1px solid var(--c-100);padding:6px 10px;border-radius:8px;margin-top:6px">
                 🔒 Campo visível apenas para perfis admin, chefe e técnico
               </div>
@@ -1550,6 +1551,7 @@
     if (email) email.autocomplete = "email";
     var numero = document.getElementById("f-numero");
     if (numero) numero.inputMode = "numeric";
+    configurarCampoSalarioBase();
 
     var categoriaManual = document.getElementById("f-categoria-manual");
     if (categoriaManual) categoriaManual.disabled = true;
@@ -1630,6 +1632,117 @@
       unidade: info.nome || f?.unidade || "",
       unidadeTipo: info.tipo || f?.unidadeTipo || ""
     };
+  }
+
+  function arredondarMoedaKz(valor) {
+    return Math.round((Number(valor) + Number.EPSILON) * 100) / 100;
+  }
+
+  function obterNumeroMoedaKz(valor) {
+    if (valor === null || valor === undefined || valor === "") return null;
+    if (typeof valor === "number") return Number.isFinite(valor) ? valor : NaN;
+
+    const bruto = String(valor).replace(/\u00A0/g, " ").trim();
+    if (!bruto) return null;
+
+    const negativo = /-/.test(bruto);
+    let limpo = bruto
+      .replace(/kz/ig, "")
+      .replace(/\s+/g, "")
+      .replace(/[^\d,.-]/g, "");
+    if (!limpo) return null;
+
+    const ultimaVirgula = limpo.lastIndexOf(",");
+    const ultimoPonto = limpo.lastIndexOf(".");
+    let separadorDecimal = "";
+
+    if (ultimaVirgula !== -1 && ultimoPonto !== -1) {
+      separadorDecimal = ultimaVirgula > ultimoPonto ? "," : ".";
+    } else if (ultimaVirgula !== -1) {
+      const casas = limpo.length - ultimaVirgula - 1;
+      separadorDecimal = casas > 0 && casas <= 2 ? "," : "";
+    } else if (ultimoPonto !== -1) {
+      const casas = limpo.length - ultimoPonto - 1;
+      separadorDecimal = casas > 0 && casas <= 2 ? "." : "";
+    }
+
+    if (separadorDecimal) {
+      const idx = limpo.lastIndexOf(separadorDecimal);
+      limpo =
+        limpo.slice(0, idx).replace(/[.,-]/g, "") +
+        "." +
+        limpo.slice(idx + 1).replace(/[.,-]/g, "");
+    } else {
+      limpo = limpo.replace(/[.,-]/g, "");
+    }
+
+    if (!/^\d+(\.\d+)?$/.test(limpo)) return NaN;
+
+    const numero = Number(limpo);
+    if (!Number.isFinite(numero)) return NaN;
+    return negativo ? -numero : numero;
+  }
+
+  function formatarMoedaKz(valor, opcoes) {
+    const cfg = opcoes || {};
+    const numero = obterNumeroMoedaKz(valor);
+    if (!Number.isFinite(numero)) return "";
+    const texto = numero.toLocaleString("pt-PT", {
+      minimumFractionDigits: cfg.casasMinimas == null ? 2 : cfg.casasMinimas,
+      maximumFractionDigits: cfg.casasMaximas == null ? 2 : cfg.casasMaximas
+    });
+    return cfg.sufixo === false ? texto : texto + " Kz";
+  }
+
+  function preencherCampoSalarioBase(valor) {
+    const el = document.getElementById("f-salario-base");
+    if (!el) return;
+    const numero = obterNumeroMoedaKz(valor);
+    el.value = Number.isFinite(numero) && numero > 0 ? formatarMoedaKz(numero) : "";
+  }
+
+  function lerSalarioBaseFormulario() {
+    const el = document.getElementById("f-salario-base");
+    if (!el) return { valor: 0, invalido: false, vazio: true };
+
+    const bruto = (el.value || "").trim();
+    if (!bruto) return { valor: 0, invalido: false, vazio: true };
+
+    const numero = obterNumeroMoedaKz(bruto);
+    if (!Number.isFinite(numero) || numero < 0) {
+      return { valor: 0, invalido: true, vazio: false };
+    }
+
+    const valor = arredondarMoedaKz(numero);
+    el.value = formatarMoedaKz(valor);
+    return { valor: valor, invalido: false, vazio: false };
+  }
+
+  function configurarCampoSalarioBase() {
+    const el = document.getElementById("f-salario-base");
+    if (!el || el.dataset.moedaReady === "1") return;
+
+    el.dataset.moedaReady = "1";
+    el.autocomplete = "off";
+    el.addEventListener("input", function() {
+      this.value = this.value.replace(/[^\d,.\sKkZz-]/g, "");
+    });
+    el.addEventListener("focus", function() {
+      const numero = obterNumeroMoedaKz(this.value);
+      if (Number.isFinite(numero)) {
+        this.value = formatarMoedaKz(numero, { sufixo: false });
+      }
+    });
+    el.addEventListener("blur", function() {
+      const bruto = this.value.trim();
+      if (!bruto) {
+        this.value = "";
+        return;
+      }
+      const numero = obterNumeroMoedaKz(bruto);
+      if (!Number.isFinite(numero) || numero < 0) return;
+      this.value = formatarMoedaKz(arredondarMoedaKz(numero));
+    });
   }
 
   configurarFormularioCadastro();
@@ -2038,7 +2151,7 @@
     var wrapSal = document.getElementById('campo-salario-wrap');
     if(wrapSal) wrapSal.style.display=['admin','chefe','tecnico'].includes(_perfilActual)?'block':'none';
     var elSal = document.getElementById('f-salario-base');
-    if(elSal) elSal.value = f.salarioBase||'';
+    if(elSal) preencherCampoSalarioBase(f.salarioBase);
     // Número de Conta
     var elNC = document.getElementById('f-numeroConta');
     if(elNC){ elNC.value = f.numeroConta||''; if(f.numeroConta) validarNumeroConta(elNC); }
@@ -2492,6 +2605,7 @@
     const numero=document.getElementById("f-numero").value.trim();
     const categoria=lerCategoria();
     const cargo=lerCargo();
+    const salarioBaseInfo = lerSalarioBaseFormulario();
     const unidadeInfo = obterUnidadeSelecionadaCadastro();
     const unidade = unidadeInfo.nome;
     const vinculo=document.getElementById("f-vinculo").value;
@@ -2505,6 +2619,11 @@
     }
 
     // ── Construir objecto dados ──
+    if(salarioBaseInfo.invalido){
+      notif("Indique um salario base valido em Kz, por exemplo 150.000,00.","erro");
+      document.getElementById("f-salario-base")?.focus();
+      return;
+    }
     const bi=document.getElementById("f-bi").value.trim();
     const dados={
       nome,sexo,numero,categoria,cargo,unidade,vinculo,admissao,seccao,
@@ -2543,7 +2662,7 @@
         return {};
       })(),
       ...((['admin','chefe','tecnico'].includes(_perfilActual)) && document.getElementById("f-salario-base")
-        ? { salarioBase: Number(document.getElementById("f-salario-base").value)||0 } : {}),
+        ? { salarioBase: salarioBaseInfo.valor || 0 } : {}),
       actualizadoEm:serverTimestamp(),actualizadoPor:utilizadorActual.uid
     };
 
@@ -2731,8 +2850,8 @@
       {r:"Nº de Assegurado INSS",v:f.inss||null},
       {r:"Banco de Domiciliação",v:f.banco||null},
       {r:"Número de Conta / IBAN",v:f.numeroConta||null},
-      ...(['admin','chefe','tecnico'].includes(_perfilActual) && f.salarioBase
-        ? [{r:"Salário Base",v:Number(f.salarioBase).toLocaleString('pt-PT')+' Kz'}]
+      ...(['admin','chefe','tecnico'].includes(_perfilActual) && obterNumeroMoedaKz(f.salarioBase) > 0
+        ? [{r:"Salário Base",v:formatarMoedaKz(f.salarioBase)}]
         : []),
       {r:"Observações",v:f.observacoes,span2:true},
     ];
@@ -2828,8 +2947,8 @@
       {r:"Nº de Assegurado INSS",v:f.inss||null},
       {r:"Banco de Domiciliação",v:f.banco||null},
       {r:"Número de Conta / IBAN",v:f.numeroConta||null},
-      ...(['admin','chefe','tecnico'].includes(_perfilActual) && f.salarioBase
-        ? [{r:"Salário Base",v:Number(f.salarioBase).toLocaleString('pt-PT')+' Kz'}]
+      ...(['admin','chefe','tecnico'].includes(_perfilActual) && obterNumeroMoedaKz(f.salarioBase) > 0
+        ? [{r:"Salário Base",v:formatarMoedaKz(f.salarioBase)}]
         : []),
       {r:"Observações",v:f.observacoes,span2:true},
     ];
