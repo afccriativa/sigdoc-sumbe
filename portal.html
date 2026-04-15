@@ -2786,6 +2786,8 @@
     btn.innerHTML='<span class="spinner"></span> A localizar…';
 
     try{
+      if(!auth.currentUser) await signInAnonymously(auth);
+
       let enc=null;
       if(RE_NUMERO.test(numero)){
         const snap=await getDocs(query(collection(db,"funcionarios"),where("numero","==",numero)));
@@ -2803,10 +2805,6 @@
       }
 
       let emailConta=(enc.portalEmail||"").trim();
-      if(!emailConta&&enc.portalUid){
-        const snapUser=await getDoc(doc(db,"utilizadores",enc.portalUid));
-        if(snapUser.exists()) emailConta=(snapUser.data().email||"").trim();
-      }
 
       if(!enc.portalUid&&!RE_EMAIL.test(emailConta)){
         limparResultadoRecuperacao();
@@ -2816,7 +2814,7 @@
 
       if(!RE_EMAIL.test(emailConta)){
         limparResultadoRecuperacao();
-        msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Encontrámos o seu registo, mas o e-mail de acesso não está disponível para redefinição automática. Contacte a Secção de RH para actualizar a conta.</div>`;
+        msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Encontrámos o seu registo, mas o e-mail de acesso não está disponível nesta consulta. Introduza o e-mail manualmente ou contacte a Secção de RH para confirmar e actualizar a conta.</div>`;
         return;
       }
 
@@ -2825,7 +2823,10 @@
     }catch(e){
       console.error(e);
       limparResultadoRecuperacao();
-      msg.innerHTML=`<div class="alerta alerta-erro">❌ Erro de ligação ao localizar a conta. Verifique a internet e tente novamente.</div>`;
+      let m="❌ Não foi possível localizar a conta agora. Tente novamente.";
+      if(e.code==="permission-denied") m="❌ O portal não conseguiu obter permissão para localizar esta conta. Recarregue a página e tente novamente.";
+      if(e.code==="auth/network-request-failed") m="❌ Sem ligação. Verifique a internet e tente novamente.";
+      msg.innerHTML=`<div class="alerta alerta-erro">${m}</div>`;
     }finally{
       btn.innerHTML="Localizar conta →";
       btn.disabled=!(RE_NUMERO.test(numero)||RE_BI.test(bi));
