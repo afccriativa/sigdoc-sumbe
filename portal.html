@@ -249,6 +249,52 @@
     .enc-nome { font-size:14px;font-weight:700;color:var(--txt); }
     .enc-sub { font-size:12px;color:var(--txt-3);margin-top:2px; }
     .badge-verif { display:inline-block;background:var(--primary-xl);color:var(--primary);font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-xl);margin-top:4px; }
+    .login-ajuda {
+      margin-top:12px;
+      padding:14px;
+      border-radius:14px;
+      border:1px solid rgba(6,95,70,.14);
+      background:linear-gradient(135deg,#ecfdf5 0%, #f8fafc 100%);
+    }
+    .login-ajuda-titulo { font-size:13px;font-weight:700;color:var(--txt);margin-bottom:4px; }
+    .login-ajuda-sub { font-size:12px;color:var(--txt-3);line-height:1.5; }
+    .link-recuperar {
+      width:100%;
+      margin-top:12px;
+      padding:11px 14px;
+      border-radius:12px;
+      border:1px solid rgba(6,95,70,.18);
+      background:#fff;
+      color:var(--primary);
+      font-size:13px;
+      font-weight:700;
+      cursor:pointer;
+      transition:all .18s;
+    }
+    .link-recuperar:hover { background:var(--primary-xl);border-color:rgba(6,95,70,.28); }
+    .rec-grid { display:grid;gap:12px; }
+    .rec-resultado { display:none;margin-top:14px;margin-bottom:0; }
+    .rec-resultado.visivel { display:flex; }
+    .rec-email-chip {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      color:#1d4ed8;
+      font-size:11px;
+      font-weight:700;
+      font-family:var(--mono);
+    }
+    .rec-nota {
+      margin-top:12px;
+      font-size:12px;
+      line-height:1.5;
+      color:var(--txt-3);
+    }
     .forca-senha { margin-top:8px; }
     .forca-barras { display:flex;gap:4px;height:4px;margin-bottom:5px; }
     .forca-barra { flex:1;background:var(--border);border-radius:2px;transition:background .3s; }
@@ -1841,20 +1887,18 @@
     <div class="caixa-corpo">
       <div class="campo-g">
         <label>E-mail</label>
-        <input type="email" id="lf-email" class="campo-inp" placeholder="o.seu.email@exemplo.com" onkeydown="if(event.key==='Enter')document.getElementById('lf-senha').focus()"/>
+        <input type="email" id="lf-email" class="campo-inp" placeholder="o.seu.email@exemplo.com" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('lf-senha').focus()"/>
       </div>
       <div class="campo-g">
         <label>Senha</label>
-        <input type="password" id="lf-senha" class="campo-inp" placeholder="A sua senha" onkeydown="if(event.key==='Enter')fazerLoginFuncionario()"/>
+        <input type="password" id="lf-senha" class="campo-inp" placeholder="A sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')fazerLoginFuncionario()"/>
       </div>
       <div id="msg-login-func"></div>
-      <!-- Link recuperação — discreto, abaixo dos campos -->
-      <button
-        type="button"
-        onclick="prepararRecuperacao()"
-        style="background:none;border:none;color:var(--c-600);font-size:12px;font-weight:600;cursor:pointer;padding:4px 0;text-align:left;font-family:var(--font);margin-top:2px;">
-        Esqueci a senha →
-      </button>
+      <div class="login-ajuda">
+        <div class="login-ajuda-titulo">Esqueceu a senha?</div>
+        <div class="login-ajuda-sub">Pode receber um link de redefinição pelo e-mail da conta ou localizar o e-mail pelo N.º de Agente ou BI.</div>
+        <button type="button" class="link-recuperar" onclick="prepararRecuperacao()">Recuperar acesso →</button>
+      </div>
     </div>
     <div class="caixa-rodape">
       <button class="btn btn-sec" onclick="mostrarEcra('ecra-entrada')">← Voltar</button>
@@ -1869,23 +1913,80 @@
     <div class="caixa-topo">
       <div class="caixa-passo">Portal do Funcionário</div>
       <div class="caixa-titulo">🔒 Recuperar senha</div>
-      <div class="caixa-sub">Introduza o e-mail da sua conta. Receberá um link para definir uma nova senha.</div>
+      <div class="caixa-sub">Introduza o e-mail da conta ou localize-o pelo N.º de Agente / BI. Depois enviaremos o link para redefinir a senha.</div>
     </div>
     <div class="caixa-corpo">
+      <div class="alerta alerta-info">ℹ️ Se já não tiver acesso ao e-mail registado, peça à Secção de RH para o actualizar antes de redefinir a senha.</div>
       <div class="campo-g">
         <label>E-mail da conta</label>
-        <input
-          type="email"
-          id="rec-email"
-          class="campo-inp"
-          placeholder="o.seu.email@exemplo.com"
-          onkeydown="if(event.key==='Enter')enviarRecuperacao()"/>
+        <div class="campo-inp-wrap">
+          <input
+            type="email"
+            id="rec-email"
+            class="campo-inp"
+            placeholder="o.seu.email@exemplo.com"
+            autocomplete="email"
+            oninput="sincronizarRecuperacao()"
+            onkeydown="if(event.key==='Enter')enviarRecuperacao()"/>
+          <span class="campo-icone" id="ico-rec-email"></span>
+        </div>
+        <div class="campo-hint">Se souber o e-mail, pode enviar o link imediatamente.</div>
+        <div class="campo-err-msg" aria-live="polite" id="erro-rec-email"></div>
+        <div class="campo-ok-msg" id="ok-rec-email"></div>
+      </div>
+      <div class="ou-sep">ou</div>
+      <div class="rec-grid">
+        <div class="campo-g" style="margin-bottom:0">
+          <label>N.º de Agente</label>
+          <div class="campo-inp-wrap">
+            <input
+              type="text"
+              id="rec-numero"
+              class="campo-inp campo-mono"
+              maxlength="8"
+              placeholder="00000000"
+              oninput="this.value=this.value.replace(/\D/g,'').slice(0,8);validarRecuperacaoBusca()"
+              onkeydown="if(event.key==='Enter')pesquisarContaRecuperacao()"
+              autocomplete="off"/>
+            <span class="campo-icone" id="ico-rec-numero"></span>
+          </div>
+          <div class="campo-hint">Use o mesmo número do seu pré-registo.</div>
+          <div class="campo-err-msg" aria-live="polite" id="erro-rec-numero"></div>
+        </div>
+        <div class="campo-g" style="margin-bottom:0">
+          <label>N.º do Bilhete de Identidade</label>
+          <div class="campo-inp-wrap">
+            <input
+              type="text"
+              id="rec-bi"
+              class="campo-inp campo-mono"
+              maxlength="14"
+              placeholder="00000000LA083"
+              oninput="this.value=this.value.toUpperCase().replace(/[^0-9A-Z]/g,'').slice(0,14);validarRecuperacaoBusca()"
+              onkeydown="if(event.key==='Enter')pesquisarContaRecuperacao()"
+              autocomplete="off"/>
+            <span class="campo-icone" id="ico-rec-bi"></span>
+          </div>
+          <div class="campo-hint">Pode usar o BI se não se lembrar do e-mail.</div>
+          <div class="campo-err-msg" aria-live="polite" id="erro-rec-bi"></div>
+          <div class="campo-ok-msg" id="ok-rec-bi"></div>
+        </div>
+      </div>
+      <button class="btn btn-sec btn-full" id="btn-localizar-rec" onclick="pesquisarContaRecuperacao()" disabled>Localizar conta →</button>
+      <div class="card-enc rec-resultado" id="rec-resultado">
+        <div class="enc-avatar" id="rec-avatar">?</div>
+        <div>
+          <div class="enc-nome" id="rec-nome">Conta localizada</div>
+          <div class="enc-sub" id="rec-unidade">Verifique o e-mail associado abaixo</div>
+          <div class="rec-email-chip" id="rec-email-chip">E-mail associado: —</div>
+        </div>
       </div>
       <div id="msg-recuperacao"></div>
+      <div class="rec-nota">Se a sua conta ainda não existir no portal, volte e use a opção <strong>Verificar pré-registo</strong> para criar o acesso pela primeira vez.</div>
     </div>
     <div class="caixa-rodape">
       <button class="btn btn-sec" onclick="mostrarEcra('ecra-login-func')">← Voltar</button>
-      <button class="btn btn-prim" id="btn-recuperar" onclick="enviarRecuperacao()">Enviar link →</button>
+      <button class="btn btn-prim" id="btn-recuperar" onclick="enviarRecuperacao()" disabled>Enviar link →</button>
     </div>
   </div>
 </div>
@@ -2356,6 +2457,7 @@
   setPersistence(auth,browserLocalPersistence).catch(e=>console.warn(e));
 
   let _funcDoc=null,_funcDocId=null,_utilizador=null,_tipoSel=null;
+  let _recEmailResolvido="",_recContaLocalizada=null;
   let _sessaoToken=null,_unsubSessao=null;
 
   const LABELS_TIPO={"guia-ferias":{nome:"Guia de Férias",icone:"🏖️",bg:"#fef9e7"},"declaracao-servico":{nome:"Declaração de Serviço",icone:"📜",bg:"#eff6ff"},"guia-medica":{nome:"Guia Médica",icone:"🏥",bg:"var(--c-50)"},"oficio":{nome:"Ofício / Nota",icone:"📋",bg:"var(--p-100)"}};
@@ -2584,52 +2686,195 @@
   };
 
   // ── RECUPERAÇÃO DE SENHA ──
+  function mascararNomeRecuperacao(nome){
+    if(!nome) return "Conta localizada";
+    const partes=nome.trim().split(/\s+/).filter(Boolean);
+    if(!partes.length) return "Conta localizada";
+    return partes.map((p,i)=>i===0||i===partes.length-1?p:p[0]+"*".repeat(Math.max(p.length-1,1))).join(" ");
+  }
 
-  // Pré-preenche o email se já estiver escrito no campo de login
-  window.prepararRecuperacao = function() {
-    const emailLogin = document.getElementById("lf-email").value.trim();
-    const campo = document.getElementById("rec-email");
-    if (emailLogin) campo.value = emailLogin;
-    document.getElementById("msg-recuperacao").innerHTML = "";
-    mostrarEcra("ecra-recuperar-senha");
-    setTimeout(() => campo.focus(), 300);
+  function mascararEmail(email){
+    if(!email||!email.includes("@")) return "—";
+    const [local,dominioBruto]=email.split("@");
+    const dominioPartes=dominioBruto.split(".");
+    const host=dominioPartes.shift()||"";
+    const sufixo=dominioPartes.length?"."+dominioPartes.join("."):"";
+    const localMask=local.length<=2 ? local[0]+"*" : local.slice(0,2)+"*".repeat(Math.max(local.length-2,1));
+    const hostMask=host.length<=2 ? host[0]+"*" : host.slice(0,2)+"*".repeat(Math.max(host.length-2,1));
+    return `${localMask}@${hostMask}${sufixo}`;
+  }
+
+  function limparResultadoRecuperacao(){
+    _recEmailResolvido="";
+    _recContaLocalizada=null;
+    const card=document.getElementById("rec-resultado");
+    if(card) card.classList.remove("visivel");
+    const chip=document.getElementById("rec-email-chip");
+    if(chip) chip.textContent="E-mail associado: —";
+  }
+
+  function preencherResultadoRecuperacao(func,email){
+    _recContaLocalizada=func||null;
+    _recEmailResolvido=email||"";
+    document.getElementById("rec-avatar").textContent=(func?.nome||email||"?").trim().charAt(0).toUpperCase()||"?";
+    document.getElementById("rec-nome").textContent=mascararNomeRecuperacao(func?.nome);
+    document.getElementById("rec-unidade").textContent=func?.unidade?`📍 ${func.unidade}`:"Conta pronta para redefinição";
+    document.getElementById("rec-email-chip").textContent=`E-mail associado: ${mascararEmail(email)}`;
+    document.getElementById("rec-resultado").classList.add("visivel");
+    document.getElementById("rec-email").value=email;
+    document.getElementById("lf-email").value=email;
+    window.sincronizarRecuperacao();
+  }
+
+  window.sincronizarRecuperacao = function(){
+    const campo=document.getElementById("rec-email");
+    const email=campo.value.trim();
+    setCampo("rec-email","ico-rec-email","erro-rec-email","ok-rec-email",
+      RE_EMAIL.test(email),
+      "Endereço de e-mail inválido.",
+      "E-mail pronto para recuperação ✓");
+    const btn=document.getElementById("btn-recuperar");
+    const temEmailResolvido=!email && RE_EMAIL.test(_recEmailResolvido);
+    btn.disabled=!(RE_EMAIL.test(email)||temEmailResolvido);
   };
 
-  window.enviarRecuperacao = async function() {
-    const email = document.getElementById("rec-email").value.trim();
-    const btn   = document.getElementById("btn-recuperar");
-    const msg   = document.getElementById("msg-recuperacao");
+  window.validarRecuperacaoBusca = function(){
+    const numero=document.getElementById("rec-numero").value.trim();
+    const bi=document.getElementById("rec-bi").value.trim().toUpperCase();
+    if(_recEmailResolvido){
+      limparResultadoRecuperacao();
+      document.getElementById("msg-recuperacao").innerHTML="";
+    }
+    setCampo("rec-numero","ico-rec-numero","erro-rec-numero",null,
+      RE_NUMERO.test(numero),
+      "O N.º de Agente deve ter exactamente 8 dígitos numéricos.");
+    setCampo("rec-bi","ico-rec-bi","erro-rec-bi","ok-rec-bi",
+      RE_BI.test(bi),
+      "Formato inválido. Exemplo correcto: 00123456LA083",
+      "Formato de BI válido ✓");
+    document.getElementById("btn-localizar-rec").disabled=!(RE_NUMERO.test(numero)||RE_BI.test(bi));
+    window.sincronizarRecuperacao();
+  };
 
-    if (!email) {
-      msg.innerHTML = `<div class="alerta alerta-erro">❌ Introduza o seu e-mail.</div>`;
+  window.prepararRecuperacao = function() {
+    const emailLogin=document.getElementById("lf-email").value.trim();
+    const campo=document.getElementById("rec-email");
+    document.getElementById("msg-recuperacao").innerHTML="";
+    document.getElementById("rec-numero").value="";
+    document.getElementById("rec-bi").value="";
+    limparResultadoRecuperacao();
+    campo.value=emailLogin||"";
+    mostrarEcra("ecra-recuperar-senha");
+    window.validarRecuperacaoBusca();
+    window.sincronizarRecuperacao();
+    setTimeout(()=>campo.focus(),300);
+  };
+
+  window.pesquisarContaRecuperacao = async function() {
+    const numero=document.getElementById("rec-numero").value.trim();
+    const bi=document.getElementById("rec-bi").value.trim().toUpperCase();
+    const btn=document.getElementById("btn-localizar-rec");
+    const msg=document.getElementById("msg-recuperacao");
+    msg.innerHTML="";
+
+    if(!(RE_NUMERO.test(numero)||RE_BI.test(bi))){
+      msg.innerHTML=`<div class="alerta alerta-erro">❌ Introduza um N.º de Agente válido ou um BI válido para localizar a conta.</div>`;
       return;
     }
 
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> A enviar…';
-    msg.innerHTML = "";
+    btn.disabled=true;
+    btn.innerHTML='<span class="spinner"></span> A localizar…';
 
-    try {
-      await sendPasswordResetEmail(auth, email);
-      // Mensagem de sucesso — intencionalmente vaga para não confirmar
-      // se o e-mail existe na base de dados (boa prática de segurança)
-      msg.innerHTML = `<div class="alerta alerta-sucesso">
-        ✅ <strong>E-mail enviado.</strong><br>
-        Se este endereço tiver uma conta, receberá as instruções em breve.
-        Verifique também a pasta de spam.
-      </div>`;
-      btn.disabled = false;
-      btn.innerHTML = "Enviar link →";
-      // Voltar ao login automaticamente após 5 segundos
-      setTimeout(() => mostrarEcra("ecra-login-func"), 5000);
-    } catch(e) {
+    try{
+      let enc=null;
+      if(RE_NUMERO.test(numero)){
+        const snap=await getDocs(query(collection(db,"funcionarios"),where("numero","==",numero)));
+        if(!snap.empty) enc=snap.docs[0].data();
+      }
+      if(!enc&&RE_BI.test(bi)){
+        const snap=await getDocs(query(collection(db,"funcionarios"),where("bi","==",bi)));
+        if(!snap.empty) enc=snap.docs[0].data();
+      }
+
+      if(!enc){
+        limparResultadoRecuperacao();
+        msg.innerHTML=`<div class="alerta alerta-erro">❌ Não encontrámos uma conta associada aos dados informados. Reveja os dados e tente novamente.</div>`;
+        return;
+      }
+
+      let emailConta=(enc.portalEmail||"").trim();
+      if(!emailConta&&enc.portalUid){
+        const snapUser=await getDoc(doc(db,"utilizadores",enc.portalUid));
+        if(snapUser.exists()) emailConta=(snapUser.data().email||"").trim();
+      }
+
+      if(!enc.portalUid&&!RE_EMAIL.test(emailConta)){
+        limparResultadoRecuperacao();
+        msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Encontrámos o seu registo, mas esta conta ainda não foi criada no portal. Volte e use <strong>Verificar pré-registo</strong> para criar o acesso pela primeira vez.</div>`;
+        return;
+      }
+
+      if(!RE_EMAIL.test(emailConta)){
+        limparResultadoRecuperacao();
+        msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Encontrámos o seu registo, mas o e-mail de acesso não está disponível para redefinição automática. Contacte a Secção de RH para actualizar a conta.</div>`;
+        return;
+      }
+
+      preencherResultadoRecuperacao(enc,emailConta);
+      msg.innerHTML=`<div class="alerta alerta-sucesso">✅ Conta localizada. O link será enviado para <strong>${mascararEmail(emailConta)}</strong>.</div>`;
+    }catch(e){
       console.error(e);
-      let m = "Erro ao enviar. Verifique a ligação e tente novamente.";
-      if (e.code === "auth/invalid-email") m = "❌ Endereço de e-mail inválido.";
-      if (e.code === "auth/network-request-failed") m = "❌ Sem ligação. Verifique a internet.";
-      msg.innerHTML = `<div class="alerta alerta-erro">${m}</div>`;
-      btn.disabled = false;
-      btn.innerHTML = "Enviar link →";
+      limparResultadoRecuperacao();
+      msg.innerHTML=`<div class="alerta alerta-erro">❌ Erro de ligação ao localizar a conta. Verifique a internet e tente novamente.</div>`;
+    }finally{
+      btn.innerHTML="Localizar conta →";
+      btn.disabled=!(RE_NUMERO.test(numero)||RE_BI.test(bi));
+      window.sincronizarRecuperacao();
+    }
+  };
+
+  window.enviarRecuperacao = async function() {
+    const campo=document.getElementById("rec-email");
+    const emailDigitado=campo.value.trim();
+    const email=RE_EMAIL.test(emailDigitado)?emailDigitado:(!emailDigitado&&RE_EMAIL.test(_recEmailResolvido)?_recEmailResolvido:"");
+    const btn=document.getElementById("btn-recuperar");
+    const msg=document.getElementById("msg-recuperacao");
+
+    if(!email){
+      msg.innerHTML=`<div class="alerta alerta-erro">❌ Introduza um e-mail válido ou localize a sua conta pelo N.º de Agente / BI.</div>`;
+      window.sincronizarRecuperacao();
+      return;
+    }
+
+    campo.value=email;
+    btn.disabled=true;
+    btn.innerHTML='<span class="spinner"></span> A enviar…';
+    msg.innerHTML="";
+
+    try{
+      await sendPasswordResetEmail(auth,email);
+      const emailMasc=mascararEmail(email);
+      const veioDaLocalizacao=_recContaLocalizada&&email===_recEmailResolvido;
+      msg.innerHTML=veioDaLocalizacao
+        ? `<div class="alerta alerta-sucesso">✅ <strong>Link enviado.</strong><br>Enviámos as instruções para <strong>${emailMasc}</strong>. Verifique também a pasta de spam.</div>`
+        : `<div class="alerta alerta-sucesso">✅ <strong>E-mail enviado.</strong><br>Se este endereço tiver uma conta, receberá as instruções em breve. Verifique também a pasta de spam.</div>`;
+      document.getElementById("lf-email").value=email;
+      btn.innerHTML="Enviar link →";
+      window.sincronizarRecuperacao();
+      setTimeout(()=>{
+        document.getElementById("msg-login-func").innerHTML=veioDaLocalizacao
+          ? `<div class="alerta alerta-sucesso">✅ Enviámos um link de redefinição para <strong>${emailMasc}</strong>.</div>`
+          : `<div class="alerta alerta-sucesso">✅ Se este endereço tiver uma conta, enviámos o link de redefinição.</div>`;
+        mostrarEcra("ecra-login-func");
+      },3500);
+    }catch(e){
+      console.error(e);
+      let m="Erro ao enviar. Verifique a ligação e tente novamente.";
+      if(e.code==="auth/invalid-email")m="❌ Endereço de e-mail inválido.";
+      if(e.code==="auth/network-request-failed")m="❌ Sem ligação. Verifique a internet.";
+      msg.innerHTML=`<div class="alerta alerta-erro">${m}</div>`;
+      btn.innerHTML="Enviar link →";
+      window.sincronizarRecuperacao();
     }
   };
 
