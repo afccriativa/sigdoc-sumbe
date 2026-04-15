@@ -1276,6 +1276,7 @@
     const gTxt = id => document.getElementById(id)?.options[document.getElementById(id)?.selectedIndex]?.text || '—';
 
     const un = obterUnidadeSelecionadaFormulario();
+    const unid = un.nome || '—';
     let areaExtra = '';
     if (window.SIGDOC_UNIDADES.isDms(un)) areaExtra = `<div class="rev-linha"><span>Secção</span><strong>${g('f-seccao') || '—'}</strong></div>`;
     else if (window.SIGDOC_UNIDADES.isCentro(un)) areaExtra = `<div class="rev-linha"><span>Área</span><strong>${g('f-area') || '—'}</strong></div>`;
@@ -1523,6 +1524,8 @@
         e?.message === "NUMERO_DUPLICADO_BACKEND" || e?.message === "BI_DUPLICADO_BACKEND"
       )
         ? '❌ Conflito detectado no sistema. O número de agente ou BI já foi associado a outro registo.'
+        : e?.code === "permission-denied"
+          ? '❌ O sistema recusou a gravação por permissões insuficientes. Verifique se as regras do Firestore já permitem actualizar a unidade do funcionário.'
         : '❌ Erro ao guardar os dados. Verifique a ligação e tente novamente.';
       document.getElementById('msg-submissao').innerHTML =
         `<div class="alerta alerta-erro">${msgErro}</div>`;
