@@ -346,6 +346,77 @@
     .portal-abas-content { padding:var(--sp-5) 16px 0; }
     .aba-portal { display:none; }
     .aba-portal.activa { display:block; }
+    .portal-hero-head { display:flex;flex-direction:column;gap:var(--sp-4); }
+    .portal-hero-copy { max-width:64ch; }
+    .portal-hero-actions { display:flex;flex-wrap:wrap;gap:10px; }
+    .portal-hero-btn {
+      padding:12px 16px;border-radius:999px;border:none;cursor:pointer;
+      font-size:13px;font-weight:800;letter-spacing:.01em;transition:all .18s;
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .portal-hero-btn .material-symbols-outlined { font-size:18px;font-variation-settings:'FILL' 1; }
+    .portal-hero-btn-prim { background:var(--primary);color:white;box-shadow:0 10px 22px rgba(6,95,70,.22); }
+    .portal-hero-btn-prim:hover { background:var(--primary-d);transform:translateY(-1px); }
+    .portal-hero-btn-sec { background:white;color:var(--primary);border:1px solid rgba(6,95,70,.14); }
+    .portal-hero-btn-sec:hover { background:var(--primary-xl);border-color:rgba(6,95,70,.24); }
+    .portal-home-actions {
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:var(--sp-3);margin-bottom:20px;
+    }
+    .home-action-card {
+      width:100%;padding:16px;border-radius:18px;border:1px solid var(--border);
+      background:white;cursor:pointer;text-align:left;
+      box-shadow:0 1px 8px rgba(15,23,42,.05);transition:all .18s;
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .home-action-card:hover { transform:translateY(-1px);box-shadow:0 10px 24px rgba(15,23,42,.08); }
+    .home-action-card.primary {
+      grid-column:1 / -1;
+      background:linear-gradient(135deg,#0c5f47 0%,#0a4f3d 100%);
+      color:white;border-color:rgba(255,255,255,.08);box-shadow:0 18px 36px rgba(6,95,70,.2);
+    }
+    .home-action-card.primary .home-action-eyebrow,
+    .home-action-card.primary .home-action-desc { color:rgba(255,255,255,.72); }
+    .home-action-card.primary .home-action-icon {
+      background:rgba(255,255,255,.14);color:white;border-color:rgba(255,255,255,.16);
+    }
+    .home-action-icon {
+      width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+      background:rgba(6,95,70,.08);color:var(--primary);border:1px solid rgba(6,95,70,.08);
+    }
+    .home-action-icon .material-symbols-outlined { font-size:22px;font-variation-settings:'FILL' 1; }
+    .home-action-eyebrow {
+      font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--txt-4);
+    }
+    .home-action-title { font-size:14px;font-weight:800;color:inherit;line-height:1.35; }
+    .home-action-desc { font-size:12px;line-height:1.5;color:var(--txt-3); }
+    .portal-docs-panel {
+      background:white;border-radius:18px;padding:18px;margin-bottom:20px;
+      border:1px solid var(--border);box-shadow:0 2px 12px rgba(15,23,42,.05);
+    }
+    .portal-panel-head {
+      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;
+    }
+    .portal-panel-title-wrap { min-width:0; }
+    .portal-panel-title { font-size:16px;font-weight:800;color:var(--txt);line-height:1.2; }
+    .portal-panel-sub { font-size:13px;color:var(--txt-3);line-height:1.5;margin-top:4px; }
+    .portal-panel-actions { display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end; }
+    .portal-panel-badge {
+      display:inline-flex;align-items:center;justify-content:center;
+      min-height:28px;padding:0 10px;border-radius:999px;background:var(--primary-xl);
+      color:var(--primary);font-size:11px;font-weight:800;white-space:nowrap;
+    }
+    .link-inline-btn {
+      padding:10px 14px;border-radius:999px;border:1px solid rgba(6,95,70,.14);
+      background:white;color:var(--primary);font-size:12px;font-weight:800;
+      cursor:pointer;transition:all .18s;
+    }
+    .link-inline-btn:hover { background:var(--primary-xl);border-color:rgba(6,95,70,.24); }
+    .doc-card-actions { display:flex;align-items:center;gap:8px;flex-shrink:0; }
+    .btn-vazio-acao {
+      margin-top:8px;padding:11px 14px;border-radius:999px;border:none;background:var(--primary);
+      color:white;font-size:13px;font-weight:800;cursor:pointer;
+    }
 
     /* KPIs */
     .kpi-total-card { background:white;border-radius:var(--r-xl);padding:var(--sp-6);text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px; }
@@ -446,6 +517,13 @@
     .doc-fich-vazio { font-size:13px;color:var(--txt-3);text-align:center;padding:12px 0; }
     .perfil-edit-sec { background:white;border-radius:14px;padding:var(--sp-4);box-shadow:0 1px 6px rgba(0,0,0,.06);border:1px solid var(--border); }
     .perfil-edit-titulo { font-size:13px;font-weight:700;color:var(--txt);margin-bottom:12px; }
+    .perfil-edit-acoes { display:flex;flex-direction:column;gap:10px; }
+    .perfil-link-principal {
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      background:var(--primary);color:white;border-radius:12px;padding:14px;
+      font-size:14px;font-weight:700;text-decoration:none;margin-bottom:2px;
+    }
+    .perfil-link-principal .material-symbols-outlined { font-size:18px;font-variation-settings:'FILL' 1; }
 
     /* bottom nav mobile */
     .bottom-nav { position:fixed;bottom:0;left:0;right:0;height:calc(var(--nav-h) + var(--safe-b));background:white;border-top:1px solid var(--border);padding-bottom:var(--safe-b);display:flex;align-items:flex-start;justify-content:space-around;padding-top:8px;box-shadow:0 -8px 20px rgba(0,0,0,.06);z-index:200; }
@@ -456,6 +534,16 @@
     .bn-btn.activo .material-symbols-outlined { font-variation-settings:'FILL' 1,'wght' 700; }
     .bn-badge { position:absolute;top:2px;right:calc(50% - 18px);background:var(--red);color:white;font-size:9px;font-weight:800;width:16px;height:16px;border-radius:50%;display:none;align-items:center;justify-content:center;border:2px solid white; }
     .bn-badge.visivel { display:flex; }
+    .bn-btn-destaque { margin-top:-16px; }
+    .bn-btn-destaque .bn-icon-wrap {
+      width:54px;height:54px;border-radius:18px;
+      background:linear-gradient(135deg,#0c5f47 0%,#10c886 100%);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 12px 24px rgba(6,95,70,.26);
+    }
+    .bn-btn-destaque .material-symbols-outlined { font-size:28px;color:white;font-variation-settings:'FILL' 1,'wght' 700; }
+    .bn-btn-destaque .bn-lbl { margin-top:4px;font-size:10px;font-weight:800;color:var(--txt-2); }
+    .bn-btn-destaque.activo .bn-icon-wrap { transform:translateY(-1px);box-shadow:0 14px 28px rgba(6,95,70,.3); }
 
 
     /* ── A MINHA UNIDADE ─────────────────────────────── */
@@ -779,6 +867,9 @@
         gap: 0 24px;
         align-items: start;
       }
+      .portal-hero-card,
+      .portal-home-actions,
+      .portal-docs-panel { grid-column: 1; }
       /* esconder KPIs mobile, mostrar row desktop */
       .kpi-total-card, .kpi-grid { display: none; }
       /* coluna esquerda abrange banner + kpi-row + docs */
@@ -822,6 +913,8 @@
         grid-column: 2; grid-row: 1 / 10;
         display: flex; flex-direction: column; gap: 14px;
       }
+      .portal-home-actions { grid-template-columns: repeat(3, minmax(0,1fr)); }
+      .home-action-card.primary { grid-column: auto; }
       .perfil-card-verde { margin-bottom: 0; }
       .perfil-campos-lista { display: grid; grid-template-columns: 1fr 1fr; gap:var(--sp-2); margin-bottom: 0; }
 
@@ -965,16 +1058,59 @@
     .chat-estado-bar.aberto  { background:#ecfdf5;color:#059669;border-bottom:1px solid #d1fae5; }
     .chat-estado-bar.fechado { background:#f9fafb;color:#9ca3af;border-bottom:1px solid #f3f4f6; }
     /* Lista pedidos como chat */
-    .pedido-chat-item { padding:14px;background:#fff;border:1px solid #e5e7eb;border-radius:var(--r-md);margin-bottom:10px;cursor:pointer;transition:box-shadow .12s; }
-    .pedido-chat-item:hover { box-shadow:0 2px 10px rgba(79,70,229,.12); }
-    .pedido-chat-item.tem-nova { border-color:#4f46e5;background:#eef2ff; }
-    .pedido-chat-topo { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px; }
-    .pedido-chat-assunto { font-size:13px;font-weight:800;color:#111827; }
-    .pedido-chat-badge { font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:#eef2ff;color:#4f46e5; }
-    .pedido-chat-preview { font-size:12px;color:#6b7280;line-height:1.4;margin-bottom:6px; }
-    .pedido-chat-rodape { display:flex;justify-content:space-between;align-items:center; }
+    .secretaria-lista { display:flex;flex-direction:column;gap:10px;margin-bottom:16px; }
+    .secretaria-empty {
+      padding:28px 18px;border-radius:18px;border:1px dashed rgba(15,23,42,.12);
+      background:rgba(255,255,255,.78);text-align:center;color:var(--txt-3);font-size:13px;line-height:1.6;
+    }
+    .secretaria-form-head { margin-bottom:14px; }
+    .secretaria-form-title { font-size:16px;font-weight:800;color:var(--txt); }
+    .secretaria-form-sub { font-size:13px;color:var(--txt-3);line-height:1.5;margin-top:4px; }
+    .secretaria-label-row { display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px; }
+    .secretaria-label { font-size:12px;font-weight:700;color:#445955;display:block; }
+    .secretaria-counter { font-size:12px;font-weight:700;color:var(--txt-4); }
+    .secretaria-help { font-size:12px;color:var(--txt-3);line-height:1.5;margin:-2px 0 2px; }
+    .secretaria-feedback { min-height:20px; }
+    .pedido-chat-item {
+      padding:16px;background:linear-gradient(180deg,#ffffff,#fafbfc);
+      border:1px solid rgba(15,23,42,.08);border-radius:18px;cursor:pointer;
+      transition:transform .12s,box-shadow .12s,border-color .12s;
+    }
+    .pedido-chat-item:hover { transform:translateY(-1px);box-shadow:0 14px 28px rgba(79,70,229,.08); }
+    .pedido-chat-item.tem-nova { border-color:rgba(79,70,229,.38);background:#f7f7ff; }
+    .pedido-chat-topo { display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px; }
+    .pedido-chat-assunto { font-size:14px;font-weight:800;color:#111827;line-height:1.35; }
+    .pedido-chat-hora { font-size:11px;color:#9ca3af;white-space:nowrap; }
+    .pedido-chat-badge {
+      font-size:10px;font-weight:800;padding:4px 8px;border-radius:99px;
+      background:#eef2ff;color:#4f46e5;white-space:nowrap;
+    }
+    .pedido-chat-preview { font-size:13px;color:#6b7280;line-height:1.5;margin-bottom:10px; }
+    .pedido-chat-rodape { display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap; }
+    .pedido-chat-meta { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
     .pedido-chat-data { font-size:11px;color:#9ca3af; }
-    .pedido-chat-nova-badge { background:#4f46e5;color:#fff;font-size:10px;font-weight:800;padding:1px 6px;border-radius:99px; }
+    .pedido-chat-nova-badge { background:#4f46e5;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:99px; }
+    .pedido-chat-estado {
+      display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;
+      font-size:10px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;
+    }
+    .pedido-chat-estado.aberto { background:rgba(16,185,129,.1);color:#047857; }
+    .pedido-chat-estado.fechado { background:#f3f4f6;color:#6b7280; }
+    .reuniao-item {
+      padding:16px;background:linear-gradient(180deg,#ffffff,#fafbfc);
+      border:1px solid rgba(15,23,42,.08);border-radius:18px;
+    }
+    .reuniao-topo { display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px; }
+    .reuniao-titulo { font-size:14px;font-weight:800;color:#111827;line-height:1.35; }
+    .reuniao-badge {
+      font-size:10px;font-weight:800;padding:4px 8px;border-radius:999px;
+      background:#eef2ff;color:#4338ca;white-space:nowrap;
+    }
+    .reuniao-meta { font-size:12px;color:var(--txt-3);margin-bottom:8px; }
+    .reuniao-assunto { font-size:13px;color:var(--txt);line-height:1.5; }
+    .reuniao-extra { margin-top:10px;padding:10px 12px;border-radius:12px;font-size:12px;line-height:1.5; }
+    .reuniao-extra.ok { background:#ecfdf5;color:#047857;border:1px solid #a7f3d0; }
+    .reuniao-extra.warn { background:#fef2f2;color:#b91c1c;border:1px solid #fecaca; }
 
     /* Portal refresh */
     #ecra-portal.activo {
@@ -1067,6 +1203,8 @@
     }
     .portal-hero-card,
     .portal-section-intro,
+    .home-action-card,
+    .portal-docs-panel,
     .kpi-total-card,
     .kpi-mini,
     .desk-kpi-card,
@@ -1120,6 +1258,28 @@
       text-transform: uppercase;
       margin-bottom: 12px;
     }
+    .portal-home-actions {
+      margin-bottom: 18px;
+      gap: 14px;
+    }
+    .home-action-card {
+      border-radius: 22px;
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(249,251,250,.96));
+      box-shadow: 0 10px 22px rgba(15, 23, 42, .05);
+    }
+    .home-action-card.primary {
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,.16), transparent 28%),
+        linear-gradient(145deg, #0c5f47 0%, #0a4f3d 55%, #093b31 100%);
+    }
+    .portal-docs-panel {
+      border-radius: 24px;
+      padding: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(250,252,251,.98));
+    }
+    .portal-panel-title { font-size: 18px; }
+    .portal-panel-sub { color: #58706a; }
     .portal-hero-title,
     .aba-titulo-pg,
     .pedir-titulo,
@@ -1554,15 +1714,18 @@
     }
 
     @media (max-width: 419px) {
+      .portal-home-actions {
+        grid-template-columns: 1fr;
+      }
       .tipo-grid {
         grid-template-columns: 1fr;
       }
       .portal-header-actions {
         gap: 8px;
       }
-      .ph-sair-btn {
-        padding-left: 12px;
-        padding-right: 12px;
+      .bn-btn-destaque .bn-icon-wrap {
+        width: 50px;
+        height: 50px;
       }
       .bottom-nav {
         width: calc(100% - 12px);
@@ -2009,18 +2172,18 @@
         <span class="material-symbols-outlined">home</span> Início
       </button>
       <button class="ds-nav-btn" id="dsn-docs" onclick="navegarAba('aba-meus-docs',this)">
-        <span class="material-symbols-outlined">description</span> Os meus documentos
+        <span class="material-symbols-outlined">description</span> Documentos
         <span class="ds-nav-badge" id="ds-badge-pendentes">0</span>
       </button>
       <div class="ds-nav-grupo">Acções</div>
       <button class="ds-nav-btn" id="dsn-pedir" onclick="navegarAba('aba-solicitar',this)">
-        <span class="material-symbols-outlined">add_circle</span> Pedir documento
+        <span class="material-symbols-outlined">add_circle</span> Novo pedido
       </button>
       <button class="ds-nav-btn" id="dsn-secretaria" onclick="navegarAba('aba-secretaria',this)">
         <span class="material-symbols-outlined">support_agent</span> Secretaria
       </button>
       <button class="ds-nav-btn" id="dsn-perfil" onclick="navegarAba('aba-perfil',this)">
-        <span class="material-symbols-outlined">person</span> O meu perfil
+        <span class="material-symbols-outlined">person</span> Perfil
       </button>
     </nav>
     <div class="ds-rodape">
@@ -2063,7 +2226,6 @@
           <span class="sino-badge" id="ph-sino-badge"></span>
         </button>
         <div class="ph-avatar" id="pt-avatar" onclick="navegarAba('aba-perfil')">?</div>
-        <button class="ph-sair-btn" onclick="fazerLogoutFuncionario()">Sair</button>
       </div>
     </div>
     <div class="portal-header-hero">
@@ -2091,8 +2253,43 @@
     <div id="aba-docs" class="aba-portal activa">
       <div class="portal-hero-card">
         <div class="portal-section-kicker">Painel do Funcionário</div>
-        <div class="portal-hero-title">Tudo o que precisa para acompanhar os seus pedidos num só lugar.</div>
-        <div class="portal-section-sub">Veja o estado das solicitações, abra documentos emitidos e avance para novas requisições sem se perder no sistema.</div>
+        <div class="portal-hero-head">
+          <div class="portal-hero-copy">
+            <div class="portal-hero-title">Acompanhe pedidos, veja respostas e avance sem se perder no sistema.</div>
+            <div class="portal-section-sub">Esta área mostra o essencial do seu dia: atividade recente, estados dos pedidos e atalhos para as ações mais importantes.</div>
+          </div>
+          <div class="portal-hero-actions">
+            <button class="portal-hero-btn portal-hero-btn-prim" onclick="navegarAba('aba-solicitar')">
+              <span class="material-symbols-outlined">add_circle</span>
+              Novo pedido
+            </button>
+            <button class="portal-hero-btn portal-hero-btn-sec" onclick="navegarAba('aba-meus-docs')">
+              <span class="material-symbols-outlined">folder_open</span>
+              Ver documentos
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="portal-home-actions">
+        <button class="home-action-card primary" onclick="navegarAba('aba-solicitar')">
+          <div class="home-action-icon"><span class="material-symbols-outlined">edit_document</span></div>
+          <div class="home-action-eyebrow">Ação principal</div>
+          <div class="home-action-title">Criar um novo pedido</div>
+          <div class="home-action-desc">Escolha o documento, preencha os dados e acompanhe a resposta em tempo real.</div>
+        </button>
+        <button class="home-action-card" onclick="navegarAba('aba-secretaria')">
+          <div class="home-action-icon"><span class="material-symbols-outlined">forum</span></div>
+          <div class="home-action-eyebrow">Apoio</div>
+          <div class="home-action-title">Falar com a secretaria</div>
+          <div class="home-action-desc">Envie mensagens e acompanhe conversas sem sair do portal.</div>
+        </button>
+        <button class="home-action-card" onclick="navegarAba('aba-perfil')">
+          <div class="home-action-icon"><span class="material-symbols-outlined">person_edit</span></div>
+          <div class="home-action-eyebrow">Perfil</div>
+          <div class="home-action-title">Atualizar os seus dados</div>
+          <div class="home-action-desc">Mantenha o perfil e os contactos corretos para evitar atrasos nos pedidos.</div>
+        </button>
       </div>
 
       <!-- KPIs mobile (escondidos no desktop) -->
@@ -2130,11 +2327,16 @@
         </div>
       </div>
 
-      <!-- Documentos recentes (desktop: secção com título; mobile: usa lista-docs) -->
-      <div class="desk-docs-section">
-        <div class="desk-sec-titulo">
-          Documentos e solicitações
-          <span class="desk-sec-badge" id="dk-total-badge">—</span>
+      <div class="portal-docs-panel">
+        <div class="portal-panel-head">
+          <div class="portal-panel-title-wrap">
+            <div class="portal-panel-title">Atividade recente</div>
+            <div class="portal-panel-sub">Veja os pedidos e documentos mais recentes. Para consultar o histórico completo, abra a área de documentos.</div>
+          </div>
+          <div class="portal-panel-actions">
+            <span class="portal-panel-badge" id="home-activity-badge">—</span>
+            <button class="link-inline-btn" onclick="navegarAba('aba-meus-docs')">Ver tudo</button>
+          </div>
         </div>
         <div id="lista-docs-portal">
           <div class="vazio-portal"><div class="vi">⏳</div><p>A carregar os seus documentos…</p></div>
@@ -2155,7 +2357,7 @@
             <button class="perfil-card-btn" onclick="navegarAba('aba-perfil')" title="Ver perfil" aria-label="Ver perfil completo">
               <span class="material-symbols-outlined">badge</span>
             </button>
-            <button class="perfil-card-btn" onclick="navegarAba('aba-solicitar')" title="Pedir documento" aria-label="Pedir documento">
+            <button class="perfil-card-btn" onclick="navegarAba('aba-solicitar')" title="Novo pedido" aria-label="Criar novo pedido">
               <span class="material-symbols-outlined">add_circle</span>
             </button>
           </div>
@@ -2191,11 +2393,22 @@
     <div id="aba-meus-docs" class="aba-portal">
       <div class="portal-section-intro">
         <div class="portal-section-kicker">Arquivo Pessoal</div>
-        <div class="aba-titulo-pg">Os meus documentos</div>
-        <div class="portal-section-sub">Consulte aqui todos os pedidos, guias e documentos já emitidos, com acesso rápido às versões disponíveis.</div>
+        <div class="aba-titulo-pg">Documentos</div>
+        <div class="portal-section-sub">Consulte aqui o histórico completo dos seus pedidos, guias e documentos emitidos, com acesso rápido às versões disponíveis.</div>
       </div>
-      <div id="lista-docs-meus">
-        <div class="vazio-portal"><div class="vi">⏳</div><p>A carregar…</p></div>
+      <div class="portal-docs-panel">
+        <div class="portal-panel-head">
+          <div class="portal-panel-title-wrap">
+            <div class="portal-panel-title">Arquivo completo</div>
+            <div class="portal-panel-sub">Todos os registos ficam concentrados aqui para pesquisa e consulta detalhada.</div>
+          </div>
+          <div class="portal-panel-actions">
+            <span class="portal-panel-badge" id="docs-total-badge">—</span>
+          </div>
+        </div>
+        <div id="lista-docs-meus">
+          <div class="vazio-portal"><div class="vi">⏳</div><p>A carregar…</p></div>
+        </div>
       </div>
     </div>
 
@@ -2204,8 +2417,8 @@
       <div>
         <div class="portal-section-intro">
           <div class="portal-section-kicker">Nova Solicitação</div>
-          <div class="pedir-titulo">Pedir documento</div>
-          <div class="pedir-sub">Escolha o tipo de documento e envie a solicitação em poucos passos. O RH recebe, trata e actualiza o estado em tempo real.</div>
+          <div class="pedir-titulo">Novo pedido</div>
+          <div class="pedir-sub">Escolha o tipo de documento e envie a solicitação em poucos passos. O RH recebe, trata e atualiza o estado em tempo real.</div>
         </div>
         <div class="tipo-grid" id="tipos-doc-grid">
           <div class="tipo-card" onclick="seleccionarTipo('guia-ferias',this)">
@@ -2295,9 +2508,9 @@
         </div>
         <div class="perfil-edit-sec" style="margin-top:12px">
           <div class="perfil-edit-titulo">⚙️ Edição rápida</div>
-          <a href="formulario.html" style="display:flex;align-items:center;justify-content:center;gap:10px;background:var(--primary);color:white;border-radius:12px;padding:14px;font-size:14px;font-weight:700;text-decoration:none;margin-bottom:12px">
-            <span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:'FILL' 1">edit_document</span>
-            Completar / Actualizar Formulário
+          <a href="formulario.html" class="perfil-link-principal">
+            <span class="material-symbols-outlined">edit_document</span>
+            Completar ou atualizar formulário
           </a>
           <div class="campo-g">
             <label>Telefone de contacto</label>
@@ -2313,7 +2526,10 @@
             <div class="campo-err-msg" aria-live="polite" id="erro-tel-edit"></div>
             <div class="campo-ok-msg"  aria-live="polite" id="ok-tel-edit"></div>
           </div>
-          <button class="btn btn-prim btn-full" onclick="guardarPerfil()">💾 Guardar alterações</button>
+          <div class="perfil-edit-acoes">
+            <button class="btn btn-prim btn-full" onclick="guardarPerfil()">Guardar alterações</button>
+            <button class="btn btn-sec btn-full" onclick="fazerLogoutFuncionario()">Terminar sessão</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2330,22 +2546,25 @@
     <!-- Sub-tabs -->
     <div class="subtabs-barra">
       <button class="subtab-sec activo" id="subtab-pedidos" onclick="trocarSubtabSec('pedidos',this)">
-        ✉️ Contactar Secretaria
+        Mensagens
       </button>
       <button class="subtab-sec" id="subtab-reuniao" onclick="trocarSubtabSec('reuniao',this)">
-        📅 Agendar Reunião
+        Reuniões
       </button>
     </div>
 
     <!-- Painel Pedidos -->
     <div id="sec-painel-pedidos">
-      <div id="sec-lista-pedidos" style="margin-bottom:16px">
+      <div id="sec-lista-pedidos" class="secretaria-lista">
         <!-- preenchido por JS -->
       </div>
       <!-- Formulário novo pedido -->
-      <div id="form-novo-pedido" class="portal-inline-card" style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px">
-        <div style="font-size:14px;font-weight:700;margin-bottom:12px">✉️ Nova Conversa com a Secretaria</div>
-        <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Assunto</label>
+      <div id="form-novo-pedido" class="portal-inline-card">
+        <div class="secretaria-form-head">
+          <div class="secretaria-form-title">Nova mensagem</div>
+          <div class="secretaria-form-sub">Abra uma conversa com a secretaria e descreva claramente o seu pedido para acelerar o atendimento.</div>
+        </div>
+        <label class="secretaria-label" for="sec-assunto">Assunto</label>
         <select id="sec-assunto" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
           <option value="">Seleccione o assunto…</option>
           <option value="ferias-licencas">Férias e Licenças</option>
@@ -2355,21 +2574,28 @@
           <option value="escalas">Escalas de Serviço</option>
           <option value="outro">Outro</option>
         </select>
-        <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Primeira mensagem <span id="sec-contador">0</span>/500</label>
+        <div class="secretaria-label-row">
+          <label class="secretaria-label" for="sec-mensagem">Mensagem</label>
+          <span class="secretaria-counter"><span id="sec-contador">0</span>/500</span>
+        </div>
         <textarea id="sec-mensagem" maxlength="500" oninput="document.getElementById('sec-contador').textContent=this.value.length" placeholder="Descreva o seu pedido…" style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid #d1d5db;background:#ffffff;color:#111827;font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px"></textarea>
-        <div id="sec-msg-pedido" style="margin-bottom:8px"></div>
-        <button onclick="enviarPedidoPortal()" id="btn-enviar-pedido" style="width:100%;padding:12px;border-radius:8px;background:#4f46e5;color:white;border:none;font-size:14px;font-weight:700;cursor:pointer">✉️ Iniciar conversa</button>
+        <div class="secretaria-help">Explique o contexto e, se necessário, indique o número de agente ou o documento relacionado.</div>
+        <div id="sec-msg-pedido" class="secretaria-feedback"></div>
+        <button onclick="enviarPedidoPortal()" id="btn-enviar-pedido" class="btn btn-prim btn-full">Enviar mensagem</button>
       </div>
     </div>
 
     <!-- Painel Reunião -->
     <div id="sec-painel-reuniao" style="display:none">
-      <div id="sec-lista-reunioes" style="margin-bottom:16px">
+      <div id="sec-lista-reunioes" class="secretaria-lista">
         <!-- preenchido por JS -->
       </div>
-      <div class="portal-inline-card" style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px">
-        <div style="font-size:14px;font-weight:700;margin-bottom:12px">📅 Solicitar Reunião</div>
-        <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Com quem</label>
+      <div class="portal-inline-card">
+        <div class="secretaria-form-head">
+          <div class="secretaria-form-title">Solicitar reunião</div>
+          <div class="secretaria-form-sub">Indique o destinatário, o tema e a melhor data para facilitar a marcação.</div>
+        </div>
+        <label class="secretaria-label" for="sec-reuniao-dest">Destinatário</label>
         <select id="sec-reuniao-dest" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
           <option value="">Seleccione…</option>
           <option value="director">Director Municipal de Saúde</option>
@@ -2378,18 +2604,19 @@
           <option value="chefe-is">Chefe da Secção de Inspecção Sanitária</option>
           <option value="chefe-lhm">Chefe da Secção de Logística Hospitalar e Medicamentos</option>
         </select>
-        <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Assunto da reunião</label>
+        <label class="secretaria-label" for="sec-reuniao-assunto">Assunto</label>
         <textarea id="sec-reuniao-assunto" maxlength="300" placeholder="Descreva brevemente o assunto…" style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid var(--border);background:#ffffff;color:#111827;font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px;border:1px solid #d1d5db"></textarea>
-        <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Data preferida</label>
+        <label class="secretaria-label" for="sec-reuniao-data">Data preferida</label>
         <input type="date" id="sec-reuniao-data" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box" />
-        <label style="font-size:12px;font-weight:700;color:#4b5563;display:block;margin-bottom:6px">Período preferido</label>
+        <label class="secretaria-label" for="sec-reuniao-periodo">Período</label>
         <select id="sec-reuniao-periodo" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
           <option value="manha">Manhã (08h–12h)</option>
           <option value="tarde">Tarde (13h30–15h)</option>
           <option value="indiferente">Indiferente</option>
         </select>
-        <div id="sec-msg-reuniao" style="margin-bottom:8px"></div>
-        <button onclick="enviarPedidoReuniaoPortal()" id="btn-enviar-reuniao" style="width:100%;padding:12px;background:#4f46e5;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">📅 Solicitar reunião</button>
+        <div class="secretaria-help">Se houver urgência ou um período menos flexível, mencione isso no assunto.</div>
+        <div id="sec-msg-reuniao" class="secretaria-feedback"></div>
+        <button onclick="enviarPedidoReuniaoPortal()" id="btn-enviar-reuniao" class="btn btn-prim btn-full">Enviar pedido</button>
       </div>
     </div>
   </div>
@@ -2402,11 +2629,11 @@
       <span class="material-symbols-outlined">home</span><span class="bn-lbl">Início</span>
     </button>
     <button class="bn-btn" id="bn-docs" onclick="navegarAba('aba-meus-docs',this)">
-      <span class="material-symbols-outlined">description</span><span class="bn-lbl">Meus Docs</span>
+      <span class="material-symbols-outlined">description</span><span class="bn-lbl">Documentos</span>
       <span class="bn-badge" id="badge-pendentes">0</span>
     </button>
-    <button class="bn-btn" id="bn-pedir" onclick="navegarAba('aba-solicitar',this)">
-      <span class="material-symbols-outlined">add_circle</span><span class="bn-lbl">Pedir</span>
+    <button class="bn-btn bn-btn-destaque" id="bn-pedir" onclick="navegarAba('aba-solicitar',this)">
+      <span class="bn-icon-wrap"><span class="material-symbols-outlined">add</span></span><span class="bn-lbl">Novo</span>
     </button>
     <button class="bn-btn" id="bn-secretaria" onclick="navegarAba('aba-secretaria',this)">
       <span class="material-symbols-outlined">support_agent</span><span class="bn-lbl">Secretaria</span>
@@ -2461,7 +2688,59 @@
   let _sessaoToken=null,_unsubSessao=null;
 
   const LABELS_TIPO={"guia-ferias":{nome:"Guia de Férias",icone:"🏖️",bg:"#fef9e7"},"declaracao-servico":{nome:"Declaração de Serviço",icone:"📜",bg:"#eff6ff"},"guia-medica":{nome:"Guia Médica",icone:"🏥",bg:"var(--c-50)"},"oficio":{nome:"Ofício / Nota",icone:"📋",bg:"var(--p-100)"}};
-  const LABELS_ESTADO={nova:{texto:"✅ Recebida",classe:"est-nova"},processando:{texto:"🔄 Em processamento",classe:"est-processando"},concluida:{texto:"📄 Disponível",classe:"est-aprovado"},rejeitada:{texto:"🚫 Anulada",classe:"est-rejeitado"},pendente:{texto:"📤 Em validação",classe:"est-processando"},aprovado:{texto:"📄 Disponível",classe:"est-aprovado"},gerado:{texto:"📤 Em validação",classe:"est-processando"}};
+  const LABELS_ESTADO={nova:{texto:"Recebida",classe:"est-nova"},processando:{texto:"Em processamento",classe:"est-processando"},concluida:{texto:"Disponível",classe:"est-aprovado"},rejeitada:{texto:"Anulada",classe:"est-rejeitado"},pendente:{texto:"Em validação",classe:"est-processando"},aprovado:{texto:"Disponível",classe:"est-aprovado"},gerado:{texto:"Em validação",classe:"est-processando"}};
+
+  function escapeHtml(valor){
+    return String(valor ?? "")
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#39;");
+  }
+
+  function renderListaDocumentos(itens,{limit=null,tituloVazio,detalheVazio,mostrarAcao=false}={}) {
+    const lista = typeof limit === "number" ? itens.slice(0, limit) : itens;
+    if (lista.length === 0) {
+      return `<div class="vazio-portal">
+        <div class="vi">📂</div>
+        <p>${escapeHtml(tituloVazio || "Ainda não existem registos.")}</p>
+        ${detalheVazio ? `<small>${escapeHtml(detalheVazio)}</small>` : ""}
+        ${mostrarAcao ? `<button class="btn-vazio-acao" onclick="navegarAba('aba-solicitar')">Novo pedido</button>` : ""}
+      </div>`;
+    }
+    return `<div class="lista-docs">${lista.map(s => {
+      const tipo = s.tipo || s.tipoDocumento || "outro";
+      const info = LABELS_TIPO[tipo] || { nome: tipo, icone: "📄", bg: "var(--neu-50)" };
+      const estInfo = LABELS_ESTADO[s.estado || "nova"] || { texto: s.estado, classe: "est-nova" };
+      const ts = s.criadaEm?.toDate ? s.criadaEm.toDate() : (s.geradoEm?.toDate ? s.geradoEm.toDate() : null);
+      const data = ts ? ts.toLocaleDateString("pt-AO", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+      const num = s.numGuia && s.anoGuia ? ` · Nº ${escapeHtml(`${s.numGuia}/${s.anoGuia}`)}` : "";
+      const detalheCurto = tipo === "guia-medica"
+        ? (s.unidadeSanitariaFinal || s.unidadeSanitaria || "")
+        : (s.motivo || "");
+      const detalhe = detalheCurto
+        ? ` · ${escapeHtml(detalheCurto.substring(0, 50))}${detalheCurto.length > 50 ? "…" : ""}`
+        : "";
+      const isNovo = s._estadoAnterior && s._estadoAnterior !== s.estado;
+      const temArquivo = s._origem === "documento" && s.htmlArquivo &&
+        (s.estado === "aprovado" || s.estado === "concluida");
+      const btnSegVia = temArquivo
+        ? `<button class="btn-visualizar-portal" onclick="event.stopPropagation();abrirVisualizacaoPortal('${s.id}')" title="Ver documento disponível">Visualizar</button>`
+        : "";
+      return `<div class="item-doc-portal${isNovo ? " item-actualizado" : ""}" onclick="abrirDetalheDoc('${s.id}','${s._origem}')">
+        <div class="doc-ic-portal" style="background:${info.bg}">${info.icone}</div>
+        <div class="doc-info-portal">
+          <div class="doc-tipo-portal">${escapeHtml(info.nome)}${num}</div>
+          <div class="doc-meta-portal">${data}${detalhe}</div>
+        </div>
+        <div class="doc-card-actions">
+          ${btnSegVia}
+          <span class="badge-est-portal ${estInfo.classe}">${escapeHtml(estInfo.texto)}</span>
+        </div>
+      </div>`;
+    }).join("")}</div>`;
+  }
 
   function esconderLoading(){
     const el=document.getElementById("ecra-loading");
@@ -2937,20 +3216,27 @@
 
   function carregarSolicitacoes(uid, funcionarioId) {
     const div = document.getElementById("lista-docs-portal");
-    div.innerHTML = `<div class="vazio-portal"><div class="vi">⏳</div><p>A carregar…</p></div>`;
+    const docsDiv = document.getElementById("lista-docs-meus");
+    [div, docsDiv].forEach(el => {
+      if (el) el.innerHTML = `<div class="vazio-portal"><div class="vi">⏳</div><p>A carregar…</p></div>`;
+    });
 
     // Cancelar listeners anteriores se existirem
     if (_unsubSols) { _unsubSols(); _unsubSols = null; }
     if (_unsubDocs) { _unsubDocs(); _unsubDocs = null; }
 
     if (!funcionarioId) {
-      div.innerHTML = `<div class="vazio-portal"><div class="vi">📂</div><p>Ainda não tem documentos ou solicitações.</p></div>`;
+      const vazioHtml = `<div class="vazio-portal"><div class="vi">📂</div><p>Ainda não tem documentos ou solicitações.</p><small>Assim que o perfil estiver associado corretamente, os seus registos vão aparecer aqui.</small></div>`;
+      if (div) div.innerHTML = vazioHtml;
+      if (docsDiv) docsDiv.innerHTML = vazioHtml;
       return;
     }
 
     let _sols = [], _docs = [];
 
     function renderTudo() {
+      const homeEl = document.getElementById("lista-docs-portal");
+      const docsEl = document.getElementById("lista-docs-meus");
       const solicitacoesVisiveis = _sols.filter(s => {
         if (!s.documentoGeradoId) return true;
         return !_docs.some(d => d.id === s.documentoGeradoId);
@@ -2975,50 +3261,28 @@
         const el=document.getElementById(id);
         if(el) el.textContent=[total,aprov,pend][i];
       });
-      const dkBadge=document.getElementById("dk-total-badge");
-      if(dkBadge) dkBadge.textContent=total;
+      const homeBadge=document.getElementById("home-activity-badge");
+      if(homeBadge) homeBadge.textContent=total===0 ? "Sem registos" : `${Math.min(total,4)} recentes`;
+      const docsBadge=document.getElementById("docs-total-badge");
+      if(docsBadge) docsBadge.textContent=total===1 ? "1 registo" : `${total} registos`;
       // badge sidebar
       const dsBadge=document.getElementById("ds-badge-pendentes");
       if(dsBadge){ dsBadge.textContent=pend; dsBadge.classList.toggle("visivel",pend>0); }
       const bp = document.getElementById("badge-pendentes");
       if (pend > 0) { bp.textContent = pend; bp.style.display = "inline"; } else bp.style.display = "none";
 
-      if (total === 0) {
-        div.innerHTML = `<div class="vazio-portal"><div class="vi">📂</div><p>Ainda não tem documentos ou solicitações.</p><small>Clique em "Pedir documento" para o seu primeiro pedido.</small></div>`;
-        return;
-      }
       window._minhasSolicitacoes = todos;
-      div.innerHTML = `<div class="lista-docs">${todos.map(s => {
-        const tipo    = s.tipo || s.tipoDocumento || "outro";
-        const info    = LABELS_TIPO[tipo] || { nome: tipo, icone: "📄", bg: "var(--neu-50)" };
-        const estInfo = LABELS_ESTADO[s.estado || "nova"] || { texto: s.estado, classe: "est-nova" };
-        const ts      = s.criadaEm?.toDate ? s.criadaEm.toDate() : (s.geradoEm?.toDate ? s.geradoEm.toDate() : null);
-        const data    = ts ? ts.toLocaleDateString("pt-AO", { day: "2-digit", month: "short", year: "numeric" }) : "—";
-        const num     = s.numGuia && s.anoGuia ? ` · Nº ${s.numGuia}/${s.anoGuia}` : "";
-        const detalheCurto = tipo === "guia-medica"
-          ? (s.unidadeSanitariaFinal || s.unidadeSanitaria || "")
-          : (s.motivo || "");
-        // Mostrar animação de novo se mudou de estado recentemente
-        const isNovo  = s._estadoAnterior && s._estadoAnterior !== s.estado;
-        // Botão segunda via — só para documentos aprovados com arquivo
-        const temArquivo = s._origem === "documento" && s.htmlArquivo &&
-          (s.estado === "aprovado" || s.estado === "concluida");
-        const btnSegVia = temArquivo
-          ? `<button class="btn-visualizar-portal" onclick="event.stopPropagation();abrirVisualizacaoPortal('${s.id}')"
-               title="Ver guia concluida">Visualizar</button>`
-          : "";
-        return `<div class="item-doc-portal${isNovo ? ' item-actualizado' : ''}" onclick="abrirDetalheDoc('${s.id}','${s._origem}')">
-          <div class="doc-ic-portal" style="background:${info.bg}">${info.icone}</div>
-          <div class="doc-info-portal">
-            <div class="doc-tipo-portal">${info.nome}${num}</div>
-            <div class="doc-meta-portal">${data}${detalheCurto ? ' · ' + detalheCurto.substring(0, 50) + (detalheCurto.length > 50 ? '…' : '') : ''}</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-            ${btnSegVia}
-            <span class="badge-est-portal ${estInfo.classe}">${estInfo.texto}</span>
-          </div>
-        </div>`;
-      }).join("")}</div>`;
+      if(homeEl) homeEl.innerHTML = renderListaDocumentos(todos,{
+        limit:4,
+        tituloVazio:"Sem atividade recente.",
+        detalheVazio:"Crie o seu primeiro pedido para começar a acompanhar o histórico aqui.",
+        mostrarAcao:true
+      });
+      if(docsEl) docsEl.innerHTML = renderListaDocumentos(todos,{
+        tituloVazio:"Ainda não tem documentos.",
+        detalheVazio:"Quando enviar o primeiro pedido, o histórico completo ficará disponível nesta área.",
+        mostrarAcao:true
+      });
     }
 
     // Listener em solicitações
@@ -3044,7 +3308,12 @@
         _sols = novas;
         renderTudo();
       },
-      err => { console.error(err); div.innerHTML = `<div class="vazio-portal"><div class="vi">⚠️</div><p>Erro ao carregar. Verifique a ligação.</p></div>`; }
+      err => {
+        console.error(err);
+        const erroHtml = `<div class="vazio-portal"><div class="vi">⚠️</div><p>Não foi possível carregar os registos.</p><small>Verifique a ligação e tente novamente.</small></div>`;
+        if (div) div.innerHTML = erroHtml;
+        if (docsDiv) docsDiv.innerHTML = erroHtml;
+      }
     );
 
     // Listener em documentos gerados
@@ -3279,13 +3548,13 @@
     
     try{
       const dataInicio=_tipoSel==="guia-ferias"?document.getElementById("sol-data-inicio").value:"";
-      if(_tipoSel==="guia-ferias"&&!dataInicio){msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>data de início das férias</strong>.</div>`;btn.disabled=false;btn.innerHTML="📤 Enviar solicitação";return;}
+      if(_tipoSel==="guia-ferias"&&!dataInicio){msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>data de início das férias</strong>.</div>`;btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">send</span> Enviar solicitação';return;}
       
       // ✅ Validação para Guia Médica — unidade sanitária obrigatória
       if(_tipoSel==="guia-medica"&&!motivo){
         msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>unidade sanitária</strong> onde vai fazer a consulta.</div>`;
         btn.disabled=false;
-        btn.innerHTML="📤 Enviar solicitação";
+        btn.innerHTML='<span class="material-symbols-outlined">send</span> Enviar solicitação';
         return;
       }
 
@@ -3307,7 +3576,7 @@
             ⚠️ <strong>Já tem um pedido activo de ${nomeTipo}.</strong><br>
             Aguarde o processamento do pedido existente antes de submeter um novo.
           </div>`;
-          btn.disabled=false; btn.innerHTML="📤 Enviar solicitação";
+          btn.disabled=false; btn.innerHTML='<span class="material-symbols-outlined">send</span> Enviar solicitação';
           return;
         }
       }
@@ -3342,8 +3611,8 @@
       
       await addDoc(collection(db,"solicitacoes"), dadosSolicitacao);
       
-      msg.innerHTML=`<div class="alerta alerta-sucesso">✅ <strong>Solicitação enviada!</strong> A Secção de RH irá processar o seu pedido brevemente. Pode acompanhar na aba "Os meus documentos".</div>`;
-      btn.innerHTML="📤 Enviar solicitação"; btn.disabled=false;
+      msg.innerHTML=`<div class="alerta alerta-sucesso">✅ <strong>Solicitação enviada!</strong> A Secção de RH irá processar o seu pedido brevemente. Pode acompanhar o andamento na área "Documentos".</div>`;
+      btn.innerHTML='<span class="material-symbols-outlined">send</span> Enviar solicitação'; btn.disabled=false;
       _tipoSel=null;
       document.querySelectorAll(".tipo-card").forEach(c=>c.classList.remove("seleccionado"));
       document.getElementById("form-solicitacao-extra").style.display="none";
@@ -3354,7 +3623,7 @@
       let m="Erro ao enviar. Verifique a ligação e tente novamente.";
       if(e.code==="permission-denied")m="Sem permissão. Feche a sessão, entre novamente e tente outra vez.";
       msg.innerHTML=`<div class="alerta alerta-erro">❌ ${m}</div>`;
-      btn.disabled=false; btn.innerHTML="📤 Enviar solicitação";
+      btn.disabled=false; btn.innerHTML='<span class="material-symbols-outlined">send</span> Enviar solicitação';
     }
   };
 
@@ -3834,30 +4103,6 @@
     const aba = document.getElementById(abaId);
     if (aba) aba.classList.add("activa");
     // mobile bottom-nav
-    const mapaM = { "aba-docs":"bn-inicio", "aba-meus-docs":"bn-docs", "aba-solicitar":"bn-pedir", "aba-perfil":"bn-perfil" };
-    document.querySelectorAll(".bn-btn").forEach(b => b.classList.remove("activo"));
-    const mid = mapaM[abaId];
-    if (mid) document.getElementById(mid)?.classList.add("activo");
-    // desktop sidebar
-    const mapaD = { "aba-docs":"dsn-inicio", "aba-meus-docs":"dsn-docs", "aba-solicitar":"dsn-pedir", "aba-perfil":"dsn-perfil" };
-    document.querySelectorAll(".ds-nav-btn").forEach(b => b.classList.remove("activo"));
-    const did = mapaD[abaId];
-    if (did) document.getElementById(did)?.classList.add("activo");
-    // sincronizar lista-docs-meus (aba separada no desktop)
-    if (abaId === "aba-meus-docs") {
-      const src = document.getElementById("lista-docs-portal");
-      const dst = document.getElementById("lista-docs-meus");
-      if (src && dst) dst.innerHTML = src.innerHTML;
-    }
-    const main = document.querySelector(".portal-abas-content");
-    if (main) main.scrollTo({ top: 0, behavior: "smooth" });
-  };
-  // ── Navegação (mobile bottom-nav + desktop sidebar) ──
-  window.navegarAba = function(abaId) {
-    document.querySelectorAll(".aba-portal").forEach(a => a.classList.remove("activa"));
-    const aba = document.getElementById(abaId);
-    if (aba) aba.classList.add("activa");
-    // mobile bottom-nav
     const mapaM = { "aba-docs":"bn-inicio", "aba-meus-docs":"bn-docs", "aba-solicitar":"bn-pedir", "aba-secretaria":"bn-secretaria", "aba-perfil":"bn-perfil" };
     document.querySelectorAll(".bn-btn").forEach(b => b.classList.remove("activo"));
     const mid = mapaM[abaId];
@@ -3867,12 +4112,6 @@
     document.querySelectorAll(".ds-nav-btn").forEach(b => b.classList.remove("activo"));
     const did = mapaD[abaId];
     if (did) document.getElementById(did)?.classList.add("activo");
-    // sincronizar lista-docs-meus (aba separada no desktop)
-    if (abaId === "aba-meus-docs") {
-      const src = document.getElementById("lista-docs-portal");
-      const dst = document.getElementById("lista-docs-meus");
-      if (src && dst) dst.innerHTML = src.innerHTML;
-    }
     // carregar secretaria ao entrar na aba
     if (abaId === "aba-secretaria") carregarPedidosPortal();
     const main = document.querySelector(".portal-abas-content");
@@ -3885,17 +4124,17 @@
   // ══════════════════════════════════════════════════════════
 
   const LABELS_PEDIDO = {
-    novo:       '🔵 Novo',
-    em_analise: '🟡 Em análise',
-    respondido: '🟢 Respondido',
-    fechado:    '⚫ Fechado'
+    novo:       'Novo',
+    em_analise: 'Em análise',
+    respondido: 'Respondido',
+    fechado:    'Fechado'
   };
   const LABELS_REUNIAO_P = {
-    pendente:   '⏳ Pendente',
-    confirmada: '✅ Confirmada',
-    recusada:   '❌ Recusada',
-    remarcada:  '🔄 Remarcada',
-    realizada:  '✔ Realizada'
+    pendente:   'Pendente',
+    confirmada: 'Confirmada',
+    recusada:   'Recusada',
+    remarcada:  'Remarcada',
+    realizada:  'Realizada'
   };
   const ASSUNTOS_LABEL = {
     'ferias-licencas':'Férias e Licenças','abonos-salarios':'Abonos e Salários',
@@ -3930,7 +4169,7 @@
         where('funcionarioUid','==',_utilizador.uid)
       ));
       if (snap.empty) {
-        el.innerHTML = '<div style="text-align:center;padding:28px;opacity:.5;font-size:13px">Sem conversas ainda.</div>';
+        el.innerHTML = '<div class="secretaria-empty">Ainda não tem mensagens com a secretaria. Use o formulário abaixo para iniciar a primeira conversa.</div>';
         return;
       }
       const docs = snap.docs.map(d=>({id:d.id,...d.data()}))
@@ -3957,39 +4196,38 @@
           ? (p.ultimaMensagemEm || p.criadoEm).toDate()
               .toLocaleTimeString('pt-AO',{hour:'2-digit',minute:'2-digit'})
           : '';
+        const data = (p.ultimaMensagemEm || p.criadoEm)?.toDate
+          ? (p.ultimaMensagemEm || p.criadoEm).toDate()
+              .toLocaleDateString('pt-AO',{day:'2-digit',month:'short'})
+          : '';
         const novas = p.naoLidasFuncionario || 0;
+        const assuntoSeguro = escapeHtml(assunto);
+        const previewSeguro = escapeHtml(`${previewAutor}${previewTxt}`);
 
-        return `<div onclick="abrirChatPortal('${p.id}')"
-          style="display:flex;gap:12px;align-items:center;padding:13px 14px;
-                 background:#f8fafc;border:1px solid ${novas>0?'#6366f1':'#e5e7eb'};
-                 border-radius:12px;margin-bottom:10px;cursor:pointer;transition:background .12s"
-          onmouseover="this.style.background='#f1f5f9'"
-          onmouseout="this.style.background='#f8fafc'">
-          <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#818cf8);
-                      display:flex;align-items:center;justify-content:center;color:#fff;
-                      font-size:16px;font-weight:800;flex-shrink:0">
-            ${(assunto[0]||'?').toUpperCase()}
+        return `<div class="pedido-chat-item${novas>0 ? ' tem-nova' : ''}" onclick="abrirChatPortal('${p.id}')">
+          <div class="pedido-chat-topo">
+            <div>
+              <div class="pedido-chat-assunto">${assuntoSeguro}</div>
+              <div class="pedido-chat-preview">${previewSeguro}</div>
+            </div>
+            <div class="pedido-chat-hora">${escapeHtml(hora)}</div>
           </div>
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-              <span style="font-size:13px;font-weight:700;color:#111">${assunto}</span>
-              <span style="font-size:11px;color:#9ca3af;flex-shrink:0">${hora}</span>
+          <div class="pedido-chat-rodape">
+            <div class="pedido-chat-meta">
+              <span class="pedido-chat-badge">${escapeHtml(LABELS_PEDIDO[p.estado] || p.estado || 'Conversa')}</span>
+              <span class="pedido-chat-estado ${aberto ? 'aberto' : 'fechado'}">${aberto ? 'Aberta' : 'Encerrada'}</span>
+              <span class="pedido-chat-data">${escapeHtml(data)}</span>
             </div>
-            <div style="font-size:12px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-              ${previewAutor}${previewTxt}
-            </div>
-            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
-              ${novas > 0
-                ? `<span style="background:#6366f1;color:#fff;font-size:10px;font-weight:800;padding:1px 7px;border-radius:99px">${novas} nova${novas>1?'s':''}</span>`
-                : ''}
-              <span style="font-size:10px;font-weight:700;color:${aberto?'#059669':'#9ca3af'}">
-                ${aberto ? '● Aberta' : '○ Encerrada'}
-              </span>
-            </div>
+            ${novas > 0
+              ? `<span class="pedido-chat-nova-badge">${novas} nova${novas>1?'s':''}</span>`
+              : ''}
           </div>
         </div>`;
       }).join('');
-    } catch(e) { console.error(e); }
+    } catch(e) {
+      console.error(e);
+      el.innerHTML = '<div class="secretaria-empty">Não foi possível carregar as mensagens neste momento. Tente novamente dentro de instantes.</div>';
+    }
   }
 
 
@@ -3999,7 +4237,10 @@
     if (!el) return;
     try {
       const snap = await getDocs(query(collection(db,'reunioes'), where('funcionarioUid','==',_utilizador.uid)));
-      if (snap.empty) { el.innerHTML = ''; return; }
+      if (snap.empty) {
+        el.innerHTML = '<div class="secretaria-empty">Ainda não tem pedidos de reunião. Quando enviar o primeiro, o acompanhamento ficará disponível aqui.</div>';
+        return;
+      }
       const docs = snap.docs.map(d=>({id:d.id,...d.data()}))
         .sort((a,b)=>(b.criadoEm?.toDate?.()?.getTime()||0)-(a.criadoEm?.toDate?.()?.getTime()||0));
       el.innerHTML = docs.map(r => {
@@ -4007,20 +4248,23 @@
         const data = r.criadoEm?.toDate ? r.criadoEm.toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}) : '—';
         const badge = LABELS_REUNIAO_P[r.estado]||r.estado;
         const extra = r.estado==='confirmada' && r.dataSugerida
-          ? `<div style="margin-top:6px;font-size:12px;color:#34d399">📅 ${new Date(r.dataSugerida).toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})} · ${r.local||'—'}</div>` : '';
+          ? `<div class="reuniao-extra ok">Data sugerida: ${escapeHtml(new Date(r.dataSugerida).toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}))} · ${escapeHtml(r.local||'—')}</div>` : '';
         const motivo = r.estado==='recusada' && r.motivoRecusa
-          ? `<div style="margin-top:6px;font-size:12px;color:#f87171">❌ ${r.motivoRecusa}</div>` : '';
-        return `<div style="padding:14px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;margin-bottom:10px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <span style="font-size:13px;font-weight:700">🎯 ${dest}</span>
-            <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.08)">${badge}</span>
+          ? `<div class="reuniao-extra warn">Motivo da recusa: ${escapeHtml(r.motivoRecusa)}</div>` : '';
+        return `<div class="reuniao-item">
+          <div class="reuniao-topo">
+            <div class="reuniao-titulo">${escapeHtml(dest)}</div>
+            <span class="reuniao-badge">${escapeHtml(badge)}</span>
           </div>
-          <div style="font-size:12px;color:var(--txt-3,#6b7280);margin-bottom:6px">${data}</div>
-          <div style="font-size:13px">${(r.assunto||'').substring(0,100)}</div>
+          <div class="reuniao-meta">Pedido enviado em ${escapeHtml(data)}</div>
+          <div class="reuniao-assunto">${escapeHtml((r.assunto||'').substring(0,100))}</div>
           ${extra}${motivo}
         </div>`;
       }).join('');
-    } catch(e) { console.error(e); }
+    } catch(e) {
+      console.error(e);
+      el.innerHTML = '<div class="secretaria-empty">Não foi possível carregar os pedidos de reunião neste momento. Tente novamente dentro de instantes.</div>';
+    }
   }
 
   // ─── CHAT DE PEDIDOS ─────────────────────────────────────
@@ -4156,7 +4400,7 @@
     const btn      = document.getElementById('btn-enviar-pedido');
     if (!assunto) { msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Seleccione o assunto.</span>'; return; }
     if (!mensagem){ msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Escreva a mensagem.</span>'; return; }
-    btn.disabled = true; btn.textContent = '⏳ A enviar…';
+    btn.disabled = true; btn.textContent = 'A enviar…';
     try {
       const novoId = await addDoc(collection(db,'pedidos_secretaria'), {
         funcionarioUid:    _utilizador.uid,
@@ -4175,14 +4419,14 @@
       document.getElementById('sec-assunto').value = '';
       document.getElementById('sec-mensagem').value = '';
       document.getElementById('sec-contador').textContent = '0';
-      btn.disabled = false; btn.textContent = '✉️ Iniciar conversa';
+      btn.disabled = false; btn.textContent = 'Enviar mensagem';
       msgEl.innerHTML = '';
       // Abrir o chat directamente
       setTimeout(()=>abrirChatPortal(novoId.id), 300);
     } catch(e) {
       console.error(e);
       msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">❌ Erro ao enviar. Tente novamente.</span>';
-      btn.disabled = false; btn.textContent = '✉️ Iniciar conversa';
+      btn.disabled = false; btn.textContent = 'Enviar mensagem';
     }
   };
 
@@ -4197,7 +4441,7 @@
     if (!assunto){ msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Escreva o assunto.</span>'; return; }
     if (!data)   { msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Indique a data preferida.</span>'; return; }
     if (new Date(data) < new Date()) { msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ A data não pode ser no passado.</span>'; return; }
-    btn.disabled = true; btn.textContent = '⏳ A enviar…';
+    btn.disabled = true; btn.textContent = 'A enviar…';
     const DEST_NOMES = {
       'director':   'Director Municipal de Saúde',
       'chefe-sperh':'Chefe da Secção de Planeamento, Estatística e RH',
@@ -4223,16 +4467,16 @@
         motivoRecusa:      '',
         observacoes:       ''
       });
-      msgEl.innerHTML = '<span style="color:#34d399;font-size:12px">✅ Pedido de reunião enviado!</span>';
+      msgEl.innerHTML = '<span style="color:#34d399;font-size:12px">✅ Pedido de reunião enviado com sucesso.</span>';
       document.getElementById('sec-reuniao-dest').value = '';
       document.getElementById('sec-reuniao-assunto').value = '';
       document.getElementById('sec-reuniao-data').value = '';
-      btn.disabled = false; btn.textContent = '📅 Solicitar reunião';
+      btn.disabled = false; btn.textContent = 'Enviar pedido';
       setTimeout(() => { carregarReunioesPortal(); }, 1500);
     } catch(e) {
       console.error(e);
       msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">❌ Erro ao enviar.</span>';
-      btn.disabled = false; btn.textContent = '📅 Solicitar reunião';
+      btn.disabled = false; btn.textContent = 'Enviar pedido';
     }
   };
 
