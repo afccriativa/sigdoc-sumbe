@@ -419,6 +419,83 @@
     .qa-ic{font-size:22px}
     .qa-txt{font-size:12px;font-weight:700;color:var(--txt-1);text-align:center}
 
+    /* Painel derivado: chefe de unidade */
+    .chefia-wrap{display:none;margin-bottom:18px}
+    .chefia-painel{
+      background:linear-gradient(135deg,rgba(37,99,235,.09),rgba(16,200,134,.08));
+      border:1px solid rgba(37,99,235,.14);
+    }
+    .chefia-sub{
+      font-size:12px;color:var(--txt-2);margin-top:4px;line-height:1.5;
+    }
+    .chefia-hero{
+      display:grid;grid-template-columns:minmax(0,1.6fr) minmax(160px,.7fr);
+      gap:14px;padding:18px 20px 0;
+    }
+    .chefia-box{
+      background:rgba(255,255,255,.68);
+      border:1px solid rgba(18,65,161,.08);
+      border-radius:14px;padding:16px 18px;
+      box-shadow:0 10px 30px rgba(15,23,42,.05);
+    }
+    .chefia-label{
+      font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3);
+      margin-bottom:8px;
+    }
+    .chefia-unidade-nome{
+      font-size:20px;font-weight:800;color:var(--txt-1);line-height:1.25;
+    }
+    .chefia-unidade-meta{
+      font-size:12px;color:var(--txt-2);margin-top:8px;
+    }
+    .chefia-total-num{
+      font-size:36px;font-weight:800;color:var(--pri);line-height:1;font-family:var(--mono);
+    }
+    .chefia-total-sub{
+      font-size:12px;color:var(--txt-2);margin-top:8px;line-height:1.45;
+    }
+    .chefia-lista-wrap{padding:18px 20px 20px}
+    .chefia-lista-head{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      margin-bottom:12px;flex-wrap:wrap;
+    }
+    .chefia-lista-titulo{
+      font-size:12px;font-weight:800;letter-spacing:.3px;color:var(--txt-1);
+    }
+    .chefia-lista-badge{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:5px 10px;border-radius:999px;
+      background:rgba(16,200,134,.12);color:#0d6e4f;
+      font-size:11px;font-weight:700;border:1px solid rgba(16,200,134,.16);
+    }
+    .chefia-lista{
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .chefia-item{
+      display:flex;align-items:center;gap:12px;
+      background:rgba(255,255,255,.78);border:1px solid rgba(18,65,161,.08);
+      border-radius:14px;padding:12px 14px;
+    }
+    .chefia-item-av{
+      width:38px;height:38px;border-radius:50%;
+      background:rgba(18,65,161,.1);color:var(--pri);
+      display:flex;align-items:center;justify-content:center;
+      font-size:13px;font-weight:800;flex-shrink:0;
+    }
+    .chefia-item-info{min-width:0;flex:1}
+    .chefia-item-nome{
+      font-size:13px;font-weight:700;color:var(--txt-1);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .chefia-item-meta{
+      font-size:11px;color:var(--txt-2);margin-top:3px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .chefia-item-num{
+      font-size:11px;font-weight:700;color:var(--txt-3);
+      font-family:var(--mono);white-space:nowrap;flex-shrink:0;
+    }
+
     /* Updates */
     .update-item{
       display:flex;align-items:flex-start;gap:12px;
@@ -2525,7 +2602,42 @@
 
         <!-- Secção funcionário -->
         <div id="secção-funcionario" style="display:none">
-          <div class="painel-card">
+          <div id="painel-chefe-unidade" class="chefia-wrap">
+            <div class="painel-card chefia-painel">
+              <div class="painel-card-header">
+                <div>
+                  <div class="painel-card-titulo">🏥 Painel do Chefe de Unidade</div>
+                  <div class="chefia-sub">Resumo inicial da unidade sob a sua responsabilidade, sem alterar o modelo actual de acesso.</div>
+                </div>
+              </div>
+              <div class="chefia-hero">
+                <div class="chefia-box">
+                  <div class="chefia-label">Unidade liderada</div>
+                  <div class="chefia-unidade-nome" id="chefia-unidade-nome">—</div>
+                  <div class="chefia-unidade-meta" id="chefia-unidade-meta">A carregar informacao da unidade...</div>
+                </div>
+                <div class="chefia-box">
+                  <div class="chefia-label">Total de funcionarios</div>
+                  <div class="chefia-total-num" id="chefia-total-func">0</div>
+                  <div class="chefia-total-sub">Funcionarios actualmente associados a esta unidade no cadastro.</div>
+                </div>
+              </div>
+              <div class="chefia-lista-wrap">
+                <div class="chefia-lista-head">
+                  <div class="chefia-lista-titulo">Equipa registada na unidade</div>
+                  <div class="chefia-lista-badge" id="chefia-lista-badge">0 colaboradores</div>
+                </div>
+                <div class="chefia-lista" id="chefia-lista-funcionarios">
+                  <div class="vazio-estado" style="padding:32px 18px">
+                    <div class="icone" style="color:var(--pri)">⏳</div>
+                    <p style="color:var(--txt-2)">A carregar a equipa da unidade...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="painel-funcionario-default" class="painel-card">
             <div class="painel-card-header"><div class="painel-card-titulo">📄 Os Meus Documentos</div></div>
             <div class="vazio-estado" style="padding:48px 20px">
               <div class="icone">📱</div>
@@ -2855,12 +2967,172 @@
   };
 
   let utilizadorActual = null, perfilActual = null;
+  let _chefeUnidadeActual = null;
+  let _carregamentoChefiaSeq = 0;
 
   // Guarda de perfil para funções administrativas expostas no window
   function _exigirPerfil(perfisPermitidos) {
     if (!utilizadorActual || !perfilActual) return false;
     const p = typeof perfilActual === 'string' ? perfilActual : perfilActual.perfil;
     return perfisPermitidos.includes(p);
+  }
+
+  function escaparHtml(valor) {
+    return String(valor ?? "").replace(/[&<>"']/g, ch => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    })[ch]);
+  }
+
+  function textoNormalizado(valor) {
+    return String(valor || "").trim().toLowerCase();
+  }
+
+  function obterEtiquetaPerfilVisual(d) {
+    if (d?.perfil === "funcionario" && _chefeUnidadeActual) return "Chefe de Unidade";
+    return etiquetasPerfil[d?.perfil] || d?.perfil || "";
+  }
+
+  function obterTextoUnidadeVisual(d) {
+    return _chefeUnidadeActual?.unidade?.nome || d?.unidade || d?.seccao || "â€”";
+  }
+
+  function actualizarCabecalhoPainel(u, d) {
+    const lblPerfil = obterEtiquetaPerfilVisual(d);
+    const perfilEl = document.getElementById("perfil-utilizador-topo");
+    if (perfilEl) perfilEl.textContent = lblPerfil;
+
+    const sub = document.getElementById("dash-subtitulo");
+    if (sub && lblPerfil) {
+      if (_chefeUnidadeActual?.unidade?.nome) sub.textContent = `${lblPerfil} Â· ${_chefeUnidadeActual.unidade.nome}`;
+      else sub.textContent = `${lblPerfil} Â· DirecÃ§Ã£o Municipal da SaÃºde do Sumbe`;
+    }
+  }
+
+  function pertenceAUnidade(funcionario, unidade) {
+    if (!funcionario || !unidade) return false;
+    const funcUnidadeId = String(funcionario.unidadeId || "").trim();
+    const unidadeId = String(unidade.id || "").trim();
+    if (funcUnidadeId && unidadeId && funcUnidadeId === unidadeId) return true;
+    return textoNormalizado(funcionario.unidade) === textoNormalizado(unidade.nome);
+  }
+
+  function limparPainelChefeUnidade() {
+    _chefeUnidadeActual = null;
+    const wrap = document.getElementById("painel-chefe-unidade");
+    const lista = document.getElementById("chefia-lista-funcionarios");
+    const total = document.getElementById("chefia-total-func");
+    const badge = document.getElementById("chefia-lista-badge");
+    const nome = document.getElementById("chefia-unidade-nome");
+    const meta = document.getElementById("chefia-unidade-meta");
+    const painelDefault = document.getElementById("painel-funcionario-default");
+
+    if (wrap) wrap.style.display = "none";
+    if (painelDefault) painelDefault.style.display = "";
+    if (total) total.textContent = "0";
+    if (badge) badge.textContent = "0 colaboradores";
+    if (nome) nome.textContent = "â€”";
+    if (meta) meta.textContent = "Sem unidade sob responsabilidade identificada.";
+    if (lista) {
+      lista.innerHTML = `<div class="vazio-estado" style="padding:32px 18px"><div class="icone" style="color:var(--pri)">ðŸ“„</div><p style="color:var(--txt-2)">Nenhuma equipa carregada.</p></div>`;
+    }
+  }
+
+  async function resolverFuncionarioAssociado(u, d) {
+    const funcionarioId = d?.funcionarioId || "";
+    if (funcionarioId) {
+      try {
+        const snapFunc = await getDoc(doc(db, "funcionarios", funcionarioId));
+        if (snapFunc.exists()) return { id: snapFunc.id, ...snapFunc.data() };
+      } catch(e) { console.warn("Funcionario associado:", e); }
+    }
+
+    try {
+      const snapPorUid = await getDocs(query(collection(db, "funcionarios"), where("portalUid", "==", u.uid), limit(1)));
+      if (!snapPorUid.empty) return { id: snapPorUid.docs[0].id, ...snapPorUid.docs[0].data() };
+    } catch(e) { console.warn("Funcionario por portalUid:", e); }
+
+    return null;
+  }
+
+  async function carregarPainelChefeUnidade(u, d) {
+    limparPainelChefeUnidade();
+    const reqId = ++_carregamentoChefiaSeq;
+    if (d?.perfil !== "funcionario") return false;
+
+    const func = await resolverFuncionarioAssociado(u, d);
+    if (!func || reqId !== _carregamentoChefiaSeq) return false;
+
+    let unidadeSnap;
+    try {
+      unidadeSnap = await getDocs(query(
+        collection(db, "unidades_sanitarias"),
+        where("responsavel.funcionarioId", "==", func.id),
+        limit(1)
+      ));
+    } catch(e) {
+      console.warn("Chefia de unidade:", e);
+      return false;
+    }
+    if (reqId !== _carregamentoChefiaSeq || unidadeSnap.empty) return false;
+
+    const unidadeDoc = unidadeSnap.docs[0];
+    const unidade = { id: unidadeDoc.id, ...unidadeDoc.data() };
+
+    let equipa = [];
+    try {
+      const snapFuncs = await getDocs(collection(db, "funcionarios"));
+      equipa = snapFuncs.docs
+        .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
+        .filter(f => pertenceAUnidade(f, unidade))
+        .sort((a, b) => String(a.nomeCompleto || a.nome || "").localeCompare(String(b.nomeCompleto || b.nome || ""), "pt"));
+    } catch(e) {
+      console.warn("Funcionarios da unidade:", e);
+      return false;
+    }
+    if (reqId !== _carregamentoChefiaSeq) return false;
+
+    _chefeUnidadeActual = { funcionario: func, unidade, equipa };
+
+    const wrap = document.getElementById("painel-chefe-unidade");
+    const painelDefault = document.getElementById("painel-funcionario-default");
+    const nomeEl = document.getElementById("chefia-unidade-nome");
+    const metaEl = document.getElementById("chefia-unidade-meta");
+    const totalEl = document.getElementById("chefia-total-func");
+    const badgeEl = document.getElementById("chefia-lista-badge");
+    const listaEl = document.getElementById("chefia-lista-funcionarios");
+
+    if (wrap) wrap.style.display = "block";
+    if (painelDefault) painelDefault.style.display = "none";
+    if (nomeEl) nomeEl.textContent = unidade.nome || "Unidade sem nome";
+    if (metaEl) {
+      const cargo = unidade.responsavel?.cargo ? ` Â· ${unidade.responsavel.cargo}` : "";
+      metaEl.textContent = `Identificado a partir do responsavel da unidade${cargo}.`;
+    }
+    if (totalEl) totalEl.textContent = String(equipa.length);
+    if (badgeEl) badgeEl.textContent = `${equipa.length} ${equipa.length === 1 ? "colaborador" : "colaboradores"}`;
+    if (listaEl) {
+      if (!equipa.length) {
+        listaEl.innerHTML = `<div class="vazio-estado" style="padding:32px 18px"><div class="icone" style="color:var(--pri)">ðŸ‘¥</div><p style="color:var(--txt-2)">Nenhum funcionario desta unidade foi encontrado no cadastro.</p></div>`;
+      } else {
+        listaEl.innerHTML = equipa.map(f => {
+          const nome = escaparHtml(f.nomeCompleto || f.nome || "Funcionario sem nome");
+          const cargo = escaparHtml(f.categoria || f.cargo || "Sem categoria definida");
+          const numero = escaparHtml(f.numero || f.numeroBeneficiario || "");
+          const inic = escaparHtml(String(f.nomeCompleto || f.nome || "?").trim().charAt(0).toUpperCase() || "?");
+          return `<div class="chefia-item">
+            <div class="chefia-item-av">${inic}</div>
+            <div class="chefia-item-info">
+              <div class="chefia-item-nome">${nome}</div>
+              <div class="chefia-item-meta">${cargo}</div>
+            </div>
+            <div class="chefia-item-num">${numero ? "NÂº " + numero : "Sem nÂº"}</div>
+          </div>`;
+        }).join("");
+      }
+    }
+
+    actualizarCabecalhoPainel(u, d);
+    return true;
   }
 
 
@@ -2919,7 +3191,7 @@
         // ── Gestão de sessão concorrente ──
         const _sToken = SIGDOC_SESSION.gerarEPersistirToken();
         await SIGDOC_SESSION.registarLogin(db, u.uid, _sToken, { updateDoc, doc, serverTimestamp });
-        mostrarPainel(u, d);
+        await mostrarPainel(u, d);
       } else {
         const d = { nome: u.email.split("@")[0], email: u.email, perfil:"admin",
                     unidade:"Direcção Municipal", activo:true,
@@ -2930,7 +3202,7 @@
         // ── Gestão de sessão concorrente ──
         const _sToken = SIGDOC_SESSION.gerarEPersistirToken();
         await SIGDOC_SESSION.registarLogin(db, u.uid, _sToken, { updateDoc, doc, serverTimestamp });
-        mostrarPainel(u, d);
+        await mostrarPainel(u, d);
         mostrarNotif("✅ Conta de administrador criada automaticamente!");
       }
     } catch(e) { console.error("carregarPerfil:",e); mostrarLogin(); setTimeout(()=>mostrarErro("Erro ao carregar perfil. As regras de acesso podem não estar actualizadas. Contacte o administrador."),100); }
@@ -2959,12 +3231,13 @@
     if (tipo === 'reunioes') carregarReunioesSecretaria();
   };
 
-  function mostrarPainel(u, d) {
+  async function mostrarPainel(u, d) {
     document.getElementById("ecrã-login").style.display = "none";
     document.getElementById("ecrã-painel").style.display = "flex";
     document.getElementById("avatar-utilizador").textContent = (d.nome||u.email)[0].toUpperCase();
     document.getElementById("nome-utilizador-topo").textContent = d.nome || u.email;
-    document.getElementById("perfil-utilizador-topo").textContent = etiquetasPerfil[d.perfil] || d.perfil;
+    limparPainelChefeUnidade();
+    actualizarCabecalhoPainel(u, d);
     (()=>{
       const h=new Date().getHours();
       const s=h<12?"Bom dia":h<18?"Boa tarde":"Boa noite";
@@ -2976,6 +3249,7 @@
       const etq=etiquetasPerfil[d.perfil]||d.perfil||"";
       if(sub && etq) sub.textContent=`${etq} · Direcção Municipal da Saúde do Sumbe`;
     })();
+    actualizarCabecalhoPainel(u, d);
     actualizarDataHora(); setInterval(actualizarDataHora, 60000);
 
     const p = d.perfil;
@@ -3003,6 +3277,7 @@
       // funcionário
       document.getElementById("secção-funcionario").style.display="block";
       document.getElementById("menu-modulos").style.display="none";
+      await carregarPainelChefeUnidade(u, d);
     }
 
     // ── Acções Rápidas — filtradas por perfil ──
@@ -3276,6 +3551,7 @@
     const b = document.getElementById("btn-entrar");
     b.disabled=false; b.innerHTML="Entrar no Sistema →";
     utilizadorActual=null; perfilActual=null;
+    limparPainelChefeUnidade();
   }
 
   window.copiarLinkPortal = function() {
@@ -3416,9 +3692,10 @@
     const d=perfilActual, nome=d.nome||utilizadorActual.email;
     document.getElementById("perfil-avatar-grande").textContent=nome[0].toUpperCase();
     document.getElementById("perfil-nome-modal").textContent=nome;
-    document.getElementById("perfil-cargo-modal").textContent=etiquetasPerfil[d.perfil]||d.perfil;
+    document.getElementById("perfil-cargo-modal").textContent=obterEtiquetaPerfilVisual(d);
     document.getElementById("perfil-email-modal").textContent=utilizadorActual.email;
     document.getElementById("perfil-unidade-modal").textContent=d.unidade||d.seccao||"—";
+    document.getElementById("perfil-unidade-modal").textContent=obterTextoUnidadeVisual(d);
     document.getElementById("overlay-perfil").style.display="flex";
   };
   window.fecharModalPerfil=()=>{document.getElementById("overlay-perfil").style.display="none";};
@@ -4411,3 +4688,4 @@
 
 </body>
 </html>
+
