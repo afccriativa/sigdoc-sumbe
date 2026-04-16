@@ -55,6 +55,156 @@ window.SIGDOC_CONFIG = (function () {
       .trim();
   }
 
+  const ROLE_PRIORITY = ['admin', 'director', 'chefe', 'chefe_unidade', 'tecnico', 'secretaria', 'funcionario'];
+  const ROLE_LABELS = {
+    admin: 'Administrador do Sistema',
+    director: 'Director Municipal',
+    chefe: 'Chefe de SecÃ§Ã£o',
+    chefe_unidade: 'Chefe de Unidade',
+    tecnico: 'TÃ©cnico de RH',
+    secretaria: 'Secretaria',
+    funcionario: 'FuncionÃ¡rio de Unidade'
+  };
+
+  function normalizarRole(valor) {
+    return String(valor || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[\s-]+/g, '_');
+  }
+
+  function listaRoles(valor) {
+    if (Array.isArray(valor)) return valor;
+    if (typeof valor === 'string') return valor.split(',');
+    return [];
+  }
+
+  function dedupeRoles(lista) {
+    const vistos = new Set();
+    const roles = [];
+    lista.forEach(item => {
+      const role = normalizarRole(item);
+      if (!role || vistos.has(role)) return;
+      vistos.add(role);
+      roles.push(role);
+    });
+    return roles;
+  }
+
+  function resolverPerfilPrincipal(roles) {
+    const lista = dedupeRoles(roles);
+    for (const role of ROLE_PRIORITY) {
+      if (lista.includes(role)) return role;
+    }
+    return lista[0] || 'funcionario';
+  }
+
+  function normalizarPerfilDoc(doc) {
+    if (typeof doc === 'string') return normalizarPerfilDoc({ perfil: doc });
+    if (Array.isArray(doc)) return normalizarPerfilDoc({ roles: doc });
+
+    const bruto = doc && typeof doc === 'object' ? { ...doc } : {};
+    const perfilLegado = normalizarRole(bruto.perfil);
+    const perfilBase = 'funcionario';
+
+    let roles = dedupeRoles(listaRoles(bruto.roles));
+    if (!roles.length && perfilLegado) {
+      roles = perfilLegado === perfilBase
+        ? [perfilBase]
+        : [perfilBase, perfilLegado];
+    }
+    if (!roles.length) roles = ['funcionario'];
+    if (!roles.includes(perfilBase)) {
+      roles = dedupeRoles([perfilBase].concat(roles));
+    }
+
+    const perfilPrincipal = resolverPerfilPrincipal(roles);
+
+    return {
+      ...bruto,
+      roles,
+      perfilBase,
+      perfil: perfilPrincipal,
+      perfilPrincipal
+    };
+  }
+
+  function criarPerfilUtilizador(dados) {
+    const bruto = dados && typeof dados === 'object' ? { ...dados } : {};
+    const perfilBase = 'funcionario';
+    const roleLegado = normalizarRole(bruto.perfil);
+    const roles = dedupeRoles(
+      [perfilBase]
+        .concat(listaRoles(bruto.roles))
+        .concat(roleLegado && roleLegado !== perfilBase ? [roleLegado] : [])
+    );
+    const perfilPrincipal = resolverPerfilPrincipal(roles);
+
+    return {
+      ...bruto,
+      perfilBase,
+      roles,
+      perfil: perfilPrincipal,
+      perfilPrincipal
+    };
+  }
+
+  function temRole(doc, role) {
+    return normalizarPerfilDoc(doc).roles.includes(normalizarRole(role));
+  }
+
+  function temAlgumRole(doc, rolesPermitidos) {
+    const permitidos = dedupeRoles(listaRoles(rolesPermitidos));
+    const normalizado = normalizarPerfilDoc(doc);
+    return permitidos.some(role => normalizado.roles.includes(role));
+  }
+
+  function obterEtiquetaRole(role, labels) {
+    const normalizado = normalizarRole(role);
+    return (labels && labels[normalizado]) || ROLE_LABELS[normalizado] || normalizado;
+  }
+
+  function obterEtiquetasRoles(doc, labels) {
+    return normalizarPerfilDoc(doc).roles.map(role => obterEtiquetaRole(role, labels));
+  }
+
+  function precisaMigracao(doc) {
+    if (!doc || typeof doc !== 'object') return true;
+    const normalizado = normalizarPerfilDoc(doc);
+    const rolesActuais = dedupeRoles(listaRoles(doc.roles));
+    return (
+      !Array.isArray(doc.roles) ||
+      doc.perfilBase !== normalizado.perfilBase ||
+      normalizarRole(doc.perfil) !== normalizado.perfil ||
+      rolesActuais.join('|') !== normalizado.roles.join('|')
+    );
+  }
+
+  window.SIGDOC_AUTHZ = {
+    ROLE_PRIORITY,
+    ROLE_LABELS,
+    normalizarRole,
+    normalizarPerfilDoc,
+    criarPerfilUtilizador,
+    obterRoles(doc) {
+      return normalizarPerfilDoc(doc).roles;
+    },
+    obterPerfilPrincipal(doc) {
+      return normalizarPerfilDoc(doc).perfilPrincipal;
+    },
+    obterPerfilBase(doc) {
+      return normalizarPerfilDoc(doc).perfilBase;
+    },
+    obterEtiquetaRole,
+    obterEtiquetaPrincipal(doc, labels) {
+      return obterEtiquetaRole(normalizarPerfilDoc(doc).perfilPrincipal, labels);
+    },
+    obterEtiquetasRoles,
+    temRole,
+    temAlgumRole,
+    precisaMigracao
+  };
+
   return {
     /**
      * Devolve o objecto de configuração para ser passado
