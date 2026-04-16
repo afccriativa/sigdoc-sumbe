@@ -1902,6 +1902,21 @@
   const db   = getFirestore(app);
 
   const PERFIS_ACESSO = ["admin", "director"];
+  function normalizarPerfilPainel(docPerfil) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.normalizarPerfilDoc(docPerfil)
+      : (typeof docPerfil === "string" ? { perfil: docPerfil, roles: [docPerfil] } : (docPerfil || {}));
+  }
+  function obterPerfilPrincipalPainel(docPerfil) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.obterPerfilPrincipal(docPerfil)
+      : (typeof docPerfil === "string" ? docPerfil : (docPerfil?.perfil || "funcionario"));
+  }
+  function temAlgumRolePainel(docPerfil, roles) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.temAlgumRole(docPerfil, roles)
+      : [].concat(roles || []).includes(obterPerfilPrincipalPainel(docPerfil));
+  }
 
   const LABELS_TIPO = {
     "guia-ferias": "Guia de Férias",
@@ -1961,10 +1976,10 @@
     if (!user) { window.location.href = "index.html"; return; }
     try {
       const snap = await getDoc(doc(db, "utilizadores", user.uid));
-      const dados = snap.exists() ? snap.data() : {};
-      const perfil = dados.perfil || "funcionario";
+      const dados = normalizarPerfilPainel(snap.exists() ? snap.data() : {});
+      const perfil = obterPerfilPrincipalPainel(dados);
 
-      if (!PERFIS_ACESSO.includes(perfil)) {
+      if (!temAlgumRolePainel(dados, PERFIS_ACESSO)) {
         document.getElementById("ecra-carregando").style.display = "none";
         document.getElementById("ecra-negado").style.display = "flex";
         return;
@@ -1980,6 +1995,7 @@
         pagina:   'painel',
         nome:     nome,
         perfil:   perfil,
+        roles:    dados.roles || [perfil],
         onLogout: async () => {
           const { signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
           await signOut(auth);
