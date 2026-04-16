@@ -320,6 +320,21 @@
   const db   = getFirestore(app);
 
   const PERFIS_ACESSO = ["admin", "director", "chefe", "tecnico"];
+  function normalizarPerfilEstatisticas(docPerfil) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.normalizarPerfilDoc(docPerfil)
+      : (typeof docPerfil === "string" ? { perfil: docPerfil, roles: [docPerfil] } : (docPerfil || {}));
+  }
+  function obterPerfilPrincipalEstatisticas(docPerfil) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.obterPerfilPrincipal(docPerfil)
+      : (typeof docPerfil === "string" ? docPerfil : (docPerfil?.perfil || "funcionario"));
+  }
+  function temAlgumRoleEstatisticas(docPerfil, roles) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.temAlgumRole(docPerfil, roles)
+      : [].concat(roles || []).includes(obterPerfilPrincipalEstatisticas(docPerfil));
+  }
   const CORES = ['#3b82f6','#10c886','#f59e0b','#ef4444','#a78bfa','#22d3ee','#f472b6','#84cc16','#fb923c','#e879f9'];
   const ASSUNTOS_EST = {
     'ferias-licencas':'Férias e Licenças','abonos-salarios':'Abonos e Salários',
@@ -352,10 +367,10 @@
 
     try {
       const snap  = await getDoc(doc(db, "utilizadores", user.uid));
-      const dados = snap.exists() ? snap.data() : {};
-      const perfil = dados.perfil || "funcionario";
+      const dados = normalizarPerfilEstatisticas(snap.exists() ? snap.data() : {});
+      const perfil = obterPerfilPrincipalEstatisticas(dados);
 
-      if (!PERFIS_ACESSO.includes(perfil)) {
+      if (!temAlgumRoleEstatisticas(dados, PERFIS_ACESSO)) {
         document.getElementById("ecra-carregando").style.display = "none";
         document.getElementById("ecra-negado").style.display     = "flex";
         return;
@@ -370,6 +385,7 @@
         pagina:   'estatisticas',
         nome:     nome,
         perfil:   perfil,
+        roles:    dados.roles || [perfil],
         onLogout: async () => {
           await signOut(auth);
           window.location.href = "index.html";
