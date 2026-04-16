@@ -399,7 +399,9 @@
     .perfil-admin{background:rgba(245,158,11,.15);color:#f59e0b}
     .perfil-director{background:rgba(139,92,246,.15);color:#a78bfa}
     .perfil-chefe{background:rgba(59,130,246,.15);color:#60a5fa}
+    .perfil-chefe_unidade{background:rgba(5,150,105,.14);color:#059669}
     .perfil-tecnico{background:rgba(16,200,134,.15);color:#10c886}
+    .perfil-secretaria{background:rgba(14,116,144,.15);color:#0891b2}
     .perfil-funcionario{background:rgba(18,65,161,.07);color:var(--txt-2)}
     .b-activo{color:#10c886;font-weight:700;font-size:12px}
     .b-inactivo{color:var(--txt-3);font-weight:600;font-size:12px}
@@ -2658,7 +2660,7 @@
           </div>
           <div class="tabela-scroll" style="overflow-x:auto">
             <table class="tabela-modern">
-              <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Estado</th><th>Último Acesso</th><th>Acções</th></tr></thead>
+              <thead><tr><th>Nome</th><th>E-mail</th><th>Roles</th><th>Estado</th><th>Último Acesso</th><th>Acções</th></tr></thead>
               <tbody id="corpo-tabela-utilizadores">
                 <tr><td colspan="6"><div class="vazio-estado"><div class="icone">👥</div><p>A carregar...</p></div></td></tr>
               </tbody>
@@ -2903,15 +2905,22 @@
     <div class="campo-modal"><label>Endereço de E-mail</label><input type="email" id="novo-email" placeholder="joao.silva@saude.gov.ao"/></div>
     <div class="campo-modal"><label>Senha Provisória</label><input type="text" id="novo-senha" value="Sumbe2026!"/></div>
     <div class="campo-modal">
-      <label>Perfil de Acesso</label>
-      <select id="novo-perfil">
-        <option value="funcionario">Funcionário de Unidade Sanitária</option>
-        <option value="tecnico">Técnico de RH</option>
-        <option value="secretaria">Secretaria</option>
-        <option value="chefe">Chefe de Secção</option>
-        <option value="director">Director Municipal</option>
-        <option value="admin">Administrador do Sistema</option>
-      </select>
+      <label>Perfil Base</label>
+      <div style="padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:rgba(18,65,161,.05);font-size:13px;font-weight:700;color:var(--txt-1)">
+        Funcionário de Unidade Sanitária
+      </div>
+    </div>
+    <div class="campo-modal">
+      <label>Roles Adicionais</label>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:12px;font-weight:600;color:var(--txt-1)"><input type="checkbox" data-role-novo value="tecnico"/>Técnico de RH</label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:12px;font-weight:600;color:var(--txt-1)"><input type="checkbox" data-role-novo value="secretaria"/>Secretaria</label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:12px;font-weight:600;color:var(--txt-1)"><input type="checkbox" data-role-novo value="chefe"/>Chefe de Secção</label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:12px;font-weight:600;color:var(--txt-1)"><input type="checkbox" data-role-novo value="chefe_unidade"/>Chefe de Unidade</label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:12px;font-weight:600;color:var(--txt-1)"><input type="checkbox" data-role-novo value="director"/>Director Municipal</label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:12px;font-weight:600;color:var(--txt-1)"><input type="checkbox" data-role-novo value="admin"/>Administrador do Sistema</label>
+      </div>
+      <small style="display:block;margin-top:8px;color:var(--txt-3);font-size:11px">O sistema mantém <strong>funcionário</strong> como base e adiciona os papéis seleccionados.</small>
     </div>
     <div class="campo-modal">
       <label>Unidade Sanitária / Secção</label>
@@ -2963,6 +2972,7 @@
   const etiquetasPerfil = {
     admin:"Administrador do Sistema", director:"Director Municipal",
     chefe:"Chefe de Secção", tecnico:"Técnico de RH",
+    chefe_unidade:"Chefe de Unidade",
     secretaria:"Secretaria", funcionario:"Funcionário de Unidade"
   };
 
@@ -2970,11 +2980,64 @@
   let _chefeUnidadeActual = null;
   let _carregamentoChefiaSeq = 0;
 
+  function normalizarPerfilDocLocal(doc) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.normalizarPerfilDoc(doc)
+      : (typeof doc === "string"
+          ? { perfil: doc, perfilPrincipal: doc, roles: [doc], perfilBase: doc }
+          : (doc || {}));
+  }
+
+  function criarPerfilUtilizadorLocal(dados) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.criarPerfilUtilizador(dados)
+      : (dados || {});
+  }
+
+  function payloadPerfilLocal(dados) {
+    const perfil = criarPerfilUtilizadorLocal(dados);
+    return {
+      perfil: perfil.perfil,
+      perfilBase: perfil.perfilBase,
+      roles: perfil.roles
+    };
+  }
+
+  function obterRolesPerfilLocal(doc) {
+    return normalizarPerfilDocLocal(doc).roles || [];
+  }
+
+  function obterPerfilPrincipalLocal(doc) {
+    const perfil = normalizarPerfilDocLocal(doc);
+    return perfil.perfilPrincipal || perfil.perfil || "funcionario";
+  }
+
+  function temAlgumRoleLocal(doc, perfisPermitidos) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.temAlgumRole(doc, perfisPermitidos)
+      : [].concat(perfisPermitidos || []).includes(obterPerfilPrincipalLocal(doc));
+  }
+
+  function precisaMigracaoPerfilLocal(doc) {
+    return window.SIGDOC_AUTHZ ? window.SIGDOC_AUTHZ.precisaMigracao(doc) : false;
+  }
+
+  function obterEtiquetaPerfilPrincipalLocal(doc) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.obterEtiquetaPrincipal(doc, etiquetasPerfil)
+      : (etiquetasPerfil[obterPerfilPrincipalLocal(doc)] || obterPerfilPrincipalLocal(doc));
+  }
+
+  function badgesRolesHtml(doc) {
+    return obterRolesPerfilLocal(doc)
+      .map(role => `<span class="badge-perfil perfil-${role}">${etiquetasPerfil[role] || role}</span>`)
+      .join(" ");
+  }
+
   // Guarda de perfil para funções administrativas expostas no window
   function _exigirPerfil(perfisPermitidos) {
     if (!utilizadorActual || !perfilActual) return false;
-    const p = typeof perfilActual === 'string' ? perfilActual : perfilActual.perfil;
-    return perfisPermitidos.includes(p);
+    return temAlgumRoleLocal(perfilActual, perfisPermitidos);
   }
 
   function escaparHtml(valor) {
@@ -2988,8 +3051,11 @@
   }
 
   function obterEtiquetaPerfilVisual(d) {
-    if (d?.perfil === "funcionario" && _chefeUnidadeActual) return "Chefe de Unidade";
-    return etiquetasPerfil[d?.perfil] || d?.perfil || "";
+    const perfil = normalizarPerfilDocLocal(d);
+    if ((obterPerfilPrincipalLocal(perfil) === "funcionario" || obterPerfilPrincipalLocal(perfil) === "chefe_unidade") && _chefeUnidadeActual) {
+      return "Chefe de Unidade";
+    }
+    return obterEtiquetaPerfilPrincipalLocal(perfil);
   }
 
   function obterTextoUnidadeVisual(d) {
@@ -3057,7 +3123,7 @@
   async function carregarPainelChefeUnidade(u, d) {
     limparPainelChefeUnidade();
     const reqId = ++_carregamentoChefiaSeq;
-    if (d?.perfil !== "funcionario") return false;
+    if (!temAlgumRoleLocal(d, ["funcionario", "chefe_unidade"])) return false;
 
     const func = await resolverFuncionarioAssociado(u, d);
     if (!func || reqId !== _carregamentoChefiaSeq) return false;
@@ -3186,16 +3252,29 @@
     try {
       const snap = await getDoc(doc(db, "utilizadores", u.uid));
       if (snap.exists()) {
-        const d = snap.data(); perfilActual = d;
+        const dadosBrutos = snap.data();
+        const d = normalizarPerfilDocLocal(dadosBrutos);
+        perfilActual = d;
+        if (precisaMigracaoPerfilLocal(dadosBrutos)) {
+          try {
+            await updateDoc(doc(db, "utilizadores", u.uid), payloadPerfilLocal(d));
+          } catch(eMig) { console.warn("Migracao de roles:", eMig); }
+        }
         await registarSessao(u, d, "entrada");
         // ── Gestão de sessão concorrente ──
         const _sToken = SIGDOC_SESSION.gerarEPersistirToken();
         await SIGDOC_SESSION.registarLogin(db, u.uid, _sToken, { updateDoc, doc, serverTimestamp });
         await mostrarPainel(u, d);
       } else {
-        const d = { nome: u.email.split("@")[0], email: u.email, perfil:"admin",
-                    unidade:"Direcção Municipal", activo:true,
-                    criadoEm: serverTimestamp(), ultimoAcesso: serverTimestamp() };
+        const d = {
+          nome: u.email.split("@")[0],
+          email: u.email,
+          unidade:"Direcção Municipal",
+          activo:true,
+          criadoEm: serverTimestamp(),
+          ultimoAcesso: serverTimestamp(),
+          ...payloadPerfilLocal({ roles:["admin"] })
+        };
         await setDoc(doc(db,"utilizadores",u.uid), d);
         perfilActual = d;
         await registarSessao(u, d, "entrada");
@@ -3232,27 +3311,29 @@
   };
 
   async function mostrarPainel(u, d) {
+    const perfilDoc = normalizarPerfilDocLocal(d);
+    const p = perfilDoc.perfil;
+    const roles = perfilDoc.roles || [];
     document.getElementById("ecrã-login").style.display = "none";
     document.getElementById("ecrã-painel").style.display = "flex";
-    document.getElementById("avatar-utilizador").textContent = (d.nome||u.email)[0].toUpperCase();
-    document.getElementById("nome-utilizador-topo").textContent = d.nome || u.email;
+    document.getElementById("avatar-utilizador").textContent = (perfilDoc.nome||u.email)[0].toUpperCase();
+    document.getElementById("nome-utilizador-topo").textContent = perfilDoc.nome || u.email;
     limparPainelChefeUnidade();
-    actualizarCabecalhoPainel(u, d);
+    actualizarCabecalhoPainel(u, perfilDoc);
     (()=>{
       const h=new Date().getHours();
       const s=h<12?"Bom dia":h<18?"Boa tarde":"Boa noite";
-      const n=(d.nome||"Utilizador").split(" ")[0];
+      const n=(perfilDoc.nome||"Utilizador").split(" ")[0];
       const el=document.getElementById("msg-boas-vindas");
       if(el) el.textContent=`${s}, ${n}`;
       // Subtítulo com perfil
       const sub=document.getElementById("dash-subtitulo");
-      const etq=etiquetasPerfil[d.perfil]||d.perfil||"";
+      const etq=obterEtiquetaPerfilPrincipalLocal(perfilDoc);
       if(sub && etq) sub.textContent=`${etq} · Direcção Municipal da Saúde do Sumbe`;
     })();
-    actualizarCabecalhoPainel(u, d);
+    actualizarCabecalhoPainel(u, perfilDoc);
     actualizarDataHora(); setInterval(actualizarDataHora, 60000);
 
-    const p = d.perfil;
     const banPor = document.getElementById("banner-portal");
     const linkEl = document.getElementById("link-portal-texto");
     if (linkEl) linkEl.textContent = window.location.origin + window.location.pathname.replace("index.html","") + "portal.html";
@@ -3277,7 +3358,7 @@
       // funcionário
       document.getElementById("secção-funcionario").style.display="block";
       document.getElementById("menu-modulos").style.display="none";
-      await carregarPainelChefeUnidade(u, d);
+      await carregarPainelChefeUnidade(u, perfilDoc);
     }
 
     // ── Acções Rápidas — filtradas por perfil ──
@@ -3309,7 +3390,12 @@
     };
     const grid = document.getElementById("quick-actions-grid");
     if (grid) {
-      const accoes = ACCOES_POR_PERFIL[p] || [];
+      const accoes = roles.reduce((lista, role) => {
+        (ACCOES_POR_PERFIL[role] || []).forEach(accao => {
+          if (!lista.some(item => item.href === accao.href)) lista.push(accao);
+        });
+        return lista;
+      }, []);
       grid.innerHTML = accoes.map(a =>
         `<a href="${a.href}" class="qa-btn">
           <div class="qa-ic-wrap"><span class="qa-ic">${a.ic}</span></div>
@@ -3327,7 +3413,7 @@
       director:    ["mod-auditoria","mod-painel"],
       funcionario: []
     };
-    const vis = acessoSidebar[p] || [];
+    const vis = [...new Set(roles.flatMap(role => acessoSidebar[role] || []))];
     ["mod-cadastro","mod-documentos","mod-aprovacao","mod-auditoria","mod-painel","mod-portal","mod-utilizadores-card","mod-secretaria"].forEach(id => {
       const el = document.getElementById(id);
       if(el) el.style.display = vis.includes(id) ? "" : "none";
@@ -3351,7 +3437,7 @@
       director:    ["mod-auditoria-card","mod-painel-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card","mod-ferias-card"],
       funcionario: []
     };
-    const visCards = acessoCards[p] || [];
+    const visCards = [...new Set(roles.flatMap(role => acessoCards[role] || []))];
     ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-auditoria-card","mod-painel-card","mod-secretaria-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card","mod-ferias-card"].forEach(id => {
       const el = document.getElementById(id);
       if(el) el.style.display = visCards.includes(id) ? "" : "none";
@@ -3585,16 +3671,16 @@
       if(snap.empty){ tb.innerHTML=`<tr><td colspan="6"><div class="vazio-estado"><div class="icone">👥</div><p>Nenhum utilizador.</p></div></td></tr>`; return; }
       let html="";
       snap.forEach(d=>{
-        const u=d.data(), uid=d.id;
+        const u=normalizarPerfilDocLocal(d.data()), uid=d.id;
         const bge = u.activo?`<span class="b-activo">● Activo</span>`:`<span class="b-inactivo">○ Inactivo</span>`;
         const acs = u.ultimoAcesso?.toDate ? fmtData(u.ultimoAcesso.toDate()) : "—";
-        const btn = u.perfil!=="admin"
+        const btn = !temAlgumRoleLocal(u, ["admin"])
           ? `<button class="btn-acao-ln ${u.activo?"btn-desat":"btn-ativar"}" onclick="toggleUser('${uid}',${u.activo})">${u.activo?"Desactivar":"Activar"}</button>`
           : `<span style="font-size:11px;color:var(--neu-300)">—</span>`;
         html+=`<tr>
           <td><strong>${u.nome||"—"}</strong><br><small style="color:var(--neu-400)">${u.unidade||""}</small></td>
           <td style="font-family:var(--mono);font-size:12px">${u.email||"—"}</td>
-          <td><span class="badge-perfil perfil-${u.perfil||"funcionario"}">${etiquetasPerfil[u.perfil]||u.perfil}</span></td>
+          <td>${badgesRolesHtml(u) || `<span class="badge-perfil perfil-funcionario">${etiquetasPerfil.funcionario}</span>`}</td>
           <td>${bge}</td>
           <td style="font-size:12px;color:var(--neu-400)">${acs}</td>
           <td>${btn}</td>
@@ -3618,14 +3704,27 @@
   window.toggleEstadoUtilizador = window.toggleUser;
 
   window.abrirModalNovoUtilizador = ()=>{ if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: abrirModalNovoUtilizador");return;} document.getElementById("overlay-novo-utilizador").classList.add("activo"); };
-  window.fecharModal = ()=>document.getElementById("overlay-novo-utilizador").classList.remove("activo");
+  window.fecharModal = ()=>{
+    document.getElementById("overlay-novo-utilizador").classList.remove("activo");
+    limparRolesNovoUtilizador();
+  };
+
+  function obterRolesNovoUtilizador() {
+    return Array.from(document.querySelectorAll("[data-role-novo]:checked")).map(el => el.value);
+  }
+
+  function limparRolesNovoUtilizador() {
+    document.querySelectorAll("[data-role-novo]").forEach(el => { el.checked = false; });
+  }
 
   window.criarNovoUtilizador = async function() {
     if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: criarNovoUtilizador");return;}
     const nome=document.getElementById("novo-nome").value.trim();
     const email=document.getElementById("novo-email").value.trim();
     const senha=document.getElementById("novo-senha").value.trim();
-    const perfil=document.getElementById("novo-perfil").value;
+    const roles=obterRolesNovoUtilizador();
+    const perfilPrincipal=obterEtiquetaPerfilPrincipalLocal({ roles:["funcionario"].concat(roles), perfilBase:"funcionario" });
+    const perfil=perfilPrincipal;
     const unidade=document.getElementById("novo-unidade").value;
     if(!nome||!email||!senha){mostrarNotif("⚠️ Preencha todos os campos obrigatórios.","aviso");return;}
     if(senha.length<6){mostrarNotif("⚠️ A senha deve ter pelo menos 6 caracteres.","aviso");return;}
@@ -3639,9 +3738,10 @@
       await authSec.signOut();
       // Escrever o documento usando a sessão do admin (db principal)
       await setDoc(doc(db,"utilizadores",novoUid),{
-        nome, email, perfil, unidade, activo:true,
+        nome, email, unidade, activo:true,
         criadoEm:serverTimestamp(), ultimoAcesso:null,
-        criadoPor:utilizadorActual.uid
+        criadoPor:utilizadorActual.uid,
+        ...payloadPerfilLocal({ roles })
       });
       fecharModal();
       mostrarNotif(`✅ Utilizador "${nome}" (${perfil}) criado com sucesso!`);
@@ -3649,6 +3749,7 @@
       document.getElementById("novo-nome").value="";
       document.getElementById("novo-email").value="";
       document.getElementById("novo-senha").value="Sumbe2026!";
+      limparRolesNovoUtilizador();
     }catch(e){
       console.error("criarNovoUtilizador:",e);
       const m={"auth/email-already-in-use":"❌ E-mail já está registado.","auth/invalid-email":"❌ E-mail inválido.","auth/weak-password":"❌ Senha fraca (mínimo 6 caracteres)."};
