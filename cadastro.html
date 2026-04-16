@@ -1530,12 +1530,27 @@
   const perfisPermitidos=["admin","tecnico","chefe","director","secretaria"];
   let todosOsFuncionarios=[], utilizadorActual=null, funcionarioEmEdicao=null, _perfilActual=null;
   let _unidadesCatalogo = [];
+  function normalizarPerfilCadastro(docPerfil) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.normalizarPerfilDoc(docPerfil)
+      : (typeof docPerfil === "string" ? { perfil: docPerfil, roles: [docPerfil] } : (docPerfil || {}));
+  }
+  function temAlgumRoleCadastro(docPerfil, roles) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.temAlgumRole(docPerfil, roles)
+      : [].concat(roles || []).includes(typeof docPerfil === "string" ? docPerfil : docPerfil?.perfil);
+  }
+  function obterPerfilPrincipalCadastro(docPerfil) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.obterPerfilPrincipal(docPerfil)
+      : (typeof docPerfil === "string" ? docPerfil : (docPerfil?.perfil || "funcionario"));
+  }
   // Mapa funcionarioId → {nomeUnidade, tipoUnidade, cargo, dataInicio}
   // Construído na carga inicial — usado em verFicha para o campo "Responsável por"
   let _unidadesRespMap = {};
   function _exigirPerfil(perfisPermitidos) {
     if (!utilizadorActual) return false;
-    return perfisPermitidos.includes(_perfilActual);
+    return temAlgumRoleCadastro(_perfilActual, perfisPermitidos);
   }
 
   function configurarFormularioCadastro() {
@@ -1753,16 +1768,17 @@
     utilizadorActual=u;
     const snap=await getDoc(doc(db,"utilizadores",u.uid));
     if(!snap.exists()){window.location.href="index.html";return;}
-    const d=snap.data();
-    if(!perfisPermitidos.includes(d.perfil)){document.getElementById("ecrã-negado").style.display="flex";return;}
-    _perfilActual = d.perfil;
+    const d=normalizarPerfilCadastro(snap.data());
+    if(!temAlgumRoleCadastro(d, perfisPermitidos)){document.getElementById("ecrã-negado").style.display="flex";return;}
+    _perfilActual = d;
 
     // Montar navegação lateral
     window._sigdocAuth = auth;
     SIGDOC_NAV.mount({
       pagina:   "cadastro",
       nome:     d.nome || u.email,
-      perfil:   d.perfil,
+      perfil:   obterPerfilPrincipalCadastro(d),
+      roles:    d.roles || [obterPerfilPrincipalCadastro(d)],
       onLogout: async () => {
         const { signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
         await signOut(auth);
@@ -2113,7 +2129,7 @@
     limparForm();
     // Mostrar salário apenas para perfis com acesso
     var wrapSal=document.getElementById('campo-salario-wrap');
-    if(wrapSal) wrapSal.style.display=['admin','chefe','tecnico'].includes(_perfilActual)?'block':'none';
+    if(wrapSal) wrapSal.style.display=temAlgumRoleCadastro(_perfilActual, ['admin','chefe','tecnico'])?'block':'none';
     document.getElementById("overlay-formulario").classList.add("activo");
   };
 
@@ -2149,7 +2165,7 @@
     else document.getElementById('secao-complementar').classList.add('recolhida');
     // Salário Base
     var wrapSal = document.getElementById('campo-salario-wrap');
-    if(wrapSal) wrapSal.style.display=['admin','chefe','tecnico'].includes(_perfilActual)?'block':'none';
+    if(wrapSal) wrapSal.style.display=temAlgumRoleCadastro(_perfilActual, ['admin','chefe','tecnico'])?'block':'none';
     var elSal = document.getElementById('f-salario-base');
     if(elSal) preencherCampoSalarioBase(f.salarioBase);
     // Número de Conta
@@ -2661,7 +2677,7 @@
         if(est === 'false') return { estudando: false, curso:'', instituicao:'', anoCurso:'' };
         return {};
       })(),
-      ...((['admin','chefe','tecnico'].includes(_perfilActual)) && document.getElementById("f-salario-base")
+      ...((temAlgumRoleCadastro(_perfilActual, ['admin','chefe','tecnico'])) && document.getElementById("f-salario-base")
         ? { salarioBase: salarioBaseInfo.valor || 0 } : {}),
       actualizadoEm:serverTimestamp(),actualizadoPor:utilizadorActual.uid
     };
@@ -2689,13 +2705,13 @@
       const u = utilizadorActual;
       if (!u) return;
       const snapU = await getDoc(doc(db, "utilizadores", u.uid));
-      const du = snapU.exists() ? snapU.data() : {};
+      const du = snapU.exists() ? normalizarPerfilCadastro(snapU.data()) : {};
       await addDoc(collection(db, "auditoria"), {
         timestamp:          serverTimestamp(),
         accao,
         emailUtilizador:    u.email || "—",
         nomeUtilizador:     du.nome || u.email || "—",
-        perfilUtilizador:   du.perfil || "—",
+        perfilUtilizador:   obterPerfilPrincipalCadastro(du) || "—",
         uidUtilizador:      u.uid,
         ...dados
       });
@@ -2850,7 +2866,7 @@
       {r:"Nº de Assegurado INSS",v:f.inss||null},
       {r:"Banco de Domiciliação",v:f.banco||null},
       {r:"Número de Conta / IBAN",v:f.numeroConta||null},
-      ...(['admin','chefe','tecnico'].includes(_perfilActual) && obterNumeroMoedaKz(f.salarioBase) > 0
+      ...(temAlgumRoleCadastro(_perfilActual, ['admin','chefe','tecnico']) && obterNumeroMoedaKz(f.salarioBase) > 0
         ? [{r:"Salário Base",v:formatarMoedaKz(f.salarioBase)}]
         : []),
       {r:"Observações",v:f.observacoes,span2:true},
@@ -2947,7 +2963,7 @@
       {r:"Nº de Assegurado INSS",v:f.inss||null},
       {r:"Banco de Domiciliação",v:f.banco||null},
       {r:"Número de Conta / IBAN",v:f.numeroConta||null},
-      ...(['admin','chefe','tecnico'].includes(_perfilActual) && obterNumeroMoedaKz(f.salarioBase) > 0
+      ...(temAlgumRoleCadastro(_perfilActual, ['admin','chefe','tecnico']) && obterNumeroMoedaKz(f.salarioBase) > 0
         ? [{r:"Salário Base",v:formatarMoedaKz(f.salarioBase)}]
         : []),
       {r:"Observações",v:f.observacoes,span2:true},
