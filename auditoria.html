@@ -731,6 +731,21 @@
     admin: "#d35400", chefe: "#1e8449", tecnico: "#1a4f7a",
     director: "#7d3c98", funcionario: "#7f8c8d"
   };
+  function normalizarPerfilAuditoria(docPerfil) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.normalizarPerfilDoc(docPerfil)
+      : (typeof docPerfil === "string" ? { perfil: docPerfil, roles: [docPerfil] } : (docPerfil || {}));
+  }
+  function obterPerfilPrincipalAuditoria(docPerfil) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.obterPerfilPrincipal(docPerfil)
+      : (typeof docPerfil === "string" ? docPerfil : (docPerfil?.perfil || "funcionario"));
+  }
+  function temAlgumRoleAuditoria(docPerfil, roles) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.temAlgumRole(docPerfil, roles)
+      : [].concat(roles || []).includes(obterPerfilPrincipalAuditoria(docPerfil));
+  }
 
   // ── ESTADO GLOBAL ──
   let _todosEventos = [];
@@ -746,10 +761,10 @@
     // Verificar perfil no Firestore
     try {
       const snap = await getDoc(doc(db, "utilizadores", user.uid));
-      const dados = snap.exists() ? snap.data() : {};
-      const perfil = dados.perfil || "funcionario";
+      const dados = normalizarPerfilAuditoria(snap.exists() ? snap.data() : {});
+      const perfil = obterPerfilPrincipalAuditoria(dados);
 
-      if (!PERFIS_COM_ACESSO.includes(perfil)) {
+      if (!temAlgumRoleAuditoria(dados, PERFIS_COM_ACESSO)) {
         document.getElementById("ecra-carregando").style.display = "none";
         document.getElementById("ecra-negado").style.display = "flex";
         return;
@@ -771,6 +786,7 @@
         pagina:   'auditoria',
         nome:     nome,
         perfil:   perfil,
+        roles:    dados.roles || [perfil],
         onLogout: async () => {
           const { signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
           await signOut(auth);
@@ -797,7 +813,8 @@
     try {
       const snap = await getDocs(collection(db, "utilizadores"));
       snap.forEach(d => {
-        _mapaUtilizadores[d.id] = { nome: d.data().nome || d.data().email || d.id, perfil: d.data().perfil || "funcionario" };
+        const perfil = normalizarPerfilAuditoria(d.data());
+        _mapaUtilizadores[d.id] = { nome: perfil.nome || perfil.email || d.id, perfil: obterPerfilPrincipalAuditoria(perfil) };
       });
     } catch(e) { console.error("Erro mapa utilizadores:", e); mostrarNotif("⚠️ Não foi possível carregar o mapa de utilizadores.", "notif-info"); }
   }
