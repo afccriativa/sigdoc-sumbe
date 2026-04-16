@@ -464,19 +464,37 @@
 
   let todosDocumentos=[],filtroActual="pendente",docSel=null,utilizadorActual=null,_perfilActual=null;
 
+  function normalizarPerfilAcesso(docPerfil) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.normalizarPerfilDoc(docPerfil)
+      : (typeof docPerfil === "string" ? { perfil: docPerfil, roles: [docPerfil] } : (docPerfil || {}));
+  }
+
+  function obterPerfilPrincipalAcesso(docPerfil) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.obterPerfilPrincipal(docPerfil)
+      : (typeof docPerfil === "string" ? docPerfil : (docPerfil?.perfil || "funcionario"));
+  }
+
+  function temAlgumRoleAcesso(docPerfil, roles) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.temAlgumRole(docPerfil, roles)
+      : [].concat(roles || []).includes(obterPerfilPrincipalAcesso(docPerfil));
+  }
+
   // ── AUDITORIA DE LEITURAS ──
   async function registarLeitura(accao, dados) {
     try {
       const u = utilizadorActual;
       if (!u) return;
       const snapU = await getDoc(doc(db, "utilizadores", u.uid));
-      const du = snapU.exists() ? snapU.data() : {};
+      const du = snapU.exists() ? normalizarPerfilAcesso(snapU.data()) : {};
       await addDoc(collection(db, "auditoria"), {
         timestamp:        serverTimestamp(),
         accao,
         emailUtilizador:  u.email || "—",
         nomeUtilizador:   du.nome || u.email || "—",
-        perfilUtilizador: du.perfil || "—",
+        perfilUtilizador: obterPerfilPrincipalAcesso(du) || "—",
         uidUtilizador:    u.uid,
         ...dados
       });
@@ -488,7 +506,7 @@
   // impede que a função sequer tente, evitando erros confusos.
   function _exigirPerfil(perfisPermitidos) {
     if (!utilizadorActual) return false;
-    return perfisPermitidos.includes(_perfilActual);
+    return temAlgumRoleAcesso(_perfilActual, perfisPermitidos);
   }
 
   let todasSolicitacoes=[],filtroSolActual="nova",solSel=null;
@@ -504,18 +522,19 @@
 
     // Buscar perfil do utilizador no Firestore
     let nome = u.displayName || u.email || "Utilizador";
-    let perfil = "";
+    let perfil = "funcionario";
     try{
       const snap = await getDoc(doc(db,"utilizadores",u.uid));
       if(snap.exists()){
-        const d = snap.data();
+        const d = normalizarPerfilAcesso(snap.data());
         if(d.nome) nome = d.nome;
-        if(d.perfil) { perfil = d.perfil; _perfilActual = d.perfil; }
+        perfil = obterPerfilPrincipalAcesso(d);
+        _perfilActual = d;
       }
     }catch(e){ console.warn("Perfil não encontrado.", e); }
 
     // Verificar permissão de acesso
-    if(!PERFIS_ACESSO.includes(perfil)){
+    if(!temAlgumRoleAcesso(_perfilActual || perfil, PERFIS_ACESSO)){
       document.getElementById("ecrã-negado").style.display="flex";
       return;
     }
@@ -525,6 +544,7 @@
       pagina: "aprovacoes",
       nome,
       perfil,
+      roles: _perfilActual?.roles || [perfil],
       onLogout: async () => {
         const { signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
         await signOut(auth);
