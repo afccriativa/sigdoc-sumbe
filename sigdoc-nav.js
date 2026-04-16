@@ -40,7 +40,9 @@ window.SIGDOC_NAV = (function () {
     admin:       'Administrador',
     director:    'Director Municipal',
     chefe:       'Chefe de Secção',
+    chefe_unidade: 'Chefe de Unidade',
     tecnico:     'Técnico de RH',
+    secretaria:  'Secretaria',
     funcionario: 'Funcionário'
   };
 
@@ -267,13 +269,21 @@ window.SIGDOC_NAV = (function () {
      RENDER HTML
   ───────────────────────────────────────── */
   function buildSidebar(config) {
-    const perfil = config.perfil || 'funcionario';
+    const authz = window.SIGDOC_AUTHZ;
+    const perfilInfo = authz
+      ? authz.normalizarPerfilDoc(config.roles || config.perfil || 'funcionario')
+      : { perfilPrincipal: config.perfil || 'funcionario', roles: [config.perfil || 'funcionario'] };
+    const perfil = perfilInfo.perfilPrincipal || 'funcionario';
+    const roles = perfilInfo.roles || [perfil];
+    const perfilLabel = authz
+      ? authz.obterEtiquetaPrincipal(perfilInfo, PERFIL_LABEL)
+      : (PERFIL_LABEL[perfil] || perfil);
     const iniciais = (config.nome || '?').split(' ').slice(0,2).map(p => p[0]).join('').toUpperCase();
 
-    // Grupos filtrados por perfil
+    // Grupos filtrados por roles
     const gruposHtml = GRUPOS.map(grupo => {
       const itensHtml = grupo.itens
-        .filter(item => item.perfis.includes(perfil))
+        .filter(item => item.perfis.some(role => roles.includes(role)))
         .map(item => {
           const activo = item.id === config.pagina ? ' snav-activo' : '';
           const badge = (config.badges && config.badges[item.id])
@@ -324,7 +334,7 @@ window.SIGDOC_NAV = (function () {
           <div class="snav-avatar" id="snav-avatar">${iniciais}</div>
           <div class="snav-user-info">
             <div class="snav-user-nome" id="snav-nome">${config.nome || '—'}</div>
-            <div class="snav-user-perfil" id="snav-perfil">${PERFIL_LABEL[perfil] || perfil}</div>
+            <div class="snav-user-perfil" id="snav-perfil">${perfilLabel}</div>
           </div>
           <button class="snav-logout-btn" onclick="SIGDOC_NAV.logout()" title="Terminar sessão">⇥</button>
         </div>
@@ -346,6 +356,7 @@ window.SIGDOC_NAV = (function () {
      * @param {string} config.pagina   - ID da página actual (ex: 'painel')
      * @param {string} config.nome     - Nome do utilizador
      * @param {string} config.perfil   - Perfil: admin|director|chefe|tecnico|funcionario
+     * @param {string[]} [config.roles] - Lista de roles do utilizador
      * @param {Object} [config.badges] - Ex: { aprovacoes: 3 }
      * @param {Function} [config.onLogout] - Callback de logout personalizado
      */
@@ -391,12 +402,20 @@ window.SIGDOC_NAV = (function () {
     },
 
     /** Actualiza dados do utilizador sem re-renderizar tudo */
-    setUser(nome, perfil) {
+    setUser(nome, perfil, roles) {
+      const authz = window.SIGDOC_AUTHZ;
+      const perfilInfo = authz
+        ? authz.normalizarPerfilDoc(roles ? { perfil, roles } : perfil)
+        : { perfilPrincipal: perfil };
       const el_nome   = document.getElementById('snav-nome');
       const el_perfil = document.getElementById('snav-perfil');
       const el_avatar = document.getElementById('snav-avatar');
       if (el_nome)   el_nome.textContent   = nome;
-      if (el_perfil) el_perfil.textContent = PERFIL_LABEL[perfil] || perfil;
+      if (el_perfil) {
+        el_perfil.textContent = authz
+          ? authz.obterEtiquetaPrincipal(perfilInfo, PERFIL_LABEL)
+          : (PERFIL_LABEL[perfil] || perfil);
+      }
       if (el_avatar) el_avatar.textContent = nome.split(' ').slice(0,2).map(p => p[0]).join('').toUpperCase();
     },
 
