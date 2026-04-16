@@ -365,7 +365,22 @@
   const db   = getFirestore(app);
 
   const PERFIS_ACESSO = ["admin","director","chefe","tecnico"];
-  let _funcs = [], _unidades = {}, _perfil = '';
+  let _funcs = [], _unidades = {}, _perfil = '', _perfilDoc = null;
+  function normalizarPerfilRelatorios(docPerfil) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.normalizarPerfilDoc(docPerfil)
+      : (typeof docPerfil === "string" ? { perfil: docPerfil, roles: [docPerfil] } : (docPerfil || {}));
+  }
+  function obterPerfilPrincipalRelatorios(docPerfil) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.obterPerfilPrincipal(docPerfil)
+      : (typeof docPerfil === "string" ? docPerfil : (docPerfil?.perfil || "funcionario"));
+  }
+  function temAlgumRoleRelatorios(docPerfil, roles) {
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.temAlgumRole(docPerfil, roles)
+      : [].concat(roles || []).includes(obterPerfilPrincipalRelatorios(docPerfil));
+  }
 
   // ── NOTIF ───────────────────────────────────────────────
   let _nt;
@@ -382,10 +397,11 @@
     if (!user) { window.location.href = "index.html"; return; }
     try {
       const snap  = await getDoc(doc(db, "utilizadores", user.uid));
-      const dados = snap.exists() ? snap.data() : {};
-      _perfil     = dados.perfil || "funcionario";
+      const dados = normalizarPerfilRelatorios(snap.exists() ? snap.data() : {});
+      _perfilDoc  = dados;
+      _perfil     = obterPerfilPrincipalRelatorios(dados);
 
-      if (!PERFIS_ACESSO.includes(_perfil)) {
+      if (!temAlgumRoleRelatorios(dados, PERFIS_ACESSO)) {
         document.getElementById("ecra-carregando").style.display = "none";
         document.getElementById("ecra-negado").style.display     = "flex";
         return;
@@ -397,6 +413,7 @@
         pagina:   'relatorios',
         nome:     nome,
         perfil:   _perfil,
+        roles:    dados.roles || [_perfil],
         onLogout: async () => { await signOut(auth); window.location.href = "index.html"; }
       });
 
@@ -409,7 +426,7 @@
         {admin:"Administrador",director:"Director",chefe:"Chefe RH",tecnico:"Técnico RH"}[_perfil] || _perfil;
 
       // Ocultar mapa salarial se não tiver permissão
-      if (!["admin","chefe","tecnico"].includes(_perfil)) {
+      if (!temAlgumRoleRelatorios(_perfilDoc || _perfil, ["admin","chefe","tecnico"])) {
         const cs = document.getElementById("card-salarial");
         if (cs) cs.style.display = "none";
       }
@@ -723,7 +740,7 @@
   //  SALARIAL
   // ════════════════════════════════════════════════════════
   window.exportarSalarial = function(fmt) {
-    if (!["admin","chefe","tecnico"].includes(_perfil)) { notif("Sem permissão para aceder ao mapa salarial.","erro"); return; }
+  if (!temAlgumRoleRelatorios(_perfilDoc || _perfil, ["admin","chefe","tecnico"])) { notif("Sem permissão para aceder ao mapa salarial.","erro"); return; }
     const funcs = filtrarSalarial();
     if (!funcs.length) { notif("Nenhum funcionário com salário registado.","erro"); return; }
     const cols   = ["Nº Agente","Nome","Unidade","Categoria","Vínculo","Salário Base (Kz)"];
@@ -738,7 +755,7 @@
   };
 
   window.previsualizarSalarial = function() {
-    if (!["admin","chefe","tecnico"].includes(_perfil)) { notif("Sem permissão.","erro"); return; }
+  if (!temAlgumRoleRelatorios(_perfilDoc || _perfil, ["admin","chefe","tecnico"])) { notif("Sem permissão.","erro"); return; }
     const funcs = filtrarSalarial();
     mostrarPrevia("Mapa Salarial", ["Nº","Nome","Unidade","Categoria","Salário Base"],
       funcs.map(f=>[f.numero||"—",f.nome||"—",abrev(f.unidade||"—"),f.categoria||"—",fmtKz(f.salarioBase)]));
@@ -754,7 +771,7 @@
     if (!f) { notif("Funcionário não encontrado.","erro"); return; }
     const anos = f.admissao ? new Date().getFullYear() - new Date(f.admissao).getFullYear() : null;
     const nat  = [f.municipioNatal, f.provinciaNatal].filter(Boolean).join(", ") || "—";
-    const campoSal = ["admin","chefe","tecnico"].includes(_perfil) && f.salarioBase
+  const campoSal = temAlgumRoleRelatorios(_perfilDoc || _perfil, ["admin","chefe","tecnico"]) && f.salarioBase
       ? `<tr><td><strong>Salário Base</strong></td><td>${fmtKz(f.salarioBase)}</td></tr>` : "";
     abrirPDF(`
       <h1>Ficha de Funcionário</h1>
