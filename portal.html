@@ -2747,6 +2747,29 @@
     if(el) el.style.display="none";
   }
 
+  function normalizarPerfilPortal(docPerfil){
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.normalizarPerfilDoc(docPerfil)
+      : (typeof docPerfil === "string" ? { perfil: docPerfil, roles: [docPerfil] } : (docPerfil || {}));
+  }
+
+  function payloadPerfilPortal(roles){
+    const perfil = window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.criarPerfilUtilizador({ roles: roles || [] })
+      : { perfil: "funcionario", perfilBase: "funcionario", roles: ["funcionario"].concat(roles || []) };
+    return {
+      perfil: perfil.perfil,
+      perfilBase: perfil.perfilBase,
+      roles: perfil.roles
+    };
+  }
+
+  function temRolePortal(docPerfil, roles){
+    return window.SIGDOC_AUTHZ
+      ? window.SIGDOC_AUTHZ.temAlgumRole(docPerfil, roles)
+      : [].concat(roles || []).includes(typeof docPerfil === "string" ? docPerfil : docPerfil?.perfil);
+  }
+
   onAuthStateChanged(auth,async user=>{
     if(!user||user.isAnonymous){
       mostrarEcra("ecra-entrada");
@@ -2757,8 +2780,8 @@
     try{
       const snap=await getDoc(doc(db,"utilizadores",user.uid));
       if(!snap.exists()){mostrarEcra("ecra-entrada");esconderLoading();return;}
-      const dados=snap.data();
-      if(dados.perfil!=="funcionario"){mostrarEcra("ecra-entrada");esconderLoading();return;}
+      const dados=normalizarPerfilPortal(snap.data());
+      if(!temRolePortal(dados, ["funcionario"])){mostrarEcra("ecra-entrada");esconderLoading();return;}
       if(dados.funcionarioId){
         try{const sf=await getDoc(doc(db,"funcionarios",dados.funcionarioId));if(sf.exists()){_funcDoc=sf.data();_funcDocId=sf.id;}}catch(ef){console.warn(ef);}
       }
@@ -2933,7 +2956,7 @@
       else{const c=await createUserWithEmailAndPassword(auth,email,senha);uid=c.user.uid;userFinal=c.user;}
       _utilizador=userFinal;
       const{setDoc}=await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-      await setDoc(doc(db,"utilizadores",uid),{nome:_funcDoc.nome,email,perfil:"funcionario",unidade:_funcDoc.unidade||"",activo:true,funcionarioId:_funcDocId,criadoEm:serverTimestamp(),ultimoAcesso:serverTimestamp()});
+      await setDoc(doc(db,"utilizadores",uid),{nome:_funcDoc.nome,email,unidade:_funcDoc.unidade||"",activo:true,funcionarioId:_funcDocId,criadoEm:serverTimestamp(),ultimoAcesso:serverTimestamp(),...payloadPerfilPortal([])});
       await updateDoc(doc(db,"funcionarios",_funcDocId),{portalUid:uid,portalEmail:email,portalCriadoEm:serverTimestamp()});
       const nome=(_funcDoc.nome||"").split(" ")[0];
       document.getElementById("bv-titulo").textContent="Bem-vindo, "+nome+"!";
@@ -2950,7 +2973,7 @@
     }
   };
 
-  window.entrarNoPortal=function(){mostrarPortal(_utilizador,{nome:_funcDoc.nome,perfil:"funcionario",unidade:_funcDoc.unidade,funcionarioId:_funcDocId});};
+  window.entrarNoPortal=function(){mostrarPortal(_utilizador,{nome:_funcDoc.nome,unidade:_funcDoc.unidade,funcionarioId:_funcDocId,...payloadPerfilPortal([])});};
 
   // LOGIN
   window.fazerLoginFuncionario=async function(){
