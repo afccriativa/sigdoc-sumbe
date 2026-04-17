@@ -435,10 +435,11 @@
 
     } catch(e) {
       console.error(e);
+      const erroSeguro = escapeHTML(e.code || e.message);
       document.getElementById("ecra-carregando").innerHTML =
         `<div style="font-size:36px">❌</div>
          <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.7)">Erro ao carregar</div>
-         <div style="font-size:11px;font-family:monospace;background:rgba(239,68,68,.1);padding:8px 14px;border-radius:8px;color:#fca5a5">${e.code||e.message}</div>
+         <div style="font-size:11px;font-family:monospace;background:rgba(239,68,68,.1);padding:8px 14px;border-radius:8px;color:#fca5a5">${erroSeguro}</div>
          <a href="index.html" style="margin-top:8px;padding:9px 22px;border-radius:8px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:13px;font-weight:700;text-decoration:none">← Voltar</a>`;
     }
   });
@@ -514,6 +515,21 @@
   const fmtKz   = v => v ? Number(v).toLocaleString("pt-PT") + " Kz" : "—";
   const lv      = v => ({quadro:"Pessoal do Quadro",provisorio:"Prov. Provisório"}[v] || v || "—");
   const le      = v => ({activo:"Em Serviço",licenca:"De Licença",inactivo:"Inactivo"}[v] || v || "—");
+  function escapeHTML(str) {
+    return String(str ?? "").replace(/[&<>"']/g, function(m) {
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[m];
+    });
+  }
+  const cellHTML   = (value, attrs = "") => `<td${attrs}>${escapeHTML(value ?? "—")}</td>`;
+  const headerHTML = value => `<th>${escapeHTML(value ?? "")}</th>`;
+  const linhasParaHTML = linhas =>
+    linhas.map(l => `<tr>${l.map(c => cellHTML(c)).join("")}</tr>`).join("");
 
   // ════════════════════════════════════════════════════════
   //  EXPORTAR EXCEL (TSV abre directamente no Excel)
@@ -549,9 +565,10 @@
   // ════════════════════════════════════════════════════════
   function abrirPDF(html, titulo) {
     const win = window.open("", "_blank");
+    const tituloSeguro = escapeHTML(titulo);
     win.document.write(`<!DOCTYPE html><html lang="pt"><head>
       <meta charset="UTF-8"/>
-      <title>${titulo}</title>
+      <title>${tituloSeguro}</title>
       <style>
         *{box-sizing:border-box;margin:0;padding:0}
         body{font-family:Arial,sans-serif;font-size:10px;color:#111;padding:20mm 18mm}
@@ -588,19 +605,48 @@
     document.getElementById("preview-count").textContent = linhas.length + " registos";
     const table = document.getElementById("preview-table");
     const max = Math.min(linhas.length, 10);
-    table.innerHTML =
-      `<thead><tr>${colunas.map(c => `<th>${c}</th>`).join("")}</tr></thead>` +
-      `<tbody>${linhas.slice(0,max).map(l =>
-        `<tr>${l.map((c,i) => {
-          if(colunas[i]==="Estado"){
-            const cls = c==="Em Serviço"?"be-activo":c==="De Licença"?"be-licenca":"be-inactivo";
-            return `<td><span class="badge-estado ${cls}">${c}</span></td>`;
-          }
-          return `<td>${c}</td>`;
-        }).join("")}</tr>`
-      ).join("")}
-      ${linhas.length>max?`<tr><td colspan="${colunas.length}" style="text-align:center;color:rgba(255,255,255,.3);font-size:11px;padding:10px">… mais ${linhas.length-max} registos</td></tr>`:""}
-      </tbody>`;
+    const thead = document.createElement("thead");
+    const headRow = document.createElement("tr");
+    colunas.forEach(c => {
+      const th = document.createElement("th");
+      th.textContent = c;
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+
+    const tbody = document.createElement("tbody");
+    linhas.slice(0, max).forEach(l => {
+      const tr = document.createElement("tr");
+      l.forEach((c, i) => {
+        const td = document.createElement("td");
+        if (colunas[i] === "Estado") {
+          const cls = c === "Em Serviço" ? "be-activo" : c === "De Licença" ? "be-licenca" : "be-inactivo";
+          const span = document.createElement("span");
+          span.className = "badge-estado " + cls;
+          span.textContent = String(c ?? "");
+          td.appendChild(span);
+        } else {
+          td.textContent = String(c ?? "");
+        }
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+
+    if (linhas.length > max) {
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = colunas.length;
+      td.style.textAlign = "center";
+      td.style.color = "rgba(255,255,255,.3)";
+      td.style.fontSize = "11px";
+      td.style.padding = "10px";
+      td.textContent = `… mais ${linhas.length - max} registos`;
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+
+    table.replaceChildren(thead, tbody);
     card.style.display = "block";
     card.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -637,13 +683,13 @@
     const rows = funcs.map(f => {
       const anos = f.admissao ? new Date().getFullYear() - new Date(f.admissao).getFullYear() : "—";
       const ecls = (f.estado||"activo")==="activo"?"ba":(f.estado==="licenca"?"bl":"bi");
-      return `<tr><td>${f.numero||"—"}</td><td><strong>${f.nome||"—"}</strong></td><td>${f.sexo||"—"}</td><td>${f.categoria||"—"}</td><td>${abrev(f.unidade||"—")}</td><td>${lv(f.vinculo)}</td><td>${fmtData(f.admissao)}</td><td>${anos}</td><td><span class="badge ${ecls}">${le(f.estado||"activo")}</span></td></tr>`;
+      return `<tr>${cellHTML(f.numero||"—")}<td><strong>${escapeHTML(f.nome||"—")}</strong></td>${cellHTML(f.sexo||"—")}${cellHTML(f.categoria||"—")}${cellHTML(abrev(f.unidade||"—"))}${cellHTML(lv(f.vinculo))}${cellHTML(fmtData(f.admissao))}${cellHTML(anos)}<td><span class="badge ${ecls}">${escapeHTML(le(f.estado||"activo"))}</span></td></tr>`;
     }).join("");
     abrirPDF(`
       <h1>${titulo}</h1>
       <div class="sub">Direcção Municipal de Saúde do Sumbe</div>
       <div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span><span>Total: ${funcs.length} funcionários</span></div>
-      <table><thead><tr><th>Nº</th><th>Nome</th><th>Sexo</th><th>Categoria</th><th>Unidade</th><th>Vínculo</th><th>Admissão</th><th>Anos</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table>
+      <table><thead><tr>${["Nº","Nome","Sexo","Categoria","Unidade","Vínculo","Admissão","Anos","Estado"].map(headerHTML).join("")}</tr></thead><tbody>${rows}</tbody></table>
     `, titulo);
     notif("📄 PDF aberto em nova janela — use Imprimir para guardar");
   }
@@ -667,9 +713,9 @@
       const rows = funcs.map(f => {
         const anos = f.admissao ? new Date().getFullYear() - new Date(f.admissao).getFullYear() : "—";
         const ecls = (f.estado||"activo")==="activo"?"ba":(f.estado==="licenca"?"bl":"bi");
-        return `<tr><td>${f.numero||"—"}</td><td><strong>${f.nome||"—"}</strong></td><td>${f.sexo||"—"}</td><td>${f.categoria||"—"}</td><td>${f.seccao||"—"}</td><td>${lv(f.vinculo)}</td><td>${fmtData(f.admissao)}</td><td>${anos}</td><td><span class="badge ${ecls}">${le(f.estado||"activo")}</span></td></tr>`;
+        return `<tr>${cellHTML(f.numero||"—")}<td><strong>${escapeHTML(f.nome||"—")}</strong></td>${cellHTML(f.sexo||"—")}${cellHTML(f.categoria||"—")}${cellHTML(f.seccao||"—")}${cellHTML(lv(f.vinculo))}${cellHTML(fmtData(f.admissao))}${cellHTML(anos)}<td><span class="badge ${ecls}">${escapeHTML(le(f.estado||"activo"))}</span></td></tr>`;
       }).join("");
-      abrirPDF(`<h1>Mapa de Pessoal — ${unid}</h1><div class="sub">Direcção Municipal de Saúde do Sumbe</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span><span>Total: ${funcs.length} funcionários</span></div><table><thead><tr><th>Nº</th><th>Nome</th><th>Sexo</th><th>Categoria</th><th>Secção</th><th>Vínculo</th><th>Admissão</th><th>Anos</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table>`,`Mapa ${unid}`);
+      abrirPDF(`<h1>Mapa de Pessoal — ${escapeHTML(unid)}</h1><div class="sub">Direcção Municipal de Saúde do Sumbe</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span><span>Total: ${funcs.length} funcionários</span></div><table><thead><tr>${["Nº","Nome","Sexo","Categoria","Secção","Vínculo","Admissão","Anos","Estado"].map(headerHTML).join("")}</tr></thead><tbody>${rows}</tbody></table>`,`Mapa ${unid}`);
       notif("📄 PDF aberto em nova janela");
     }
   };
@@ -716,11 +762,11 @@
         const ecls = cob===null?"":"badge "+(cob>=90?"ba":cob>=60?"bl":"bi");
         const txt  = cob===null?"s/meta":cob+"%";
         const naoOp = u.estOp !== 'Operacional';
-        return `<tr${naoOp?' style="opacity:.6"':''}><td>${u.nome}</td><td style="text-align:center;font-size:11px">${u.estOp}</td><td style="text-align:center">${u.cad}</td><td style="text-align:center">${u.esp||"—"}</td><td style="text-align:center"><span class="${ecls}">${txt}</span></td></tr>`;
+        return `<tr${naoOp?' style="opacity:.6"':''}>${cellHTML(u.nome)}${cellHTML(u.estOp,' style="text-align:center;font-size:11px"')}${cellHTML(u.cad,' style="text-align:center"')}${cellHTML(u.esp||"—",' style="text-align:center"')}<td style="text-align:center"><span class="${ecls}">${escapeHTML(txt)}</span></td></tr>`;
       }).join("");
       const tot = lista.reduce((s,u)=>s+u.cad,0);
       const totEsp = lista.reduce((s,u)=>s+u.esp,0);
-      abrirPDF(`<h1>Relatório de Cobertura por Unidade</h1><div class="sub">Direcção Municipal de Saúde do Sumbe</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span></div><table><thead><tr><th>Unidade Sanitária</th><th>Est. Operacional</th><th>Cadastrados</th><th>Esperado</th><th>Cobertura</th></tr></thead><tbody>${rows}</tbody></table><div class="totais">Total cadastrados: <strong>${tot}</strong> &nbsp;|&nbsp; Total esperado: <strong>${totEsp||"—"}</strong></div>`, "Relatório de Cobertura");
+      abrirPDF(`<h1>Relatório de Cobertura por Unidade</h1><div class="sub">Direcção Municipal de Saúde do Sumbe</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span></div><table><thead><tr>${["Unidade Sanitária","Est. Operacional","Cadastrados","Esperado","Cobertura"].map(headerHTML).join("")}</tr></thead><tbody>${rows}</tbody></table><div class="totais">Total cadastrados: <strong>${tot}</strong> &nbsp;|&nbsp; Total esperado: <strong>${totEsp||"—"}</strong></div>`, "Relatório de Cobertura");
       notif("📄 PDF aberto em nova janela");
     }
   };
@@ -748,8 +794,8 @@
     const total  = funcs.reduce((s,f)=>s+(Number(f.salarioBase)||0),0);
     if (fmt==="excel") { downloadExcel([...cols,["TOTAL","","","","",total]], linhas, "Mapa_Salarial_"+hoje()); notif("📊 Mapa salarial exportado"); }
     else {
-      const rows = funcs.map(f=>`<tr><td>${f.numero||"—"}</td><td><strong>${f.nome||"—"}</strong></td><td>${abrev(f.unidade||"—")}</td><td>${f.categoria||"—"}</td><td>${lv(f.vinculo)}</td><td style="text-align:right;font-weight:700">${fmtKz(f.salarioBase)}</td></tr>`).join("");
-      abrirPDF(`<h1>Mapa Salarial</h1><div class="sub">Direcção Municipal de Saúde do Sumbe — CONFIDENCIAL</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span><span>${funcs.length} funcionários com salário registado</span></div><table><thead><tr><th>Nº</th><th>Nome</th><th>Unidade</th><th>Categoria</th><th>Vínculo</th><th>Salário Base</th></tr></thead><tbody>${rows}</tbody></table><div class="totais">Massa salarial total: <strong>${fmtKz(total)}</strong></div>`, "Mapa Salarial");
+      const rows = funcs.map(f=>`<tr>${cellHTML(f.numero||"—")}<td><strong>${escapeHTML(f.nome||"—")}</strong></td>${cellHTML(abrev(f.unidade||"—"))}${cellHTML(f.categoria||"—")}${cellHTML(lv(f.vinculo))}${cellHTML(fmtKz(f.salarioBase),' style="text-align:right;font-weight:700"')}</tr>`).join("");
+      abrirPDF(`<h1>Mapa Salarial</h1><div class="sub">Direcção Municipal de Saúde do Sumbe — CONFIDENCIAL</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span><span>${funcs.length} funcionários com salário registado</span></div><table><thead><tr>${["Nº","Nome","Unidade","Categoria","Vínculo","Salário Base"].map(headerHTML).join("")}</tr></thead><tbody>${rows}</tbody></table><div class="totais">Massa salarial total: <strong>${fmtKz(total)}</strong></div>`, "Mapa Salarial");
       notif("📄 PDF aberto em nova janela");
     }
   };
@@ -771,26 +817,30 @@
     if (!f) { notif("Funcionário não encontrado.","erro"); return; }
     const anos = f.admissao ? new Date().getFullYear() - new Date(f.admissao).getFullYear() : null;
     const nat  = [f.municipioNatal, f.provinciaNatal].filter(Boolean).join(", ") || "—";
-  const campoSal = temAlgumRoleRelatorios(_perfilDoc || _perfil, ["admin","chefe","tecnico"]) && f.salarioBase
-      ? `<tr><td><strong>Salário Base</strong></td><td>${fmtKz(f.salarioBase)}</td></tr>` : "";
+    const campoSal = temAlgumRoleRelatorios(_perfilDoc || _perfil, ["admin","chefe","tecnico"]) && f.salarioBase
+      ? `<tr><td><strong>Salário Base</strong></td>${cellHTML(fmtKz(f.salarioBase))}</tr>` : "";
+    const observacoes = f.observacoes
+      ? `<tr><td><strong>Observações</strong></td><td colspan="3">${escapeHTML(f.observacoes)}</td></tr>`
+      : "";
+    const localColocacao = `${escapeHTML(f.unidade||"—")}${f.seccao ? " — " + escapeHTML(f.seccao) : ""}`;
     abrirPDF(`
       <h1>Ficha de Funcionário</h1>
       <div class="sub">Direcção Municipal de Saúde do Sumbe</div>
       <div class="meta"><span>Emitido em: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span></div>
       <table>
         <tbody>
-          <tr><td><strong>Nome Completo</strong></td><td>${f.nome||"—"}</td><td><strong>Nº de Agente</strong></td><td>${f.numero||"—"}</td></tr>
-          <tr><td><strong>Sexo</strong></td><td>${f.sexo||"—"}</td><td><strong>Data de Nascimento</strong></td><td>${fmtData(f.nascimento)}</td></tr>
-          <tr><td><strong>Bilhete de Identidade</strong></td><td>${f.bi||"—"}</td><td><strong>Naturalidade</strong></td><td>${nat}</td></tr>
-          <tr><td><strong>Telefone</strong></td><td>${f.telefone||"—"}</td><td><strong>E-mail</strong></td><td>${f.email||"—"}</td></tr>
-          <tr><td><strong>Categoria / Cargo</strong></td><td colspan="3">${f.categoria||"—"}</td></tr>
-          <tr><td><strong>Local de Colocação</strong></td><td colspan="3">${f.unidade||"—"}${f.seccao?" — "+f.seccao:""}</td></tr>
-          <tr><td><strong>Tipo de Vínculo</strong></td><td>${lv(f.vinculo)}</td><td><strong>Data de Admissão</strong></td><td>${fmtData(f.admissao)}</td></tr>
-          <tr><td><strong>Anos de Serviço</strong></td><td>${anos!==null?anos+" anos":"—"}</td><td><strong>Estado</strong></td><td>${le(f.estado||"activo")}</td></tr>
-          <tr><td><strong>Escolaridade</strong></td><td>${f.escolaridade||"—"}</td><td><strong>Nº INSS</strong></td><td>${f.inss||"—"}</td></tr>
-          <tr><td><strong>Banco</strong></td><td>${f.banco||"—"}</td><td></td><td></td></tr>
+          <tr><td><strong>Nome Completo</strong></td>${cellHTML(f.nome||"—")}<td><strong>Nº de Agente</strong></td>${cellHTML(f.numero||"—")}</tr>
+          <tr><td><strong>Sexo</strong></td>${cellHTML(f.sexo||"—")}<td><strong>Data de Nascimento</strong></td>${cellHTML(fmtData(f.nascimento))}</tr>
+          <tr><td><strong>Bilhete de Identidade</strong></td>${cellHTML(f.bi||"—")}<td><strong>Naturalidade</strong></td>${cellHTML(nat)}</tr>
+          <tr><td><strong>Telefone</strong></td>${cellHTML(f.telefone||"—")}<td><strong>E-mail</strong></td>${cellHTML(f.email||"—")}</tr>
+          <tr><td><strong>Categoria / Cargo</strong></td><td colspan="3">${escapeHTML(f.categoria||"—")}</td></tr>
+          <tr><td><strong>Local de Colocação</strong></td><td colspan="3">${localColocacao}</td></tr>
+          <tr><td><strong>Tipo de Vínculo</strong></td>${cellHTML(lv(f.vinculo))}<td><strong>Data de Admissão</strong></td>${cellHTML(fmtData(f.admissao))}</tr>
+          <tr><td><strong>Anos de Serviço</strong></td>${cellHTML(anos!==null?anos+" anos":"—")}<td><strong>Estado</strong></td>${cellHTML(le(f.estado||"activo"))}</tr>
+          <tr><td><strong>Escolaridade</strong></td>${cellHTML(f.escolaridade||"—")}<td><strong>Nº INSS</strong></td>${cellHTML(f.inss||"—")}</tr>
+          <tr><td><strong>Banco</strong></td>${cellHTML(f.banco||"—")}<td></td><td></td></tr>
           ${campoSal}
-          ${f.observacoes?`<tr><td><strong>Observações</strong></td><td colspan="3">${f.observacoes}</td></tr>`:""}
+          ${observacoes}
         </tbody>
       </table>
       <br><br>
@@ -919,7 +969,7 @@
         a.download = 'pedidos_secretaria_'+hoje()+'.csv'; a.click(); URL.revokeObjectURL(a.href);
         notif('✅ CSV exportado');
       } else {
-        const rows = linhas.map(l=>`<tr>${l.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');
+        const rows = linhasParaHTML(linhas);
         abrirPDF(`
           <h1>${titulo}</h1>
           <div class="sub">Direcção Municipal de Saúde do Sumbe</div>
@@ -929,7 +979,7 @@
             <span>Taxa resolução: ${taxa}%</span>
             <span>Tempo médio resposta: ${mediaTempoStr}</span>
           </div>
-          <table><thead><tr>${COLS_SEC_PED.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+          <table><thead><tr>${COLS_SEC_PED.map(headerHTML).join('')}</tr></thead>
           <tbody>${rows}</tbody></table>
           <div class="totais">Total pedidos: <strong>${total}</strong> &nbsp;|&nbsp; Fechados: <strong>${fechados}</strong> &nbsp;|&nbsp; Taxa resolução: <strong>${taxa}%</strong></div>
         `, titulo);
@@ -999,7 +1049,7 @@
         a.download = 'reunioes_secretaria_'+hoje()+'.csv'; a.click(); URL.revokeObjectURL(a.href);
         notif('✅ CSV exportado');
       } else {
-        const rows = linhas.map(l=>`<tr>${l.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');
+        const rows = linhasParaHTML(linhas);
         abrirPDF(`
           <h1>${titulo}</h1>
           <div class="sub">Direcção Municipal de Saúde do Sumbe</div>
@@ -1009,7 +1059,7 @@
             <span>Realizadas: ${realiz}</span>
             <span>Recusadas: ${recus}</span>
           </div>
-          <table><thead><tr>${COLS_REUN.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+          <table><thead><tr>${COLS_REUN.map(headerHTML).join('')}</tr></thead>
           <tbody>${rows}</tbody></table>
           <div class="totais">Total: <strong>${total}</strong> &nbsp;|&nbsp; Realizadas: <strong>${realiz}</strong> &nbsp;|&nbsp; Recusadas: <strong>${recus}</strong></div>
         `, titulo);
