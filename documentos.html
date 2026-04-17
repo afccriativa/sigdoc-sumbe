@@ -558,6 +558,47 @@
       }
     }
 
+    @media print {
+      @page { size: A4 landscape; margin: 3mm; }
+
+      body {
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: 0 !important;
+        height: auto !important;
+      }
+
+      body > *:not(#area-impressao) {
+        display: none !important;
+      }
+
+      #area-impressao {
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      #area-impressao .documento-oficial {
+        width: 291mm !important;
+        height: 204mm !important;
+        max-height: 204mm !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-before: avoid !important;
+        page-break-after: avoid !important;
+      }
+
+      #area-impressao .doc-metade,
+      #area-impressao .documento-oficial * {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-before: avoid !important;
+        page-break-after: avoid !important;
+      }
+    }
+
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <script src="sigdoc-config.js"></script>
