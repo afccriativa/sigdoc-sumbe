@@ -189,9 +189,11 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         pointer-events: none;
       }
       @media print {
+        @page { size: A4 portrait; margin: 0; }
         body { margin: 0; padding: 0; }
         .gm-documento { width: 210mm; }
         .gm-pagina {
+          width: 210mm;
           border: none;
           margin: 0;
           height: 297mm;
