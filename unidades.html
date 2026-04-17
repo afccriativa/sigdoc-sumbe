@@ -1219,9 +1219,9 @@ function calcCobertura(u){
   return {pct,classe:'pct-vermelho',fillClass:'fill-vermelho',label:`${pct}%`};
 }
 
-function abrirFichaPagina(id){
+window.abrirFichaPagina = function(id){
   window.location.href = `ficha-unidade.html?id=${encodeURIComponent(id)}`;
-}
+};
 
 function localizacaoCurta(u){
   const loc = u?.localizacao || {};
@@ -1286,7 +1286,7 @@ function cardHTML(u){
           <span class="u-resp-nome">${u.responsavel.nome.split(' ').slice(0,2).join(' ')}</span>
         ` : `<span class="u-resp-nome" style="color:var(--txt-3)">Sem responsável definido</span>`}
       </div>
-      <button class="btn-ver" onclick="event.stopPropagation();abrirFichaPagina('${u.id}')">Ver Ficha</button>
+      <button class="btn-ver" onclick="event.stopPropagation();window.abrirFichaPagina('${u.id}')">Ver Ficha</button>
     </div>
   </div>`;
 }
@@ -1395,7 +1395,7 @@ function renderDrawerDMS(u){
       <div class="ds-titulo" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
         <span>Identificação</span>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn-ver" onclick="abrirFichaPagina('${u.id}')">Abrir ficha</button>
+          <button class="btn-ver" onclick="window.abrirFichaPagina('${u.id}')">Abrir ficha</button>
           ${podeEd?`<button class="btn-ver" onclick="abrirModalFicha('${u.id}')">✏️ Editar ficha</button>`:''}
         </div>
       </div>
@@ -1479,7 +1479,7 @@ function renderDrawer(u){
       <div class="ds-titulo" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
         <span>Identificação</span>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn-ver" onclick="abrirFichaPagina('${u.id}')">Abrir ficha</button>
+          <button class="btn-ver" onclick="window.abrirFichaPagina('${u.id}')">Abrir ficha</button>
           ${podeEd?`<button class="btn-ver" onclick="abrirModalFicha('${u.id}')">✏️ Editar ficha</button>`:''}
         </div>
       </div>
