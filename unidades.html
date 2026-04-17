@@ -424,6 +424,11 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
   color:var(--txt-1);outline:none;transition:border .15s;
   resize:vertical;
 }
+.mef-grid-2{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
 .mef-campo input:focus,.mef-campo select:focus,.mef-campo textarea:focus{
   border-color:var(--pri);box-shadow:0 0 0 3px rgba(18,65,161,.08);
 }
@@ -527,6 +532,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
   .topbar{padding:12px 16px}
   .topbar-uinfo,.topbar-back span{display:none}
   .drawer{width:100vw}
+  .mef-grid-2{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -671,7 +677,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <!-- Tabs -->
       <div class="mef-tabs">
         <button class="mef-tab activo" onclick="mudarTab(this,'tab-resp')">👤 Responsável</button>
-        <button class="mef-tab" onclick="mudarTab(this,'tab-contactos')">📞 Contactos</button>
+        <button class="mef-tab" onclick="mudarTab(this,'tab-contactos')">📍 Localização</button>
         <button class="mef-tab" onclick="mudarTab(this,'tab-horario')">🕐 Horário</button>
         <button class="mef-tab" onclick="mudarTab(this,'tab-servicos')">🏥 Serviços</button>
         <button class="mef-tab" onclick="mudarTab(this,'tab-historial')">📋 Historial</button>
@@ -726,6 +732,30 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
           <label>Localização / Descrição</label>
           <input type="text" id="mf-localizacao" placeholder="ex: Bairro Pedra 1, Sumbe"/>
         </div>
+        <div class="mef-grid-2">
+          <div class="mef-campo">
+            <label>Município</label>
+            <input type="text" id="mf-municipio" placeholder="ex: Sumbe"/>
+          </div>
+          <div class="mef-campo">
+            <label>Comuna</label>
+            <input type="text" id="mf-comuna" placeholder="ex: Sumbe"/>
+          </div>
+        </div>
+        <div class="mef-grid-2">
+          <div class="mef-campo">
+            <label>Bairro</label>
+            <input type="text" id="mf-bairro" placeholder="ex: Pedra 1"/>
+          </div>
+          <div class="mef-campo">
+            <label>Distância da sede (km)</label>
+            <input type="number" id="mf-distancia" min="0" step="0.1" placeholder="ex: 12.5"/>
+          </div>
+        </div>
+        <div class="mef-campo">
+          <label>Ponto de referência</label>
+          <input type="text" id="mf-referencia" placeholder="ex: Junto ao mercado municipal"/>
+        </div>
         <div class="mef-campo">
           <label>Telefone geral</label>
           <input type="tel" id="mf-telefone" placeholder="+244 9XX XXX XXX"/>
@@ -737,6 +767,10 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
         <div class="mef-campo">
           <label>Email (opcional)</label>
           <input type="email" id="mf-email" placeholder="unidade@dms.ao"/>
+        </div>
+        <div class="mef-campo">
+          <label>Logística e infraestrutura</label>
+          <textarea id="mf-logistica" rows="4" placeholder="ex: Possui ambulância, gerador, laboratório e farmácia funcional."></textarea>
         </div>
       </div>
 
@@ -1185,6 +1219,33 @@ function calcCobertura(u){
   return {pct,classe:'pct-vermelho',fillClass:'fill-vermelho',label:`${pct}%`};
 }
 
+function abrirFichaPagina(id){
+  window.location.href = `ficha-unidade.html?id=${encodeURIComponent(id)}`;
+}
+
+function localizacaoCurta(u){
+  const loc = u?.localizacao || {};
+  const partes = [loc.bairro, loc.comuna, loc.municipio].filter(Boolean);
+  if(loc.descricao) return loc.descricao;
+  if(partes.length) return partes.join(', ');
+  return 'Município do Sumbe, Cuanza Sul';
+}
+
+function formatarDistanciaSede(valor){
+  if(valor===undefined || valor===null || valor==='') return '';
+  const num = Number(valor);
+  if(!Number.isFinite(num)) return String(valor);
+  const texto = Number.isInteger(num) ? String(num) : num.toFixed(1).replace('.',',');
+  return `${texto} km`;
+}
+
+function lerNumeroOpcional(id){
+  const raw = (document.getElementById(id)?.value || '').trim().replace(',', '.');
+  if(!raw) return null;
+  const num = Number(raw);
+  return Number.isFinite(num) ? num : null;
+}
+
 function cardHTML(u){
   const cob = calcCobertura(u);
   const esp = u.efectivo?.esperado||0;
@@ -1197,7 +1258,7 @@ function cardHTML(u){
         ${estadoBadgeHTML(u)}
       </div>
       <div class="u-nome">${u.nome}</div>
-      <div class="u-local">${u.localizacao?.descricao||'Município do Sumbe, Cuanza Sul'}</div>
+      <div class="u-local">${localizacaoCurta(u)}</div>
     </div>
     <div class="u-cobertura">
       <div class="u-cob-header">
@@ -1225,7 +1286,7 @@ function cardHTML(u){
           <span class="u-resp-nome">${u.responsavel.nome.split(' ').slice(0,2).join(' ')}</span>
         ` : `<span class="u-resp-nome" style="color:var(--txt-3)">Sem responsável definido</span>`}
       </div>
-      <button class="btn-ver" onclick="event.stopPropagation();abrirDrawer('${u.id}')">Ver ficha →</button>
+      <button class="btn-ver" onclick="event.stopPropagation();abrirFichaPagina('${u.id}')">Ver Ficha</button>
     </div>
   </div>`;
 }
@@ -1331,13 +1392,17 @@ function renderDrawerDMS(u){
   const html = `
     <!-- Identificação -->
     <div class="ds">
-      <div class="ds-titulo" style="display:flex;align-items:center;justify-content:space-between">
+      <div class="ds-titulo" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
         <span>Identificação</span>
-        ${podeEd?`<button class="btn-ver" onclick="abrirModalFicha('${u.id}')">✏️ Editar ficha</button>`:''}
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-ver" onclick="abrirFichaPagina('${u.id}')">Abrir ficha</button>
+          ${podeEd?`<button class="btn-ver" onclick="abrirModalFicha('${u.id}')">✏️ Editar ficha</button>`:''}
+        </div>
       </div>
       <div class="ds-row"><span class="ds-key">Tipo</span><span class="ds-val">Direcção Municipal de Saúde</span></div>
       <div class="ds-row"><span class="ds-key">Estado</span><span class="ds-val">${estadoBadgeHTML(u)}</span></div>
-      <div class="ds-row"><span class="ds-key">Município</span><span class="ds-val">Sumbe, Cuanza Sul</span></div>
+      <div class="ds-row"><span class="ds-key">Localização</span><span class="ds-val">${localizacaoCurta(u)}</span></div>
+      ${u.localizacao?.distanciaSedeKm !== undefined && u.localizacao?.distanciaSedeKm !== null ? `<div class="ds-row"><span class="ds-key">Distância da sede</span><span class="ds-val">${formatarDistanciaSede(u.localizacao.distanciaSedeKm)}</span></div>` : ''}
       ${u.responsavel?.nome ? `
         <div class="ds-row"><span class="ds-key">Director</span>
           <span class="ds-val"><strong>${u.responsavel.nome}</strong>${u.responsavel.cargo?' · '+u.responsavel.cargo:''}</span></div>
@@ -1411,11 +1476,15 @@ function renderDrawer(u){
   const html = `
     <!-- Identificação -->
     <div class="ds">
-      <div class="ds-titulo" style="display:flex;align-items:center;justify-content:space-between">
+      <div class="ds-titulo" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
         <span>Identificação</span>
-        ${podeEd?`<button class="btn-ver" onclick="abrirModalFicha('${u.id}')">✏️ Editar ficha</button>`:''}
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-ver" onclick="abrirFichaPagina('${u.id}')">Abrir ficha</button>
+          ${podeEd?`<button class="btn-ver" onclick="abrirModalFicha('${u.id}')">✏️ Editar ficha</button>`:''}
+        </div>
       </div>
-      ${u.localizacao?.descricao ? `<div class="ds-row"><span class="ds-key">Localização</span><span class="ds-val">${u.localizacao.descricao}</span></div>` : ''}
+      <div class="ds-row"><span class="ds-key">Localização</span><span class="ds-val">${localizacaoCurta(u)}</span></div>
+      ${u.localizacao?.distanciaSedeKm !== undefined && u.localizacao?.distanciaSedeKm !== null ? `<div class="ds-row"><span class="ds-key">Distância da sede</span><span class="ds-val">${formatarDistanciaSede(u.localizacao.distanciaSedeKm)}</span></div>` : ''}
       <div class="ds-row"><span class="ds-key">Tipo</span><span class="ds-val">${tipoLabel(u.tipo)}</span></div>
       <div class="ds-row"><span class="ds-key">Estado</span><span class="ds-val">${estadoBadgeHTML(u)}</span></div>
       ${u.responsavel?.nome ? `
@@ -1578,9 +1647,15 @@ window.abrirModalFicha = function(id){
 
   // Tab: Contactos
   document.getElementById('mf-localizacao').value = u.localizacao?.descricao||'';
+  document.getElementById('mf-municipio').value   = u.localizacao?.municipio||'Sumbe';
+  document.getElementById('mf-comuna').value      = u.localizacao?.comuna||'';
+  document.getElementById('mf-bairro').value      = u.localizacao?.bairro||'';
+  document.getElementById('mf-distancia').value   = u.localizacao?.distanciaSedeKm ?? '';
+  document.getElementById('mf-referencia').value  = u.localizacao?.referencia||'';
   document.getElementById('mf-telefone').value    = u.contactos?.telefone||'';
   document.getElementById('mf-emergencia').value  = u.contactos?.emergencia||'';
   document.getElementById('mf-email').value       = u.contactos?.email||'';
+  document.getElementById('mf-logistica').value   = u.infraestrutura?.resumo||'';
 
   // Tab: Horário
   document.getElementById('mf-h-semana').value  = u.horario?.semana  ||'07h30 – 15h30';
@@ -1746,6 +1821,7 @@ window.guardarFicha = async function(){
   } : { funcionarioId:'', nome:'', cargo:'', dataInicio:'' };
 
   const u = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
+  const distanciaSedeKm = lerNumeroOpcional('mf-distancia');
 
   const dados = {
     nome:          u?.nome   || '',
@@ -1754,14 +1830,22 @@ window.guardarFicha = async function(){
     estado:        document.getElementById('mf-estado').value || ESTADO_DEFAULT,
     responsavel,
     localizacao: {
-      descricao:  document.getElementById('mf-localizacao').value.trim(),
-      municipio:  'Sumbe',
-      provincia:  'Cuanza Sul',
+      descricao:       document.getElementById('mf-localizacao').value.trim(),
+      municipio:       document.getElementById('mf-municipio').value.trim() || 'Sumbe',
+      comuna:          document.getElementById('mf-comuna').value.trim(),
+      bairro:          document.getElementById('mf-bairro').value.trim(),
+      referencia:      document.getElementById('mf-referencia').value.trim(),
+      distanciaSedeKm: distanciaSedeKm,
+      provincia:       'Cuanza Sul',
     },
     contactos: {
       telefone:   document.getElementById('mf-telefone').value.trim(),
       emergencia: document.getElementById('mf-emergencia').value.trim(),
       email:      document.getElementById('mf-email').value.trim(),
+    },
+    infraestrutura: {
+      ...(u?.infraestrutura||{}),
+      resumo: document.getElementById('mf-logistica').value.trim(),
     },
     horario: {
       semana:     document.getElementById('mf-h-semana').value.trim(),
