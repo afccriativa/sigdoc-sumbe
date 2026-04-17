@@ -108,6 +108,112 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 }
 .filtro:hover{border-color:var(--pri);color:var(--pri)}
 .filtro.activo{background:var(--pri);border-color:var(--pri);color:#fff}
+.filtros{width:100%}
+.select-wrap{
+  min-width:180px;
+  display:flex;flex-direction:column;gap:4px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:9px 12px;
+  box-shadow:var(--sh);
+}
+.select-wrap label{
+  font-size:10px;font-weight:800;color:var(--txt-3);
+  text-transform:uppercase;letter-spacing:.7px;
+}
+.select-wrap select{
+  border:none;outline:none;background:transparent;
+  color:var(--txt-1);font-size:13px;font-weight:700;
+  font-family:var(--font);cursor:pointer;
+}
+.toolbar-actions{
+  margin-left:auto;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.resultados-info{
+  display:flex;align-items:center;gap:6px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:10px 12px;
+  box-shadow:var(--sh);font-size:12px;font-weight:700;color:var(--txt-2);
+}
+.resultados-info b{color:var(--txt-1)}
+.btn-lista-export{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:10px 14px;border-radius:var(--r-sm);
+  border:none;background:var(--pri);color:#fff;
+  font-size:12px;font-weight:800;cursor:pointer;
+  font-family:var(--font);transition:all .15s;
+}
+.btn-lista-export:hover{background:#083a2b}
+.btn-lista-export.sec{
+  background:var(--card);color:var(--pri);
+  border:1px solid var(--border);
+}
+.btn-lista-export.sec:hover{background:var(--pri-10)}
+
+/* ── LISTA CONSOLIDADA ─────────────────────────── */
+.lista-surface{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden;
+}
+.lista-header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;padding:16px 18px;
+  border-bottom:1px solid var(--border);background:#fbfcfd;
+}
+.lista-header h3{
+  font-size:15px;font-weight:800;color:var(--txt-1);
+  letter-spacing:-.2px;
+}
+.lista-header p{font-size:12px;color:var(--txt-2);margin-top:4px}
+.table-wrap{overflow:auto}
+.u-table{
+  width:100%;min-width:980px;border-collapse:collapse;
+}
+.u-table th{
+  text-align:left;padding:12px 16px;background:#f8fafc;
+  border-bottom:1px solid var(--border);
+  font-size:11px;font-weight:800;color:var(--txt-3);
+  text-transform:uppercase;letter-spacing:.7px;white-space:nowrap;
+}
+.u-table td{
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  vertical-align:top;font-size:13px;color:var(--txt-1);
+}
+.u-table tbody tr{
+  cursor:pointer;transition:background .15s ease;
+}
+.u-table tbody tr:hover{background:rgba(18,65,161,.03)}
+.u-table tbody tr:last-child td{border-bottom:none}
+.u-col-nome{min-width:280px}
+.u-linha-nome{display:flex;flex-direction:column;gap:6px}
+.u-linha-titulo{
+  font-size:14px;font-weight:800;color:var(--txt-1);line-height:1.35;
+}
+.u-linha-meta{font-size:12px;color:var(--txt-3);line-height:1.5}
+.u-linha-acoes{display:flex;gap:8px;flex-wrap:wrap}
+.u-link-mini{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:5px 9px;border-radius:var(--r-full);
+  border:1px solid var(--border);background:#fff;color:var(--pri);
+  font-size:11px;font-weight:800;cursor:pointer;
+  font-family:var(--font);transition:all .15s;
+}
+.u-link-mini:hover{background:var(--pri-10);border-color:var(--pri-20)}
+.table-muted{color:var(--txt-3)}
+.cell-municipio{
+  display:flex;flex-direction:column;gap:4px;
+}
+.cell-municipio small,.cell-chefe small{
+  font-size:11px;color:var(--txt-3);
+}
+.cell-distancia{
+  font-family:var(--mono);font-size:12px;font-weight:700;
+  white-space:nowrap;
+}
+.cell-chefe{
+  display:flex;flex-direction:column;gap:4px;
+}
+.cell-chefe strong{font-size:13px;color:var(--txt-1)}
 
 /* ── GRID DE CARDS ─────────────────────────────── */
 .unidades-grid{
@@ -210,7 +316,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 
 /* Vazio */
 .vazio{
-  grid-column:1/-1;text-align:center;
+  grid-column:1/-1;width:100%;text-align:center;
   padding:60px 20px;color:var(--txt-3);
 }
 .vazio-ic{font-size:40px;margin-bottom:12px;opacity:.5}
@@ -533,6 +639,9 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
   .topbar-uinfo,.topbar-back span{display:none}
   .drawer{width:100vw}
   .mef-grid-2{grid-template-columns:1fr}
+  .select-wrap{min-width:unset;flex:1}
+  .toolbar-actions{width:100%;margin-left:0;justify-content:space-between}
+  .resultados-info{flex:1}
 }
 </style>
 </head>
@@ -609,22 +718,44 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
   <div class="toolbar">
     <div class="search-wrap">
       <span class="search-ic">🔍</span>
-      <input type="text" id="campo-pesquisa" placeholder="Pesquisar unidade, tipo, serviço…" oninput="filtrar()"/>
+      <input type="text" id="campo-pesquisa" placeholder="Pesquisar unidade, município, chefe, serviço…" oninput="filtrar()"/>
+    </div>
+    <div class="select-wrap">
+      <label for="filtro-tipo">Tipo de unidade</label>
+      <select id="filtro-tipo" onchange="filtrar()">
+        <option value="">Todos os tipos</option>
+        <option value="dms">DMS</option>
+        <option value="centro">Centro de Saúde</option>
+        <option value="posto">Posto de Saúde</option>
+        <option value="seccao">Secção</option>
+      </select>
+    </div>
+    <div class="select-wrap">
+      <label for="filtro-status">Status</label>
+      <select id="filtro-status" onchange="filtrar()">
+        <option value="">Todos os status</option>
+        <option value="operacional">Em funcionamento</option>
+        <option value="temporariamente_suspensa">Temporariamente suspensa</option>
+        <option value="em_construcao">Em construção / reabilitação</option>
+        <option value="interditada">Interditada</option>
+        <option value="desactivada">Desactivada</option>
+      </select>
+    </div>
+    <div class="toolbar-actions">
+      <div class="resultados-info" id="resultados-info"><b>0</b> resultados</div>
+      <button class="btn-lista-export" onclick="exportarListaExcel()">Exportar lista</button>
+      <button class="btn-lista-export sec" onclick="exportarListaPDF()">PDF</button>
     </div>
     <div class="filtros">
       <button class="filtro activo" data-filtro="todos" onclick="setFiltro(this,'todos')">Todos</button>
-      <button class="filtro" data-filtro="dms" onclick="setFiltro(this,'dms')">🏢 DMS</button>
-      <button class="filtro" data-filtro="centro" onclick="setFiltro(this,'centro')">🏥 Centros</button>
-      <button class="filtro" data-filtro="posto" onclick="setFiltro(this,'posto')">🏠 Postos</button>
-
       <button class="filtro" data-filtro="incompleto" onclick="setFiltro(this,'incompleto')">⚠️ Cobertura &lt;80%</button>
       <span style="width:1px;background:var(--border);margin:0 2px;align-self:stretch"></span>
       <button class="filtro" data-filtro="nao_operacional" onclick="setFiltro(this,'nao_operacional')" title="Suspensas, interditadas, em construção ou desactivadas">🔴 Não Operacionais</button>
     </div>
   </div>
 
-  <!-- GRID -->
-  <div class="unidades-grid" id="grid">
+  <!-- LISTA CONSOLIDADA -->
+  <div class="lista-surface" id="grid">
     <div class="spinner-wrap"><div class="spinner"></div></div>
   </div>
 
@@ -1160,6 +1291,7 @@ function actualizarKPIs(){
 
 // ── Filtrar ────────────────────────────────────────────────
 let PESQUISA = '';
+let ULTIMA_LISTA_FILTRADA = [];
 window.setFiltro = function(btn, valor){
   document.querySelectorAll('.filtro').forEach(b=>b.classList.remove('activo'));
   btn.classList.add('activo');
@@ -1167,15 +1299,59 @@ window.setFiltro = function(btn, valor){
   render();
 };
 window.filtrar = function(){
-  PESQUISA = document.getElementById('campo-pesquisa').value.toLowerCase();
+  PESQUISA = document.getElementById('campo-pesquisa').value.toLowerCase().trim();
   render();
 };
 
 function render(){
-  const FILTROS_TIPO = ['dms', 'centro', 'posto'];
+  const filtroTipo = document.getElementById('filtro-tipo')?.value || '';
+  const filtroStatus = document.getElementById('filtro-status')?.value || '';
   const lista = TODAS_UNIDADES.filter(u=>{
+    const estadoActual = estadoValor(u);
+    if(filtroTipo && u.tipo !== filtroTipo) return false;
+    if(filtroStatus && estadoActual !== filtroStatus) return false;
+    if(FILTRO_ACTIVO === 'incompleto'){
+      const esp = u.efectivo?.esperado||0;
+      if(esp===0) return true;
+      const pct = u.cadastrados/esp*100;
+      if(pct>=80) return false;
+    }
+    if(FILTRO_ACTIVO === 'nao_operacional' && estadoActual === 'operacional') return false;
+    if(PESQUISA){
+      const haystack = [
+        u.nome,
+        tipoNome(u.tipo),
+        municipioUnidade(u),
+        u.localizacao?.comuna,
+        u.localizacao?.bairro,
+        u.localizacao?.descricao,
+        distanciaUnidadeTexto(u),
+        estadoConfig(u).label,
+        u.responsavel?.nome,
+        u.responsavel?.cargo,
+        ...(u.servicos||[])
+      ].join(' ').toLowerCase();
+      if(!haystack.includes(PESQUISA)) return false;
+    }
+    return true;
+  });
+
+  ULTIMA_LISTA_FILTRADA = lista.slice();
+  actualizarResultadosInfo(lista.length, TODAS_UNIDADES.length);
+
+  const gridActual = document.getElementById('grid');
+  const grid = gridActual;
+  if(!lista.length){
+    grid.innerHTML='<div class="vazio"><div class="vazio-ic">🔍</div><p>Nenhuma unidade encontrada com os filtros actuais.</p></div>';
+    return;
+  }
+  renderTabela(lista);
+  return;
+
+  const _legacyFiltrosTipo = ['dms', 'centro', 'posto'];
+  const _legacyLista = TODAS_UNIDADES.filter(u=>{
     // Filtro tipo — só aplicar quando o filtro activo é mesmo um tipo de unidade
-    if(FILTROS_TIPO.includes(FILTRO_ACTIVO) && u.tipo !== FILTRO_ACTIVO) return false;
+    if(_legacyFiltrosTipo.includes(FILTRO_ACTIVO) && u.tipo !== FILTRO_ACTIVO) return false;
     if(FILTRO_ACTIVO === 'incompleto'){
       const esp = u.efectivo?.esperado||0;
       if(esp===0) return true;
@@ -1195,12 +1371,16 @@ function render(){
     return true;
   });
 
-  const grid = document.getElementById('grid');
+  const _legacyGrid = document.getElementById('grid');
   if(!lista.length){
     grid.innerHTML='<div class="vazio"><div class="vazio-ic">🔍</div><p>Nenhuma unidade encontrada.</p></div>';
     return;
   }
   grid.innerHTML = lista.map(u=>cardHTML(u)).join('');
+}
+
+function tipoNome(tipo){
+  return {dms:'DMS',centro:'Centro de Saúde',posto:'Posto de Saúde',seccao:'Secção'}[tipo]||tipo||'Unidade';
 }
 
 function tipoLabel(tipo){
@@ -1244,6 +1424,189 @@ function lerNumeroOpcional(id){
   if(!raw) return null;
   const num = Number(raw);
   return Number.isFinite(num) ? num : null;
+}
+
+function estadoValor(u){
+  if(u.estado) return u.estado;
+  if(u.activa === false) return 'desactivada';
+  return ESTADO_DEFAULT;
+}
+
+function municipioUnidade(u){
+  return u.localizacao?.municipio || 'Sumbe';
+}
+
+function distanciaUnidadeTexto(u){
+  return formatarDistanciaSede(u.localizacao?.distanciaSedeKm) || '—';
+}
+
+function chefeResumoHTML(u){
+  if(!u.responsavel?.nome) return '<span class="table-muted">Não definido</span>';
+  return `
+    <div class="cell-chefe">
+      <strong>${u.responsavel.nome}</strong>
+      <small>${u.responsavel.cargo || 'Sem cargo registado'}</small>
+    </div>
+  `;
+}
+
+function actualizarResultadosInfo(actual, total){
+  const el = document.getElementById('resultados-info');
+  if(!el) return;
+  el.innerHTML = `<b>${actual}</b> resultado${actual!==1?'s':''} <span style="color:var(--txt-3)">de ${total}</span>`;
+}
+
+function escapeHTMLUnidades(valor){
+  return String(valor ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+function colunasListaExport(){
+  return ['Nome da unidade','Tipo','Município','Distância da sede','Status','Chefe da unidade'];
+}
+
+function linhasListaExport(lista){
+  return (lista || []).map(u=>[
+    u.nome || '',
+    tipoNome(u.tipo),
+    municipioUnidade(u),
+    distanciaUnidadeTexto(u),
+    estadoConfig(u).label,
+    u.responsavel?.nome || 'Não definido'
+  ]);
+}
+
+function dataArquivoHoje(){
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function downloadExcelLista(colunas, linhas, nomeArquivo){
+  const bom = "\uFEFF";
+  const sep = "\t";
+  const header = colunas.join(sep);
+  const rows = linhas.map(l => l.map(c => String(c ?? '').replace(/\t/g,' ').replace(/\n/g,' ')).join(sep));
+  const blob = new Blob([bom + [header, ...rows].join("\n")], { type: "text/tab-separated-values;charset=utf-8" });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nomeArquivo + '.xls';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function abrirPDFLista(html, titulo){
+  const win = window.open('', '_blank');
+  if(!win) return;
+  const tituloSeguro = escapeHTMLUnidades(titulo);
+  win.document.write(`<!DOCTYPE html><html lang="pt"><head>
+    <meta charset="UTF-8"/>
+    <title>${tituloSeguro}</title>
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:Arial,sans-serif;font-size:10px;color:#111;padding:18mm 16mm}
+      h1{font-size:16px;font-weight:700;margin-bottom:4px}
+      .sub{font-size:10px;color:#555;margin-bottom:16px}
+      table{width:100%;border-collapse:collapse;font-size:9px}
+      th{text-align:left;padding:6px;background:#f3f4f6;border:1px solid #d1d5db;font-size:8.5px;text-transform:uppercase}
+      td{padding:6px;border:1px solid #e5e7eb;vertical-align:top}
+      tr:nth-child(even) td{background:#f9fafb}
+      .print-btn{position:fixed;bottom:20px;right:20px;padding:10px 18px;background:#0b4f3a;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer}
+      @media print{body{padding:10mm 12mm}.print-btn{display:none}}
+    </style>
+  </head><body>${html}<button class="print-btn" onclick="window.print()">Imprimir / Guardar PDF</button></body></html>`);
+  win.document.close();
+}
+
+function linhaTabelaHTML(u){
+  const estado = estadoConfig(u);
+  const local = u.localizacao || {};
+  const totalServicos = (u.servicos||[]).length;
+  return `
+    <tr onclick="window.abrirDrawer('${u.id}')">
+      <td class="u-col-nome">
+        <div class="u-linha-nome">
+          <div class="u-linha-titulo">${u.nome}</div>
+          <div class="u-linha-meta">${localizacaoCurta(u)} · ${u.cadastrados || 0} funcionário${(u.cadastrados || 0)!==1?'s':''} · ${totalServicos} serviço${totalServicos!==1?'s':''}</div>
+          <div class="u-linha-acoes">
+            <button class="u-link-mini" onclick="event.stopPropagation();window.abrirDrawer('${u.id}')">Resumo</button>
+            <button class="u-link-mini" onclick="event.stopPropagation();window.abrirFichaPagina('${u.id}')">Ver Ficha</button>
+          </div>
+        </div>
+      </td>
+      <td><span class="u-tipo-badge ${tipoClasse(u.tipo)}">${tipoNome(u.tipo)}</span></td>
+      <td>
+        <div class="cell-municipio">
+          <span>${municipioUnidade(u)}</span>
+          <small>${local.comuna || local.bairro || 'Sem detalhe adicional'}</small>
+        </div>
+      </td>
+      <td><span class="cell-distancia">${distanciaUnidadeTexto(u)}</span></td>
+      <td><span class="u-estado-badge ${estado.cls}">${estado.ic} ${estado.label}</span></td>
+      <td>${chefeResumoHTML(u)}</td>
+    </tr>
+  `;
+}
+
+function renderTabela(lista){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = `
+    <div class="lista-header">
+      <div>
+        <h3>Lista consolidada de unidades</h3>
+        <p>Visualização conjunta para análise rápida, resposta institucional e exportação.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="u-table">
+        <thead>
+          <tr>
+            <th>Nome da unidade</th>
+            <th>Tipo</th>
+            <th>Município</th>
+            <th>Distância da sede</th>
+            <th>Status</th>
+            <th>Chefe da unidade</th>
+          </tr>
+        </thead>
+        <tbody>${lista.map(u => linhaTabelaHTML(u)).join('')}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.exportarListaExcel = function(){
+  if(!ULTIMA_LISTA_FILTRADA.length){
+    mostrarToast('⚠️ Não há resultados filtrados para exportar.','#d97706');
+    return;
+  }
+  downloadExcelLista(colunasListaExport(), linhasListaExport(ULTIMA_LISTA_FILTRADA), `Lista_Unidades_${dataArquivoHoje()}`);
+  mostrarToast(`✅ Lista exportada com ${ULTIMA_LISTA_FILTRADA.length} unidade(s)`);
+};
+
+window.exportarListaPDF = function(){
+  if(!ULTIMA_LISTA_FILTRADA.length){
+    mostrarToast('⚠️ Não há resultados filtrados para exportar.','#d97706');
+    return;
+  }
+  const linhas = linhasListaExport(ULTIMA_LISTA_FILTRADA)
+    .map(l => `<tr>${l.map(c => `<td>${escapeHTMLUnidades(c)}</td>`).join('')}</tr>`)
+    .join('');
+  abrirPDFLista(`
+    <h1>Lista Consolidada de Unidades</h1>
+    <div class="sub">Direcção Municipal de Saúde do Sumbe · ${ULTIMA_LISTA_FILTRADA.length} resultado(s) exportado(s)</div>
+    <table>
+      <thead><tr>${colunasListaExport().map(c => `<th>${escapeHTMLUnidades(c)}</th>`).join('')}</tr></thead>
+      <tbody>${linhas}</tbody>
+    </table>
+  `, 'Lista Consolidada de Unidades');
+  mostrarToast('✅ Pré-visualização PDF aberta');
 }
 
 function cardHTML(u){
