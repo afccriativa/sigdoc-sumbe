@@ -150,6 +150,165 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 }
 .btn-lista-export.sec:hover{background:var(--pri-10)}
 
+/* -- PAINEL DE DECISAO -- */
+.decision-board{
+  display:grid;grid-template-columns:1.35fr .95fr;gap:14px;
+  margin-bottom:20px;
+}
+.decision-card{
+  background:linear-gradient(180deg,#fff,#fbfdfc);
+  border:1px solid var(--border);border-radius:var(--r-lg);
+  box-shadow:var(--sh);padding:18px;
+}
+.decision-hero{
+  position:relative;overflow:hidden;
+}
+.decision-hero::after{
+  content:'';position:absolute;inset:auto -30px -40px auto;
+  width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle, rgba(11,79,58,.14), rgba(11,79,58,0));
+  pointer-events:none;
+}
+.decision-kicker{
+  font-size:10px;font-weight:800;color:var(--pri);
+  text-transform:uppercase;letter-spacing:.9px;
+}
+.decision-title{
+  font-size:20px;font-weight:800;letter-spacing:-.4px;
+  margin-top:8px;color:var(--txt-1);
+}
+.decision-text{
+  font-size:13px;line-height:1.65;color:var(--txt-2);
+  margin-top:8px;max-width:62ch;
+}
+.decision-stats{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;margin-top:16px;
+}
+.decision-stat{
+  background:#fff;border:1px solid var(--border);
+  border-radius:12px;padding:12px;
+}
+.decision-stat span{
+  display:block;font-size:10px;font-weight:800;color:var(--txt-3);
+  text-transform:uppercase;letter-spacing:.7px;
+}
+.decision-stat strong{
+  display:block;margin-top:8px;font-size:20px;
+  font-weight:800;color:var(--txt-1);font-family:var(--mono);
+}
+.decision-stat small{
+  display:block;margin-top:4px;font-size:11px;color:var(--txt-2);line-height:1.4;
+}
+.focus-chips{
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;
+}
+.focus-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 12px;border-radius:999px;background:#fff;
+  border:1px solid var(--border);color:var(--pri);
+  font-size:11px;font-weight:800;cursor:pointer;
+  font-family:var(--font);transition:all .15s;
+}
+.focus-chip:hover{background:var(--pri-10)}
+.focus-chip.active{
+  background:var(--pri);border-color:var(--pri);color:#fff;
+}
+.decision-side-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+}
+.decision-side-head h3{
+  margin-top:6px;font-size:16px;font-weight:800;color:var(--txt-1);
+}
+.decision-side-head p{
+  font-size:12px;color:var(--txt-2);margin-top:4px;line-height:1.5;
+}
+.priority-list{
+  display:flex;flex-direction:column;gap:10px;margin-top:14px;
+}
+.priority-item{
+  background:#fff;border:1px solid var(--border);
+  border-radius:14px;padding:12px;
+}
+.priority-item-top{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+}
+.priority-item-name{
+  font-size:13px;font-weight:800;color:var(--txt-1);line-height:1.45;
+}
+.priority-item-meta{
+  font-size:11px;color:var(--txt-3);margin-top:4px;line-height:1.5;
+}
+.priority-score{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:48px;padding:6px 9px;border-radius:999px;
+  background:rgba(11,79,58,.08);color:var(--pri);
+  font-size:12px;font-weight:800;font-family:var(--mono);
+}
+.priority-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:999px;font-size:10px;
+  font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+  margin-top:10px;
+}
+.risco-ok{background:rgba(5,150,105,.12);color:#047857}
+.risco-moderado{background:rgba(245,158,11,.14);color:#b45309}
+.risco-alto{background:rgba(249,115,22,.14);color:#c2410c}
+.risco-critico{background:rgba(220,38,38,.12);color:#b91c1c}
+.priority-reasons{
+  font-size:11px;color:var(--txt-2);line-height:1.6;margin-top:8px;
+}
+.priority-actions{
+  display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;
+}
+.priority-link{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 10px;border-radius:999px;border:1px solid var(--border);
+  background:#fff;color:var(--pri);font-size:11px;font-weight:800;
+  cursor:pointer;font-family:var(--font);
+}
+.priority-link:hover{background:var(--pri-10)}
+.decision-insights{
+  grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:14px;
+}
+.insight-card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:var(--r-lg);box-shadow:var(--sh);padding:18px;
+}
+.insight-card h3{
+  font-size:15px;font-weight:800;color:var(--txt-1);
+}
+.insight-card p{
+  font-size:12px;color:var(--txt-2);margin-top:5px;line-height:1.55;
+}
+.insight-list{
+  display:grid;gap:10px;margin-top:14px;
+}
+.insight-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:11px 12px;background:#fbfcfd;border:1px solid var(--border);
+  border-radius:12px;font-size:13px;color:var(--txt-2);
+}
+.insight-row strong{
+  color:var(--txt-1);font-size:14px;font-weight:800;
+}
+.chief-badges,.service-badges{
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;
+}
+.chief-badge,.service-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 10px;border-radius:999px;font-size:11px;font-weight:700;
+  background:#fff;border:1px solid var(--border);color:var(--txt-2);
+}
+.service-badge strong,.chief-badge strong{
+  color:var(--txt-1);font-weight:800;
+}
+.empty-note{
+  margin-top:14px;padding:14px;border-radius:12px;
+  background:#fff;border:1px dashed rgba(11,79,58,.22);
+  font-size:12px;line-height:1.6;color:var(--txt-2);
+}
+
 /* ── LISTA CONSOLIDADA ─────────────────────────── */
 .lista-surface{
   background:var(--card);border:1px solid var(--border);
@@ -630,6 +789,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 @media(max-width:900px){
   .unidades-grid{grid-template-columns:repeat(2,1fr)}
   .kpi-strip{grid-template-columns:repeat(2,1fr)}
+  .decision-board,.decision-insights{grid-template-columns:1fr}
+  .decision-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:600px){
   .page{padding:20px 16px 80px}
@@ -642,6 +803,10 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
   .select-wrap{min-width:unset;flex:1}
   .toolbar-actions{width:100%;margin-left:0;justify-content:space-between}
   .resultados-info{flex:1}
+  .decision-title{font-size:18px}
+  .decision-stats{grid-template-columns:1fr 1fr}
+  .focus-chip{flex:1;justify-content:center}
+  .priority-item-top,.insight-row{flex-direction:column;align-items:flex-start}
 }
 </style>
 </head>
@@ -714,6 +879,12 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
     </div>
   </div>
 
+  <section class="decision-board" id="decision-board">
+    <div class="decision-card">
+      <div class="spinner-wrap"><div class="spinner"></div></div>
+    </div>
+  </section>
+
   <!-- TOOLBAR -->
   <div class="toolbar">
     <div class="search-wrap">
@@ -749,8 +920,10 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
     <div class="filtros">
       <button class="filtro activo" data-filtro="todos" onclick="setFiltro(this,'todos')">Todos</button>
       <button class="filtro" data-filtro="incompleto" onclick="setFiltro(this,'incompleto')">⚠️ Cobertura &lt;80%</button>
-      <span style="width:1px;background:var(--border);margin:0 2px;align-self:stretch"></span>
+      <button class="filtro" data-filtro="sem_chefe" onclick="setFiltro(this,'sem_chefe')">Sem Chefia</button>
+      <button class="filtro" data-filtro="distante" onclick="setFiltro(this,'distante')">Distância ≥25km</button>
       <button class="filtro" data-filtro="nao_operacional" onclick="setFiltro(this,'nao_operacional')" title="Suspensas, interditadas, em construção ou desactivadas">🔴 Não Operacionais</button>
+      <button class="filtro" data-filtro="prioridade_alta" onclick="setFiltro(this,'prioridade_alta')" title="Combina estado, cobertura, chefia e distância">Prioridade Alta</button>
     </div>
   </div>
 
@@ -1292,10 +1465,28 @@ function actualizarKPIs(){
 // ── Filtrar ────────────────────────────────────────────────
 let PESQUISA = '';
 let ULTIMA_LISTA_FILTRADA = [];
+function sincronizarFiltrosVisuais(){
+  const botoes = document.querySelectorAll('.filtro');
+  botoes.forEach(b=>b.classList.toggle('activo', b.dataset.filtro === FILTRO_ACTIVO));
+}
+function rotuloFocoActual(){
+  return {
+    todos:'Visão total',
+    incompleto:'Cobertura abaixo de 80%',
+    sem_chefe:'Unidades sem chefia',
+    distante:'Unidades a 25km ou mais da sede',
+    nao_operacional:'Unidades não operacionais',
+    prioridade_alta:'Prioridade alta'
+  }[FILTRO_ACTIVO] || 'Visão personalizada';
+}
 window.setFiltro = function(btn, valor){
-  document.querySelectorAll('.filtro').forEach(b=>b.classList.remove('activo'));
-  btn.classList.add('activo');
   FILTRO_ACTIVO = valor;
+  sincronizarFiltrosVisuais();
+  render();
+};
+window.aplicarFocoDecisao = function(valor){
+  FILTRO_ACTIVO = valor || 'todos';
+  sincronizarFiltrosVisuais();
   render();
 };
 window.filtrar = function(){
@@ -1307,16 +1498,17 @@ function render(){
   const filtroTipo = document.getElementById('filtro-tipo')?.value || '';
   const filtroStatus = document.getElementById('filtro-status')?.value || '';
   const lista = TODAS_UNIDADES.filter(u=>{
-    const estadoActual = estadoValor(u);
+    const prioridade = analisarPrioridadeUnidade(u);
+    const estadoActual = prioridade.estado;
     if(filtroTipo && u.tipo !== filtroTipo) return false;
     if(filtroStatus && estadoActual !== filtroStatus) return false;
     if(FILTRO_ACTIVO === 'incompleto'){
-      const esp = u.efectivo?.esperado||0;
-      if(esp===0) return true;
-      const pct = u.cadastrados/esp*100;
-      if(pct>=80) return false;
+      if(prioridade.cobertura !== null && prioridade.cobertura >= 80) return false;
     }
+    if(FILTRO_ACTIVO === 'sem_chefe' && !prioridade.semChefe) return false;
+    if(FILTRO_ACTIVO === 'distante' && !(prioridade.distancia !== null && prioridade.distancia >= 25)) return false;
     if(FILTRO_ACTIVO === 'nao_operacional' && estadoActual === 'operacional') return false;
+    if(FILTRO_ACTIVO === 'prioridade_alta' && prioridade.score < 32) return false;
     if(PESQUISA){
       const haystack = [
         u.nome,
@@ -1337,16 +1529,17 @@ function render(){
   });
 
   ULTIMA_LISTA_FILTRADA = lista.slice();
+  sincronizarFiltrosVisuais();
   actualizarResultadosInfo(lista.length, TODAS_UNIDADES.length);
+  renderPainelDecisao(lista);
 
-  const gridActual = document.getElementById('grid');
-  const grid = gridActual;
+  const grid = document.getElementById('grid');
   if(!lista.length){
     grid.innerHTML='<div class="vazio"><div class="vazio-ic">🔍</div><p>Nenhuma unidade encontrada com os filtros actuais.</p></div>';
     return;
   }
   renderTabela(lista);
-  return;
+  /* Vista anterior em cards preservada apenas como referência local.
 
   const _legacyFiltrosTipo = ['dms', 'centro', 'posto'];
   const _legacyLista = TODAS_UNIDADES.filter(u=>{
@@ -1377,6 +1570,7 @@ function render(){
     return;
   }
   grid.innerHTML = lista.map(u=>cardHTML(u)).join('');
+  */
 }
 
 function tipoNome(tipo){
@@ -1440,6 +1634,93 @@ function distanciaUnidadeTexto(u){
   return formatarDistanciaSede(u.localizacao?.distanciaSedeKm) || '—';
 }
 
+function distanciaUnidadeValor(u){
+  const bruto = u?.localizacao?.distanciaSedeKm;
+  if(bruto===undefined || bruto===null || bruto==='') return null;
+  const num = Number(String(bruto).replace(',','.'));
+  return Number.isFinite(num) ? num : null;
+}
+
+function coberturaUnidadePercentual(u){
+  const esperado = Number(u?.efectivo?.esperado || 0);
+  const cadastrados = Number(u?.cadastrados || 0);
+  if(!esperado) return null;
+  return Math.round((cadastrados / esperado) * 100);
+}
+
+function analisarPrioridadeUnidade(u){
+  const estado = estadoValor(u);
+  const cobertura = coberturaUnidadePercentual(u);
+  const distancia = distanciaUnidadeValor(u);
+  const semChefe = !u?.responsavel?.nome;
+  const totalServicos = Array.isArray(u?.servicos) ? u.servicos.length : 0;
+  const razoes = [];
+  let score = 0;
+
+  if(estado !== 'operacional'){
+    score += 50;
+    razoes.push(`Estado ${estadoConfig(u).label}`);
+  }
+  if(semChefe){
+    score += 18;
+    razoes.push('Sem chefia definida');
+  }
+  if(cobertura === null){
+    score += 10;
+    razoes.push('Sem meta de efectivo');
+  } else if(cobertura < 60){
+    score += 20;
+    razoes.push(`Cobertura crítica (${cobertura}%)`);
+  } else if(cobertura < 80){
+    score += 12;
+    razoes.push(`Cobertura abaixo da meta (${cobertura}%)`);
+  }
+  if(distancia !== null && distancia >= 25){
+    score += 12;
+    razoes.push(`Distância elevada (${formatarDistanciaSede(distancia)})`);
+  } else if(distancia !== null && distancia >= 10){
+    score += 6;
+    razoes.push(`Distância relevante (${formatarDistanciaSede(distancia)})`);
+  }
+  if(totalServicos === 0){
+    score += 8;
+    razoes.push('Sem serviços registados');
+  } else if(totalServicos < 3){
+    score += 6;
+    razoes.push(`${totalServicos} serviços registados`);
+  }
+
+  let nivel = 'Estável';
+  let classe = 'risco-ok';
+  if(score >= 50){
+    nivel = 'Crítica';
+    classe = 'risco-critico';
+  } else if(score >= 32){
+    nivel = 'Alta';
+    classe = 'risco-alto';
+  } else if(score >= 18){
+    nivel = 'Moderada';
+    classe = 'risco-moderado';
+  }
+
+  return { score, nivel, classe, razoes, cobertura, distancia, semChefe, estado, totalServicos };
+}
+
+function topServicosDaLista(lista, limite = 6){
+  const mapa = {};
+  (lista || []).forEach(u => {
+    (u.servicos || []).forEach(servico => {
+      const chave = String(servico || '').trim();
+      if(!chave) return;
+      mapa[chave] = (mapa[chave] || 0) + 1;
+    });
+  });
+  return Object.entries(mapa)
+    .map(([nome, total]) => ({ nome, total }))
+    .sort((a,b) => b.total - a.total || a.nome.localeCompare(b.nome))
+    .slice(0, limite);
+}
+
 function chefeResumoHTML(u){
   if(!u.responsavel?.nome) return '<span class="table-muted">Não definido</span>';
   return `
@@ -1453,7 +1734,8 @@ function chefeResumoHTML(u){
 function actualizarResultadosInfo(actual, total){
   const el = document.getElementById('resultados-info');
   if(!el) return;
-  el.innerHTML = `<b>${actual}</b> resultado${actual!==1?'s':''} <span style="color:var(--txt-3)">de ${total}</span>`;
+  const foco = rotuloFocoActual();
+  el.innerHTML = `<b>${actual}</b> resultado${actual!==1?'s':''} <span style="color:var(--txt-3)">de ${total}</span>${FILTRO_ACTIVO !== 'todos' ? ` <span style="color:var(--pri)">· ${foco}</span>` : ''}`;
 }
 
 function escapeHTMLUnidades(valor){
@@ -1463,6 +1745,15 @@ function escapeHTMLUnidades(valor){
     .replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#39;');
+}
+
+function slugArquivo(valor){
+  return String(valor || 'lista')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-zA-Z0-9]+/g,'_')
+    .replace(/^_+|_+$/g,'')
+    .toLowerCase();
 }
 
 function colunasListaExport(){
@@ -1524,6 +1815,151 @@ function abrirPDFLista(html, titulo){
   win.document.close();
 }
 
+function renderPainelDecisao(lista){
+  const painel = document.getElementById('decision-board');
+  if(!painel) return;
+
+  const itens = (lista || []).map(u => ({ unidade: u, analise: analisarPrioridadeUnidade(u) }));
+  const total = itens.length;
+  const altaPrioridade = itens.filter(item => item.analise.score >= 32).length;
+  const naoOperacionais = itens.filter(item => item.analise.estado !== 'operacional').length;
+  const semChefe = itens.filter(item => item.analise.semChefe).length;
+  const distantes = itens.filter(item => item.analise.distancia !== null && item.analise.distancia >= 25).length;
+  const baixaCobertura = itens.filter(item => item.analise.cobertura !== null && item.analise.cobertura < 80).length;
+  const semMeta = itens.filter(item => item.analise.cobertura === null).length;
+  const operacionais = itens.filter(item => item.analise.estado === 'operacional').length;
+  const postos = itens.filter(item => item.unidade.tipo === 'posto').length;
+  const centros = itens.filter(item => item.unidade.tipo === 'centro').length;
+  const dms = itens.filter(item => item.unidade.tipo === 'dms').length;
+  const chefiasDefinidas = itens.filter(item => !item.analise.semChefe).length;
+  const chefesPreview = [...new Set(itens.map(item => item.unidade.responsavel?.nome).filter(Boolean))].slice(0, 6);
+  const servicos = topServicosDaLista(lista, 7);
+  const totalServicosUnicos = topServicosDaLista(lista, 999).length;
+  const prioridades = itens
+    .filter(item => item.analise.score > 0)
+    .sort((a,b) => b.analise.score - a.analise.score || a.unidade.nome.localeCompare(b.unidade.nome))
+    .slice(0, 5);
+  const distancias = itens.map(item => item.analise.distancia).filter(valor => valor !== null);
+  const coberturaComMeta = itens.map(item => item.analise.cobertura).filter(valor => valor !== null);
+  const distanciaMedia = distancias.length ? formatarDistanciaSede(distancias.reduce((s,v) => s + v, 0) / distancias.length) : 'Sem dado';
+  const coberturaMedia = coberturaComMeta.length ? `${Math.round(coberturaComMeta.reduce((s,v) => s + v, 0) / coberturaComMeta.length)}%` : 'Sem meta';
+  const resumo = total
+    ? `${altaPrioridade} unidade(s) exigem seguimento prioritário; ${naoOperacionais} não operacional(is), ${semChefe} sem chefia definida e ${baixaCobertura} com cobertura abaixo de 80%.`
+    : 'Não há unidades para o recorte actual. Ajuste os filtros para retomar a visão executiva.';
+  const focos = [
+    { valor:'todos', label:`Visão total (${total})` },
+    { valor:'prioridade_alta', label:`Prioridade alta (${altaPrioridade})` },
+    { valor:'sem_chefe', label:`Sem chefia (${semChefe})` },
+    { valor:'distante', label:`Distância ≥25km (${distantes})` },
+    { valor:'nao_operacional', label:`Não operacionais (${naoOperacionais})` },
+    { valor:'incompleto', label:`Cobertura <80% (${baixaCobertura})` }
+  ];
+
+  painel.innerHTML = `
+    <article class="decision-card decision-hero">
+      <div class="decision-kicker">Painel de decisão</div>
+      <h2 class="decision-title">Leitura executiva do recorte actual</h2>
+      <p class="decision-text">${escapeHTMLUnidades(resumo)} Foco activo: <strong>${escapeHTMLUnidades(rotuloFocoActual())}</strong>.</p>
+      <div class="decision-stats">
+        <div class="decision-stat">
+          <span>Alta prioridade</span>
+          <strong>${altaPrioridade}</strong>
+          <small>Combina estado, chefia, cobertura e distância.</small>
+        </div>
+        <div class="decision-stat">
+          <span>Não operacionais</span>
+          <strong>${naoOperacionais}</strong>
+          <small>Suspensas, interditadas, desactivadas ou em reabilitação.</small>
+        </div>
+        <div class="decision-stat">
+          <span>Sem chefia</span>
+          <strong>${semChefe}</strong>
+          <small>Unidades sem responsável principal identificado.</small>
+        </div>
+        <div class="decision-stat">
+          <span>Distantes</span>
+          <strong>${distantes}</strong>
+          <small>Unidades a 25 km ou mais da sede municipal.</small>
+        </div>
+      </div>
+      <div class="focus-chips">
+        ${focos.map(foco => `
+          <button class="focus-chip ${FILTRO_ACTIVO === foco.valor ? 'active' : ''}" onclick="window.aplicarFocoDecisao('${foco.valor}')">${escapeHTMLUnidades(foco.label)}</button>
+        `).join('')}
+      </div>
+    </article>
+    <article class="decision-card">
+      <div class="decision-side-head">
+        <div>
+          <div class="decision-kicker">Prioridades</div>
+          <h3>Unidades que pedem acção</h3>
+          <p>Ordem dinâmica por criticidade operacional, cobertura, chefia e distância.</p>
+        </div>
+      </div>
+      ${prioridades.length ? `
+        <div class="priority-list">
+          ${prioridades.map(item => `
+            <div class="priority-item">
+              <div class="priority-item-top">
+                <div>
+                  <div class="priority-item-name">${escapeHTMLUnidades(item.unidade.nome)}</div>
+                  <div class="priority-item-meta">${escapeHTMLUnidades(municipioUnidade(item.unidade))} · ${escapeHTMLUnidades(distanciaUnidadeTexto(item.unidade))} · ${escapeHTMLUnidades(estadoConfig(item.unidade).label)}</div>
+                </div>
+                <div class="priority-score">${item.analise.score}</div>
+              </div>
+              <span class="priority-badge ${item.analise.classe}">${escapeHTMLUnidades(item.analise.nivel)}</span>
+              <div class="priority-reasons">${escapeHTMLUnidades(item.analise.razoes.slice(0,3).join(' · ') || 'Sem alertas adicionais')}</div>
+              <div class="priority-actions">
+                <button class="priority-link" onclick="window.abrirDrawer('${item.unidade.id}')">Resumo</button>
+                <button class="priority-link" onclick="window.abrirFichaPagina('${item.unidade.id}')">Ficha</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      ` : `
+        <div class="empty-note">Nenhuma unidade ultrapassou o limiar de alerta neste recorte.</div>
+      `}
+    </article>
+    <div class="decision-insights">
+      <article class="insight-card">
+        <h3>Perguntas respondidas em segundos</h3>
+        <p>Esta leitura permite responder rapidamente a pedidos institucionais sem abrir ficha por ficha.</p>
+        <div class="insight-list">
+          <div class="insight-row"><span>Lista de postos de saúde</span><strong>${postos}</strong></div>
+          <div class="insight-row"><span>Unidades em funcionamento</span><strong>${operacionais}/${total}</strong></div>
+          <div class="insight-row"><span>Chefias identificadas</span><strong>${chefiasDefinidas}/${total}</strong></div>
+          <div class="insight-row"><span>Cobertura média com meta</span><strong>${escapeHTMLUnidades(coberturaMedia)}</strong></div>
+        </div>
+        ${chefesPreview.length ? `
+          <div class="chief-badges">
+            ${chefesPreview.map(nome => `<span class="chief-badge"><strong>${escapeHTMLUnidades(nome)}</strong></span>`).join('')}
+          </div>
+        ` : `
+          <div class="empty-note">Nenhuma chefia está definida nas unidades actualmente visíveis.</div>
+        `}
+      </article>
+      <article class="insight-card">
+        <h3>Capacidade e logística do conjunto</h3>
+        <p>Visão conjunta para perceber tipologia, presença de serviços e pressão logística.</p>
+        <div class="insight-list">
+          <div class="insight-row"><span>Centros de saúde</span><strong>${centros}</strong></div>
+          <div class="insight-row"><span>DMS / estruturas centrais</span><strong>${dms}</strong></div>
+          <div class="insight-row"><span>Distância média da sede</span><strong>${escapeHTMLUnidades(distanciaMedia)}</strong></div>
+          <div class="insight-row"><span>Unidades sem meta de efectivo</span><strong>${semMeta}</strong></div>
+        </div>
+        ${servicos.length ? `
+          <div class="service-badges">
+            ${servicos.map(servico => `<span class="service-badge"><strong>${escapeHTMLUnidades(servico.nome)}</strong> ${servico.total}</span>`).join('')}
+          </div>
+          <p style="margin-top:12px">Total de serviços distintos mapeados: <strong>${totalServicosUnicos}</strong>.</p>
+        ` : `
+          <div class="empty-note">Os serviços ainda não estão registados para as unidades visíveis neste recorte.</div>
+        `}
+      </article>
+    </div>
+  `;
+}
+
 function linhaTabelaHTML(u){
   const estado = estadoConfig(u);
   const local = u.localizacao || {};
@@ -1560,7 +1996,7 @@ function renderTabela(lista){
     <div class="lista-header">
       <div>
         <h3>Lista consolidada de unidades</h3>
-        <p>Visualização conjunta para análise rápida, resposta institucional e exportação.</p>
+        <p>${lista.length} unidade(s) no recorte actual · ${rotuloFocoActual()} · pronta para exportação.</p>
       </div>
     </div>
     <div class="table-wrap">
@@ -1586,7 +2022,11 @@ window.exportarListaExcel = function(){
     mostrarToast('⚠️ Não há resultados filtrados para exportar.','#d97706');
     return;
   }
-  downloadExcelLista(colunasListaExport(), linhasListaExport(ULTIMA_LISTA_FILTRADA), `Lista_Unidades_${dataArquivoHoje()}`);
+  downloadExcelLista(
+    colunasListaExport(),
+    linhasListaExport(ULTIMA_LISTA_FILTRADA),
+    `Lista_Unidades_${slugArquivo(rotuloFocoActual())}_${dataArquivoHoje()}`
+  );
   mostrarToast(`✅ Lista exportada com ${ULTIMA_LISTA_FILTRADA.length} unidade(s)`);
 };
 
@@ -1600,7 +2040,7 @@ window.exportarListaPDF = function(){
     .join('');
   abrirPDFLista(`
     <h1>Lista Consolidada de Unidades</h1>
-    <div class="sub">Direcção Municipal de Saúde do Sumbe · ${ULTIMA_LISTA_FILTRADA.length} resultado(s) exportado(s)</div>
+    <div class="sub">Direcção Municipal de Saúde do Sumbe · ${ULTIMA_LISTA_FILTRADA.length} resultado(s) exportado(s) · ${escapeHTMLUnidades(rotuloFocoActual())}</div>
     <table>
       <thead><tr>${colunasListaExport().map(c => `<th>${escapeHTMLUnidades(c)}</th>`).join('')}</tr></thead>
       <tbody>${linhas}</tbody>
