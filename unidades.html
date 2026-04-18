@@ -80,6 +80,49 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .kpi-strip-val{font-size:24px;font-weight:800;color:var(--txt-1);font-family:var(--mono);line-height:1}
 .kpi-strip-sub{font-size:12px;color:var(--txt-2);margin-top:4px}
 
+/* ── KPI TREND BADGE ───────────────────────────────── */
+.kpi-trend{
+  display:inline-flex;align-items:center;gap:4px;
+  margin-top:8px;padding:3px 8px;border-radius:var(--r-full);
+  font-size:11px;font-weight:800;font-family:var(--mono);
+  transition:opacity .2s;
+}
+.kpi-trend.neutro{
+  background:rgba(100,116,139,.08);
+  color:var(--txt-3);
+}
+.kpi-trend.alta{
+  background:rgba(5,150,105,.10);
+  color:#047857;
+}
+.kpi-trend.baixa{
+  background:rgba(220,38,38,.09);
+  color:#b91c1c;
+}
+.kpi-trend.aviso{
+  background:rgba(217,119,6,.10);
+  color:#b45309;
+}
+.kpi-trend-ic{
+  font-size:12px;line-height:1;
+}
+.kpi-trend-label{
+  font-size:10px;font-weight:700;
+  color:inherit;opacity:.75;margin-left:2px;
+  font-family:var(--font);
+}
+/* Skeleton enquanto carrega */
+.kpi-trend.loading{
+  background:rgba(100,116,139,.06);
+  color:transparent;
+  pointer-events:none;
+  animation:kpi-pulse 1.4s ease-in-out infinite;
+}
+@keyframes kpi-pulse{
+  0%,100%{opacity:.5}
+  50%{opacity:1}
+}
+
 /* ── TOOLBAR ───────────────────────────────────── */
 .toolbar{
   display:flex;align-items:center;gap:10px;
@@ -1015,21 +1058,25 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <div class="kpi-strip-label">Total de Unidades</div>
       <div class="kpi-strip-val" id="kpi-total">—</div>
       <div class="kpi-strip-sub">Activas no município</div>
+      <div class="kpi-trend loading" id="kpi-total-trend">···</div>
     </div>
     <div class="kpi-strip-card">
       <div class="kpi-strip-label">Total Cadastrados</div>
       <div class="kpi-strip-val" id="kpi-cadastrados">—</div>
       <div class="kpi-strip-sub">No portal SIGDOC</div>
+      <div class="kpi-trend loading" id="kpi-cadastrados-trend">···</div>
     </div>
     <div class="kpi-strip-card">
       <div class="kpi-strip-label">Efectivo Esperado</div>
       <div class="kpi-strip-val" id="kpi-esperado">—</div>
       <div class="kpi-strip-sub">Total definido pela gestão</div>
+      <div class="kpi-trend loading" id="kpi-esperado-trend">···</div>
     </div>
     <div class="kpi-strip-card">
       <div class="kpi-strip-label">Cobertura Geral</div>
       <div class="kpi-strip-val" id="kpi-cobertura">—</div>
       <div class="kpi-strip-sub">Cadastrados vs esperado</div>
+      <div class="kpi-trend loading" id="kpi-cobertura-trend">···</div>
     </div>
   </div>
 
@@ -1633,11 +1680,91 @@ function actualizarKPIs(){
   const cadastrados= TODAS_UNIDADES.reduce((s,u)=>s+u.cadastrados,0);
   const esperado   = TODAS_UNIDADES.reduce((s,u)=>s+(u.efectivo?.esperado||0),0);
   const pct        = esperado>0 ? Math.round(cadastrados/esperado*100) : 0;
+
   document.getElementById('kpi-total').textContent      = total;
   document.getElementById('kpi-cadastrados').textContent= cadastrados;
   document.getElementById('kpi-esperado').textContent   = esperado||'—';
   document.getElementById('kpi-cobertura').textContent  = esperado>0 ? `${pct}%` : '—';
   document.getElementById('page-sub').textContent       = `${total} unidades · ${cadastrados} funcionários cadastrados no portal`;
+
+  // ── Tendência: comparar com snapshot anterior (localStorage) ──
+  const SNAP_KEY = 'sigdoc_kpi_snapshot';
+  const SNAP_TTL = 24 * 60 * 60 * 1000; // 24 h em ms
+
+  const agora    = Date.now();
+  const snapshot = { ts: agora, total, cadastrados, esperado, pct };
+
+  let anterior = null;
+  try {
+    const raw = localStorage.getItem(SNAP_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      // Só usar se tiver entre 1 h e 30 dias de idade (evitar flash no mesmo carregamento)
+      const idade = agora - (parsed.ts || 0);
+      if(idade > 60*60*1000 && idade < 30 * SNAP_TTL) anterior = parsed;
+    }
+  } catch(e){}
+
+  // Guardar snapshot actual (só actualiza se não existir ou tiver mais de 6 h)
+  try {
+    const raw = localStorage.getItem(SNAP_KEY);
+    const ts  = raw ? (JSON.parse(raw).ts || 0) : 0;
+    if(agora - ts > 6 * 60 * 60 * 1000) localStorage.setItem(SNAP_KEY, JSON.stringify(snapshot));
+  } catch(e){}
+
+  // ── Helper: renderizar badge de tendência ─────────────────────
+  function renderTrend(elId, valorActual, valorAnterior, opts){
+    const el = document.getElementById(elId);
+    if(!el) return;
+    el.classList.remove('loading','alta','baixa','neutro','aviso');
+
+    if(valorAnterior === null || valorAnterior === undefined || isNaN(valorAnterior)){
+      // Sem dado anterior: mostrar "Sem histórico"
+      el.classList.add('neutro');
+      el.innerHTML = '<span class="kpi-trend-ic">📊</span><span class="kpi-trend-label">primeiro registo</span>';
+      return;
+    }
+
+    const delta = valorActual - valorAnterior;
+    const {unidade='', positivo='alta', negativo='baixa', nenhum='neutro', inverso=false} = opts || {};
+
+    if(delta === 0){
+      el.classList.add(nenhum);
+      el.innerHTML = `<span class="kpi-trend-ic">→</span><span>sem alteração</span><span class="kpi-trend-label">vs sessão anterior</span>`;
+      return;
+    }
+
+    const subiu     = delta > 0;
+    const eBom      = inverso ? !subiu : subiu;
+    const cls       = eBom ? positivo : negativo;
+    const seta      = subiu ? '▲' : '▼';
+    const sinal     = subiu ? '+' : '';
+    const deltaStr  = `${sinal}${delta}${unidade}`;
+
+    el.classList.add(cls);
+    el.innerHTML = `<span class="kpi-trend-ic">${seta}</span><span>${deltaStr}</span><span class="kpi-trend-label">vs sessão anterior</span>`;
+  }
+
+  // ── Aplicar tendência em cada KPI ────────────────────────────
+  renderTrend('kpi-total-trend',
+    total, anterior?.total,
+    { unidade:' unidades', positivo:'alta', negativo:'aviso' }
+  );
+
+  renderTrend('kpi-cadastrados-trend',
+    cadastrados, anterior?.cadastrados,
+    { unidade:' func.', positivo:'alta', negativo:'baixa' }
+  );
+
+  renderTrend('kpi-esperado-trend',
+    esperado, anterior?.esperado,
+    { unidade:' func.', positivo:'alta', negativo:'aviso' }
+  );
+
+  renderTrend('kpi-cobertura-trend',
+    pct, anterior?.pct,
+    { unidade:'%', positivo:'alta', negativo:'baixa' }
+  );
 }
 
 // ── Filtrar ────────────────────────────────────────────────
