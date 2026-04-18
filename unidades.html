@@ -447,7 +447,184 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
   font-size:12px;line-height:1.6;color:var(--txt-2);
 }
 
-/* ── LISTA CONSOLIDADA ─────────────────────────── */
+/* ── BATCH ACTIONS ─────────────────────────────────── */
+
+/* Coluna de checkbox */
+.td-check{
+  width:44px;padding:0 0 0 16px !important;
+  vertical-align:middle !important;
+}
+.th-check{
+  width:44px;padding:12px 0 12px 16px !important;
+}
+
+/* Checkbox custom */
+.u-chk{
+  appearance:none;-webkit-appearance:none;
+  width:17px;height:17px;flex-shrink:0;
+  border:2px solid var(--border);border-radius:5px;
+  background:#fff;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:all .12s;vertical-align:middle;position:relative;
+}
+.u-chk:hover{ border-color:var(--pri); }
+.u-chk:checked{
+  background:var(--pri);border-color:var(--pri);
+}
+.u-chk:checked::after{
+  content:'';
+  position:absolute;
+  width:5px;height:9px;
+  border:2px solid #fff;border-top:none;border-left:none;
+  transform:rotate(40deg) translate(-1px,-1px);
+}
+.u-chk:indeterminate{
+  background:var(--pri-20);border-color:var(--pri);
+}
+.u-chk:indeterminate::after{
+  content:'';position:absolute;
+  width:9px;height:2px;background:var(--pri);border-radius:2px;
+}
+
+/* Linha seleccionada */
+.u-table tbody tr.seleccionada{
+  background:rgba(11,79,58,.05) !important;
+  outline:1px solid var(--pri-20);
+  outline-offset:-1px;
+}
+.u-table tbody tr.seleccionada td{
+  border-bottom-color:var(--pri-20);
+}
+
+/* ── ACTION BAR (sticky bottom) ────────────────────── */
+.batch-bar{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(calc(100% + 32px));
+  z-index:200;
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;
+  background:#0b4f3a;
+  border-radius:var(--r-lg);
+  box-shadow:0 8px 32px rgba(0,0,0,.22),0 2px 8px rgba(0,0,0,.14);
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+  min-width:max-content;
+  white-space:nowrap;
+}
+.batch-bar.visivel{
+  transform:translateX(-50%) translateY(0);
+}
+
+.batch-count{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:800;color:#fff;
+  padding-right:10px;
+  border-right:1px solid rgba(255,255,255,.2);
+}
+.batch-count-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:26px;height:26px;padding:0 8px;
+  background:rgba(255,255,255,.18);
+  border-radius:var(--r-full);
+  font-family:var(--mono);font-size:13px;font-weight:800;color:#fff;
+}
+
+.batch-sep{
+  width:1px;height:22px;
+  background:rgba(255,255,255,.2);
+  flex-shrink:0;
+}
+
+.batch-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:var(--r-sm);
+  font-size:12px;font-weight:800;
+  cursor:pointer;border:none;font-family:var(--font);
+  transition:all .13s;
+}
+.batch-btn.prim{
+  background:rgba(255,255,255,.15);
+  color:#fff;
+}
+.batch-btn.prim:hover{ background:rgba(255,255,255,.26); }
+.batch-btn.dest{
+  background:#dc2626;color:#fff;
+}
+.batch-btn.dest:hover{ background:#b91c1c; }
+.batch-btn.ghost{
+  background:transparent;
+  color:rgba(255,255,255,.65);
+  padding:8px 10px;
+}
+.batch-btn.ghost:hover{ color:#fff; }
+
+/* ── MODAL BATCH ESTADO ────────────────────────────── */
+.modal-batch-ov{
+  position:fixed;inset:0;z-index:400;
+  background:rgba(0,0,0,.35);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;
+  animation:fadeIn .15s ease;
+}
+.modal-batch-ov.aberto{ display:flex; }
+.modal-batch-card{
+  background:#fff;border-radius:var(--r-lg);
+  box-shadow:var(--sh-md);
+  padding:24px;width:100%;max-width:420px;
+  animation:slideUp .18s cubic-bezier(.34,1.2,.64,1);
+}
+.modal-batch-titulo{
+  font-size:16px;font-weight:800;color:var(--txt-1);
+  margin-bottom:4px;
+}
+.modal-batch-sub{
+  font-size:13px;color:var(--txt-2);margin-bottom:18px;line-height:1.5;
+}
+.estado-opcoes{
+  display:flex;flex-direction:column;gap:8px;
+  margin-bottom:20px;
+}
+.estado-opcao{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border-radius:var(--r-sm);
+  border:1px solid var(--border);background:#fff;
+  cursor:pointer;font-family:var(--font);
+  transition:all .12s;text-align:left;width:100%;
+}
+.estado-opcao:hover{
+  border-color:var(--pri);background:var(--pri-10);
+}
+.estado-opcao.seleccionado{
+  border-color:var(--pri);background:var(--pri-10);
+  outline:2px solid var(--pri);outline-offset:1px;
+}
+.estado-opcao-ic{ font-size:18px;line-height:1;flex-shrink:0; }
+.estado-opcao-info{ display:flex;flex-direction:column;gap:2px; }
+.estado-opcao-nome{
+  font-size:13px;font-weight:800;color:var(--txt-1);
+}
+.estado-opcao-desc{
+  font-size:11px;color:var(--txt-2);
+}
+.modal-batch-footer{
+  display:flex;justify-content:flex-end;gap:8px;
+  padding-top:16px;border-top:1px solid var(--border);
+}
+.batch-footer-cancel{
+  padding:9px 16px;border-radius:var(--r-sm);
+  background:transparent;border:1px solid var(--border);
+  font-size:13px;font-weight:700;color:var(--txt-2);
+  cursor:pointer;font-family:var(--font);transition:all .12s;
+}
+.batch-footer-cancel:hover{ background:#f1f5f9; }
+.batch-footer-confirm{
+  padding:9px 18px;border-radius:var(--r-sm);
+  background:var(--pri);border:none;
+  font-size:13px;font-weight:800;color:#fff;
+  cursor:pointer;font-family:var(--font);transition:all .12s;
+}
+.batch-footer-confirm:hover{ background:#083a2b; }
+.batch-footer-confirm:disabled{
+  opacity:.45;cursor:not-allowed;
+}
 .lista-surface{
   background:var(--card);border:1px solid var(--border);
   border-radius:var(--r-lg);box-shadow:var(--sh);overflow:hidden;
@@ -1154,6 +1331,37 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
     <div class="spinner-wrap"><div class="spinner"></div></div>
   </div>
 
+  <!-- BATCH ACTION BAR (sticky bottom, aparece quando há selecção) -->
+  <div class="batch-bar" id="batch-bar" role="toolbar" aria-label="Acções em lote" aria-hidden="true">
+    <div class="batch-count">
+      <span class="batch-count-num" id="batch-count-num">0</span>
+      <span id="batch-count-label">seleccionada(s)</span>
+    </div>
+    <button class="batch-btn prim" onclick="batchAlterarEstado()" title="Alterar estado operacional das unidades seleccionadas">
+      🔄 Alterar estado
+    </button>
+    <button class="batch-btn prim" onclick="batchExportarExcel()" title="Exportar só as unidades seleccionadas para Excel">
+      📥 Exportar selecção
+    </button>
+    <div class="batch-sep"></div>
+    <button class="batch-btn ghost" onclick="limparSeleccao()" title="Limpar selecção" aria-label="Limpar selecção">✕</button>
+  </div>
+
+  <!-- MODAL: Alterar estado em lote -->
+  <div class="modal-batch-ov" id="modal-batch-estado" role="dialog" aria-modal="true" aria-labelledby="mbe-titulo">
+    <div class="modal-batch-card">
+      <div class="modal-batch-titulo" id="mbe-titulo">Alterar estado operacional</div>
+      <div class="modal-batch-sub" id="mbe-sub">Seleccione o novo estado para as unidades escolhidas.</div>
+      <div class="estado-opcoes" id="mbe-opcoes">
+        <!-- preenchido por JS -->
+      </div>
+      <div class="modal-batch-footer">
+        <button class="batch-footer-cancel" onclick="fecharModalBatchEstado()">Cancelar</button>
+        <button class="batch-footer-confirm" id="mbe-btn-confirmar" onclick="confirmarBatchEstado()" disabled>Aplicar a todas</button>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <!-- DRAWER FICHA -->
@@ -1511,6 +1719,9 @@ let DRAWER_ID     = null;
 // ── Estado de ordenação da tabela ───────────────────────────
 let SORT_COL = null; // null = ordem de entrada (padrão do sistema)
 let SORT_DIR = 'asc';
+
+// ── Estado de selecção em lote ───────────────────────────────
+let SELECCIONADAS = new Set(); // IDs das unidades seleccionadas
 
 // ── Estado operacional das unidades ─────────────────────────
 const ESTADO_CONFIG = {
@@ -2397,8 +2608,15 @@ function linhaTabelaHTML(u){
   const estado = estadoConfig(u);
   const local = u.localizacao || {};
   const totalServicos = (u.servicos||[]).length;
+  const sel = SELECCIONADAS.has(u.id) ? ' seleccionada' : '';
+  const chk = SELECCIONADAS.has(u.id) ? ' checked' : '';
   return `
-    <tr onclick="window.abrirDrawer('${u.id}')">
+    <tr class="u-linha-tabela${sel}" onclick="window.abrirDrawer('${u.id}')" data-id="${escapeHTMLUnidades(u.id)}">
+      <td class="td-check" onclick="event.stopPropagation()">
+        <input type="checkbox" class="u-chk" id="chk-${escapeHTMLUnidades(u.id)}"
+          aria-label="Seleccionar ${escapeHTMLUnidades(u.nome)}"
+          onchange="toggleSeleccao('${escapeHTMLUnidades(u.id)}', event)"${chk}/>
+      </td>
       <td class="u-col-nome">
         <div class="u-linha-nome">
           <div class="u-linha-titulo">${u.nome}</div>
@@ -2513,6 +2731,13 @@ function renderTabela(lista){
     return `<th class="sortavel${activo}" onclick="window.setSortCol('${c.key}')" title="Ordenar por ${c.label}">${c.label}${sortIcHTML(c.key)}</th>`;
   }).join('');
 
+  // Estado do checkbox "seleccionar todos"
+  const idsVisiveis = listaSorted.map(u => u.id);
+  const totalVisiveis = idsVisiveis.length;
+  const selVisiveis   = idsVisiveis.filter(id => SELECCIONADAS.has(id)).length;
+  const chkAllChecked      = selVisiveis === totalVisiveis && totalVisiveis > 0;
+  const chkAllIndeterminate = selVisiveis > 0 && selVisiveis < totalVisiveis;
+
   const grid = document.getElementById('grid');
   grid.innerHTML = `
     <div class="lista-header">
@@ -2523,11 +2748,27 @@ function renderTabela(lista){
     </div>
     <div class="table-wrap">
       <table class="u-table">
-        <thead><tr>${headers}</tr></thead>
+        <thead>
+          <tr>
+            <th class="th-check" title="Seleccionar todas as unidades visíveis">
+              <input type="checkbox" class="u-chk" id="chk-all"
+                aria-label="Seleccionar todas"
+                onchange="toggleSeleccaoTodas(this)"
+                ${chkAllChecked ? 'checked' : ''}/>
+            </th>
+            ${headers}
+          </tr>
+        </thead>
         <tbody>${listaSorted.map(u => linhaTabelaHTML(u)).join('')}</tbody>
       </table>
     </div>
   `;
+
+  // Definir estado indeterminate (não pode ser feito em HTML puro)
+  if(chkAllIndeterminate){
+    const chkAll = document.getElementById('chk-all');
+    if(chkAll) chkAll.indeterminate = true;
+  }
 }
 
 window.exportarListaExcel = function(){
@@ -3230,10 +3471,212 @@ window.guardarFicha = async function(){
 // modal-ficha (z-index 300) → modal-ef (z-index 300) → drawer (z-index 201)
 document.addEventListener('keydown', e=>{
   if(e.key !== 'Escape') return;
+  if(document.getElementById('modal-batch-estado').classList.contains('aberto'))  { fecharModalBatchEstado(); return; }
   if(document.getElementById('modal-ficha').classList.contains('aberto'))     { fecharModalFicha(); return; }
   if(document.getElementById('modal-ef').classList.contains('aberto'))        { fecharModalEf();    return; }
   fecharDrawer();
 }, {capture:false});
+
+// ══════════════════════════════════════════════════════════════
+// BATCH ACTIONS — Selecção múltipla e operações em lote
+// ══════════════════════════════════════════════════════════════
+
+// ── Actualizar action bar ──────────────────────────────────────
+function actualizarBatchBar(){
+  const bar   = document.getElementById('batch-bar');
+  const num   = document.getElementById('batch-count-num');
+  const label = document.getElementById('batch-count-label');
+  if(!bar) return;
+
+  const n = SELECCIONADAS.size;
+  if(num)   num.textContent   = n;
+  if(label) label.textContent = n === 1 ? 'seleccionada' : 'seleccionadas';
+
+  const visivel = n > 0;
+  bar.classList.toggle('visivel', visivel);
+  bar.setAttribute('aria-hidden', String(!visivel));
+}
+
+// ── Toggle de uma linha ────────────────────────────────────────
+window.toggleSeleccao = function(id, event){
+  if(!id) return;
+  if(SELECCIONADAS.has(id)){
+    SELECCIONADAS.delete(id);
+  } else {
+    SELECCIONADAS.add(id);
+  }
+  // Actualizar visual da linha sem re-render completo
+  const tr = document.querySelector(`tr[data-id="${CSS.escape(id)}"]`);
+  if(tr) tr.classList.toggle('seleccionada', SELECCIONADAS.has(id));
+
+  // Sincronizar checkbox "seleccionar todos"
+  sincronizarChkAll();
+  actualizarBatchBar();
+};
+
+// ── Toggle de todas as linhas visíveis ────────────────────────
+window.toggleSeleccaoTodas = function(chkEl){
+  const seleccionar = chkEl.checked;
+  // Linhas actualmente visíveis na tabela
+  const linhas = document.querySelectorAll('.u-table tbody tr.u-linha-tabela');
+  linhas.forEach(tr => {
+    const id = tr.dataset.id;
+    if(!id) return;
+    if(seleccionar){
+      SELECCIONADAS.add(id);
+    } else {
+      SELECCIONADAS.delete(id);
+    }
+    tr.classList.toggle('seleccionada', seleccionar);
+    const chk = tr.querySelector('.u-chk');
+    if(chk) chk.checked = seleccionar;
+  });
+  actualizarBatchBar();
+};
+
+// ── Limpar toda a selecção ─────────────────────────────────────
+window.limparSeleccao = function(){
+  SELECCIONADAS.clear();
+  // Limpar visuais sem re-render
+  document.querySelectorAll('.u-table tbody tr.seleccionada').forEach(tr => tr.classList.remove('seleccionada'));
+  document.querySelectorAll('.u-table .u-chk:checked').forEach(chk => { chk.checked = false; chk.indeterminate = false; });
+  const chkAll = document.getElementById('chk-all');
+  if(chkAll){ chkAll.checked = false; chkAll.indeterminate = false; }
+  actualizarBatchBar();
+};
+
+// ── Sincronizar estado do chk-all ─────────────────────────────
+function sincronizarChkAll(){
+  const chkAll = document.getElementById('chk-all');
+  if(!chkAll) return;
+  const linhas = document.querySelectorAll('.u-table tbody tr.u-linha-tabela');
+  const total  = linhas.length;
+  const sel    = [...linhas].filter(tr => SELECCIONADAS.has(tr.dataset.id)).length;
+  chkAll.checked       = sel === total && total > 0;
+  chkAll.indeterminate = sel > 0 && sel < total;
+}
+
+// ── Estado escolhido no modal batch ───────────────────────────
+let BATCH_ESTADO_ESCOLHIDO = null;
+
+// ── Abrir modal: alterar estado ───────────────────────────────
+window.batchAlterarEstado = function(){
+  if(!SELECCIONADAS.size) return;
+  const n   = SELECCIONADAS.size;
+  const sub = document.getElementById('mbe-sub');
+  if(sub) sub.textContent = `Novo estado para ${n} unidade${n!==1?'s':''} seleccionada${n!==1?'s':''}.`;
+
+  BATCH_ESTADO_ESCOLHIDO = null;
+  const btn = document.getElementById('mbe-btn-confirmar');
+  if(btn){ btn.disabled = true; btn.textContent = 'Aplicar a todas'; }
+
+  const opcoesEl = document.getElementById('mbe-opcoes');
+  if(opcoesEl){
+    const DESCS = {
+      operacional:              'Unidade a funcionar normalmente.',
+      temporariamente_suspensa: 'Serviços suspensos temporariamente.',
+      em_construcao:            'Em obra, reabilitação ou expansão.',
+      interditada:              'Encerramento por decisão administrativa.',
+      desactivada:              'Unidade permanentemente inactiva.',
+    };
+    opcoesEl.innerHTML = Object.entries(ESTADO_CONFIG).map(([key, cfg]) => `
+      <button class="estado-opcao" data-estado="${key}"
+        onclick="seleccionarEstadoOpcao('${key}', this)">
+        <span class="estado-opcao-ic">${cfg.ic}</span>
+        <span class="estado-opcao-info">
+          <span class="estado-opcao-nome">${cfg.label}</span>
+          <span class="estado-opcao-desc">${DESCS[key]||''}</span>
+        </span>
+      </button>
+    `).join('');
+  }
+
+  document.getElementById('modal-batch-estado').classList.add('aberto');
+};
+
+window.seleccionarEstadoOpcao = function(estado, btn){
+  BATCH_ESTADO_ESCOLHIDO = estado;
+  document.querySelectorAll('.estado-opcao').forEach(el => el.classList.remove('seleccionado'));
+  btn.classList.add('seleccionado');
+  const conf = document.getElementById('mbe-btn-confirmar');
+  if(conf){ conf.disabled = false; conf.textContent = `Aplicar a ${SELECCIONADAS.size} unidade${SELECCIONADAS.size!==1?'s':''}`; }
+};
+
+window.fecharModalBatchEstado = function(){
+  document.getElementById('modal-batch-estado').classList.remove('aberto');
+  BATCH_ESTADO_ESCOLHIDO = null;
+};
+
+// ── Confirmar actualização em lote no Firestore ───────────────
+window.confirmarBatchEstado = async function(){
+  if(!BATCH_ESTADO_ESCOLHIDO || !SELECCIONADAS.size) return;
+
+  const btn = document.getElementById('mbe-btn-confirmar');
+  if(btn){ btn.disabled = true; btn.textContent = 'A guardar…'; }
+
+  const ids      = [...SELECCIONADAS];
+  const novoEstado = BATCH_ESTADO_ESCOLHIDO;
+  let ok = 0; let erros = 0;
+
+  // Escrever em paralelo (Firestore lida bem com N updateDocs simultâneos)
+  await Promise.allSettled(ids.map(async id => {
+    try{
+      await updateDoc(doc(db,'unidades_sanitarias', id), {
+        estado: novoEstado,
+        actualizadoEm: serverTimestamp()
+      });
+      // Actualizar cache local
+      const u = TODAS_UNIDADES.find(x => x.id === id);
+      if(u) u.estado = novoEstado;
+      ok++;
+    } catch(e){
+      console.error('Batch estado erro:', id, e);
+      erros++;
+    }
+  }));
+
+  // Auditoria
+  try{
+    const {addDoc: aDoc, collection: col} = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+    const cfgEstado = ESTADO_CONFIG[novoEstado];
+    await aDoc(col(db,'auditoria'),{
+      acao: 'BATCH_ALTERAR_ESTADO',
+      detalhe: `Estado alterado para "${cfgEstado?.label || novoEstado}" em ${ok} unidade(s): ${ids.join(', ')}`,
+      uidUtilizador:  UTILIZADOR.uid,
+      nomeUtilizador: PERFIL_DOC?.nome || UTILIZADOR.email,
+      timestamp: serverTimestamp()
+    });
+  } catch(e){}
+
+  fecharModalBatchEstado();
+  limparSeleccao();
+  render();
+  actualizarKPIs();
+
+  if(erros === 0){
+    mostrarToast(`✅ Estado actualizado em ${ok} unidade${ok!==1?'s':''}`);
+  } else {
+    mostrarToast(`⚠️ ${ok} actualizadas, ${erros} com erro`, '#d97706');
+  }
+};
+
+// ── Exportar só a selecção (Excel) ────────────────────────────
+window.batchExportarExcel = function(){
+  if(!SELECCIONADAS.size){
+    mostrarToast('⚠️ Nenhuma unidade seleccionada.','#d97706');
+    return;
+  }
+  const seleccao = TODAS_UNIDADES.filter(u => SELECCIONADAS.has(u.id));
+  downloadExcelLista(
+    colunasListaExport(),
+    linhasListaExport(seleccao),
+    `Seleccao_Unidades_${seleccao.length}_${dataArquivoHoje()}`
+  );
+  mostrarToast(`✅ ${seleccao.length} unidade${seleccao.length!==1?'s':''} exportadas`);
+};
+
+// ── Fechar modal batch com ESC (integrado na cadeia existente) ─
+// (O handler de ESC já existente é complementado abaixo, no listener principal)
 
 function mostrarToast(msg, bg=''){
   const t = document.getElementById('toast');
