@@ -1274,8 +1274,9 @@
     const anoAtual     = new Date().getFullYear();
 
     // ── Utilitário: extrair ano de admissão independente do formato ──
+    // O campo no Firestore é "admissao" (guardado em cadastro.html linha ~2644)
     function anoAdmissao(f) {
-      const raw = f.dataAdmissao;
+      const raw = f.admissao || f.dataAdmissao || f.dataEntrada;
       if (!raw) return null;
       if (typeof raw === 'string') return parseInt(raw.slice(0, 4), 10);
       if (raw.toDate)              return raw.toDate().getFullYear();   // Firestore Timestamp
@@ -1285,6 +1286,8 @@
 
     // ── Classificação visual ──
     function classificar(anosRestantes) {
+      if (anosRestantes === 0)
+        return { cor: '#ef4444', bg: 'rgba(239,68,68,.18)', emoji: '🔴', label: 'Em reforma' };
       if (anosRestantes <= 1)
         return { cor: '#ef4444', bg: 'rgba(239,68,68,.14)', emoji: '🔴', label: 'Crítico' };
       if (anosRestantes <= 3)
@@ -1306,10 +1309,10 @@
         const ano = anoAdmissao(f);
         if (!ano) return null;
         const anosTrabalhados = anoAtual - ano;
-        const anosRestantes   = ANOS_REFORMA - anosTrabalhados;
+        const anosRestantes   = Math.max(0, ANOS_REFORMA - anosTrabalhados);
         return { ...f, anosTrabalhados, anosRestantes };
       })
-      .filter(f => f !== null && f.anosRestantes >= 0)   // activos, não reformados
+      .filter(f => f !== null && f.anosTrabalhados > 0)   // exclui só registos sem data válida
       .sort((a, b) => a.anosRestantes - b.anosRestantes)
       .slice(0, LIMITE);
 
