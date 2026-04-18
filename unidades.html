@@ -1119,13 +1119,21 @@ mark.hl{
   border-bottom:1px solid var(--border);
   flex-shrink:0;
 }
-.mef-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px}
+.mef-tabs{
+  display:flex;gap:0;
+  border-bottom:1px solid var(--border);margin-bottom:20px;
+  overflow-x:auto;
+  /* Esconder scrollbar mas manter funcionalidade */
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.mef-tabs::-webkit-scrollbar{display:none}
 .mef-tab{
-  padding:10px 16px;font-size:13px;font-weight:700;
+  padding:10px 12px;font-size:12px;font-weight:700;
   color:var(--txt-2);border:none;background:none;
   cursor:pointer;font-family:var(--font);
   border-bottom:2px solid transparent;transition:all .15s;
-  white-space:nowrap;
+  white-space:nowrap;flex-shrink:0;
 }
 .mef-tab.activo{color:var(--pri);border-bottom-color:var(--pri)}
 .mef-tab-panel{display:none}
@@ -1516,6 +1524,7 @@ mark.hl{
         <button class="mef-tab" onclick="mudarTab(this,'tab-contactos')">📍 Localização</button>
         <button class="mef-tab" onclick="mudarTab(this,'tab-horario')">🕐 Horário</button>
         <button class="mef-tab" onclick="mudarTab(this,'tab-servicos')">🏥 Serviços</button>
+        <button class="mef-tab" onclick="mudarTab(this,'tab-infraestrutura')">🏗️ Infra</button>
         <button class="mef-tab" onclick="mudarTab(this,'tab-historial')">📋 Historial &amp; Notas</button>
       </div>
     </div>
@@ -1605,33 +1614,50 @@ mark.hl{
           <input type="email" id="mf-email" placeholder="unidade@dms.ao"/>
         </div>
         <div class="mef-campo">
-          <label>Observação logística (texto livre)</label>
-          <textarea id="mf-logistica" rows="3" placeholder="ex: Possui ambulância, gerador, laboratório e farmácia funcional."></textarea>
+          <label>Logística e infraestrutura</label>
+          <textarea id="mf-logistica" rows="4" placeholder="ex: Possui ambulância, gerador, laboratório e farmácia funcional."></textarea>
+        </div>
+      </div>
+
+      <!-- TAB: Infraestrutura física -->
+      <div class="mef-tab-panel" id="tab-infraestrutura">
+        <div style="font-size:13px;color:var(--txt-2);margin-bottom:18px;line-height:1.6">
+          Registe as condições físicas e recursos instalados nesta unidade sanitária.
+          Estes dados são usados nos relatórios e na ficha institucional.
         </div>
 
-        <!-- Infraestrutura física — campos estruturados -->
-        <div style="margin-top:4px;padding-top:14px;border-top:1px solid var(--border)">
-          <div style="font-size:11px;font-weight:800;color:var(--txt-3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px">🏗️ Infraestrutura física</div>
-          <div class="mef-campo" style="margin-bottom:14px">
-            <label>Número de Camas de internamento</label>
-            <input type="number" id="mf-camas" min="0" max="9999" placeholder="0 (sem camas de internamento)"/>
+        <!-- Camas -->
+        <div class="mef-campo" style="max-width:240px">
+          <label>Camas de internamento</label>
+          <input type="number" id="mf-camas" min="0" max="9999"
+            placeholder="0"
+            style="font-size:22px;font-family:var(--mono);font-weight:700;padding:12px 14px"/>
+          <div style="font-size:11px;color:var(--txt-3);margin-top:6px">
+            Introduza 0 se a unidade não tiver camas de internamento.
           </div>
-          <div class="mef-toggle-row" style="border-top:1px solid var(--border);padding-top:10px">
-            <span class="mef-toggle-label">💧 Água potável disponível</span>
-            <button class="mef-toggle" id="toggle-agua" onclick="this.classList.toggle('on')" type="button"></button>
-          </div>
-          <div class="mef-toggle-row">
-            <span class="mef-toggle-label">⚡ Energia eléctrica disponível</span>
-            <button class="mef-toggle" id="toggle-energia" onclick="this.classList.toggle('on')" type="button"></button>
-          </div>
-          <div class="mef-toggle-row">
-            <span class="mef-toggle-label">🔬 Laboratório funcional</span>
-            <button class="mef-toggle" id="toggle-laboratorio" onclick="this.classList.toggle('on')" type="button"></button>
-          </div>
-          <div class="mef-toggle-row" style="border-bottom:1px solid var(--border);padding-bottom:10px">
-            <span class="mef-toggle-label">💉 Posto fixo de vacinação (PAV)</span>
-            <button class="mef-toggle" id="toggle-vacinacao" onclick="this.classList.toggle('on')" type="button"></button>
-          </div>
+        </div>
+
+        <!-- Separador -->
+        <div style="border-top:1px solid var(--border);margin:16px 0 4px"></div>
+        <div style="font-size:11px;font-weight:800;color:var(--txt-3);text-transform:uppercase;
+          letter-spacing:.7px;margin-bottom:4px">Recursos disponíveis</div>
+
+        <!-- Toggles -->
+        <div class="mef-toggle-row">
+          <span class="mef-toggle-label">💧 Água potável</span>
+          <button class="mef-toggle" id="toggle-agua" onclick="this.classList.toggle('on')" type="button"></button>
+        </div>
+        <div class="mef-toggle-row">
+          <span class="mef-toggle-label">⚡ Energia eléctrica</span>
+          <button class="mef-toggle" id="toggle-energia" onclick="this.classList.toggle('on')" type="button"></button>
+        </div>
+        <div class="mef-toggle-row">
+          <span class="mef-toggle-label">🔬 Laboratório funcional</span>
+          <button class="mef-toggle" id="toggle-laboratorio" onclick="this.classList.toggle('on')" type="button"></button>
+        </div>
+        <div class="mef-toggle-row">
+          <span class="mef-toggle-label">💉 Posto fixo de vacinação (PAV)</span>
+          <button class="mef-toggle" id="toggle-vacinacao" onclick="this.classList.toggle('on')" type="button"></button>
         </div>
       </div>
 
@@ -3334,22 +3360,31 @@ function renderDrawer(u){
     <!-- Infraestrutura física -->
     ${(()=>{
       const inf = u.infraestrutura || {};
-      const temDados = inf.camas !== null && inf.camas !== undefined
+      const temDados = (inf.camas !== null && inf.camas !== undefined)
         || inf.aguaPotavel !== undefined
         || inf.energiaElectrica !== undefined
         || inf.laboratorio !== undefined
         || inf.postoVacinacao !== undefined;
       if(!temDados) return '';
-      const yn = v => v ? '<span style="color:#047857;font-weight:700">✅ Sim</span>' : '<span style="color:#b91c1c;font-weight:700">❌ Não</span>';
+      const yn = v => v
+        ? '<span style="color:#047857;font-weight:700">✅ Sim</span>'
+        : '<span style="color:#b91c1c;font-weight:700">❌ Não</span>';
       return `
         <div class="ds">
           <div class="ds-titulo">Infraestrutura física</div>
-          ${inf.camas !== null && inf.camas !== undefined ? `<div class="ds-row"><span class="ds-key">💊 Camas</span><span class="ds-val" style="font-family:var(--mono);font-weight:700">${inf.camas}</span></div>` : ''}
-          ${inf.aguaPotavel !== undefined ? `<div class="ds-row"><span class="ds-key">💧 Água potável</span><span class="ds-val">${yn(inf.aguaPotavel)}</span></div>` : ''}
-          ${inf.energiaElectrica !== undefined ? `<div class="ds-row"><span class="ds-key">⚡ Energia eléctrica</span><span class="ds-val">${yn(inf.energiaElectrica)}</span></div>` : ''}
-          ${inf.laboratorio !== undefined ? `<div class="ds-row"><span class="ds-key">🔬 Laboratório</span><span class="ds-val">${yn(inf.laboratorio)}</span></div>` : ''}
-          ${inf.postoVacinacao !== undefined ? `<div class="ds-row"><span class="ds-key">💉 Posto fixo de vacinação</span><span class="ds-val">${yn(inf.postoVacinacao)}</span></div>` : ''}
-          ${inf.resumo ? `<div class="ds-row" style="flex-direction:column;gap:4px"><span class="ds-key">Observações</span><span class="ds-val" style="color:var(--txt-2)">${inf.resumo}</span></div>` : ''}
+          ${inf.camas !== null && inf.camas !== undefined
+            ? `<div class="ds-row"><span class="ds-key">💊 Camas</span><span class="ds-val" style="font-family:var(--mono);font-weight:700">${inf.camas}</span></div>`
+            : ''}
+          ${inf.aguaPotavel !== undefined
+            ? `<div class="ds-row"><span class="ds-key">💧 Água potável</span><span class="ds-val">${yn(inf.aguaPotavel)}</span></div>` : ''}
+          ${inf.energiaElectrica !== undefined
+            ? `<div class="ds-row"><span class="ds-key">⚡ Energia eléctrica</span><span class="ds-val">${yn(inf.energiaElectrica)}</span></div>` : ''}
+          ${inf.laboratorio !== undefined
+            ? `<div class="ds-row"><span class="ds-key">🔬 Laboratório</span><span class="ds-val">${yn(inf.laboratorio)}</span></div>` : ''}
+          ${inf.postoVacinacao !== undefined
+            ? `<div class="ds-row"><span class="ds-key">💉 Vacinação (PAV)</span><span class="ds-val">${yn(inf.postoVacinacao)}</span></div>` : ''}
+          ${inf.resumo
+            ? `<div class="ds-row" style="flex-direction:column;gap:4px"><span class="ds-key">Observações</span><span class="ds-val" style="color:var(--txt-2)">${inf.resumo}</span></div>` : ''}
         </div>`;
     })()}
 
@@ -3473,7 +3508,7 @@ window.abrirModalFicha = function(id){
   document.getElementById('mf-email').value       = u.contactos?.email||'';
   document.getElementById('mf-logistica').value   = u.infraestrutura?.resumo||'';
 
-  // Infraestrutura física
+  // Tab: Infraestrutura física
   const _infra = u.infraestrutura || {};
   document.getElementById('mf-camas').value = (_infra.camas !== null && _infra.camas !== undefined) ? _infra.camas : '';
   document.getElementById('toggle-agua').classList.toggle('on', !!_infra.aguaPotavel);
