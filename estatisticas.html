@@ -240,6 +240,39 @@
     .gc circle, .gc rect, .gc polygon { transition: opacity .2s, transform .2s; }
     .gc circle:hover, .gc rect:hover, .gc polygon:hover { opacity: 0.8; filter: brightness(1.2); }
 
+    /* ── Extremos Etários ── */
+    .ee-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    @media (max-width: 640px) { .ee-grid { grid-template-columns: 1fr; } }
+    .ee-card {
+      border-radius: 14px; padding: 22px 20px;
+      border: 1px solid; display: flex; flex-direction: column; gap: 14px;
+      transition: filter .2s;
+    }
+    .ee-card:hover { filter: brightness(1.06); }
+    .ee-card-novo  { background: rgba(59,130,246,.06);  border-color: rgba(59,130,246,.18); }
+    .ee-card-velho { background: rgba(245,158,11,.06);  border-color: rgba(245,158,11,.18); }
+    .ee-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 11px; border-radius: 99px;
+      font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px;
+    }
+    .ee-badge-novo  { background: rgba(59,130,246,.15);  color: #60a5fa;  border: 1px solid rgba(59,130,246,.25); }
+    .ee-badge-velho { background: rgba(245,158,11,.15);  color: #fbbf24;  border: 1px solid rgba(245,158,11,.25); }
+    .ee-idade { font-size: 52px; font-weight: 900; font-family: 'DM Mono', monospace; letter-spacing: -3px; line-height: 1; }
+    .ee-idade-lbl { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.35); margin-top: 3px; }
+    .ee-nome { font-size: 15px; font-weight: 800; color: #e2e8f0; line-height: 1.3; word-break: break-word; }
+    .ee-meta { display: flex; flex-direction: column; gap: 5px; }
+    .ee-meta-linha { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,.38); font-weight: 600; }
+    .ee-meta-linha span { color: rgba(255,255,255,.62); }
+    .ee-diff-bar {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px; padding: 14px 18px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .ee-diff-txt { font-size: 12px; color: rgba(255,255,255,.4); font-weight: 600; }
+    .ee-diff-val { font-size: 22px; font-weight: 900; font-family: 'DM Mono', monospace; letter-spacing: -1px; color: #e2e8f0; }
+    .ee-diff-sub { font-size: 10px; color: rgba(255,255,255,.3); font-weight: 600; margin-top: 1px; }
+
     /* ── Reforma ── */
     .reforma-toggle { transition: background .18s, border-color .18s; }
     .reforma-toggle:hover { background: rgba(255,255,255,.07) !important; border-color: rgba(255,255,255,.14) !important; }
@@ -786,6 +819,9 @@
         <div class="gc"><div class="gc-titulo">Pirâmide Etária</div><div id="piramide"></div></div>
         <div class="gc"><div class="gc-titulo">Tipo de Vínculo</div><div id="vinculo-wrap"></div></div>
       </div>
+
+      <div class="sec">🎂 Extremos Etários</div>
+      <div class="g1" id="extremos-wrap"></div>
       
       <div class="g1"><div class="gc">
         <div class="gc-titulo">📈 Evolução de Cadastros</div>
@@ -824,6 +860,7 @@
     renderGenero(funcs);
     renderPiramide(funcs);
     renderDonut("vinculo-wrap", calcGrupo(funcs, "vinculo", {quadro:"Quadro",provisorio:"Provisório"}));
+    renderExtremosEtarios(funcs);
     renderEvolucaoCadastros(funcs);
     renderQualidade(funcs);
     renderCobertura(funcs, unidades);
@@ -1248,6 +1285,128 @@
     document.getElementById('modal-drill')?.classList.remove('active');
     document.body.style.overflow = '';
   };
+
+  // ════════════════════════════════════════════════════════
+  //  EXTREMOS ETÁRIOS
+  // ════════════════════════════════════════════════════════
+
+  /**
+   * Identifica o funcionário mais novo e o mais velho a partir do campo
+   * "nascimento" (string "YYYY-MM-DD", guardado em cadastro.html linha ~2651).
+   *
+   * Usa um único reduce() para encontrar ambos os extremos numa só passagem,
+   * sem ordenação do array completo (O(n) vs O(n log n)).
+   */
+  function renderExtremosEtarios(funcs) {
+    const el = document.getElementById('extremos-wrap');
+    if (!el) return;
+
+    // ── Calcular idade exacta em anos completos ──
+    function calcularIdade(nascStr) {
+      if (!nascStr || typeof nascStr !== 'string') return null;
+      const nasc = new Date(nascStr);
+      if (isNaN(nasc)) return null;
+      const hoje = new Date();
+      let anos = hoje.getFullYear() - nasc.getFullYear();
+      const aindaNaoFezAnos =
+        hoje.getMonth() < nasc.getMonth() ||
+        (hoje.getMonth() === nasc.getMonth() && hoje.getDate() < nasc.getDate());
+      if (aindaNaoFezAnos) anos--;
+      return anos >= 0 && anos < 120 ? anos : null;
+    }
+
+    // ── Formatar data de nascimento para exibição ──
+    function fmtNasc(str) {
+      if (!str) return '—';
+      const [a, m, d] = str.split('-');
+      const meses = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+      return `${parseInt(d)} de ${meses[parseInt(m) - 1]} de ${a}`;
+    }
+
+    // ── Abreviatura de unidade (padrão do sistema) ──
+    function abrvUnidade(nome) {
+      return (nome || '—')
+        .replace('Direcção Municipal de Saúde do Sumbe', 'DMS — Sede')
+        .replace('Centro de Saúde', 'CS')
+        .replace('Posto de Saúde', 'PS');
+    }
+
+    // ── Um único reduce: encontrar mínimo e máximo em O(n) ──
+    const extremos = funcs.reduce((acc, f) => {
+      const idade = calcularIdade(f.nascimento);
+      if (idade === null) return acc;
+      if (acc.novo === null || idade < acc.novo.idade)
+        acc.novo = { ...f, idade };
+      if (acc.velho === null || idade > acc.velho.idade)
+        acc.velho = { ...f, idade };
+      return acc;
+    }, { novo: null, velho: null });
+
+    if (!extremos.novo && !extremos.velho) {
+      el.innerHTML = `
+        <div class="gc">
+          <div class="gc-titulo">Extremos Etários</div>
+          <div class="vazio">Sem datas de nascimento disponíveis para calcular extremos.</div>
+        </div>`;
+      return;
+    }
+
+    // ── Renderizar um cartão de extremo ──
+    function cartaoExtremo({ f, tipo }) {
+      const isMaisNovo  = tipo === 'novo';
+      const cor         = isMaisNovo ? '#60a5fa' : '#fbbf24';
+      const cardClass   = isMaisNovo ? 'ee-card-novo' : 'ee-card-velho';
+      const badgeClass  = isMaisNovo ? 'ee-badge-novo' : 'ee-badge-velho';
+      const icone       = isMaisNovo ? '🌱' : '🌳';
+      const badgeTxt    = isMaisNovo ? 'Mais novo' : 'Mais velho';
+
+      return `
+        <div class="ee-card ${cardClass}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <span class="ee-badge ${badgeClass}">${icone} ${badgeTxt}</span>
+          </div>
+          <div>
+            <div class="ee-idade" style="color:${cor}">${f.idade}</div>
+            <div class="ee-idade-lbl">anos de idade</div>
+          </div>
+          <div class="ee-nome">${f.nome || '—'}</div>
+          <div class="ee-meta">
+            <div class="ee-meta-linha">🏥 <span>${abrvUnidade(f.unidade)}</span></div>
+            <div class="ee-meta-linha">🎂 <span>${fmtNasc(f.nascimento)}</span></div>
+            ${f.categoria ? `<div class="ee-meta-linha">📋 <span>${f.categoria}</span></div>` : ''}
+          </div>
+        </div>`;
+    }
+
+    // ── Diferença entre os dois extremos ──
+    const diffAnos = (extremos.novo && extremos.velho)
+      ? extremos.velho.idade - extremos.novo.idade
+      : null;
+
+    const barraAmpitude = diffAnos !== null ? `
+      <div class="ee-diff-bar">
+        <div class="ee-diff-txt">Amplitude geracional entre os dois extremos</div>
+        <div style="text-align:right">
+          <div class="ee-diff-val">${diffAnos} <span style="font-size:14px;color:rgba(255,255,255,.35)">anos</span></div>
+          <div class="ee-diff-sub">de diferença</div>
+        </div>
+      </div>` : '';
+
+    el.innerHTML = `
+      <div class="gc">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div class="gc-titulo">Extremos Etários</div>
+            <div class="gc-sub">Funcionário mais novo e mais velho do efectivo seleccionado</div>
+          </div>
+        </div>
+        <div class="ee-grid">
+          ${extremos.novo  ? cartaoExtremo({ f: extremos.novo,  tipo: 'novo'  }) : '<div class="vazio">Sem dados</div>'}
+          ${extremos.velho ? cartaoExtremo({ f: extremos.velho, tipo: 'velho' }) : '<div class="vazio">Sem dados</div>'}
+        </div>
+        ${barraAmpitude}
+      </div>`;
+  }
 
   // ════════════════════════════════════════════════════════
   //  FUNCIONÁRIOS PRÓXIMOS DA REFORMA
