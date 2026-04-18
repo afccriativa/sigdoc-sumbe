@@ -1020,7 +1020,7 @@ mark.hl{
   font-weight:700;cursor:pointer;font-family:var(--font);
   transition:all .15s;
 }
-.btn-guardar:hover{background:#0f35a0}
+.btn-guardar:hover{background:#083a2b}
 .btn-guardar:disabled{opacity:.5;cursor:not-allowed}
 .btn-cancelar{
   padding:10px 20px;background:#f1f5f9;color:var(--txt-2);
@@ -1071,7 +1071,7 @@ mark.hl{
 .login-campo input{width:100%;padding:11px 14px;background:#f8fafc;border:1px solid var(--border);border-radius:var(--r-sm);font-size:14px;color:var(--txt-1);outline:none;font-family:var(--font)}
 .login-campo input:focus{border-color:var(--pri)}
 .btn-login{width:100%;padding:12px;background:var(--pri);color:#fff;border:none;border-radius:var(--r-sm);font-size:15px;font-weight:800;cursor:pointer;font-family:var(--font);margin-top:8px;transition:all .15s}
-.btn-login:hover{background:#0f35a0}
+.btn-login:hover{background:#083a2b}
 .login-erro{font-size:13px;color:var(--red);margin-top:10px;display:none}
 
 
@@ -2254,38 +2254,6 @@ function render(){
     return;
   }
   renderTabela(lista);
-  /* Vista anterior em cards preservada apenas como referência local.
-
-  const _legacyFiltrosTipo = ['dms', 'centro', 'posto'];
-  const _legacyLista = TODAS_UNIDADES.filter(u=>{
-    // Filtro tipo — só aplicar quando o filtro activo é mesmo um tipo de unidade
-    if(_legacyFiltrosTipo.includes(FILTRO_ACTIVO) && u.tipo !== FILTRO_ACTIVO) return false;
-    if(FILTRO_ACTIVO === 'incompleto'){
-      const esp = u.efectivo?.esperado||0;
-      if(esp===0) return true;
-      const pct = u.cadastrados/esp*100;
-      if(pct>=80) return false;
-    }
-    // Filtro não operacional (tudo excepto operacional)
-    if(FILTRO_ACTIVO === 'nao_operacional'){
-      const ec = estadoConfig(u);
-      if(ec === ESTADO_CONFIG.operacional) return false;
-    }
-    // Pesquisa
-    if(PESQUISA){
-      const haystack = [u.nome, u.tipo, ...(u.servicos||[])].join(' ').toLowerCase();
-      if(!haystack.includes(PESQUISA)) return false;
-    }
-    return true;
-  });
-
-  const _legacyGrid = document.getElementById('grid');
-  if(!lista.length){
-    grid.innerHTML='<div class="vazio"><div class="vazio-ic">🔍</div><p>Nenhuma unidade encontrada.</p></div>';
-    return;
-  }
-  grid.innerHTML = lista.map(u=>cardHTML(u)).join('');
-  */
 }
 
 function tipoNome(tipo){
