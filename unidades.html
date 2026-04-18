@@ -421,7 +421,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .lista-header p{font-size:12px;color:var(--txt-2);margin-top:4px}
 .table-wrap{overflow:auto}
 .u-table{
-  width:100%;min-width:980px;border-collapse:collapse;
+  width:100%;min-width:1080px;border-collapse:collapse;
 }
 .u-table th{
   text-align:left;padding:12px 16px;background:#f8fafc;
@@ -429,6 +429,32 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
   font-size:11px;font-weight:800;color:var(--txt-3);
   text-transform:uppercase;letter-spacing:.7px;white-space:nowrap;
 }
+/* ── Ordenação ── */
+.u-table th.sortavel{
+  cursor:pointer;user-select:none;
+  transition:background .13s,color .13s;
+}
+.u-table th.sortavel:hover{
+  background:#f1f5f9;color:var(--pri);
+}
+.u-table th.sort-activo{
+  color:var(--pri);background:#f0f7f4;
+}
+.sort-ic{
+  display:inline-flex;align-items:center;
+  margin-left:5px;opacity:.3;font-style:normal;font-size:10px;
+  transition:opacity .13s;
+}
+.u-table th.sortavel:hover .sort-ic{ opacity:.65; }
+.u-table th.sort-activo .sort-ic{ opacity:1; }
+/* Cobertura inline na tabela */
+.cell-cob{display:flex;flex-direction:column;gap:4px;min-width:90px}
+.cell-cob-pct{
+  font-size:12px;font-weight:800;font-family:var(--mono);
+  padding:2px 7px;border-radius:var(--r-full);display:inline-block;
+}
+.cell-cob-bar-fundo{height:4px;background:#e2e8f0;border-radius:99px;overflow:hidden;width:70px}
+.cell-cob-bar-fill{height:100%;border-radius:99px;transition:width .3s}
 .u-table td{
   padding:14px 16px;border-bottom:1px solid var(--border);
   vertical-align:top;font-size:13px;color:var(--txt-1);
@@ -1404,6 +1430,9 @@ let TODOS_FUNCIONARIOS_FLAT = []; // todos os funcionários — para pesquisa de
 let SECCOES_MAP    = {}; // seccao → [funcionarios] (só DMS)
 let FILTRO_ACTIVO = 'todos';
 let DRAWER_ID     = null;
+// ── Estado de ordenação da tabela ───────────────────────────
+let SORT_COL = null; // null = ordem de entrada (padrão do sistema)
+let SORT_DIR = 'asc';
 
 // ── Estado operacional das unidades ─────────────────────────
 const ESTADO_CONFIG = {
@@ -1986,18 +2015,22 @@ function slugArquivo(valor){
 }
 
 function colunasListaExport(){
-  return ['Nome da unidade','Tipo','Município','Distância da sede','Status','Chefe da unidade'];
+  return ['Nome da unidade','Tipo','Município','Distância da sede','Cobertura (%)','Status','Chefe da unidade'];
 }
 
 function linhasListaExport(lista){
-  return (lista || []).map(u=>[
-    u.nome || '',
-    tipoNome(u.tipo),
-    municipioUnidade(u),
-    distanciaUnidadeTexto(u),
-    estadoConfig(u).label,
-    u.responsavel?.nome || 'Não definido'
-  ]);
+  return (lista || []).map(u=>{
+    const cob = coberturaUnidadePercentual(u);
+    return [
+      u.nome || '',
+      tipoNome(u.tipo),
+      municipioUnidade(u),
+      distanciaUnidadeTexto(u),
+      cob !== null ? `${cob}%` : '—',
+      estadoConfig(u).label,
+      u.responsavel?.nome || 'Não definido'
+    ];
+  });
 }
 
 function dataArquivoHoje(){
@@ -2189,6 +2222,19 @@ function renderPainelDecisao(lista){
   `;
 }
 
+function coberturaHTML(u){
+  const cob = calcCobertura(u);
+  if(cob.pct === null) return `<span class="cell-cob-pct pct-vazio">—</span>`;
+  const fill = Math.min(cob.pct, 100);
+  return `
+    <div class="cell-cob">
+      <span class="cell-cob-pct ${cob.classe}">${cob.pct}%</span>
+      <div class="cell-cob-bar-fundo">
+        <div class="cell-cob-bar-fill ${cob.fillClass}" style="width:${fill}%"></div>
+      </div>
+    </div>`;
+}
+
 function linhaTabelaHTML(u){
   const estado = estadoConfig(u);
   const local = u.localizacao || {};
@@ -2213,13 +2259,102 @@ function linhaTabelaHTML(u){
         </div>
       </td>
       <td><span class="cell-distancia">${distanciaUnidadeTexto(u)}</span></td>
+      <td>${coberturaHTML(u)}</td>
       <td><span class="u-estado-badge ${estado.cls}">${estado.ic} ${estado.label}</span></td>
       <td>${chefeResumoHTML(u)}</td>
     </tr>
   `;
 }
 
+// ── Ordenação da tabela ────────────────────────────────────
+const SORT_TIPO_ORDEM = { dms:0, centro:1, posto:2, seccao:3 };
+const SORT_STATUS_ORDEM = { operacional:0, temporariamente_suspensa:1, em_construcao:2, interditada:3, desactivada:4 };
+
+function ordenarLista(lista){
+  if(!SORT_COL) return lista; // ordem de entrada
+  const dir = SORT_DIR === 'asc' ? 1 : -1;
+  return [...lista].sort((a, b) => {
+    let va, vb;
+    switch(SORT_COL){
+      case 'nome':
+        va = (a.nome || '').toLowerCase();
+        vb = (b.nome || '').toLowerCase();
+        return dir * va.localeCompare(vb, 'pt');
+      case 'tipo':
+        va = SORT_TIPO_ORDEM[a.tipo] ?? 99;
+        vb = SORT_TIPO_ORDEM[b.tipo] ?? 99;
+        if(va !== vb) return dir * (va - vb);
+        return (a.nome || '').localeCompare(b.nome || '', 'pt');
+      case 'municipio':
+        va = (municipioUnidade(a) + (a.localizacao?.comuna || '')).toLowerCase();
+        vb = (municipioUnidade(b) + (b.localizacao?.comuna || '')).toLowerCase();
+        return dir * va.localeCompare(vb, 'pt');
+      case 'distancia':{
+        const da = distanciaUnidadeValor(a);
+        const db_ = distanciaUnidadeValor(b);
+        if(da === null && db_ === null) return 0;
+        if(da === null) return 1;   // nulls sempre no fim
+        if(db_ === null) return -1;
+        return dir * (da - db_);
+      }
+      case 'cobertura':{
+        const ca = coberturaUnidadePercentual(a);
+        const cb = coberturaUnidadePercentual(b);
+        if(ca === null && cb === null) return 0;
+        if(ca === null) return 1;   // sem meta sempre no fim
+        if(cb === null) return -1;
+        return dir * (ca - cb);
+      }
+      case 'status':
+        va = SORT_STATUS_ORDEM[estadoValor(a)] ?? 99;
+        vb = SORT_STATUS_ORDEM[estadoValor(b)] ?? 99;
+        if(va !== vb) return dir * (va - vb);
+        return (a.nome || '').localeCompare(b.nome || '', 'pt');
+      case 'chefe':
+        va = (a.responsavel?.nome || '').toLowerCase();
+        vb = (b.responsavel?.nome || '').toLowerCase();
+        if(!va && !vb) return 0;
+        if(!va) return 1;   // sem chefe sempre no fim
+        if(!vb) return -1;
+        return dir * va.localeCompare(vb, 'pt');
+      default:
+        return 0;
+    }
+  });
+}
+
+window.setSortCol = function(col){
+  if(SORT_COL === col){
+    SORT_DIR = SORT_DIR === 'asc' ? 'desc' : 'asc';
+  } else {
+    SORT_COL = col;
+    SORT_DIR = 'asc';
+  }
+  // Re-render só a tabela (sem recalcular filtros nem painel)
+  if(ULTIMA_LISTA_FILTRADA.length) renderTabela(ULTIMA_LISTA_FILTRADA);
+};
+
+function sortIcHTML(col){
+  if(SORT_COL !== col) return `<i class="sort-ic">↕</i>`;
+  return `<i class="sort-ic">${SORT_DIR === 'asc' ? '↑' : '↓'}</i>`;
+}
+
 function renderTabela(lista){
+  const listaSorted = ordenarLista(lista);
+  const cols = [
+    { key:'nome',      label:'Nome da unidade' },
+    { key:'tipo',      label:'Tipo'            },
+    { key:'municipio', label:'Município'        },
+    { key:'distancia', label:'Distância da sede'},
+    { key:'cobertura', label:'Cobertura'        },
+    { key:'status',    label:'Status'           },
+    { key:'chefe',     label:'Chefe da unidade' },
+  ];
+  const headers = cols.map(c => {
+    const activo = SORT_COL === c.key ? ' sort-activo' : '';
+    return `<th class="sortavel${activo}" onclick="window.setSortCol('${c.key}')" title="Ordenar por ${c.label}">${c.label}${sortIcHTML(c.key)}</th>`;
+  }).join('');
+
   const grid = document.getElementById('grid');
   grid.innerHTML = `
     <div class="lista-header">
@@ -2230,17 +2365,8 @@ function renderTabela(lista){
     </div>
     <div class="table-wrap">
       <table class="u-table">
-        <thead>
-          <tr>
-            <th>Nome da unidade</th>
-            <th>Tipo</th>
-            <th>Município</th>
-            <th>Distância da sede</th>
-            <th>Status</th>
-            <th>Chefe da unidade</th>
-          </tr>
-        </thead>
-        <tbody>${lista.map(u => linhaTabelaHTML(u)).join('')}</tbody>
+        <thead><tr>${headers}</tr></thead>
+        <tbody>${listaSorted.map(u => linhaTabelaHTML(u)).join('')}</tbody>
       </table>
     </div>
   `;
