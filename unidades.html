@@ -470,7 +470,18 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
   font-size:14px;font-weight:800;color:var(--txt-1);line-height:1.35;
 }
 .u-linha-meta{font-size:12px;color:var(--txt-3);line-height:1.5}
-.u-linha-acoes{display:flex;gap:8px;flex-wrap:wrap}
+.u-linha-acoes{
+  display:flex;gap:8px;flex-wrap:wrap;
+  opacity:0;
+  transition:opacity .15s ease;
+  /* Reservar a altura mesmo em estado oculto para não colapsar a linha */
+  pointer-events:none;
+}
+.u-table tbody tr:hover .u-linha-acoes,
+.u-table tbody tr:focus-within .u-linha-acoes{
+  opacity:1;
+  pointer-events:auto;
+}
 .u-link-mini{
   display:inline-flex;align-items:center;gap:4px;
   padding:5px 9px;border-radius:var(--r-full);
