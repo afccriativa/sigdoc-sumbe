@@ -367,7 +367,7 @@ function renderFicha(){
         ${servicos.length ? `<div class="chips">${servicos.map(servico => `<span class="chip">${esc(servico)}</span>`).join('')}</div>` : `<div class="muted-box">Nenhum serviço foi registado ainda nesta unidade.</div>`}
       </section>
       <section class="panel">
-        <div class="panel-head"><div><h3 class="panel-title">Logística e infraestrutura</h3><p class="panel-sub">Contactos, horário de funcionamento e observações operacionais.</p></div></div>
+        <div class="panel-head"><div><h3 class="panel-title">Logística e contactos</h3><p class="panel-sub">Contactos, horário de funcionamento e observações operacionais.</p></div></div>
         <div class="info-grid">
           ${infoItem('Telefone geral', esc(valorOuFallback(unidade?.contactos?.telefone)))}
           ${infoItem('Contacto de emergência', esc(valorOuFallback(unidade?.contactos?.emergencia)))}
@@ -378,6 +378,34 @@ function renderFicha(){
           ${infoItem('Domingo e feriados', esc(valorOuFallback(unidade?.horario?.domingo)))}
           ${infoItem('Observação logística', escMultiline(infraestruturaResumo))}
         </div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><div><h3 class="panel-title">Infraestrutura física</h3><p class="panel-sub">Condições físicas e recursos instalados na unidade.</p></div></div>
+        ${(function(){
+          const inf = unidade?.infraestrutura || {};
+          const temDados = inf.camas !== null && inf.camas !== undefined
+            || inf.aguaPotavel !== undefined
+            || inf.energiaElectrica !== undefined
+            || inf.laboratorio !== undefined
+            || inf.postoVacinacao !== undefined;
+          if(!temDados){
+            return '<div class="muted-box">Dados de infraestrutura física ainda não registados para esta unidade. Actualize a ficha no módulo de unidades.</div>';
+          }
+          function simNao(v){
+            if(v === undefined || v === null) return 'Não registado';
+            return v ? '✅ Sim' : '❌ Não';
+          }
+          const itens = [
+            inf.camas !== null && inf.camas !== undefined
+              ? infoItem('💊 Camas de internamento', `<strong style="font-size:22px;font-family:var(--mono)">${esc(String(inf.camas))}</strong>`)
+              : '',
+            infoItem('💧 Água potável', esc(simNao(inf.aguaPotavel))),
+            infoItem('⚡ Energia eléctrica', esc(simNao(inf.energiaElectrica))),
+            infoItem('🔬 Laboratório funcional', esc(simNao(inf.laboratorio))),
+            infoItem('💉 Posto fixo de vacinação', esc(simNao(inf.postoVacinacao))),
+          ].filter(Boolean).join('');
+          return '<div class="info-grid">' + itens + '</div>';
+        })()}
       </section>
       <section class="panel panel-full">
         <div class="panel-head"><div><h3 class="panel-title">Ações</h3><p class="panel-sub">Preparado para impressão ou gravação em PDF a partir do navegador.</p></div></div>
