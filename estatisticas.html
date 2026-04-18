@@ -239,6 +239,41 @@
     [onclick] { cursor: pointer; }
     .gc circle, .gc rect, .gc polygon { transition: opacity .2s, transform .2s; }
     .gc circle:hover, .gc rect:hover, .gc polygon:hover { opacity: 0.8; filter: brightness(1.2); }
+
+    /* ── Reforma ── */
+    .reforma-toggle { transition: background .18s, border-color .18s; }
+    .reforma-toggle:hover { background: rgba(255,255,255,.07) !important; border-color: rgba(255,255,255,.14) !important; }
+    .reforma-chevron.rodado { transform: rotate(180deg); }
+    .reforma-lista { display: none; }
+    .reforma-lista.aberta { display: block; }
+    .reforma-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 10px;
+      background: var(--reforma-bg, rgba(255,255,255,.03));
+      border: 1px solid color-mix(in srgb, var(--reforma-cor, rgba(255,255,255,.08)) 20%, transparent);
+      margin-bottom: 8px; transition: border-color .18s, background .18s;
+    }
+    .reforma-item:last-child { margin-bottom: 0; }
+    .reforma-item:hover { border-color: color-mix(in srgb, var(--reforma-cor, rgba(255,255,255,.2)) 40%, transparent); }
+    .reforma-rank {
+      width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: rgba(255,255,255,.4);
+      font-family: 'DM Mono', monospace;
+    }
+    .reforma-info { flex: 1; min-width: 0; }
+    .reforma-nome { font-size: 13px; font-weight: 700; color: #e2e8f0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .reforma-unidade { font-size: 11px; color: rgba(255,255,255,.35); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .reforma-stats { display: flex; gap: 16px; flex-shrink: 0; }
+    .reforma-stat { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+    .reforma-stat-val { font-size: 15px; font-weight: 800; color: #e2e8f0; font-family: 'DM Mono', monospace; line-height: 1; }
+    .reforma-stat-lbl { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.3); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+    .reforma-badge { padding: 3px 10px; border-radius: 99px; font-size: 10px; font-weight: 800; flex-shrink: 0; white-space: nowrap; }
+    @media (max-width: 600px) {
+      .reforma-stats { gap: 10px; }
+      .reforma-stat-val { font-size: 13px; }
+    }
   </style>
 </head>
 <body>
@@ -780,6 +815,9 @@
         <div class="gc"><div class="gc-titulo">Densidade por Dia</div><div id="sec-heatmap"></div></div>
         <div class="gc"><div class="gc-titulo">Gestão de Reuniões</div><div id="sec-reunioes-ring"></div></div>
       </div>
+
+      <div class="sec">⏳ Previsão de Reforma</div>
+      <div class="g1" id="reforma-wrap"></div>
     `;
 
     renderActividadePeriodo(_filtrarDocsPeriodo());
@@ -791,6 +829,7 @@
     renderCobertura(funcs, unidades);
     renderSalarial(funcs);
     renderSecretariaEstat();
+    renderReforma(funcs);
   }
 
   function renderActividadePeriodo(docs) {
@@ -1209,6 +1248,157 @@
     document.getElementById('modal-drill')?.classList.remove('active');
     document.body.style.overflow = '';
   };
+
+  // ════════════════════════════════════════════════════════
+  //  FUNCIONÁRIOS PRÓXIMOS DA REFORMA
+  // ════════════════════════════════════════════════════════
+
+  /**
+   * Calcula anos trabalhados a partir da dataAdmissao (string "YYYY-MM-DD"
+   * ou Timestamp Firestore) e renderiza o painel de proximidade de reforma.
+   *
+   * Lógica Angola — Função Pública:
+   *   anosRestantes = 35 − (anoAtual − anoAdmissao)
+   *
+   * Classificação visual:
+   *   🔴 Crítico  → anosRestantes ≤ 1
+   *   🟡 Atenção  → anosRestantes ≤ 3
+   *   🟢 Normal   → anosRestantes > 3
+   */
+  function renderReforma(funcs) {
+    const el = document.getElementById('reforma-wrap');
+    if (!el) return;
+
+    const ANOS_REFORMA = 35;
+    const LIMITE       = 10;
+    const anoAtual     = new Date().getFullYear();
+
+    // ── Utilitário: extrair ano de admissão independente do formato ──
+    function anoAdmissao(f) {
+      const raw = f.dataAdmissao;
+      if (!raw) return null;
+      if (typeof raw === 'string') return parseInt(raw.slice(0, 4), 10);
+      if (raw.toDate)              return raw.toDate().getFullYear();   // Firestore Timestamp
+      if (raw.seconds)             return new Date(raw.seconds * 1000).getFullYear();
+      return new Date(raw).getFullYear();
+    }
+
+    // ── Classificação visual ──
+    function classificar(anosRestantes) {
+      if (anosRestantes <= 1)
+        return { cor: '#ef4444', bg: 'rgba(239,68,68,.14)', emoji: '🔴', label: 'Crítico' };
+      if (anosRestantes <= 3)
+        return { cor: '#f59e0b', bg: 'rgba(245,158,11,.14)', emoji: '🟡', label: 'Atenção' };
+      return   { cor: '#10c886', bg: 'rgba(16,200,134,.12)', emoji: '🟢', label: 'Normal' };
+    }
+
+    // ── Abreviatura de unidade (reutiliza padrão existente no ficheiro) ──
+    function abrvUnidade(nome) {
+      return (nome || '—')
+        .replace('Direcção Municipal de Saúde do Sumbe', 'DMS — Sede')
+        .replace('Centro de Saúde', 'CS')
+        .replace('Posto de Saúde', 'PS');
+    }
+
+    // ── Calcular e ordenar ──
+    const candidatos = funcs
+      .map(f => {
+        const ano = anoAdmissao(f);
+        if (!ano) return null;
+        const anosTrabalhados = anoAtual - ano;
+        const anosRestantes   = ANOS_REFORMA - anosTrabalhados;
+        return { ...f, anosTrabalhados, anosRestantes };
+      })
+      .filter(f => f !== null && f.anosRestantes >= 0)   // activos, não reformados
+      .sort((a, b) => a.anosRestantes - b.anosRestantes)
+      .slice(0, LIMITE);
+
+    if (!candidatos.length) {
+      el.innerHTML = `
+        <div class="gc">
+          <div class="gc-titulo">Funcionários próximos da reforma</div>
+          <div class="vazio">Sem dados de admissão disponíveis para calcular previsão.</div>
+        </div>`;
+      return;
+    }
+
+    // ── Contadores de estado para o resumo ──
+    const nCriticos = candidatos.filter(f => f.anosRestantes <= 1).length;
+    const nAtencao  = candidatos.filter(f => f.anosRestantes > 1 && f.anosRestantes <= 3).length;
+
+    const badgesCriticos = nCriticos > 0
+      ? `<span style="padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(239,68,68,.14);color:#ef4444;border:1px solid rgba(239,68,68,.25)">🔴 ${nCriticos} crítico${nCriticos > 1 ? 's' : ''}</span>`
+      : '';
+    const badgesAtencao = nAtencao > 0
+      ? `<span style="padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(245,158,11,.14);color:#f59e0b;border:1px solid rgba(245,158,11,.25)">🟡 ${nAtencao} em atenção</span>`
+      : '';
+
+    // ── Gerar itens da lista ──
+    const itemsHtml = candidatos.map((f, i) => {
+      const { cor, bg, emoji, label } = classificar(f.anosRestantes);
+      const barra = Math.round((f.anosTrabalhados / ANOS_REFORMA) * 100);
+      return `
+        <div class="reforma-item" style="--reforma-cor:${cor};--reforma-bg:${bg}">
+          <div class="reforma-rank">${i + 1}</div>
+          <div class="reforma-info">
+            <div class="reforma-nome">${f.nome || '—'}</div>
+            <div class="reforma-unidade">${abrvUnidade(f.unidade)}</div>
+            <div style="margin-top:6px;height:4px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden">
+              <div style="height:100%;width:${barra}%;background:${cor};border-radius:99px;transition:width .4s ease"></div>
+            </div>
+          </div>
+          <div class="reforma-stats">
+            <div class="reforma-stat">
+              <span class="reforma-stat-val">${f.anosTrabalhados}</span>
+              <span class="reforma-stat-lbl">anos serviço</span>
+            </div>
+            <div class="reforma-stat">
+              <span class="reforma-stat-val" style="color:${cor}">${f.anosRestantes}</span>
+              <span class="reforma-stat-lbl">anos restantes</span>
+            </div>
+          </div>
+          <span class="reforma-badge" style="background:${bg};color:${cor}">${emoji} ${label}</span>
+        </div>`;
+    }).join('');
+
+    // ── Montar painel completo ──
+    el.innerHTML = `
+      <div class="gc">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+          <div>
+            <div class="gc-titulo">Funcionários próximos da reforma</div>
+            <div class="gc-sub">Regra: 35 anos de contribuição · Top ${candidatos.length} mais próximos</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            ${badgesCriticos}
+            ${badgesAtencao}
+          </div>
+        </div>
+
+        <button
+          class="reforma-toggle"
+          onclick="
+            const lista = this.parentElement.querySelector('.reforma-lista');
+            const chev  = this.querySelector('.reforma-chevron');
+            lista.classList.toggle('aberta');
+            chev.classList.toggle('rodado');
+            this.querySelector('.reforma-toggle-txt').textContent =
+              lista.classList.contains('aberta') ? 'Recolher lista' : 'Ver lista detalhada';
+          "
+          style="width:100%;display:flex;align-items:center;justify-content:space-between;
+                 background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+                 border-radius:10px;padding:12px 16px;cursor:pointer;color:#e2e8f0;
+                 font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;
+                 margin-bottom:12px">
+          <span class="reforma-toggle-txt">Recolher lista</span>
+          <span class="reforma-chevron rodado" style="font-size:10px;transition:transform .25s">▼</span>
+        </button>
+
+        <div class="reforma-lista aberta">
+          ${itemsHtml}
+        </div>
+      </div>`;
+  }
 </script>
 </body>
 </html>
