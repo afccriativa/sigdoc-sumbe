@@ -482,6 +482,30 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
   font-size:12px;line-height:1.6;color:var(--txt-2);
 }
 
+/* ── HIGHLIGHT DE PESQUISA ─────────────────────────── */
+mark.hl{
+  background:rgba(234,179,8,.22);
+  color:inherit;
+  border-radius:3px;
+  padding:0 2px;
+  font-style:normal;
+}
+/* Chip "correspondência em campo oculto" */
+.match-hint{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 8px 2px 5px;
+  border-radius:var(--r-full);
+  background:rgba(234,179,8,.11);
+  border:1px solid rgba(180,130,6,.22);
+  font-size:10px;font-weight:700;color:#92400e;
+  margin-top:5px;
+  max-width:100%;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;
+  flex-shrink:0;
+  animation:pill-in .12s ease;
+}
+.match-hint-ic{ font-size:10px; flex-shrink:0; }
+
 /* ── BATCH ACTIONS ─────────────────────────────────── */
 
 /* Coluna de checkbox */
@@ -2389,12 +2413,65 @@ function topServicosDaLista(lista, limite = 6){
     .slice(0, limite);
 }
 
-function chefeResumoHTML(u){
+// ── Highlight de pesquisa ──────────────────────────────────────
+// Escapa o texto PRIMEIRO e só depois injeta as tags <mark>.
+// Nunca produz HTML injectável a partir dos dados.
+function hl(texto, termo){
+  const str = String(texto ?? '');
+  if(!termo || !str) return escapeHTMLUnidades(str);
+  const lower      = str.toLowerCase();
+  const lowerTermo = termo.toLowerCase();
+  if(!lower.includes(lowerTermo)) return escapeHTMLUnidades(str);
+  let result = ''; let i = 0;
+  while(i < str.length){
+    const idx = lower.indexOf(lowerTermo, i);
+    if(idx === -1){ result += escapeHTMLUnidades(str.slice(i)); break; }
+    result += escapeHTMLUnidades(str.slice(i, idx));
+    result += `<mark class="hl">${escapeHTMLUnidades(str.slice(idx, idx + termo.length))}</mark>`;
+    i = idx + termo.length;
+  }
+  return result;
+}
+
+// ── Chip de contexto: explica porquê a linha apareceu ─────────
+// Renderiza apenas quando a correspondência está num campo
+// que NÃO é directamente legível nas colunas da tabela.
+function matchHintHTML(u, termo){
+  if(!termo) return '';
+  const t = termo.toLowerCase();
+
+  // Campos já visíveis na tabela — match evidente, sem chip necessário
+  const visiveis = [u.nome, municipioUnidade(u),
+    u.localizacao?.bairro, u.localizacao?.comuna,
+    u.localizacao?.descricao].map(v => String(v||'').toLowerCase());
+  const visivelMatch = visiveis.some(v => v.includes(t));
+
+  const hints = [];
+  if(u.responsavel?.nome?.toLowerCase().includes(t))
+    hints.push(`chefe: ${escapeHTMLUnidades(u.responsavel.nome)}`);
+  else if(u.responsavel?.cargo?.toLowerCase().includes(t))
+    hints.push(`cargo: ${escapeHTMLUnidades(u.responsavel.cargo)}`);
+
+  const servicoMatch = (u.servicos||[]).find(s => String(s).toLowerCase().includes(t));
+  if(servicoMatch)
+    hints.push(`serviço: ${escapeHTMLUnidades(servicoMatch)}`);
+
+  if(u.localizacao?.referencia?.toLowerCase().includes(t))
+    hints.push(`ref: ${escapeHTMLUnidades(u.localizacao.referencia)}`);
+
+  if(!hints.length) return '';
+  // Se o match já é visível noutra coluna E não há hints ocultos, não mostrar
+  if(visivelMatch && !hints.length) return '';
+
+  return `<div class="match-hint"><span class="match-hint-ic">🔍</span>${hints.slice(0,2).join(' · ')}</div>`;
+}
+
+function chefeResumoHTML(u, termo = ''){
   if(!u.responsavel?.nome) return '<span class="table-muted">Não definido</span>';
   return `
     <div class="cell-chefe">
-      <strong>${u.responsavel.nome}</strong>
-      <small>${u.responsavel.cargo || 'Sem cargo registado'}</small>
+      <strong>${hl(u.responsavel.nome, termo)}</strong>
+      <small>${hl(u.responsavel.cargo || 'Sem cargo registado', termo)}</small>
     </div>
   `;
 }
@@ -2681,6 +2758,12 @@ function linhaTabelaHTML(u){
   const totalServicos = (u.servicos||[]).length;
   const sel = SELECCIONADAS.has(u.id) ? ' seleccionada' : '';
   const chk = SELECCIONADAS.has(u.id) ? ' checked' : '';
+  const t   = PESQUISA; // termo activo (vazio se sem pesquisa)
+
+  // Localização: destacar nas partes individuais
+  const localComuna  = local.comuna || local.bairro || 'Sem detalhe adicional';
+  const localDescricao = localizacaoCurta(u);
+
   return `
     <tr class="u-linha-tabela${sel}" onclick="window.abrirDrawer('${u.id}')" data-id="${escapeHTMLUnidades(u.id)}">
       <td class="td-check" onclick="event.stopPropagation()">
@@ -2690,8 +2773,9 @@ function linhaTabelaHTML(u){
       </td>
       <td class="u-col-nome">
         <div class="u-linha-nome">
-          <div class="u-linha-titulo">${u.nome}</div>
-          <div class="u-linha-meta">${localizacaoCurta(u)} · ${u.cadastrados || 0} funcionário${(u.cadastrados || 0)!==1?'s':''} · ${totalServicos} serviço${totalServicos!==1?'s':''}</div>
+          <div class="u-linha-titulo">${hl(u.nome, t)}</div>
+          <div class="u-linha-meta">${hl(localDescricao, t)} · ${u.cadastrados || 0} funcionário${(u.cadastrados || 0)!==1?'s':''} · ${totalServicos} serviço${totalServicos!==1?'s':''}</div>
+          ${matchHintHTML(u, t)}
           <div class="u-linha-acoes">
             <button class="u-link-mini" onclick="event.stopPropagation();window.abrirDrawer('${u.id}')">Resumo</button>
             <button class="u-link-mini" onclick="event.stopPropagation();window.abrirFichaPagina('${u.id}')">Ver Ficha</button>
@@ -2701,14 +2785,14 @@ function linhaTabelaHTML(u){
       <td><span class="u-tipo-badge ${tipoClasse(u.tipo)}">${tipoNome(u.tipo)}</span></td>
       <td>
         <div class="cell-municipio">
-          <span>${municipioUnidade(u)}</span>
-          <small>${local.comuna || local.bairro || 'Sem detalhe adicional'}</small>
+          <span>${hl(municipioUnidade(u), t)}</span>
+          <small>${hl(localComuna, t)}</small>
         </div>
       </td>
-      <td><span class="cell-distancia">${distanciaUnidadeTexto(u)}</span></td>
+      <td><span class="cell-distancia">${escapeHTMLUnidades(distanciaUnidadeTexto(u))}</span></td>
       <td>${coberturaHTML(u)}</td>
-      <td><span class="u-estado-badge ${estado.cls}">${estado.ic} ${estado.label}</span></td>
-      <td>${chefeResumoHTML(u)}</td>
+      <td><span class="u-estado-badge ${estado.cls}">${escapeHTMLUnidades(estado.ic)} ${hl(estado.label, t)}</span></td>
+      <td>${chefeResumoHTML(u, t)}</td>
     </tr>
   `;
 }
