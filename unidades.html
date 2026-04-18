@@ -1605,8 +1605,33 @@ mark.hl{
           <input type="email" id="mf-email" placeholder="unidade@dms.ao"/>
         </div>
         <div class="mef-campo">
-          <label>Logística e infraestrutura</label>
-          <textarea id="mf-logistica" rows="4" placeholder="ex: Possui ambulância, gerador, laboratório e farmácia funcional."></textarea>
+          <label>Observação logística (texto livre)</label>
+          <textarea id="mf-logistica" rows="3" placeholder="ex: Possui ambulância, gerador, laboratório e farmácia funcional."></textarea>
+        </div>
+
+        <!-- Infraestrutura física — campos estruturados -->
+        <div style="margin-top:4px;padding-top:14px;border-top:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:800;color:var(--txt-3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px">🏗️ Infraestrutura física</div>
+          <div class="mef-campo" style="margin-bottom:14px">
+            <label>Número de Camas de internamento</label>
+            <input type="number" id="mf-camas" min="0" max="9999" placeholder="0 (sem camas de internamento)"/>
+          </div>
+          <div class="mef-toggle-row" style="border-top:1px solid var(--border);padding-top:10px">
+            <span class="mef-toggle-label">💧 Água potável disponível</span>
+            <button class="mef-toggle" id="toggle-agua" onclick="this.classList.toggle('on')" type="button"></button>
+          </div>
+          <div class="mef-toggle-row">
+            <span class="mef-toggle-label">⚡ Energia eléctrica disponível</span>
+            <button class="mef-toggle" id="toggle-energia" onclick="this.classList.toggle('on')" type="button"></button>
+          </div>
+          <div class="mef-toggle-row">
+            <span class="mef-toggle-label">🔬 Laboratório funcional</span>
+            <button class="mef-toggle" id="toggle-laboratorio" onclick="this.classList.toggle('on')" type="button"></button>
+          </div>
+          <div class="mef-toggle-row" style="border-bottom:1px solid var(--border);padding-bottom:10px">
+            <span class="mef-toggle-label">💉 Posto fixo de vacinação (PAV)</span>
+            <button class="mef-toggle" id="toggle-vacinacao" onclick="this.classList.toggle('on')" type="button"></button>
+          </div>
         </div>
       </div>
 
@@ -3306,6 +3331,28 @@ function renderDrawer(u){
         <div class="chips">${u.servicos.map(s=>`<span class="chip">${s}</span>`).join('')}</div>
       </div>` : ''}
 
+    <!-- Infraestrutura física -->
+    ${(()=>{
+      const inf = u.infraestrutura || {};
+      const temDados = inf.camas !== null && inf.camas !== undefined
+        || inf.aguaPotavel !== undefined
+        || inf.energiaElectrica !== undefined
+        || inf.laboratorio !== undefined
+        || inf.postoVacinacao !== undefined;
+      if(!temDados) return '';
+      const yn = v => v ? '<span style="color:#047857;font-weight:700">✅ Sim</span>' : '<span style="color:#b91c1c;font-weight:700">❌ Não</span>';
+      return `
+        <div class="ds">
+          <div class="ds-titulo">Infraestrutura física</div>
+          ${inf.camas !== null && inf.camas !== undefined ? `<div class="ds-row"><span class="ds-key">💊 Camas</span><span class="ds-val" style="font-family:var(--mono);font-weight:700">${inf.camas}</span></div>` : ''}
+          ${inf.aguaPotavel !== undefined ? `<div class="ds-row"><span class="ds-key">💧 Água potável</span><span class="ds-val">${yn(inf.aguaPotavel)}</span></div>` : ''}
+          ${inf.energiaElectrica !== undefined ? `<div class="ds-row"><span class="ds-key">⚡ Energia eléctrica</span><span class="ds-val">${yn(inf.energiaElectrica)}</span></div>` : ''}
+          ${inf.laboratorio !== undefined ? `<div class="ds-row"><span class="ds-key">🔬 Laboratório</span><span class="ds-val">${yn(inf.laboratorio)}</span></div>` : ''}
+          ${inf.postoVacinacao !== undefined ? `<div class="ds-row"><span class="ds-key">💉 Posto fixo de vacinação</span><span class="ds-val">${yn(inf.postoVacinacao)}</span></div>` : ''}
+          ${inf.resumo ? `<div class="ds-row" style="flex-direction:column;gap:4px"><span class="ds-key">Observações</span><span class="ds-val" style="color:var(--txt-2)">${inf.resumo}</span></div>` : ''}
+        </div>`;
+    })()}
+
     <!-- Historial -->
     ${u.historial?.inauguradoEm ? `
       <div class="ds">
@@ -3425,6 +3472,14 @@ window.abrirModalFicha = function(id){
   document.getElementById('mf-emergencia').value  = u.contactos?.emergencia||'';
   document.getElementById('mf-email').value       = u.contactos?.email||'';
   document.getElementById('mf-logistica').value   = u.infraestrutura?.resumo||'';
+
+  // Infraestrutura física
+  const _infra = u.infraestrutura || {};
+  document.getElementById('mf-camas').value = (_infra.camas !== null && _infra.camas !== undefined) ? _infra.camas : '';
+  document.getElementById('toggle-agua').classList.toggle('on', !!_infra.aguaPotavel);
+  document.getElementById('toggle-energia').classList.toggle('on', !!_infra.energiaElectrica);
+  document.getElementById('toggle-laboratorio').classList.toggle('on', !!_infra.laboratorio);
+  document.getElementById('toggle-vacinacao').classList.toggle('on', !!_infra.postoVacinacao);
 
   // Tab: Horário
   document.getElementById('mf-h-semana').value  = u.horario?.semana  ||'07h30 – 15h30';
@@ -3638,7 +3693,12 @@ window.guardarFicha = async function(){
     },
     infraestrutura: {
       ...(u?.infraestrutura||{}),
-      resumo: document.getElementById('mf-logistica').value.trim(),
+      resumo:           document.getElementById('mf-logistica').value.trim(),
+      camas:            lerNumeroOpcional('mf-camas'),
+      aguaPotavel:      document.getElementById('toggle-agua').classList.contains('on'),
+      energiaElectrica: document.getElementById('toggle-energia').classList.contains('on'),
+      laboratorio:      document.getElementById('toggle-laboratorio').classList.contains('on'),
+      postoVacinacao:   document.getElementById('toggle-vacinacao').classList.contains('on'),
     },
     horario: {
       semana:     document.getElementById('mf-h-semana').value.trim(),
@@ -3789,7 +3849,7 @@ window.criarNovaUnidade = async function(){
     contactos:     { telefone:'', emergencia:'', email:'' },
     horario:       { semana:'07h30 – 15h30', sabado:'Fechado',
                      domingo:'Fechado', urgencia24h: false },
-    infraestrutura:{ resumo:'' },
+    infraestrutura:{ resumo:'', camas: null, aguaPotavel: false, energiaElectrica: false, laboratorio: false, postoVacinacao: false },
     historial:     { inauguradoEm:'', inauguradoPor:'',
                      ultimaRenovacao:'', observacoes:'' },
     efectivo:      { esperado: 0 },
