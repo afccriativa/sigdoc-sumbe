@@ -1075,6 +1075,29 @@ mark.hl{
 .login-erro{font-size:13px;color:var(--red);margin-top:10px;display:none}
 
 
+/* ── SELECT DE ESTADO NO HEADER DO MODAL ──────────── */
+.mf-estado-header{
+  appearance:none;-webkit-appearance:none;
+  padding:6px 28px 6px 10px;
+  border:1px solid var(--border);
+  border-radius:var(--r-sm);
+  background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E") no-repeat right 8px center;
+  font-size:12px;font-weight:700;
+  font-family:var(--font);
+  color:var(--txt-1);
+  cursor:pointer;outline:none;
+  transition:border-color .15s,background-color .15s,color .15s;
+  white-space:nowrap;
+}
+.mf-estado-header:hover{ border-color:var(--pri-20); }
+.mf-estado-header:focus{ border-color:var(--pri); box-shadow:0 0 0 3px rgba(11,79,58,.08); }
+/* Cor do select reflecte o estado actual */
+.mf-estado-header.est-op  { background-color:rgba(5,150,105,.08);  border-color:rgba(5,150,105,.3);  color:#047857; }
+.mf-estado-header.est-sus { background-color:rgba(245,158,11,.08); border-color:rgba(245,158,11,.3); color:#b45309; }
+.mf-estado-header.est-con { background-color:rgba(59,130,246,.08); border-color:rgba(59,130,246,.3); color:#1d4ed8; }
+.mf-estado-header.est-int { background-color:rgba(220,38,38,.08);  border-color:rgba(220,38,38,.3);  color:#b91c1c; }
+.mf-estado-header.est-des { background-color:rgba(100,116,139,.08);border-color:rgba(100,116,139,.3);color:#475569; }
+
 /* ── MODAL EDITAR FICHA ────────────────────────── */
 /* Sobrepõe o .modal-ov com comportamento de dialog centrado */
 .modal-ficha-card{
@@ -1466,12 +1489,22 @@ mark.hl{
   <div class="modal-card modal-ficha-card">
     <!-- Header -->
     <div class="modal-ficha-header">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px">
+        <div style="flex:1;min-width:0">
           <div class="modal-titulo" id="mf-titulo" style="font-size:16px">Editar Ficha</div>
           <div style="font-size:12px;color:var(--txt-3);margin-top:2px" id="mf-sub"></div>
         </div>
-        <button class="drawer-fechar" onclick="fecharModalFicha()">✕</button>
+        <!-- Estado sempre visível, independente do tab activo -->
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <select id="mf-estado" class="mf-estado-header" title="Estado operacional da unidade" onchange="actualizarCorEstadoHeader(this)">
+            <option value="operacional">🟢 Operacional</option>
+            <option value="temporariamente_suspensa">🟡 Suspensa</option>
+            <option value="em_construcao">🔵 Em Construção</option>
+            <option value="interditada">🔴 Interditada</option>
+            <option value="desactivada">⚫ Desactivada</option>
+          </select>
+          <button class="drawer-fechar" onclick="fecharModalFicha()" title="Fechar (ESC)">✕</button>
+        </div>
       </div>
       <!-- Tabs -->
       <div class="mef-tabs">
@@ -1479,7 +1512,7 @@ mark.hl{
         <button class="mef-tab" onclick="mudarTab(this,'tab-contactos')">📍 Localização</button>
         <button class="mef-tab" onclick="mudarTab(this,'tab-horario')">🕐 Horário</button>
         <button class="mef-tab" onclick="mudarTab(this,'tab-servicos')">🏥 Serviços</button>
-        <button class="mef-tab" onclick="mudarTab(this,'tab-historial')">📋 Historial</button>
+        <button class="mef-tab" onclick="mudarTab(this,'tab-historial')">📋 Historial &amp; Notas</button>
       </div>
     </div>
     <!-- Corpo com scroll -->
@@ -1605,20 +1638,10 @@ mark.hl{
         </div>
       </div>
 
-      <!-- TAB: Historial -->
+      <!-- TAB: Historial & Notas -->
       <div class="mef-tab-panel" id="tab-historial">
-        <div class="mef-campo">
-          <label>Estado Operacional</label>
-          <select id="mf-estado">
-            <option value="operacional">🟢 Operacional</option>
-            <option value="temporariamente_suspensa">🟡 Temporariamente Suspensa</option>
-            <option value="em_construcao">🔵 Em Construção / Reabilitação</option>
-            <option value="interditada">🔴 Interditada</option>
-            <option value="desactivada">⚫ Desactivada</option>
-          </select>
-          <div style="font-size:11px;color:var(--txt-3);margin-top:6px">
-            Afecta a visibilidade nos filtros e nos relatórios de cobertura.
-          </div>
+        <div style="font-size:13px;color:var(--txt-2);margin-bottom:16px;line-height:1.5">
+          O estado operacional é gerido no cabeçalho acima e aplica-se imediatamente a todos os filtros e relatórios.
         </div>
         <div class="mef-campo">
           <label>Data de Inauguração</label>
@@ -3388,6 +3411,7 @@ window.abrirModalFicha = function(id){
 
   // Tab: Historial
   document.getElementById('mf-estado').value      = u.estado || ESTADO_DEFAULT;
+  actualizarCorEstadoHeader(document.getElementById('mf-estado'));
   document.getElementById('mf-inauguracao').value    = u.historial?.inauguradoEm||'';
   document.getElementById('mf-inaugurado-por').value = u.historial?.inauguradoPor||'';
   document.getElementById('mf-renovacao').value      = u.historial?.ultimaRenovacao||'';
@@ -3419,6 +3443,23 @@ window.mudarTab = function(btn, panelId){
 
 // ── Toggle urgência ────────────────────────────────────────
 window.toggleUrgencia = function(btn){ btn.classList.toggle('on'); };
+
+// ── Cor do select de estado no header do modal ─────────────
+// Reflecte visualmente o estado seleccionado sem necessitar de guardar.
+const ESTADO_HEADER_CLS = {
+  operacional:              'est-op',
+  temporariamente_suspensa: 'est-sus',
+  em_construcao:            'est-con',
+  interditada:              'est-int',
+  desactivada:              'est-des',
+};
+window.actualizarCorEstadoHeader = function(sel){
+  if(!sel) sel = document.getElementById('mf-estado');
+  if(!sel) return;
+  sel.classList.remove('est-op','est-sus','est-con','est-int','est-des');
+  const cls = ESTADO_HEADER_CLS[sel.value];
+  if(cls) sel.classList.add(cls);
+};
 
 // ── Pesquisa responsável ───────────────────────────────────
 window.pesquisarResponsavel = function(){
