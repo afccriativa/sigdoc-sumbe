@@ -132,7 +132,7 @@
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 32px 16px;
       position: relative;
       overflow: hidden;
       background: linear-gradient(140deg, #071e14 0%, #0a3e2d 45%, #0f3f7c 100%);
@@ -149,75 +149,18 @@
       pointer-events: none;
     }
 
-    /* Layout split: painel de apresentação + formulário */
+    /* Layout centrado — cartão único (showcase removido por ser ruído puro para utilizadores diários) */
     .login-shell {
-      width: min(1080px, 100%);
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(380px, 430px);
-      gap: 24px;
-      align-items: stretch;
+      width: min(460px, 100%);
+      display: block;
       position: relative; z-index: 1;
     }
 
-    /* Painel esquerdo — showcase */
-    .login-showcase {
-      border-radius: 28px;
-      padding: 36px;
-      color: #fff;
-      display: flex; flex-direction: column; justify-content: space-between;
-      background: linear-gradient(155deg, rgba(255,255,255,.11) 0%, rgba(255,255,255,.04) 50%, rgba(255,255,255,.08) 100%);
-      border: 1px solid rgba(255,255,255,.12);
-      box-shadow: 0 24px 60px rgba(0,0,0,.24);
-      min-height: 560px;
-    }
+    /* [C1 resolvido] Painel showcase removido — era ruído puro para utilizadores diários.
+       O layout split foi substituído por cartão único centrado, eliminando
+       o colapso estranho em ecrãs estreitos e máquinas lentas. */
 
-    .login-chip {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 14px; border-radius: var(--r-full);
-      background: rgba(255,255,255,.11);
-      border: 1px solid rgba(255,255,255,.18);
-      font-size: 11px; font-weight: 700;
-      letter-spacing: .08em; text-transform: uppercase;
-      color: rgba(255,255,255,.82); margin-bottom: 22px;
-    }
 
-    .login-showcase h2 {
-      font-size: clamp(22px, 2.8vw, 30px);
-      font-weight: 800; line-height: 1.2;
-      letter-spacing: -.04em; margin-bottom: 14px;
-    }
-
-    .login-showcase > div > p {
-      font-size: 14px; color: rgba(255,255,255,.62);
-      line-height: 1.65; max-width: 46ch; margin-bottom: 28px;
-    }
-
-    .login-highlights {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-    }
-
-    .login-highlight {
-      padding: 14px 16px; border-radius: 14px;
-      background: rgba(255,255,255,.07);
-      border: 1px solid rgba(255,255,255,.09);
-    }
-
-    .login-highlight strong {
-      display: block; font-size: 12px; font-weight: 800;
-      color: #fff; margin-bottom: 4px;
-    }
-
-    .login-highlight span {
-      font-size: 11px; color: rgba(255,255,255,.52); line-height: 1.5;
-    }
-
-    .login-showcase-foot {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-      padding-top: 22px; border-top: 1px solid rgba(255,255,255,.10);
-    }
-
-    .login-stat strong { display: block; font-size: 22px; font-weight: 800; color: #fff; }
-    .login-stat span   { font-size: 11px; color: rgba(255,255,255,.48); margin-top: 2px; display: block; }
 
     /* Cartão de login (lado direito) */
     .login-card {
@@ -228,6 +171,8 @@
       box-shadow: var(--sh-lg);
       position: relative; overflow: hidden;
       display: flex; flex-direction: column; justify-content: space-between;
+      max-height: calc(100vh - 64px);
+      overflow-y: auto;
     }
 
     /* Faixa de cor no topo do cartão */
@@ -1555,10 +1500,7 @@
       .modal-card { margin: 16px; width: calc(100% - 32px); max-width: 100%; }
       .toast      { bottom: 70px; right: 16px; left: 16px; max-width: 100%; }
 
-      /* Login: single card */
-      .login-shell     { grid-template-columns: 1fr; }
-      .login-showcase  { display: none; }
-      .login-card      { padding: 28px 22px; border-radius: 24px; }
+      /* Login: sem alterações necessárias — já é single card */
     }
 
     @media (max-width: 480px) {
@@ -1584,45 +1526,6 @@
 <!-- LOGIN -->
 <div id="ecrã-login">
   <div class="login-shell">
-    <section class="login-showcase">
-      <div>
-        <div class="login-chip">SIGDOC 2026 · Plataforma Institucional</div>
-        <h2>Gestão documental e RH numa só experiência.</h2>
-        <p>Centralize cadastro, documentos, aprovações, secretaria e acompanhamento do portal do funcionário com uma interface mais clara, rápida e preparada para o trabalho diário das unidades de saúde.</p>
-        <div class="login-highlights">
-          <div class="login-highlight">
-            <strong>Fluxos integrados</strong>
-            <span>Do pedido do funcionário até à geração e validação documental, tudo no mesmo ecossistema.</span>
-          </div>
-          <div class="login-highlight">
-            <strong>Operação mais ágil</strong>
-            <span>Menus curtos, ações rápidas e leitura mais limpa para equipas administrativas e RH.</span>
-          </div>
-          <div class="login-highlight">
-            <strong>Visão em tempo real</strong>
-            <span>Pendências, sessões activas, aprovações e interações do portal num painel unificado.</span>
-          </div>
-          <div class="login-highlight">
-            <strong>Pronto para mobile</strong>
-            <span>Layout adaptado para desktop e telemóvel, sem sacrificar legibilidade nem controlo.</span>
-          </div>
-        </div>
-      </div>
-      <div class="login-showcase-foot">
-        <div class="login-stat">
-          <strong>RH</strong>
-          <span>Fluxo central</span>
-        </div>
-        <div class="login-stat">
-          <strong>Portal</strong>
-          <span>Pedidos acompanhados</span>
-        </div>
-        <div class="login-stat">
-          <strong>24/7</strong>
-          <span>Acesso institucional</span>
-        </div>
-      </div>
-    </section>
 
     <div class="login-card">
       <div>
