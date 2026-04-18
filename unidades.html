@@ -182,9 +182,10 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .btn-lista-export{
   display:inline-flex;align-items:center;gap:6px;
   padding:10px 14px;border-radius:var(--r-sm);
-  border:none;background:var(--pri);color:#fff;
+  border:1px solid transparent;background:var(--pri);color:#fff;
   font-size:12px;font-weight:800;cursor:pointer;
-  font-family:var(--font);transition:all .15s;
+  font-family:var(--font);transition:all .18s;
+  position:relative;
 }
 .btn-lista-export:hover{background:#083a2b}
 .btn-lista-export.sec{
@@ -192,6 +193,40 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
   border:1px solid var(--border);
 }
 .btn-lista-export.sec:hover{background:var(--pri-10)}
+
+/* Estado "filtrado" — exporta um subconjunto, não o total */
+.btn-lista-export.filtrado{
+  background:#b45309;
+  border-color:#92400e;
+}
+.btn-lista-export.filtrado:hover{background:#92400e}
+.btn-lista-export.sec.filtrado{
+  background:rgba(180,83,9,.08);
+  border-color:rgba(180,83,9,.35);
+  color:#b45309;
+}
+.btn-lista-export.sec.filtrado:hover{background:rgba(180,83,9,.14)}
+
+/* Badge de contagem dentro do botão */
+.btn-export-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:1px 6px;border-radius:var(--r-full);
+  font-size:10px;font-weight:800;font-family:var(--mono);
+  background:rgba(255,255,255,.18);
+  line-height:1.6;
+  transition:background .18s;
+}
+.btn-lista-export.sec .btn-export-badge{
+  background:var(--pri-10);
+  color:var(--pri);
+}
+.btn-lista-export.filtrado .btn-export-badge{
+  background:rgba(255,255,255,.22);
+}
+.btn-lista-export.sec.filtrado .btn-export-badge{
+  background:rgba(180,83,9,.14);
+  color:#b45309;
+}
 
 /* ── SELECT COM VALOR ACTIVO ───────────────────────── */
 .select-wrap.tem-valor{
@@ -1306,8 +1341,14 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
     </div>
     <div class="toolbar-actions">
       <div class="resultados-info" id="resultados-info"><b>0</b> resultados</div>
-      <button class="btn-lista-export" onclick="exportarListaExcel()">Exportar lista</button>
-      <button class="btn-lista-export sec" onclick="exportarListaPDF()">PDF</button>
+      <button class="btn-lista-export" id="btn-export-xls" onclick="exportarListaExcel()">
+        <span id="btn-export-xls-label">Exportar lista</span>
+        <span class="btn-export-badge" id="btn-export-xls-badge">—</span>
+      </button>
+      <button class="btn-lista-export sec" id="btn-export-pdf" onclick="exportarListaPDF()">
+        <span id="btn-export-pdf-label">PDF</span>
+        <span class="btn-export-badge" id="btn-export-pdf-badge">—</span>
+      </button>
     </div>
     <div class="filtros">
       <button class="filtro activo" data-filtro="todos" onclick="setFiltro(this,'todos')">Todos</button>
@@ -2363,6 +2404,36 @@ function actualizarResultadosInfo(actual, total){
   if(!el) return;
   const foco = rotuloFocoActual();
   el.innerHTML = `<b>${actual}</b> resultado${actual!==1?'s':''} <span style="color:var(--txt-3)">de ${total}</span>${FILTRO_ACTIVO !== 'todos' ? ` <span style="color:var(--pri)">· ${foco}</span>` : ''}`;
+
+  // ── Actualizar botões de exportação com âmbito explícito ──────
+  const eSubconjunto = actual < total;
+
+  const btnXls    = document.getElementById('btn-export-xls');
+  const lblXls    = document.getElementById('btn-export-xls-label');
+  const badgeXls  = document.getElementById('btn-export-xls-badge');
+  const btnPdf    = document.getElementById('btn-export-pdf');
+  const lblPdf    = document.getElementById('btn-export-pdf-label');
+  const badgePdf  = document.getElementById('btn-export-pdf-badge');
+
+  if(btnXls && lblXls && badgeXls){
+    btnXls.classList.toggle('filtrado', eSubconjunto);
+    lblXls.textContent  = eSubconjunto ? 'Exportar filtrados' : 'Exportar lista';
+    badgeXls.textContent = actual;
+    const dica = eSubconjunto
+      ? `Exportar ${actual} de ${total} unidades (filtros activos: ${foco})`
+      : `Exportar todas as ${total} unidades`;
+    btnXls.setAttribute('title', dica);
+  }
+
+  if(btnPdf && lblPdf && badgePdf){
+    btnPdf.classList.toggle('filtrado', eSubconjunto);
+    lblPdf.textContent  = eSubconjunto ? 'PDF filtrado' : 'PDF';
+    badgePdf.textContent = actual;
+    const dicaPdf = eSubconjunto
+      ? `Gerar PDF com ${actual} de ${total} unidades (filtros activos: ${foco})`
+      : `Gerar PDF com todas as ${total} unidades`;
+    btnPdf.setAttribute('title', dicaPdf);
+  }
 }
 
 function escapeHTMLUnidades(valor){
