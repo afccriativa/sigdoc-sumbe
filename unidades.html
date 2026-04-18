@@ -3099,13 +3099,13 @@ window.guardarFicha = async function(){
   }
 };
 
-// Fechar modal-ficha com ESC
+// ── Tecla ESC: handler único com cadeia de prioridade ──────
+// modal-ficha (z-index 300) → modal-ef (z-index 300) → drawer (z-index 201)
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){
-    if(document.getElementById('modal-ficha').classList.contains('aberto')) fecharModalFicha();
-    else if(document.getElementById('modal-ef').classList.contains('aberto')) fecharModalEf();
-    else fecharDrawer();
-  }
+  if(e.key !== 'Escape') return;
+  if(document.getElementById('modal-ficha').classList.contains('aberto'))     { fecharModalFicha(); return; }
+  if(document.getElementById('modal-ef').classList.contains('aberto'))        { fecharModalEf();    return; }
+  fecharDrawer();
 }, {capture:false});
 
 function mostrarToast(msg, bg=''){
@@ -3115,14 +3115,6 @@ function mostrarToast(msg, bg=''){
   t.classList.add('show');
   setTimeout(()=>{ t.classList.remove('show'); t.style.background=''; }, 3000);
 }
-
-// ── Fechar modal com ESC ────────────────────────────────────
-document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){
-    if(document.getElementById('modal-ef').classList.contains('aberto')) fecharModalEf();
-    else fecharDrawer();
-  }
-});
 
 // ── Toggle do Painel de Decisão ─────────────────────────────
 const _DB_STORAGE_KEY = 'sigdoc_decision_board_open';
