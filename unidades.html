@@ -150,10 +150,54 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 }
 .btn-lista-export.sec:hover{background:var(--pri-10)}
 
+/* -- TOGGLE DO PAINEL DE DECISÃO -- */
+.decision-toggle-bar{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:12px;
+}
+.decision-toggle-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:9px 16px;
+  font-size:13px;font-weight:700;color:var(--pri);
+  cursor:pointer;font-family:var(--font);
+  box-shadow:var(--sh);transition:all .15s;
+  user-select:none;
+}
+.decision-toggle-btn:hover{
+  background:var(--pri-10);border-color:var(--pri-20);
+}
+.decision-toggle-btn .dtb-arrow{
+  display:inline-block;font-style:normal;
+  transition:transform .2s cubic-bezier(.4,0,.2,1);
+  font-size:11px;
+}
+.decision-toggle-btn.aberto .dtb-arrow{
+  transform:rotate(90deg);
+}
+.decision-toggle-hint{
+  font-size:12px;color:var(--txt-3);font-style:italic;
+}
+/* Wrapper colapsável */
+.decision-board-wrap{
+  overflow:hidden;
+  display:grid;
+  grid-template-rows:0fr;
+  transition:grid-template-rows .28s cubic-bezier(.4,0,.2,1);
+  margin-bottom:0;
+}
+.decision-board-wrap.aberto{
+  grid-template-rows:1fr;
+  margin-bottom:8px;
+}
+.decision-board-inner{
+  overflow:hidden;
+}
 /* -- PAINEL DE DECISAO -- */
 .decision-board{
   display:grid;grid-template-columns:1.35fr .95fr;gap:14px;
   margin-bottom:20px;
+  padding-top:2px; /* evita clip do box-shadow no topo durante animação */
 }
 .decision-card{
   background:linear-gradient(180deg,#fff,#fbfdfc);
@@ -879,11 +923,25 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
     </div>
   </div>
 
-  <section class="decision-board" id="decision-board">
-    <div class="decision-card">
-      <div class="spinner-wrap"><div class="spinner"></div></div>
+  <!-- Toggle do Painel de Decisão -->
+  <div class="decision-toggle-bar">
+    <button class="decision-toggle-btn" id="decision-toggle-btn" onclick="toggleDecisionBoard()" aria-expanded="false" aria-controls="decision-board-wrap">
+      <i class="dtb-arrow">▶</i>
+      <span id="decision-toggle-label">Ver análise de prioridades</span>
+    </button>
+    <span class="decision-toggle-hint" id="decision-toggle-hint">KPIs de risco, prioridades e leitura executiva</span>
+  </div>
+
+  <!-- Painel de Decisão (colapsado por omissão) -->
+  <div class="decision-board-wrap" id="decision-board-wrap" role="region" aria-label="Painel de decisão">
+    <div class="decision-board-inner">
+      <section class="decision-board" id="decision-board">
+        <div class="decision-card">
+          <div class="spinner-wrap"><div class="spinner"></div></div>
+        </div>
+      </section>
     </div>
-  </section>
+  </div>
 
   <!-- TOOLBAR -->
   <div class="toolbar">
@@ -2725,6 +2783,49 @@ document.addEventListener('keydown', e=>{
     else fecharDrawer();
   }
 });
+
+// ── Toggle do Painel de Decisão ─────────────────────────────
+const _DB_STORAGE_KEY = 'sigdoc_decision_board_open';
+
+window.toggleDecisionBoard = function(forcar){
+  const wrap  = document.getElementById('decision-board-wrap');
+  const btn   = document.getElementById('decision-toggle-btn');
+  const label = document.getElementById('decision-toggle-label');
+  const hint  = document.getElementById('decision-toggle-hint');
+  if(!wrap || !btn) return;
+
+  const estaAberto = wrap.classList.contains('aberto');
+  const abrir = (forcar !== undefined) ? forcar : !estaAberto;
+
+  wrap.classList.toggle('aberto', abrir);
+  btn.classList.toggle('aberto', abrir);
+  btn.setAttribute('aria-expanded', String(abrir));
+  label.textContent = abrir ? 'Ocultar análise de prioridades' : 'Ver análise de prioridades';
+  if(hint) hint.style.display = abrir ? 'none' : '';
+
+  try { localStorage.setItem(_DB_STORAGE_KEY, abrir ? '1' : '0'); } catch(e){}
+};
+
+// Restaurar preferência do utilizador ao carregar a página
+(function(){
+  let preferencia = '0'; // colapsado por omissão
+  try { preferencia = localStorage.getItem(_DB_STORAGE_KEY) ?? '0'; } catch(e){}
+  if(preferencia === '1'){
+    // Abrir sem animação para evitar flash no carregamento
+    const wrap  = document.getElementById('decision-board-wrap');
+    const btn   = document.getElementById('decision-toggle-btn');
+    const label = document.getElementById('decision-toggle-label');
+    const hint  = document.getElementById('decision-toggle-hint');
+    if(wrap){
+      wrap.style.transition = 'none';
+      wrap.classList.add('aberto');
+      requestAnimationFrame(()=>{ wrap.style.transition = ''; });
+    }
+    if(btn){ btn.classList.add('aberto'); btn.setAttribute('aria-expanded','true'); }
+    if(label) label.textContent = 'Ocultar análise de prioridades';
+    if(hint)  hint.style.display = 'none';
+  }
+})();
 </script>
 </body>
 </html>
