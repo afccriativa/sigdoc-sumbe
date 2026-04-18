@@ -1387,6 +1387,10 @@ mark.hl{
       </select>
     </div>
     <div class="toolbar-actions">
+      <button class="btn-lista-export" id="btn-nova-unidade" style="display:none"
+        onclick="abrirModalNovaUnidade()" title="Criar nova unidade sanitária">
+        ＋ Nova Unidade
+      </button>
       <div class="resultados-info" id="resultados-info"><b>0</b> resultados</div>
       <button class="btn-lista-export" id="btn-export-xls" onclick="exportarListaExcel()">
         <span id="btn-export-xls-label">Exportar lista</span>
@@ -1670,6 +1674,59 @@ mark.hl{
   </div>
 </div>
 
+<!-- MODAL: Nova Unidade Sanitária -->
+<div class="modal-ov" id="modal-nova-unidade" role="dialog" aria-modal="true" aria-labelledby="nu-titulo">
+  <div class="modal-card" style="max-width:480px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px">
+      <div>
+        <div class="modal-titulo" id="nu-titulo">Nova Unidade Sanitária</div>
+        <div class="modal-sub" style="margin-bottom:0">
+          Preencha os dados essenciais. Localização, contactos e responsável podem ser completados depois via <em>Editar Ficha</em>.
+        </div>
+      </div>
+      <button class="drawer-fechar" onclick="fecharModalNovaUnidade()" title="Fechar (ESC)">✕</button>
+    </div>
+
+    <div class="mef-campo">
+      <label for="nu-nome">Nome da Unidade <span style="color:var(--red)">*</span></label>
+      <input type="text" id="nu-nome" placeholder="ex: Posto de Saúde do Kilombo"
+        oninput="actualizarPreviewNovaUnidade()" autocomplete="off" maxlength="120"/>
+      <div id="nu-id-preview" style="margin-top:5px;font-size:11px;color:var(--txt-3);font-family:var(--mono);min-height:16px"></div>
+    </div>
+
+    <div class="mef-grid-2">
+      <div class="mef-campo">
+        <label for="nu-tipo">Tipo <span style="color:var(--red)">*</span></label>
+        <select id="nu-tipo">
+          <option value="centro">Centro de Saúde</option>
+          <option value="posto" selected>Posto de Saúde</option>
+          <option value="seccao">Secção</option>
+        </select>
+      </div>
+      <div class="mef-campo">
+        <label for="nu-estado">Estado inicial</label>
+        <select id="nu-estado">
+          <option value="operacional">🟢 Operacional</option>
+          <option value="em_construcao">🔵 Em Construção</option>
+          <option value="temporariamente_suspensa">🟡 Suspensa</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Erro inline -->
+    <div id="nu-erro" role="alert" style="display:none;
+      padding:10px 12px;margin-bottom:12px;
+      background:rgba(220,38,38,.07);border:1px solid rgba(220,38,38,.25);
+      border-radius:var(--r-sm);font-size:13px;color:#b91c1c;line-height:1.5">
+    </div>
+
+    <div class="modal-footer" style="margin-top:4px">
+      <button class="btn-cancelar" onclick="fecharModalNovaUnidade()">Cancelar</button>
+      <button class="btn-guardar" id="nu-btn-criar" onclick="criarNovaUnidade()">＋ Criar Unidade</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -1903,6 +1960,9 @@ function mostrarPagina(){
 
         // Carregar dados
   carregarTudoFonteUnica();
+  // Botão "Nova Unidade" só visível para perfis com edição
+  const btnNova = document.getElementById('btn-nova-unidade');
+  if(btnNova) btnNova.style.display = temAlgumRoleUnidades(PERFIL_DOC, PODE_EDITAR) ? '' : 'none';
 }
 
 // ── SEED automático: garantir que todas as unidades existem no Firestore ──
@@ -3632,14 +3692,149 @@ window.guardarFicha = async function(){
 };
 
 // ── Tecla ESC: handler único com cadeia de prioridade ──────
-// modal-ficha (z-index 300) → modal-ef (z-index 300) → drawer (z-index 201)
+// modal-nova-unidade → modal-batch-estado → modal-ficha → modal-ef → drawer
 document.addEventListener('keydown', e=>{
   if(e.key !== 'Escape') return;
+  if(document.getElementById('modal-nova-unidade')?.classList.contains('aberto'))  { fecharModalNovaUnidade(); return; }
   if(document.getElementById('modal-batch-estado').classList.contains('aberto'))  { fecharModalBatchEstado(); return; }
   if(document.getElementById('modal-ficha').classList.contains('aberto'))     { fecharModalFicha(); return; }
   if(document.getElementById('modal-ef').classList.contains('aberto'))        { fecharModalEf();    return; }
   fecharDrawer();
 }, {capture:false});
+
+// ══════════════════════════════════════════════════════════════
+// NOVA UNIDADE — criação de unidade sanitária
+// ══════════════════════════════════════════════════════════════
+
+window.abrirModalNovaUnidade = function(){
+  document.getElementById('nu-nome').value   = '';
+  document.getElementById('nu-tipo').value   = 'posto';
+  document.getElementById('nu-estado').value = 'operacional';
+  document.getElementById('nu-id-preview').textContent = '';
+  const erroEl = document.getElementById('nu-erro');
+  erroEl.style.display = 'none'; erroEl.textContent = '';
+  document.getElementById('nu-btn-criar').disabled = false;
+  document.getElementById('nu-btn-criar').textContent = '＋ Criar Unidade';
+  document.getElementById('modal-nova-unidade').classList.add('aberto');
+  setTimeout(()=>document.getElementById('nu-nome').focus(), 60);
+};
+
+window.fecharModalNovaUnidade = function(){
+  document.getElementById('modal-nova-unidade').classList.remove('aberto');
+};
+
+// Mostra preview do ID gerado enquanto o utilizador escreve
+window.actualizarPreviewNovaUnidade = function(){
+  const nome   = document.getElementById('nu-nome').value.trim();
+  const prev   = document.getElementById('nu-id-preview');
+  const erroEl = document.getElementById('nu-erro');
+  if(!nome){ prev.textContent = ''; return; }
+
+  const id = window.SIGDOC_UNIDADES.toId(nome);
+
+  // Verificar colisão em tempo real
+  const colide = TODAS_UNIDADES.some(u => u.id === id);
+  if(colide){
+    prev.innerHTML = `<span style="color:var(--red)">⚠ ID já existe: ${id}</span>`;
+    erroEl.style.display = 'block';
+    erroEl.textContent   = 'Já existe uma unidade com um nome muito semelhante. Escolha um nome distinto.';
+  } else {
+    prev.innerHTML = `<span style="color:var(--txt-3)">ID gerado: ${id}</span>`;
+    erroEl.style.display = 'none'; erroEl.textContent = '';
+  }
+};
+
+window.criarNovaUnidade = async function(){
+  const nome   = document.getElementById('nu-nome').value.trim();
+  const tipo   = document.getElementById('nu-tipo').value;
+  const estado = document.getElementById('nu-estado').value;
+  const erroEl = document.getElementById('nu-erro');
+
+  // ── Validações ──────────────────────────────────────────────
+  function mostrarErro(msg){
+    erroEl.textContent = msg; erroEl.style.display = 'block';
+  }
+
+  if(!nome){ mostrarErro('O nome da unidade é obrigatório.'); document.getElementById('nu-nome').focus(); return; }
+  if(nome.length < 4){ mostrarErro('O nome deve ter pelo menos 4 caracteres.'); return; }
+
+  const id = window.SIGDOC_UNIDADES.toId(nome);
+
+  if(TODAS_UNIDADES.some(u => u.id === id)){
+    mostrarErro('Já existe uma unidade com um nome muito semelhante. Escolha um nome distinto.');
+    return;
+  }
+
+  // ── Bloquear botão ──────────────────────────────────────────
+  const btn = document.getElementById('nu-btn-criar');
+  btn.disabled = true; btn.textContent = 'A criar…';
+  erroEl.style.display = 'none';
+
+  const nomeAbreviado = (window.SIGDOC_CONFIG?.abrvUnidade?.(nome)) || nome;
+
+  const dados = {
+    id,
+    codigo:        id,
+    nome,
+    nomeAbreviado,
+    tipo,
+    activa:        true,
+    estado,
+    servicos:      [],
+    estrutura:     {},
+    responsavel:   { funcionarioId:'', nome:'', cargo:'', dataInicio:'' },
+    localizacao:   { municipio:'Sumbe', provincia:'Cuanza Sul',
+                     descricao:'', comuna:'', bairro:'', referencia:'',
+                     distanciaSedeKm: null },
+    contactos:     { telefone:'', emergencia:'', email:'' },
+    horario:       { semana:'07h30 – 15h30', sabado:'Fechado',
+                     domingo:'Fechado', urgencia24h: false },
+    infraestrutura:{ resumo:'' },
+    historial:     { inauguradoEm:'', inauguradoPor:'',
+                     ultimaRenovacao:'', observacoes:'' },
+    efectivo:      { esperado: 0 },
+    criadoEm:      serverTimestamp(),
+    actualizadoEm: serverTimestamp(),
+  };
+
+  try{
+    // ── Gravar no Firestore ─────────────────────────────────
+    await setDoc(doc(db,'unidades_sanitarias', id), dados);
+
+    // ── Actualizar cache local sem recarregar da rede ───────
+    const novaLocal = window.SIGDOC_UNIDADES.normalizarUnidade({ ...dados, cadastrados: 0 });
+    TODAS_UNIDADES.push(novaLocal);
+    TODAS_UNIDADES = window.SIGDOC_UNIDADES.ordenarUnidades(
+      TODAS_UNIDADES.map(u => ({ ...u }))
+    );
+
+    // ── Auditoria ───────────────────────────────────────────
+    try{
+      const { addDoc: aDoc, collection: col } =
+        await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+      await aDoc(col(db,'auditoria'), {
+        acao:          'CRIAR_UNIDADE',
+        detalhe:       `Nova unidade criada: ${nome} (${tipo}) — ID: ${id}`,
+        uidUtilizador:  UTILIZADOR.uid,
+        nomeUtilizador: PERFIL_DOC?.nome || UTILIZADOR.email,
+        timestamp:      serverTimestamp()
+      });
+    }catch(e){}
+
+    fecharModalNovaUnidade();
+    actualizarKPIs();
+    render();
+    mostrarToast(`✅ "${nome}" criada com sucesso`);
+
+    // Abrir drawer da unidade recém-criada após o re-render
+    setTimeout(() => window.abrirDrawer(id), 280);
+
+  }catch(e){
+    console.error('criarNovaUnidade:', e);
+    mostrarErro('Erro ao criar unidade. Verifique as permissões e tente novamente.');
+    btn.disabled = false; btn.textContent = '＋ Criar Unidade';
+  }
+};
 
 // ══════════════════════════════════════════════════════════════
 // BATCH ACTIONS — Selecção múltipla e operações em lote
