@@ -3018,6 +3018,8 @@
         { href:"cadastro.html",   ic:"👤", txt:"Novo Funcionário" },
         { href:"documentos.html", ic:"📄", txt:"Gerar Documento"  },
         { href:"aprovacao.html",  ic:"✅", txt:"Solicitações"     },
+        { onclick:"mostrarSecção('secretaria')", ic:"✉️", txt:"Secretaria"       },
+        { href:"portal.html",     ic:"📱", txt:"Portal"           },
       ],
       secretaria: [
         { href:"index.html#secretaria", ic:"✉️", txt:"Pedidos"          },
@@ -3032,23 +3034,26 @@
     if (grid) {
       const accoes = roles.reduce((lista, role) => {
         (ACCOES_POR_PERFIL[role] || []).forEach(accao => {
-          if (!lista.some(item => item.href === accao.href)) lista.push(accao);
+          const chave = accao.href || accao.onclick || accao.txt;
+          if (!lista.some(item => (item.href || item.onclick || item.txt) === chave)) lista.push(accao);
         });
         return lista;
       }, []);
-      grid.innerHTML = accoes.map(a =>
-        `<a href="${a.href}" class="qa-btn">
+      grid.innerHTML = accoes.map(a => {
+        const dest  = a.href ? `href="${a.href}"` : `href="#"`;
+        const click = a.onclick ? `onclick="${a.onclick};return false;"` : "";
+        return `<a ${dest} ${click} class="qa-btn">
           <div class="qa-ic-wrap"><span class="qa-ic">${a.ic}</span></div>
           <span class="qa-txt">${a.txt}</span>
-        </a>`
-      ).join("");
+        </a>`;
+      }).join("");
     }
 
     // Mostrar/ocultar itens da sidebar conforme perfil
     const acessoSidebar = {
       admin:       ["mod-cadastro","mod-documentos","mod-auditoria","mod-painel","mod-portal","mod-utilizadores-card","mod-secretaria"],
       chefe:       ["mod-cadastro","mod-documentos","mod-auditoria","mod-portal"],
-      tecnico:     ["mod-cadastro","mod-documentos","mod-aprovacao"],
+      tecnico:     ["mod-cadastro","mod-documentos","mod-aprovacao","mod-secretaria","mod-portal","mod-utilizadores-card"],
       secretaria:  ["mod-secretaria"],
       director:    ["mod-auditoria","mod-painel"],
       funcionario: []
@@ -3072,7 +3077,7 @@
     const acessoCards = {
       admin:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card","mod-painel-card","mod-secretaria-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card","mod-ferias-card"],
       chefe:       ["mod-cadastro-card","mod-documentos-card","mod-auditoria-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card","mod-ferias-card"],
-      tecnico:     ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card","mod-ferias-card"],
+      tecnico:     ["mod-cadastro-card","mod-documentos-card","mod-aprovacao-card","mod-secretaria-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card","mod-ferias-card"],
       secretaria:  ["mod-secretaria-card","mod-unidades-card"],
       director:    ["mod-auditoria-card","mod-painel-card","mod-unidades-card","mod-estatisticas-card","mod-relatorios-card","mod-ferias-card"],
       funcionario: []
