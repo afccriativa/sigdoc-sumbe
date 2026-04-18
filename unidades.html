@@ -150,6 +150,57 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 }
 .btn-lista-export.sec:hover{background:var(--pri-10)}
 
+/* ── SELECT COM VALOR ACTIVO ───────────────────────── */
+.select-wrap.tem-valor{
+  border-color:var(--pri);
+  background:var(--pri-10);
+}
+.select-wrap.tem-valor label{color:var(--pri)}
+.select-wrap.tem-valor select{color:var(--pri)}
+
+/* ── BARRA DE FILTROS ACTIVOS ──────────────────────── */
+.filtros-activos-bar{
+  display:none; /* gerido por JS */
+  align-items:center;gap:8px;flex-wrap:wrap;
+  padding:10px 14px;
+  background:#fff;border:1px solid var(--border);
+  border-radius:var(--r-sm);box-shadow:var(--sh);
+  margin-bottom:16px;
+}
+.filtros-activos-bar.visivel{display:flex}
+.filtros-activos-label{
+  font-size:11px;font-weight:800;color:var(--txt-3);
+  text-transform:uppercase;letter-spacing:.7px;
+  white-space:nowrap;flex-shrink:0;
+}
+.pill-filtro{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px 4px 12px;
+  border-radius:var(--r-full);font-size:12px;font-weight:700;
+  background:var(--pri-10);color:var(--pri);
+  border:1px solid var(--pri-20);
+  animation:pill-in .15s ease;
+}
+@keyframes pill-in{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+.pill-filtro-x{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;border-radius:50%;
+  background:transparent;border:none;
+  font-size:11px;font-weight:900;color:var(--pri);
+  cursor:pointer;padding:0;font-family:var(--font);
+  line-height:1;transition:background .12s;
+}
+.pill-filtro-x:hover{background:var(--pri-20)}
+.btn-limpar-tudo{
+  margin-left:auto;flex-shrink:0;
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:var(--r-full);
+  background:transparent;border:1px solid rgba(220,38,38,.3);
+  font-size:11px;font-weight:800;color:#b91c1c;
+  cursor:pointer;font-family:var(--font);transition:all .15s;
+}
+.btn-limpar-tudo:hover{background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.5)}
+
 /* -- TOGGLE DO PAINEL DE DECISÃO -- */
 .decision-toggle-bar{
   display:flex;align-items:center;gap:10px;
@@ -851,6 +902,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
   .decision-stats{grid-template-columns:1fr 1fr}
   .focus-chip{flex:1;justify-content:center}
   .priority-item-top,.insight-row{flex-direction:column;align-items:flex-start}
+  .filtros-activos-bar{gap:6px}
+  .btn-limpar-tudo{margin-left:0;width:100%}
 }
 </style>
 </head>
@@ -949,9 +1002,9 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <span class="search-ic">🔍</span>
       <input type="text" id="campo-pesquisa" placeholder="Pesquisar unidade, município, chefe, serviço…" oninput="filtrar()"/>
     </div>
-    <div class="select-wrap">
+    <div class="select-wrap" id="select-wrap-tipo">
       <label for="filtro-tipo">Tipo de unidade</label>
-      <select id="filtro-tipo" onchange="filtrar()">
+      <select id="filtro-tipo" onchange="onChangeFiltroDropdown()">
         <option value="">Todos os tipos</option>
         <option value="dms">DMS</option>
         <option value="centro">Centro de Saúde</option>
@@ -959,9 +1012,9 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
         <option value="seccao">Secção</option>
       </select>
     </div>
-    <div class="select-wrap">
+    <div class="select-wrap" id="select-wrap-status">
       <label for="filtro-status">Status</label>
-      <select id="filtro-status" onchange="filtrar()">
+      <select id="filtro-status" onchange="onChangeFiltroDropdown()">
         <option value="">Todos os status</option>
         <option value="operacional">Em funcionamento</option>
         <option value="temporariamente_suspensa">Temporariamente suspensa</option>
@@ -983,6 +1036,13 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <button class="filtro" data-filtro="nao_operacional" onclick="setFiltro(this,'nao_operacional')" title="Suspensas, interditadas, em construção ou desactivadas">🔴 Não Operacionais</button>
       <button class="filtro" data-filtro="prioridade_alta" onclick="setFiltro(this,'prioridade_alta')" title="Combina estado, cobertura, chefia e distância">Prioridade Alta</button>
     </div>
+  </div>
+
+  <!-- BARRA DE FILTROS ACTIVOS -->
+  <div class="filtros-activos-bar" id="filtros-activos-bar" role="status" aria-live="polite">
+    <span class="filtros-activos-label">Filtros activos:</span>
+    <span id="filtros-activos-pills"></span>
+    <button class="btn-limpar-tudo" onclick="limparTodosFiltros()">✕ Limpar tudo</button>
   </div>
 
   <!-- LISTA CONSOLIDADA -->
@@ -1523,32 +1583,142 @@ function actualizarKPIs(){
 // ── Filtrar ────────────────────────────────────────────────
 let PESQUISA = '';
 let ULTIMA_LISTA_FILTRADA = [];
+
+// Labels legíveis para os chips
+const CHIP_LABELS = {
+  todos:          null, // não é um filtro activo
+  incompleto:     '⚠️ Cobertura <80%',
+  sem_chefe:      'Sem Chefia',
+  distante:       'Distância ≥25km',
+  nao_operacional:'🔴 Não Operacionais',
+  prioridade_alta:'Prioridade Alta',
+};
+
+// Labels legíveis para o select de status
+const STATUS_LABELS = {
+  operacional:              'Em funcionamento',
+  temporariamente_suspensa: 'Temporariamente suspensa',
+  em_construcao:            'Em construção / reabilitação',
+  interditada:              'Interditada',
+  desactivada:              'Desactivada',
+};
+
+// Labels legíveis para o select de tipo
+const TIPO_LABELS = {
+  dms:    'DMS',
+  centro: 'Centro de Saúde',
+  posto:  'Posto de Saúde',
+  seccao: 'Secção',
+};
+
 function sincronizarFiltrosVisuais(){
   const botoes = document.querySelectorAll('.filtro');
   botoes.forEach(b=>b.classList.toggle('activo', b.dataset.filtro === FILTRO_ACTIVO));
+
+  // Highlight nos selects quando têm valor activo
+  const tipo   = document.getElementById('filtro-tipo')?.value   || '';
+  const status = document.getElementById('filtro-status')?.value || '';
+  document.getElementById('select-wrap-tipo')?.classList.toggle('tem-valor', !!tipo);
+  document.getElementById('select-wrap-status')?.classList.toggle('tem-valor', !!status);
 }
+
 function rotuloFocoActual(){
   return {
-    todos:'Visão total',
-    incompleto:'Cobertura abaixo de 80%',
-    sem_chefe:'Unidades sem chefia',
-    distante:'Unidades a 25km ou mais da sede',
+    todos:          'Visão total',
+    incompleto:     'Cobertura abaixo de 80%',
+    sem_chefe:      'Unidades sem chefia',
+    distante:       'Unidades a 25km ou mais da sede',
     nao_operacional:'Unidades não operacionais',
     prioridade_alta:'Prioridade alta'
   }[FILTRO_ACTIVO] || 'Visão personalizada';
 }
+
+// ── Resolução de conflito: "Não Operacionais" chip vs Status dropdown ──
+// Regra: o último a ser accionado prevalece.
+// • Chip "nao_operacional" → limpa o select de status (subsume-o)
+// • Select de status com valor específico → se chip era "nao_operacional", reset para "todos"
+// Todos os outros chips são ortogonais ao status e coexistem sem conflito.
+
 window.setFiltro = function(btn, valor){
   FILTRO_ACTIVO = valor;
+  // Conflito: "nao_operacional" subsume o select de status
+  if(valor === 'nao_operacional'){
+    const sel = document.getElementById('filtro-status');
+    if(sel && sel.value !== '') sel.value = '';
+  }
   sincronizarFiltrosVisuais();
   render();
 };
+
 window.aplicarFocoDecisao = function(valor){
   FILTRO_ACTIVO = valor || 'todos';
+  if(FILTRO_ACTIVO === 'nao_operacional'){
+    const sel = document.getElementById('filtro-status');
+    if(sel && sel.value !== '') sel.value = '';
+  }
   sincronizarFiltrosVisuais();
   render();
 };
+
+// Chamado pelos dois selects (tipo + status) via onchange
+window.onChangeFiltroDropdown = function(){
+  PESQUISA = document.getElementById('campo-pesquisa').value.toLowerCase().trim();
+  // Conflito: select de status com valor específico + chip "nao_operacional" → reset chip
+  const status = document.getElementById('filtro-status')?.value || '';
+  if(status !== '' && FILTRO_ACTIVO === 'nao_operacional'){
+    FILTRO_ACTIVO = 'todos';
+  }
+  render();
+};
+
 window.filtrar = function(){
   PESQUISA = document.getElementById('campo-pesquisa').value.toLowerCase().trim();
+  render();
+};
+
+// ── Barra de filtros activos (pills) ──────────────────────
+function actualizarBarraFiltrosActivos(){
+  const bar       = document.getElementById('filtros-activos-bar');
+  const pillsWrap = document.getElementById('filtros-activos-pills');
+  if(!bar || !pillsWrap) return;
+
+  const tipo   = document.getElementById('filtro-tipo')?.value   || '';
+  const status = document.getElementById('filtro-status')?.value || '';
+  const pesq   = PESQUISA;
+  const chip   = FILTRO_ACTIVO !== 'todos' ? FILTRO_ACTIVO : '';
+
+  const pills = [];
+  if(tipo)   pills.push({ texto: `Tipo: ${TIPO_LABELS[tipo]   || tipo}`,   acao: "limparFiltroPill('tipo')"   });
+  if(status) pills.push({ texto: `Status: ${STATUS_LABELS[status] || status}`, acao: "limparFiltroPill('status')" });
+  if(chip)   pills.push({ texto: CHIP_LABELS[chip] || chip,                    acao: "limparFiltroPill('chip')"   });
+  if(pesq)   pills.push({ texto: `"${pesq}"`,                                  acao: "limparFiltroPill('pesquisa')" });
+
+  if(!pills.length){
+    bar.classList.remove('visivel');
+    pillsWrap.innerHTML = '';
+    return;
+  }
+
+  bar.classList.add('visivel');
+  pillsWrap.innerHTML = pills.map(p =>
+    `<span class="pill-filtro">${p.texto}<button class="pill-filtro-x" onclick="${p.acao}" title="Remover filtro" aria-label="Remover filtro ${p.texto}">×</button></span>`
+  ).join('');
+}
+
+window.limparFiltroPill = function(tipo){
+  if(tipo === 'tipo')     { const s = document.getElementById('filtro-tipo');   if(s) s.value = ''; }
+  if(tipo === 'status')   { const s = document.getElementById('filtro-status'); if(s) s.value = ''; }
+  if(tipo === 'chip')     { FILTRO_ACTIVO = 'todos'; }
+  if(tipo === 'pesquisa') { PESQUISA = ''; const c = document.getElementById('campo-pesquisa'); if(c) c.value = ''; }
+  render();
+};
+
+window.limparTodosFiltros = function(){
+  FILTRO_ACTIVO = 'todos';
+  PESQUISA = '';
+  const c = document.getElementById('campo-pesquisa');   if(c) c.value = '';
+  const t = document.getElementById('filtro-tipo');      if(t) t.value = '';
+  const s = document.getElementById('filtro-status');    if(s) s.value = '';
   render();
 };
 
@@ -1589,6 +1759,7 @@ function render(){
   ULTIMA_LISTA_FILTRADA = lista.slice();
   sincronizarFiltrosVisuais();
   actualizarResultadosInfo(lista.length, TODAS_UNIDADES.length);
+  actualizarBarraFiltrosActivos();
   renderPainelDecisao(lista);
 
   const grid = document.getElementById('grid');
