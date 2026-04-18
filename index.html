@@ -1425,6 +1425,194 @@
     /* ── Secções restritas ────────────────────────────────────── */
     .secção-restrita { display: none; }
 
+    /* ══════════════════════════════════════════════════════════
+       DASHBOARD SENSÍVEL AO PERFIL — M1 fix
+       ══════════════════════════════════════════════════════════ */
+
+    /* ── Bloco Secretaria Home ────────────────────────────── */
+    #dash-home-secretaria { display: none; }
+
+    .sec-home-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px; margin-bottom: 24px;
+    }
+
+    .sec-home-kpi {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--r-lg); padding: 20px;
+      box-shadow: var(--sh-xs);
+      display: flex; flex-direction: column; gap: 4px;
+      position: relative; overflow: hidden;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .sec-home-kpi:hover { border-color: var(--pri-20); box-shadow: var(--sh-sm); }
+
+    .sec-home-kpi-label {
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .07em; color: var(--txt-3);
+    }
+
+    .sec-home-kpi-num {
+      font-size: 36px; font-weight: 800;
+      letter-spacing: -.06em; line-height: 1.05; color: var(--txt-1);
+    }
+
+    .sec-home-kpi-sub { font-size: 11px; color: var(--txt-3); margin-top: 2px; }
+
+    .sec-home-kpi-accent {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    }
+
+    .sec-home-kpi-ic {
+      position: absolute; top: 14px; right: 14px;
+      font-size: 24px; opacity: .12;
+    }
+
+    /* Fila imediata de trabalho */
+    .sec-home-fila-card {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--r-lg); overflow: hidden;
+      box-shadow: var(--sh-xs); margin-bottom: 20px;
+    }
+
+    .sec-home-fila-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+    }
+
+    .sec-home-fila-titulo {
+      font-size: 14px; font-weight: 700; color: var(--txt-1);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .sec-home-fila-badge {
+      font-size: 10px; font-weight: 800;
+      padding: 2px 8px; border-radius: var(--r-full);
+      background: var(--warn-bg); color: var(--warn);
+      border: 1px solid var(--warn-border);
+    }
+
+    .sec-home-fila-link {
+      font-size: 12px; font-weight: 600; color: var(--pri);
+      cursor: pointer; transition: color .12s;
+    }
+
+    .sec-home-fila-link:hover { color: var(--pri-h); }
+
+    .sec-home-fila-vazio {
+      padding: 28px; text-align: center; color: var(--txt-3); font-size: 13px;
+    }
+
+    .sec-home-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 20px; border-bottom: 1px solid var(--border);
+      transition: background .10s; cursor: pointer;
+    }
+
+    .sec-home-item:last-child { border-bottom: none; }
+    .sec-home-item:hover { background: var(--pri-10); }
+
+    .sec-home-item-ic {
+      width: 36px; height: 36px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0; background: var(--warn-bg);
+    }
+
+    .sec-home-item-ic.reuniao { background: var(--info-bg); }
+
+    .sec-home-item-corpo { flex: 1; min-width: 0; }
+
+    .sec-home-item-nome {
+      font-size: 13px; font-weight: 600; color: var(--txt-1);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .sec-home-item-meta { font-size: 11px; color: var(--txt-3); margin-top: 2px; }
+
+    .sec-home-item-estado {
+      font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: var(--r-full); white-space: nowrap; flex-shrink: 0;
+    }
+
+    .estado-novo     { background: var(--info-bg);  color: var(--info);  border: 1px solid var(--info-border); }
+    .estado-pendente { background: var(--warn-bg);  color: var(--warn);  border: 1px solid var(--warn-border); }
+    .estado-ok       { background: var(--ok-bg);    color: var(--ok);    border: 1px solid var(--ok-border); }
+
+    /* CTAs da secretaria */
+    .sec-home-cta-row {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px;
+    }
+
+    .sec-home-cta-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 11px 20px; border-radius: var(--r-md);
+      font-size: 13px; font-weight: 700; font-family: var(--font);
+      cursor: pointer; transition: background .14s, transform .12s; border: none;
+    }
+
+    .sec-home-cta-btn:hover { transform: translateY(-1px); }
+
+    .sec-home-cta-pri { background: var(--pri); color: #fff; }
+    .sec-home-cta-pri:hover { background: var(--pri-h); }
+
+    .sec-home-cta-sec {
+      background: var(--surface); color: var(--txt-1);
+      border: 1.5px solid var(--border);
+    }
+
+    .sec-home-cta-sec:hover { border-color: var(--pri-20); background: var(--pri-10); }
+
+    /* ── Bloco Funcionário Home — portal em destaque ─────── */
+    #dash-home-funcionario { display: none; }
+
+    .func-portal-hero {
+      background: linear-gradient(135deg, #071e14 0%, #0a3e2d 55%, #0f3f7c 100%);
+      border-radius: var(--r-xl); padding: 36px 32px; color: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 24px; flex-wrap: wrap; margin-bottom: 20px;
+      position: relative; overflow: hidden;
+    }
+
+    .func-portal-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 48px 48px; pointer-events: none;
+    }
+
+    .func-portal-hero-txt { position: relative; z-index: 1; }
+
+    .func-portal-hero-kicker {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .10em; color: rgba(255,255,255,.48); margin-bottom: 6px;
+    }
+
+    .func-portal-hero-titulo {
+      font-size: 22px; font-weight: 800;
+      letter-spacing: -.04em; line-height: 1.2; margin-bottom: 8px;
+    }
+
+    .func-portal-hero-sub {
+      font-size: 13px; color: rgba(255,255,255,.65);
+      line-height: 1.6; max-width: 400px;
+    }
+
+    .func-portal-hero-btn {
+      position: relative; z-index: 1;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 24px;
+      background: rgba(255,255,255,.14); border: 1.5px solid rgba(255,255,255,.25);
+      border-radius: var(--r-md); color: #fff;
+      font-size: 14px; font-weight: 700; font-family: var(--font);
+      cursor: pointer; text-decoration: none;
+      transition: background .15s, transform .12s; white-space: nowrap;
+    }
+
+    .func-portal-hero-btn:hover { background: rgba(255,255,255,.22); transform: translateY(-2px); }
+
     /* ── Bottom nav mobile ────────────────────────────────────── */
     #mobile-bottom-nav {
       display: none;
@@ -1689,6 +1877,101 @@
           <h2 id="msg-boas-vindas" style="font-size:28px;font-weight:800;color:var(--txt-1);letter-spacing:-.5px">Bom dia, Utilizador</h2>
           <p id="dash-subtitulo" style="font-size:14px;color:var(--txt-2);margin-top:4px">Visão geral da rede municipal de saúde hoje.</p>
         </div>
+
+        <!-- ══ DASHBOARD SECRETARIA — perfil específico ══════════════
+             Visível apenas quando perfil === 'secretaria'.
+             Substitui o KPI grid genérico e os módulos de admin.
+             Apresenta imediatamente a fila de trabalho real. -->
+        <div id="dash-home-secretaria">
+          <!-- KPIs operacionais da secretaria -->
+          <div class="sec-home-kpi-row">
+            <div class="sec-home-kpi" onclick="mostrarSecção('secretaria');filtrarSecretaria('pedidos',document.getElementById('tab-sec-pedidos'))" style="cursor:pointer">
+              <div class="sec-home-kpi-ic">✉️</div>
+              <div class="sec-home-kpi-label">Pedidos Novos</div>
+              <div class="sec-home-kpi-num" id="sh-kpi-pedidos-novos">—</div>
+              <div class="sec-home-kpi-sub">Aguardam resposta da secretaria</div>
+              <div class="sec-home-kpi-accent" style="background:linear-gradient(90deg,var(--pri),#4f8ef7)"></div>
+            </div>
+            <div class="sec-home-kpi" onclick="mostrarSecção('secretaria');filtrarSecretaria('reunioes',document.getElementById('tab-sec-reunioes'))" style="cursor:pointer">
+              <div class="sec-home-kpi-ic">📅</div>
+              <div class="sec-home-kpi-label">Reuniões Pendentes</div>
+              <div class="sec-home-kpi-num" id="sh-kpi-reunioes-pend">—</div>
+              <div class="sec-home-kpi-sub">Por confirmar ou remarcar</div>
+              <div class="sec-home-kpi-accent" style="background:linear-gradient(90deg,var(--warn),#fbbf24)"></div>
+            </div>
+            <div class="sec-home-kpi">
+              <div class="sec-home-kpi-ic">📬</div>
+              <div class="sec-home-kpi-label">Total em Aberto</div>
+              <div class="sec-home-kpi-num" id="sh-kpi-total-aberto">—</div>
+              <div class="sec-home-kpi-sub">Pedidos + reuniões pendentes</div>
+              <div class="sec-home-kpi-accent" style="background:linear-gradient(90deg,var(--hlth),var(--c-400))"></div>
+            </div>
+          </div>
+
+          <!-- CTAs de acção imediata -->
+          <div class="sec-home-cta-row">
+            <button class="sec-home-cta-btn sec-home-cta-pri"
+              onclick="mostrarSecção('secretaria');filtrarSecretaria('pedidos',document.getElementById('tab-sec-pedidos'))">
+              ✉️ Processar Pedidos
+            </button>
+            <button class="sec-home-cta-btn sec-home-cta-sec"
+              onclick="mostrarSecção('secretaria');filtrarSecretaria('reunioes',document.getElementById('tab-sec-reunioes'))">
+              📅 Ver Reuniões
+            </button>
+          </div>
+
+          <!-- Fila imediata — pedidos novos (máx 5) -->
+          <div class="sec-home-fila-card" id="sh-fila-pedidos-card">
+            <div class="sec-home-fila-header">
+              <div class="sec-home-fila-titulo">
+                ✉️ Pedidos por Responder
+                <span class="sec-home-fila-badge" id="sh-fila-pedidos-badge">0</span>
+              </div>
+              <span class="sec-home-fila-link"
+                onclick="mostrarSecção('secretaria');filtrarSecretaria('pedidos',document.getElementById('tab-sec-pedidos'))">
+                Ver todos →
+              </span>
+            </div>
+            <div id="sh-fila-pedidos-lista">
+              <div class="sec-home-fila-vazio">⏳ A carregar pedidos…</div>
+            </div>
+          </div>
+
+          <!-- Fila imediata — reuniões pendentes (máx 4) -->
+          <div class="sec-home-fila-card" id="sh-fila-reunioes-card">
+            <div class="sec-home-fila-header">
+              <div class="sec-home-fila-titulo">
+                📅 Reuniões por Confirmar
+                <span class="sec-home-fila-badge" id="sh-fila-reunioes-badge">0</span>
+              </div>
+              <span class="sec-home-fila-link"
+                onclick="mostrarSecção('secretaria');filtrarSecretaria('reunioes',document.getElementById('tab-sec-reunioes'))">
+                Ver todas →
+              </span>
+            </div>
+            <div id="sh-fila-reunioes-lista">
+              <div class="sec-home-fila-vazio">⏳ A carregar reuniões…</div>
+            </div>
+          </div>
+        </div><!-- /#dash-home-secretaria -->
+
+        <!-- ══ DASHBOARD FUNCIONÁRIO — portal em primeiro plano ══════
+             Visível apenas quando perfil === 'funcionario' (sem chefia).
+             Substitui o painel default enterrado em texto pequeno. -->
+        <div id="dash-home-funcionario">
+          <div class="func-portal-hero">
+            <div class="func-portal-hero-txt">
+              <div class="func-portal-hero-kicker">O seu ponto de acesso</div>
+              <div class="func-portal-hero-titulo">Portal do Funcionário</div>
+              <div class="func-portal-hero-sub">
+                Solicite documentos, agende reuniões e acompanhe os seus pedidos administrativos directamente.
+              </div>
+            </div>
+            <a href="portal.html" target="_blank" class="func-portal-hero-btn">
+              Aceder ao Portal →
+            </a>
+          </div>
+        </div><!-- /#dash-home-funcionario -->
 
         <!-- Barra de pesquisa mobile (visível só no mobile) -->
         <div class="topbar-search" onclick="abrirPesquisa()"
@@ -2677,14 +2960,45 @@
       const secSessoes = document.getElementById("secção-sessoes-mini");
       if (secSessoes) secSessoes.style.display = "none";
     } else if (p==="secretaria") {
-      // secretaria: esconder tudo menos o painel de secretaria
+      // ── M1 fix: Secretaria vê imediatamente a sua fila de trabalho ──
+      // Ocultar KPIs de sistema (métricas de admin sem relevância operacional)
+      const kpiGrid = document.getElementById("indicadores");
+      if (kpiGrid) kpiGrid.style.display = "none";
+      // Ocultar grelha de módulos (módulos de admin não acessíveis)
+      const menuMods = document.getElementById("menu-modulos");
+      if (menuMods) menuMods.style.display = "none";
+      // Ocultar card de sessões recentes
       const secSessoes2 = document.getElementById("secção-sessoes-mini");
       if (secSessoes2) secSessoes2.style.display = "none";
+      // Ocultar banner portal (não é relevante para a secretaria)
+      if (banPor) banPor.style.display = "none";
+      // Mostrar o dashboard específico da secretaria
+      const dashSec = document.getElementById("dash-home-secretaria");
+      if (dashSec) dashSec.style.display = "block";
+      // Arrancar os watchers (já inicializados em baixo) —
+      // eles vão popular os KPIs e a fila via actualizarDashHomeSecretaria()
     } else {
       // funcionário
+      // ── M1 fix: Funcionário sem chefia vê o portal em destaque ──
+      const kpiGridF = document.getElementById("indicadores");
+      if (kpiGridF) kpiGridF.style.display = "none";
+      const menuModsF = document.getElementById("menu-modulos");
+      if (menuModsF) menuModsF.style.display = "none";
+      if (banPor) banPor.style.display = "none";
+      const secSessoesF = document.getElementById("secção-sessoes-mini");
+      if (secSessoesF) secSessoesF.style.display = "none";
+      // O painel de chefia (chefe_unidade) usa secção-funcionario.
+      // O funcionário simples usa dash-home-funcionario.
       document.getElementById("secção-funcionario").style.display="block";
-      document.getElementById("menu-modulos").style.display="none";
-      await carregarPainelChefeUnidade(u, perfilDoc);
+      const ehChefeUnidade = await carregarPainelChefeUnidade(u, perfilDoc);
+      if (!ehChefeUnidade) {
+        // Não é chefe de unidade: mostrar CTA do portal em destaque
+        const dashFunc = document.getElementById("dash-home-funcionario");
+        if (dashFunc) dashFunc.style.display = "block";
+        // Manter painel-funcionario-default oculto (substituído pelo hero)
+        const pfDefault = document.getElementById("painel-funcionario-default");
+        if (pfDefault) pfDefault.style.display = "none";
+      }
     }
 
     // ── Acções Rápidas — filtradas por perfil ──
@@ -3968,6 +4282,82 @@
       }).join('');
     }
     lista.innerHTML = html;
+    // Sincronizar também o dashboard home da secretaria
+    actualizarDashHomeSecretaria();
+  }
+
+  // ── M1 fix: população em tempo real do dashboard home da secretaria ──
+  function actualizarDashHomeSecretaria() {
+    const dashEl = document.getElementById('dash-home-secretaria');
+    if (!dashEl || dashEl.style.display === 'none') return;
+
+    const nPed = _pedidosNovos.length;
+    const nReu = _reunioesPend.length;
+    const total = nPed + nReu;
+
+    // KPIs
+    const elPed   = document.getElementById('sh-kpi-pedidos-novos');
+    const elReu   = document.getElementById('sh-kpi-reunioes-pend');
+    const elTot   = document.getElementById('sh-kpi-total-aberto');
+    if (elPed) elPed.textContent = nPed;
+    if (elReu) elReu.textContent = nReu;
+    if (elTot) elTot.textContent = total;
+
+    // Badge pedidos
+    const badgePed = document.getElementById('sh-fila-pedidos-badge');
+    if (badgePed) badgePed.textContent = nPed;
+
+    // Fila pedidos (máx 5)
+    const listaPed = document.getElementById('sh-fila-pedidos-lista');
+    if (listaPed) {
+      if (nPed === 0) {
+        listaPed.innerHTML = '<div class="sec-home-fila-vazio">✅ Sem pedidos novos</div>';
+      } else {
+        listaPed.innerHTML = _pedidosNovos.slice(0, 5).map(p => {
+          const assunto = ASSUNTOS_SEC[p.assunto] || p.assunto || '—';
+          const data = p.criadoEm?.toDate
+            ? p.criadoEm.toDate().toLocaleDateString('pt-AO', { day:'2-digit', month:'short' })
+            : '—';
+          return `<div class="sec-home-item"
+            onclick="mostrarSecção('secretaria');filtrarSecretaria('pedidos',document.getElementById('tab-sec-pedidos'))">
+            <div class="sec-home-item-ic">✉️</div>
+            <div class="sec-home-item-corpo">
+              <div class="sec-home-item-nome">${p.funcionarioNome || '—'}</div>
+              <div class="sec-home-item-meta">${assunto} · ${data}</div>
+            </div>
+            <span class="sec-home-item-estado estado-novo">Novo</span>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    // Badge reuniões
+    const badgeReu = document.getElementById('sh-fila-reunioes-badge');
+    if (badgeReu) badgeReu.textContent = nReu;
+
+    // Fila reuniões (máx 4)
+    const listaReu = document.getElementById('sh-fila-reunioes-lista');
+    if (listaReu) {
+      if (nReu === 0) {
+        listaReu.innerHTML = '<div class="sec-home-fila-vazio">✅ Sem reuniões pendentes</div>';
+      } else {
+        listaReu.innerHTML = _reunioesPend.slice(0, 4).map(r => {
+          const dest = DEST_REUNIAO[r.destinatario] || r.destinatario || '—';
+          const data = r.dataPreferida || (r.criadoEm?.toDate
+            ? r.criadoEm.toDate().toLocaleDateString('pt-AO', { day:'2-digit', month:'short' })
+            : '—');
+          return `<div class="sec-home-item"
+            onclick="mostrarSecção('secretaria');filtrarSecretaria('reunioes',document.getElementById('tab-sec-reunioes'))">
+            <div class="sec-home-item-ic reuniao">📅</div>
+            <div class="sec-home-item-corpo">
+              <div class="sec-home-item-nome">${r.funcionarioNome || '—'}</div>
+              <div class="sec-home-item-meta">${dest} · ${data}</div>
+            </div>
+            <span class="sec-home-item-estado estado-pendente">Pendente</span>
+          </div>`;
+        }).join('');
+      }
+    }
   }
 
   // ══════════════════════════════════════════════════════════
