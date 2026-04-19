@@ -240,6 +240,9 @@
     .gc circle, .gc rect, .gc polygon { transition: opacity .2s, transform .2s; }
     .gc circle:hover, .gc rect:hover, .gc polygon:hover { opacity: 0.8; filter: brightness(1.2); }
 
+    /* ── Formação Académica ── */
+    #formacao-tabela-wrap { overflow: hidden; }
+
     /* ── Extremos Etários ── */
     .ee-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
     @media (max-width: 640px) { .ee-grid { grid-template-columns: 1fr; } }
@@ -895,6 +898,9 @@
         <div class="gc"><div class="gc-titulo">Massa Salarial por Unidade</div><div id="sal-unit"></div></div>
       </div>
 
+      <div class="sec">🎓 Formação Académica em Curso</div>
+      <div class="g1" id="formacao-wrap"></div>
+
       <div class="sec">📂 Documentos e Secretaria</div>
       <div class="g2">
         <div class="gc"><div class="gc-titulo">Funil de Pedidos</div><div id="sec-funil"></div></div>
@@ -993,6 +999,7 @@
     renderQualidade(funcs);
     renderCobertura(funcs, unidades);
     renderSalarial(funcs);
+    renderFormacao(funcs);
 
     // 5. Secretaria: independente dos filtros RH — só renderiza uma vez
     renderSecretariaEstat();
@@ -1026,6 +1033,7 @@
     renderCobertura(funcs, unidades);
     renderSalarial(funcs);
     renderReforma(funcs);
+    renderFormacao(funcs);
 
     // ⚠️ renderSecretariaEstat() NÃO é chamado aqui:
     //    os dados de secretaria são independentes dos filtros de RH.
@@ -1725,6 +1733,328 @@
         </div>
       </div>`;
   }
+
+  // ════════════════════════════════════════════════════════
+  //  FORMAÇÃO ACADÉMICA EM CURSO
+  //  calcFormacao  → cálculo puro, sem tocar no DOM
+  //  renderFormacao → actualiza apenas o interior de #formacao-wrap
+  //  _abrirDrillFormacao → reutiliza o .modal-drill existente
+  // ════════════════════════════════════════════════════════
+
+  function calcFormacao(funcs) {
+    // Normaliza o flag estudando independente do tipo gravado
+    // (boolean real, string legada ou campo ausente com curso preenchido)
+    function estaEstudando(f) {
+      const v = f.estudando;
+      if (v === true  || v === 'true'  || v === 'sim' || v === 'Sim') return true;
+      if (v === false || v === 'false' || v === 'nao' || v === 'não') return false;
+      return !!(f.curso && String(f.curso).trim()); // fallback: curso preenchido sem flag
+    }
+
+    function norm(str) {
+      if (!str) return null;
+      return String(str).trim().replace(/\s+/g, ' ') || null;
+    }
+
+    function labelAno(ano) {
+      const n = parseInt(ano, 10);
+      if (!n || n < 1 || n > 9) return norm(ano) || 'Não indicado';
+      return `${n}º Ano`;
+    }
+
+    const MODALIDADE = {
+      'presencial'     : 'Presencial',
+      'pos-laboral'    : 'Pós-Laboral',
+      'distancia'      : 'EAD / Distância',
+      'semi-presencial': 'Semi-Presencial',
+    };
+
+    const estudantes = funcs.filter(estaEstudando);
+    const total      = funcs.length;
+
+    const porCurso = {}, porNivel = {}, porAno = {}, porInst = {}, porModalidade = {};
+
+    const listaDetalhada = estudantes.map(f => {
+      const curso       = norm(f.curso)              || 'Curso não especificado';
+      const nivel       = norm(f.escolaridade)       || 'Nível não indicado';
+      const ano         = labelAno(f.anoCurso);
+      const inst        = norm(f.instituicao)        || 'Instituição não indicada';
+      const modalidade  = MODALIDADE[f.modalidadeEstudo] || 'Não indicada';
+      const unidade     = norm(f.unidade)            || '—';
+
+      porCurso[curso]           = (porCurso[curso]           || 0) + 1;
+      porNivel[nivel]           = (porNivel[nivel]           || 0) + 1;
+      porAno[ano]               = (porAno[ano]               || 0) + 1;
+      porInst[inst]             = (porInst[inst]             || 0) + 1;
+      porModalidade[modalidade] = (porModalidade[modalidade] || 0) + 1;
+
+      return {
+        nome     : norm(f.nome)      || '—',
+        numero   : norm(f.numero)    || '—',
+        sexo     : norm(f.sexo)      || '—',
+        curso, nivel, ano, inst, modalidade, unidade,
+        vinculo  : norm(f.vinculo)   || '—',
+        categoria: norm(f.categoria) || '—',
+      };
+    });
+
+    const ordenar = obj =>
+      Object.entries(obj)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, count]) => ({ label, count }));
+
+    return {
+      totalEstudantes  : estudantes.length,
+      totalFuncionarios: total,
+      percentagem      : total ? Math.round(estudantes.length / total * 100) : 0,
+      porCurso         : ordenar(porCurso),
+      porNivel         : ordenar(porNivel),
+      porAno           : ordenar(porAno),
+      porInst          : ordenar(porInst),
+      porModalidade    : ordenar(porModalidade),
+      listaDetalhada   : listaDetalhada.sort((a, b) => a.nome.localeCompare(b.nome, 'pt')),
+    };
+  }
+
+  function renderFormacao(funcs) {
+    const wrap = document.getElementById('formacao-wrap');
+    if (!wrap) return;
+
+    const d = calcFormacao(funcs);
+
+    const CORES = ['#3b82f6','#10b981','#f59e0b','#a78bfa','#f472b6','#34d399','#fb923c','#60a5fa'];
+
+    function barra(label, count, max, cor, clickFn) {
+      const pct = max ? Math.round(count / max * 100) : 0;
+      const clickAttr = clickFn ? `onclick="${clickFn}" style="cursor:pointer"` : '';
+      return `
+        <div class="bh" ${clickAttr}>
+          <div class="bh-head">
+            <span class="bh-lbl" title="${label}">${label}</span>
+            <span class="bh-val">${count}</span>
+          </div>
+          <div class="bh-track">
+            <div class="bh-fill" style="width:${pct}%;background:${cor}"></div>
+          </div>
+        </div>`;
+    }
+
+    function donut(dados, cores) {
+      if (!dados.length) return '<div class="vazio">Sem dados suficientes</div>';
+      const total = dados.reduce((s, x) => s + x.count, 0);
+      const R = 30, circ = 2 * Math.PI * R;
+      let offset = circ * 0.25, segs = '', legItems = '';
+      dados.slice(0, 6).forEach(({ label, count }, i) => {
+        const cor = cores[i % cores.length];
+        const seg = circ * (count / total);
+        const pct = Math.round(count / total * 100);
+        segs += `<circle cx="40" cy="40" r="${R}" fill="none" stroke="${cor}" stroke-width="9"
+                   stroke-dasharray="${seg} ${circ - seg}" stroke-dashoffset="${offset}"
+                   stroke-linecap="round"/>`;
+        offset -= seg;
+        legItems += `
+          <div class="donut-item">
+            <div class="donut-dot" style="background:${cor}"></div>
+            <span class="donut-txt">${label}</span>
+            <span class="donut-n">${count}<span style="opacity:.4;font-size:10px"> (${pct}%)</span></span>
+          </div>`;
+      });
+      return `
+        <div class="donut-wrap">
+          <svg width="80" height="80" viewBox="0 0 80 80" style="transform:rotate(-90deg);flex-shrink:0">
+            <circle cx="40" cy="40" r="${R}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="9"/>
+            ${segs}
+          </svg>
+          <div class="donut-leg">${legItems}</div>
+        </div>`;
+    }
+
+    const kpiCor = d.percentagem > 30 ? '#10b981' : d.percentagem > 10 ? '#f59e0b' : '#3b82f6';
+    const maxCurso = d.porCurso[0]?.count || 1;
+    const maxInst  = d.porInst[0]?.count  || 1;
+
+    // Barras de cursos — clicáveis (drill-down por curso)
+    const barrasCursos = d.porCurso.slice(0, 8).map(({ label, count }, i) =>
+      barra(label, count, maxCurso, CORES[i % CORES.length],
+        `window._abrirDrillFormacao('curso','${label.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`)
+    ).join('') || '<div class="vazio">Nenhum curso registado</div>';
+
+    // Barras de instituições
+    const barrasInst = d.porInst.slice(0, 6).map(({ label, count }, i) =>
+      barra(label, count, maxInst, CORES[(i + 2) % CORES.length])
+    ).join('') || '<div class="vazio">Nenhuma instituição registada</div>';
+
+    // Barras de ano curricular
+    const barrasAno = d.porAno.map(({ label, count }) =>
+      barra(label, count, d.porAno[0]?.count || 1, '#a78bfa')
+    ).join('') || '<div class="vazio">Ano não registado</div>';
+
+    // Tabela inline (max 50 linhas; botão para ver todos no drill)
+    const MAX_TAB = 50;
+    const linhasTab = d.listaDetalhada.slice(0, MAX_TAB).map(p => `
+      <tr>
+        <td style="font-weight:700;color:#e2e8f0">${p.nome}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.4)">${p.numero}</td>
+        <td>${p.curso}</td>
+        <td><span class="drill-badge" style="background:rgba(167,139,250,.12);color:#a78bfa">${p.ano}</span></td>
+        <td style="font-size:11px;color:rgba(255,255,255,.5)">${p.inst}</td>
+        <td style="font-size:11px;color:rgba(255,255,255,.4)">${p.modalidade}</td>
+        <td style="font-size:11px;color:rgba(255,255,255,.4)">${p.unidade}</td>
+      </tr>`).join('');
+
+    const rodapeTab = d.listaDetalhada.length > MAX_TAB
+      ? `<tr><td colspan="7" style="text-align:center;padding:12px;font-size:11px;color:rgba(255,255,255,.3)">
+           … e mais ${d.listaDetalhada.length - MAX_TAB} funcionários.
+           <span onclick="window._abrirDrillFormacao('todos')"
+                 style="color:#3b82f6;cursor:pointer;font-weight:700"> Ver todos →</span>
+         </td></tr>` : '';
+
+    wrap.innerHTML = `
+      <!-- KPIs de formação -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+        <div class="kpi" style="border-color:rgba(59,130,246,.25)">
+          <div class="kpi-icon">🎓</div>
+          <div class="kpi-val" style="color:${kpiCor}">${d.totalEstudantes}</div>
+          <div class="kpi-lbl">Em Formação</div>
+          <div class="kpi-sub">${d.percentagem}% do efectivo</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-icon">📚</div>
+          <div class="kpi-val" style="color:#a78bfa">${d.porCurso.length}</div>
+          <div class="kpi-lbl">Cursos Distintos</div>
+          <div class="kpi-sub">${d.porCurso[0] ? d.porCurso[0].label.substring(0,26) : '—'}</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-icon">🏫</div>
+          <div class="kpi-val" style="color:#f59e0b">${d.porInst.length}</div>
+          <div class="kpi-lbl">Instituições</div>
+          <div class="kpi-sub">${d.porInst[0] ? d.porInst[0].label.substring(0,26) : '—'}</div>
+        </div>
+      </div>
+
+      <!-- Cursos + Nível académico -->
+      <div class="g2" style="margin-bottom:20px">
+        <div class="gc">
+          <div class="gc-titulo">Cursos Frequentados</div>
+          <div class="gc-sub">Clique numa barra para ver os funcionários desse curso</div>
+          ${barrasCursos}
+        </div>
+        <div class="gc">
+          <div class="gc-titulo">Nível Académico em Curso</div>
+          <div class="gc-sub">Distribuição por grau académico</div>
+          ${donut(d.porNivel, ['#3b82f6','#10b981','#f59e0b','#a78bfa','#f472b6','#34d399'])}
+        </div>
+      </div>
+
+      <!-- Ano curricular + Modalidade -->
+      <div class="g2" style="margin-bottom:20px">
+        <div class="gc">
+          <div class="gc-titulo">Ano Curricular</div>
+          <div class="gc-sub">Em que ano se encontra cada funcionário</div>
+          ${barrasAno}
+        </div>
+        <div class="gc">
+          <div class="gc-titulo">Modalidade de Ensino</div>
+          <div class="gc-sub">Presencial, pós-laboral, EAD…</div>
+          ${donut(d.porModalidade, ['#60a5fa','#34d399','#fb923c','#f472b6'])}
+        </div>
+      </div>
+
+      <!-- Instituições -->
+      <div class="g1" style="margin-bottom:20px">
+        <div class="gc">
+          <div class="gc-titulo">Instituições de Ensino</div>
+          <div class="gc-sub">Onde estudam os funcionários</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px">
+            ${barrasInst}
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela detalhada -->
+      <div class="gc" id="formacao-tabela-wrap">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div class="gc-titulo">Funcionários em Formação</div>
+            <div class="gc-sub">${d.listaDetalhada.length} registo(s) encontrado(s)</div>
+          </div>
+          <button onclick="window._abrirDrillFormacao('todos')"
+            style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:#60a5fa;
+                   border-radius:8px;padding:6px 14px;font-size:11px;font-weight:700;
+                   font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer">
+            Ver lista completa →
+          </button>
+        </div>
+        ${d.listaDetalhada.length === 0
+          ? '<div class="vazio">Nenhum funcionário em formação registado.</div>'
+          : `<div style="overflow-x:auto">
+               <table class="drill-table">
+                 <thead>
+                   <tr>
+                     <th>Nome</th><th>Nº</th><th>Curso</th>
+                     <th>Ano</th><th>Instituição</th><th>Modalidade</th><th>Unidade</th>
+                   </tr>
+                 </thead>
+                 <tbody>${linhasTab}${rodapeTab}</tbody>
+               </table>
+             </div>`}
+      </div>`;
+
+    // Guardar dados para o drill-down
+    window._formacaoData = d;
+  }
+
+  window._abrirDrillFormacao = function(tipo, filtro) {
+    const d = window._formacaoData;
+    if (!d) return;
+
+    let titulo, subtitulo, lista;
+    if (tipo === 'curso' && filtro) {
+      lista     = d.listaDetalhada.filter(p => p.curso === filtro);
+      titulo    = filtro;
+      subtitulo = `${lista.length} funcionário(s) neste curso`;
+    } else {
+      lista     = d.listaDetalhada;
+      titulo    = 'Todos em Formação';
+      subtitulo = `${lista.length} funcionário(s) registados`;
+    }
+
+    const linhas = lista.map(p => `
+      <tr>
+        <td style="font-weight:700;color:#e2e8f0">${p.nome}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.4)">${p.numero}</td>
+        <td>${p.curso}</td>
+        <td><span class="drill-badge" style="background:rgba(167,139,250,.12);color:#a78bfa">${p.ano}</span></td>
+        <td style="font-size:11px;color:rgba(255,255,255,.5)">${p.inst}</td>
+        <td style="font-size:11px;color:rgba(255,255,255,.4)">${p.modalidade}</td>
+        <td style="font-size:11px;color:rgba(255,255,255,.4)">${p.unidade}</td>
+      </tr>`).join('');
+
+    const vazio = lista.length === 0
+      ? '<div class="drill-empty"><div class="drill-empty-icon">🎓</div><p>Sem registos para este filtro.</p></div>'
+      : '';
+
+    const modal  = document.querySelector('.modal-drill');
+    const mTitle = modal?.querySelector('.modal-drill-title h3');
+    const mSub   = modal?.querySelector('.modal-drill-title p');
+    const mBody  = modal?.querySelector('.modal-drill-body');
+    if (!modal || !mBody) return;
+
+    if (mTitle) mTitle.textContent = titulo;
+    if (mSub)   mSub.textContent   = subtitulo;
+    mBody.innerHTML = vazio || `
+      <table class="drill-table">
+        <thead>
+          <tr>
+            <th>Nome</th><th>Nº</th><th>Curso</th>
+            <th>Ano</th><th>Instituição</th><th>Modalidade</th><th>Unidade</th>
+          </tr>
+        </thead>
+        <tbody>${linhas}</tbody>
+      </table>`;
+    modal.classList.add('active');
+  };
+
 </script>
 </body>
 </html>
