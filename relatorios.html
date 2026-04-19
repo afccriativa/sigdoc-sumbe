@@ -137,7 +137,6 @@
     table.infra td{padding:10px 12px;border-bottom:1px solid #f1f5f9;color:#0f172a;vertical-align:middle}
     table.infra tr:last-child td{border-bottom:none}
     table.infra tr:hover td{background:#f8fafc}
-    /* Células de booleanos */
     .infra-sim{color:#059669;font-weight:800}
     .infra-nao{color:#dc2626;font-weight:800}
     .infra-nd {color:#94a3b8;font-style:italic}
@@ -457,11 +456,9 @@
         <div class="rel-icon" style="background:rgba(16,200,134,.15)">🏗️</div>
         <div class="rel-info">
           <div class="rel-titulo">Relatório de Infra-estrutura</div>
-          <div class="rel-desc">Condições físicas de cada unidade sanitária: camas de internamento, água potável, energia eléctrica, laboratório e posto fixo de vacinação.</div>
+          <div class="rel-desc">Condições físicas de cada unidade sanitária: camas, água potável, energia eléctrica, laboratório e posto fixo de vacinação.</div>
         </div>
       </div>
-
-      <!-- Filtros activos reactivos -->
       <div class="infra-filtros-grid">
         <div>
           <label class="campo-label">🔬 Laboratório</label>
@@ -488,14 +485,12 @@
           </select>
         </div>
       </div>
-
       <div class="btn-strip">
         <button class="btn-exp btn-excel" onclick="exportarInfra('excel')">📊 Excel</button>
         <button class="btn-exp btn-pdf"   onclick="exportarInfra('pdf')">📄 PDF</button>
         <button class="btn-exp" style="background:rgba(16,200,134,.1);color:#10c886;border:1px solid rgba(16,200,134,.3)"
           onclick="previsualizarInfra()">👁 Ver tabela</button>
       </div>
-
       <div id="infra-resultado"></div>
     </div>
 
@@ -688,8 +683,6 @@
     const selMes = document.getElementById("f-aniv-mes");
     if (selMes) selMes.value = String(mesActual);
     previsualizarAniversariantes();
-
-    // Renderizar tabela de infra-estrutura automaticamente
     previsualizarInfra();
   }
 
@@ -1267,6 +1260,189 @@
   const hoje  = () => new Date().toISOString().slice(0,10).replace(/-/g,"");
 
   // ════════════════════════════════════════════════════════
+  //  INFRA-ESTRUTURA DAS UNIDADES
+  // ════════════════════════════════════════════════════════
+
+  const COLS_INFRA = [
+    'Unidade Sanitária','Tipo','Est. Operacional',
+    'Camas','Água Potável','Energia Eléctrica','Laboratório','Vacinação (PAV)',
+  ];
+
+  const TIPO_LABEL_INFRA = { dms:'DMS', centro:'Centro de Saúde', posto:'Posto de Saúde', seccao:'Secção' };
+  const tipoInfra = t => TIPO_LABEL_INFRA[t] || t || '—';
+  const yn        = v => v === true ? '✓ Sim' : v === false ? '✗ Não' : 'N/D';
+
+  function filtrarInfra() {
+    const fLab  = document.getElementById('f-infra-lab')?.value  || '';
+    const fEne  = document.getElementById('f-infra-ene')?.value  || '';
+    const fAgua = document.getElementById('f-infra-agua')?.value || '';
+    return Object.values(_unidades)
+      .filter(u => u && u.nome && u.nome !== '—' && u.nome !== 'Não especificada')
+      .filter(u => {
+        const inf = u.infraestrutura || {};
+        if (fLab  === 'sim' && inf.laboratorio     !== true)  return false;
+        if (fLab  === 'nao' && inf.laboratorio     !== false) return false;
+        if (fEne  === 'sim' && inf.energiaElectrica !== true)  return false;
+        if (fEne  === 'nao' && inf.energiaElectrica !== false) return false;
+        if (fAgua === 'sim' && inf.aguaPotavel      !== true)  return false;
+        if (fAgua === 'nao' && inf.aguaPotavel      !== false) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        const ordem = { dms:0, centro:1, posto:2, seccao:3 };
+        const ta = ordem[a.tipo] ?? 99, tb = ordem[b.tipo] ?? 99;
+        return ta !== tb ? ta - tb : (a.nome||'').localeCompare(b.nome||'', 'pt');
+      });
+  }
+
+  function linhasInfra(lista) {
+    return lista.map(u => {
+      const inf = u.infraestrutura || {};
+      return [
+        u.nome || '—',
+        tipoInfra(u.tipo),
+        estOpLabel(u.nome),
+        (inf.camas !== null && inf.camas !== undefined) ? String(inf.camas) : '—',
+        yn(inf.aguaPotavel),
+        yn(inf.energiaElectrica),
+        yn(inf.laboratorio),
+        yn(inf.postoVacinacao),
+      ];
+    });
+  }
+
+  window.previsualizarInfra = function() {
+    const wrap = document.getElementById('infra-resultado');
+    if (!wrap) return;
+    const lista = filtrarInfra();
+    if (!lista.length) {
+      wrap.innerHTML = '<div class="infra-vazio">🏗️ Nenhuma unidade corresponde aos filtros seleccionados.</div>';
+      return;
+    }
+    const totalCamas = lista.reduce((s, u) => {
+      const c = u.infraestrutura?.camas;
+      return s + (c !== null && c !== undefined ? Number(c) : 0);
+    }, 0);
+    const semAgua = lista.filter(u => u.infraestrutura?.aguaPotavel      === false).length;
+    const semEne  = lista.filter(u => u.infraestrutura?.energiaElectrica === false).length;
+    const comLab  = lista.filter(u => u.infraestrutura?.laboratorio       === true).length;
+
+    function boolTd(v) {
+      if (v === true)  return '<td class="infra-sim">✓ Sim</td>';
+      if (v === false) return '<td class="infra-nao">✗ Não</td>';
+      return '<td class="infra-nd">N/D</td>';
+    }
+
+    const linhasHTML = lista.map(u => {
+      const inf = u.infraestrutura || {};
+      const camasTd = (inf.camas !== null && inf.camas !== undefined)
+        ? '<td style="text-align:center;font-weight:700;font-family:\'DM Mono\',monospace">' + inf.camas + '</td>'
+        : '<td class="infra-nd" style="text-align:center">—</td>';
+      return '<tr>'
+        + '<td style="font-weight:700">' + escapeHTML(u.nome || '—') + '</td>'
+        + '<td style="font-size:11px;color:#475569">' + escapeHTML(tipoInfra(u.tipo)) + '</td>'
+        + '<td style="font-size:11px;color:#475569">' + escapeHTML(estOpLabel(u.nome)) + '</td>'
+        + camasTd
+        + boolTd(inf.aguaPotavel)
+        + boolTd(inf.energiaElectrica)
+        + boolTd(inf.laboratorio)
+        + boolTd(inf.postoVacinacao)
+        + '</tr>';
+    }).join('');
+
+    wrap.innerHTML =
+      '<div class="infra-resumo">'
+      + '<span class="infra-pill infra-pill-total">🏥 ' + lista.length + ' unidade' + (lista.length !== 1 ? 's' : '') + '</span>'
+      + (totalCamas > 0 ? '<span class="infra-pill infra-pill-camas">🛏 ' + totalCamas + ' camas no total</span>' : '')
+      + (semAgua > 0 ? '<span class="infra-pill infra-pill-alerta">💧 ' + semAgua + ' sem água potável</span>' : '')
+      + (semEne  > 0 ? '<span class="infra-pill infra-pill-alerta">⚡ ' + semEne  + ' sem energia</span>' : '')
+      + (comLab  > 0 ? '<span class="infra-pill infra-pill-camas">🔬 ' + comLab  + ' com laboratório</span>' : '')
+      + '</div>'
+      + '<div class="infra-table-wrap"><table class="infra">'
+      + '<thead><tr>'
+      + '<th>Unidade Sanitária</th><th>Tipo</th><th>Est. Operacional</th>'
+      + '<th style="text-align:center">Camas</th>'
+      + '<th style="text-align:center">Água Potável</th>'
+      + '<th style="text-align:center">Energia</th>'
+      + '<th style="text-align:center">Laboratório</th>'
+      + '<th style="text-align:center">Vacinação</th>'
+      + '</tr></thead>'
+      + '<tbody>' + linhasHTML + '</tbody>'
+      + '</table></div>';
+  };
+
+  window.exportarInfra = function(fmt) {
+    const lista = filtrarInfra();
+    if (!lista.length) { notif('Nenhuma unidade encontrada com esses filtros.', 'erro'); return; }
+    const linhas   = linhasInfra(lista);
+    const dataHoje = new Date().toLocaleDateString('pt-AO', {day:'2-digit',month:'long',year:'numeric'});
+    const totalCamas = lista.reduce((s, u) => {
+      const c = u.infraestrutura?.camas;
+      return s + (c !== null && c !== undefined ? Number(c) : 0);
+    }, 0);
+    const comLab  = lista.filter(u => u.infraestrutura?.laboratorio       === true).length;
+    const comEne  = lista.filter(u => u.infraestrutura?.energiaElectrica  === true).length;
+    const comAgua = lista.filter(u => u.infraestrutura?.aguaPotavel       === true).length;
+
+    if (fmt === 'excel') {
+      downloadExcel(COLS_INFRA, linhas, 'Infra_Unidades_' + hoje());
+      notif('📊 Excel de infra-estrutura gerado');
+      return;
+    }
+
+    // ── PDF ──
+    function boolSpan(v) {
+      if (v === true)  return '<span style="color:#059669;font-weight:700">✓ Sim</span>';
+      if (v === false) return '<span style="color:#dc2626;font-weight:700">✗ Não</span>';
+      return '<span style="color:#94a3b8;font-style:italic">N/D</span>';
+    }
+
+    const rowsPDF = lista.map(u => {
+      const inf    = u.infraestrutura || {};
+      const naoOp  = estOpLabel(u.nome) !== 'Operacional';
+      const camas  = (inf.camas !== null && inf.camas !== undefined)
+        ? '<strong>' + inf.camas + '</strong>'
+        : '<span style="color:#94a3b8">—</span>';
+      return '<tr' + (naoOp ? ' style="opacity:.6"' : '') + '>'
+        + cellHTML(u.nome)
+        + cellHTML(tipoInfra(u.tipo), ' style="font-size:9px;color:#555"')
+        + cellHTML(estOpLabel(u.nome), ' style="font-size:9px;color:#555"')
+        + '<td style="text-align:center">' + camas + '</td>'
+        + '<td style="text-align:center">' + boolSpan(inf.aguaPotavel)      + '</td>'
+        + '<td style="text-align:center">' + boolSpan(inf.energiaElectrica) + '</td>'
+        + '<td style="text-align:center">' + boolSpan(inf.laboratorio)      + '</td>'
+        + '<td style="text-align:center">' + boolSpan(inf.postoVacinacao)   + '</td>'
+        + '</tr>';
+    }).join('');
+
+    abrirPDF(
+      '<h1>Relatório de Infra-estrutura das Unidades</h1>'
+      + '<div class="sub">Direcção Municipal de Saúde do Sumbe</div>'
+      + '<div class="meta">'
+      + '<span>Data: ' + dataHoje + '</span>'
+      + '<span>Unidades: ' + lista.length + '</span>'
+      + '<span>Camas (total): ' + totalCamas + '</span>'
+      + '<span>Com laboratório: ' + comLab + '</span>'
+      + '<span>Com energia: ' + comEne + '</span>'
+      + '<span>Com água: ' + comAgua + '</span>'
+      + '</div>'
+      + '<table><thead><tr>' + COLS_INFRA.map(headerHTML).join('') + '</tr></thead>'
+      + '<tbody>' + rowsPDF + '</tbody></table>'
+      + '<div class="totais">'
+      + 'Total de camas: <strong>' + totalCamas + '</strong>'
+      + ' &nbsp;|&nbsp; Com laboratório: <strong>' + comLab + '</strong>'
+      + ' &nbsp;|&nbsp; Com energia: <strong>' + comEne + '</strong>'
+      + ' &nbsp;|&nbsp; Com água potável: <strong>' + comAgua + '</strong>'
+      + '</div>'
+      + '<div style="margin-top:10px;font-size:8.5px;color:#888;border-top:1px solid #e5e7eb;padding-top:8px">'
+      + '<strong>Legenda:</strong> ✓ Sim — recurso disponível &nbsp;|&nbsp; ✗ Não — recurso ausente &nbsp;|&nbsp; N/D — dado não registado'
+      + '</div>',
+      'Infra-estrutura das Unidades'
+    );
+    notif('📄 PDF de infra-estrutura aberto');
+  };
+
+  // ════════════════════════════════════════════════════════
   //  SECRETARIA — helpers
   // ════════════════════════════════════════════════════════
   const ASSUNTOS_REL = {
@@ -1433,232 +1609,7 @@
     } catch(e) { notif('Erro: '+e.message,'erro'); }
   };
 
-  // ════════════════════════════════════════════════════════
-  //  INFRA-ESTRUTURA DAS UNIDADES
-  // ════════════════════════════════════════════════════════
-
-  /** Etiqueta legível para o tipo de unidade */
-  const TIPO_LABEL_INFRA = { dms:'DMS', centro:'Centro de Saúde', posto:'Posto de Saúde', seccao:'Secção' };
-  const tipoInfra = t => TIPO_LABEL_INFRA[t] || t || '—';
-
-  /**
-   * Converte booleano/undefined num texto para exportação.
-   * ✓ Sim / ✗ Não / N/D  (N/D = campo ainda não preenchido)
-   */
-  const yn = v => v === true ? '✓ Sim' : v === false ? '✗ Não' : 'N/D';
-
-  /**
-   * Filtra as unidades de _unidades de acordo com os 3 selects.
-   * Retorna array de objectos unidade, ordenado por tipo depois por nome.
-   */
-  function filtrarInfra() {
-    const fLab  = document.getElementById('f-infra-lab')?.value  || '';
-    const fEne  = document.getElementById('f-infra-ene')?.value  || '';
-    const fAgua = document.getElementById('f-infra-agua')?.value || '';
-
-    return Object.values(_unidades)
-      .filter(u => u && u.nome && u.nome !== '—' && u.nome !== 'Não especificada')
-      .filter(u => {
-        const inf = u.infraestrutura || {};
-        // Filtro laboratório
-        if (fLab === 'sim' && inf.laboratorio !== true)        return false;
-        if (fLab === 'nao' && inf.laboratorio !== false)       return false;
-        // Filtro energia
-        if (fEne === 'sim' && inf.energiaElectrica !== true)   return false;
-        if (fEne === 'nao' && inf.energiaElectrica !== false)  return false;
-        // Filtro água
-        if (fAgua === 'sim' && inf.aguaPotavel !== true)       return false;
-        if (fAgua === 'nao' && inf.aguaPotavel !== false)      return false;
-        return true;
-      })
-      .sort((a, b) => {
-        const ordem = { dms: 0, centro: 1, posto: 2, seccao: 3 };
-        const ta = ordem[a.tipo] ?? 99, tb = ordem[b.tipo] ?? 99;
-        return ta !== tb ? ta - tb : (a.nome || '').localeCompare(b.nome || '', 'pt');
-      });
-  }
-
-  /**
-   * Gera as linhas de dados para Excel e prévia
-   * (valores textuais simples, sem HTML)
-   */
-  function linhasInfra(lista) {
-    return lista.map(u => {
-      const inf = u.infraestrutura || {};
-      return [
-        u.nome                                               || '—',
-        tipoInfra(u.tipo),
-        estOpLabel(u.nome),
-        (inf.camas !== null && inf.camas !== undefined) ? String(inf.camas) : '—',
-        yn(inf.aguaPotavel),
-        yn(inf.energiaElectrica),
-        yn(inf.laboratorio),
-        yn(inf.postoVacinacao),
-      ];
-    });
-  }
-
-  const COLS_INFRA = [
-    'Unidade Sanitária', 'Tipo', 'Est. Operacional',
-    'Camas', 'Água Potável', 'Energia Eléctrica', 'Laboratório', 'Vacinação (PAV)',
-  ];
-
-  /**
-   * Renderiza a tabela inline dentro do card, tal como os Aniversariantes.
-   * Chamado automaticamente ao mudar qualquer filtro (onchange nos selects)
-   * e pelo botão "Ver tabela".
-   */
-  window.previsualizarInfra = function() {
-    const wrap = document.getElementById('infra-resultado');
-    if (!wrap) return;
-
-    const lista = filtrarInfra();
-
-    if (!lista.length) {
-      wrap.innerHTML = `<div class="infra-vazio">🏗️ Nenhuma unidade corresponde aos filtros seleccionados.</div>`;
-      return;
-    }
-
-    const totalCamas = lista.reduce((s, u) => {
-      const c = u.infraestrutura?.camas;
-      return s + (c !== null && c !== undefined ? Number(c) : 0);
-    }, 0);
-
-    const semAgua  = lista.filter(u => u.infraestrutura?.aguaPotavel === false).length;
-    const semEne   = lista.filter(u => u.infraestrutura?.energiaElectrica === false).length;
-    const comLab   = lista.filter(u => u.infraestrutura?.laboratorio === true).length;
-
-    /** Badge de booleano com cor inline */
-    function boolCell(v) {
-      if (v === true)  return `<td class="infra-sim">✓ Sim</td>`;
-      if (v === false) return `<td class="infra-nao">✗ Não</td>`;
-      return `<td class="infra-nd">N/D</td>`;
-    }
-
-    const linhasHTML = lista.map(u => {
-      const inf = u.infraestrutura || {};
-      const camas = (inf.camas !== null && inf.camas !== undefined)
-        ? `<td style="text-align:center;font-weight:700;font-family:'DM Mono',monospace">${inf.camas}</td>`
-        : `<td class="infra-nd" style="text-align:center">—</td>`;
-      return `<tr>
-        <td style="font-weight:700">${escapeHTML(u.nome || '—')}</td>
-        <td style="font-size:11px;color:#475569">${escapeHTML(tipoInfra(u.tipo))}</td>
-        <td style="font-size:11px;color:#475569">${escapeHTML(estOpLabel(u.nome))}</td>
-        ${camas}
-        ${boolCell(inf.aguaPotavel)}
-        ${boolCell(inf.energiaElectrica)}
-        ${boolCell(inf.laboratorio)}
-        ${boolCell(inf.postoVacinacao)}
-      </tr>`;
-    }).join('');
-
-    wrap.innerHTML = `
-      <div class="infra-resumo">
-        <span class="infra-pill infra-pill-total">🏥 ${lista.length} unidade${lista.length !== 1 ? 's' : ''}</span>
-        ${totalCamas > 0 ? `<span class="infra-pill infra-pill-camas">🛏 ${totalCamas} camas no total</span>` : ''}
-        ${semAgua  > 0 ? `<span class="infra-pill infra-pill-alerta">💧 ${semAgua} sem água potável</span>` : ''}
-        ${semEne   > 0 ? `<span class="infra-pill infra-pill-alerta">⚡ ${semEne} sem energia</span>` : ''}
-        ${comLab   > 0 ? `<span class="infra-pill infra-pill-camas">🔬 ${comLab} com laboratório</span>` : ''}
-      </div>
-      <div class="infra-table-wrap">
-        <table class="infra">
-          <thead><tr>
-            <th>Unidade Sanitária</th>
-            <th>Tipo</th>
-            <th>Est. Operacional</th>
-            <th style="text-align:center">Camas</th>
-            <th style="text-align:center">Água Potável</th>
-            <th style="text-align:center">Energia</th>
-            <th style="text-align:center">Laboratório</th>
-            <th style="text-align:center">Vacinação</th>
-          </tr></thead>
-          <tbody>${linhasHTML}</tbody>
-        </table>
-      </div>
-    `;
-  };
-
-  /**
-   * Exporta para Excel (TSV) ou PDF.
-   * Segue o mesmo padrão de exportarCobertura().
-   */
-  window.exportarInfra = function(fmt) {
-    const lista = filtrarInfra();
-    if (!lista.length) { notif('Nenhuma unidade encontrada com esses filtros.', 'erro'); return; }
-
-    const linhas   = linhasInfra(lista);
-    const dataHoje = new Date().toLocaleDateString('pt-AO', { day: '2-digit', month: 'long', year: 'numeric' });
-    const totalCamas = lista.reduce((s, u) => {
-      const c = u.infraestrutura?.camas;
-      return s + (c !== null && c !== undefined ? Number(c) : 0);
-    }, 0);
-    const comLab  = lista.filter(u => u.infraestrutura?.laboratorio === true).length;
-    const comEne  = lista.filter(u => u.infraestrutura?.energiaElectrica === true).length;
-    const comAgua = lista.filter(u => u.infraestrutura?.aguaPotavel === true).length;
-
-    if (fmt === 'excel') {
-      downloadExcel(COLS_INFRA, linhas, 'Infra_Unidades_' + hoje());
-      notif('📊 Excel de infra-estrutura gerado');
-      return;
-    }
-
-    // ── PDF ──────────────────────────────────────────────
-    /** Cor inline do booleano para PDF */
-    function boolPDF(v) {
-      if (v === true)  return `<span style="color:#059669;font-weight:700">✓ Sim</span>`;
-      if (v === false) return `<span style="color:#dc2626;font-weight:700">✗ Não</span>`;
-      return `<span style="color:#94a3b8;font-style:italic">N/D</span>`;
-    }
-    function camasPDF(inf) {
-      if (inf.camas !== null && inf.camas !== undefined) return `<strong>${inf.camas}</strong>`;
-      return '<span style="color:#94a3b8">—</span>';
-    }
-
-    const rowsPDF = lista.map(u => {
-      const inf = u.infraestrutura || {};
-      const naoOp = estOpLabel(u.nome) !== 'Operacional';
-      return `<tr${naoOp ? ' style="opacity:.6"' : ''}>
-        ${cellHTML(u.nome)}
-        ${cellHTML(tipoInfra(u.tipo),' style="font-size:9px;color:#555"')}
-        ${cellHTML(estOpLabel(u.nome),' style="font-size:9px;color:#555"')}
-        <td style="text-align:center">${camasPDF(inf)}</td>
-        <td style="text-align:center">${boolPDF(inf.aguaPotavel)}</td>
-        <td style="text-align:center">${boolPDF(inf.energiaElectrica)}</td>
-        <td style="text-align:center">${boolPDF(inf.laboratorio)}</td>
-        <td style="text-align:center">${boolPDF(inf.postoVacinacao)}</td>
-      </tr>`;
-    }).join('');
-
-    abrirPDF(`
-      <h1>Relatório de Infra-estrutura das Unidades</h1>
-      <div class="sub">Direcção Municipal de Saúde do Sumbe</div>
-      <div class="meta">
-        <span>Data: ${dataHoje}</span>
-        <span>Unidades: ${lista.length}</span>
-        <span>Camas (total): ${totalCamas}</span>
-        <span>Com laboratório: ${comLab}</span>
-        <span>Com energia: ${comEne}</span>
-        <span>Com água: ${comAgua}</span>
-      </div>
-      <table>
-        <thead><tr>
-          ${COLS_INFRA.map(headerHTML).join('')}
-        </tr></thead>
-        <tbody>${rowsPDF}</tbody>
-      </table>
-      <div class="totais">
-        Total de camas: <strong>${totalCamas}</strong>
-        &nbsp;|&nbsp; Com laboratório: <strong>${comLab}</strong>
-        &nbsp;|&nbsp; Com energia: <strong>${comEne}</strong>
-        &nbsp;|&nbsp; Com água potável: <strong>${comAgua}</strong>
-      </div>
-      <div style="margin-top:10px;font-size:8.5px;color:#888;border-top:1px solid #e5e7eb;padding-top:8px">
-        <strong>Legenda:</strong> ✓ Sim — recurso disponível &nbsp;|&nbsp; ✗ Não — recurso ausente &nbsp;|&nbsp; N/D — dado não registado
-      </div>
-    `, 'Infra-estrutura das Unidades');
-    notif('📄 PDF de infra-estrutura aberto');
-  };
-
+  window.exportarRelReuniao = async function(fmt) {
     try {
       notif('⏳ A exportar…');
       const reunioes = await fetchSecretaria(
