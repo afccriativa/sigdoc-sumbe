@@ -622,6 +622,7 @@
         ${buildSelect('vinculo',   'Vínculo',           vinculos, v => VINCULO_LABEL[v])}
         ${buildSelect('estado',    'Estado',            estados,  v => ESTADO_LABEL[v])}
         ${buildSelect('sexo',      'Sexo',              sexos)}
+        ${buildSelect('regime',    'Regime',            ['geral','especial'], v => v==='geral'?'Regime Geral':'Regime Especial')}
         
         <div class="filtros-acoes">
           <div id="fil-badge" class="filtros-badge">0 filtros</div>
@@ -758,6 +759,7 @@
     _filtros.vinculo   = document.getElementById('fil-vinculo')?.value   || '';
     _filtros.estado    = document.getElementById('fil-estado')?.value    || '';
     _filtros.sexo      = document.getElementById('fil-sexo')?.value      || '';
+    _filtros.regime    = document.getElementById('fil-regime')?.value    || '';
 
     let resultado = _todosOsFuncs;
     if (_filtros.unidade)   resultado = resultado.filter(f => f.unidade   === _filtros.unidade);
@@ -765,6 +767,7 @@
     if (_filtros.vinculo)   resultado = resultado.filter(f => f.vinculo   === _filtros.vinculo);
     if (_filtros.estado)    resultado = resultado.filter(f => (f.estado||'activo') === _filtros.estado);
     if (_filtros.sexo)      resultado = resultado.filter(f => f.sexo      === _filtros.sexo);
+    if (_filtros.regime)    resultado = resultado.filter(f => (f.regime||'geral')  === _filtros.regime);
 
     const nActivos = Object.values(_filtros).filter(Boolean).length;
     document.getElementById('fil-badge')?.classList.toggle('vis', nActivos > 0);
@@ -772,7 +775,7 @@
     document.getElementById('btn-limpar')?.classList.toggle('vis', nActivos > 0);
     document.getElementById('fil-resultado').textContent = `${resultado.length} de ${_todosOsFuncs.length} funcionários`;
 
-    ['unidade','categoria','vinculo','estado','sexo'].forEach(k => {
+    ['unidade','categoria','vinculo','estado','sexo','regime'].forEach(k => {
       document.getElementById('fil-' + k)?.classList.toggle('activo', !!_filtros[k]);
     });
 
@@ -869,6 +872,18 @@
           <div class="kpi-lbl">Massa Salarial</div>
           <div class="kpi-sub" data-kpi="nSalarios">—</div>
         </div>
+        <div class="kpi">
+          <div class="kpi-icon">📋</div>
+          <div class="kpi-val" style="color:#10c886" data-kpi="regGeral">—</div>
+          <div class="kpi-lbl">Regime Geral</div>
+          <div class="kpi-sub" data-kpi="pctRegGeral">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-icon">⚡</div>
+          <div class="kpi-val" style="color:#f59e0b" data-kpi="regEspecial">—</div>
+          <div class="kpi-lbl">Regime Especial</div>
+          <div class="kpi-sub" data-kpi="pctRegEspecial">—</div>
+        </div>
       </div>
 
       <div class="sec">👤 Distribuição por Género</div>
@@ -878,6 +893,32 @@
       <div class="g2">
         <div class="gc"><div class="gc-titulo">Pirâmide Etária</div><div id="piramide"></div></div>
         <div class="gc"><div class="gc-titulo">Tipo de Vínculo</div><div id="vinculo-wrap"></div></div>
+      </div>
+
+      <div class="sec">⚖️ Regime de Vínculo Funcional</div>
+      <div class="g2">
+        <div class="gc">
+          <div class="gc-titulo">Distribuição por Regime</div>
+          <div class="gc-sub">Regime Geral vs Regime Especial</div>
+          <div id="regime-donut"></div>
+        </div>
+        <div class="gc">
+          <div class="gc-titulo">Regime por Unidade Sanitária</div>
+          <div class="gc-sub">Geral (verde) · Especial (âmbar)</div>
+          <div id="regime-unidade"></div>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="gc">
+          <div class="gc-titulo">Regime × Nível Académico</div>
+          <div class="gc-sub">Distribuição da escolaridade por regime</div>
+          <div id="regime-escolaridade"></div>
+        </div>
+        <div class="gc">
+          <div class="gc-titulo">Regime × Em Formação</div>
+          <div class="gc-sub">Funcionários actualmente a estudar por regime</div>
+          <div id="regime-formacao"></div>
+        </div>
       </div>
 
       <div class="sec">🎂 Extremos Etários</div>
@@ -936,9 +977,15 @@
       const massa   = funcs.reduce((s, f) => s + (Number(f.salarioBase) || 0), 0);
       const nSals   = funcs.filter(f => f.salarioBase).length;
       const idMed   = idadeMedia(funcs);
+      // ── Regime ──
+      const regEspecial = funcs.filter(f => f.regime === 'especial').length;
+      const regGeral    = total - regEspecial; // inclui "geral" explícito + não definido
       return { total, masc, fem, activos, massa, nSals, idMed,
                pctM: total ? Math.round(masc / total * 100) : 0,
-               pctF: total ? Math.round(fem  / total * 100) : 0 };
+               pctF: total ? Math.round(fem  / total * 100) : 0,
+               regGeral, regEspecial,
+               pctRG: total ? Math.round(regGeral    / total * 100) : 0,
+               pctRE: total ? Math.round(regEspecial / total * 100) : 0 };
     }, hash);
 
     // Actualiza apenas o nó de texto — não toca no DOM se o valor não mudou
@@ -947,15 +994,19 @@
       if (el && el.textContent !== String(val)) el.textContent = val;
     };
 
-    set('total',    stats.total);
-    set('activos',  `${stats.activos} activos`);
-    set('masc',     stats.masc);
-    set('pctMasc',  `${stats.pctM}%`);
-    set('fem',      stats.fem);
-    set('pctFem',   `${stats.pctF}%`);
-    set('idMed',    stats.idMed || '—');
-    set('massa',    stats.massa ? fmtKz(stats.massa) : '—');
-    set('nSalarios', `${stats.nSals} registos`);
+    set('total',          stats.total);
+    set('activos',        `${stats.activos} activos`);
+    set('masc',           stats.masc);
+    set('pctMasc',        `${stats.pctM}%`);
+    set('fem',            stats.fem);
+    set('pctFem',         `${stats.pctF}%`);
+    set('idMed',          stats.idMed || '—');
+    set('massa',          stats.massa ? fmtKz(stats.massa) : '—');
+    set('nSalarios',      `${stats.nSals} registos`);
+    set('regGeral',       stats.regGeral);
+    set('pctRegGeral',    `${stats.pctRG}%`);
+    set('regEspecial',    stats.regEspecial);
+    set('pctRegEspecial', `${stats.pctRE}%`);
   }
 
   // ════════════════════════════════════════════════════════
@@ -1000,8 +1051,7 @@
     renderCobertura(funcs, unidades);
     renderSalarial(funcs);
     renderFormacao(funcs);
-
-    // 5. Secretaria: independente dos filtros RH — só renderiza uma vez
+    renderRegime(funcs);
     renderSecretariaEstat();
 
     // 6. Reforma
@@ -1034,6 +1084,7 @@
     renderSalarial(funcs);
     renderReforma(funcs);
     renderFormacao(funcs);
+    renderRegime(funcs);
 
     // ⚠️ renderSecretariaEstat() NÃO é chamado aqui:
     //    os dados de secretaria são independentes dos filtros de RH.
@@ -1596,7 +1647,148 @@
    *   🟡 Atenção  → anosRestantes ≤ 3
    *   🟢 Normal   → anosRestantes > 3
    */
-  function renderReforma(funcs) {
+  // ════════════════════════════════════════════════════════
+  //  REGIME DE VÍNCULO FUNCIONAL — donut + cruzamentos
+  // ════════════════════════════════════════════════════════
+  function renderRegime(funcs) {
+    const total = funcs.length;
+    if (!total) return;
+
+    // Contagens base (funcionários sem campo regime contam como geral)
+    const regEspecial = funcs.filter(f => f.regime === 'especial').length;
+    const regGeral    = funcs.filter(f => (f.regime || 'geral') === 'geral').length;
+    const regNDef     = total - regGeral - regEspecial; // nunca > 0 com a lógica acima, mas por segurança
+
+    // ── 1. Donut principal ──
+    renderDonut('regime-donut', [
+      { label: 'Regime Geral',    val: regGeral    },
+      { label: 'Regime Especial', val: regEspecial },
+      ...(regNDef > 0 ? [{ label: 'Não definido', val: regNDef }] : [])
+    ]);
+
+    // ── 2. Regime por Unidade Sanitária ──
+    const elU = document.getElementById('regime-unidade');
+    if (elU) {
+      const abrvU = n => (n||'—')
+        .replace('Direcção Municipal de Saúde do Sumbe', 'DMS — Sede')
+        .replace('Centro de Saúde', 'CS')
+        .replace('Posto de Saúde', 'PS');
+      const mapa = {};
+      funcs.forEach(f => {
+        const u = abrvU(f.unidade);
+        if (!mapa[u]) mapa[u] = { g: 0, e: 0 };
+        f.regime === 'especial' ? mapa[u].e++ : mapa[u].g++;
+      });
+      const lista = Object.entries(mapa)
+        .sort((a, b) => (b[1].g + b[1].e) - (a[1].g + a[1].e))
+        .slice(0, 8);
+      const maxU = Math.max(...lista.map(([, v]) => v.g + v.e), 1);
+      elU.innerHTML = lista.map(([nome, v]) => {
+        const tot = v.g + v.e;
+        const pG  = tot ? Math.round(v.g / tot * 100) : 0;
+        const pE  = 100 - pG;
+        return `<div class="bh">
+          <div class="bh-head">
+            <span class="bh-lbl">${nome}</span>
+            <span style="display:flex;gap:6px;align-items:center">
+              <span style="font-size:10px;font-weight:800;font-family:'DM Mono',monospace;color:#10c886">${v.g}G</span>
+              <span style="color:rgba(255,255,255,.2);font-size:10px">/</span>
+              <span style="font-size:10px;font-weight:800;font-family:'DM Mono',monospace;color:#f59e0b">${v.e}E</span>
+            </span>
+          </div>
+          <div style="height:7px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;width:${Math.round(tot/maxU*100)}%">
+            <div style="display:flex;height:100%">
+              <div style="width:${pG}%;background:#10c886;border-radius:99px 0 0 99px;min-width:${v.g>0?2:0}px"></div>
+              <div style="width:${pE}%;background:#f59e0b;border-radius:0 99px 99px 0;min-width:${v.e>0?2:0}px"></div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // ── 3. Regime × Nível Académico ──
+    const elE = document.getElementById('regime-escolaridade');
+    if (elE) {
+      const SHORT = {
+        'Ensino Primário (4ª Classe)':            'Primário',
+        'Ensino Básico (6ª Classe)':              '6ª Classe',
+        '1º Ciclo do Secundário (9ª Classe)':     '9ª Classe',
+        '2º Ciclo do Secundário (12ª/13ª Classe)':'12ª/13ª',
+        'Ensino Médio Técnico (IMPS ou equiv.)':  'Médio Técnico',
+        'Bacharel':        'Bacharel',
+        'Licenciatura':    'Licenciatura',
+        'Pós-Graduação':   'Pós-Graduação',
+        'Mestrado':        'Mestrado',
+        'Doutoramento':    'Doutoramento'
+      };
+      const escM = {};
+      funcs.forEach(f => {
+        const e = SHORT[f.escolaridade] || f.escolaridade || '—';
+        if (!escM[e]) escM[e] = { g: 0, e: 0 };
+        f.regime === 'especial' ? escM[e].e++ : escM[e].g++;
+      });
+      const listaE = Object.entries(escM)
+        .sort((a, b) => (b[1].g + b[1].e) - (a[1].g + a[1].e))
+        .slice(0, 8);
+      const maxE = Math.max(...listaE.map(([, v]) => v.g + v.e), 1);
+      elE.innerHTML = listaE.map(([nome, v], i) => {
+        const tot = v.g + v.e;
+        return `<div class="bh">
+          <div class="bh-head">
+            <span class="bh-lbl">${nome}</span>
+            <span class="bh-val">${tot}</span>
+          </div>
+          <div class="bh-track"><div class="bh-fill" style="width:${Math.round(tot/maxE*100)}%;background:${CORES[i%CORES.length]}"></div></div>
+          <div style="font-size:9px;color:rgba(255,255,255,.3);margin-top:2px">
+            <span style="color:#10c886">${v.g} Geral</span>
+            &nbsp;·&nbsp;
+            <span style="color:#f59e0b">${v.e} Especial</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // ── 4. Regime × Em Formação ──
+    const elF = document.getElementById('regime-formacao');
+    if (elF) {
+      const isEst = f => f.estudando === true || f.estudando === 'true' || f.estudando === 'sim';
+      const gEst  = funcs.filter(f => (f.regime || 'geral') === 'geral'    && isEst(f)).length;
+      const eEst  = funcs.filter(f => f.regime === 'especial' && isEst(f)).length;
+      const pctGE = regGeral    ? Math.round(gEst / regGeral    * 100) : 0;
+      const pctEE = regEspecial ? Math.round(eEst / regEspecial * 100) : 0;
+      elF.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:18px;padding-top:4px">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+              <span style="font-size:12px;font-weight:700;color:#10c886">📋 Regime Geral</span>
+              <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:800;color:#e2e8f0">${gEst} <span style="font-size:10px;color:rgba(255,255,255,.4)">a estudar (${pctGE}%)</span></span>
+            </div>
+            <div class="bh-track"><div class="bh-fill" style="width:${pctGE}%;background:#10c886"></div></div>
+            <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:4px">${regGeral - gEst} não estudam · Total no Regime: ${regGeral}</div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+              <span style="font-size:12px;font-weight:700;color:#f59e0b">⚡ Regime Especial</span>
+              <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:800;color:#e2e8f0">${eEst} <span style="font-size:10px;color:rgba(255,255,255,.4)">a estudar (${pctEE}%)</span></span>
+            </div>
+            <div class="bh-track"><div class="bh-fill" style="width:${pctEE}%;background:#f59e0b"></div></div>
+            <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:4px">${regEspecial - eEst} não estudam · Total no Regime: ${regEspecial}</div>
+          </div>
+          <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="text-align:center">
+              <div style="font-size:22px;font-weight:900;font-family:'DM Mono',monospace;color:#10c886">${pctGE}%</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:3px">Taxa estudo · Geral</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:22px;font-weight:900;font-family:'DM Mono',monospace;color:#f59e0b">${pctEE}%</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:3px">Taxa estudo · Especial</div>
+            </div>
+          </div>
+        </div>`;
+    }
+  }
+
+(funcs) {
     const el = document.getElementById('reforma-wrap');
     if (!el) return;
 
