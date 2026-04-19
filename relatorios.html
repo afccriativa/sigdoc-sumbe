@@ -489,7 +489,7 @@
         <button class="btn-exp btn-excel" onclick="exportarInfra('excel')">📊 Excel</button>
         <button class="btn-exp btn-pdf"   onclick="exportarInfra('pdf')">📄 PDF</button>
         <button class="btn-exp" style="background:rgba(16,200,134,.1);color:#10c886;border:1px solid rgba(16,200,134,.3)"
-          onclick="previsualizarInfra()">👁 Ver tabela</button>
+          onclick="previsualizarInfra()">🏗️ Ver tabela</button>
       </div>
       <div id="infra-resultado"></div>
     </div>
@@ -683,7 +683,6 @@
     const selMes = document.getElementById("f-aniv-mes");
     if (selMes) selMes.value = String(mesActual);
     previsualizarAniversariantes();
-    previsualizarInfra();
   }
 
   // ════════════════════════════════════════════════════════
@@ -1267,7 +1266,6 @@
     'Unidade Sanitária','Tipo','Est. Operacional',
     'Camas','Água Potável','Energia Eléctrica','Laboratório','Vacinação (PAV)',
   ];
-
   const TIPO_LABEL_INFRA = { dms:'DMS', centro:'Centro de Saúde', posto:'Posto de Saúde', seccao:'Secção' };
   const tipoInfra = t => TIPO_LABEL_INFRA[t] || t || '—';
   const yn        = v => v === true ? '✓ Sim' : v === false ? '✗ Não' : 'N/D';
@@ -1280,8 +1278,8 @@
       .filter(u => u && u.nome && u.nome !== '—' && u.nome !== 'Não especificada')
       .filter(u => {
         const inf = u.infraestrutura || {};
-        if (fLab  === 'sim' && inf.laboratorio     !== true)  return false;
-        if (fLab  === 'nao' && inf.laboratorio     !== false) return false;
+        if (fLab  === 'sim' && inf.laboratorio      !== true)  return false;
+        if (fLab  === 'nao' && inf.laboratorio      !== false) return false;
         if (fEne  === 'sim' && inf.energiaElectrica !== true)  return false;
         if (fEne  === 'nao' && inf.energiaElectrica !== false) return false;
         if (fAgua === 'sim' && inf.aguaPotavel      !== true)  return false;
@@ -1380,9 +1378,9 @@
       const c = u.infraestrutura?.camas;
       return s + (c !== null && c !== undefined ? Number(c) : 0);
     }, 0);
-    const comLab  = lista.filter(u => u.infraestrutura?.laboratorio       === true).length;
-    const comEne  = lista.filter(u => u.infraestrutura?.energiaElectrica  === true).length;
-    const comAgua = lista.filter(u => u.infraestrutura?.aguaPotavel       === true).length;
+    const comLab  = lista.filter(u => u.infraestrutura?.laboratorio      === true).length;
+    const comEne  = lista.filter(u => u.infraestrutura?.energiaElectrica === true).length;
+    const comAgua = lista.filter(u => u.infraestrutura?.aguaPotavel      === true).length;
 
     if (fmt === 'excel') {
       downloadExcel(COLS_INFRA, linhas, 'Infra_Unidades_' + hoje());
@@ -1390,7 +1388,6 @@
       return;
     }
 
-    // ── PDF ──
     function boolSpan(v) {
       if (v === true)  return '<span style="color:#059669;font-weight:700">✓ Sim</span>';
       if (v === false) return '<span style="color:#dc2626;font-weight:700">✗ Não</span>';
@@ -1398,9 +1395,9 @@
     }
 
     const rowsPDF = lista.map(u => {
-      const inf    = u.infraestrutura || {};
-      const naoOp  = estOpLabel(u.nome) !== 'Operacional';
-      const camas  = (inf.camas !== null && inf.camas !== undefined)
+      const inf   = u.infraestrutura || {};
+      const naoOp = estOpLabel(u.nome) !== 'Operacional';
+      const camas = (inf.camas !== null && inf.camas !== undefined)
         ? '<strong>' + inf.camas + '</strong>'
         : '<span style="color:#94a3b8">—</span>';
       return '<tr' + (naoOp ? ' style="opacity:.6"' : '') + '>'
