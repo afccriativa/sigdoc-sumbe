@@ -1247,6 +1247,59 @@ mark.hl{
   white-space:nowrap;
 }
 
+/* ── GUARDAR POR SECÇÃO ────────────────────────── */
+/* Barra de guardar dentro de cada tab panel */
+.tab-save-bar{
+  display:flex;align-items:center;gap:10px;
+  margin-top:20px;padding-top:16px;
+  border-top:1px solid var(--border);
+  flex-wrap:wrap;
+}
+.tab-save-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 18px;border-radius:var(--r-sm);
+  background:var(--pri);border:none;
+  font-size:13px;font-weight:800;color:#fff;
+  cursor:pointer;font-family:var(--font);
+  transition:all .15s;flex-shrink:0;
+}
+.tab-save-btn:hover{background:#083a2b}
+.tab-save-btn:disabled{opacity:.5;cursor:not-allowed}
+/* Micro-indicador de estado ("Guardado às 09:42") */
+.tab-save-status{
+  display:none; /* visível só após acção */
+  align-items:center;gap:6px;
+  font-size:12px;font-weight:600;
+  color:var(--txt-3);
+  transition:opacity .3s;
+}
+.tab-save-status.visivel{display:inline-flex}
+.tab-save-status.ok  { color:var(--green); }
+.tab-save-status.err { color:var(--red);   }
+.tab-save-status-ic  { font-size:14px;line-height:1; }
+
+/* Indicador de alterações não guardadas no botão do tab */
+.mef-tab .tab-dirty-dot{
+  display:none;
+  width:7px;height:7px;border-radius:50%;
+  background:var(--amber);margin-left:5px;
+  flex-shrink:0;
+}
+.mef-tab.dirty .tab-dirty-dot{display:inline-block}
+.mef-tab.saved .tab-dirty-dot{background:var(--green)}
+
+/* Estado no header: botão rápido de guardar */
+.estado-header-save{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 10px;border-radius:var(--r-sm);
+  background:transparent;border:1px solid var(--border);
+  font-size:11px;font-weight:800;color:var(--txt-2);
+  cursor:pointer;font-family:var(--font);
+  transition:all .15s;white-space:nowrap;
+}
+.estado-header-save:hover{background:var(--pri-10);color:var(--pri);border-color:var(--pri-20)}
+.estado-header-save.guardado{color:var(--green);border-color:rgba(5,150,105,.3)}
+
 /* ── RESPONSIVE ────────────────────────────────── */
 @media(max-width:900px){
   .unidades-grid{grid-template-columns:repeat(2,1fr)}
@@ -1507,25 +1560,31 @@ mark.hl{
           <div style="font-size:12px;color:var(--txt-3);margin-top:2px" id="mf-sub"></div>
         </div>
         <!-- Estado sempre visível, independente do tab activo -->
-        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-          <select id="mf-estado" class="mf-estado-header" title="Estado operacional da unidade" onchange="actualizarCorEstadoHeader(this)">
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap">
+          <select id="mf-estado" class="mf-estado-header" title="Estado operacional da unidade"
+            onchange="actualizarCorEstadoHeader(this);marcarSecaoDirty('estado')">
             <option value="operacional">🟢 Operacional</option>
             <option value="temporariamente_suspensa">🟡 Suspensa</option>
             <option value="em_construcao">🔵 Em Construção</option>
             <option value="interditada">🔴 Interditada</option>
             <option value="desactivada">⚫ Desactivada</option>
           </select>
+          <button class="estado-header-save" id="btn-guardar-estado"
+            onclick="guardarSeccao('estado')" title="Guardar só o estado operacional">
+            💾 Guardar estado
+          </button>
+          <span id="status-estado" class="tab-save-status" style="font-size:11px"></span>
           <button class="drawer-fechar" onclick="fecharModalFicha()" title="Fechar (ESC)">✕</button>
         </div>
       </div>
       <!-- Tabs -->
       <div class="mef-tabs">
-        <button class="mef-tab activo" onclick="mudarTab(this,'tab-resp')">👤 Responsável</button>
-        <button class="mef-tab" onclick="mudarTab(this,'tab-contactos')">📍 Localização</button>
-        <button class="mef-tab" onclick="mudarTab(this,'tab-horario')">🕐 Horário</button>
-        <button class="mef-tab" onclick="mudarTab(this,'tab-servicos')">🏥 Serviços</button>
-        <button class="mef-tab" onclick="mudarTab(this,'tab-infraestrutura')">🏗️ Infra</button>
-        <button class="mef-tab" onclick="mudarTab(this,'tab-historial')">📋 Historial &amp; Notas</button>
+        <button class="mef-tab activo" id="tab-btn-resp"      onclick="mudarTab(this,'tab-resp')">👤 Responsável<span class="tab-dirty-dot"></span></button>
+        <button class="mef-tab"        id="tab-btn-contactos" onclick="mudarTab(this,'tab-contactos')">📍 Localização<span class="tab-dirty-dot"></span></button>
+        <button class="mef-tab"        id="tab-btn-horario"   onclick="mudarTab(this,'tab-horario')">🕐 Horário<span class="tab-dirty-dot"></span></button>
+        <button class="mef-tab"        id="tab-btn-servicos"  onclick="mudarTab(this,'tab-servicos')">🏥 Serviços<span class="tab-dirty-dot"></span></button>
+        <button class="mef-tab"        id="tab-btn-infraestrutura" onclick="mudarTab(this,'tab-infraestrutura')">🏗️ Infra<span class="tab-dirty-dot"></span></button>
+        <button class="mef-tab"        id="tab-btn-historial" onclick="mudarTab(this,'tab-historial')">📋 Historial &amp; Notas<span class="tab-dirty-dot"></span></button>
       </div>
     </div>
     <!-- Corpo com scroll -->
@@ -1560,14 +1619,20 @@ mark.hl{
         </div>
         <div class="mef-campo">
           <label>Cargo / Função na unidade</label>
-          <input type="text" id="resp-cargo" placeholder="ex: Director de Unidade, Chefe de Posto…"/>
+          <input type="text" id="resp-cargo" placeholder="ex: Director de Unidade, Chefe de Posto…"
+            oninput="marcarSecaoDirty('resp')"/>
         </div>
         <div class="mef-campo">
           <label>Data de início de funções como responsável</label>
-          <input type="date" id="resp-data-inicio"/>
+          <input type="date" id="resp-data-inicio" onchange="marcarSecaoDirty('resp')"/>
           <div style="font-size:11px;color:var(--txt-3);margin-top:6px">
             Usada para calcular tempo em funções e estatísticas de liderança.
           </div>
+        </div>
+        <!-- Barra de guardar secção -->
+        <div class="tab-save-bar">
+          <button class="tab-save-btn" id="save-btn-resp" onclick="guardarSeccao('resp')">💾 Guardar Responsável</button>
+          <span class="tab-save-status" id="status-resp"></span>
         </div>
       </div>
 
@@ -1575,47 +1640,62 @@ mark.hl{
       <div class="mef-tab-panel" id="tab-contactos">
         <div class="mef-campo">
           <label>Localização / Descrição</label>
-          <input type="text" id="mf-localizacao" placeholder="ex: Bairro Pedra 1, Sumbe"/>
+          <input type="text" id="mf-localizacao" placeholder="ex: Bairro Pedra 1, Sumbe"
+            oninput="marcarSecaoDirty('contactos')"/>
         </div>
         <div class="mef-grid-2">
           <div class="mef-campo">
             <label>Município</label>
-            <input type="text" id="mf-municipio" placeholder="ex: Sumbe"/>
+            <input type="text" id="mf-municipio" placeholder="ex: Sumbe"
+              oninput="marcarSecaoDirty('contactos')"/>
           </div>
           <div class="mef-campo">
             <label>Comuna</label>
-            <input type="text" id="mf-comuna" placeholder="ex: Sumbe"/>
+            <input type="text" id="mf-comuna" placeholder="ex: Sumbe"
+              oninput="marcarSecaoDirty('contactos')"/>
           </div>
         </div>
         <div class="mef-grid-2">
           <div class="mef-campo">
             <label>Bairro</label>
-            <input type="text" id="mf-bairro" placeholder="ex: Pedra 1"/>
+            <input type="text" id="mf-bairro" placeholder="ex: Pedra 1"
+              oninput="marcarSecaoDirty('contactos')"/>
           </div>
           <div class="mef-campo">
             <label>Distância da sede (km)</label>
-            <input type="number" id="mf-distancia" min="0" step="0.1" placeholder="ex: 12.5"/>
+            <input type="number" id="mf-distancia" min="0" step="0.1" placeholder="ex: 12.5"
+              oninput="marcarSecaoDirty('contactos')"/>
           </div>
         </div>
         <div class="mef-campo">
           <label>Ponto de referência</label>
-          <input type="text" id="mf-referencia" placeholder="ex: Junto ao mercado municipal"/>
+          <input type="text" id="mf-referencia" placeholder="ex: Junto ao mercado municipal"
+            oninput="marcarSecaoDirty('contactos')"/>
         </div>
         <div class="mef-campo">
           <label>Telefone geral</label>
-          <input type="tel" id="mf-telefone" placeholder="+244 9XX XXX XXX"/>
+          <input type="tel" id="mf-telefone" placeholder="+244 9XX XXX XXX"
+            oninput="marcarSecaoDirty('contactos')"/>
         </div>
         <div class="mef-campo">
           <label>Contacto de emergência</label>
-          <input type="tel" id="mf-emergencia" placeholder="+244 9XX XXX XXX"/>
+          <input type="tel" id="mf-emergencia" placeholder="+244 9XX XXX XXX"
+            oninput="marcarSecaoDirty('contactos')"/>
         </div>
         <div class="mef-campo">
           <label>Email (opcional)</label>
-          <input type="email" id="mf-email" placeholder="unidade@dms.ao"/>
+          <input type="email" id="mf-email" placeholder="unidade@dms.ao"
+            oninput="marcarSecaoDirty('contactos')"/>
         </div>
         <div class="mef-campo">
           <label>Logística e infraestrutura</label>
-          <textarea id="mf-logistica" rows="4" placeholder="ex: Possui ambulância, gerador, laboratório e farmácia funcional."></textarea>
+          <textarea id="mf-logistica" rows="4" placeholder="ex: Possui ambulância, gerador, laboratório e farmácia funcional."
+            oninput="marcarSecaoDirty('contactos')"></textarea>
+        </div>
+        <!-- Barra de guardar secção -->
+        <div class="tab-save-bar">
+          <button class="tab-save-btn" id="save-btn-contactos" onclick="guardarSeccao('contactos')">💾 Guardar Localização</button>
+          <span class="tab-save-status" id="status-contactos"></span>
         </div>
       </div>
 
@@ -1630,6 +1710,7 @@ mark.hl{
         <div class="mef-campo" style="max-width:240px">
           <label>Camas de internamento</label>
           <input type="number" id="mf-camas" min="0" max="9999"
+            oninput="marcarSecaoDirty('infraestrutura')"
             placeholder="0"
             style="font-size:22px;font-family:var(--mono);font-weight:700;padding:12px 14px"/>
           <div style="font-size:11px;color:var(--txt-3);margin-top:6px">
@@ -1645,19 +1726,24 @@ mark.hl{
         <!-- Toggles -->
         <div class="mef-toggle-row">
           <span class="mef-toggle-label">💧 Água potável</span>
-          <button class="mef-toggle" id="toggle-agua" onclick="this.classList.toggle('on')" type="button"></button>
+          <button class="mef-toggle" id="toggle-agua" onclick="this.classList.toggle('on');marcarSecaoDirty('infraestrutura')" type="button"></button>
         </div>
         <div class="mef-toggle-row">
           <span class="mef-toggle-label">⚡ Energia eléctrica</span>
-          <button class="mef-toggle" id="toggle-energia" onclick="this.classList.toggle('on')" type="button"></button>
+          <button class="mef-toggle" id="toggle-energia" onclick="this.classList.toggle('on');marcarSecaoDirty('infraestrutura')" type="button"></button>
         </div>
         <div class="mef-toggle-row">
           <span class="mef-toggle-label">🔬 Laboratório funcional</span>
-          <button class="mef-toggle" id="toggle-laboratorio" onclick="this.classList.toggle('on')" type="button"></button>
+          <button class="mef-toggle" id="toggle-laboratorio" onclick="this.classList.toggle('on');marcarSecaoDirty('infraestrutura')" type="button"></button>
         </div>
         <div class="mef-toggle-row">
           <span class="mef-toggle-label">💉 Posto fixo de vacinação (PAV)</span>
-          <button class="mef-toggle" id="toggle-vacinacao" onclick="this.classList.toggle('on')" type="button"></button>
+          <button class="mef-toggle" id="toggle-vacinacao" onclick="this.classList.toggle('on');marcarSecaoDirty('infraestrutura')" type="button"></button>
+        </div>
+        <!-- Barra de guardar secção -->
+        <div class="tab-save-bar">
+          <button class="tab-save-btn" id="save-btn-infraestrutura" onclick="guardarSeccao('infraestrutura')">💾 Guardar Infra</button>
+          <span class="tab-save-status" id="status-infraestrutura"></span>
         </div>
       </div>
 
@@ -1665,19 +1751,28 @@ mark.hl{
       <div class="mef-tab-panel" id="tab-horario">
         <div class="mef-campo">
           <label>Segunda a Sexta</label>
-          <input type="text" id="mf-h-semana" placeholder="ex: 07h30 – 15h30"/>
+          <input type="text" id="mf-h-semana" placeholder="ex: 07h30 – 15h30"
+            oninput="marcarSecaoDirty('horario')"/>
         </div>
         <div class="mef-campo">
           <label>Sábado</label>
-          <input type="text" id="mf-h-sabado" placeholder="ex: 08h00 – 12h00 ou Fechado"/>
+          <input type="text" id="mf-h-sabado" placeholder="ex: 08h00 – 12h00 ou Fechado"
+            oninput="marcarSecaoDirty('horario')"/>
         </div>
         <div class="mef-campo">
           <label>Domingo e Feriados</label>
-          <input type="text" id="mf-h-domingo" placeholder="ex: Fechado"/>
+          <input type="text" id="mf-h-domingo" placeholder="ex: Fechado"
+            oninput="marcarSecaoDirty('horario')"/>
         </div>
         <div class="mef-toggle-row">
           <span class="mef-toggle-label">🔴 Urgência 24 horas</span>
-          <button class="mef-toggle" id="toggle-urgencia" onclick="toggleUrgencia(this)"></button>
+          <button class="mef-toggle" id="toggle-urgencia"
+            onclick="toggleUrgencia(this);marcarSecaoDirty('horario')"></button>
+        </div>
+        <!-- Barra de guardar secção -->
+        <div class="tab-save-bar">
+          <button class="tab-save-btn" id="save-btn-horario" onclick="guardarSeccao('horario')">💾 Guardar Horário</button>
+          <span class="tab-save-status" id="status-horario"></span>
         </div>
       </div>
 
@@ -1688,8 +1783,14 @@ mark.hl{
         </div>
         <div class="chips-edit" id="chips-servicos"></div>
         <div class="chip-add-row">
-          <input type="text" id="novo-servico" placeholder="Adicionar serviço…" onkeydown="if(event.key==='Enter')adicionarServico()"/>
+          <input type="text" id="novo-servico" placeholder="Adicionar serviço…"
+            onkeydown="if(event.key==='Enter')adicionarServico()"/>
           <button class="btn-chip-add" onclick="adicionarServico()">+ Adicionar</button>
+        </div>
+        <!-- Barra de guardar secção -->
+        <div class="tab-save-bar">
+          <button class="tab-save-btn" id="save-btn-servicos" onclick="guardarSeccao('servicos')">💾 Guardar Serviços</button>
+          <span class="tab-save-status" id="status-servicos"></span>
         </div>
       </div>
 
@@ -1700,27 +1801,41 @@ mark.hl{
         </div>
         <div class="mef-campo">
           <label>Data de Inauguração</label>
-          <input type="text" id="mf-inauguracao" placeholder="ex: 1987-03-15 ou Março de 1987"/>
+          <input type="text" id="mf-inauguracao" placeholder="ex: 1987-03-15 ou Março de 1987"
+            oninput="marcarSecaoDirty('historial')"/>
         </div>
         <div class="mef-campo">
           <label>Inaugurado por</label>
-          <input type="text" id="mf-inaugurado-por" placeholder="ex: Governo Provincial de Cuanza Sul"/>
+          <input type="text" id="mf-inaugurado-por" placeholder="ex: Governo Provincial de Cuanza Sul"
+            oninput="marcarSecaoDirty('historial')"/>
         </div>
         <div class="mef-campo">
           <label>Última renovação / reabilitação</label>
-          <input type="text" id="mf-renovacao" placeholder="ex: 2019"/>
+          <input type="text" id="mf-renovacao" placeholder="ex: 2019"
+            oninput="marcarSecaoDirty('historial')"/>
         </div>
         <div class="mef-campo">
           <label>Observações</label>
-          <textarea id="mf-observacoes" rows="4" placeholder="Informações adicionais sobre a unidade…"></textarea>
+          <textarea id="mf-observacoes" rows="4" placeholder="Informações adicionais sobre a unidade…"
+            oninput="marcarSecaoDirty('historial')"></textarea>
+        </div>
+        <!-- Barra de guardar secção -->
+        <div class="tab-save-bar">
+          <button class="tab-save-btn" id="save-btn-historial" onclick="guardarSeccao('historial')">💾 Guardar Historial</button>
+          <span class="tab-save-status" id="status-historial"></span>
         </div>
       </div>
 
     </div>
     <!-- Footer fixo -->
-    <div class="modal-footer" style="border-top:1px solid var(--border);padding:16px 24px;background:var(--card)">
-      <button class="btn-cancelar" onclick="fecharModalFicha()">Cancelar</button>
-      <button class="btn-guardar" id="mf-btn-guardar" onclick="guardarFicha()">💾 Guardar Ficha</button>
+    <div class="modal-footer" style="border-top:1px solid var(--border);padding:14px 24px;background:var(--card);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <button class="btn-cancelar" onclick="fecharModalFicha()">Fechar</button>
+      <div style="flex:1;min-width:0;font-size:11px;color:var(--txt-3);line-height:1.4" id="mf-footer-hint">
+        Use os botões de cada secção para guardar alterações individualmente.
+      </div>
+      <button class="btn-guardar" id="mf-btn-guardar" onclick="guardarFicha()" title="Guardar todas as secções de uma vez">
+        💾 Guardar tudo
+      </button>
     </div>
   </div>
 </div>
@@ -3535,8 +3650,9 @@ window.abrirModalFicha = function(id){
   document.getElementById('mf-renovacao').value      = u.historial?.ultimaRenovacao||'';
   document.getElementById('mf-observacoes').value    = u.historial?.observacoes||'';
 
-  // Reset tabs
+  // Reset tabs + estado dirty
   mudarTab(document.querySelector('.mef-tab'), 'tab-resp');
+  _resetarSecaoStatus();
   document.getElementById('modal-ficha').classList.add('aberto');
 };
 
@@ -3644,6 +3760,7 @@ window.selecionarResponsavel = function(fObj){
   document.getElementById('resp-selecionado-wrap').style.display = 'flex';
   document.getElementById('resp-pesquisa').value        = '';
   document.getElementById('resp-resultados').style.display = 'none';
+  marcarSecaoDirty('resp');
   // Aviso se o funcionário pertence a outra unidade
   const avisoWrap = document.getElementById('resp-aviso-wrap');
   const avisoTxt  = document.getElementById('resp-aviso-txt');
@@ -3662,6 +3779,7 @@ window.limparResponsavel = function(){
   document.getElementById('resp-selecionado-wrap').style.display = 'none';
   document.getElementById('resp-aviso-wrap').style.display = 'none';
   document.getElementById('resp-cargo').value = '';
+  marcarSecaoDirty('resp');
 };
 
 // ── Chips de serviços ──────────────────────────────────────
@@ -3676,6 +3794,7 @@ function renderChipsEdit(){
 window.removerServico = function(i){
   SERVICOS_EDIT.splice(i,1);
   renderChipsEdit();
+  marcarSecaoDirty('servicos');
 };
 
 window.adicionarServico = function(){
@@ -3686,39 +3805,291 @@ window.adicionarServico = function(){
   renderChipsEdit();
   inp.value='';
   inp.focus();
+  marcarSecaoDirty('servicos');
 };
 
-// ── Guardar ficha completa ─────────────────────────────────
+// ── Estado dirty por secção ────────────────────────────────
+// Mapa: secção → { dirty: bool, savedAt: Date|null, error: bool }
+const SECAO_STATUS = {
+  resp:           { dirty: false, savedAt: null, error: false },
+  contactos:      { dirty: false, savedAt: null, error: false },
+  horario:        { dirty: false, savedAt: null, error: false },
+  servicos:       { dirty: false, savedAt: null, error: false },
+  infraestrutura: { dirty: false, savedAt: null, error: false },
+  historial:      { dirty: false, savedAt: null, error: false },
+  estado:         { dirty: false, savedAt: null, error: false },
+};
+
+// Tab → secção (para o dot no botão do tab)
+const TAB_SECCAO = {
+  'tab-btn-resp':           'resp',
+  'tab-btn-contactos':      'contactos',
+  'tab-btn-horario':        'horario',
+  'tab-btn-servicos':       'servicos',
+  'tab-btn-infraestrutura': 'infraestrutura',
+  'tab-btn-historial':      'historial',
+};
+
+// Marca secção como alterada e actualiza visual do tab
+window.marcarSecaoDirty = function(seccao){
+  if(!SECAO_STATUS[seccao]) return;
+  SECAO_STATUS[seccao].dirty = true;
+  SECAO_STATUS[seccao].error = false;
+  // Actualizar dot no botão do tab correspondente
+  const tabId = Object.keys(TAB_SECCAO).find(k => TAB_SECCAO[k] === seccao);
+  if(tabId){
+    const btn = document.getElementById(tabId);
+    if(btn){ btn.classList.add('dirty'); btn.classList.remove('saved'); }
+  }
+  // Actualizar hint do footer
+  _actualizarFooterHint();
+};
+
+// Mostra o micro-indicador de estado numa secção
+function _mostrarStatusSeccao(seccao, tipo, hora){
+  const el = document.getElementById(`status-${seccao}`);
+  if(!el) return;
+  el.className = `tab-save-status visivel ${tipo}`;
+  const icones = { ok: '✅', err: '❌', saving: '⏳' };
+  el.innerHTML = tipo === 'saving'
+    ? `<span class="tab-save-status-ic">⏳</span> A guardar…`
+    : tipo === 'ok'
+      ? `<span class="tab-save-status-ic">✅</span> Guardado às ${hora}`
+      : `<span class="tab-save-status-ic">❌</span> Erro — tente novamente`;
+}
+
+// Actualiza dot do tab e SECAO_STATUS após save
+function _marcarSeccaoGuardada(seccao){
+  SECAO_STATUS[seccao].dirty   = false;
+  SECAO_STATUS[seccao].savedAt = new Date();
+  SECAO_STATUS[seccao].error   = false;
+  const tabId = Object.keys(TAB_SECCAO).find(k => TAB_SECCAO[k] === seccao);
+  if(tabId){
+    const btn = document.getElementById(tabId);
+    if(btn){ btn.classList.remove('dirty'); btn.classList.add('saved'); }
+  }
+}
+
+function _marcarSeccaoErro(seccao){
+  SECAO_STATUS[seccao].error = true;
+  const tabId = Object.keys(TAB_SECCAO).find(k => TAB_SECCAO[k] === seccao);
+  if(tabId){
+    const btn = document.getElementById(tabId);
+    if(btn){ btn.classList.add('dirty'); btn.classList.remove('saved'); }
+  }
+}
+
+function _hora(){
+  const n = new Date();
+  return `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+}
+
+// Actualiza o hint do footer (mostra secções com alterações pendentes)
+function _actualizarFooterHint(){
+  const hint = document.getElementById('mf-footer-hint');
+  if(!hint) return;
+  const LABELS = {
+    resp:'Responsável', contactos:'Localização', horario:'Horário',
+    servicos:'Serviços', infraestrutura:'Infra', historial:'Historial', estado:'Estado'
+  };
+  const sujas = Object.entries(SECAO_STATUS).filter(([,v])=>v.dirty).map(([k])=>LABELS[k]);
+  if(!sujas.length){
+    hint.textContent = 'Todas as secções estão guardadas.';
+    hint.style.color = 'var(--green)';
+  } else {
+    hint.innerHTML = `⚠️ Alterações por guardar: <strong>${sujas.join(', ')}</strong>`;
+    hint.style.color = 'var(--amber)';
+  }
+}
+
+// Reseta todos os estados ao abrir o modal
+function _resetarSecaoStatus(){
+  Object.keys(SECAO_STATUS).forEach(k=>{
+    SECAO_STATUS[k] = { dirty:false, savedAt:null, error:false };
+  });
+  // Limpar visuais dos tabs
+  Object.keys(TAB_SECCAO).forEach(id=>{
+    const btn = document.getElementById(id);
+    if(btn){ btn.classList.remove('dirty','saved'); }
+  });
+  // Limpar status indicators
+  ['resp','contactos','horario','servicos','infraestrutura','historial','estado'].forEach(s=>{
+    const el = document.getElementById(`status-${s}`);
+    if(el){ el.className = 'tab-save-status'; el.innerHTML = ''; }
+  });
+  const hint = document.getElementById('mf-footer-hint');
+  if(hint){ hint.textContent='Use os botões de cada secção para guardar alterações individualmente.'; hint.style.color=''; }
+}
+
+// ── Colectores de dados por secção ────────────────────────
+function _dadosResp(){
+  const cargoDigitado = document.getElementById('resp-cargo').value.trim();
+  const dataInicio    = document.getElementById('resp-data-inicio').value||'';
+  return {
+    responsavel: RESP_SELECIONADO ? {
+      funcionarioId: RESP_SELECIONADO.funcionarioId || RESP_SELECIONADO.id || '',
+      nome:          RESP_SELECIONADO.nome,
+      cargo:         cargoDigitado || RESP_SELECIONADO.categoria||'',
+      dataInicio,
+    } : { funcionarioId:'', nome:'', cargo:'', dataInicio:'' }
+  };
+}
+function _dadosContactos(){
+  const u = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
+  return {
+    localizacao: {
+      descricao:       document.getElementById('mf-localizacao').value.trim(),
+      municipio:       document.getElementById('mf-municipio').value.trim()||'Sumbe',
+      comuna:          document.getElementById('mf-comuna').value.trim(),
+      bairro:          document.getElementById('mf-bairro').value.trim(),
+      referencia:      document.getElementById('mf-referencia').value.trim(),
+      distanciaSedeKm: lerNumeroOpcional('mf-distancia'),
+      provincia:       'Cuanza Sul',
+    },
+    contactos: {
+      telefone:   document.getElementById('mf-telefone').value.trim(),
+      emergencia: document.getElementById('mf-emergencia').value.trim(),
+      email:      document.getElementById('mf-email').value.trim(),
+    },
+    infraestrutura: {
+      ...(u?.infraestrutura||{}),
+      resumo: document.getElementById('mf-logistica').value.trim(),
+    }
+  };
+}
+function _dadosHorario(){
+  return {
+    horario: {
+      semana:     document.getElementById('mf-h-semana').value.trim(),
+      sabado:     document.getElementById('mf-h-sabado').value.trim(),
+      domingo:    document.getElementById('mf-h-domingo').value.trim(),
+      urgencia24h:document.getElementById('toggle-urgencia').classList.contains('on'),
+    }
+  };
+}
+function _dadosServicos(){
+  return { servicos: SERVICOS_EDIT };
+}
+function _dadosInfraestrutura(){
+  const u = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
+  return {
+    infraestrutura: {
+      ...(u?.infraestrutura||{}),
+      resumo:           document.getElementById('mf-logistica').value.trim(),
+      camas:            lerNumeroOpcional('mf-camas'),
+      aguaPotavel:      document.getElementById('toggle-agua').classList.contains('on'),
+      energiaElectrica: document.getElementById('toggle-energia').classList.contains('on'),
+      laboratorio:      document.getElementById('toggle-laboratorio').classList.contains('on'),
+      postoVacinacao:   document.getElementById('toggle-vacinacao').classList.contains('on'),
+    }
+  };
+}
+function _dadosHistorial(){
+  return {
+    historial: {
+      inauguradoEm:    document.getElementById('mf-inauguracao').value.trim(),
+      inauguradoPor:   document.getElementById('mf-inaugurado-por').value.trim(),
+      ultimaRenovacao: document.getElementById('mf-renovacao').value.trim(),
+      observacoes:     document.getElementById('mf-observacoes').value.trim(),
+    }
+  };
+}
+function _dadosEstado(){
+  return { estado: document.getElementById('mf-estado').value || ESTADO_DEFAULT };
+}
+
+const _SECCAO_DADOS = {
+  resp:           _dadosResp,
+  contactos:      _dadosContactos,
+  horario:        _dadosHorario,
+  servicos:       _dadosServicos,
+  infraestrutura: _dadosInfraestrutura,
+  historial:      _dadosHistorial,
+  estado:         _dadosEstado,
+};
+
+// ── Guardar por secção ─────────────────────────────────────
+window.guardarSeccao = async function(seccao){
+  if(!MODAL_FICHA_ID || !_SECCAO_DADOS[seccao]) return;
+
+  const btnId  = `save-btn-${seccao}`;
+  const btn    = document.getElementById(btnId);
+  const btnEstado = document.getElementById('btn-guardar-estado');
+  const activoBtn = (seccao === 'estado') ? btnEstado : btn;
+
+  if(activoBtn){ activoBtn.disabled = true; }
+  _mostrarStatusSeccao(seccao, 'saving');
+
+  const dados = { ..._SECCAO_DADOS[seccao](), actualizadoEm: serverTimestamp() };
+
+  try{
+    await updateDoc(doc(db,'unidades_sanitarias',MODAL_FICHA_ID), dados);
+
+    // Actualizar cache local
+    const u = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
+    if(u) Object.assign(u, dados);
+
+    // Auditoria
+    try{
+      const {addDoc: aDoc, collection: col} = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+      const LABELS = { resp:'Responsável', contactos:'Localização/Contactos', horario:'Horário',
+        servicos:'Serviços', infraestrutura:'Infraestrutura', historial:'Historial', estado:'Estado' };
+      await aDoc(col(db,'auditoria'),{
+        acao: 'EDITAR_SECCAO_UNIDADE',
+        detalhe: `Secção "${LABELS[seccao]||seccao}" actualizada: ${u?.nome||MODAL_FICHA_ID}`,
+        uidUtilizador:  UTILIZADOR.uid,
+        nomeUtilizador: PERFIL_DOC?.nome||UTILIZADOR.email,
+        timestamp: serverTimestamp()
+      });
+    }catch(e){}
+
+    _marcarSeccaoGuardada(seccao);
+    _mostrarStatusSeccao(seccao, 'ok', _hora());
+    _actualizarFooterHint();
+
+    // Refrescar drawer/lista silenciosamente
+    render();
+    if(DRAWER_ID === MODAL_FICHA_ID){
+      const uActual = TODAS_UNIDADES.find(x=>x.id===DRAWER_ID);
+      if(uActual) renderDrawer(uActual);
+    }
+    if(seccao==='estado') actualizarKPIs();
+
+  }catch(e){
+    console.error('guardarSeccao erro:', seccao, e);
+    _marcarSeccaoErro(seccao);
+    _mostrarStatusSeccao(seccao, 'err');
+    mostrarToast(`❌ Erro ao guardar ${seccao}. Verifique as permissões.`, '#dc2626');
+  }finally{
+    if(activoBtn){ activoBtn.disabled = false; }
+    if(btn && seccao==='estado'){
+      const btnG = document.getElementById('btn-guardar-estado');
+      if(btnG) btnG.classList.toggle('guardado', !SECAO_STATUS[seccao].error);
+    }
+  }
+};
+
+// ── Guardar ficha completa (todas as secções) ──────────────
 window.guardarFicha = async function(){
   if(!MODAL_FICHA_ID) return;
   const btn = document.getElementById('mf-btn-guardar');
-  btn.disabled=true; btn.textContent='A guardar…';
-
-  const cargoDigitado = document.getElementById('resp-cargo').value.trim();
-  const dataInicio    = document.getElementById('resp-data-inicio').value||'';
-  const responsavel   = RESP_SELECIONADO ? {
-    funcionarioId: RESP_SELECIONADO.funcionarioId || RESP_SELECIONADO.id || '',
-    nome:          RESP_SELECIONADO.nome,
-    cargo:         cargoDigitado || RESP_SELECIONADO.categoria||'',
-    dataInicio:    dataInicio,
-  } : { funcionarioId:'', nome:'', cargo:'', dataInicio:'' };
+  btn.disabled=true; btn.textContent='A guardar tudo…';
 
   const u = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
-  const distanciaSedeKm = lerNumeroOpcional('mf-distancia');
 
   const dados = {
     nome:          u?.nome   || '',
     tipo:          u?.tipo   || '',
-    nomeAbreviado: window.SIGDOC_CONFIG.abrvUnidade(u?.nome || ''),  // calculado na gravação; editável no futuro
+    nomeAbreviado: window.SIGDOC_CONFIG.abrvUnidade(u?.nome || ''),
     estado:        document.getElementById('mf-estado').value || ESTADO_DEFAULT,
-    responsavel,
+    ..._dadosResp(),
     localizacao: {
       descricao:       document.getElementById('mf-localizacao').value.trim(),
       municipio:       document.getElementById('mf-municipio').value.trim() || 'Sumbe',
       comuna:          document.getElementById('mf-comuna').value.trim(),
       bairro:          document.getElementById('mf-bairro').value.trim(),
       referencia:      document.getElementById('mf-referencia').value.trim(),
-      distanciaSedeKm: distanciaSedeKm,
+      distanciaSedeKm: lerNumeroOpcional('mf-distancia'),
       provincia:       'Cuanza Sul',
     },
     contactos: {
@@ -3735,54 +4106,50 @@ window.guardarFicha = async function(){
       laboratorio:      document.getElementById('toggle-laboratorio').classList.contains('on'),
       postoVacinacao:   document.getElementById('toggle-vacinacao').classList.contains('on'),
     },
-    horario: {
-      semana:     document.getElementById('mf-h-semana').value.trim(),
-      sabado:     document.getElementById('mf-h-sabado').value.trim(),
-      domingo:    document.getElementById('mf-h-domingo').value.trim(),
-      urgencia24h:document.getElementById('toggle-urgencia').classList.contains('on'),
-    },
+    ..._dadosHorario(),
     servicos: SERVICOS_EDIT,
-    historial: {
-      inauguradoEm:   document.getElementById('mf-inauguracao').value.trim(),
-      inauguradoPor:  document.getElementById('mf-inaugurado-por').value.trim(),
-      ultimaRenovacao:document.getElementById('mf-renovacao').value.trim(),
-      observacoes:    document.getElementById('mf-observacoes').value.trim(),
-    },
+    ..._dadosHistorial(),
     actualizadoEm: serverTimestamp(),
   };
 
   try{
     await updateDoc(doc(db,'unidades_sanitarias',MODAL_FICHA_ID), dados);
 
-    // Actualizar cache local
-    const u = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
-    if(u) Object.assign(u, dados);
+    const uFresh = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
+    if(uFresh) Object.assign(uFresh, dados);
+
+    // Marcar todas as secções como guardadas
+    Object.keys(SECAO_STATUS).forEach(s => _marcarSeccaoGuardada(s));
+    ['resp','contactos','horario','servicos','infraestrutura','historial','estado'].forEach(s=>{
+      _mostrarStatusSeccao(s,'ok',_hora());
+    });
+    _actualizarFooterHint();
 
     // Auditoria
     try{
       const {addDoc: aDoc, collection: col} = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
       await aDoc(col(db,'auditoria'),{
         acao:'EDITAR_FICHA_UNIDADE',
-        detalhe:`Ficha actualizada: ${u?.nome||MODAL_FICHA_ID}`,
+        detalhe:`Ficha completa actualizada: ${uFresh?.nome||MODAL_FICHA_ID}`,
         uidUtilizador: UTILIZADOR.uid,
         nomeUtilizador: PERFIL_DOC?.nome||UTILIZADOR.email,
         timestamp: serverTimestamp()
       });
     }catch(e){}
 
-    fecharModalFicha();
     render();
-    // Se o drawer desta unidade estiver aberto, refrescar
     if(DRAWER_ID === MODAL_FICHA_ID){
       const uActual = TODAS_UNIDADES.find(x=>x.id===DRAWER_ID);
       if(uActual) renderDrawer(uActual);
     }
-    mostrarToast('✅ Ficha da unidade actualizada');
-  } catch(e){
+    actualizarKPIs();
+    mostrarToast('✅ Todas as secções guardadas com sucesso');
+
+  }catch(e){
     console.error(e);
     mostrarToast('❌ Erro ao guardar. Verifique as permissões.','#dc2626');
-  } finally {
-    btn.disabled=false; btn.textContent='💾 Guardar Ficha';
+  }finally{
+    btn.disabled=false; btn.textContent='💾 Guardar tudo';
   }
 };
 
