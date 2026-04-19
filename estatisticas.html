@@ -423,6 +423,28 @@
   let _todosOsDocs   = [];    // documentos — actividade temporal
   let _periodoDocs   = 90;    // período global activo (dias) — 0 = tudo
 
+  // ════════════════════════════════════════════════════════
+  //  CACHE DE MEMOIZAÇÃO
+  //  Evita recalcular métricas quando os dados não mudaram.
+  //  Invalidado sempre que _funcsFiltrados é alterado.
+  // ════════════════════════════════════════════════════════
+  const _memo = new Map();
+
+  function _memoGet(key, fn, depHash) {
+    const cached = _memo.get(key);
+    if (cached && cached.hash === depHash) return cached.result;
+    const result = fn();
+    _memo.set(key, { hash: depHash, result });
+    return result;
+  }
+
+  function _memoInvalidar() { _memo.clear(); }
+
+  /** Hash rápido de um array de funcionários para invalidação de cache */
+  function _hashFuncs(funcs) {
+    return funcs.length + '|' + (funcs[0]?.id || '') + '|' + (funcs[funcs.length - 1]?.id || '');
+  }
+
   let _nt;
   function notif(msg) {
     const el = document.getElementById('notif');
@@ -752,7 +774,11 @@
     });
 
     _funcsFiltrados = resultado;
-    render(resultado, _todasUnidades, _perfilActual);
+
+    // ← PONTO CRÍTICO: renderização parcial em vez de render() completo.
+    //   Só actualiza os componentes de RH — sem tocar na Secretaria nem
+    //   reconstruir o DOM estrutural do #content.
+    renderDadosRH(resultado, _todasUnidades);
   };
 
   window._limparFiltros = function() {
@@ -765,7 +791,8 @@
     document.getElementById('btn-limpar')?.classList.remove('vis');
     document.getElementById('fil-resultado').textContent = `${_todosOsFuncs.length} funcionários`;
     _funcsFiltrados = _todosOsFuncs;
-    render(_todosOsFuncs, _todasUnidades, _perfilActual);
+    // Renderização parcial: apenas componentes RH
+    renderDadosRH(_todosOsFuncs, _todasUnidades);
   };
 
   // ── helpers de filtragem local (para sub-recortes já carregados) ──
@@ -781,34 +808,64 @@
   }
 
   // ════════════════════════════════════════════════════════
-  //  RENDER PRINCIPAL
+  //  SKELETON — renderizado UMA só vez
+  //  Preserva os contentores no DOM para evitar re-criação.
+  //  A partir daqui, apenas o conteúdo interno de cada
+  //  contentor é actualizado pelos renders individuais.
   // ════════════════════════════════════════════════════════
-  function render(funcs, unidades, perfil) {
-    const total  = funcs.length;
-    const masc   = funcs.filter(f => f.sexo === "Masculino").length;
-    const fem    = funcs.filter(f => f.sexo === "Feminino").length;
-    const massa  = funcs.reduce((s, f) => s + (Number(f.salarioBase) || 0), 0);
-    const idMed  = idadeMedia(funcs);
-    const activos = funcs.filter(f => !f.estado || f.estado === "activo").length;
+  function renderSkeleton() {
+    const content = document.getElementById('content');
+    if (!content || content.dataset.skeletonReady === 'true') return;
 
-    const nFiltrosActivos = Object.values(_filtros).filter(Boolean).length;
-    const bannerFiltro = nFiltrosActivos > 0
-      ? `<div style="display:flex;align-items:center;gap:10px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.18);border-radius:10px;padding:10px 16px;margin-bottom:16px;flex-wrap:wrap">
-           <span style="font-size:13px;font-weight:700;color:#60a5fa">🔍 Visualização filtrada</span>
-           <span style="font-size:12px;color:rgba(255,255,255,.5)">Mostrando <strong style="color:#e2e8f0">${total}</strong> de <strong style="color:#e2e8f0">${_todosOsFuncs.length}</strong> funcionários.</span>
-           <button onclick="window._limparFiltros()" style="margin-left:auto;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:#60a5fa;border-radius:6px;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer">✕ Limpar</button>
-         </div>` : '';
+    content.innerHTML = `
+      <!-- Banner de filtros activos (actualizado in-place) -->
+      <div id="banner-filtro" style="display:none;align-items:center;gap:10px;
+           background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.18);
+           border-radius:10px;padding:10px 16px;margin-bottom:16px;flex-wrap:wrap">
+        <span style="font-size:13px;font-weight:700;color:#60a5fa">🔍 Visualização filtrada</span>
+        <span id="banner-texto" style="font-size:12px;color:rgba(255,255,255,.5)"></span>
+        <button onclick="window._limparFiltros()"
+                style="margin-left:auto;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);
+                       color:#60a5fa;border-radius:6px;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer">
+          ✕ Limpar
+        </button>
+      </div>
 
-    document.getElementById("content").innerHTML = bannerFiltro + `
       <div class="sec" style="margin-top:0">📅 Actividade no Período</div>
       <div id="act-periodo-wrap"></div>
 
+      <!-- KPIs: estrutura fixa — só os valores são actualizados -->
       <div class="kpi-strip">
-        <div class="kpi"><div class="kpi-icon">👥</div><div class="kpi-val" style="color:#3b82f6">${total}</div><div class="kpi-lbl">Total Funcionários</div><div class="kpi-sub">${activos} activos</div></div>
-        <div class="kpi"><div class="kpi-icon">👨</div><div class="kpi-val" style="color:#3b82f6">${masc}</div><div class="kpi-lbl">Masculino</div><div class="kpi-sub">${total ? Math.round(masc/total*100) : 0}%</div></div>
-        <div class="kpi"><div class="kpi-icon">👩</div><div class="kpi-val" style="color:#f472b6">${fem}</div><div class="kpi-lbl">Feminino</div><div class="kpi-sub">${total ? Math.round(fem/total*100) : 0}%</div></div>
-        <div class="kpi"><div class="kpi-icon">🎂</div><div class="kpi-val" style="color:#f59e0b">${idMed || "—"}</div><div class="kpi-lbl">Idade Média</div><div class="kpi-sub">anos</div></div>
-        <div class="kpi"><div class="kpi-icon">💰</div><div class="kpi-val" style="color:#10c886;font-size:17px">${massa ? fmtKz(massa) : "—"}</div><div class="kpi-lbl">Massa Salarial</div><div class="kpi-sub">${funcs.filter(f => f.salarioBase).length} registos</div></div>
+        <div class="kpi">
+          <div class="kpi-icon">👥</div>
+          <div class="kpi-val" style="color:#3b82f6" data-kpi="total">—</div>
+          <div class="kpi-lbl">Total Funcionários</div>
+          <div class="kpi-sub" data-kpi="activos">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-icon">👨</div>
+          <div class="kpi-val" style="color:#3b82f6" data-kpi="masc">—</div>
+          <div class="kpi-lbl">Masculino</div>
+          <div class="kpi-sub" data-kpi="pctMasc">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-icon">👩</div>
+          <div class="kpi-val" style="color:#f472b6" data-kpi="fem">—</div>
+          <div class="kpi-lbl">Feminino</div>
+          <div class="kpi-sub" data-kpi="pctFem">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-icon">🎂</div>
+          <div class="kpi-val" style="color:#f59e0b" data-kpi="idMed">—</div>
+          <div class="kpi-lbl">Idade Média</div>
+          <div class="kpi-sub">anos</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-val" style="color:#10c886;font-size:17px" data-kpi="massa">—</div>
+          <div class="kpi-lbl">Massa Salarial</div>
+          <div class="kpi-sub" data-kpi="nSalarios">—</div>
+        </div>
       </div>
 
       <div class="sec">👤 Distribuição por Género</div>
@@ -822,7 +879,7 @@
 
       <div class="sec">🎂 Extremos Etários</div>
       <div class="g1" id="extremos-wrap"></div>
-      
+
       <div class="g1"><div class="gc">
         <div class="gc-titulo">📈 Evolução de Cadastros</div>
         <div class="gc-sub" id="evo-cadastros-sub">Novos registos por mês</div>
@@ -856,6 +913,77 @@
       <div class="g1" id="reforma-wrap"></div>
     `;
 
+    content.dataset.skeletonReady = 'true';
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  KPIs — actualização in-place (zero re-criação de DOM)
+  //  Só toca nos nós de texto que realmente mudaram.
+  // ════════════════════════════════════════════════════════
+  function renderKPIs(funcs) {
+    const hash = _hashFuncs(funcs);
+    const stats = _memoGet('kpi', () => {
+      const total   = funcs.length;
+      const masc    = funcs.filter(f => f.sexo === 'Masculino').length;
+      const fem     = funcs.filter(f => f.sexo === 'Feminino').length;
+      const activos = funcs.filter(f => !f.estado || f.estado === 'activo').length;
+      const massa   = funcs.reduce((s, f) => s + (Number(f.salarioBase) || 0), 0);
+      const nSals   = funcs.filter(f => f.salarioBase).length;
+      const idMed   = idadeMedia(funcs);
+      return { total, masc, fem, activos, massa, nSals, idMed,
+               pctM: total ? Math.round(masc / total * 100) : 0,
+               pctF: total ? Math.round(fem  / total * 100) : 0 };
+    }, hash);
+
+    // Actualiza apenas o nó de texto — não toca no DOM se o valor não mudou
+    const set = (sel, val) => {
+      const el = document.querySelector(`[data-kpi="${sel}"]`);
+      if (el && el.textContent !== String(val)) el.textContent = val;
+    };
+
+    set('total',    stats.total);
+    set('activos',  `${stats.activos} activos`);
+    set('masc',     stats.masc);
+    set('pctMasc',  `${stats.pctM}%`);
+    set('fem',      stats.fem);
+    set('pctFem',   `${stats.pctF}%`);
+    set('idMed',    stats.idMed || '—');
+    set('massa',    stats.massa ? fmtKz(stats.massa) : '—');
+    set('nSalarios', `${stats.nSals} registos`);
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  BANNER DE FILTROS — actualização in-place
+  // ════════════════════════════════════════════════════════
+  function renderBannerFiltro(funcs) {
+    const banner  = document.getElementById('banner-filtro');
+    const texto   = document.getElementById('banner-texto');
+    if (!banner || !texto) return;
+    const nFiltros = Object.values(_filtros).filter(Boolean).length;
+    if (nFiltros > 0) {
+      texto.innerHTML = `Mostrando <strong style="color:#e2e8f0">${funcs.length}</strong> de <strong style="color:#e2e8f0">${_todosOsFuncs.length}</strong> funcionários.`;
+      banner.style.display = 'flex';
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  RENDER PRINCIPAL — agora orquestra componentes isolados
+  //  Chamado apenas no carregamento inicial ou reload de Firestore.
+  //  Filtros NÃO chamam esta função — chamam renderDadosRH().
+  // ════════════════════════════════════════════════════════
+  function render(funcs, unidades, perfil) {
+    // 1. Skeleton: cria estrutura se ainda não existir (idempotente)
+    renderSkeleton();
+
+    // 2. KPIs in-place
+    renderKPIs(funcs);
+
+    // 3. Banner de filtros
+    renderBannerFiltro(funcs);
+
+    // 4. Componentes de dados RH (dependem de _funcsFiltrados)
     renderActividadePeriodo(_filtrarDocsPeriodo());
     renderGenero(funcs);
     renderPiramide(funcs);
@@ -865,8 +993,44 @@
     renderQualidade(funcs);
     renderCobertura(funcs, unidades);
     renderSalarial(funcs);
+
+    // 5. Secretaria: independente dos filtros RH — só renderiza uma vez
     renderSecretariaEstat();
+
+    // 6. Reforma
     renderReforma(funcs);
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  RENDER PARCIAL RH — chamado apenas quando os filtros mudam
+  //  NÃO reconstrói o DOM, NÃO re-renderiza a Secretaria.
+  //  Custo: proporcional ao subconjunto filtrado, não ao total.
+  // ════════════════════════════════════════════════════════
+  function renderDadosRH(funcs, unidades) {
+    // Invalidar cache de métricas anteriores
+    _memoInvalidar();
+
+    // KPIs: actualização de texto puro — zero layout thrashing
+    renderKPIs(funcs);
+
+    // Banner de filtros activos
+    renderBannerFiltro(funcs);
+
+    // Componentes que dependem dos funcionários filtrados
+    renderGenero(funcs);
+    renderPiramide(funcs);
+    renderDonut("vinculo-wrap", calcGrupo(funcs, "vinculo", {quadro:"Quadro",provisorio:"Provisório"}));
+    renderExtremosEtarios(funcs);
+    renderEvolucaoCadastros(funcs);
+    renderQualidade(funcs);
+    renderCobertura(funcs, unidades);
+    renderSalarial(funcs);
+    renderReforma(funcs);
+
+    // ⚠️ renderSecretariaEstat() NÃO é chamado aqui:
+    //    os dados de secretaria são independentes dos filtros de RH.
+    //    Só são re-renderizados quando o período global muda
+    //    (via _setPeriodoGlobal → carregarEstatisticas).
   }
 
   function renderActividadePeriodo(docs) {
