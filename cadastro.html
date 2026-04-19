@@ -1335,6 +1335,16 @@
                   <option value="6">6º Ano</option>
                 </select>
               </div>
+              <div class="campo">
+                <label>Modalidade</label>
+                <select id="f-modalidadeEstudo">
+                  <option value="">Seleccionar...</option>
+                  <option value="presencial">Presencial</option>
+                  <option value="pos-laboral">Pós-Laboral</option>
+                  <option value="distancia">Ensino à Distância / EAD</option>
+                  <option value="semi-presencial">Semi-Presencial</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -1471,6 +1481,7 @@
     document.getElementById('curso-wrap').classList.remove('visivel');
     ['f-curso','f-instituicao'].forEach(function(id){ document.getElementById(id).value=''; });
     document.getElementById('f-anoCurso').value = '';
+    var elMod = document.getElementById('f-modalidadeEstudo'); if(elMod) elMod.value = '';
   }
 
   function toggleCategoriaOutra(sel) {
@@ -2173,14 +2184,18 @@
     if(elNC){ elNC.value = f.numeroConta||''; if(f.numeroConta) validarNumeroConta(elNC); }
 
     // ── Novos campos: Formação ──
+    // Normaliza o flag independente do tipo gravado (boolean ou string legada)
     limparEstudando();
-    if(f.estudando === true){
+    var _eStudando = f.estudando === true  || f.estudando === 'true'  || f.estudando === 'sim';
+    var _eNaoStudando = f.estudando === false || f.estudando === 'false' || f.estudando === 'nao' || f.estudando === 'não';
+    if(_eStudando){
       setEstudando(true);
       var elCurso = document.getElementById('f-curso'); if(elCurso) elCurso.value = f.curso||'';
       var elInst  = document.getElementById('f-instituicao'); if(elInst) elInst.value = f.instituicao||'';
       var elAno   = document.getElementById('f-anoCurso'); if(elAno) elAno.value = f.anoCurso||'';
+      var elMod   = document.getElementById('f-modalidadeEstudo'); if(elMod) elMod.value = f.modalidadeEstudo||'';
       expandirSecao('secao-formacao');
-    } else if(f.estudando === false){
+    } else if(_eNaoStudando){
       setEstudando(false);
       expandirSecao('secao-formacao');
     } else {
@@ -2666,15 +2681,23 @@
       morada:      document.getElementById("f-morada")?.value?.trim()||'',
       email:       document.getElementById("f-email")?.value?.trim()||'',
       // ── Formação académica ──
+      // Sempre gravado como boolean real; campos de curso limpos a null quando não está a estudar.
       ...(function(){
         var est = document.getElementById("f-estudando")?.value;
         if(est === 'true')  return {
-          estudando:   true,
-          curso:       document.getElementById("f-curso")?.value?.trim()||'',
-          instituicao: document.getElementById("f-instituicao")?.value?.trim()||'',
-          anoCurso:    document.getElementById("f-anoCurso")?.value||''
+          estudando:          true,
+          curso:              document.getElementById("f-curso")?.value?.trim()||'',
+          instituicao:        document.getElementById("f-instituicao")?.value?.trim()||'',
+          anoCurso:           document.getElementById("f-anoCurso")?.value||null,
+          modalidadeEstudo:   document.getElementById("f-modalidadeEstudo")?.value||null
         };
-        if(est === 'false') return { estudando: false, curso:'', instituicao:'', anoCurso:'' };
+        if(est === 'false') return {
+          estudando:          false,
+          curso:              null,
+          instituicao:        null,
+          anoCurso:           null,
+          modalidadeEstudo:   null
+        };
         return {};
       })(),
       ...((temAlgumRoleCadastro(_perfilActual, ['admin','chefe','tecnico'])) && document.getElementById("f-salario-base")
@@ -2799,9 +2822,11 @@
     const subLocal=eDirFicha
       ?(f.seccao||"Secção não especificada")
       :eCentroFicha&&f.area?"Área: "+f.area:null;
-    const acadInfo=f.estudando
-      ?`Sim — ${f.curso||""}${f.anoCurso?" ("+f.anoCurso+"º ano)":""}${f.instituicao?", "+f.instituicao:""}`
-      :(f.estudando===false?"Não":"—");
+    const _eStudandoFicha = f.estudando === true || f.estudando === 'true' || f.estudando === 'sim';
+    const _modalLabel = {presencial:'Presencial','pos-laboral':'Pós-Laboral',distancia:'EAD / Distância','semi-presencial':'Semi-Presencial'}[f.modalidadeEstudo]||'';
+    const acadInfo=_eStudandoFicha
+      ?`Sim — ${f.curso||""}${f.anoCurso?" ("+f.anoCurso+"º ano)":""}${f.instituicao?", "+f.instituicao:""}${_modalLabel?" · "+_modalLabel:""}`
+      :(f.estudando===false||f.estudando==='false'?"Não":"—");
     const temDocs=f.urlBI||f.urlCert;
     const campos=[
       {r:"Nome Completo",v:f.nome,span2:true},
