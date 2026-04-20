@@ -1540,7 +1540,7 @@
             'Estado':        r.estado        || 'pendente'
           };
         }));
-        wsPed['!cols'] = [{wch:12},{wch:36},{wch:30},{wch:14}];
+        wsReu['!cols'] = [{wch:12},{wch:36},{wch:30},{wch:14}];
         XLSX.utils.book_append_sheet(wb, wsReu, 'Reuniões');
       }
 
@@ -1746,11 +1746,11 @@
     </div>
     </body></html>`;
 
-    // Criar elemento temporário e converter
-    const container = document.createElement('div');
-    container.style.cssText = 'position:fixed;left:-9999px;top:0;width:210mm;background:#fff;z-index:-1';
-    container.innerHTML = html;
-    document.body.appendChild(container);
+    // ── Extrair apenas o conteúdo do <body> para html2pdf (string mode) ──
+    // O modo 'string' cria internamente um div com innerHTML,
+    // por isso o DOCTYPE/html/head devem ser omitidos.
+    const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+    const bodyHtml  = bodyMatch ? bodyMatch[1] : html;
 
     const opt = {
       margin:      [12, 10, 12, 10],
@@ -1760,7 +1760,7 @@
       jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    html2pdf().set(opt).from(container).save()
+    html2pdf().set(opt).from(bodyHtml, 'string').save()
       .then(() => {
         notif('✅ PDF gerado com sucesso!');
       })
@@ -1769,7 +1769,6 @@
         notif('❌ Erro ao gerar PDF. Tente Imprimir → Guardar como PDF.');
       })
       .finally(() => {
-        document.body.removeChild(container);
         _setBtnEstado('btn-pdf', false, '📕 Relatório PDF');
       });
   };
