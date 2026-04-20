@@ -1323,6 +1323,198 @@
     .sec-item-chat-preview    { font-size: 14px; color: #8696a0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .sec-item-chat-badges     { display: flex; gap: 6px; align-items: center; margin-top: 3px; }
 
+    /* ══════════════════════════════════════════════════════════
+       SECRETARIA v3 — Anatomia melhorada dos pedidos
+       Princípios: 1 acção primária, barra de estado visual,
+       prévia de texto, timestamp relativo, menu contextual
+       ══════════════════════════════════════════════════════════ */
+
+    /* ── Card header v2: título + contador separados dos filtros ── */
+    .sec-card-header-v2 {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      background: var(--surface); flex-shrink: 0;
+    }
+    .sec-card-header-v2 .sec-ch-titulo {
+      font-size: 14px; font-weight: 800; color: var(--txt-1);
+      display: flex; align-items: center; gap: 8px; flex: 1;
+    }
+    .sec-card-header-v2 .sec-ch-count {
+      font-size: 10px; font-weight: 800;
+      padding: 2px 9px; border-radius: var(--r-full);
+      background: var(--pri-10); color: var(--pri);
+      border: 1px solid var(--pri-20); letter-spacing: .01em;
+    }
+
+    /* ── Barra de filtros: fundo surface-2, totalmente separada ── */
+    .sec-filtros-bar {
+      padding: 10px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;
+      flex-shrink: 0;
+    }
+    .sec-filtros-grupo {
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .sec-filtros-grupo label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--txt-3); line-height: 1;
+    }
+    .sec-filtros-bar select,
+    .sec-filtros-bar input[type="date"] {
+      font-size: 12px; padding: 6px 10px;
+      border-radius: var(--r-sm); border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--txt-1);
+      font-family: var(--font); outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .sec-filtros-bar select:focus,
+    .sec-filtros-bar input[type="date"]:focus {
+      border-color: var(--pri); box-shadow: var(--glow);
+    }
+    .sec-filtros-limpar {
+      font-size: 11px; padding: 6px 12px;
+      border-radius: var(--r-sm); border: 1.5px solid var(--border);
+      background: transparent; color: var(--txt-2); cursor: pointer;
+      font-family: var(--font); transition: border-color .12s, color .12s;
+      align-self: flex-end;
+    }
+    .sec-filtros-limpar:hover { border-color: var(--err-border); color: var(--err); }
+    .sec-filtros-contador {
+      margin-left: auto; align-self: flex-end;
+      font-size: 11px; font-weight: 600; color: var(--txt-3);
+      padding-bottom: 7px;
+    }
+
+    /* ── Item de pedido — anatomia v3 ─────────────────────────── */
+    .ped-item {
+      display: flex; align-items: stretch;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background .10s;
+      position: relative; background: var(--surface);
+    }
+    .ped-item:hover { background: rgba(18,65,161,.04); }
+    .ped-item:last-child { border-bottom: none; }
+
+    /* Indicador de estado à esquerda (3px) */
+    .ped-item-bar { width: 3px; flex-shrink: 0; }
+    .ped-item-bar.novo       { background: var(--info); }
+    .ped-item-bar.em_analise { background: var(--warn); }
+    .ped-item-bar.respondido { background: var(--ok); }
+    .ped-item-bar.fechado    { background: var(--txt-3); opacity: .4; }
+
+    /* Interior do item */
+    .ped-item-inner {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 13px 14px; flex: 1; min-width: 0;
+    }
+
+    /* Avatar circular com iniciais */
+    .ped-item-av {
+      width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800;
+      background: var(--pri-10); color: var(--pri);
+      border: 1.5px solid var(--pri-20);
+    }
+
+    /* Corpo do item */
+    .ped-item-body { flex: 1; min-width: 0; }
+
+    .ped-item-top {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 8px; margin-bottom: 3px;
+    }
+    .ped-item-top-left {
+      display: flex; align-items: center; gap: 8px; min-width: 0;
+    }
+    .ped-item-nome {
+      font-size: 13px; font-weight: 700; color: var(--txt-1);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    /* Badge de estado (complementa a barra) */
+    .ped-item-badge {
+      font-size: 10px; font-weight: 800; white-space: nowrap;
+      padding: 2px 8px; border-radius: var(--r-full); flex-shrink: 0;
+    }
+    .ped-item-badge.novo       { background: var(--info-bg);  color: var(--info);  border: 1px solid var(--info-border); }
+    .ped-item-badge.em_analise { background: var(--warn-bg);  color: var(--warn);  border: 1px solid var(--warn-border); }
+    .ped-item-badge.respondido { background: var(--ok-bg);    color: var(--ok);    border: 1px solid var(--ok-border); }
+    .ped-item-badge.fechado    { background: var(--surface-2);color: var(--txt-3); border: 1px solid var(--border); }
+
+    /* Timestamp relativo */
+    .ped-item-ts {
+      font-size: 11px; color: var(--txt-3); white-space: nowrap;
+      flex-shrink: 0; font-family: var(--mono);
+    }
+
+    /* Assunto + linha */
+    .ped-item-subject {
+      font-size: 12px; font-weight: 500; color: var(--txt-2);
+      margin-bottom: 5px; display: flex; align-items: center; gap: 5px;
+    }
+    .ped-item-subject .ped-dot { color: var(--txt-3); font-size: 8px; }
+
+    /* Preview da mensagem (1 linha truncada) */
+    .ped-item-preview {
+      font-size: 12px; color: var(--txt-3);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-bottom: 9px; line-height: 1.4;
+    }
+
+    /* Footer: acção primária + menu contextual */
+    .ped-item-footer {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 8px;
+      border-top: 1px solid var(--border); padding-top: 8px;
+    }
+
+    /* Botão de acção primária */
+    .ped-btn-primario {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 14px; border-radius: var(--r-md);
+      background: var(--pri); color: #fff; border: none;
+      font-size: 12px; font-weight: 700; font-family: var(--font);
+      cursor: pointer; transition: background .12s, transform .10s;
+      letter-spacing: .01em;
+    }
+    .ped-btn-primario:hover { background: var(--pri-h); transform: translateX(2px); }
+    .ped-btn-primario.responder { background: var(--pri); color: #fff; }
+    .ped-btn-primario.ver       { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
+    .ped-btn-primario.fechado   { background: var(--surface-2); color: var(--txt-3); border: 1px solid var(--border); cursor: default; transform: none; }
+
+    /* Menu contextual (3 pontos ⋯) */
+    .ped-ctx-wrap { position: relative; display: flex; align-items: center; gap: 6px; }
+
+    .ped-ctx-btn {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: none; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; color: var(--txt-3); line-height: 1;
+      transition: background .12s, color .12s;
+    }
+    .ped-ctx-btn:hover { background: var(--border); color: var(--txt-1); }
+
+    .ped-ctx-menu {
+      display: none; position: absolute; right: 0; bottom: calc(100% + 6px);
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--r-md); box-shadow: var(--sh-md);
+      z-index: 300; min-width: 170px; overflow: hidden;
+      animation: fadeIn .12s ease;
+    }
+    .ped-ctx-menu.aberto { display: block; }
+    .ped-ctx-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 9px 14px; font-size: 12px; font-weight: 600;
+      color: var(--txt-1); cursor: pointer; transition: background .10s;
+      border: none; background: none; width: 100%; text-align: left;
+      font-family: var(--font);
+    }
+    .ped-ctx-item:hover         { background: var(--pri-10); color: var(--pri); }
+    .ped-ctx-item.danger:hover  { background: var(--err-bg); color: var(--err); }
+    .ped-ctx-item .ctx-ic       { font-size: 14px; }
+
     /* ── Pesquisa Global ──────────────────────────────────────── */
     .sp-overlay {
       display: none; position: fixed; inset: 0; z-index: 9000;
@@ -2670,25 +2862,34 @@
 
               <!-- ── Painel Pedidos ── -->
               <div id="painel-pedidos-sec">
-                <!-- Filtros rápidos ── -->
-                <div style="padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface-2);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-                  <select id="filtro-estado-pedidos" onchange="carregarPedidosSecretaria()" style="font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--txt-1)">
-                    <option value="">Todos os estados</option>
-                    <option value="novo">Novos</option>
-                    <option value="em_analise">Em análise</option>
-                    <option value="respondido">Respondidos</option>
-                    <option value="fechado">Fechados</option>
-                  </select>
-                  <label style="font-size:11px;color:var(--txt-2);display:flex;align-items:center;gap:4px">
-                    De <input type="date" id="filtro-data-de-pedidos" onchange="carregarPedidosSecretaria()"
-                      style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--txt-1)">
-                  </label>
-                  <label style="font-size:11px;color:var(--txt-2);display:flex;align-items:center;gap:4px">
-                    Até <input type="date" id="filtro-data-ate-pedidos" onchange="carregarPedidosSecretaria()"
-                      style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--txt-1)">
-                  </label>
-                  <button onclick="limparFiltrosPedidos()" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--txt-2);cursor:pointer">✕ Limpar</button>
-                  <div id="sec-pedidos-contador" style="margin-left:auto;font-size:11px;color:var(--txt-3)"></div>
+                <!-- Header do card: título + contador dinâmico ── -->
+                <div class="sec-card-header-v2">
+                  <div class="sec-ch-titulo">
+                    📬 Pedidos de Informação
+                    <span class="sec-ch-count" id="sec-pedidos-contador">—</span>
+                  </div>
+                </div>
+                <!-- Barra de filtros: fundo surface-2, labels superiores ── -->
+                <div class="sec-filtros-bar">
+                  <div class="sec-filtros-grupo">
+                    <label for="filtro-estado-pedidos">Estado</label>
+                    <select id="filtro-estado-pedidos" onchange="carregarPedidosSecretaria()">
+                      <option value="">Todos ▾</option>
+                      <option value="novo">Novos</option>
+                      <option value="em_analise">Em análise</option>
+                      <option value="respondido">Respondidos</option>
+                      <option value="fechado">Fechados</option>
+                    </select>
+                  </div>
+                  <div class="sec-filtros-grupo">
+                    <label for="filtro-data-de-pedidos">De</label>
+                    <input type="date" id="filtro-data-de-pedidos" onchange="carregarPedidosSecretaria()">
+                  </div>
+                  <div class="sec-filtros-grupo">
+                    <label for="filtro-data-ate-pedidos">Até</label>
+                    <input type="date" id="filtro-data-ate-pedidos" onchange="carregarPedidosSecretaria()">
+                  </div>
+                  <button class="sec-filtros-limpar" onclick="limparFiltrosPedidos()">✕ Limpar</button>
                 </div>
                 <!-- Lista ── -->
                 <div id="lista-pedidos-secretaria">
@@ -2698,25 +2899,34 @@
 
               <!-- ── Painel Reuniões ── -->
               <div id="painel-reunioes-sec" style="display:none">
-                <!-- Filtros rápidos ── -->
-                <div style="padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface-2);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-                  <select id="filtro-estado-reunioes" onchange="carregarReunioesSecretaria()" style="font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--txt-1)">
-                    <option value="">Todos os estados</option>
-                    <option value="pendente">Pendentes</option>
-                    <option value="confirmada">Confirmadas</option>
-                    <option value="recusada">Recusadas</option>
-                    <option value="remarcada">Remarcadas</option>
-                  </select>
-                  <label style="font-size:11px;color:var(--txt-2);display:flex;align-items:center;gap:4px">
-                    De <input type="date" id="filtro-data-de-reunioes" onchange="carregarReunioesSecretaria()"
-                      style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--txt-1)">
-                  </label>
-                  <label style="font-size:11px;color:var(--txt-2);display:flex;align-items:center;gap:4px">
-                    Até <input type="date" id="filtro-data-ate-reunioes" onchange="carregarReunioesSecretaria()"
-                      style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--txt-1)">
-                  </label>
-                  <button onclick="limparFiltrosReunioes()" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--txt-2);cursor:pointer">✕ Limpar</button>
-                  <div id="sec-reunioes-contador" style="margin-left:auto;font-size:11px;color:var(--txt-3)"></div>
+                <!-- Header do card: título + contador ── -->
+                <div class="sec-card-header-v2">
+                  <div class="sec-ch-titulo">
+                    📅 Agendamentos de Reunião
+                    <span class="sec-ch-count" id="sec-reunioes-contador">—</span>
+                  </div>
+                </div>
+                <!-- Barra de filtros: fundo surface-2, labels superiores ── -->
+                <div class="sec-filtros-bar">
+                  <div class="sec-filtros-grupo">
+                    <label for="filtro-estado-reunioes">Estado</label>
+                    <select id="filtro-estado-reunioes" onchange="carregarReunioesSecretaria()">
+                      <option value="">Todos ▾</option>
+                      <option value="pendente">Pendentes</option>
+                      <option value="confirmada">Confirmadas</option>
+                      <option value="recusada">Recusadas</option>
+                      <option value="remarcada">Remarcadas</option>
+                    </select>
+                  </div>
+                  <div class="sec-filtros-grupo">
+                    <label for="filtro-data-de-reunioes">De</label>
+                    <input type="date" id="filtro-data-de-reunioes" onchange="carregarReunioesSecretaria()">
+                  </div>
+                  <div class="sec-filtros-grupo">
+                    <label for="filtro-data-ate-reunioes">Até</label>
+                    <input type="date" id="filtro-data-ate-reunioes" onchange="carregarReunioesSecretaria()">
+                  </div>
+                  <button class="sec-filtros-limpar" onclick="limparFiltrosReunioes()">✕ Limpar</button>
                 </div>
                 <!-- Lista ── -->
                 <div id="lista-reunioes-secretaria">
@@ -4161,7 +4371,7 @@
       if (filtroDe)     docs = docs.filter(r => { const d = r.dataPreferida; return d && d >= filtroDe; });
       if (filtroAte)    docs = docs.filter(r => { const d = r.dataPreferida; return d && d <= filtroAte; });
 
-      if (ctr) ctr.textContent = docs.length > 0 ? `${docs.length} agendamento${docs.length!==1?'s':''}` : '';
+      if (ctr) ctr.textContent = docs.length > 0 ? `${docs.length} agendamento${docs.length!==1?'s':''}` : '0';
 
       if (docs.length === 0) {
         el.innerHTML = '<div class="vazio-estado"><div class="icone">📅</div><p>Sem agendamentos.</p></div>';
@@ -4368,6 +4578,37 @@
     }
   };
 
+  // ── Helper: timestamp relativo ─────────────────────────────
+  function tempoRelativo(ts) {
+    if (!ts?.toDate) return '—';
+    const d = ts.toDate();
+    const agora = new Date();
+    const diff  = (agora - d) / 1000; // segundos
+    if (diff < 60)    return 'agora mesmo';
+    if (diff < 3600)  return `há ${Math.floor(diff/60)}min`;
+    if (diff < 86400) return `há ${Math.floor(diff/3600)}h`;
+    const dias = Math.floor(diff/86400);
+    if (dias === 1)   return 'ontem';
+    if (dias < 7)     return `há ${dias} dias`;
+    return d.toLocaleDateString('pt-AO', { day:'2-digit', month:'short' });
+  }
+
+  // ── Fechar todos os menus contextuais abertos ────────────────
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.ped-ctx-wrap')) {
+      document.querySelectorAll('.ped-ctx-menu.aberto').forEach(m => m.classList.remove('aberto'));
+    }
+  });
+
+  window.toggleCtxMenu = function(event, menuId) {
+    event.stopPropagation();
+    const menu = document.getElementById(menuId);
+    if (!menu) return;
+    const estaAberto = menu.classList.contains('aberto');
+    document.querySelectorAll('.ped-ctx-menu.aberto').forEach(m => m.classList.remove('aberto'));
+    if (!estaAberto) menu.classList.add('aberto');
+  };
+
   async function carregarPedidosSecretaria() {
     const el = document.getElementById('lista-pedidos-secretaria');
     if (!el) return;
@@ -4384,39 +4625,126 @@
         .filter(p => _dentroDoIntervalo(p.criadoEm, filtroDe, filtroAte))
         .sort((a,b)=>(b.ultimaMensagemEm?.toDate?.()?.getTime()||b.criadoEm?.toDate?.()?.getTime()||0)
                     -(a.ultimaMensagemEm?.toDate?.()?.getTime()||a.criadoEm?.toDate?.()?.getTime()||0));
+
+      // Actualizar contador no header v2
       const ctr = document.getElementById('sec-pedidos-contador');
-      if (ctr) ctr.textContent = docs.length > 0 ? `${docs.length} conversa${docs.length!==1?'s':''}` : '';
-      if (docs.length===0) { el.innerHTML = '<div class="vazio-estado"><div class="icone">✉️</div><p>Sem conversas para os filtros seleccionados.</p></div>'; return; }
+      if (ctr) ctr.textContent = docs.length > 0 ? `${docs.length} encontrado${docs.length!==1?'s':''}` : '0';
+
+      if (docs.length===0) {
+        el.innerHTML = '<div class="vazio-estado"><div class="icone">✉️</div><p>Sem conversas para os filtros seleccionados.</p></div>';
+        return;
+      }
+
+      const LABELS_ESTADO = { novo:'● Novo', em_analise:'● Em análise', respondido:'● Respondido', fechado:'● Fechado' };
+
       el.innerHTML = docs.map(p => {
+        const estado   = p.estado || 'novo';
         const assunto  = ASSUNTOS_SEC[p.assunto] || p.assunto || '—';
-        const msgs     = p.mensagens||[];
-        const ultima   = msgs[msgs.length-1];
-        const preview  = ultima ? ultima.texto.substring(0,60)+(ultima.texto.length>60?'…':'') : (p.mensagem||'—').substring(0,60);
-        const preAutor = ultima ? (ultima.autor==='secretaria'?'Você: ':'Funcionário: ') : 'Funcionário: ';
-        const hora     = (p.ultimaMensagemEm||p.criadoEm)?.toDate
-          ? (p.ultimaMensagemEm||p.criadoEm).toDate().toLocaleTimeString('pt-AO',{hour:'2-digit',minute:'2-digit'}) : '—';
-        const novas    = p.naoLidasSecretaria||0;
-        const aberto   = p.estado !== 'fechado';
-        const initials = (p.funcionarioNome||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
-        return `<div class="sec-item-chat${novas>0?' tem-nova':''}" onclick="abrirChatSecretaria('${p.id}')">
-          <div class="sec-item-chat-av">${initials}</div>
-          <div class="sec-item-chat-body">
-            <div class="sec-item-chat-top">
-              <span class="sec-item-chat-nome">${p.funcionarioNome||'—'}</span>
-              <span class="sec-item-chat-hora">${hora}</span>
-            </div>
-            <div class="sec-item-chat-preview">${preAutor}${preview}</div>
-            <div class="sec-item-chat-badges">
-              ${novas>0?`<span style="background:#d97706;color:#fff;font-size:10px;font-weight:800;padding:1px 7px;border-radius:99px">${novas}</span>`:''}
-              ${aberto?'<span style="font-size:10px;color:#34d399;font-weight:700">● Aberto</span>':'<span style="font-size:10px;color:rgba(255,255,255,.3)">● Fechado</span>'}
-              <span style="font-size:11px;color:rgba(255,255,255,.3)">· ${assunto}</span>
-              <button class="btn-sec-sm" style="margin-left:auto;background:rgba(255,255,255,.06);color:var(--txt-sec);font-size:10px" onclick="event.stopPropagation();verHistoricoPedido('${p.id}')">🕑</button>
+        const msgs     = p.mensagens || [];
+        const ultima   = msgs[msgs.length - 1];
+        // Preview da mensagem: última msg ou campo legado
+        const previewTexto = ultima
+          ? ultima.texto
+          : (p.mensagem || '');
+        const previewAutor = ultima
+          ? (ultima.autor === 'secretaria' ? 'Você: ' : '')
+          : '';
+        const preview = (previewAutor + previewTexto).substring(0, 72) + (previewTexto.length > 72 ? '…' : '');
+
+        const ts       = tempoRelativo(p.ultimaMensagemEm || p.criadoEm);
+        const novas    = p.naoLidasSecretaria || 0;
+        const aberto   = estado !== 'fechado';
+        const initials = (p.funcionarioNome || '?').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+        const menuId   = `ctx-${p.id}`;
+
+        // Botão primário — muda com o estado
+        let btnLabel, btnClass;
+        if (estado === 'novo' || estado === 'em_analise') {
+          btnLabel = 'Responder →'; btnClass = 'responder';
+        } else if (estado === 'respondido') {
+          btnLabel = 'Ver conversa →'; btnClass = 'ver';
+        } else {
+          btnLabel = 'Ver conversa'; btnClass = 'fechado';
+        }
+
+        // Badge de novas mensagens não lidas
+        const badgeNovas = novas > 0
+          ? `<span style="background:var(--warn);color:#fff;font-size:10px;font-weight:800;padding:1px 7px;border-radius:99px;flex-shrink:0">${novas}</span>`
+          : '';
+
+        return `<div class="ped-item" onclick="abrirChatSecretaria('${p.id}')">
+          <div class="ped-item-bar ${estado}"></div>
+          <div class="ped-item-inner">
+            <div class="ped-item-av">${initials}</div>
+            <div class="ped-item-body">
+              <div class="ped-item-top">
+                <div class="ped-item-top-left">
+                  <span class="ped-item-nome">${escaparHtml(p.funcionarioNome||'—')}</span>
+                  <span class="ped-item-badge ${estado}">${LABELS_ESTADO[estado]||estado}</span>
+                  ${badgeNovas}
+                </div>
+                <span class="ped-item-ts">${ts}</span>
+              </div>
+              <div class="ped-item-subject">
+                ${escaparHtml(assunto)}
+                <span class="ped-dot">●</span>
+                <span style="font-size:11px;color:var(--txt-3)">${escaparHtml(p.unidade||'—')}</span>
+              </div>
+              <div class="ped-item-preview">${escaparHtml(preview || 'Sem mensagem')}</div>
+              <div class="ped-item-footer" onclick="event.stopPropagation()">
+                <button class="ped-btn-primario ${btnClass}"
+                  onclick="event.stopPropagation();abrirChatSecretaria('${p.id}')">
+                  ${btnLabel}
+                </button>
+                <div class="ped-ctx-wrap">
+                  <button class="ped-ctx-btn" title="Mais acções"
+                    onclick="toggleCtxMenu(event,'${menuId}')">⋯</button>
+                  <div class="ped-ctx-menu" id="${menuId}">
+                    ${estado === 'novo' ? `<button class="ped-ctx-item" onclick="event.stopPropagation();marcarEmAnalise('${p.id}')">
+                      <span class="ctx-ic">🔍</span> Marcar Em Análise
+                    </button>` : ''}
+                    ${estado !== 'respondido' && estado !== 'fechado' ? `<button class="ped-ctx-item" onclick="event.stopPropagation();abrirChatSecretaria('${p.id}')">
+                      <span class="ctx-ic">💬</span> Abrir Conversa
+                    </button>` : ''}
+                    <button class="ped-ctx-item" onclick="event.stopPropagation();verHistoricoPedido('${p.id}')">
+                      <span class="ctx-ic">🕑</span> Ver Histórico
+                    </button>
+                    ${aberto ? `<button class="ped-ctx-item danger" onclick="event.stopPropagation();fecharPedidoDirecto('${p.id}')">
+                      <span class="ctx-ic">✖</span> Fechar Pedido
+                    </button>` : ''}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>`;
       }).join('');
     } catch(e) { console.error(e); el.innerHTML = '<div class="vazio-estado"><p>⚠️ Erro ao carregar.</p></div>'; }
   }
+
+  // ── Acções rápidas do menu contextual ───────────────────────
+  window.marcarEmAnalise = async function(id) {
+    try {
+      const nome = perfilActual?.nome || utilizadorActual?.email || 'Secretaria';
+      const snap = await getDoc(doc(db,'pedidos_secretaria',id));
+      if (!snap.exists()) return;
+      const p = snap.data();
+      const hist = [...(p.historico||[]), { acao:'Em análise', detalhe:'Marcado em análise pela secretaria', por:nome, em:new Date().toISOString() }];
+      await updateDoc(doc(db,'pedidos_secretaria',id), { estado:'em_analise', historico:hist, actualizadoEm:serverTimestamp() });
+      mostrarNotif('🔍 Marcado em análise.');
+      carregarPedidosSecretaria();
+    } catch(e) { console.error(e); mostrarNotif('❌ Erro ao actualizar estado.', 'erro'); }
+  };
+
+  window.fecharPedidoDirecto = async function(id) {
+    if (!confirm('Fechar este pedido? O funcionário não poderá enviar mais mensagens.')) return;
+    try {
+      await updateDoc(doc(db,'pedidos_secretaria',id),{estado:'fechado',fechadoEm:serverTimestamp()});
+      addDoc(collection(db,'auditoria'),{coleccao:'pedidos_secretaria',docId:id,acao:'Fechado',detalhe:'Pedido encerrado pela secretaria',por:utilizadorActual?.uid,em:serverTimestamp()}).catch(()=>{});
+      mostrarNotif('✖ Pedido fechado.');
+      carregarPedidosSecretaria();
+    } catch(e){ console.error(e); mostrarNotif('❌ Erro ao fechar.', 'erro'); }
+  };
 
   // ── Chat da secretaria ────────────────────────────────────
   let _chatSecId   = null;
