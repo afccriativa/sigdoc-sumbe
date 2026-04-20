@@ -2166,6 +2166,151 @@
       .sec-kpi-pill   { min-width: calc(50% - 8px); }
     }
 
+    /* ═══════════════════════════════════════════════════════════
+       CHAT v3 — Melhorias de UX: estado inline, chips de resposta
+       rápida, indicador de escrita, botão encerrar no header
+       ═══════════════════════════════════════════════════════════ */
+
+    /* ── Remover a barra de estado separada — integrada no header ── */
+    .chat-estado-bar-sec { display: none; }
+
+    /* ── Sub-linha do header: dot de estado + sub-texto ── */
+    .chat-sec-header-sub-row {
+      display: flex; align-items: center; gap: 6px;
+      margin-top: 2px;
+    }
+
+    /* Dot de estado colorido */
+    .chat-estado-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      flex-shrink: 0; transition: background .25s;
+    }
+    .chat-estado-dot.aberto  { background: #00a884; box-shadow: 0 0 0 2px rgba(0,168,132,.18); }
+    .chat-estado-dot.fechado { background: #8696a0; }
+
+    /* Sub-texto de estado ao lado do dot */
+    .chat-estado-txt {
+      font-size: 11px; color: #8696a0;
+      transition: color .25s;
+    }
+    .chat-estado-txt.aberto  { color: #00a884; }
+    .chat-estado-txt.fechado { color: #8696a0; }
+
+    /* ── Botão "Encerrar conversa" — no header, com cor de aviso ── */
+    .chat-sec-btn-encerrar {
+      background: rgba(217,119,6,.13);
+      border: 1px solid rgba(217,119,6,.28);
+      color: #f59e0b;
+      border-radius: 7px;
+      padding: 5px 10px;
+      font-size: 11px; font-weight: 700;
+      cursor: pointer; flex-shrink: 0;
+      white-space: nowrap;
+      transition: background .15s, color .15s, border-color .15s;
+      font-family: var(--font);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .chat-sec-btn-encerrar:hover {
+      background: rgba(217,119,6,.24);
+      color: #fbbf24; border-color: rgba(217,119,6,.5);
+    }
+    /* Ocultar quando conversa está fechada */
+    .chat-sec-btn-encerrar[style*="none"] { display: none; }
+
+    /* ── Botão "Ver pedido" — mobile only ── */
+    .chat-btn-ver-pedido {
+      display: none;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      color: #aebac1; border-radius: 7px;
+      padding: 5px 10px; font-size: 11px; font-weight: 700;
+      cursor: pointer; flex-shrink: 0;
+      transition: background .14s, color .14s;
+      font-family: var(--font);
+    }
+    .chat-btn-ver-pedido:hover { background: rgba(255,255,255,.14); color: #e9edef; }
+    @media (max-width: 768px) {
+      .chat-btn-ver-pedido { display: flex; align-items: center; gap: 4px; }
+    }
+
+    /* ── Painel de detalhes do pedido (mobile — collapsível) ── */
+    .chat-pedido-detalhes {
+      background: #182229;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height .28s cubic-bezier(.16,1,.3,1), padding .28s;
+      padding: 0 16px;
+    }
+    .chat-pedido-detalhes.expandido {
+      max-height: 220px;
+      padding: 14px 16px;
+    }
+    .chat-pedido-detalhes-inner {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .chat-ped-detalhe-row {
+      display: flex; gap: 10px; align-items: flex-start;
+      font-size: 12px; color: #8696a0;
+    }
+    .chat-ped-detalhe-ic { flex-shrink: 0; width: 16px; text-align: center; }
+    .chat-ped-detalhe-txt { flex: 1; }
+    .chat-ped-detalhe-txt strong { color: #e9edef; font-weight: 600; }
+
+    /* ── Indicador "a escrever…" ── */
+    .chat-typing-indicator {
+      padding: 6px 16px 4px;
+      background: #202c33;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: #8696a0;
+      flex-shrink: 0;
+    }
+    .chat-typing-indicator span { line-height: 1; }
+    .typing-dots {
+      display: flex; align-items: center; gap: 3px;
+    }
+    .typing-dots span {
+      width: 5px; height: 5px; background: #8696a0;
+      border-radius: 50%; animation: typingBounce 1.3s ease-in-out infinite;
+    }
+    .typing-dots span:nth-child(1) { animation-delay: 0s; }
+    .typing-dots span:nth-child(2) { animation-delay: .18s; }
+    .typing-dots span:nth-child(3) { animation-delay: .36s; }
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: .6; }
+      30%            { transform: translateY(-4px); opacity: 1; }
+    }
+
+    /* ── Chips de resposta rápida ── */
+    .chat-respostas-rapidas {
+      padding: 8px 12px 6px;
+      background: #202c33;
+      display: flex; gap: 7px; flex-wrap: wrap;
+      border-top: 1px solid rgba(255,255,255,.05);
+      flex-shrink: 0;
+    }
+    .chip-resposta {
+      background: rgba(0,168,132,.10);
+      border: 1px solid rgba(0,168,132,.22);
+      color: #8696a0;
+      border-radius: 16px;
+      padding: 4px 11px;
+      font-size: 11.5px; font-weight: 500;
+      cursor: pointer; white-space: nowrap;
+      transition: background .14s, color .14s, border-color .14s, transform .10s;
+      font-family: var(--font); line-height: 1.4;
+    }
+    .chip-resposta:hover {
+      background: rgba(0,168,132,.20);
+      border-color: rgba(0,168,132,.4);
+      color: #e9edef;
+      transform: translateY(-1px);
+    }
+    .chip-resposta:active { transform: translateY(0); }
+
+    /* Ocultar chips quando conversa está fechada */
+    .chat-respostas-rapidas.fechada { display: none; }
+
   </style>
 </head>
 <body>
@@ -2956,24 +3101,64 @@
               <div class="chat-sec-box">
                 <div class="chat-sec-content">
                   <div class="chat-sec-header">
-                    <div class="chat-sec-av">💬</div>
+                    <div class="chat-sec-av" id="chat-sec-av-ic">💬</div>
                     <div class="chat-sec-header-info">
                       <div class="chat-sec-titulo" id="chat-sec-titulo">Conversa</div>
-                      <div class="chat-sec-sub" id="chat-sec-sub">Secretaria · DMS Sumbe</div>
+                      <!-- Estado integrado inline no header (dot + texto) ── -->
+                      <div class="chat-sec-header-sub-row">
+                        <span class="chat-estado-dot aberto" id="chat-sec-estado-dot"></span>
+                        <span class="chat-estado-txt aberto" id="chat-sec-estado-txt">Conversa aberta</span>
+                        <span style="color:rgba(255,255,255,.15);margin:0 4px">·</span>
+                        <span class="chat-sec-sub" id="chat-sec-sub">Secretaria · DMS Sumbe</span>
+                      </div>
                     </div>
+                    <!-- Botão Gerar doc ── -->
                     <button id="chat-sec-btn-doc" onclick="abrirDocumentosParaFuncionario()"
                       title="Gerar documento para este funcionário"
                       style="display:none;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#fbbf24;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s"
                       onmouseover="this.style.background='rgba(245,158,11,.28)'" onmouseout="this.style.background='rgba(245,158,11,.15)'">
                       📄 Gerar doc
                     </button>
-                    <button class="chat-sec-fechar" onclick="fecharChatSecretaria()" title="Fechar">✕</button>
+                    <!-- Ver pedido — mobile only ── -->
+                    <button class="chat-btn-ver-pedido" id="chat-btn-ver-pedido"
+                      onclick="toggleDetalhesPedido()" title="Ver detalhes do pedido">
+                      📋 Ver pedido
+                    </button>
+                    <!-- Encerrar — movido para o header, cor warn ── -->
+                    <button class="chat-sec-btn-encerrar" id="chat-sec-btn-encerrar"
+                      onclick="fecharConversaSecretaria()" title="Encerrar conversa">
+                      ⊗ Encerrar
+                    </button>
+                    <button class="chat-sec-fechar" onclick="fecharChatSecretaria()" title="Fechar painel">✕</button>
                   </div>
-                  <div class="chat-estado-bar-sec aberto" id="chat-sec-estado-bar">● Conversa aberta</div>
+
+                  <!-- Barra de estado legada (oculta via CSS, mantida para compat JS) ── -->
+                  <div class="chat-estado-bar-sec aberto" id="chat-sec-estado-bar" aria-hidden="true">● Conversa aberta</div>
+
+                  <!-- Detalhes do pedido — collapsível no mobile ── -->
+                  <div class="chat-pedido-detalhes" id="chat-pedido-detalhes">
+                    <div class="chat-pedido-detalhes-inner" id="chat-pedido-detalhes-inner">
+                      <!-- Preenchido via JS ── -->
+                    </div>
+                  </div>
+
                   <div class="chat-sec-msgs" id="chat-sec-msgs"></div>
-                  <div style="padding:0 16px;flex-shrink:0" id="chat-sec-fechar-row">
-                    <button class="chat-sec-fechar-conv" onclick="fecharConversaSecretaria()">⊗ Encerrar conversa</button>
+
+                  <!-- Indicador "a escrever…" ── -->
+                  <div class="chat-typing-indicator" id="chat-typing-indicator" style="display:none">
+                    <span>a escrever</span>
+                    <div class="typing-dots">
+                      <span></span><span></span><span></span>
+                    </div>
                   </div>
+
+                  <!-- Chips de resposta rápida ── -->
+                  <div class="chat-respostas-rapidas" id="chat-respostas-rapidas">
+                    <button class="chip-resposta" onclick="preencherResposta('O seu pedido está em análise')">O seu pedido está em análise</button>
+                    <button class="chip-resposta" onclick="preencherResposta('Necessitamos de mais informação')">Necessitamos de mais informação</button>
+                    <button class="chip-resposta" onclick="preencherResposta('Pode levantá-lo na secretaria')">Pode levantá-lo na secretaria</button>
+                  </div>
+
                   <div class="chat-sec-input-row">
                     <textarea class="chat-sec-input" id="chat-sec-input" rows="1" placeholder="Escreva uma resposta…"
                       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemSecretaria();}"></textarea>
@@ -4778,6 +4963,44 @@
         bar.textContent = aberto ? '● Conversa aberta' : '○ Conversa encerrada';
         bar.className = 'chat-estado-bar-sec ' + (aberto ? 'aberto' : 'fechado');
       }
+      // ── Novos elementos v3 ──
+      // Dot + texto de estado inline no header
+      const dot = document.getElementById('chat-sec-estado-dot');
+      const estadoTxt = document.getElementById('chat-sec-estado-txt');
+      if (dot) { dot.className = 'chat-estado-dot ' + (aberto ? 'aberto' : 'fechado'); }
+      if (estadoTxt) {
+        estadoTxt.textContent = aberto ? 'Conversa aberta' : 'Conversa encerrada';
+        estadoTxt.className = 'chat-estado-txt ' + (aberto ? 'aberto' : 'fechado');
+      }
+      // Botão encerrar — visível só se aberto
+      const btnEncerrar = document.getElementById('chat-sec-btn-encerrar');
+      if (btnEncerrar) btnEncerrar.style.display = aberto ? '' : 'none';
+      // Chips de resposta rápida — visíveis só se aberto
+      const chips = document.getElementById('chat-respostas-rapidas');
+      if (chips) chips.classList.toggle('fechada', !aberto);
+      // Painel de detalhes do pedido (mobile) — preencher info
+      const detalhesInner = document.getElementById('chat-pedido-detalhes-inner');
+      if (detalhesInner) {
+        const dest = p.destinatario ? '' : '';
+        detalhesInner.innerHTML = `
+          <div class="chat-ped-detalhe-row">
+            <span class="chat-ped-detalhe-ic">👤</span>
+            <div class="chat-ped-detalhe-txt"><strong>${p.funcionarioNome||'—'}</strong></div>
+          </div>
+          <div class="chat-ped-detalhe-row">
+            <span class="chat-ped-detalhe-ic">🏥</span>
+            <div class="chat-ped-detalhe-txt">${p.unidade||'—'}</div>
+          </div>
+          <div class="chat-ped-detalhe-row">
+            <span class="chat-ped-detalhe-ic">📋</span>
+            <div class="chat-ped-detalhe-txt">${ASSUNTOS_SEC[p.assunto]||p.assunto||'—'}</div>
+          </div>
+          ${p.mensagem ? `<div class="chat-ped-detalhe-row">
+            <span class="chat-ped-detalhe-ic">💬</span>
+            <div class="chat-ped-detalhe-txt" style="opacity:.75;font-style:italic">${p.mensagem.substring(0,120)}</div>
+          </div>` : ''}
+        `;
+      }
       // Construir mensagens — sempre mostrar legacy + array
       const msgs = [];
       if (p.mensagem) {
@@ -4828,6 +5051,11 @@
     document.getElementById('chat-sec-overlay').classList.remove('aberto');
     if (_unsubChatSec) { _unsubChatSec(); _unsubChatSec=null; }
     _chatSecId=null; _chatSecFuncUid=null; _chatSecFuncNome=null;
+    // Colapsar painel de detalhes (mobile) ao fechar
+    const detPainel = document.getElementById('chat-pedido-detalhes');
+    const detBtn    = document.getElementById('chat-btn-ver-pedido');
+    if (detPainel) detPainel.classList.remove('expandido');
+    if (detBtn)    detBtn.textContent = '📋 Ver pedido';
     carregarPedidosSecretaria();
   };
 
@@ -4918,6 +5146,33 @@
       mostrarNotif('✖ Conversa fechada.');
       fecharChatSecretaria();
     } catch(e){ console.error(e); }
+  };
+
+  // ── Chips de resposta rápida ────────────────────────────────
+  window.preencherResposta = function(texto) {
+    const input = document.getElementById('chat-sec-input');
+    if (!input) return;
+    input.value = texto;
+    input.focus();
+    // Seleccionar todo o texto para o operador poder editar facilmente
+    input.setSelectionRange(0, texto.length);
+    // Auto-resize se textarea
+    input.dispatchEvent(new Event('input'));
+  };
+
+  // ── Painel de detalhes do pedido — toggle mobile ────────────
+  window.toggleDetalhesPedido = function() {
+    const painel = document.getElementById('chat-pedido-detalhes');
+    const btn    = document.getElementById('chat-btn-ver-pedido');
+    if (!painel) return;
+    const expandido = painel.classList.toggle('expandido');
+    if (btn) btn.textContent = expandido ? '✕ Fechar' : '📋 Ver pedido';
+  };
+
+  // ── Indicador "a escrever…" (para activar quando backend suportar) ──
+  window.mostrarEscrevendo = function(visivel) {
+    const el = document.getElementById('chat-typing-indicator');
+    if (el) el.style.display = visivel ? 'flex' : 'none';
   };
 
   // ── Histórico de pedido ──────────────────────────────────
