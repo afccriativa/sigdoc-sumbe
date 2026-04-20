@@ -514,20 +514,11 @@
     .notif-dot.visivel,
     .notif-dot.activo { display: block; }
 
-    .sino-count {
-      position: absolute; top: -5px; right: -5px;
-      min-width: 18px; height: 18px; background: #ef4444;
-      border-radius: 9px; font-size: 10px; font-weight: 800; color: #fff;
-      display: none; align-items: center; justify-content: center;
-      padding: 0 4px; border: 2px solid #fff;
-    }
 
-    .sino-count.visivel { display: flex; }
-
-    /* Dropdown de notificações */
+    /* ── Dropdown de notificações — v2 ──────────────────────── */
     .notif-dropdown {
       position: absolute; top: calc(100% + 10px); right: 0;
-      width: 320px; background: var(--surface);
+      width: 340px; background: var(--surface);
       border: 1.5px solid var(--border);
       border-radius: var(--r-lg); box-shadow: var(--sh-lg);
       z-index: 400; display: none; overflow: hidden;
@@ -551,39 +542,106 @@
     .notif-drop-header h4 { font-size: 13px; font-weight: 700; color: var(--txt-1); margin: 0; }
     .notif-drop-header a  { font-size: 11px; color: var(--pri); text-decoration: none; font-weight: 600; }
     .notif-drop-header a:hover { color: var(--pri-h); }
-    .notif-drop-lista { max-height: 280px; overflow-y: auto; }
+    .notif-drop-lista { max-height: 360px; overflow-y: auto; scroll-behavior: smooth; }
 
+    /* ── Label de secção temporal (Hoje / Esta semana / Mais antigas) ── */
+    .notif-secao-temporal {
+      padding: 10px 16px 4px;
+      font-size: 9.5px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .9px;
+      color: var(--txt-3);
+      border-top: 1px solid var(--border);
+      margin-top: 2px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .notif-secao-temporal:first-child { border-top: none; margin-top: 0; }
+    .notif-secao-temporal::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ── Label de secção por tipo (Requer acção / Informativas) ── */
+    .notif-secao-tipo {
+      padding: 8px 16px 4px;
+      font-size: 9.5px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .9px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .notif-secao-tipo:first-child { border-top: none; }
+    .notif-secao-tipo.urgente { color: #d97706; }
+    .notif-secao-tipo.info    { color: var(--txt-3); }
+    .notif-secao-tipo::after  { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .notif-secao-tipo.urgente::after { background: rgba(217,119,6,.2); }
+
+    /* ── Item de notificação ── */
     .notif-item {
-      display: flex; gap: 12px; padding: 12px 16px;
+      display: flex; gap: 12px; padding: 10px 14px;
       border-bottom: 1px solid var(--border);
       transition: background .10s; cursor: pointer; text-decoration: none;
+      position: relative; align-items: flex-start;
     }
 
     .notif-item:hover    { background: var(--pri-10); }
     .notif-item:last-child { border-bottom: none; }
 
+    /* Ponto de urgência (laranja) — visível apenas nos itens de acção */
+    .notif-item::before {
+      content: ''; position: absolute;
+      left: 6px; top: 50%; transform: translateY(-50%);
+      width: 5px; height: 5px; border-radius: 50%;
+      opacity: 0; transition: opacity .12s;
+    }
+    .notif-item.urgente::before {
+      background: #f59e0b; opacity: 1;
+    }
+    .notif-item.urgente { padding-left: 18px; }
+
+    /* Botão dispensar individual (✕) — aparece no hover */
+    .notif-dismiss {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      width: 22px; height: 22px; border-radius: 50%;
+      background: none; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: var(--txt-3); opacity: 0;
+      transition: opacity .15s, background .12s, color .12s;
+      font-family: var(--font); line-height: 1; flex-shrink: 0;
+    }
+    .notif-item:hover .notif-dismiss { opacity: 1; }
+    .notif-dismiss:hover { background: var(--err-bg); color: var(--err); opacity: 1; }
+
     .notif-ic {
       width: 34px; height: 34px; border-radius: 9px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 15px; flex-shrink: 0;
+      font-size: 15px; flex-shrink: 0; margin-top: 1px;
     }
 
     .notif-ic-pend { background: rgba(245,158,11,.12); }
     .notif-ic-sol  { background: rgba(37,99,235,.12); }
+    .notif-ic-ok   { background: rgba(5,150,105,.12); }
 
-    .notif-corpo { flex: 1; min-width: 0; }
+    .notif-corpo { flex: 1; min-width: 0; padding-right: 20px; }
 
     .notif-titulo {
       font-size: 12px; font-weight: 700; color: var(--txt-1);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
+    .notif-item.info .notif-titulo { color: var(--txt-2); font-weight: 600; }
 
     .notif-sub {
       font-size: 11px; color: var(--txt-3); margin-top: 2px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
+    .notif-item.info .notif-sub { opacity: .75; }
 
     .notif-drop-vazio { padding: 28px 16px; text-align: center; color: var(--txt-3); font-size: 12px; }
+
+    /* ── Badge dual no sino — anel SVG bicolor ── */
+    .sino-badge-svg {
+      position: absolute; top: -6px; right: -6px;
+      width: 22px; height: 22px; pointer-events: none;
+      display: none;
+    }
+    .sino-badge-svg.visivel { display: block; }
 
     /* ── Conteúdo principal ──────────────────────────────────── */
     .conteudo { padding: 28px; flex: 1; }
@@ -1056,15 +1114,64 @@
     /* ── Toast ────────────────────────────────────────────────── */
     .toast {
       position: fixed; bottom: 28px; right: 28px;
-      padding: 13px 18px; border-radius: var(--r-md);
+      padding: 0; border-radius: var(--r-md);
       font-size: 13px; font-weight: 600; display: none;
-      z-index: 1000; max-width: 340px; box-shadow: var(--sh-lg);
+      z-index: 1000; max-width: 360px; box-shadow: var(--sh-lg);
+      overflow: hidden;
     }
 
+    .toast.visivel {
+      display: flex; flex-direction: column;
+      animation: toastIn .22s cubic-bezier(.34,1.56,.64,1);
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(12px) scale(.96); }
+      to   { opacity: 1; transform: translateY(0)    scale(1);   }
+    }
+
+    .toast-corpo {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 13px 16px;
+    }
+
+    .toast-ic {
+      font-size: 16px; flex-shrink: 0; margin-top: 1px;
+    }
+
+    .toast-txt { flex: 1; line-height: 1.5; }
+
+    .toast-fechar {
+      background: none; border: none; cursor: pointer;
+      font-size: 14px; opacity: .42; padding: 0 2px;
+      transition: opacity .12s; flex-shrink: 0; align-self: flex-start;
+      font-family: var(--font); line-height: 1.5;
+    }
+    .toast-fechar:hover { opacity: .85; }
+
+    .toast-accao-row {
+      display: flex; justify-content: flex-end;
+      padding: 0 16px 10px; gap: 8px;
+    }
+
+    .toast-btn-accao {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: var(--r-md);
+      font-size: 12px; font-weight: 700; font-family: var(--font);
+      cursor: pointer; border: none; transition: opacity .12s, transform .10s;
+      text-decoration: none; letter-spacing: .01em;
+    }
+    .toast-btn-accao:hover { opacity: .82; transform: translateX(2px); }
+
+    /* Tira lateral de cor */
     .toast-sucesso { background: #ecfdf5; color: #065f46; border-left: 3px solid var(--ok); }
+    .toast-sucesso .toast-btn-accao { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-border); }
     .toast-erro    { background: var(--err-bg); color: #991b1b; border-left: 3px solid var(--err); }
+    .toast-erro    .toast-btn-accao { background: var(--err-bg); color: var(--err); border: 1px solid var(--err-border); }
     .toast-aviso   { background: var(--warn-bg); color: #78350f; border-left: 3px solid var(--warn); }
+    .toast-aviso   .toast-btn-accao { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
     .toast-info    { background: var(--info-bg); color: #1e40af; border-left: 3px solid var(--info); }
+    .toast-info    .toast-btn-accao { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
 
     /* ── Spinner ──────────────────────────────────────────────── */
     .spinner {
@@ -2459,12 +2566,31 @@
           style="width:38px;height:38px;border-radius:50%;background:var(--pri-10);color:var(--pri);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;font-size:18px">
           🔔
           <span class="notif-dot" id="notif-dot"></span>
-          <span class="sino-count" id="sino-count"
-            style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:9px;font-weight:800;min-width:16px;height:16px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 3px"></span>
+          <!-- Badge dual: SVG com dois arcos (laranja=urgente, azul=info) -->
+          <svg class="sino-badge-svg" id="sino-badge-svg" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Fundo branco circular -->
+            <circle cx="11" cy="11" r="10" fill="white"/>
+            <!-- Arco urgente (laranja) — preenchido via stroke-dasharray por JS -->
+            <circle id="sino-arco-urgente" cx="11" cy="11" r="8"
+              stroke="#f59e0b" stroke-width="3.5" fill="none"
+              stroke-dasharray="0 50.27" stroke-dashoffset="0"
+              stroke-linecap="round"
+              transform="rotate(-90 11 11)"/>
+            <!-- Arco info (azul) -->
+            <circle id="sino-arco-info" cx="11" cy="11" r="8"
+              stroke="#2563eb" stroke-width="3.5" fill="none"
+              stroke-dasharray="0 50.27" stroke-dashoffset="0"
+              stroke-linecap="round"
+              transform="rotate(-90 11 11)"/>
+            <!-- Número central -->
+            <text id="sino-badge-num" x="11" y="15" text-anchor="middle"
+              font-size="8" font-weight="800" fill="#0f172a"
+              font-family="Plus Jakarta Sans, sans-serif">0</text>
+          </svg>
           <div class="notif-dropdown" id="notif-dropdown">
             <div class="notif-drop-header">
-              <h4>Pendentes</h4>
-              <a href="aprovacao.html">Ver todos →</a>
+              <h4>Notificações</h4>
+              <a href="#" onclick="dispensarTodasNotif(event)">Marcar todas como lidas</a>
             </div>
             <div class="notif-drop-lista" id="notif-drop-lista">
               <div class="notif-drop-vazio">Sem itens pendentes</div>
@@ -3347,7 +3473,16 @@
   </div>
 </div>
 
-<div class="toast" id="notificacao"></div>
+<div class="toast" id="notificacao" role="alert" aria-live="assertive">
+  <div class="toast-corpo">
+    <span class="toast-ic" id="toast-ic"></span>
+    <span class="toast-txt" id="toast-txt"></span>
+    <button class="toast-fechar" id="toast-fechar" onclick="fecharToast()" aria-label="Fechar">✕</button>
+  </div>
+  <div class="toast-accao-row" id="toast-accao-row" style="display:none">
+    <button class="toast-btn-accao" id="toast-btn-accao"></button>
+  </div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -3934,6 +4069,8 @@
   // ── WATCHER TÉCNICO — solicitações novas ──
   let _unsubSolsNovas = null;
   let _solsNovas = [];
+  // Histórico de IDs já anunciados via toast (persiste durante a sessão)
+  const _notifJaAnunciadas = new Set();
 
   function iniciarWatcherTecnico() {
     if (_unsubSolsNovas) _unsubSolsNovas();
@@ -3946,124 +4083,93 @@
   }
 
   function actualizarSinoTecnico() {
-    const total  = _solsNovas.length;
-    const dot    = document.getElementById("notif-dot");
-    const count  = document.getElementById("sino-count");
-    const lista  = document.getElementById("notif-drop-lista");
+    const total    = _solsNovas.length;
+    const lista    = document.getElementById("notif-drop-lista");
 
-    if (total > 0) {
-      dot.classList.add("visivel");
-      count.classList.add("visivel");
-      count.textContent = total > 99 ? "99+" : total;
-    } else {
-      dot.classList.remove("visivel");
-      count.classList.remove("visivel");
-    }
+    actualizarBadgeSino(total, 0); // solicitações novas = todas urgentes
 
     if (window.SIGDOC_NAV) SIGDOC_NAV.setBadges({ aprovacoes: total });
 
-    if (total === 0) {
-      lista.innerHTML = '<div class="notif-drop-vazio">✅ Sem solicitações novas</div>';
-      return;
-    }
+    if (!lista) return;
 
-    let html = `<div style="padding:8px 16px 4px;font-size:10px;font-weight:800;
-      color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px">
-      Solicitações novas (${total})</div>`;
-
-    html += _solsNovas.slice(0, 6).map(s => {
+    const items = _solsNovas.map(s => {
       const tipo = s.tipo || s.tipoDocumento || "Solicitação";
       const func = s.funcionarioNome || s.funcionarioEmail || "—";
       const hora = s.criadaEm?.toDate
         ? s.criadaEm.toDate().toLocaleDateString("pt-AO", { day:"2-digit", month:"short" })
         : "—";
-      return `<a class="notif-item" href="aprovacao.html">
-        <div class="notif-ic notif-ic-sol">📋</div>
-        <div class="notif-corpo">
-          <div class="notif-titulo">${tipo}</div>
-          <div class="notif-sub">${func} · ${hora}</div>
-        </div>
-      </a>`;
-    }).join("");
+      return {
+        id:       s.id,
+        tipo:     "urgente",
+        icon:     "📋",
+        icClasse: "notif-ic-sol",
+        titulo:   func,
+        sub:      tipo + " · " + hora,
+        href:     "aprovacao.html",
+        ts:       s.criadaEm || null,
+      };
+    });
 
-    if (total > 6) html += `<div class="notif-drop-vazio">+ ${total - 6} mais por processar</div>`;
-    lista.innerHTML = html;
-  }
+    lista.innerHTML = _renderNotifAgrupada(items);
+
+    // Mostrar toast contextual para novas solicitações (apenas 1ª vez que aparece cada uma)
+    _solsNovas.forEach(s => {
+      if (!_notifJaAnunciadas.has(s.id)) {
+        _notifJaAnunciadas.add(s.id);
+        const func = s.funcionarioNome || "Funcionário";
+        const tipo = s.tipo || "Solicitação";
+        mostrarNotif(
+          `${func} submeteu: ${tipo}`,
+          "aviso",
+          { label: "Ver agora →", fn: () => { window.location.href = "aprovacao.html"; } }
+        );
+      }
+    });
 
   function actualizarSino() {
     const totalDocs  = _docsRHPend.length;
     const totalForms = _formsRHPend.length;
-    const total      = totalDocs + totalForms;
 
-    const dot   = document.getElementById("notif-dot");
-    const count = document.getElementById("sino-count");
-    const lista = document.getElementById("notif-drop-lista");
-
-    // Badge e ponto vermelho
-    if (total > 0) {
-      dot.classList.add("visivel");
-      count.classList.add("visivel");
-      count.textContent = total > 99 ? "99+" : total;
-    } else {
-      dot.classList.remove("visivel");
-      count.classList.remove("visivel");
-    }
+    // Docs pendentes = urgente; forms = informativo
+    actualizarBadgeSino(totalDocs, totalForms);
 
     // Badge sidebar — só documentos para aprovação
     if (window.SIGDOC_NAV) SIGDOC_NAV.setBadges({ aprovacoes: totalDocs });
 
-    // Dropdown
-    if (total === 0) {
-      lista.innerHTML = '<div class="notif-drop-vazio">✅ Sem itens pendentes</div>';
-      return;
-    }
+    const lista = document.getElementById("notif-drop-lista");
+    if (!lista) return;
 
-    let html = "";
+    const items = [];
 
-    // Secção: documentos para aprovação
-    if (totalDocs > 0) {
-      html += `<div style="padding:8px 16px 4px;font-size:10px;font-weight:800;
-        color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px">
-        Documentos para aprovar (${totalDocs})</div>`;
-      html += _docsRHPend.slice(0, 5).map(d => {
-        const tipo = d.tipo || d.tipoDocumento || "Documento";
-        const func = d.funcionarioNome || d.geradoPorEmail || "—";
-        const hora = d.geradoEm?.toDate
-          ? d.geradoEm.toDate().toLocaleDateString("pt-AO", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" })
-          : "—";
-        return `<a class="notif-item" href="aprovacao.html">
-          <div class="notif-ic notif-ic-pend">📄</div>
-          <div class="notif-corpo">
-            <div class="notif-titulo">${tipo}</div>
-            <div class="notif-sub">${func} · ${hora}</div>
-          </div>
-        </a>`;
-      }).join("");
-      if (totalDocs > 5) html += `<div class="notif-drop-vazio">+ ${totalDocs - 5} mais em aprovação</div>`;
-    }
+    _docsRHPend.forEach(d => {
+      const tipo = d.tipo || d.tipoDocumento || "Documento";
+      const func = d.funcionarioNome || d.geradoPorEmail || "—";
+      items.push({
+        id:       d.id,
+        tipo:     "urgente",
+        icon:     "📄",
+        icClasse: "notif-ic-pend",
+        titulo:   func,
+        sub:      tipo,
+        href:     "aprovacao.html",
+        ts:       d.geradoEm || null,
+      });
+    });
 
-    // Secção: formulários de funcionários por rever
-    if (totalForms > 0) {
-      html += `<div style="padding:8px 16px 4px;font-size:10px;font-weight:800;
-        color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;
-        border-top:1px solid rgba(255,255,255,.06);margin-top:4px">
-        Formulários por rever (${totalForms})</div>`;
-      html += _formsRHPend.slice(0, 3).map(f => {
-        const hora = f.formularioPreenchidoEm?.toDate
-          ? f.formularioPreenchidoEm.toDate().toLocaleDateString("pt-AO", { day:"2-digit", month:"short" })
-          : "—";
-        return `<a class="notif-item" href="cadastro.html">
-          <div class="notif-ic notif-ic-sol">📋</div>
-          <div class="notif-corpo">
-            <div class="notif-titulo">${f.nome || "—"}</div>
-            <div class="notif-sub">Formulário submetido · ${hora}</div>
-          </div>
-        </a>`;
-      }).join("");
-      if (totalForms > 3) html += `<div class="notif-drop-vazio">+ ${totalForms - 3} mais por rever</div>`;
-    }
+    _formsRHPend.forEach(f => {
+      items.push({
+        id:       f.id,
+        tipo:     "info",
+        icon:     "📋",
+        icClasse: "notif-ic-sol",
+        titulo:   f.nome || "—",
+        sub:      "Formulário submetido",
+        href:     "cadastro.html",
+        ts:       f.formularioPreenchidoEm || null,
+      });
+    });
 
-    lista.innerHTML = html;
+    lista.innerHTML = _renderNotifAgrupada(items);
   }
 
   window.toggleDropdownNotif = function(e) {
@@ -4076,6 +4182,160 @@
     const dd = document.getElementById("notif-dropdown");
     if (dd) dd.classList.remove("aberto");
   });
+
+  // ── Badge dual SVG: atualiza os dois arcos (urgente+info) ──────
+  function actualizarBadgeSino(nUrgente, nInfo) {
+    const svg    = document.getElementById("sino-badge-svg");
+    const arcU   = document.getElementById("sino-arco-urgente");
+    const arcI   = document.getElementById("sino-arco-info");
+    const numEl  = document.getElementById("sino-badge-num");
+    const dot    = document.getElementById("notif-dot");
+    const total  = nUrgente + nInfo;
+
+    if (total === 0) {
+      if (svg) svg.classList.remove("visivel");
+      if (dot) dot.classList.remove("visivel");
+      return;
+    }
+
+    if (svg) svg.classList.add("visivel");
+    if (dot) { if (nUrgente > 0) dot.classList.add("visivel"); else dot.classList.remove("visivel"); }
+
+    // Circunferência do círculo r=8 → C = 2π×8 ≈ 50.27
+    const C = 50.27;
+    const dashU = C * (nUrgente / total);
+    const dashI = C * (nInfo    / total);
+
+    if (arcU) {
+      arcU.setAttribute("stroke-dasharray",  `${dashU} ${C - dashU}`);
+      arcU.setAttribute("stroke-dashoffset", "0");
+      arcU.style.opacity = nUrgente > 0 ? "1" : "0";
+    }
+    if (arcI) {
+      arcI.setAttribute("stroke-dasharray",  `${dashI} ${C - dashI}`);
+      // Offset: deslocar o início do arco azul para logo após o laranja
+      arcI.setAttribute("stroke-dashoffset", `${-dashU}`);
+      arcI.style.opacity = nInfo > 0 ? "1" : "0";
+    }
+    if (numEl) numEl.textContent = total > 99 ? "99" : String(total);
+  }
+
+  // ── Dispensar notificação individual ───────────────────────────
+  // Guarda IDs dispensados em memória (reset ao recarregar — comportamento intencional)
+  const _notifDispensadas = new Set();
+
+  window.dispensarNotif = function(e, id) {
+    e.stopPropagation();
+    e.preventDefault();
+    _notifDispensadas.add(id);
+    // Remover o item do DOM com micro-animação
+    const item = e.target.closest(".notif-item");
+    if (item) {
+      item.style.transition = "opacity .18s, transform .18s, max-height .22s";
+      item.style.opacity    = "0";
+      item.style.transform  = "translateX(12px)";
+      item.style.maxHeight  = item.offsetHeight + "px";
+      setTimeout(() => {
+        item.style.maxHeight  = "0";
+        item.style.padding    = "0";
+        item.style.borderWidth = "0";
+      }, 170);
+      setTimeout(() => {
+        item.remove();
+        // Limpar labels de secção sem filhos
+        document.querySelectorAll(".notif-secao-temporal, .notif-secao-tipo").forEach(lbl => {
+          // Verificar se tem itens irmãos após ele
+          let next = lbl.nextElementSibling;
+          if (!next || next.classList.contains("notif-secao-temporal") || next.classList.contains("notif-secao-tipo")) {
+            lbl.remove();
+          }
+        });
+      }, 400);
+    }
+  };
+
+  // Dispensar todas (marcar todas como lidas)
+  window.dispensarTodasNotif = function(e) {
+    e.preventDefault();
+    const lista = document.getElementById("notif-drop-lista");
+    if (!lista) return;
+    lista.querySelectorAll(".notif-item[data-notif-id]").forEach(el => {
+      _notifDispensadas.add(el.dataset.notifId);
+    });
+    lista.innerHTML = '<div class="notif-drop-vazio">✅ Todas as notificações lidas</div>';
+    actualizarBadgeSino(0, 0);
+    document.getElementById("notif-dot")?.classList.remove("visivel");
+  };
+
+  // ── Classificar timestamp numa categoria temporal ──────────────
+  function _categoriaTemporalNotif(ts) {
+    if (!ts?.toDate) return "antigas";
+    const d     = ts.toDate();
+    const agora = new Date();
+    const hoje  = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+    const semana = new Date(hoje); semana.setDate(hoje.getDate() - 6);
+    if (d >= hoje)   return "hoje";
+    if (d >= semana) return "semana";
+    return "antigas";
+  }
+
+  // ── Construir HTML agrupado (tipo + tempo) ─────────────────────
+  // items: [{ id, icon, classe, titulo, sub, href, onclick, ts, tipo:"urgente"|"info" }]
+  function _renderNotifAgrupada(items) {
+    if (!items || items.length === 0) {
+      return '<div class="notif-drop-vazio">✅ Sem pendentes</div>';
+    }
+
+    // Filtrar dispensadas
+    const visiveis = items.filter(it => !_notifDispensadas.has(it.id));
+    if (visiveis.length === 0) {
+      return '<div class="notif-drop-vazio">✅ Todas as notificações lidas</div>';
+    }
+
+    // Separar urgentes / informativas
+    const urgentes = visiveis.filter(it => it.tipo === "urgente");
+    const infos    = visiveis.filter(it => it.tipo !== "urgente");
+
+    let html = "";
+
+    const _renderGrupoTemporal = (lista, classeBase) => {
+      // Agrupar por tempo
+      const grupos = { hoje: [], semana: [], antigas: [] };
+      lista.forEach(it => { grupos[_categoriaTemporalNotif(it.ts)].push(it); });
+
+      const labels = { hoje: "Hoje", semana: "Esta semana", antigas: "Mais antigas" };
+      ["hoje", "semana", "antigas"].forEach(cat => {
+        if (grupos[cat].length === 0) return;
+        html += `<div class="notif-secao-temporal">${labels[cat]}</div>`;
+        grupos[cat].forEach(it => { html += _itemHtml(it, classeBase); });
+      });
+    };
+
+    if (urgentes.length > 0) {
+      html += `<div class="notif-secao-tipo urgente">⚡ Requer acção (${urgentes.length})</div>`;
+      _renderGrupoTemporal(urgentes, "urgente");
+    }
+    if (infos.length > 0) {
+      html += `<div class="notif-secao-tipo info">Informativas (${infos.length})</div>`;
+      _renderGrupoTemporal(infos, "info");
+    }
+
+    return html;
+  }
+
+  function _itemHtml(it, classeBase) {
+    const onclickAttr = it.href && it.href !== "#"
+      ? `href="${it.href}"`
+      : `href="#" onclick="${it.onclick || ''};return false;"`;
+    return `<a class="notif-item ${classeBase}" ${onclickAttr} data-notif-id="${it.id}">
+      <div class="notif-ic ${it.icClasse || 'notif-ic-sol'}">${it.icon}</div>
+      <div class="notif-corpo">
+        <div class="notif-titulo">${it.titulo}</div>
+        <div class="notif-sub">${it.sub}</div>
+      </div>
+      <button class="notif-dismiss" onclick="dispensarNotif(event,'${it.id}')" title="Marcar como lida">✕</button>
+    </a>`;
+  }
 
   function mostrarLogin() {
     document.getElementById("ecrã-painel").style.display="none";
@@ -4250,11 +4510,54 @@
   document.getElementById("overlay-novo-utilizador").addEventListener("click",function(e){if(e.target===this)window.fecharModal();});
 
   function mostrarErro(msg){const e=document.getElementById("msg-erro");e.textContent=msg;e.style.display="block";}
-  function mostrarNotif(msg,tipo="sucesso"){
-    const tipos={"sucesso":"#059669","aviso":"#d97706","erro":"#dc2626","info":"#2563eb"};
-    const e=document.getElementById("notificacao");
-    e.textContent=msg; e.className=`toast toast-${tipo}`; e.style.display="block";
-    setTimeout(()=>e.style.display="none",4000);
+
+  // ─────────────────────────────────────────────────────────────
+  //  mostrarNotif — Toast contextual com botão de acção opcional
+  //  Uso: mostrarNotif("Mensagem", "sucesso")
+  //       mostrarNotif("João pediu reunião", "aviso", { label:"Ver agora →", fn: ()=>mostrarSecção('secretaria') })
+  // ─────────────────────────────────────────────────────────────
+  let _toastTimer = null;
+
+  window.fecharToast = function() {
+    const e = document.getElementById("notificacao");
+    if (!e) return;
+    e.classList.remove("visivel");
+    e.style.display = "none";
+    if (_toastTimer) { clearTimeout(_toastTimer); _toastTimer = null; }
+  };
+
+  function mostrarNotif(msg, tipo="sucesso", accao=null) {
+    const icones = { sucesso:"✅", aviso:"⚠️", erro:"❌", info:"ℹ️" };
+    const e      = document.getElementById("notificacao");
+    const icEl   = document.getElementById("toast-ic");
+    const txtEl  = document.getElementById("toast-txt");
+    const rowEl  = document.getElementById("toast-accao-row");
+    const btnEl  = document.getElementById("toast-btn-accao");
+
+    if (!e) return;
+
+    // Texto e ícone
+    icEl.textContent  = icones[tipo] || "ℹ️";
+    txtEl.textContent = msg;
+
+    // Botão de acção opcional
+    if (accao && accao.label && accao.fn) {
+      btnEl.textContent  = accao.label;
+      btnEl.onclick      = () => { accao.fn(); fecharToast(); };
+      rowEl.style.display = "";
+    } else {
+      rowEl.style.display = "none";
+    }
+
+    // Classe de tipo + animação
+    e.className  = `toast toast-${tipo}`;
+    e.style.display = "flex";
+    // Forçar reflow para reiniciar animação
+    void e.offsetWidth;
+    e.classList.add("visivel");
+
+    if (_toastTimer) clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(fecharToast, accao ? 7000 : 4500);
   }
   function fmtData(d){if(!d)return"—";return d.toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});}
   function actualizarDataHora(){
@@ -5243,54 +5546,61 @@
   }
 
   function actualizarSinoSecretaria() {
-    const total  = _pedidosNovos.length + _reunioesPend.length;
-    const dot    = document.getElementById('notif-dot');
-    const count  = document.getElementById('sino-count');
-    const lista  = document.getElementById('notif-drop-lista');
+    const nUrgente = _pedidosNovos.length;   // requerem acção
+    const nInfo    = _reunioesPend.length;   // pendentes (a gerir)
+    const total    = nUrgente + nInfo;
+    const lista    = document.getElementById('notif-drop-lista');
 
-    if (total > 0) {
-      dot.classList.add('visivel'); count.classList.add('visivel');
-      count.textContent = total > 99 ? '99+' : total;
-    } else {
-      dot.classList.remove('visivel'); count.classList.remove('visivel');
-    }
+    // Badge dual SVG
+    actualizarBadgeSino(nUrgente, nInfo);
 
     // ── Actualizar KPIs da barra de status da Secretaria ──
     const sbNovos = document.getElementById('sec-sb-novos');
     const sbPend  = document.getElementById('sec-sb-pend');
     const sbTotal = document.getElementById('sec-sb-total');
-    if (sbNovos) sbNovos.textContent = _pedidosNovos.length;
-    if (sbPend)  sbPend.textContent  = _reunioesPend.length;
+    if (sbNovos) sbNovos.textContent = nUrgente;
+    if (sbPend)  sbPend.textContent  = nInfo;
     if (sbTotal) sbTotal.textContent = total;
 
-    if (total === 0) { lista.innerHTML = '<div class="notif-drop-vazio">✅ Sem pendentes</div>'; return; }
+    if (!lista) return;
 
-    let html = '';
-    if (_pedidosNovos.length > 0) {
-      html += `<div style="padding:8px 16px 4px;font-size:10px;font-weight:800;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px">Pedidos novos (${_pedidosNovos.length})</div>`;
-      html += _pedidosNovos.slice(0,4).map(p => {
-        const assunto = ASSUNTOS_SEC[p.assunto]||p.assunto||'—';
-        return `<a class="notif-item" href="#" onclick="mostrarSecção('secretaria');return false;">
-          <div class="notif-ic notif-ic-sol">✉️</div>
-          <div class="notif-corpo">
-            <div class="notif-titulo">${p.funcionarioNome||'—'}</div>
-            <div class="notif-sub">${assunto}</div>
-          </div></a>`;
-      }).join('');
-    }
-    if (_reunioesPend.length > 0) {
-      html += `<div style="padding:8px 16px 4px;font-size:10px;font-weight:800;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;border-top:1px solid rgba(255,255,255,.06);margin-top:4px">Reuniões pendentes (${_reunioesPend.length})</div>`;
-      html += _reunioesPend.slice(0,3).map(r => {
-        const dest = DEST_REUNIAO[r.destinatario]||r.destinatario||'—';
-        return `<a class="notif-item" href="#" onclick="mostrarSecção('secretaria');filtrarSecretaria('reunioes',null);return false;">
-          <div class="notif-ic notif-ic-sol">📅</div>
-          <div class="notif-corpo">
-            <div class="notif-titulo">${r.funcionarioNome||'—'}</div>
-            <div class="notif-sub">${dest}</div>
-          </div></a>`;
-      }).join('');
-    }
-    lista.innerHTML = html;
+    // Construir lista de items normalizada para o renderizador genérico
+    const items = [];
+
+    _pedidosNovos.forEach(p => {
+      if (_notifDispensadas.has(p.id)) return;
+      const assunto = ASSUNTOS_SEC[p.assunto] || p.assunto || '—';
+      items.push({
+        id:       p.id,
+        tipo:     'urgente',
+        icon:     '✉️',
+        icClasse: 'notif-ic-pend',
+        titulo:   p.funcionarioNome || '—',
+        sub:      assunto + (p.naoLidasSecretaria > 1 ? ` · ${p.naoLidasSecretaria} msgs` : ''),
+        href:     '#',
+        onclick:  `mostrarSecção('secretaria');filtrarSecretaria('pedidos',document.getElementById('tab-sec-pedidos'))`,
+        ts:       p.ultimaMensagemEm || p.criadoEm || null,
+      });
+    });
+
+    _reunioesPend.forEach(r => {
+      if (_notifDispensadas.has(r.id)) return;
+      const dest = DEST_REUNIAO[r.destinatario] || r.destinatario || '—';
+      items.push({
+        id:       r.id,
+        tipo:     'urgente',
+        icon:     '📅',
+        icClasse: 'notif-ic-pend',
+        titulo:   r.funcionarioNome || '—',
+        sub:      dest,
+        href:     '#',
+        onclick:  `mostrarSecção('secretaria');filtrarSecretaria('reunioes',document.getElementById('tab-sec-reunioes'))`,
+        ts:       r.criadoEm || null,
+      });
+    });
+
+    lista.innerHTML = _renderNotifAgrupada(items);
+
     // Sincronizar também o dashboard home da secretaria
     actualizarDashHomeSecretaria();
   }
@@ -5458,16 +5768,17 @@
 
   function sincronizarBadgesMobile() {
     const secBadge   = document.getElementById('mbn-badge-sec');
-    const count      = document.getElementById('sino-count');
-    if (secBadge && count) {
-      const n = parseInt(count.textContent) || 0;
+    const badgeSvg   = document.getElementById('sino-badge-svg');
+    if (secBadge && badgeSvg) {
+      const numEl = document.getElementById('sino-badge-num');
+      const n = numEl ? parseInt(numEl.textContent) || 0 : 0;
       secBadge.textContent = n > 0 ? n : '';
       secBadge.style.display = n > 0 ? 'flex' : 'none';
     }
     const notifBadge = document.getElementById('mbn-badge-notif');
     const dot        = document.getElementById('notif-dot');
     if (notifBadge && dot) {
-      const vis = dot.style.display !== 'none' && dot.className.includes('activo');
+      const vis = dot.style.display !== 'none' && dot.className.includes('visivel');
       notifBadge.style.display = vis ? 'flex' : 'none';
     }
   }
