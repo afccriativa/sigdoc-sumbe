@@ -1623,7 +1623,60 @@
     .ped-ctx-item .ctx-ic       { font-size: 14px; }
 
     /* ── Pesquisa Global ──────────────────────────────────────── */
-    .sp-overlay {
+    /* ══════════════════════════════════════════════════════════
+       SECRETARIA v4 — Zero-friction UX
+       ══════════════════════════════════════════════════════════ */
+
+    /* ── Item activo: destaque quando seleccionado no painel ─── */
+    .ped-item.activo {
+      background: var(--pri-10);
+    }
+    .ped-item.activo .ped-item-bar { background: var(--pri); }
+
+    /* ── Navegação sequencial no painel de detalhe ──────────── */
+    .sec-nav-seq {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 12px;
+      background: rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      flex-shrink: 0;
+    }
+    .sec-nav-seq-btn {
+      display: flex; align-items: center; gap: 5px;
+      background: none; border: none; cursor: pointer;
+      font-size: 11px; font-weight: 700; color: rgba(255,255,255,.42);
+      padding: 4px 8px; border-radius: 6px;
+      font-family: var(--font); transition: color .12s, background .12s;
+    }
+    .sec-nav-seq-btn:hover:not(:disabled) {
+      color: rgba(255,255,255,.85);
+      background: rgba(255,255,255,.07);
+    }
+    .sec-nav-seq-btn:disabled { opacity: .22; cursor: default; }
+    .sec-nav-seq-pos {
+      font-size: 11px; color: rgba(255,255,255,.28);
+      font-family: var(--mono);
+    }
+
+    /* ── Botões de acção rápida nas reuniões ─────────────────── */
+    .reu-acoes-rapidas {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px;
+    }
+    .btn-reu-acao {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 5px 12px; border-radius: 6px;
+      font-size: 11px; font-weight: 700; border: 1px solid transparent;
+      cursor: pointer; font-family: var(--font);
+      transition: opacity .12s, transform .10s;
+    }
+    .btn-reu-acao:hover:not(:disabled) { opacity: .82; transform: translateY(-1px); }
+    .btn-reu-acao:disabled { opacity: .42; cursor: not-allowed; transform: none; }
+    .btn-reu-conf  { background: var(--ok-bg);    color: var(--ok);   border-color: var(--ok-border); }
+    .btn-reu-recus { background: var(--err-bg);   color: var(--err);  border-color: var(--err-border); }
+    .btn-reu-mais  { background: var(--surface-2); color: var(--txt-2); border-color: var(--border); }
+    .btn-reu-real  { background: rgba(139,92,246,.12); color: #7c3aed; border-color: rgba(139,92,246,.22); }
+
+        .sp-overlay {
       display: none; position: fixed; inset: 0; z-index: 9000;
       background: rgba(0,0,0,.48); backdrop-filter: blur(6px);
       align-items: flex-start; justify-content: center; padding-top: 80px;
@@ -4872,52 +4925,68 @@
       const labelPeriodo = { manha:'Manhã', tarde:'Tarde', qualquer:'Qualquer hora' };
 
       el.innerHTML = docs.map(r => {
-        const estado = r.estado || 'pendente';
-        const cor    = corEstado[estado] || '#8b5cf6';
-        const dest   = DEST_REUNIAO[r.destinatario] || r.destinatario || '—';
-        const data   = r.dataPreferida || '—';
+        const estado  = r.estado || 'pendente';
+        const cor     = corEstado[estado] || '#8b5cf6';
+        const dest    = DEST_REUNIAO[r.destinatario] || r.destinatario || '—';
+        const data    = r.dataPreferida || '—';
         const periodo = labelPeriodo[r.periodo] || r.periodo || '—';
-        const criado = r.criadoEm?.toDate ? r.criadoEm.toDate().toLocaleDateString('pt-AO') : '—';
-        const acoes  = estado === 'pendente' ? `
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-            <button onclick="abrirModalReuniaoAcao('${r.id}','confirmar')" class="btn-sec-sm btn-sec-conf">✔ Confirmar</button>
-            <button onclick="abrirModalReuniaoAcao('${r.id}','remarcar')"  class="btn-sec-sm" style="background:rgba(99,102,241,.22);color:#a5b4fc">↷ Remarcar</button>
-            <button onclick="abrirModalReuniaoAcao('${r.id}','recusar')"   class="btn-sec-sm btn-sec-recus">✕ Recusar</button>
-          </div>`
-          : estado === 'confirmada' ? `
-          <div style="margin-top:8px">
-            ${r.local ? `<div style="font-size:12px;color:var(--txt-sec);margin-bottom:8px">📍 Local: <strong style="color:var(--txt-pri)">${r.local}</strong></div>` : ''}
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <button onclick="abrirModalReuniaoAcao('${r.id}','realizada')" class="btn-sec-sm" style="background:rgba(139,92,246,.22);color:#c4b5fd">✔ Marcar como realizada</button>
-              <button onclick="abrirModalReuniaoAcao('${r.id}','recusar')"   class="btn-sec-sm btn-sec-recus" style="font-size:10px">✕ Cancelar</button>
-            </div>
-          </div>`
-          : estado === 'remarcada' ? `
-          <div style="margin-top:8px">
-            ${r.dataSugerida ? `<div style="font-size:12px;color:var(--txt-sec);margin-bottom:6px">📌 Nova data sugerida: <strong style="color:var(--txt-pri)">${r.dataSugerida}</strong></div>` : ''}
-            ${r.observacoes   ? `<div style="font-size:12px;color:var(--txt-sec);margin-bottom:8px">💬 ${r.observacoes}</div>` : ''}
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <button onclick="abrirModalReuniaoAcao('${r.id}','confirmar')" class="btn-sec-sm btn-sec-conf">✔ Confirmar nova data</button>
-              <button onclick="abrirModalReuniaoAcao('${r.id}','recusar')"   class="btn-sec-sm btn-sec-recus">✕ Recusar</button>
-            </div>
-          </div>`
-          : `<div style="margin-top:6px">
-            ${r.motivoRecusa  ? `<div style="font-size:12px;color:#f87171;margin-top:4px">✕ Motivo: ${r.motivoRecusa}</div>` : ''}
-            ${r.observacoes && estado === 'realizada' ? `<div style="font-size:12px;color:var(--txt-sec);margin-top:4px">📝 ${r.observacoes}</div>` : ''}
+        const criado  = r.criadoEm?.toDate ? r.criadoEm.toDate().toLocaleDateString('pt-AO') : '—';
+
+        // v4: acções rápidas inline — confirmar não abre modal; recusar/remarcar abrem só quando necessário
+        let acoes = '';
+        if (estado === 'pendente') {
+          acoes = `<div class="reu-acoes-rapidas">
+            <button class="btn-reu-acao btn-reu-conf"
+              onclick="event.stopPropagation();confirmarReuniaoRapido('${r.id}',this)"
+              title="Confirmar imediatamente (sem campos adicionais)">✔ Confirmar</button>
+            <button class="btn-reu-acao btn-reu-recus"
+              onclick="event.stopPropagation();recusarReuniaoRapido('${r.id}')"
+              title="Recusar (pede motivo)">✕ Recusar</button>
+            <button class="btn-reu-acao btn-reu-mais"
+              onclick="event.stopPropagation();abrirModalReuniaoAcao('${r.id}','remarcar')"
+              title="Sugerir nova data">⋯ Remarcar</button>
           </div>`;
-        return `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px 16px;margin-bottom:10px">
+        } else if (estado === 'confirmada') {
+          acoes = `<div style="margin-top:8px">
+            ${r.local ? `<div style="font-size:12px;color:var(--txt-2);margin-bottom:8px">📍 Local: <strong style="color:var(--txt-1)">${escaparHtml(r.local)}</strong></div>` : ''}
+            <div class="reu-acoes-rapidas">
+              <button class="btn-reu-acao btn-reu-real"
+                onclick="event.stopPropagation();abrirModalReuniaoAcao('${r.id}','realizada')">✔ Realizada</button>
+              <button class="btn-reu-acao btn-reu-recus"
+                onclick="event.stopPropagation();recusarReuniaoRapido('${r.id}')">✕ Cancelar</button>
+            </div>
+          </div>`;
+        } else if (estado === 'remarcada') {
+          acoes = `<div style="margin-top:8px">
+            ${r.dataSugerida ? `<div style="font-size:12px;color:var(--txt-2);margin-bottom:6px">📌 Nova data sugerida: <strong style="color:var(--txt-1)">${r.dataSugerida}</strong></div>` : ''}
+            ${r.observacoes  ? `<div style="font-size:12px;color:var(--txt-2);margin-bottom:8px">💬 ${escaparHtml(r.observacoes)}</div>` : ''}
+            <div class="reu-acoes-rapidas">
+              <button class="btn-reu-acao btn-reu-conf"
+                onclick="event.stopPropagation();confirmarReuniaoRapido('${r.id}',this)">✔ Confirmar nova data</button>
+              <button class="btn-reu-acao btn-reu-recus"
+                onclick="event.stopPropagation();recusarReuniaoRapido('${r.id}')">✕ Recusar</button>
+            </div>
+          </div>`;
+        } else {
+          acoes = `<div style="margin-top:6px">
+            ${r.motivoRecusa ? `<div style="font-size:12px;color:#f87171;margin-top:4px">✕ Motivo: ${escaparHtml(r.motivoRecusa)}</div>` : ''}
+            ${r.observacoes && estado === 'realizada' ? `<div style="font-size:12px;color:var(--txt-2);margin-top:4px">📝 ${escaparHtml(r.observacoes)}</div>` : ''}
+          </div>`;
+        }
+
+        return `<div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--sh-xs)">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
             <div>
-              <div style="font-size:14px;font-weight:700;color:var(--txt-pri)">${r.funcionarioNome||'—'}</div>
-              <div style="font-size:12px;color:var(--txt-sec);margin-top:2px">${r.unidade||'—'}</div>
+              <div style="font-size:14px;font-weight:700;color:var(--txt-1)">${escaparHtml(r.funcionarioNome||'—')}</div>
+              <div style="font-size:12px;color:var(--txt-2);margin-top:2px">${escaparHtml(r.unidade||'—')}</div>
             </div>
-            <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:${cor}22;color:${cor};white-space:nowrap">${labelEstado[estado]||estado}</span>
+            <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:${cor}22;color:${cor};border:1px solid ${cor}33;white-space:nowrap">${labelEstado[estado]||estado}</span>
           </div>
-          <div style="margin-top:8px;font-size:13px;color:var(--txt-sec)">
-            <div>📋 <strong style="color:var(--txt-pri)">${r.assunto||'—'}</strong></div>
-            <div style="margin-top:3px">👤 Destinatário: ${dest}</div>
+          <div style="margin-top:8px;font-size:13px;color:var(--txt-2)">
+            <div>📋 <strong style="color:var(--txt-1)">${escaparHtml(r.assunto||'—')}</strong></div>
+            <div style="margin-top:3px">👤 Destinatário: ${escaparHtml(dest)}</div>
             <div style="margin-top:3px">📅 Preferência: ${data} · ${periodo}</div>
-            <div style="margin-top:3px;font-size:11px;opacity:.6">Submetido em ${criado}</div>
+            <div style="margin-top:3px;font-size:11px;color:var(--txt-3)">Submetido em ${criado}</div>
           </div>
           ${acoes}
         </div>`;
@@ -5126,7 +5195,15 @@
 
       const LABELS_ESTADO = { novo:'● Novo', em_analise:'● Em análise', respondido:'● Respondido', fechado:'● Fechado' };
 
-      el.innerHTML = docs.map(p => {
+      // v4: guardar lista de IDs para navegação sequencial
+      _secListaIds = docs.map(d => d.id);
+      // Se há um pedido activo e ainda está na lista, manter o índice; senão resetar
+      if (_chatSecId) {
+        const idxActual = _secListaIds.indexOf(_chatSecId);
+        _secIdxActual = idxActual >= 0 ? idxActual : -1;
+      }
+
+      el.innerHTML = docs.map((p, idx) => {
         const estado   = p.estado || 'novo';
         const assunto  = ASSUNTOS_SEC[p.assunto] || p.assunto || '—';
         const msgs     = p.mensagens || [];
@@ -5145,6 +5222,7 @@
         const aberto   = estado !== 'fechado';
         const initials = (p.funcionarioNome || '?').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
         const menuId   = `ctx-${p.id}`;
+        const isActivo = p.id === _chatSecId;
 
         // Botão primário — muda com o estado
         let btnLabel, btnClass;
@@ -5161,7 +5239,7 @@
           ? `<span style="background:var(--warn);color:#fff;font-size:10px;font-weight:800;padding:1px 7px;border-radius:99px;flex-shrink:0">${novas}</span>`
           : '';
 
-        return `<div class="ped-item" onclick="abrirChatSecretaria('${p.id}')">
+        return `<div class="ped-item${isActivo ? ' activo' : ''}" id="ped-item-${p.id}" onclick="abrirChatSecretaria('${p.id}', ${idx})">
           <div class="ped-item-bar ${estado}"></div>
           <div class="ped-item-inner">
             <div class="ped-item-av">${initials}</div>
@@ -5182,7 +5260,7 @@
               <div class="ped-item-preview">${escaparHtml(preview || 'Sem mensagem')}</div>
               <div class="ped-item-footer" onclick="event.stopPropagation()">
                 <button class="ped-btn-primario ${btnClass}"
-                  onclick="event.stopPropagation();abrirChatSecretaria('${p.id}')">
+                  onclick="event.stopPropagation();abrirChatSecretaria('${p.id}', ${idx})">
                   ${btnLabel}
                 </button>
                 <div class="ped-ctx-wrap">
@@ -5192,7 +5270,7 @@
                     ${estado === 'novo' ? `<button class="ped-ctx-item" onclick="event.stopPropagation();marcarEmAnalise('${p.id}')">
                       <span class="ctx-ic">🔍</span> Marcar Em Análise
                     </button>` : ''}
-                    ${estado !== 'respondido' && estado !== 'fechado' ? `<button class="ped-ctx-item" onclick="event.stopPropagation();abrirChatSecretaria('${p.id}')">
+                    ${estado !== 'respondido' && estado !== 'fechado' ? `<button class="ped-ctx-item" onclick="event.stopPropagation();abrirChatSecretaria('${p.id}', ${idx})">
                       <span class="ctx-ic">💬</span> Abrir Conversa
                     </button>` : ''}
                     <button class="ped-ctx-item" onclick="event.stopPropagation();verHistoricoPedido('${p.id}')">
@@ -5240,13 +5318,30 @@
   let _unsubChatSec = null;
   let _chatSecFuncUid  = null;
   let _chatSecFuncNome = null;
+  // v4: navegação sequencial — lista de IDs de pedidos visíveis e índice actual
+  let _secListaIds = [];
+  let _secIdxActual = -1;
 
-  window.abrirChatSecretaria = async function(pedidoId) {
+  window.abrirChatSecretaria = async function(pedidoId, idx) {
     _chatSecId = pedidoId;
+    // v4: actualizar índice de navegação
+    if (typeof idx === 'number') {
+      _secIdxActual = idx;
+    } else {
+      const found = _secListaIds.indexOf(pedidoId);
+      _secIdxActual = found >= 0 ? found : -1;
+    }
+    // Destacar item activo na lista e remover dos restantes
+    document.querySelectorAll('.ped-item.activo').forEach(el => el.classList.remove('activo'));
+    const itemEl = document.getElementById('ped-item-' + pedidoId);
+    if (itemEl) itemEl.classList.add('activo');
+
     if (_unsubChatSec) _unsubChatSec();
     document.getElementById('chat-sec-overlay').classList.add('aberto');
     const msgsEl = document.getElementById('chat-sec-msgs');
     msgsEl.innerHTML = '<div style="text-align:center;padding:24px;opacity:.5">⏳ A carregar…</div>';
+    // v4: injectar/actualizar barra de navegação sequencial
+    _actualizarNavSeq();
     _unsubChatSec = onSnapshot(doc(db,'pedidos_secretaria',pedidoId), snap => {
       if (!snap.exists()) return;
       const p = snap.data();
@@ -5351,10 +5446,80 @@
     }, err=>{ console.error(err); msgsEl.innerHTML='<div style="padding:16px;color:#f87171">⚠️ Erro</div>'; });
   };
 
+  // ── v4: Navegação sequencial entre pedidos ──────────────────
+  function _actualizarNavSeq() {
+    // Garantir que o contentor da barra existe no painel de detalhe
+    let navBar = document.getElementById('sec-nav-seq');
+    if (!navBar) {
+      // Inserir antes do chat-sec-msgs
+      const ref = document.getElementById('chat-sec-msgs');
+      if (!ref) return;
+      navBar = document.createElement('div');
+      navBar.id = 'sec-nav-seq';
+      navBar.className = 'sec-nav-seq';
+      ref.parentNode.insertBefore(navBar, ref);
+    }
+    const total = _secListaIds.length;
+    const idx   = _secIdxActual;
+    if (total <= 1) { navBar.style.display = 'none'; return; }
+    navBar.style.display = 'flex';
+    navBar.innerHTML = `
+      <button class="sec-nav-seq-btn" ${idx <= 0 ? 'disabled' : ''}
+        onclick="navegarPedidoSeq(-1)" title="Pedido anterior">
+        ← Anterior
+      </button>
+      <span class="sec-nav-seq-pos">${idx + 1} / ${total}</span>
+      <button class="sec-nav-seq-btn" ${idx >= total - 1 ? 'disabled' : ''}
+        onclick="navegarPedidoSeq(1)" title="Próximo pedido">
+        Próximo →
+      </button>`;
+  }
+
+  window.navegarPedidoSeq = function(delta) {
+    const novoIdx = _secIdxActual + delta;
+    if (novoIdx < 0 || novoIdx >= _secListaIds.length) return;
+    const novoId = _secListaIds[novoIdx];
+    abrirChatSecretaria(novoId, novoIdx);
+    // Fazer scroll do item na lista para ficar visível
+    const itemEl = document.getElementById('ped-item-' + novoId);
+    if (itemEl) itemEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+
+  // ── v4: Confirmar reunião sem modal ─────────────────────────
+  window.confirmarReuniaoRapido = async function(id, btnEl) {
+    if (!id) return;
+    if (btnEl) { btnEl.disabled = true; btnEl.textContent = '⏳…'; }
+    try {
+      await updateDoc(doc(db, 'reunioes', id), {
+        estado: 'confirmada',
+        local: '',
+        geridoPor: utilizadorActual?.uid,
+        actualizadoEm: serverTimestamp()
+      });
+      addDoc(collection(db,'auditoria'),{
+        coleccao:'reunioes', docId:id, acao:'confirmar',
+        por:utilizadorActual?.uid, em:serverTimestamp()
+      }).catch(()=>{});
+      mostrarNotif('✅ Reunião confirmada!');
+      carregarReunioesSecretaria();
+    } catch(e) {
+      mostrarNotif('❌ Erro ao confirmar: ' + e.message, 'erro');
+      if (btnEl) { btnEl.disabled = false; btnEl.textContent = '✔ Confirmar'; }
+    }
+  };
+
+  // ── v4: Recusar reunião rápido — abre modal só com campo motivo ──
+  window.recusarReuniaoRapido = function(id) {
+    abrirModalReuniaoAcao(id, 'recusar');
+  };
+
   window.fecharChatSecretaria = function() {
     document.getElementById('chat-sec-overlay').classList.remove('aberto');
     if (_unsubChatSec) { _unsubChatSec(); _unsubChatSec=null; }
+    // v4: limpar estado activo na lista
+    document.querySelectorAll('.ped-item.activo').forEach(el => el.classList.remove('activo'));
     _chatSecId=null; _chatSecFuncUid=null; _chatSecFuncNome=null;
+    _secIdxActual = -1;
     // Colapsar painel de detalhes (mobile) ao fechar
     const detPainel = document.getElementById('chat-pedido-detalhes');
     const detBtn    = document.getElementById('chat-btn-ver-pedido');
