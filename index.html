@@ -588,6 +588,13 @@
     /* ── Conteúdo principal ──────────────────────────────────── */
     .conteudo { padding: 28px; flex: 1; }
 
+    /* Na Secretaria, o master-detail usa altura calculada do viewport,
+       por isso reduzimos o padding inferior para não criar scroll desnecessário */
+    #secção-secretaria.activo-secretaria { }
+    body:has(#secção-secretaria[style*="block"]) .conteudo {
+      padding-bottom: 12px;
+    }
+
     /* ── Dashboard header ────────────────────────────────────── */
     .dash-header { margin-bottom: 28px; }
 
@@ -1403,59 +1410,6 @@
     .sp-highlight  { color: var(--pri); font-weight: 700; }
     .sp-carregando { text-align: center; padding: 24px; color: var(--txt-3); font-size: 13px; }
 
-    /* ── Command Palette — acções ─────────────────────────── */
-    .sp-ic-cmd  { background: rgba(18,65,161,.10); }
-    .sp-ic-nav  { background: rgba(13,110,79,.10); }
-
-    /* Badge lateral que distingue acções de registos */
-    .sp-cmd-badge {
-      margin-left: auto; font-size: 10px; font-weight: 700;
-      padding: 2px 8px; border-radius: var(--r-full); flex-shrink: 0;
-      background: var(--pri-10); color: var(--pri);
-      border: 1px solid var(--pri-20); font-family: var(--mono);
-    }
-
-    /* Estado inicial — chips de atalho por grupo */
-    .sp-inicial-wrap { padding: 18px 20px 16px; }
-
-    .sp-inicial-grupo {
-      font-size: 10px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 1.2px;
-      color: var(--txt-3); margin-bottom: 9px; margin-top: 16px;
-    }
-
-    .sp-inicial-grupo:first-child { margin-top: 0; }
-
-    .sp-inicial-chips { display: flex; flex-wrap: wrap; gap: 7px; }
-
-    .sp-chip {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 7px 13px; border-radius: var(--r-md);
-      background: var(--surface-2); border: 1.5px solid var(--border);
-      font-size: 12px; font-weight: 600; color: var(--txt-2);
-      cursor: pointer; transition: border-color .12s, color .12s, background .12s;
-      white-space: nowrap; font-family: var(--font);
-    }
-
-    .sp-chip:hover {
-      border-color: var(--pri-20); color: var(--pri); background: var(--pri-10);
-    }
-
-    .sp-chip-ic { font-size: 13px; }
-
-    .sp-inicial-hint {
-      font-size: 11px; color: var(--txt-3);
-      margin-top: 18px; padding-top: 14px;
-      border-top: 1px solid var(--border);
-      text-align: center; line-height: 1.7;
-    }
-
-    .sp-inicial-hint kbd {
-      display: inline-block; padding: 1px 5px;
-      border: 1px solid var(--border); border-radius: 4px;
-      font-family: var(--mono); font-size: 10px;
-    }
-
     /* ── Painel hero ──────────────────────────────────────────── */
     .painel-hero {
       background: var(--pri); border-radius: var(--r-xl);
@@ -1747,6 +1701,234 @@
     @media (max-width: 480px) {
       .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
       .login-card { padding: 22px 18px; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       SECRETARIA — LAYOUT MASTER-DETAIL Z-PATTERN  v2.0
+       Proposta 2.1: hierarquia visual + painel contextual inline
+       ═══════════════════════════════════════════════════════════ */
+
+    /* ── Barra de status / KPIs de urgência ─────────────────── */
+    .sec-status-bar {
+      display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+
+    .sec-kpi-pill {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px; border-radius: var(--r-lg);
+      background: var(--surface); border: 1.5px solid var(--border);
+      box-shadow: var(--sh-xs); transition: transform .15s, box-shadow .15s;
+      flex: 1; min-width: 120px; position: relative; overflow: hidden;
+    }
+
+    .sec-kpi-pill[style*="cursor:pointer"]:hover {
+      transform: translateY(-2px); box-shadow: var(--sh-sm);
+    }
+
+    .sec-kpi-pill::before {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    }
+
+    .sec-kpi-pill-urgente {
+      border-color: rgba(220,38,38,.25); background: #fef2f2;
+    }
+    .sec-kpi-pill-urgente::before { background: var(--err); }
+
+    .sec-kpi-pill-aviso {
+      border-color: rgba(217,119,6,.28); background: #fffbeb;
+    }
+    .sec-kpi-pill-aviso::before { background: var(--warn); }
+
+    .sec-kpi-pill-info {
+      border-color: var(--pri-20); background: var(--info-bg);
+    }
+    .sec-kpi-pill-info::before { background: var(--pri); }
+
+    .sec-kpi-num-big {
+      font-size: 38px; font-weight: 800; letter-spacing: -.07em;
+      line-height: 1;
+    }
+
+    .sec-kpi-pill-urgente .sec-kpi-num-big { color: var(--err); }
+    .sec-kpi-pill-aviso   .sec-kpi-num-big { color: var(--warn); }
+    .sec-kpi-pill-info    .sec-kpi-num-big { color: var(--pri); }
+
+    .sec-kpi-pill-label {
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .08em; margin-top: 4px;
+    }
+
+    .sec-kpi-pill-urgente .sec-kpi-pill-label { color: var(--err); }
+    .sec-kpi-pill-aviso   .sec-kpi-pill-label { color: var(--warn); }
+    .sec-kpi-pill-info    .sec-kpi-pill-label { color: var(--pri); }
+
+    .sec-kpi-pill-sub {
+      font-size: 10px; color: var(--txt-3); margin-top: 2px; line-height: 1.4;
+    }
+
+    /* ── Layout master-detail ───────────────────────────────── */
+    .sec-md-layout {
+      display: grid;
+      grid-template-columns: 60fr 40fr;
+      border-radius: var(--r-lg);
+      border: 1.5px solid var(--border);
+      box-shadow: var(--sh-xs);
+      overflow: hidden;
+      background: var(--surface);
+      min-height: 560px;
+      height: calc(100vh - 230px);
+    }
+
+    .sec-md-list {
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+      background: var(--surface);
+    }
+
+    .sec-md-list-header {
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      background: var(--surface-2); flex-shrink: 0;
+    }
+
+    .sec-md-list-scroll {
+      flex: 1; overflow-y: auto;
+    }
+
+    .sec-md-list-scroll::-webkit-scrollbar { width: 5px; }
+    .sec-md-list-scroll::-webkit-scrollbar-thumb {
+      background: var(--border); border-radius: 3px;
+    }
+
+    .sec-md-detail {
+      display: flex; flex-direction: column;
+      overflow: hidden; background: #0b141a;
+    }
+
+    /* ── Chat inline: override overlay no desktop ───────────── */
+    @media (min-width: 769px) {
+      /* O overlay torna-se inline — sem fundo escuro, sem fixed */
+      #chat-sec-overlay {
+        position: static;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        padding: 0;
+        display: flex;          /* sempre visível no desktop */
+        flex-direction: column;
+        flex: 1;
+        width: 100%;
+        height: 100%;
+        z-index: auto;
+        align-items: stretch;
+        justify-content: stretch;
+      }
+
+      /* A classe .aberto no desktop não muda display — apenas
+         activa a visibilidade dos filhos */
+      #chat-sec-overlay.aberto {
+        display: flex;
+      }
+
+      /* Chat box ocupa toda a coluna direita */
+      .chat-sec-box {
+        position: static;
+        max-width: 100%;
+        height: 100%;
+        border-radius: 0;
+        box-shadow: none;
+        background: #111b21;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        width: 100%;
+        flex: 1;
+      }
+    }
+
+    /* ── Placeholder: estado vazio do painel direito ─────────── */
+    .sec-detail-placeholder-inner {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      flex: 1; padding: 40px 32px;
+      background: #0b141a; text-align: center;
+    }
+
+    .sec-detail-placeholder-inner .plc-ic {
+      font-size: 48px; margin-bottom: 14px; opacity: .18;
+    }
+
+    .sec-detail-placeholder-inner .plc-titulo {
+      font-size: 14px; font-weight: 700;
+      color: rgba(255,255,255,.28); margin-bottom: 6px;
+    }
+
+    .sec-detail-placeholder-inner .plc-sub {
+      font-size: 12px; color: rgba(255,255,255,.16);
+      line-height: 1.65; max-width: 200px;
+    }
+
+    /* Oculto quando chat está aberto */
+    #chat-sec-overlay.aberto .sec-detail-placeholder-inner { display: none; }
+
+    /* Nunca visível no mobile (overlay trata do layout) */
+    @media (max-width: 768px) {
+      .sec-detail-placeholder-inner { display: none; }
+    }
+
+    /* ── Wrapper do conteúdo do chat ────────────────────────── */
+    .chat-sec-content {
+      display: none;          /* oculto por default no desktop */
+      flex-direction: column;
+      flex: 1; overflow: hidden;
+    }
+
+    /* Aparece quando .aberto no desktop */
+    @media (min-width: 769px) {
+      #chat-sec-overlay.aberto .chat-sec-content { display: flex; }
+    }
+
+    /* No mobile está sempre visível (o overlay controla a visibilidade geral) */
+    @media (max-width: 768px) {
+      .chat-sec-content { display: flex; }
+    }
+
+    /* ── Responsive: mobile — comportamento original ─────────── */
+    @media (max-width: 768px) {
+      /* Restaurar overlay fixo no mobile */
+      #chat-sec-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.72);
+        z-index: 9000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        flex-direction: row; /* reset */
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+      }
+
+      #chat-sec-overlay.aberto { display: flex; }
+
+      .chat-sec-box {
+        width: 100%; max-width: 620px; height: 86vh;
+        border-radius: 12px;
+        box-shadow: 0 24px 80px rgba(0,0,0,.8);
+      }
+
+      /* Layout: coluna única no mobile */
+      .sec-md-layout {
+        grid-template-columns: 1fr;
+        height: auto; min-height: auto;
+      }
+
+      /* Painel direito oculto no mobile (overlay usa) */
+      .sec-md-detail { display: none; }
+
+      /* Status bar: empilhar em 2 colunas no mobile */
+      .sec-status-bar { gap: 8px; }
+      .sec-kpi-pill   { min-width: calc(50% - 8px); }
     }
 
   </style>
@@ -2353,92 +2535,181 @@
         </div>
       </div>
 
-      <!-- ══ SECÇÃO SECRETARIA ══ -->
+      <!-- ══ SECÇÃO SECRETARIA — Layout Master-Detail Z-Pattern ══ -->
       <div id="secção-secretaria" class="secção-restrita" style="display:none;">
-        <div class="secção-titulo" style="margin-bottom:20px;display:flex;align-items:center;gap:10px">✉️ Secretaria <span style="font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;background:rgba(217,119,6,.15);color:#fbbf24;border:1px solid rgba(217,119,6,.25)">Atendimento</span></div>
 
-        <!-- Tabs principais -->
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
-          <button class="btn-filtro-sec activo" id="tab-sec-pedidos" onclick="filtrarSecretaria('pedidos',this)">📬 Pedidos de Informação</button>
-          <button class="btn-filtro-sec" id="tab-sec-reunioes" onclick="filtrarSecretaria('reunioes',this)">📅 Agendamentos de Reunião</button>
-        </div>
-
-        <!-- Painel Pedidos -->
-        <div id="painel-pedidos-sec">
-          <div class="painel-card" style="margin-bottom:16px">
-            <div class="painel-card-header" style="flex-wrap:wrap;gap:10px">
-              <div class="painel-card-titulo">📬 Pedidos de Informação</div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-                <!-- Filtro estado -->
-                <select id="filtro-estado-pedidos" onchange="carregarPedidosSecretaria()" style="font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:#fff;color:var(--txt-1)">
-                  <option value="">Todos os estados</option>
-                  <option value="novo">Novos</option>
-                  <option value="em_analise">Em análise</option>
-                  <option value="respondido">Respondidos</option>
-                  <option value="fechado">Fechados</option>
-                </select>
-                <!-- Filtro data de -->
-                <label style="font-size:11px;color:var(--txt-sec);display:flex;align-items:center;gap:4px">
-                  De <input type="date" id="filtro-data-de-pedidos" onchange="carregarPedidosSecretaria()"
-                    style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:#fff;color:var(--txt-1)">
-                </label>
-                <label style="font-size:11px;color:var(--txt-sec);display:flex;align-items:center;gap:4px">
-                  Até <input type="date" id="filtro-data-ate-pedidos" onchange="carregarPedidosSecretaria()"
-                    style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:#fff;color:var(--txt-1)">
-                </label>
-                <button onclick="limparFiltrosPedidos()" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:transparent;color:var(--txt-sec);cursor:pointer">✕ Limpar</button>
-              </div>
+        <!-- ── Barra de status: KPIs de urgência (topo) ── -->
+        <div class="sec-status-bar">
+          <!-- KPI 1: Novos (urgência máxima — vermelho) -->
+          <div class="sec-kpi-pill sec-kpi-pill-urgente"
+               onclick="filtrarSecretaria('pedidos',document.getElementById('tab-sec-pedidos'))"
+               style="cursor:pointer" title="Ver pedidos novos">
+            <div>
+              <div class="sec-kpi-num-big" id="sec-sb-novos">—</div>
+              <div class="sec-kpi-pill-label">⚠ Novos</div>
+              <div class="sec-kpi-pill-sub">Aguardam resposta</div>
             </div>
-            <!-- Contador -->
-            <div id="sec-pedidos-contador" style="padding:8px 16px 0;font-size:12px;color:var(--txt-sec)"></div>
-            <div id="lista-pedidos-secretaria">
-              <div class="vazio-estado"><div class="icone">✉️</div><p>A carregar...</p></div>
+          </div>
+          <!-- KPI 2: Pendentes (atenção — âmbar) -->
+          <div class="sec-kpi-pill sec-kpi-pill-aviso"
+               onclick="filtrarSecretaria('reunioes',document.getElementById('tab-sec-reunioes'))"
+               style="cursor:pointer" title="Ver reuniões pendentes">
+            <div>
+              <div class="sec-kpi-num-big" id="sec-sb-pend">—</div>
+              <div class="sec-kpi-pill-label">⏳ Pendentes</div>
+              <div class="sec-kpi-pill-sub">Reuniões por gerir</div>
+            </div>
+          </div>
+          <!-- KPI 3: Total em aberto (informativo — azul) -->
+          <div class="sec-kpi-pill sec-kpi-pill-info">
+            <div>
+              <div class="sec-kpi-num-big" id="sec-sb-total">—</div>
+              <div class="sec-kpi-pill-label">∑ Total</div>
+              <div class="sec-kpi-pill-sub">Itens em aberto</div>
             </div>
           </div>
         </div>
 
-        <!-- Painel Reuniões -->
-        <div id="painel-reunioes-sec" style="display:none">
-          <div class="painel-card">
-            <div class="painel-card-header" style="flex-wrap:wrap;gap:10px">
-              <div class="painel-card-titulo">📅 Agendamentos de Reunião</div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-                <select id="filtro-estado-reunioes" onchange="carregarReunioesSecretaria()" style="font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:#fff;color:var(--txt-1)">
-                  <option value="">Todos os estados</option>
-                  <option value="pendente">Pendentes</option>
-                  <option value="confirmada">Confirmadas</option>
-                  <option value="recusada">Recusadas</option>
-                  <option value="remarcada">Remarcadas</option>
-                </select>
-                <label style="font-size:11px;color:var(--txt-sec);display:flex;align-items:center;gap:4px">
-                  De <input type="date" id="filtro-data-de-reunioes" onchange="carregarReunioesSecretaria()"
-                    style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:#fff;color:var(--txt-1)">
-                </label>
-                <label style="font-size:11px;color:var(--txt-sec);display:flex;align-items:center;gap:4px">
-                  Até <input type="date" id="filtro-data-ate-reunioes" onchange="carregarReunioesSecretaria()"
-                    style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:#fff;color:var(--txt-1)">
-                </label>
-                <button onclick="limparFiltrosReunioes()" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:transparent;color:var(--txt-sec);cursor:pointer">✕ Limpar</button>
+        <!-- ── Layout master-detail (2 colunas) ── -->
+        <div class="sec-md-layout">
+
+          <!-- Coluna esquerda — lista de trabalho (60%) ── -->
+          <div class="sec-md-list">
+            <!-- Header: título + tabs ── -->
+            <div class="sec-md-list-header">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px">
+                <div style="font-size:13px;font-weight:800;color:var(--txt-1);display:flex;align-items:center;gap:7px">
+                  ✉️ Secretaria
+                  <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(217,119,6,.12);color:#d97706;border:1px solid rgba(217,119,6,.22)">Atendimento</span>
+                </div>
+              </div>
+              <!-- Tabs de navegação ── -->
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn-filtro-sec activo" id="tab-sec-pedidos" onclick="filtrarSecretaria('pedidos',this)">📬 Pedidos de Informação</button>
+                <button class="btn-filtro-sec" id="tab-sec-reunioes" onclick="filtrarSecretaria('reunioes',this)">📅 Agendamentos de Reunião</button>
               </div>
             </div>
-            <div id="sec-reunioes-contador" style="padding:8px 16px 0;font-size:12px;color:var(--txt-sec)"></div>
-            <div id="lista-reunioes-secretaria">
-              <div class="vazio-estado"><div class="icone">📅</div><p>A carregar...</p></div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Modal acções de reunião — confirmar / remarcar / recusar / realizada -->
+            <!-- Área de scroll — lista ── -->
+            <div class="sec-md-list-scroll">
+
+              <!-- ── Painel Pedidos ── -->
+              <div id="painel-pedidos-sec">
+                <!-- Filtros rápidos ── -->
+                <div style="padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface-2);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                  <select id="filtro-estado-pedidos" onchange="carregarPedidosSecretaria()" style="font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--txt-1)">
+                    <option value="">Todos os estados</option>
+                    <option value="novo">Novos</option>
+                    <option value="em_analise">Em análise</option>
+                    <option value="respondido">Respondidos</option>
+                    <option value="fechado">Fechados</option>
+                  </select>
+                  <label style="font-size:11px;color:var(--txt-2);display:flex;align-items:center;gap:4px">
+                    De <input type="date" id="filtro-data-de-pedidos" onchange="carregarPedidosSecretaria()"
+                      style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--txt-1)">
+                  </label>
+                  <label style="font-size:11px;color:var(--txt-2);display:flex;align-items:center;gap:4px">
+                    Até <input type="date" id="filtro-data-ate-pedidos" onchange="carregarPedidosSecretaria()"
+                      style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--txt-1)">
+                  </label>
+                  <button onclick="limparFiltrosPedidos()" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--txt-2);cursor:pointer">✕ Limpar</button>
+                  <div id="sec-pedidos-contador" style="margin-left:auto;font-size:11px;color:var(--txt-3)"></div>
+                </div>
+                <!-- Lista ── -->
+                <div id="lista-pedidos-secretaria">
+                  <div class="vazio-estado"><div class="icone">✉️</div><p>A carregar...</p></div>
+                </div>
+              </div>
+
+              <!-- ── Painel Reuniões ── -->
+              <div id="painel-reunioes-sec" style="display:none">
+                <!-- Filtros rápidos ── -->
+                <div style="padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface-2);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                  <select id="filtro-estado-reunioes" onchange="carregarReunioesSecretaria()" style="font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--txt-1)">
+                    <option value="">Todos os estados</option>
+                    <option value="pendente">Pendentes</option>
+                    <option value="confirmada">Confirmadas</option>
+                    <option value="recusada">Recusadas</option>
+                    <option value="remarcada">Remarcadas</option>
+                  </select>
+                  <label style="font-size:11px;color:var(--txt-2);display:flex;align-items:center;gap:4px">
+                    De <input type="date" id="filtro-data-de-reunioes" onchange="carregarReunioesSecretaria()"
+                      style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--txt-1)">
+                  </label>
+                  <label style="font-size:11px;color:var(--txt-2);display:flex;align-items:center;gap:4px">
+                    Até <input type="date" id="filtro-data-ate-reunioes" onchange="carregarReunioesSecretaria()"
+                      style="font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--txt-1)">
+                  </label>
+                  <button onclick="limparFiltrosReunioes()" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--txt-2);cursor:pointer">✕ Limpar</button>
+                  <div id="sec-reunioes-contador" style="margin-left:auto;font-size:11px;color:var(--txt-3)"></div>
+                </div>
+                <!-- Lista ── -->
+                <div id="lista-reunioes-secretaria">
+                  <div class="vazio-estado"><div class="icone">📅</div><p>A carregar...</p></div>
+                </div>
+              </div>
+
+            </div><!-- /sec-md-list-scroll -->
+          </div><!-- /sec-md-list -->
+
+          <!-- Coluna direita — painel contextual (40%) ── -->
+          <div class="sec-md-detail">
+            <!-- Chat overlay reposicionado aqui.
+                 No desktop torna-se inline (sem fundo, sem fixed).
+                 No mobile continua como overlay fixo. ── -->
+            <div class="chat-sec-overlay" id="chat-sec-overlay"
+                 onclick="if(event.target===this&&window.innerWidth<=768)fecharChatSecretaria()">
+
+              <!-- Estado vazio: mostrado quando nenhum pedido está seleccionado ── -->
+              <div id="sec-detail-placeholder" class="sec-detail-placeholder-inner">
+                <div class="plc-ic">💬</div>
+                <div class="plc-titulo">Nenhum item seleccionado</div>
+                <div class="plc-sub">Clique num pedido ou agendamento para ver os detalhes e responder diretamente aqui</div>
+              </div>
+
+              <!-- Conteúdo do chat — aparece quando .aberto ── -->
+              <div class="chat-sec-box">
+                <div class="chat-sec-content">
+                  <div class="chat-sec-header">
+                    <div class="chat-sec-av">💬</div>
+                    <div class="chat-sec-header-info">
+                      <div class="chat-sec-titulo" id="chat-sec-titulo">Conversa</div>
+                      <div class="chat-sec-sub" id="chat-sec-sub">Secretaria · DMS Sumbe</div>
+                    </div>
+                    <button id="chat-sec-btn-doc" onclick="abrirDocumentosParaFuncionario()"
+                      title="Gerar documento para este funcionário"
+                      style="display:none;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#fbbf24;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s"
+                      onmouseover="this.style.background='rgba(245,158,11,.28)'" onmouseout="this.style.background='rgba(245,158,11,.15)'">
+                      📄 Gerar doc
+                    </button>
+                    <button class="chat-sec-fechar" onclick="fecharChatSecretaria()" title="Fechar">✕</button>
+                  </div>
+                  <div class="chat-estado-bar-sec aberto" id="chat-sec-estado-bar">● Conversa aberta</div>
+                  <div class="chat-sec-msgs" id="chat-sec-msgs"></div>
+                  <div style="padding:0 16px;flex-shrink:0" id="chat-sec-fechar-row">
+                    <button class="chat-sec-fechar-conv" onclick="fecharConversaSecretaria()">⊗ Encerrar conversa</button>
+                  </div>
+                  <div class="chat-sec-input-row">
+                    <textarea class="chat-sec-input" id="chat-sec-input" rows="1" placeholder="Escreva uma resposta…"
+                      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemSecretaria();}"></textarea>
+                    <button class="chat-sec-enviar" onclick="enviarMensagemSecretaria()" id="btn-chat-sec-enviar" title="Enviar">➤</button>
+                  </div>
+                </div><!-- /chat-sec-content -->
+              </div><!-- /chat-sec-box -->
+
+            </div><!-- /chat-sec-overlay -->
+          </div><!-- /sec-md-detail -->
+
+        </div><!-- /sec-md-layout -->
+
+        <!-- ── Modal acções de reunião — confirmar / remarcar / recusar / realizada ── -->
         <div id="modal-reuniao-acao" class="modal-sec" style="display:none" onclick="if(event.target===this)fecharModalReuniaoAcao()">
           <div class="modal-sec-card" style="max-width:480px">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
               <div class="modal-sec-titulo" id="mra-titulo">—</div>
               <button onclick="fecharModalReuniaoAcao()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px" title="Fechar">×</button>
             </div>
-            <!-- Info da reunião -->
             <div id="mra-info" class="modal-sec-texto" style="margin-bottom:16px"></div>
-
-            <!-- ── MODO CONFIRMAR ── -->
             <div id="mra-confirmar">
               <div class="modal-sec-label">Local da reunião <span style="font-weight:400;opacity:.6">(opcional)</span></div>
               <input type="text" id="mra-local" placeholder="Ex: Sala de reuniões da DMS, piso 1…" maxlength="120">
@@ -2447,8 +2718,6 @@
                 <button class="btn-sec-sm btn-sec-conf" id="mra-btn-confirmar" onclick="submeterModalReuniaoAcao()">✔ Confirmar reunião</button>
               </div>
             </div>
-
-            <!-- ── MODO REMARCAR ── -->
             <div id="mra-remarcar" style="display:none">
               <div class="modal-sec-label">Nova data sugerida <span style="color:#f87171">*</span></div>
               <input type="date" id="mra-data-nova">
@@ -2466,8 +2735,6 @@
                 <button class="btn-sec-sm" style="background:rgba(99,102,241,.25);color:#a5b4fc" onclick="submeterModalReuniaoAcao()">↷ Sugerir nova data</button>
               </div>
             </div>
-
-            <!-- ── MODO RECUSAR ── -->
             <div id="mra-recusar" style="display:none">
               <div class="modal-sec-label">Motivo da recusa <span style="color:#f87171">*</span></div>
               <textarea id="mra-motivo" placeholder="Indique o motivo para que o funcionário possa reagendar ou tomar outra medida…" style="min-height:100px;margin-bottom:4px"></textarea>
@@ -2477,8 +2744,6 @@
                 <button class="btn-sec-sm btn-sec-recus" onclick="submeterModalReuniaoAcao()">✕ Recusar reunião</button>
               </div>
             </div>
-
-            <!-- ── MODO REALIZADA ── -->
             <div id="mra-realizada" style="display:none">
               <div style="font-size:13px;color:var(--txt-sec);margin-bottom:16px;line-height:1.6">
                 Confirma que esta reunião foi <strong style="color:#c4b5fd">realizada</strong>?<br>
@@ -2494,7 +2759,7 @@
           </div>
         </div>
 
-        <!-- Modal Histórico -->
+        <!-- ── Modal Histórico ── -->
         <div id="modal-historico-sec" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:9999;align-items:center;justify-content:center;padding:16px">
           <div style="background:var(--card);border-radius:16px;padding:28px;width:100%;max-width:540px;border:1px solid rgba(217,119,6,.25);max-height:80vh;overflow-y:auto">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
@@ -2505,7 +2770,8 @@
             <div id="modal-historico-sec-lista"></div>
           </div>
         </div>
-      </div>
+
+      </div><!-- /secção-secretaria -->
 
     </div><!-- /conteudo -->
   </div><!-- /main-wrap -->
@@ -2960,7 +3226,14 @@
     const tt = document.getElementById("topbar-titulo");
     if(tt) tt.textContent = titulos[id] || "Dashboard";
     document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("activo"));
-    if(id === "secretaria") carregarPedidosSecretaria();
+    if(id === "secretaria") {
+      carregarPedidosSecretaria();
+      // Se o chat inline estava aberto por outro item, fechar ao navegar para a secretaria de novo
+      const overlay = document.getElementById('chat-sec-overlay');
+      if (overlay && overlay.classList.contains('aberto') && window.innerWidth > 768) {
+        // não fechar automaticamente — manter contexto se a secretária só refrescou
+      }
+    }
   };
 
   window.filtrarSecretaria = function(tipo, btn) {
@@ -2968,6 +3241,11 @@
     if (btn) btn.classList.add('activo');
     document.getElementById('painel-pedidos-sec').style.display  = tipo === 'pedidos'  ? '' : 'none';
     document.getElementById('painel-reunioes-sec').style.display = tipo === 'reunioes' ? '' : 'none';
+    // Ao mudar de aba, fechar o chat inline para evitar contexto errado no painel direito
+    const overlay = document.getElementById('chat-sec-overlay');
+    if (overlay && overlay.classList.contains('aberto') && window.innerWidth > 768) {
+      fecharChatSecretaria();
+    }
     if (tipo === 'pedidos')  carregarPedidosSecretaria();
     if (tipo === 'reunioes') carregarReunioesSecretaria();
   };
@@ -3156,9 +3434,6 @@
 
     // ── Vigiar sessão concorrente ──
     SIGDOC_SESSION.vigiar(db, u.uid, auth, { onSnapshot, doc, signOut });
-
-    // ── Construir catálogo da command palette para este perfil ──
-    construirAccoesPalette(p, roles);
   }
 
   // ── NOTIFICAÇÕES EM TEMPO REAL ──
@@ -3525,98 +3800,6 @@
 
   let _spTimer = null;
   let _spFocoIdx = -1;
-  let _ACCOES_PALETTE  = [];   // acções disponíveis para o perfil actual
-  let _spAccoesActuais = [];   // acções visíveis no render actual (para exec por índice)
-
-  // ── Command Palette — construção do catálogo de acções por perfil ──
-  // Chamada uma vez após login. Cada acção tem:
-  //   grupo : 'nav' | 'criar' | 'ir'   — agrupa no estado inicial
-  //   ic    : emoji
-  //   txt   : label (aparece no item e nos chips)
-  //   sub   : descrição curta (linha secundária)
-  //   kw    : array de keywords para fuzzy match com o termo de pesquisa
-  //   exec  : função executada quando o item é activado
-
-  function construirAccoesPalette(p, roles) {
-    const acc = [];
-
-    // ── Navegação (todos os perfis) ───────────────────────────
-    acc.push({
-      grupo:'nav', ic:'🏠', txt:'Dashboard', sub:'Voltar ao início',
-      kw:['dashboard','início','home','inicio'],
-      exec: () => mostrarSecção('dashboard')
-    });
-
-    if (roles.some(r => ['admin','chefe','tecnico','secretaria'].includes(r))) {
-      acc.push({
-        grupo:'nav', ic:'✉️', txt:'Secretaria', sub:'Pedidos e reuniões',
-        kw:['secretaria','pedidos','reuniões','reunioes','atendimento'],
-        exec: () => mostrarSecção('secretaria')
-      });
-    }
-
-    if (roles.some(r => ['admin','tecnico'].includes(r))) {
-      acc.push({
-        grupo:'nav', ic:'👥', txt:'Gestão de Utilizadores', sub:'Contas e perfis do sistema',
-        kw:['utilizadores','contas','perfis','gestão','gestao','utilizador'],
-        exec: () => mostrarSecção('utilizadores')
-      });
-    }
-
-    // ── Criar (perfis operacionais) ───────────────────────────
-    if (roles.some(r => ['admin','chefe','tecnico'].includes(r))) {
-      acc.push({
-        grupo:'criar', ic:'👤', txt:'Novo Funcionário', sub:'Registar colaborador no cadastro',
-        kw:['novo funcionário','registar','criar','colaborador','novo funcionario','cadastro'],
-        exec: () => { window.location.href = 'cadastro.html'; }
-      });
-      acc.push({
-        grupo:'criar', ic:'📄', txt:'Gerar Documento', sub:'Emitir guia, declaração ou atestado',
-        kw:['gerar','documento','guia','guia médica','guia medica','declaração','declaracao','atestado','emitir'],
-        exec: () => { window.location.href = 'documentos.html'; }
-      });
-    }
-
-    // ── Ir para (módulos acessíveis) ──────────────────────────
-    if (roles.some(r => ['admin','chefe','tecnico'].includes(r))) {
-      acc.push({
-        grupo:'ir', ic:'✅', txt:'Aprovações e Solicitações', sub:'Processar pedidos pendentes',
-        kw:['aprovações','aprovacoes','solicitações','solicitacoes','pendentes','aprovar','processar'],
-        exec: () => { window.location.href = 'aprovacao.html'; }
-      });
-    }
-
-    if (roles.some(r => ['admin','chefe','director'].includes(r))) {
-      acc.push({
-        grupo:'ir', ic:'🔍', txt:'Auditoria', sub:'Histórico de acções do sistema',
-        kw:['auditoria','histórico','historico','log','rastreio','rastreabilidade'],
-        exec: () => { window.location.href = 'auditoria.html'; }
-      });
-      acc.push({
-        grupo:'ir', ic:'📈', txt:'Painel RH', sub:'Indicadores e métricas executivas',
-        kw:['painel','rh','indicadores','métricas','metricas','relatório','relatorio'],
-        exec: () => { window.location.href = 'painel.html'; }
-      });
-    }
-
-    if (roles.some(r => ['admin','chefe','tecnico','director'].includes(r))) {
-      acc.push({
-        grupo:'ir', ic:'📱', txt:'Portal do Funcionário', sub:'Self-service para os colaboradores',
-        kw:['portal','self-service','funcionário','funcionario'],
-        exec: () => { window.open('portal.html', '_blank'); }
-      });
-    }
-
-    if (roles.some(r => ['admin','chefe','tecnico'].includes(r))) {
-      acc.push({
-        grupo:'ir', ic:'👨‍💼', txt:'Cadastro de Funcionários', sub:'Quadro de pessoal e fichas individuais',
-        kw:['cadastro','funcionários','funcionarios','pessoal','quadro'],
-        exec: () => { window.location.href = 'cadastro.html'; }
-      });
-    }
-
-    _ACCOES_PALETTE = acc;
-  }
 
   // Atalho de teclado: / para abrir, Esc para fechar
   document.addEventListener('keydown', e => {
@@ -3640,71 +3823,14 @@
     document.getElementById('sp-overlay').classList.remove('activo');
   };
 
-  // Executa acção pelo índice no array do render actual (com termo escrito)
-  window.executarAccaoSP = function(idx) {
-    const acc = _spAccoesActuais[idx];
-    if (!acc) return;
-    fecharPesquisa();
-    acc.exec();
-  };
-
-  // Executa acção pelo índice na palette completa (a partir dos chips do estado inicial)
-  window.executarAccaoSPInicial = function(idx) {
-    const acc = _ACCOES_PALETTE[idx];
-    if (!acc) return;
-    fecharPesquisa();
-    acc.exec();
-  };
-
   function mostrarEstadoInicial() {
-    const area = document.getElementById('sp-resultados');
-
-    // Fallback se a palette ainda não foi construída (antes do login)
-    if (!_ACCOES_PALETTE.length) {
-      area.innerHTML = `<div class="sp-vazio" id="sp-estado-inicial">
+    document.getElementById('sp-resultados').innerHTML =
+      `<div class="sp-vazio" id="sp-estado-inicial">
         <div style="font-size:32px;margin-bottom:8px">🔍</div>
-        Escreva para pesquisar em <strong style="color:rgba(0,0,0,.45)">funcionários</strong>,
-        <strong style="color:rgba(0,0,0,.45)">documentos</strong> e
-        <strong style="color:rgba(0,0,0,.45)">solicitações</strong>
+        Escreva para pesquisar em <strong style="color:rgba(255,255,255,.5)">funcionários</strong>,
+        <strong style="color:rgba(255,255,255,.5)">documentos</strong> e
+        <strong style="color:rgba(255,255,255,.5)">solicitações</strong>
       </div>`;
-      return;
-    }
-
-    // Separar por grupo para apresentar
-    const navAccoes = _ACCOES_PALETTE.filter(a => a.grupo === 'nav');
-    const opAccoes  = _ACCOES_PALETTE.filter(a => a.grupo === 'criar');
-    const irAccoes  = _ACCOES_PALETTE.filter(a => a.grupo === 'ir');
-
-    const chipHtml = (a, idx) =>
-      `<button class="sp-chip" onclick="executarAccaoSPInicial(${idx})">
-        <span class="sp-chip-ic">${a.ic}</span>${a.txt}
-      </button>`;
-
-    let html = '<div class="sp-inicial-wrap">';
-
-    if (navAccoes.length) {
-      html += '<div class="sp-inicial-grupo">Navegar</div><div class="sp-inicial-chips">';
-      navAccoes.forEach((a) => { html += chipHtml(a, _ACCOES_PALETTE.indexOf(a)); });
-      html += '</div>';
-    }
-    if (opAccoes.length) {
-      html += '<div class="sp-inicial-grupo">Criar</div><div class="sp-inicial-chips">';
-      opAccoes.forEach((a) => { html += chipHtml(a, _ACCOES_PALETTE.indexOf(a)); });
-      html += '</div>';
-    }
-    if (irAccoes.length) {
-      html += '<div class="sp-inicial-grupo">Ir para</div><div class="sp-inicial-chips">';
-      irAccoes.forEach((a) => { html += chipHtml(a, _ACCOES_PALETTE.indexOf(a)); });
-      html += '</div>';
-    }
-
-    html += `<div class="sp-inicial-hint">
-      <kbd>↑↓</kbd> navegar &nbsp;·&nbsp; <kbd>↩</kbd> executar &nbsp;·&nbsp;
-      <kbd>/</kbd> abrir &nbsp;·&nbsp; <kbd>Esc</kbd> fechar
-      &nbsp;·&nbsp; escreva para pesquisar registos
-    </div>`;
-    html += '</div>';
-    area.innerHTML = html;
   }
 
   window.pesquisarGlobal = function(termo) {
@@ -3760,49 +3886,19 @@
   }
 
   function renderResultados(res, termo) {
-    // Reset do array de acções visíveis neste render
-    _spAccoesActuais = [];
-
     const total = res.funcionarios.length + res.documentos.length + res.solicitacoes.length;
     const el = document.getElementById('sp-resultados');
 
-    // ── Filtrar acções que correspondem ao termo ──────────────
-    const termoLower = termo.toLowerCase();
-    const accoesMatch = _ACCOES_PALETTE.filter(a =>
-      a.txt.toLowerCase().includes(termoLower) ||
-      a.sub.toLowerCase().includes(termoLower) ||
-      a.kw.some(k => k.toLowerCase().includes(termoLower))
-    );
-
-    if (total === 0 && accoesMatch.length === 0) {
+    if (total === 0) {
       el.innerHTML = `<div class="sp-vazio">
         <div style="font-size:32px;margin-bottom:8px">😶</div>
-        Sem resultados para <strong style="color:rgba(0,0,0,.45)">"${termo}"</strong>
+        Sem resultados para <strong style="color:rgba(255,255,255,.5)">"${termo}"</strong>
       </div>`;
       return;
     }
 
     let html = '';
 
-    // ── Acções em primeiro lugar ─────────────────────────────
-    if (accoesMatch.length) {
-      html += `<div class="sp-grupo-titulo">⚡ Acções</div>`;
-      accoesMatch.forEach(a => {
-        _spAccoesActuais.push(a);
-        const idx = _spAccoesActuais.length - 1;
-        const icClass = a.grupo === 'nav' ? 'sp-ic-nav' : 'sp-ic-cmd';
-        html += `<div class="sp-item" onclick="executarAccaoSP(${idx})" data-sp-item>
-          <div class="sp-item-ic ${icClass}">${a.ic}</div>
-          <div style="flex:1;min-width:0">
-            <div class="sp-item-nome">${highlight(a.txt, termo)}</div>
-            <div class="sp-item-sub">${a.sub}</div>
-          </div>
-          <span class="sp-cmd-badge">↩ Acção</span>
-        </div>`;
-      });
-    }
-
-    // ── Resultados de dados ──────────────────────────────────
     if (res.funcionarios.length) {
       html += `<div class="sp-grupo-titulo">👨‍💼 Funcionários (${res.funcionarios.length})</div>`;
       res.funcionarios.slice(0, 6).forEach(f => {
@@ -4494,6 +4590,14 @@
       dot.classList.remove('visivel'); count.classList.remove('visivel');
     }
 
+    // ── Actualizar KPIs da barra de status da Secretaria ──
+    const sbNovos = document.getElementById('sec-sb-novos');
+    const sbPend  = document.getElementById('sec-sb-pend');
+    const sbTotal = document.getElementById('sec-sb-total');
+    if (sbNovos) sbNovos.textContent = _pedidosNovos.length;
+    if (sbPend)  sbPend.textContent  = _reunioesPend.length;
+    if (sbTotal) sbTotal.textContent = total;
+
     if (total === 0) { lista.innerHTML = '<div class="notif-drop-vazio">✅ Sem pendentes</div>'; return; }
 
     let html = '';
@@ -4713,35 +4817,6 @@
   </div>
 </div>
 
-<!-- ── CHAT SECRETARIA OVERLAY ── -->
-<div class="chat-sec-overlay" id="chat-sec-overlay" onclick="if(event.target===this)fecharChatSecretaria()">
-  <div class="chat-sec-box">
-    <div class="chat-sec-header">
-      <div class="chat-sec-av">💬</div>
-      <div class="chat-sec-header-info">
-        <div class="chat-sec-titulo" id="chat-sec-titulo">Conversa</div>
-        <div class="chat-sec-sub" id="chat-sec-sub">Secretaria · DMS Sumbe</div>
-      </div>
-      <button id="chat-sec-btn-doc" onclick="abrirDocumentosParaFuncionario()"
-        title="Gerar documento para este funcionário"
-        style="display:none;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#fbbf24;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s"
-        onmouseover="this.style.background='rgba(245,158,11,.28)'" onmouseout="this.style.background='rgba(245,158,11,.15)'">
-        📄 Gerar doc
-      </button>
-      <button class="chat-sec-fechar" onclick="fecharChatSecretaria()" title="Fechar">✕</button>
-    </div>
-    <div class="chat-estado-bar-sec aberto" id="chat-sec-estado-bar">● Conversa aberta</div>
-    <div class="chat-sec-msgs" id="chat-sec-msgs"></div>
-    <div style="padding:0 16px;flex-shrink:0" id="chat-sec-fechar-row">
-      <button class="chat-sec-fechar-conv" onclick="fecharConversaSecretaria()">⊗ Encerrar conversa</button>
-    </div>
-    <div class="chat-sec-input-row">
-      <textarea class="chat-sec-input" id="chat-sec-input" rows="1" placeholder="Escreva uma resposta…"
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemSecretaria();}"></textarea>
-      <button class="chat-sec-enviar" onclick="enviarMensagemSecretaria()" id="btn-chat-sec-enviar" title="Enviar">➤</button>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>
