@@ -1477,6 +1477,49 @@
       font-size: 24px; opacity: .12;
     }
 
+    /* ── KPI: estado de urgência (pedidos novos > 0) ── */
+    .sec-home-kpi.kpi-urgente {
+      background: var(--warn-bg);
+      border-color: var(--warn-border);
+      box-shadow: 0 0 0 1px var(--warn-border), 0 1px 4px rgba(217,119,6,.08);
+    }
+    .sec-home-kpi.kpi-urgente:hover { border-color: var(--warn); box-shadow: var(--sh-sm); }
+    .sec-home-kpi.kpi-urgente .sec-home-kpi-num { color: var(--warn); }
+    .sec-home-kpi.kpi-urgente .sec-home-kpi-ic  { opacity: .22; }
+
+    /* ── KPI: estado "hoje" (reuniões confirmadas para hoje > 0) ── */
+    .sec-home-kpi.kpi-hoje {
+      background: var(--ok-bg);
+      border-color: var(--ok-border);
+      box-shadow: 0 0 0 1px var(--ok-border), var(--sh-xs);
+    }
+    .sec-home-kpi.kpi-hoje:hover { border-color: var(--ok); box-shadow: var(--sh-sm); }
+    .sec-home-kpi.kpi-hoje .sec-home-kpi-num { color: var(--ok); }
+    .sec-home-kpi.kpi-hoje .sec-home-kpi-ic  { opacity: .22; }
+
+    /* ── KPI: contexto de tempo ── */
+    .sec-home-kpi-tempo {
+      font-size: 10px; color: var(--txt-3);
+      font-family: var(--mono); margin-top: 1px; margin-bottom: 1px;
+    }
+    .sec-home-kpi.kpi-urgente .sec-home-kpi-tempo { color: rgba(217,119,6,.6); }
+    .sec-home-kpi.kpi-hoje    .sec-home-kpi-tempo { color: rgba(5,150,105,.6); }
+
+    /* ── KPI: footer de navegação — sempre visível e subtil ── */
+    .sec-home-kpi-footer {
+      display: flex; align-items: center; justify-content: flex-end;
+      gap: 3px; margin-top: 12px; padding-top: 9px;
+      border-top: 1px solid var(--border);
+      font-size: 11px; font-weight: 600; color: var(--txt-3);
+      transition: color .15s, border-color .15s;
+      letter-spacing: .01em;
+    }
+    .sec-home-kpi:hover            .sec-home-kpi-footer { color: var(--pri);  border-top-color: var(--pri-20); }
+    .sec-home-kpi.kpi-urgente      .sec-home-kpi-footer { border-top-color: var(--warn-border); }
+    .sec-home-kpi.kpi-urgente:hover .sec-home-kpi-footer { color: var(--warn); border-top-color: rgba(217,119,6,.30); }
+    .sec-home-kpi.kpi-hoje         .sec-home-kpi-footer { border-top-color: var(--ok-border); }
+    .sec-home-kpi.kpi-hoje:hover   .sec-home-kpi-footer { color: var(--ok);   border-top-color: rgba(5,150,105,.30); }
+
     /* Fila imediata de trabalho */
     .sec-home-fila-card {
       background: var(--surface); border: 1.5px solid var(--border);
@@ -2120,27 +2163,59 @@
         <div id="dash-home-secretaria">
           <!-- KPIs operacionais da secretaria -->
           <div class="sec-home-kpi-row">
-            <div class="sec-home-kpi" onclick="mostrarSecção('secretaria');filtrarSecretaria('pedidos',document.getElementById('tab-sec-pedidos'))" style="cursor:pointer">
+
+            <!-- KPI 1: Pedidos Novos — urgência contextual quando > 0 -->
+            <div class="sec-home-kpi" id="sh-kpi-card-pedidos"
+                 onclick="mostrarSecção('secretaria');filtrarSecretaria('pedidos',document.getElementById('tab-sec-pedidos'))"
+                 style="cursor:pointer">
               <div class="sec-home-kpi-ic">✉️</div>
               <div class="sec-home-kpi-label">Pedidos Novos</div>
               <div class="sec-home-kpi-num" id="sh-kpi-pedidos-novos">—</div>
+              <div class="sec-home-kpi-tempo">nas últimas 24h</div>
               <div class="sec-home-kpi-sub">Aguardam resposta da secretaria</div>
+              <div class="sec-home-kpi-footer">→ Ver todos</div>
               <div class="sec-home-kpi-accent" style="background:linear-gradient(90deg,var(--pri),#4f8ef7)"></div>
             </div>
-            <div class="sec-home-kpi" onclick="mostrarSecção('secretaria');filtrarSecretaria('reunioes',document.getElementById('tab-sec-reunioes'))" style="cursor:pointer">
-              <div class="sec-home-kpi-ic">📅</div>
+
+            <!-- KPI 2: Reuniões Pendentes — por confirmar/remarcar -->
+            <div class="sec-home-kpi"
+                 onclick="mostrarSecção('secretaria');filtrarSecretaria('reunioes',document.getElementById('tab-sec-reunioes'))"
+                 style="cursor:pointer">
+              <div class="sec-home-kpi-ic">⏳</div>
               <div class="sec-home-kpi-label">Reuniões Pendentes</div>
               <div class="sec-home-kpi-num" id="sh-kpi-reunioes-pend">—</div>
+              <div class="sec-home-kpi-tempo">aguardam confirmação</div>
               <div class="sec-home-kpi-sub">Por confirmar ou remarcar</div>
+              <div class="sec-home-kpi-footer">→ Ver reuniões</div>
               <div class="sec-home-kpi-accent" style="background:linear-gradient(90deg,var(--warn),#fbbf24)"></div>
             </div>
-            <div class="sec-home-kpi">
+
+            <!-- KPI 3: Confirmadas Hoje — agenda do dia (verde quando > 0) -->
+            <div class="sec-home-kpi" id="sh-kpi-card-conf"
+                 onclick="mostrarSecção('secretaria');filtrarSecretaria('reunioes',document.getElementById('tab-sec-reunioes'))"
+                 style="cursor:pointer">
+              <div class="sec-home-kpi-ic">📆</div>
+              <div class="sec-home-kpi-label">Confirmadas Hoje</div>
+              <div class="sec-home-kpi-num" id="sh-kpi-reunioes-conf">—</div>
+              <div class="sec-home-kpi-tempo">agendadas para hoje</div>
+              <div class="sec-home-kpi-sub">Reuniões confirmadas para o dia</div>
+              <div class="sec-home-kpi-footer">→ Ver agenda</div>
+              <div class="sec-home-kpi-accent" style="background:linear-gradient(90deg,var(--ok),#34d399)"></div>
+            </div>
+
+            <!-- KPI 4: Total em Aberto — visão global -->
+            <div class="sec-home-kpi"
+                 onclick="mostrarSecção('secretaria')"
+                 style="cursor:pointer">
               <div class="sec-home-kpi-ic">📬</div>
               <div class="sec-home-kpi-label">Total em Aberto</div>
               <div class="sec-home-kpi-num" id="sh-kpi-total-aberto">—</div>
+              <div class="sec-home-kpi-tempo">pendentes actualmente</div>
               <div class="sec-home-kpi-sub">Pedidos + reuniões pendentes</div>
+              <div class="sec-home-kpi-footer">→ Ver secretaria</div>
               <div class="sec-home-kpi-accent" style="background:linear-gradient(90deg,var(--hlth),var(--c-400))"></div>
             </div>
+
           </div>
 
           <!-- CTAs de acção imediata -->
@@ -4558,12 +4633,13 @@
   };
 
   // ── WATCHER SECRETARIA — pedidos novos + reuniões pendentes ──
-  let _unsubPedidosSec = null, _unsubReunioesSec = null;
-  let _pedidosNovos = [], _reunioesPend = [];
+  let _unsubPedidosSec = null, _unsubReunioesSec = null, _unsubReunioesConf = null;
+  let _pedidosNovos = [], _reunioesPend = [], _reunioesConfirmadas = [];
 
   function iniciarWatcherSecretaria() {
     if (_unsubPedidosSec) _unsubPedidosSec();
     if (_unsubReunioesSec) _unsubReunioesSec();
+    if (_unsubReunioesConf) _unsubReunioesConf();
 
     _unsubPedidosSec = onSnapshot(
       query(collection(db,'pedidos_secretaria'), where('naoLidasSecretaria','>',0)),
@@ -4574,6 +4650,12 @@
       query(collection(db,'reunioes'), where('estado','==','pendente')),
       snap => { _reunioesPend = snap.docs.map(d=>({id:d.id,...d.data()})); actualizarSinoSecretaria(); },
       err => console.error('Watcher reunioes sec:',err)
+    );
+    // Watcher para reuniões confirmadas (para calcular agenda de hoje)
+    _unsubReunioesConf = onSnapshot(
+      query(collection(db,'reunioes'), where('estado','==','confirmada')),
+      snap => { _reunioesConfirmadas = snap.docs.map(d=>({id:d.id,...d.data()})); actualizarDashHomeSecretaria(); },
+      err => console.error('Watcher reunioes conf:',err)
     );
   }
 
@@ -4639,13 +4721,33 @@
     const nReu = _reunioesPend.length;
     const total = nPed + nReu;
 
-    // KPIs
-    const elPed   = document.getElementById('sh-kpi-pedidos-novos');
-    const elReu   = document.getElementById('sh-kpi-reunioes-pend');
-    const elTot   = document.getElementById('sh-kpi-total-aberto');
-    if (elPed) elPed.textContent = nPed;
-    if (elReu) elReu.textContent = nReu;
-    if (elTot) elTot.textContent = total;
+    // Reuniões confirmadas para hoje
+    const hoje = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+    const nConf = _reunioesConfirmadas.filter(r => {
+      if (!r.dataPreferida) return false;
+      if (r.dataPreferida?.toDate) {
+        return r.dataPreferida.toDate().toISOString().split('T')[0] === hoje;
+      }
+      return r.dataPreferida === hoje;
+    }).length;
+
+    // KPIs — números
+    const elPed  = document.getElementById('sh-kpi-pedidos-novos');
+    const elReu  = document.getElementById('sh-kpi-reunioes-pend');
+    const elConf = document.getElementById('sh-kpi-reunioes-conf');
+    const elTot  = document.getElementById('sh-kpi-total-aberto');
+    if (elPed)  elPed.textContent  = nPed;
+    if (elReu)  elReu.textContent  = nReu;
+    if (elConf) elConf.textContent = nConf;
+    if (elTot)  elTot.textContent  = total;
+
+    // Urgência contextual: fundo âmbar + número âmbar quando há pedidos novos
+    const kpiPedCard = document.getElementById('sh-kpi-card-pedidos');
+    if (kpiPedCard) kpiPedCard.classList.toggle('kpi-urgente', nPed > 0);
+
+    // Verde "hoje": só quando há reuniões confirmadas para hoje
+    const kpiConfCard = document.getElementById('sh-kpi-card-conf');
+    if (kpiConfCard) kpiConfCard.classList.toggle('kpi-hoje', nConf > 0);
 
     // Badge pedidos
     const badgePed = document.getElementById('sh-fila-pedidos-badge');
