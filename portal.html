@@ -222,6 +222,22 @@
     .campo-inp-wrap { position:relative; }
     .campo-inp-wrap .campo-inp { padding-right:38px; }
     .campo-icone { position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;display:none; }
+    /* ── Toggle ver/ocultar senha ── */
+    .btn-ver-senha {
+      position:absolute;right:0;top:0;bottom:0;
+      width:44px;
+      display:flex;align-items:center;justify-content:center;
+      background:none;border:none;cursor:pointer;
+      color:var(--txt-3);border-radius:0 10px 10px 0;
+      transition:color .18s,background .18s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .btn-ver-senha:hover { color:var(--primary);background:rgba(6,95,70,.06); }
+    .btn-ver-senha:active { background:rgba(6,95,70,.12); }
+    .btn-ver-senha .material-symbols-outlined { font-size:20px;font-variation-settings:'FILL' 0,'wght' 400; }
+    /* Quando existe toggle, o ícone de validação fica antes do toggle */
+    .campo-inp-wrap:has(.btn-ver-senha) .campo-inp { padding-right:44px; }
+    .campo-inp-wrap:has(.btn-ver-senha) .campo-icone { right:48px; }
     .req-lista { margin-top:8px;display:flex;flex-direction:column;gap:3px; }
     .req-item { font-size:11px;display:flex;align-items:center;gap:5px;color:var(--txt-4);transition:color .2s; }
     .req-item.ok { color:#10c886; }
@@ -1991,6 +2007,9 @@
           <input type="password" id="cc-senha" class="campo-inp" placeholder="Mínimo 8 caracteres"
             oninput="avaliarForca();validarCampoSenha();validarCriarConta()" autocomplete="new-password"/>
           <span class="campo-icone" id="ico-senha"></span>
+          <button type="button" class="btn-ver-senha" onclick="toggleVerSenha('cc-senha',this)" aria-label="Mostrar ou ocultar senha" title="Mostrar/Ocultar senha">
+            <span class="material-symbols-outlined">visibility</span>
+          </button>
         </div>
         <div class="forca-senha" id="forca-wrap" style="display:none">
           <div class="forca-barras" id="forca-barras"><div class="forca-barra"></div><div class="forca-barra"></div><div class="forca-barra"></div><div class="forca-barra"></div></div>
@@ -2009,6 +2028,9 @@
           <input type="password" id="cc-senha2" class="campo-inp" placeholder="Repita a senha"
             oninput="validarCampoSenha2();validarCriarConta()" autocomplete="new-password"/>
           <span class="campo-icone" id="ico-senha2"></span>
+          <button type="button" class="btn-ver-senha" onclick="toggleVerSenha('cc-senha2',this)" aria-label="Mostrar ou ocultar confirmação de senha" title="Mostrar/Ocultar senha">
+            <span class="material-symbols-outlined">visibility</span>
+          </button>
         </div>
         <div class="campo-err-msg" aria-live="polite" id="erro-senha2"></div>
         <div class="campo-ok-msg"  id="ok-senha2"></div>
@@ -2054,7 +2076,12 @@
       </div>
       <div class="campo-g">
         <label>Senha</label>
-        <input type="password" id="lf-senha" class="campo-inp" placeholder="A sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')fazerLoginFuncionario()"/>
+        <div class="campo-inp-wrap">
+          <input type="password" id="lf-senha" class="campo-inp" placeholder="A sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')fazerLoginFuncionario()"/>
+          <button type="button" class="btn-ver-senha" onclick="toggleVerSenha('lf-senha',this)" aria-label="Mostrar ou ocultar senha" title="Mostrar/Ocultar senha">
+            <span class="material-symbols-outlined">visibility</span>
+          </button>
+        </div>
       </div>
       <div id="msg-login-func"></div>
       <div class="login-ajuda">
@@ -4727,6 +4754,19 @@
   </div>
 </div>
 
+
+<!-- ── TOGGLE VER/OCULTAR SENHA ── -->
+<script>
+  function toggleVerSenha(inputId, btn) {
+    const inp  = document.getElementById(inputId);
+    const icon = btn.querySelector('.material-symbols-outlined');
+    if (!inp || !icon) return;
+    const visivel = inp.type === 'text';
+    inp.type  = visivel ? 'password' : 'text';
+    icon.textContent = visivel ? 'visibility' : 'visibility_off';
+    btn.setAttribute('aria-label', visivel ? 'Mostrar senha' : 'Ocultar senha');
+  }
+</script>
 
 <!-- ── CHAT PEDIDO OVERLAY ── -->
 <div class="chat-overlay" id="chat-overlay" onclick="if(event.target===this)fecharChatPortal()">
