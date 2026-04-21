@@ -2073,14 +2073,32 @@
       padding: 12px;
       overflow: hidden;
     }
-    .viewer-frame {
+    .viewer-content {
       width: 100%;
       height: 100%;
-      border: none;
       border-radius: 18px;
       background: white;
       box-shadow: inset 0 0 0 1px rgba(15,23,42,.06);
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      display: block;
     }
+    .viewer-fallback {
+      display: none;
+      padding: 10px 18px;
+      font-size: 12px;
+      color: #1e3a5f;
+      background: #dbeafe;
+      border-top: 1px solid #bfdbfe;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .viewer-fallback a {
+      color: #1d4ed8;
+      font-weight: 700;
+      text-decoration: underline;
+    }
+    .viewer-fallback.visivel { display: block; }
 
     @media (max-width: 419px) {
       .portal-home-actions {
@@ -3143,7 +3161,10 @@
     </div>
     <div class="viewer-aviso">Documento disponivel apenas para consulta visual no portal do funcionario.</div>
     <div class="viewer-body">
-      <iframe class="viewer-frame" id="viewer-doc-frame" sandbox="allow-same-origin"></iframe>
+      <div class="viewer-content" id="viewer-doc-content"></div>
+    </div>
+    <div class="viewer-fallback" id="viewer-fallback">
+      Se o documento não aparecer, <a id="viewer-fallback-link" href="#" target="_blank" rel="noopener noreferrer">toque aqui para abrir numa nova aba</a>.
     </div>
   </div>
 </div>
@@ -3943,23 +3964,58 @@
   };
 
   // ── VISUALIZACAO CONTROLADA ──
+  // Estratégia: Shadow DOM como renderizador primário (isolamento CSS total,
+  // sem restrições de sandbox), Blob URL como fallback para abrir numa nova aba.
+  let _viewerBlobUrl = null;
+
   window.abrirVisualizacaoPortal = function(id) {
     const s = (window._minhasSolicitacoes || []).find(x => x.id === id);
     if (!s || !s.htmlArquivo) { notif("❌ Arquivo nao disponivel.", "notif-erro"); return; }
     const tipo = s.tipo || s.tipoDocumento || "Documento";
     const ref  = s.numGuia ? `Nº ${s.numGuia}/${s.anoGuia}` : "Documento concluido";
-    const frame = document.getElementById("viewer-doc-frame");
-    const titulo = document.getElementById("viewer-doc-titulo");
+    const titulo    = document.getElementById("viewer-doc-titulo");
     const subtitulo = document.getElementById("viewer-doc-sub");
-    if(frame) frame.srcdoc = s.htmlArquivo;
-    if(titulo) titulo.textContent = `${tipo === 'guia-medica' ? 'Guia Medica' : tipo} · ${ref}`;
-    if(subtitulo) subtitulo.textContent = "Visualizacao apenas de leitura no portal do funcionario";
+    if (titulo)    titulo.textContent    = `${tipo === 'guia-medica' ? 'Guia Medica' : tipo} · ${ref}`;
+    if (subtitulo) subtitulo.textContent = "Visualizacao apenas de leitura no portal do funcionario";
+
+    // ── Renderização via Shadow DOM (primária) ──
+    // Isola completamente os estilos do documento sem as restrições do sandbox
+    // que bloqueiam a renderização em Android Chrome.
+    const container = document.getElementById("viewer-doc-content");
+    if (container) {
+      let shadow = container.shadowRoot;
+      if (!shadow) shadow = container.attachShadow({ mode: "open" });
+      shadow.innerHTML = s.htmlArquivo;
+    }
+
+    // ── Blob URL para fallback (abrir em nova aba) ──
+    // Permite ao utilizador abrir o documento numa aba do browser nativa,
+    // contornando qualquer limitação de renderização do portal.
+    const fallbackLink = document.getElementById("viewer-fallback-link");
+    if (fallbackLink) {
+      if (_viewerBlobUrl) { URL.revokeObjectURL(_viewerBlobUrl); _viewerBlobUrl = null; }
+      try {
+        const blob = new Blob([s.htmlArquivo], { type: "text/html" });
+        _viewerBlobUrl = URL.createObjectURL(blob);
+        fallbackLink.href = _viewerBlobUrl;
+      } catch(e) { fallbackLink.href = "#"; }
+    }
+    const fallbackEl = document.getElementById("viewer-fallback");
+    if (fallbackEl) fallbackEl.classList.add("visivel");
+
     document.getElementById("overlay-detalhe-sol").classList.remove("activo");
     document.getElementById("overlay-viewer-doc").classList.add("activo");
   };
   window.fecharVisualizacaoPortal = function() {
-    const frame = document.getElementById("viewer-doc-frame");
-    if(frame) frame.srcdoc = "";
+    // Limpar Shadow DOM
+    const container = document.getElementById("viewer-doc-content");
+    if (container?.shadowRoot) container.shadowRoot.innerHTML = "";
+    // Revogar Blob URL para libertar memória
+    if (_viewerBlobUrl) { URL.revokeObjectURL(_viewerBlobUrl); _viewerBlobUrl = null; }
+    const fallbackLink = document.getElementById("viewer-fallback-link");
+    if (fallbackLink) fallbackLink.href = "#";
+    const fallbackEl = document.getElementById("viewer-fallback");
+    if (fallbackEl) fallbackEl.classList.remove("visivel");
     document.getElementById("overlay-viewer-doc").classList.remove("activo");
   };
   window.abrirVisualizacaoPortalPorDocId = async function(docId) {
