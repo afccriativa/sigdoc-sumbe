@@ -1183,6 +1183,11 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* Variantes de spinner para botões coloridos */
+    .btn-reu-acao .spinner  { width: 12px; height: 12px; border-color: rgba(0,0,0,.12); border-top-color: currentColor; }
+    .ped-btn-primario.responder .spinner { border-color: rgba(255,255,255,.28); border-top-color: #fff; }
+    .ped-btn-primario.ver .spinner       { border-color: var(--ok-border); border-top-color: var(--ok); }
+
     /* ── Secretaria — filtros e itens ─────────────────────────── */
     /* Decisão: filtros usam o sistema de botões padrão, a
        paleta âmbar original foi simplificada para compat tokens. */
@@ -1498,14 +1503,38 @@
     .ped-item {
       display: flex; align-items: stretch;
       border-bottom: 1px solid var(--border);
-      cursor: pointer; transition: background .10s;
+      cursor: pointer;
+      transition: background 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
       position: relative; background: var(--surface);
+      overflow: hidden;
     }
-    .ped-item:hover { background: rgba(18,65,161,.04); }
+    .ped-item:hover { background: var(--pri-10); cursor: pointer; }
     .ped-item:last-child { border-bottom: none; }
 
-    /* Indicador de estado à esquerda (3px) */
-    .ped-item-bar { width: 3px; flex-shrink: 0; }
+    /* Micro-seta → que aparece no hover (indica que o item é clicável) */
+    .ped-item-hover-arrow {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%) translateX(-6px);
+      color: var(--txt-3); font-size: 13px; opacity: 0;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      pointer-events: none; line-height: 1; font-weight: 700;
+    }
+    .ped-item:hover .ped-item-hover-arrow {
+      opacity: 1; transform: translateY(-50%) translateX(0);
+    }
+
+    /* Animação de saída — quando o filtro exclui o item após mudança de estado */
+    .ped-item.saindo {
+      opacity: 0; transform: translateX(10px);
+      pointer-events: none; max-height: 200px;
+      transition: opacity 0.32s ease, transform 0.32s ease, max-height 0.35s ease 0.1s;
+    }
+
+    /* Indicador de estado à esquerda (3px) — transição de cor incluída */
+    .ped-item-bar {
+      width: 3px; flex-shrink: 0;
+      transition: background 0.4s ease;
+    }
     .ped-item-bar.novo       { background: var(--info); }
     .ped-item-bar.em_analise { background: var(--warn); }
     .ped-item-bar.respondido { background: var(--ok); }
@@ -1544,6 +1573,7 @@
     .ped-item-badge {
       font-size: 10px; font-weight: 800; white-space: nowrap;
       padding: 2px 8px; border-radius: var(--r-full); flex-shrink: 0;
+      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
     .ped-item-badge.novo       { background: var(--info-bg);  color: var(--info);  border: 1px solid var(--info-border); }
     .ped-item-badge.em_analise { background: var(--warn-bg);  color: var(--warn);  border: 1px solid var(--warn-border); }
@@ -1761,6 +1791,29 @@
 
     .sp-highlight  { color: var(--pri); font-weight: 700; }
     .sp-carregando { text-align: center; padding: 24px; color: var(--txt-3); font-size: 13px; }
+
+    /* ── Estado vazio inteligente (filtros vs genuinamente vazio) ── */
+    .vazio-estado-filtros {
+      text-align: center; padding: 28px 20px;
+    }
+    .vazio-estado-filtros .icone { font-size: 32px; margin-bottom: 10px; opacity: .5; }
+    .vazio-estado-filtros p { font-size: 13px; color: var(--txt-2); margin-bottom: 12px; }
+    .btn-limpar-filtros {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 14px; border-radius: var(--r-md);
+      background: var(--pri-10); color: var(--pri); border: 1px solid var(--pri-20);
+      font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--font);
+      transition: background .12s, transform .10s;
+    }
+    .btn-limpar-filtros:hover { background: var(--pri-20); transform: translateY(-1px); }
+
+    .vazio-estado-verde {
+      text-align: center; padding: 48px 20px;
+      animation: fadeIn .3s ease;
+    }
+    .vazio-estado-verde .icone { font-size: 44px; margin-bottom: 12px; }
+    .vazio-estado-verde p { font-size: 15px; font-weight: 800; color: var(--ok); letter-spacing: -.02em; }
+    .vazio-estado-verde .sub { font-size: 12px; color: var(--txt-3); margin-top: 5px; line-height: 1.5; }
 
     /* ── Painel hero ──────────────────────────────────────────── */
     .painel-hero {
@@ -4611,7 +4664,7 @@
     e.classList.add("visivel");
 
     if (_toastTimer) clearTimeout(_toastTimer);
-    _toastTimer = setTimeout(fecharToast, accao ? 7000 : 4500);
+    _toastTimer = setTimeout(fecharToast, accao ? (accao.timeout || 7000) : 4500);
   }
   function fmtData(d){if(!d)return"—";return d.toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});}
   function actualizarDataHora(){
@@ -4916,7 +4969,20 @@
       if (ctr) ctr.textContent = docs.length > 0 ? `${docs.length} agendamento${docs.length!==1?'s':''}` : '0';
 
       if (docs.length === 0) {
-        el.innerHTML = '<div class="vazio-estado"><div class="icone">📅</div><p>Sem agendamentos.</p></div>';
+        const temFiltros = filtroEstado || filtroDe || filtroAte;
+        if (temFiltros) {
+          el.innerHTML = `<div class="vazio-estado-filtros">
+            <div class="icone">📅</div>
+            <p>Nenhum agendamento com este estado ou período.</p>
+            <button class="btn-limpar-filtros" onclick="limparFiltrosReunioes()">✕ Limpar filtros</button>
+          </div>`;
+        } else {
+          el.innerHTML = `<div class="vazio-estado-verde">
+            <div class="icone">🗓️</div>
+            <p>Tudo em dia!</p>
+            <div class="sub">Sem reuniões pendentes por agora.</div>
+          </div>`;
+        }
         return;
       }
 
@@ -5111,7 +5177,17 @@
           estado:'recusada', motivoRecusa:motivo,
           geridoPor:utilizadorActual?.uid, actualizadoEm:serverTimestamp()
         });
-        mostrarNotif('Reunião recusada.');
+        // Toast com desfazer — janela de 5 segundos
+        mostrarNotif('Reunião recusada.', 'aviso', {
+          label: '↩ Desfazer', timeout: 5000,
+          fn: async () => {
+            try {
+              await updateDoc(doc(db,'reunioes',id), { estado:'pendente', motivoRecusa:null, geridoPor:null, actualizadoEm:serverTimestamp() });
+              mostrarNotif('↩ Acção revertida com sucesso.', 'sucesso');
+              carregarReunioesSecretaria();
+            } catch(e) { mostrarNotif('❌ Erro ao desfazer.', 'erro'); }
+          }
+        });
 
       } else if (modo === 'realizada') {
         const obs = document.getElementById('mra-obs-realizada').value.trim();
@@ -5158,6 +5234,18 @@
     }
   });
 
+  // ── Helper: spinner inline no botão primário do item ────────
+  window._pedBtnClick = function(btnEl, id, idx) {
+    if (btnEl && !btnEl.disabled) {
+      const orig = btnEl.innerHTML;
+      btnEl.disabled = true;
+      btnEl.innerHTML = '<span class="spinner"></span>';
+      // O onSnapshot vai actualizar o painel; restaurar após breve instante
+      setTimeout(() => { if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = orig; } }, 900);
+    }
+    abrirChatSecretaria(id, idx);
+  };
+
   window.toggleCtxMenu = function(event, menuId) {
     event.stopPropagation();
     const menu = document.getElementById(menuId);
@@ -5189,7 +5277,20 @@
       if (ctr) ctr.textContent = docs.length > 0 ? `${docs.length} encontrado${docs.length!==1?'s':''}` : '0';
 
       if (docs.length===0) {
-        el.innerHTML = '<div class="vazio-estado"><div class="icone">✉️</div><p>Sem conversas para os filtros seleccionados.</p></div>';
+        const temFiltros = filtroEstado || filtroDe || filtroAte;
+        if (temFiltros) {
+          el.innerHTML = `<div class="vazio-estado-filtros">
+            <div class="icone">🔍</div>
+            <p>Nenhum pedido com este estado ou período.</p>
+            <button class="btn-limpar-filtros" onclick="limparFiltrosPedidos()">✕ Limpar filtros</button>
+          </div>`;
+        } else {
+          el.innerHTML = `<div class="vazio-estado-verde">
+            <div class="icone">✅</div>
+            <p>Tudo em dia!</p>
+            <div class="sub">Sem pedidos pendentes por agora.</div>
+          </div>`;
+        }
         return;
       }
 
@@ -5260,14 +5361,14 @@
               <div class="ped-item-preview">${escaparHtml(preview || 'Sem mensagem')}</div>
               <div class="ped-item-footer" onclick="event.stopPropagation()">
                 <button class="ped-btn-primario ${btnClass}"
-                  onclick="event.stopPropagation();abrirChatSecretaria('${p.id}', ${idx})">
+                  onclick="event.stopPropagation();_pedBtnClick(this,'${p.id}',${idx})">
                   ${btnLabel}
                 </button>
                 <div class="ped-ctx-wrap">
                   <button class="ped-ctx-btn" title="Mais acções"
                     onclick="toggleCtxMenu(event,'${menuId}')">⋯</button>
                   <div class="ped-ctx-menu" id="${menuId}">
-                    ${estado === 'novo' ? `<button class="ped-ctx-item" onclick="event.stopPropagation();marcarEmAnalise('${p.id}')">
+                    ${estado === 'novo' ? `<button class="ped-ctx-item" onclick="event.stopPropagation();marcarEmAnalise('${p.id}',this)">
                       <span class="ctx-ic">🔍</span> Marcar Em Análise
                     </button>` : ''}
                     ${estado !== 'respondido' && estado !== 'fechado' ? `<button class="ped-ctx-item" onclick="event.stopPropagation();abrirChatSecretaria('${p.id}', ${idx})">
@@ -5276,21 +5377,23 @@
                     <button class="ped-ctx-item" onclick="event.stopPropagation();verHistoricoPedido('${p.id}')">
                       <span class="ctx-ic">🕑</span> Ver Histórico
                     </button>
-                    ${aberto ? `<button class="ped-ctx-item danger" onclick="event.stopPropagation();fecharPedidoDirecto('${p.id}')">
+                    ${aberto ? `<button class="ped-ctx-item danger" onclick="event.stopPropagation();fecharPedidoDirecto('${p.id}',this)">
                       <span class="ctx-ic">✖</span> Fechar Pedido
                     </button>` : ''}
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
+              </div><!-- /ped-item-footer -->
+            </div><!-- /ped-item-body -->
+          </div><!-- /ped-item-inner -->
+          <span class="ped-item-hover-arrow" aria-hidden="true">→</span>
         </div>`;
       }).join('');
     } catch(e) { console.error(e); el.innerHTML = '<div class="vazio-estado"><p>⚠️ Erro ao carregar.</p></div>'; }
   }
 
   // ── Acções rápidas do menu contextual ───────────────────────
-  window.marcarEmAnalise = async function(id) {
+  window.marcarEmAnalise = async function(id, btnEl) {
+    if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<span class="ctx-ic"><span class="spinner" style="width:11px;height:11px;border-width:2px;border-top-color:var(--warn)"></span></span> A marcar…'; }
     try {
       const nome = perfilActual?.nome || utilizadorActual?.email || 'Secretaria';
       const snap = await getDoc(doc(db,'pedidos_secretaria',id));
@@ -5300,17 +5403,41 @@
       await updateDoc(doc(db,'pedidos_secretaria',id), { estado:'em_analise', historico:hist, actualizadoEm:serverTimestamp() });
       mostrarNotif('🔍 Marcado em análise.');
       carregarPedidosSecretaria();
-    } catch(e) { console.error(e); mostrarNotif('❌ Erro ao actualizar estado.', 'erro'); }
+    } catch(e) {
+      console.error(e); mostrarNotif('❌ Erro ao actualizar estado.', 'erro');
+      if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = '<span class="ctx-ic">🔍</span> Marcar Em Análise'; }
+    }
   };
 
-  window.fecharPedidoDirecto = async function(id) {
+  window.fecharPedidoDirecto = async function(id, btnEl) {
     if (!confirm('Fechar este pedido? O funcionário não poderá enviar mais mensagens.')) return;
+    // Guardar estado anterior para poder desfazer
+    let estadoAnterior = 'respondido';
+    try {
+      const snapAtual = await getDoc(doc(db,'pedidos_secretaria',id));
+      if (snapAtual.exists()) estadoAnterior = snapAtual.data().estado || 'respondido';
+    } catch(e) {}
+    // Spinner no botão enquanto processa
+    if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<span class="spinner" style="width:11px;height:11px;border-width:2px"></span>'; }
     try {
       await updateDoc(doc(db,'pedidos_secretaria',id),{estado:'fechado',fechadoEm:serverTimestamp()});
       addDoc(collection(db,'auditoria'),{coleccao:'pedidos_secretaria',docId:id,acao:'Fechado',detalhe:'Pedido encerrado pela secretaria',por:utilizadorActual?.uid,em:serverTimestamp()}).catch(()=>{});
-      mostrarNotif('✖ Pedido fechado.');
+      // Toast com botão Desfazer — janela de 5 segundos
+      mostrarNotif('✖ Pedido fechado.', 'aviso', {
+        label: '↩ Desfazer', timeout: 5000,
+        fn: async () => {
+          try {
+            await updateDoc(doc(db,'pedidos_secretaria',id), { estado: estadoAnterior, fechadoEm: null, actualizadoEm: serverTimestamp() });
+            mostrarNotif('↩ Acção revertida com sucesso.', 'sucesso');
+            carregarPedidosSecretaria();
+          } catch(e) { mostrarNotif('❌ Erro ao desfazer.', 'erro'); }
+        }
+      });
       carregarPedidosSecretaria();
-    } catch(e){ console.error(e); mostrarNotif('❌ Erro ao fechar.', 'erro'); }
+    } catch(e){
+      console.error(e); mostrarNotif('❌ Erro ao fechar.', 'erro');
+      if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = '<span class="ctx-ic">✖</span> Fechar Pedido'; }
+    }
   };
 
   // ── Chat da secretaria ────────────────────────────────────
@@ -5321,9 +5448,12 @@
   // v4: navegação sequencial — lista de IDs de pedidos visíveis e índice actual
   let _secListaIds = [];
   let _secIdxActual = -1;
+  // v5: rastrear estado anterior para animações in-place
+  let _prevEstadoChat = null;
 
   window.abrirChatSecretaria = async function(pedidoId, idx) {
     _chatSecId = pedidoId;
+    _prevEstadoChat = null; // reset ao abrir novo pedido
     // v4: actualizar índice de navegação
     if (typeof idx === 'number') {
       _secIdxActual = idx;
@@ -5354,6 +5484,31 @@
       document.getElementById('chat-sec-titulo').textContent = assunto;
       document.getElementById('chat-sec-sub').textContent = (p.funcionarioNome||'—') + ' · ' + (p.unidade||'—');
       const aberto = p.estado !== 'fechado';
+
+      // ── v5: animação in-place ao mudar estado (badge + barra lateral) ──
+      const estadoActual = p.estado || 'novo';
+      if (_prevEstadoChat && _prevEstadoChat !== estadoActual) {
+        const itemEl = document.getElementById('ped-item-' + pedidoId);
+        if (itemEl) {
+          // Actualizar barra lateral com transição de cor
+          const barEl = itemEl.querySelector('.ped-item-bar');
+          if (barEl) barEl.className = 'ped-item-bar ' + estadoActual;
+          // Actualizar badge com transição de cor
+          const badgeEl = itemEl.querySelector('.ped-item-badge');
+          const LABELS_ESTADO_LOCAL = { novo:'● Novo', em_analise:'● Em análise', respondido:'● Respondido', fechado:'● Fechado' };
+          if (badgeEl) {
+            badgeEl.className = 'ped-item-badge ' + estadoActual;
+            badgeEl.textContent = LABELS_ESTADO_LOCAL[estadoActual] || estadoActual;
+          }
+          // Slide out suave se o filtro activo excluir o novo estado
+          const filtroActivo = document.getElementById('filtro-estado-pedidos')?.value || '';
+          if (filtroActivo && filtroActivo !== estadoActual) {
+            itemEl.classList.add('saindo');
+            setTimeout(() => carregarPedidosSecretaria(), 380);
+          }
+        }
+      }
+      _prevEstadoChat = estadoActual;
       const fechaRow = document.getElementById('chat-sec-fechar-row');
       if (fechaRow) fechaRow.style.display = aberto ? '' : 'none';
       document.querySelector('.chat-sec-input-row').style.display = aberto ? '' : 'none';
@@ -5488,7 +5643,7 @@
   // ── v4: Confirmar reunião sem modal ─────────────────────────
   window.confirmarReuniaoRapido = async function(id, btnEl) {
     if (!id) return;
-    if (btnEl) { btnEl.disabled = true; btnEl.textContent = '⏳…'; }
+    if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<span class="spinner" style="width:12px;height:12px;border-width:2px;border-color:rgba(5,150,105,.2);border-top-color:var(--ok)"></span> A confirmar…'; }
     try {
       await updateDoc(doc(db, 'reunioes', id), {
         estado: 'confirmada',
