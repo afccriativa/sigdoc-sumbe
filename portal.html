@@ -320,6 +320,78 @@
     .forca-barras.forca-4 .forca-barra { background:var(--primary); }
     .forca-texto { font-size:11px;font-weight:600; }
 
+    /* ── Ecrã de verificação: escolha de método ── */
+    .verif-step-bar {
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:var(--sp-4);
+    }
+    .verif-step-badge {
+      display:inline-flex;align-items:center;gap:4px;
+      background:var(--primary-xl);color:var(--primary);
+      font-size:12px;font-weight:600;padding:4px 12px;border-radius:999px;
+    }
+    .verif-step-badge strong { font-size:15px;font-weight:800; }
+    .verif-escolha-label {
+      font-size:13px;font-weight:700;color:var(--txt-2);
+      margin-bottom:var(--sp-3);text-align:center;
+    }
+    .verif-cards {
+      display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);
+      margin-bottom:var(--sp-2);
+    }
+    .verif-card {
+      position:relative;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:var(--sp-2);padding:var(--sp-5) var(--sp-3);
+      background:var(--card);border:2px solid var(--border);border-radius:var(--r-lg);
+      cursor:pointer;text-align:center;transition:all .2s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .verif-card:hover {
+      border-color:var(--primary-l);
+      background:rgba(16,200,134,.04);
+      transform:translateY(-2px);
+      box-shadow:0 8px 20px rgba(6,95,70,.1);
+    }
+    .verif-card:active { transform:translateY(0);box-shadow:none; }
+    .verif-card.activo {
+      border-color:var(--primary-l);
+      background:rgba(16,200,134,.06);
+      box-shadow:0 0 0 3px rgba(16,200,134,.15);
+    }
+    .verif-card-ic { font-size:28px;line-height:1; }
+    .verif-card-titulo { font-size:13px;font-weight:800;color:var(--txt);line-height:1.3; }
+    .verif-card-sub { font-size:11px;color:var(--txt-4);font-weight:500;font-family:var(--mono); }
+    .verif-card-check {
+      position:absolute;top:8px;right:8px;
+      font-size:18px;color:var(--primary-l);
+      font-variation-settings:'FILL' 1,'wght' 600;
+      opacity:0;transition:opacity .2s;
+    }
+    .verif-card.activo .verif-card-check { opacity:1; }
+    /* Chip de método seleccionado */
+    .verif-metodo-chip {
+      display:inline-flex;align-items:center;gap:var(--sp-2);
+      background:var(--primary-xl);border:1.5px solid rgba(6,95,70,.18);
+      padding:6px 10px 6px 12px;border-radius:999px;
+      font-size:13px;font-weight:700;color:var(--primary);
+      margin-bottom:var(--sp-4);
+    }
+    .verif-metodo-chip-ic { font-size:16px; }
+    .verif-chip-mudar {
+      margin-left:var(--sp-1);padding:3px 10px;
+      border:1px solid rgba(6,95,70,.25);border-radius:999px;
+      background:white;color:var(--primary);font-size:11px;font-weight:700;
+      cursor:pointer;transition:background .15s;
+    }
+    .verif-chip-mudar:hover { background:rgba(6,95,70,.08); }
+    /* Animação de entrada do campo */
+    @keyframes verif-slide-in {
+      from { opacity:0; transform:translateY(10px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    #verif-fase-campo { animation:verif-slide-in .22s ease; }
+
     /* ═══════════════════════════════════════════════════════
        PORTAL — MOBILE BASE  (<1024px)
     ═══════════════════════════════════════════════════════ */
@@ -1930,40 +2002,80 @@
 <!-- ════ ECRÃ VERIFICAÇÃO ════ -->
 <div id="ecra-verificacao" class="ecra ecra-fluxo">
   <div class="caixa">
+
+    <!-- ── Topo com indicador de passo mais proeminente ── -->
     <div class="caixa-topo">
-      <div class="caixa-passo">Passo 1 de 3</div>
+      <div class="verif-step-bar">
+        <div class="verif-step-badge">Passo <strong>1</strong> de 3</div>
+        <div class="passos"><div class="passo-dot activo"></div><div class="passo-dot"></div><div class="passo-dot"></div></div>
+      </div>
       <div class="caixa-titulo">Verificar pré-registo</div>
-      <div class="caixa-sub">Introduza o seu Número de Agente ou BI para verificar se já está registado no sistema.</div>
+      <div class="caixa-sub">Os seus dados foram registados pela Secção de RH. Confirme a sua identidade para continuar.</div>
     </div>
+
     <div class="caixa-corpo">
-      <div class="passos"><div class="passo-dot activo"></div><div class="passo-dot"></div><div class="passo-dot"></div></div>
-      <div class="alerta alerta-info">ℹ️ Os seus dados foram inseridos pela Secção de RH. Introduza o Nº de Agente <strong>(8 dígitos)</strong> ou o Nº do BI <strong>(14 dígitos)</strong>.</div>
-      <div class="campo-g">
-        <label>Número de Agente <em>*</em></label>
-        <div class="campo-inp-wrap">
-          <input type="text" id="input-numero" class="campo-inp campo-mono" maxlength="8" placeholder="00000000"
-            oninput="this.value=this.value.replace(/\D/g,'');validarCampoNumero()"
-            onkeydown="if(event.key==='Enter')fazerVerificacao()" autocomplete="off"/>
-          <span class="campo-icone" id="ico-numero"></span>
+
+      <!-- ── FASE 1: Escolha do método ── -->
+      <div id="verif-fase-escolha">
+        <p class="verif-escolha-label">Como pretende identificar-se?</p>
+        <div class="verif-cards">
+          <button class="verif-card" id="verif-card-numero" onclick="selecionarMetodoVerif('numero')" type="button">
+            <span class="verif-card-ic">🪪</span>
+            <span class="verif-card-titulo">Nº de Agente</span>
+            <span class="verif-card-sub">8 dígitos numéricos</span>
+            <span class="verif-card-check material-symbols-outlined">check_circle</span>
+          </button>
+          <button class="verif-card" id="verif-card-bi" onclick="selecionarMetodoVerif('bi')" type="button">
+            <span class="verif-card-ic">📋</span>
+            <span class="verif-card-titulo">Bilhete de Identidade</span>
+            <span class="verif-card-sub">14 caracteres</span>
+            <span class="verif-card-check material-symbols-outlined">check_circle</span>
+          </button>
         </div>
-        <div class="campo-hint">8 dígitos numéricos (ex: 00123456)</div>
-        <div class="campo-err-msg" aria-live="polite" id="erro-numero"></div>
       </div>
-      <div class="ou-sep">ou</div>
-      <div class="campo-g">
-        <label>Número do Bilhete de Identidade <em>*</em></label>
-        <div class="campo-inp-wrap">
-          <input type="text" id="input-bi" class="campo-inp campo-mono" maxlength="14" placeholder="00000000LA000"
-            oninput="this.value=this.value.toUpperCase();validarCampoBI()"
-            onkeydown="if(event.key==='Enter')fazerVerificacao()" autocomplete="off"/>
-          <span class="campo-icone" id="ico-bi"></span>
+
+      <!-- ── FASE 2: Campo activo (revelado após escolha) ── -->
+      <div id="verif-fase-campo" style="display:none">
+
+        <!-- Chip do método escolhido + botão mudar -->
+        <div class="verif-metodo-chip" id="verif-metodo-chip">
+          <span class="verif-metodo-chip-ic" id="verif-chip-ic">🪪</span>
+          <span id="verif-chip-label">Nº de Agente</span>
+          <button type="button" class="verif-chip-mudar" onclick="selecionarMetodoVerif(null)">Mudar</button>
         </div>
-        <div class="campo-hint">14 caracteres: 8 dígitos + 2 letras + 3 dígitos (ex: 00123456LA083)</div>
-        <div class="campo-err-msg" aria-live="polite" id="erro-bi"></div>
-        <div class="campo-ok-msg"  id="ok-bi"></div>
-      </div>
+
+        <!-- Campo Nº de Agente (oculto/visível conforme escolha) -->
+        <div class="campo-g" id="campo-wrap-numero" style="display:none">
+          <label>Número de Agente <em>*</em></label>
+          <div class="campo-inp-wrap">
+            <input type="text" id="input-numero" class="campo-inp campo-mono" maxlength="8" placeholder="00000000"
+              oninput="this.value=this.value.replace(/\D/g,'');validarCampoNumero()"
+              onkeydown="if(event.key==='Enter')fazerVerificacao()" autocomplete="off"/>
+            <span class="campo-icone" id="ico-numero"></span>
+          </div>
+          <div class="campo-hint">8 dígitos numéricos (ex: 00123456)</div>
+          <div class="campo-err-msg" aria-live="polite" id="erro-numero"></div>
+        </div>
+
+        <!-- Campo BI (oculto/visível conforme escolha) -->
+        <div class="campo-g" id="campo-wrap-bi" style="display:none">
+          <label>Número do Bilhete de Identidade <em>*</em></label>
+          <div class="campo-inp-wrap">
+            <input type="text" id="input-bi" class="campo-inp campo-mono" maxlength="14" placeholder="00000000LA000"
+              oninput="this.value=this.value.toUpperCase();validarCampoBI()"
+              onkeydown="if(event.key==='Enter')fazerVerificacao()" autocomplete="off"/>
+            <span class="campo-icone" id="ico-bi"></span>
+          </div>
+          <div class="campo-hint">14 caracteres: 8 dígitos + 2 letras + 3 dígitos (ex: 00123456LA083)</div>
+          <div class="campo-err-msg" aria-live="polite" id="erro-bi"></div>
+          <div class="campo-ok-msg"  id="ok-bi"></div>
+        </div>
+
+      </div><!-- /verif-fase-campo -->
+
       <div id="msg-verificacao"></div>
-    </div>
+    </div><!-- /caixa-corpo -->
+
     <div class="caixa-rodape">
       <button class="btn btn-sec" onclick="mostrarEcra('ecra-entrada')">← Voltar</button>
       <button class="btn btn-prim" id="btn-verificar" onclick="fazerVerificacao()" disabled>Verificar →</button>
@@ -2852,6 +2964,66 @@
     if (ok)  { ok.textContent  = (!vazio &&  valido) ? (msgOk||'') : ''; ok.style.display  = (!vazio &&  valido) ? 'block' : 'none'; }
     return valido || vazio;
   }
+
+  // ── Verificação: selecção de método (Nº Agente vs BI) ──
+  window.selecionarMetodoVerif = function(metodo) {
+    const faseEscolha = document.getElementById('verif-fase-escolha');
+    const faseCampo   = document.getElementById('verif-fase-campo');
+    const wrapNum     = document.getElementById('campo-wrap-numero');
+    const wrapBi      = document.getElementById('campo-wrap-bi');
+    const chipLabel   = document.getElementById('verif-chip-label');
+    const chipIc      = document.getElementById('verif-chip-ic');
+    const cardNum     = document.getElementById('verif-card-numero');
+    const cardBi      = document.getElementById('verif-card-bi');
+    const inpNum      = document.getElementById('input-numero');
+    const inpBi       = document.getElementById('input-bi');
+    const msgDiv      = document.getElementById('msg-verificacao');
+
+    if (!metodo) {
+      // Voltar à fase de escolha — limpar tudo
+      faseEscolha.style.display = '';
+      faseCampo.style.display   = 'none';
+      [cardNum, cardBi].forEach(c => c && c.classList.remove('activo'));
+      inpNum.value = ''; inpBi.value = '';
+      // Reset estados visuais
+      ['input-numero','input-bi'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.classList.remove('campo-erro','campo-ok'); }
+      });
+      ['ico-numero','ico-bi','erro-numero','erro-bi','ok-bi'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = ''; el.style.display = ''; }
+      });
+      if (msgDiv) msgDiv.innerHTML = '';
+      document.getElementById('btn-verificar').disabled = true;
+      return;
+    }
+
+    // Mostrar fase de campo e ocultar escolha
+    faseEscolha.style.display = 'none';
+    faseCampo.style.display   = '';
+
+    if (metodo === 'numero') {
+      wrapNum.style.display = '';
+      wrapBi.style.display  = 'none';
+      cardNum && cardNum.classList.add('activo');
+      cardBi  && cardBi.classList.remove('activo');
+      chipLabel.textContent = 'Nº de Agente';
+      chipIc.textContent    = '🪪';
+      inpBi.value = ''; // garantir campo inactivo limpo
+      setTimeout(() => inpNum.focus(), 80);
+    } else {
+      wrapBi.style.display  = '';
+      wrapNum.style.display = 'none';
+      cardBi  && cardBi.classList.add('activo');
+      cardNum && cardNum.classList.remove('activo');
+      chipLabel.textContent = 'Bilhete de Identidade';
+      chipIc.textContent    = '📋';
+      inpNum.value = ''; // garantir campo inactivo limpo
+      setTimeout(() => inpBi.focus(), 80);
+    }
+    sincronizarBtnVerificar();
+  };
 
   window.validarCampoNumero = function() {
     const v = document.getElementById("input-numero").value.trim();
