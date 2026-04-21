@@ -525,10 +525,16 @@
     .perfil-card-topo { display:flex;align-items:center;gap:14px;margin-bottom:16px; }
     .perfil-card-av   { width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:white;flex-shrink:0;overflow:hidden; }
     .perfil-card-av img,.enc-avatar img,.ph-avatar img,.dt-avatar img,.ds-rodape-av img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
-    .perfil-av-wrap { position:relative;flex-shrink:0;width:60px;height:60px; }
     .perfil-av-wrap .perfil-card-av { width:100%;height:100%; }
-    .perfil-av-overlay { position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;cursor:pointer;font-size:18px; }
-    .perfil-av-wrap:hover .perfil-av-overlay { display:flex; }
+    /* ── Avatar overlay — sempre visível em mobile (não depende de hover) ── */
+    .perfil-av-overlay { position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.38);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;opacity:.45;transition:opacity .2s,background .2s;pointer-events:none; }
+    .perfil-av-wrap:hover .perfil-av-overlay,.perfil-av-wrap:focus .perfil-av-overlay { opacity:1;background:rgba(0,0,0,.55); }
+    /* Container vertical: avatar + label "Alterar foto" */
+    .perfil-av-container { display:flex;flex-direction:column;align-items:center;gap:7px;flex-shrink:0;cursor:pointer; }
+    .perfil-av-wrap { position:relative;flex-shrink:0;width:60px;height:60px;border-radius:50%;outline:none; }
+    .perfil-av-wrap:focus-visible { box-shadow:0 0 0 3px rgba(255,255,255,.6); }
+    .perfil-foto-label { display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.82);background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 9px;white-space:nowrap;transition:background .18s,color .18s;cursor:pointer;-webkit-tap-highlight-color:transparent; }
+    .perfil-foto-label:hover,.perfil-foto-label:active { background:rgba(255,255,255,.25);color:white; }
     .perfil-card-nome  { font-size:18px;font-weight:800;color:white;line-height:1.2; }
     .perfil-card-cargo { font-size:13px;color:rgba(255,255,255,.65);margin-top:3px;font-weight:500; }
     .perfil-card-acoes { display:flex;gap:var(--sp-2); }
@@ -1512,6 +1518,7 @@
       width: 66px;
       height: 66px;
     }
+    .perfil-av-overlay { font-size:22px; }
     .perfil-card-nome {
       font-size: 20px;
       letter-spacing: -.03em;
@@ -2612,9 +2619,16 @@
     <div id="aba-perfil" class="aba-portal">
       <div class="perfil-header-aba" style="grid-column:span 2">
         <div class="perfil-card-topo">
-          <div class="perfil-av-wrap">
-            <div class="perfil-card-av" id="perf-avatar">?</div>
-            <div class="perfil-av-overlay" onclick="document.getElementById('perf-foto-input').click()" title="Alterar foto">📷</div>
+          <!-- Avatar — acessível em mobile: overlay sempre visível + label táctil -->
+          <div class="perfil-av-container"
+               onclick="document.getElementById('perf-foto-input').click()"
+               role="button" tabindex="0" aria-label="Alterar foto de perfil"
+               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('perf-foto-input').click()}">
+            <div class="perfil-av-wrap">
+              <div class="perfil-card-av" id="perf-avatar">?</div>
+              <div class="perfil-av-overlay" aria-hidden="true">📷</div>
+            </div>
+            <span class="perfil-foto-label" aria-hidden="true">📷 Alterar foto</span>
             <input type="file" id="perf-foto-input" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="previewFotoPerfil(this)">
           </div>
           <div>
