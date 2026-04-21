@@ -630,6 +630,141 @@
     .perfil-edit-sec { background:white;border-radius:14px;padding:var(--sp-4);box-shadow:0 1px 6px rgba(0,0,0,.06);border:1px solid var(--border); }
     .perfil-edit-titulo { font-size:13px;font-weight:700;color:var(--txt);margin-bottom:12px; }
     .perfil-edit-acoes { display:flex;flex-direction:column;gap:10px; }
+
+    /* ── Zona de perigo (logout) ── */
+    .perfil-zona-perigo {
+      margin-top: 20px;
+      border-top: 1.5px solid #fca5a5;
+      padding-top: 16px;
+    }
+    .perfil-zona-perigo-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #b91c1c;
+      margin-bottom: 12px;
+    }
+    .perfil-zona-perigo-label::before,
+    .perfil-zona-perigo-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #fca5a5;
+    }
+    .btn-perigo {
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1.5px solid #fca5a5;
+      background: #fff5f5;
+      color: #b91c1c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background .18s, border-color .18s, transform .12s;
+      letter-spacing: -.1px;
+    }
+    .btn-perigo:hover  { background: #fee2e2; border-color: #f87171; }
+    .btn-perigo:active { transform: scale(.98); }
+    .btn-perigo .material-symbols-outlined { font-size: 18px; font-variation-settings: 'FILL' 1; }
+
+    /* ── Modal de confirmação de logout ── */
+    .logout-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 8000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      animation: fade-overlay .18s ease;
+    }
+    .logout-modal-overlay.aberto { display: flex; }
+    .logout-modal {
+      background: white;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 24px 60px rgba(0,0,0,.22);
+      overflow: hidden;
+      animation: slide-up-smooth .22s ease;
+    }
+    .logout-modal-topo {
+      background: linear-gradient(135deg, #fef2f2 0%, #fff5f5 100%);
+      padding: 28px 24px 20px;
+      text-align: center;
+      border-bottom: 1px solid #fecaca;
+    }
+    .logout-modal-ic {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #fee2e2;
+      border: 2px solid #fca5a5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+      font-size: 26px;
+    }
+    .logout-modal-titulo {
+      font-size: 17px;
+      font-weight: 800;
+      color: #111827;
+      letter-spacing: -.3px;
+      margin-bottom: 6px;
+    }
+    .logout-modal-desc {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.55;
+    }
+    .logout-modal-corpo {
+      padding: 20px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .btn-logout-confirmar {
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: #dc2626;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background .18s, transform .12s;
+      letter-spacing: -.1px;
+    }
+    .btn-logout-confirmar:hover  { background: #b91c1c; }
+    .btn-logout-confirmar:active { transform: scale(.98); }
+    .btn-logout-confirmar .material-symbols-outlined { font-size: 18px; font-variation-settings: 'FILL' 1; }
+    .btn-logout-cancelar {
+      padding: 13px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--bg);
+      color: var(--txt-2);
+      border: 1.5px solid var(--border);
+      transition: background .18s;
+    }
+    .btn-logout-cancelar:hover { background: var(--border); }
     .perfil-link-principal {
       display:flex;align-items:center;justify-content:center;gap:10px;
       background:var(--primary);color:white;border-radius:12px;padding:14px;
@@ -2699,7 +2834,15 @@
           </div>
           <div class="perfil-edit-acoes">
             <button class="btn btn-prim btn-full" onclick="guardarPerfil()">Guardar alterações</button>
-            <button class="btn btn-sec btn-full" onclick="fazerLogoutFuncionario()">Terminar sessão</button>
+          </div>
+
+          <!-- ── Zona de perigo ── -->
+          <div class="perfil-zona-perigo">
+            <div class="perfil-zona-perigo-label">Conta</div>
+            <button class="btn-perigo" onclick="abrirModalLogout()">
+              <span class="material-symbols-outlined">logout</span>
+              Terminar sessão
+            </button>
           </div>
         </div>
       </div>
@@ -5021,6 +5164,26 @@
 </div>
 
 
+<!-- ── MODAL LOGOUT — funções de controlo ── -->
+<script>
+  window.abrirModalLogout = function() {
+    const overlay = document.getElementById('logout-modal-overlay');
+    if (overlay) overlay.classList.add('aberto');
+  };
+  window.fecharModalLogout = function() {
+    const overlay = document.getElementById('logout-modal-overlay');
+    if (overlay) overlay.classList.remove('aberto');
+  };
+  window.confirmarLogout = async function() {
+    fecharModalLogout();
+    await fazerLogoutFuncionario();
+  };
+  // Fechar com Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') fecharModalLogout();
+  });
+</script>
+
 <!-- ── TOGGLE VER/OCULTAR SENHA ── -->
 <script>
   function toggleVerSenha(inputId, btn) {
@@ -5051,6 +5214,24 @@
       <textarea class="chat-input" id="chat-input" rows="1" placeholder="Escreva a sua mensagem…"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemChatPortal();}"></textarea>
       <button class="chat-enviar" onclick="enviarMensagemChatPortal()" id="btn-chat-enviar" title="Enviar" style="font-size:20px">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL DE CONFIRMAÇÃO DE LOGOUT ── -->
+<div class="logout-modal-overlay" id="logout-modal-overlay" onclick="if(event.target===this)fecharModalLogout()">
+  <div class="logout-modal" role="dialog" aria-modal="true" aria-labelledby="logout-modal-titulo-id">
+    <div class="logout-modal-topo">
+      <div class="logout-modal-ic" aria-hidden="true">🚪</div>
+      <div class="logout-modal-titulo" id="logout-modal-titulo-id">Terminar sessão?</div>
+      <div class="logout-modal-desc">Será desligado da sua conta no portal. Precisará de introduzir as suas credenciais novamente para aceder.</div>
+    </div>
+    <div class="logout-modal-corpo">
+      <button class="btn-logout-confirmar" onclick="confirmarLogout()">
+        <span class="material-symbols-outlined">logout</span>
+        Sim, terminar sessão
+      </button>
+      <button class="btn-logout-cancelar" onclick="fecharModalLogout()">Cancelar</button>
     </div>
   </div>
 </div>
