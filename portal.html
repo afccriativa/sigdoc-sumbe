@@ -1061,7 +1061,7 @@
     .btn-rever-pedido:hover { background: var(--border); }
 
     /* toast mobile */
-    .notif { position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 12px);left:50%;transform:translateX(-50%);padding:12px 20px;border-radius:var(--r-md);font-size:13px;font-weight:700;color:white;display:none;z-index:600;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.2); }
+    .notif { position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 12px);left:50%;transform:translateX(-50%);padding:12px 20px;border-radius:var(--r-md);font-size:13px;font-weight:700;color:white;display:none;z-index:600;max-width:calc(100vw - 32px);text-align:center;word-break:break-word;box-shadow:0 8px 24px rgba(0,0,0,.2); }
     .notif-ok   { background:var(--primary); }
     .notif-erro { background:#991b1b; }
     .notif-info { background:#1e40af; }
@@ -1310,7 +1310,7 @@
       .modal-caixa { border-radius:var(--r-xl); max-height: 80vh; }
 
       /* toast desktop — canto inferior direito */
-      .notif { bottom: 28px; right: 28px; left: auto; transform: none; }
+      .notif { bottom: 28px; right: 28px; left: auto; transform: none; max-width: 420px; text-align: left; }
     }
   
     /* ── SINO DE NOTIFICAÇÕES ── */
