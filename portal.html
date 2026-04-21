@@ -939,6 +939,127 @@
     .modal-caixa { background:white;border-radius:var(--r-2xl) var(--r-xl) 0 0;width:100%;max-width:520px;max-height:90dvh;overflow-y:auto;animation:slide-up-smooth .32s cubic-bezier(.2,0,0,1); }
     .modal-caixa::before { content:'';display:block;width:36px;height:4px;border-radius:2px;background:var(--border);margin:12px auto 8px; }
 
+    /* ── Modal de revisão de pedido ── */
+    .revisao-tipo-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-radius: var(--r-md);
+      background: var(--primary-xl);
+      border: 1px solid rgba(6,95,70,.12);
+      margin-bottom: 16px;
+    }
+    .revisao-tipo-ic {
+      font-size: 26px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .revisao-tipo-nome {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary-d);
+      letter-spacing: -.2px;
+    }
+    .revisao-tipo-sub {
+      font-size: 11px;
+      color: var(--primary);
+      margin-top: 2px;
+      font-weight: 500;
+    }
+    .revisao-linhas {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+    .revisao-linha {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 14px;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .revisao-linha:last-child { border-bottom: none; }
+    .revisao-linha-label {
+      color: var(--txt-3);
+      font-weight: 600;
+      min-width: 90px;
+      flex-shrink: 0;
+      padding-top: 1px;
+      font-size: 12px;
+    }
+    .revisao-linha-valor {
+      color: var(--txt);
+      font-weight: 600;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+    .revisao-linha-valor.vazio {
+      color: var(--txt-4);
+      font-weight: 400;
+      font-style: italic;
+    }
+    .revisao-aviso {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: var(--r-sm);
+      font-size: 12px;
+      color: #92400e;
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+    .revisao-aviso-ic { font-size: 14px; flex-shrink: 0; }
+    .modal-revisao-acoes {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: var(--sp-4) var(--sp-5) calc(var(--sp-5) + env(safe-area-inset-bottom, 0px));
+    }
+    .btn-confirmar-envio {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background .18s, transform .12s;
+      box-shadow: 0 4px 14px rgba(6,95,70,.25);
+      letter-spacing: -.1px;
+    }
+    .btn-confirmar-envio:hover  { background: var(--primary-d); }
+    .btn-confirmar-envio:active { transform: scale(.98); }
+    .btn-confirmar-envio .material-symbols-outlined { font-size: 18px; font-variation-settings: 'FILL' 1; }
+    .btn-rever-pedido {
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--bg);
+      color: var(--txt-2);
+      border: 1.5px solid var(--border);
+      transition: background .18s;
+    }
+    .btn-rever-pedido:hover { background: var(--border); }
+
     /* toast mobile */
     .notif { position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 12px);left:50%;transform:translateX(-50%);padding:12px 20px;border-radius:var(--r-md);font-size:13px;font-weight:700;color:white;display:none;z-index:600;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.2); }
     .notif-ok   { background:var(--primary); }
@@ -2760,8 +2881,8 @@
               <div class="campo-hint" id="hint-sol-motivo">Opcional — ajuda a RH a processar mais rapidamente.</div>
             </div>
           </div>
-          <button class="btn-submeter" id="btn-submeter-sol" onclick="submeterSolicitacao()">
-            <span class="material-symbols-outlined">send</span> Enviar solicitação
+          <button class="btn-submeter" id="btn-submeter-sol" onclick="abrirRevisaoPedido()">
+            <span class="material-symbols-outlined">rate_review</span> Rever e enviar
           </button>
         </div>
         <div id="msg-solicitacao" style="margin-top:12px"></div>
@@ -2988,6 +3109,27 @@
     <div class="caixa-topo"><div class="caixa-titulo" id="modal-sol-titulo">Detalhe</div><div class="caixa-sub" id="modal-sol-sub">—</div></div>
     <div class="caixa-corpo" id="modal-sol-corpo"></div>
     <div class="caixa-rodape"><button class="btn btn-sec" onclick="document.getElementById('overlay-detalhe-sol').classList.remove('activo')">Fechar</button></div>
+  </div>
+</div>
+
+<!-- ── MODAL DE REVISÃO DE PEDIDO ── -->
+<div class="overlay-modal" id="overlay-revisao-pedido" onclick="if(event.target===this)fecharRevisaoPedido()" role="dialog" aria-modal="true" aria-labelledby="revisao-modal-titulo">
+  <div class="modal-caixa">
+    <div class="caixa-topo">
+      <div class="caixa-passo">Confirmar envio</div>
+      <div class="caixa-titulo" id="revisao-modal-titulo">Reveja o seu pedido</div>
+      <div class="caixa-sub">Confirme os dados antes de enviar. Após submissão, o RH recebe imediatamente a solicitação.</div>
+    </div>
+    <div class="caixa-corpo" id="revisao-modal-corpo">
+      <!-- preenchido por JS -->
+    </div>
+    <div class="modal-revisao-acoes">
+      <button class="btn-confirmar-envio" id="btn-confirmar-envio" onclick="confirmarEnvioSolicitacao()">
+        <span class="material-symbols-outlined">send</span>
+        Confirmar envio
+      </button>
+      <button class="btn-rever-pedido" onclick="fecharRevisaoPedido()">← Rever pedido</button>
+    </div>
   </div>
 </div>
 <div class="overlay-modal" id="overlay-viewer-doc" onclick="if(event.target===this)fecharVisualizacaoPortal()">
@@ -3952,7 +4094,7 @@
   window.submeterSolicitacao=async function(){
     if(!_tipoSel||!_utilizador)return;
 
-    // Segunda barreira — verificar completude mesmo que seleccionarTipo tenha passado
+    // Barreira — perfil completo
     if (_perfilIncompleto(_funcDoc)) {
       const msg=document.getElementById("msg-solicitacao");
       msg.innerHTML=`<div class="alerta alerta-aviso">
@@ -3961,27 +4103,28 @@
       </div>`;
       return;
     }
-    
-    const motivo=document.getElementById("sol-motivo").value.trim();
-    const btn=document.getElementById("btn-submeter-sol");
-    const msg=document.getElementById("msg-solicitacao");
-    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A verificar…';
-    
+
+    const motivo = document.getElementById("sol-motivo").value.trim();
+    const btn    = document.getElementById("btn-submeter-sol");
+    const msg    = document.getElementById("msg-solicitacao");
+    if(btn){ btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A verificar…'; }
+
     try{
       const dataInicio=_tipoSel==="guia-ferias"?document.getElementById("sol-data-inicio").value:"";
-      if(_tipoSel==="guia-ferias"&&!dataInicio){msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>data de início das férias</strong>.</div>`;btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">send</span> Enviar solicitação';return;}
-      
-      // ✅ Validação para Guia Médica — unidade sanitária obrigatória
+      if(_tipoSel==="guia-ferias"&&!dataInicio){
+        msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>data de início das férias</strong>.</div>`;
+        if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
+        return;
+      }
+
+      // Validação para Guia Médica — unidade sanitária obrigatória
       if(_tipoSel==="guia-medica"&&!motivo){
         msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>unidade sanitária</strong> onde vai fazer a consulta.</div>`;
-        btn.disabled=false;
-        btn.innerHTML='<span class="material-symbols-outlined">send</span> Enviar solicitação';
+        if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
         return;
       }
 
       // ── VALIDAÇÃO DE DUPLICADOS ──
-      // Verificar se já existe uma solicitação activa do mesmo tipo
-      // para este funcionário (estado "nova" ou "processando")
       if(_funcDocId){
         const snapDup=await getDocs(query(
           collection(db,"solicitacoes"),
@@ -3997,14 +4140,14 @@
             ⚠️ <strong>Já tem um pedido activo de ${nomeTipo}.</strong><br>
             Aguarde o processamento do pedido existente antes de submeter um novo.
           </div>`;
-          btn.disabled=false; btn.innerHTML='<span class="material-symbols-outlined">send</span> Enviar solicitação';
+          if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
           return;
         }
       }
 
-      btn.innerHTML='<span class="spinner"></span> A enviar…';
-      
-      // ✅ Guardar dados no Firebase com campo correcto
+      if(btn) btn.innerHTML='<span class="spinner"></span> A enviar…';
+
+      // Guardar dados no Firebase
       const dadosSolicitacao = {
         funcionarioId: _funcDocId || null,
         funcionarioNome: _funcDoc?.nome || _utilizador.email,
@@ -4020,20 +4163,19 @@
         numero: _funcDoc?.numero || "",
         bi: _funcDoc?.bi || "",
         sexo: _funcDoc?.sexo || "",
-        municipioNatal: _funcDoc?.municipioNatal || "" // ✅ Guardar municipioNatal
+        municipioNatal: _funcDoc?.municipioNatal || ""
       };
-      
-      // ✅ Para Guia Médica, guardar como "unidadeSanitaria"; para outros, guardar como "motivo"
+
       if(_tipoSel === "guia-medica") {
-        dadosSolicitacao.unidadeSanitaria = motivo; // Unidade sanitária
+        dadosSolicitacao.unidadeSanitaria = motivo;
       } else {
-        dadosSolicitacao.motivo = motivo; // Motivo genérico
+        dadosSolicitacao.motivo = motivo;
       }
-      
+
       await addDoc(collection(db,"solicitacoes"), dadosSolicitacao);
-      
+
       msg.innerHTML=`<div class="alerta alerta-sucesso">✅ <strong>Solicitação enviada!</strong> A Secção de RH irá processar o seu pedido brevemente. Pode acompanhar o andamento na área "Documentos".</div>`;
-      btn.innerHTML='<span class="material-symbols-outlined">send</span> Enviar solicitação'; btn.disabled=false;
+      if(btn){btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';btn.disabled=false;}
       _tipoSel=null;
       document.querySelectorAll(".tipo-card").forEach(c=>c.classList.remove("seleccionado"));
       document.getElementById("form-solicitacao-extra").style.display="none";
@@ -4044,8 +4186,109 @@
       let m="Erro ao enviar. Verifique a ligação e tente novamente.";
       if(e.code==="permission-denied")m="Sem permissão. Feche a sessão, entre novamente e tente outra vez.";
       msg.innerHTML=`<div class="alerta alerta-erro">❌ ${m}</div>`;
-      btn.disabled=false; btn.innerHTML='<span class="material-symbols-outlined">send</span> Enviar solicitação';
+      if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
     }
+  };
+
+  // ── Abrir modal de revisão antes de submeter ────────────────────────
+  window.abrirRevisaoPedido = function() {
+    if (!_tipoSel || !_utilizador) return;
+
+    const msg = document.getElementById("msg-solicitacao");
+
+    // 1. Perfil incompleto
+    if (_perfilIncompleto(_funcDoc)) {
+      msg.innerHTML=`<div class="alerta alerta-aviso">
+        ⚠️ <strong>O seu perfil está incompleto.</strong>
+        <a href="formulario.html" style="color:var(--c-700);font-weight:700">Preencha o formulário</a> antes de continuar.
+      </div>`;
+      return;
+    }
+
+    // 2. Data de férias obrigatória
+    const dataInicio = _tipoSel === "guia-ferias"
+      ? document.getElementById("sol-data-inicio").value
+      : "";
+    if (_tipoSel === "guia-ferias" && !dataInicio) {
+      msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>data de início das férias</strong> antes de rever o pedido.</div>`;
+      document.getElementById("sol-data-inicio")?.focus();
+      return;
+    }
+
+    // 3. Unidade sanitária obrigatória para guia médica
+    const motivo = document.getElementById("sol-motivo").value.trim();
+    if (_tipoSel === "guia-medica" && !motivo) {
+      msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>unidade sanitária</strong> antes de rever o pedido.</div>`;
+      document.getElementById("sol-motivo")?.focus();
+      return;
+    }
+
+    // 4. Tudo válido — construir resumo
+    const NOMES = {
+      "guia-ferias":         { nome:"Guia de Férias",       icone:"🏖️", sub:"Autorização de férias anuais" },
+      "declaracao-servico":  { nome:"Declaração de Serviço", icone:"📜", sub:"Declaração de vínculo laboral" },
+      "guia-medica":         { nome:"Guia Médica",           icone:"🏥", sub:"Para consultas médicas" },
+      "oficio":              { nome:"Ofício / Nota",         icone:"📋", sub:"Comunicação oficial" }
+    };
+    const info = NOMES[_tipoSel] || { nome: _tipoSel, icone:"📄", sub:"" };
+
+    const nomeFuncionario = _funcDoc?.nome || _utilizador?.email || "—";
+    const unidade         = _funcDoc?.unidade || "—";
+    const categoria       = _funcDoc?.categoria || "—";
+
+    // Linha de data (apenas guia-ferias)
+    const linhaData = _tipoSel === "guia-ferias" && dataInicio
+      ? `<div class="revisao-linha">
+           <span class="revisao-linha-label">Data início</span>
+           <span class="revisao-linha-valor">${new Date(dataInicio + "T12:00:00").toLocaleDateString("pt-AO", { day:"2-digit", month:"long", year:"numeric" })}</span>
+         </div>`
+      : "";
+
+    // Linha de motivo/unidade sanitária
+    const labelExtra = _tipoSel === "guia-medica" ? "Unidade sanitária" : "Motivo";
+    const linhaExtra = motivo
+      ? `<div class="revisao-linha">
+           <span class="revisao-linha-label">${labelExtra}</span>
+           <span class="revisao-linha-valor">${escapeHtml(motivo)}</span>
+         </div>`
+      : `<div class="revisao-linha">
+           <span class="revisao-linha-label">${labelExtra}</span>
+           <span class="revisao-linha-valor vazio">Não indicado</span>
+         </div>`;
+
+    document.getElementById("revisao-modal-corpo").innerHTML = `
+      <div class="revisao-tipo-badge">
+        <div class="revisao-tipo-ic">${info.icone}</div>
+        <div>
+          <div class="revisao-tipo-nome">${info.nome}</div>
+          <div class="revisao-tipo-sub">${info.sub}</div>
+        </div>
+      </div>
+      <div class="revisao-linhas">
+        <div class="revisao-linha">
+          <span class="revisao-linha-label">Funcionário</span>
+          <span class="revisao-linha-valor">${escapeHtml(nomeFuncionario)}</span>
+        </div>
+        <div class="revisao-linha">
+          <span class="revisao-linha-label">Categoria</span>
+          <span class="revisao-linha-valor">${escapeHtml(categoria)}</span>
+        </div>
+        <div class="revisao-linha">
+          <span class="revisao-linha-label">Unidade</span>
+          <span class="revisao-linha-valor">${escapeHtml(unidade)}</span>
+        </div>
+        ${linhaData}
+        ${linhaExtra}
+      </div>
+      <div class="revisao-aviso">
+        <span class="revisao-aviso-ic">ℹ️</span>
+        <span>Após confirmar, o pedido é enviado imediatamente ao RH e não poderá ser editado. Verifique os dados acima.</span>
+      </div>
+    `;
+
+    // 5. Abrir modal
+    msg.innerHTML = "";
+    document.getElementById("overlay-revisao-pedido").classList.add("activo");
   };
 
   // PERFIL
@@ -5181,6 +5424,24 @@
   // Fechar com Escape
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') fecharModalLogout();
+  });
+
+  // ── Modal de revisão de pedido ──
+  window.fecharRevisaoPedido = function() {
+    document.getElementById('overlay-revisao-pedido')?.classList.remove('activo');
+  };
+  window.confirmarEnvioSolicitacao = async function() {
+    // Fechar modal e desabilitar botão de confirmação para evitar duplo clique
+    const btnConfirmar = document.getElementById('btn-confirmar-envio');
+    if (btnConfirmar) {
+      btnConfirmar.disabled = true;
+      btnConfirmar.innerHTML = '<span class="spinner"></span> A enviar…';
+    }
+    fecharRevisaoPedido();
+    await window.submeterSolicitacao();
+  };
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') fecharRevisaoPedido();
   });
 </script>
 
