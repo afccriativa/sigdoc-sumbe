@@ -144,6 +144,24 @@
     .campo-inp.campo-erro { border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,.10)!important; }
     .campo-inp.campo-ok   { border-color:#10c886!important;box-shadow:0 0 0 3px rgba(16,200,134,.10)!important; }
     .campo-mono { font-family:var(--mono);letter-spacing:1px; }
+    /* ── Normalização de select e textarea no design system ── */
+    select.campo-inp {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+    select.campo-inp:focus { border-color:var(--primary-l);box-shadow:0 0 0 3px rgba(16,200,134,.12); }
+    select.campo-inp.campo-erro { border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,.10)!important; }
+    select.campo-inp.campo-ok   { border-color:#10c886!important;box-shadow:0 0 0 3px rgba(16,200,134,.10)!important; }
+    textarea.campo-inp { resize: vertical; }
+    /* Label dentro de secretaria-label-row não herda margin-bottom do campo-g */
+    .secretaria-label-row .secretaria-label,
+    .secretaria-label-row label { margin-bottom: 0; }
     .campo-hint { font-size:11px;color:var(--txt-4);margin-top:5px; }
     .campo-err-msg {
       font-size:var(--text-xs);color:#ef4444;font-weight:600;
@@ -2717,22 +2735,31 @@
           <div class="secretaria-form-title">Nova mensagem</div>
           <div class="secretaria-form-sub">Abra uma conversa com a secretaria e descreva claramente o seu pedido para acelerar o atendimento.</div>
         </div>
-        <label class="secretaria-label" for="sec-assunto">Assunto</label>
-        <select id="sec-assunto" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
-          <option value="">Seleccione o assunto…</option>
-          <option value="ferias-licencas">Férias e Licenças</option>
-          <option value="abonos-salarios">Abonos e Salários</option>
-          <option value="documentacao">Documentação Pessoal</option>
-          <option value="transferencias">Transferências</option>
-          <option value="escalas">Escalas de Serviço</option>
-          <option value="outro">Outro</option>
-        </select>
-        <div class="secretaria-label-row">
-          <label class="secretaria-label" for="sec-mensagem">Mensagem</label>
-          <span class="secretaria-counter"><span id="sec-contador">0</span>/500</span>
+        <div class="campo-g">
+          <label class="secretaria-label" for="sec-assunto">Assunto <em>*</em></label>
+          <select id="sec-assunto" class="campo-inp"
+            onchange="_secLimparErro('sec-assunto','err-sec-assunto')">
+            <option value="">Seleccione o assunto…</option>
+            <option value="ferias-licencas">Férias e Licenças</option>
+            <option value="abonos-salarios">Abonos e Salários</option>
+            <option value="documentacao">Documentação Pessoal</option>
+            <option value="transferencias">Transferências</option>
+            <option value="escalas">Escalas de Serviço</option>
+            <option value="outro">Outro</option>
+          </select>
+          <span class="campo-err-msg" id="err-sec-assunto">Seleccione o assunto.</span>
         </div>
-        <textarea id="sec-mensagem" maxlength="500" oninput="document.getElementById('sec-contador').textContent=this.value.length" placeholder="Descreva o seu pedido…" style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid #d1d5db;background:#ffffff;color:#111827;font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px"></textarea>
-        <div class="secretaria-help">Explique o contexto e, se necessário, indique o número de agente ou o documento relacionado.</div>
+        <div class="campo-g">
+          <div class="secretaria-label-row">
+            <label class="secretaria-label" for="sec-mensagem">Mensagem <em>*</em></label>
+            <span class="secretaria-counter"><span id="sec-contador">0</span>/500</span>
+          </div>
+          <textarea id="sec-mensagem" class="campo-inp" maxlength="500" rows="4"
+            placeholder="Descreva o seu pedido…"
+            oninput="document.getElementById('sec-contador').textContent=this.value.length;_secLimparErro('sec-mensagem','err-sec-mensagem')"></textarea>
+          <span class="campo-err-msg" id="err-sec-mensagem">Escreva a mensagem.</span>
+          <div class="secretaria-help" style="margin-top:6px">Explique o contexto e, se necessário, indique o número de agente ou o documento relacionado.</div>
+        </div>
         <div id="sec-msg-pedido" class="secretaria-feedback"></div>
         <button onclick="enviarPedidoPortal()" id="btn-enviar-pedido" class="btn btn-prim btn-full">Enviar mensagem</button>
       </div>
@@ -2748,25 +2775,40 @@
           <div class="secretaria-form-title">Solicitar reunião</div>
           <div class="secretaria-form-sub">Indique o destinatário, o tema e a melhor data para facilitar a marcação.</div>
         </div>
-        <label class="secretaria-label" for="sec-reuniao-dest">Destinatário</label>
-        <select id="sec-reuniao-dest" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
-          <option value="">Seleccione…</option>
-          <option value="director">Director Municipal de Saúde</option>
-          <option value="chefe-sperh">Chefe da Secção de Planeamento, Estatística e RH</option>
-          <option value="chefe-sp">Chefe da Secção de Saúde Pública</option>
-          <option value="chefe-is">Chefe da Secção de Inspecção Sanitária</option>
-          <option value="chefe-lhm">Chefe da Secção de Logística Hospitalar e Medicamentos</option>
-        </select>
-        <label class="secretaria-label" for="sec-reuniao-assunto">Assunto</label>
-        <textarea id="sec-reuniao-assunto" maxlength="300" placeholder="Descreva brevemente o assunto…" style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid var(--border);background:#ffffff;color:#111827;font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:12px;border:1px solid #d1d5db"></textarea>
-        <label class="secretaria-label" for="sec-reuniao-data">Data preferida</label>
-        <input type="date" id="sec-reuniao-data" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box" />
-        <label class="secretaria-label" for="sec-reuniao-periodo">Período</label>
-        <select id="sec-reuniao-periodo" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card,#fff);color:var(--txt);font-size:13px;margin-bottom:12px;box-sizing:border-box">
-          <option value="manha">Manhã (08h–12h)</option>
-          <option value="tarde">Tarde (13h30–15h)</option>
-          <option value="indiferente">Indiferente</option>
-        </select>
+        <div class="campo-g">
+          <label class="secretaria-label" for="sec-reuniao-dest">Destinatário <em>*</em></label>
+          <select id="sec-reuniao-dest" class="campo-inp"
+            onchange="_secLimparErro('sec-reuniao-dest','err-sec-reuniao-dest')">
+            <option value="">Seleccione…</option>
+            <option value="director">Director Municipal de Saúde</option>
+            <option value="chefe-sperh">Chefe da Secção de Planeamento, Estatística e RH</option>
+            <option value="chefe-sp">Chefe da Secção de Saúde Pública</option>
+            <option value="chefe-is">Chefe da Secção de Inspecção Sanitária</option>
+            <option value="chefe-lhm">Chefe da Secção de Logística Hospitalar e Medicamentos</option>
+          </select>
+          <span class="campo-err-msg" id="err-sec-reuniao-dest">Seleccione o destinatário.</span>
+        </div>
+        <div class="campo-g">
+          <label class="secretaria-label" for="sec-reuniao-assunto">Assunto <em>*</em></label>
+          <textarea id="sec-reuniao-assunto" class="campo-inp" maxlength="300" rows="4"
+            placeholder="Descreva brevemente o assunto…"
+            oninput="_secLimparErro('sec-reuniao-assunto','err-sec-reuniao-assunto')"></textarea>
+          <span class="campo-err-msg" id="err-sec-reuniao-assunto">Escreva o assunto.</span>
+        </div>
+        <div class="campo-g">
+          <label class="secretaria-label" for="sec-reuniao-data">Data preferida <em>*</em></label>
+          <input type="date" id="sec-reuniao-data" class="campo-inp"
+            onchange="_secLimparErro('sec-reuniao-data','err-sec-reuniao-data')" />
+          <span class="campo-err-msg" id="err-sec-reuniao-data">Indique a data preferida.</span>
+        </div>
+        <div class="campo-g" style="margin-bottom:2px">
+          <label class="secretaria-label" for="sec-reuniao-periodo">Período</label>
+          <select id="sec-reuniao-periodo" class="campo-inp">
+            <option value="manha">Manhã (08h–12h)</option>
+            <option value="tarde">Tarde (13h30–15h)</option>
+            <option value="indiferente">Indiferente</option>
+          </select>
+        </div>
         <div class="secretaria-help">Se houver urgência ou um período menos flexível, mencione isso no assunto.</div>
         <div id="sec-msg-reuniao" class="secretaria-feedback"></div>
         <button onclick="enviarPedidoReuniaoPortal()" id="btn-enviar-reuniao" class="btn btn-prim btn-full">Enviar pedido</button>
@@ -4629,13 +4671,40 @@
     btn.disabled = false;
   };
 
+  /* ── Helpers de validação inline – Secretaria ── */
+  window._secSetErro = function(fieldId, errId) {
+    const f = document.getElementById(fieldId);
+    const e = errId ? document.getElementById(errId) : null;
+    if (f) f.classList.add('campo-erro');
+    if (e) e.style.display = 'block';
+  };
+  window._secLimparErro = function(fieldId, errId) {
+    const f = document.getElementById(fieldId);
+    const e = errId ? document.getElementById(errId) : null;
+    if (f) f.classList.remove('campo-erro');
+    if (e) e.style.display = 'none';
+  };
+  function _secFeedback(elId, tipo, texto) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    if (!texto) { el.innerHTML = ''; return; }
+    const cls = tipo === 'ok'
+      ? 'alerta alerta-sucesso'
+      : 'alerta alerta-erro';
+    el.innerHTML = `<div class="${cls}" style="margin:8px 0 0">${texto}</div>`;
+  }
+
   window.enviarPedidoPortal = async function() {
     const assunto  = document.getElementById('sec-assunto').value;
     const mensagem = document.getElementById('sec-mensagem').value.trim();
-    const msgEl    = document.getElementById('sec-msg-pedido');
     const btn      = document.getElementById('btn-enviar-pedido');
-    if (!assunto) { msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Seleccione o assunto.</span>'; return; }
-    if (!mensagem){ msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Escreva a mensagem.</span>'; return; }
+
+    // Validação inline com design system
+    let valido = true;
+    if (!assunto)  { _secSetErro('sec-assunto',  'err-sec-assunto');  valido = false; }
+    if (!mensagem) { _secSetErro('sec-mensagem', 'err-sec-mensagem'); valido = false; }
+    if (!valido) return;
+
     btn.disabled = true; btn.textContent = 'A enviar…';
     try {
       const novoId = await addDoc(collection(db,'pedidos_secretaria'), {
@@ -4656,12 +4725,12 @@
       document.getElementById('sec-mensagem').value = '';
       document.getElementById('sec-contador').textContent = '0';
       btn.disabled = false; btn.textContent = 'Enviar mensagem';
-      msgEl.innerHTML = '';
+      _secFeedback('sec-msg-pedido', '', '');
       // Abrir o chat directamente
       setTimeout(()=>abrirChatPortal(novoId.id), 300);
     } catch(e) {
       console.error(e);
-      msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">❌ Erro ao enviar. Tente novamente.</span>';
+      _secFeedback('sec-msg-pedido', 'erro', '❌ Erro ao enviar. Tente novamente.');
       btn.disabled = false; btn.textContent = 'Enviar mensagem';
     }
   };
@@ -4671,12 +4740,23 @@
     const assunto = document.getElementById('sec-reuniao-assunto').value.trim();
     const data    = document.getElementById('sec-reuniao-data').value;
     const periodo = document.getElementById('sec-reuniao-periodo').value;
-    const msgEl   = document.getElementById('sec-msg-reuniao');
     const btn     = document.getElementById('btn-enviar-reuniao');
-    if (!dest)   { msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Seleccione o destinatário.</span>'; return; }
-    if (!assunto){ msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Escreva o assunto.</span>'; return; }
-    if (!data)   { msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ Indique a data preferida.</span>'; return; }
-    if (new Date(data) < new Date()) { msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">⚠️ A data não pode ser no passado.</span>'; return; }
+
+    // Validação inline com design system
+    let valido = true;
+    if (!dest)    { _secSetErro('sec-reuniao-dest',    'err-sec-reuniao-dest');    valido = false; }
+    if (!assunto) { _secSetErro('sec-reuniao-assunto', 'err-sec-reuniao-assunto'); valido = false; }
+    if (!data) {
+      _secSetErro('sec-reuniao-data', 'err-sec-reuniao-data');
+      valido = false;
+    } else if (new Date(data) < new Date()) {
+      const errEl = document.getElementById('err-sec-reuniao-data');
+      if (errEl) { errEl.textContent = 'A data não pode ser no passado.'; errEl.style.display = 'block'; }
+      document.getElementById('sec-reuniao-data').classList.add('campo-erro');
+      valido = false;
+    }
+    if (!valido) return;
+
     btn.disabled = true; btn.textContent = 'A enviar…';
     const DEST_NOMES = {
       'director':   'Director Municipal de Saúde',
@@ -4703,7 +4783,7 @@
         motivoRecusa:      '',
         observacoes:       ''
       });
-      msgEl.innerHTML = '<span style="color:#34d399;font-size:12px">✅ Pedido de reunião enviado com sucesso.</span>';
+      _secFeedback('sec-msg-reuniao', 'ok', '✅ Pedido de reunião enviado com sucesso.');
       document.getElementById('sec-reuniao-dest').value = '';
       document.getElementById('sec-reuniao-assunto').value = '';
       document.getElementById('sec-reuniao-data').value = '';
@@ -4711,7 +4791,7 @@
       setTimeout(() => { carregarReunioesPortal(); }, 1500);
     } catch(e) {
       console.error(e);
-      msgEl.innerHTML = '<span style="color:#f87171;font-size:12px">❌ Erro ao enviar.</span>';
+      _secFeedback('sec-msg-reuniao', 'erro', '❌ Erro ao enviar.');
       btn.disabled = false; btn.textContent = 'Enviar pedido';
     }
   };
