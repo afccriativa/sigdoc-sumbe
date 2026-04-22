@@ -294,9 +294,11 @@
         <div class="rel-filtros">
           <div>
             <label class="campo-label">Funcionário</label>
-            <select class="campo-select" id="f-ficha-func">
-              <option value="">Seleccionar funcionário…</option>
-            </select>
+            <input class="campo-input" id="f-ficha-func"
+                   list="func-datalist"
+                   placeholder="Escrever nome ou nº de agente…"
+                   autocomplete="off">
+            <datalist id="func-datalist"></datalist>
           </div>
         </div>
         <div class="btn-strip">
@@ -653,13 +655,12 @@
       });
     });
 
-    // Popular select de funcionários (ficha individual)
-    const selFunc = document.getElementById("f-ficha-func");
+    // Popular datalist de funcionários (ficha individual — pesquisa por nome ou nº)
+    const dlFunc = document.getElementById("func-datalist");
     [..._funcs].sort((a,b) => (a.nome||"").localeCompare(b.nome||"")).forEach(f => {
       const opt = document.createElement("option");
-      opt.value = f.id;
-      opt.textContent = f.nome + (f.numero ? ` — Nº ${f.numero}` : "");
-      selFunc.appendChild(opt);
+      opt.value = f.nome + (f.numero ? ` — Nº ${f.numero}` : "");
+      dlFunc.appendChild(opt);
     });
 
     // Popular selects de aniversariantes (unidade e categoria)
@@ -1043,10 +1044,10 @@
   //  FICHA INDIVIDUAL
   // ════════════════════════════════════════════════════════
   window.exportarFicha = function() {
-    const id = document.getElementById("f-ficha-func").value;
-    if (!id) { notif("Seleccione um funcionário.","erro"); return; }
-    const f = _funcs.find(x => x.id === id);
-    if (!f) { notif("Funcionário não encontrado.","erro"); return; }
+    const val = document.getElementById("f-ficha-func").value.trim();
+    if (!val) { notif("Escreva o nome ou número do funcionário.","erro"); return; }
+    const f = _funcs.find(x => (x.nome||"") + (x.numero ? " — Nº "+x.numero : "") === val);
+    if (!f) { notif("Funcionário não encontrado — seleccione exactamente da lista.","erro"); return; }
     const anos = f.admissao ? new Date().getFullYear() - new Date(f.admissao).getFullYear() : null;
     const nat  = [f.municipioNatal, f.provinciaNatal].filter(Boolean).join(", ") || "—";
     const campoSal = temAlgumRoleRelatorios(_perfilDoc || _perfil, ["admin","chefe","tecnico"]) && f.salarioBase
