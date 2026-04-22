@@ -329,7 +329,7 @@
               <option value="30">Últimos 30 dias</option>
               <option value="90" selected>Últimos 90 dias</option>
               <option value="180">Últimos 180 dias</option>
-              <option value="0">Tudo</option>
+              <option value="0">Todo o período (sem limite)</option>
             </select>
           </div>
           <div>
@@ -367,7 +367,7 @@
               <option value="30">Últimos 30 dias</option>
               <option value="90" selected>Últimos 90 dias</option>
               <option value="180">Últimos 180 dias</option>
-              <option value="0">Tudo</option>
+              <option value="0">Todo o período (sem limite)</option>
             </select>
           </div>
           <div>
@@ -1606,12 +1606,19 @@
         a.download = 'pedidos_secretaria_'+hoje()+'.csv'; a.click(); URL.revokeObjectURL(a.href);
         notif('✅ CSV exportado');
       } else {
+        const periodoSel = document.getElementById('f-sec-periodo').value;
+        const _pLabels = {'30':'Últimos 30 dias','90':'Últimos 90 dias','180':'Últimos 180 dias','0':'Todo o período (sem limite)'};
+        const periodoLabel = _pLabels[periodoSel] || 'Últimos '+periodoSel+' dias';
+        const periodoBadge = periodoSel === '0'
+          ? `<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:4px;font-weight:700">📅 ${periodoLabel}</span>`
+          : `<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:4px;font-weight:700">⚠️ ${periodoLabel}</span>`;
         const rows = linhasParaHTML(linhas);
         abrirPDF(`
           <h1>${titulo}</h1>
           <div class="sub">Direcção Municipal de Saúde do Sumbe</div>
           <div class="meta">
             <span>Data: ${dataHoje}</span>
+            ${periodoBadge}
             <span>Total: ${total} pedidos</span>
             <span>Taxa resolução: ${taxa}%</span>
             <span>Tempo médio resposta: ${mediaTempoStr}</span>
@@ -1695,12 +1702,19 @@
         a.download = 'reunioes_secretaria_'+hoje()+'.csv'; a.click(); URL.revokeObjectURL(a.href);
         notif('✅ CSV exportado');
       } else {
+        const periodoSel = document.getElementById('f-reun-periodo').value;
+        const _pLabels = {'30':'Últimos 30 dias','90':'Últimos 90 dias','180':'Últimos 180 dias','0':'Todo o período (sem limite)'};
+        const periodoLabel = _pLabels[periodoSel] || 'Últimos '+periodoSel+' dias';
+        const periodoBadge = periodoSel === '0'
+          ? `<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:4px;font-weight:700">📅 ${periodoLabel}</span>`
+          : `<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:4px;font-weight:700">⚠️ ${periodoLabel}</span>`;
         const rows = linhasParaHTML(linhas);
         abrirPDF(`
           <h1>${titulo}</h1>
           <div class="sub">Direcção Municipal de Saúde do Sumbe</div>
           <div class="meta">
             <span>Data: ${dataHoje}</span>
+            ${periodoBadge}
             <span>Total: ${total} pedidos de reunião</span>
             <span>Realizadas: ${realiz}</span>
             <span>Recusadas: ${recus}</span>
