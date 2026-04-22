@@ -53,6 +53,7 @@
     .btn-csv{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3)}
     .btn-csv:hover{background:rgba(245,158,11,.25)}
     .btn-exp.loading{opacity:.6;pointer-events:none}
+    .btn-exp:disabled{opacity:.5;cursor:not-allowed;transform:none !important;box-shadow:none !important}
     /* preview */
     .preview-card{background:#1a2236;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:22px 24px;margin-bottom:22px}
     .preview-titulo{font-size:13px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
@@ -876,7 +877,14 @@
   };
 
   window.previsualizarMapaGeral = function() {
-    mostrarPrevia("Mapa Geral de Pessoal", ["Nº","Nome","Sexo","Categoria","Unidade","Vínculo","Estado"], filtrarGeral().map(f=>[f.numero||"—",f.nome||"—",f.sexo||"—",f.categoria||"—",abrev(f.unidade||"—"),lv(f.vinculo),le(f.estado||"activo")]));
+    const btn = document.querySelector('[onclick="previsualizarMapaGeral()"]');
+    const orig = btn?.textContent;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
+    try {
+      mostrarPrevia("Mapa Geral de Pessoal", ["Nº","Nome","Sexo","Categoria","Unidade","Vínculo","Estado"], filtrarGeral().map(f=>[f.numero||"—",f.nome||"—",f.sexo||"—",f.categoria||"—",abrev(f.unidade||"—"),lv(f.vinculo),le(f.estado||"activo")]));
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = orig; }
+    }
   };
 
   function pdfMapaGeral(funcs) {
@@ -922,9 +930,16 @@
   };
 
   window.previsualizarMapaUnidade = function() {
-    const funcs = filtrarUnidade();
-    const unid  = document.getElementById("f-mu-unidade").value || "Todas";
-    mostrarPrevia("Mapa — "+abrev(unid), ["Nº","Nome","Categoria","Unidade","Vínculo","Estado"], funcs.map(f=>[f.numero||"—",f.nome||"—",f.categoria||"—",abrev(f.unidade||"—"),lv(f.vinculo),le(f.estado||"activo")]));
+    const btn = document.querySelector('[onclick="previsualizarMapaUnidade()"]');
+    const orig = btn?.textContent;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
+    try {
+      const funcs = filtrarUnidade();
+      const unid  = document.getElementById("f-mu-unidade").value || "Todas";
+      mostrarPrevia("Mapa — "+abrev(unid), ["Nº","Nome","Categoria","Unidade","Vínculo","Estado"], funcs.map(f=>[f.numero||"—",f.nome||"—",f.categoria||"—",abrev(f.unidade||"—"),lv(f.vinculo),le(f.estado||"activo")]));
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = orig; }
+    }
   };
 
   // Helper local: label de estado da unidade para relatórios
@@ -973,14 +988,21 @@
   };
 
   window.previsualizarCobertura = function() {
-    const cm = {};
-    _funcs.forEach(f => { const u = f.unidade||"—"; cm[u]=(cm[u]||0)+1; });
-    const todas = new Set([...Object.keys(cm),...Object.keys(_unidades)]);
-    const lista = [...todas].filter(n=>n!=="—"&&n!=="Não especificada")
-      .map(nome=>({nome,cad:cm[nome]||0,esp:_unidades[nome]?.efectivo?.esperado||0,estOp:estOpLabel(nome)}))
-      .sort((a,b)=>(b.esp||b.cad)-(a.esp||a.cad));
-    mostrarPrevia("Cobertura", ["Unidade","Est. Operacional","Cadastrados","Esperado","Cobertura"],
-      lista.map(u=>{const c=u.esp>0?Math.round(u.cad/u.esp*100):null;return[abrev(u.nome),u.estOp,u.cad,u.esp||"—",c!==null?c+"%":"s/meta"];}));
+    const btn = document.querySelector('[onclick="previsualizarCobertura()"]');
+    const orig = btn?.textContent;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
+    try {
+      const cm = {};
+      _funcs.forEach(f => { const u = f.unidade||"—"; cm[u]=(cm[u]||0)+1; });
+      const todas = new Set([...Object.keys(cm),...Object.keys(_unidades)]);
+      const lista = [...todas].filter(n=>n!=="—"&&n!=="Não especificada")
+        .map(nome=>({nome,cad:cm[nome]||0,esp:_unidades[nome]?.efectivo?.esperado||0,estOp:estOpLabel(nome)}))
+        .sort((a,b)=>(b.esp||b.cad)-(a.esp||a.cad));
+      mostrarPrevia("Cobertura", ["Unidade","Est. Operacional","Cadastrados","Esperado","Cobertura"],
+        lista.map(u=>{const c=u.esp>0?Math.round(u.cad/u.esp*100):null;return[abrev(u.nome),u.estOp,u.cad,u.esp||"—",c!==null?c+"%":"s/meta"];}));
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = orig; }
+    }
   };
 
   // ════════════════════════════════════════════════════════
@@ -1003,9 +1025,16 @@
 
   window.previsualizarSalarial = function() {
   if (!temAlgumRoleRelatorios(_perfilDoc || _perfil, ["admin","chefe","tecnico"])) { notif("Sem permissão.","erro"); return; }
-    const funcs = filtrarSalarial();
-    mostrarPrevia("Mapa Salarial", ["Nº","Nome","Unidade","Categoria","Salário Base"],
-      funcs.map(f=>[f.numero||"—",f.nome||"—",abrev(f.unidade||"—"),f.categoria||"—",fmtKz(f.salarioBase)]));
+    const btn = document.querySelector('[onclick="previsualizarSalarial()"]');
+    const orig = btn?.textContent;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
+    try {
+      const funcs = filtrarSalarial();
+      mostrarPrevia("Mapa Salarial", ["Nº","Nome","Unidade","Categoria","Salário Base"],
+        funcs.map(f=>[f.numero||"—",f.nome||"—",abrev(f.unidade||"—"),f.categoria||"—",fmtKz(f.salarioBase)]));
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = orig; }
+    }
   };
 
   // ════════════════════════════════════════════════════════
@@ -1114,6 +1143,10 @@
    * Renderiza o painel inline de resultados com destaques para hoje e próximos 3 dias.
    */
   window.previsualizarAniversariantes = function() {
+    const btn = document.querySelector('[onclick="previsualizarAniversariantes()"]');
+    const orig = btn?.textContent;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
+    try {
     const wrap = document.getElementById("aniv-resultado");
     if (!wrap) return;
 
@@ -1176,6 +1209,9 @@
           <tbody>${linhasHTML}</tbody>
         </table>
       </div>`;
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = orig; }
+    }
   };
 
   /**
@@ -1310,6 +1346,10 @@
   }
 
   window.previsualizarInfra = function() {
+    const btn = document.querySelector('[onclick="previsualizarInfra()"]');
+    const orig = btn?.textContent;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
+    try {
     const wrap = document.getElementById('infra-resultado');
     if (!wrap) return;
     const lista = filtrarInfra();
@@ -1367,6 +1407,9 @@
       + '</tr></thead>'
       + '<tbody>' + linhasHTML + '</tbody>'
       + '</table></div>';
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = orig; }
+    }
   };
 
   window.exportarInfra = function(fmt) {
@@ -1502,6 +1545,9 @@
   }
 
   window.previsualizarRelSecPedidos = async function() {
+    const btn = document.querySelector('[onclick="previsualizarRelSecPedidos()"]');
+    const orig = btn?.textContent;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
     try {
       notif('⏳ A carregar pedidos…');
       const pedidos = await fetchSecretaria(
@@ -1513,6 +1559,9 @@
       mostrarPrevia('Pedidos da Secretaria', COLS_SEC_PED, linhasSecPedidos(pedidos));
       notif(`✅ ${pedidos.length} pedidos carregados`);
     } catch(e) { notif('Erro: '+e.message,'erro'); }
+    finally {
+      if (btn) { btn.disabled = false; btn.textContent = orig; }
+    }
   };
 
   window.exportarRelSecPedidos = async function(fmt) {
@@ -1593,6 +1642,9 @@
   }
 
   window.previsualizarRelReuniao = async function() {
+    const btn = document.querySelector('[onclick="previsualizarRelReuniao()"]');
+    const orig = btn?.textContent;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
     try {
       notif('⏳ A carregar reuniões…');
       const reunioes = await fetchSecretaria(
@@ -1604,6 +1656,9 @@
       mostrarPrevia('Reuniões', COLS_REUN, linhasReuniao(reunioes));
       notif(`✅ ${reunioes.length} reuniões carregadas`);
     } catch(e) { notif('Erro: '+e.message,'erro'); }
+    finally {
+      if (btn) { btn.disabled = false; btn.textContent = orig; }
+    }
   };
 
   window.exportarRelReuniao = async function(fmt) {
