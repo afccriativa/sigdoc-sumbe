@@ -167,17 +167,6 @@
   </div>
   <div class="content">
 
-    <!-- PRÉVIA INTERACTIVA -->
-    <div class="preview-card" id="preview-card" style="display:none">
-      <div class="preview-titulo">
-        <span id="preview-titulo-txt">Prévia</span>
-        <span class="preview-count" id="preview-count"></span>
-      </div>
-      <div class="preview-table-wrap">
-        <table class="preview" id="preview-table"></table>
-      </div>
-    </div>
-
     <!-- SECÇÃO 1: Mapas de Pessoal -->
     <div class="sec">👥 Mapas de Pessoal</div>
     <div class="g2">
@@ -493,6 +482,17 @@
           onclick="previsualizarInfra()">🏗️ Ver tabela</button>
       </div>
       <div id="infra-resultado"></div>
+    </div>
+
+    <!-- PRÉVIA INTERACTIVA — posicionada no fundo para aparecer perto do card que a activou -->
+    <div class="preview-card" id="preview-card" style="display:none">
+      <div class="preview-titulo">
+        <span id="preview-titulo-txt">Prévia</span>
+        <span class="preview-count" id="preview-count"></span>
+      </div>
+      <div class="preview-table-wrap">
+        <table class="preview" id="preview-table"></table>
+      </div>
     </div>
 
   </div>
