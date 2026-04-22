@@ -54,6 +54,8 @@
     .btn-csv:hover{background:rgba(245,158,11,.25)}
     .btn-exp.loading{opacity:.6;pointer-events:none}
     .btn-exp:disabled{opacity:.5;cursor:not-allowed;transform:none !important;box-shadow:none !important}
+    .btn-previa{background:rgba(100,116,139,.08);color:#475569;border:1px solid rgba(100,116,139,.25)}
+    .btn-previa:hover{background:rgba(100,116,139,.16);color:#1e293b}
     /* preview */
     .preview-card{background:#1a2236;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:22px 24px;margin-bottom:22px}
     .preview-titulo{font-size:13px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
@@ -203,7 +205,7 @@
           <button class="btn-exp btn-excel" onclick="exportarMapaGeral('excel')">📊 Excel</button>
           <button class="btn-exp btn-pdf"   onclick="exportarMapaGeral('pdf')">📄 PDF</button>
           <button class="btn-exp btn-csv"   onclick="exportarMapaGeral('csv')">📁 CSV</button>
-          <button class="btn-exp" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)" onclick="previsualizarMapaGeral()">👁 Prévia</button>
+          <button class="btn-exp btn-previa" onclick="previsualizarMapaGeral()">👁 Prévia</button>
         </div>
       </div>
 
@@ -228,7 +230,7 @@
           <button class="btn-exp btn-excel" onclick="exportarMapaUnidade('excel')">📊 Excel</button>
           <button class="btn-exp btn-pdf"   onclick="exportarMapaUnidade('pdf')">📄 PDF</button>
           <button class="btn-exp btn-csv"   onclick="exportarMapaUnidade('csv')">📁 CSV</button>
-          <button class="btn-exp" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)" onclick="previsualizarMapaUnidade()">👁 Prévia</button>
+          <button class="btn-exp btn-previa" onclick="previsualizarMapaUnidade()">👁 Prévia</button>
         </div>
       </div>
 
@@ -250,7 +252,7 @@
         <div class="btn-strip" style="margin-top:8px">
           <button class="btn-exp btn-excel" onclick="exportarCobertura('excel')">📊 Excel</button>
           <button class="btn-exp btn-pdf"   onclick="exportarCobertura('pdf')">📄 PDF</button>
-          <button class="btn-exp" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)" onclick="previsualizarCobertura()">👁 Prévia</button>
+          <button class="btn-exp btn-previa" onclick="previsualizarCobertura()">👁 Prévia</button>
         </div>
       </div>
 
@@ -274,7 +276,7 @@
         <div class="btn-strip">
           <button class="btn-exp btn-excel" onclick="exportarSalarial('excel')">📊 Excel</button>
           <button class="btn-exp btn-pdf"   onclick="exportarSalarial('pdf')">📄 PDF</button>
-          <button class="btn-exp" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)" onclick="previsualizarSalarial()">👁 Prévia</button>
+          <button class="btn-exp btn-previa" onclick="previsualizarSalarial()">👁 Prévia</button>
         </div>
       </div>
 
@@ -345,7 +347,7 @@
           <button class="btn-exp btn-excel" onclick="exportarRelSecPedidos('excel')">📊 Excel</button>
           <button class="btn-exp btn-pdf"   onclick="exportarRelSecPedidos('pdf')">📄 PDF</button>
           <button class="btn-exp btn-csv"   onclick="exportarRelSecPedidos('csv')">📁 CSV</button>
-          <button class="btn-exp" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)" onclick="previsualizarRelSecPedidos()">👁 Prévia</button>
+          <button class="btn-exp btn-previa" onclick="previsualizarRelSecPedidos()">👁 Prévia</button>
         </div>
       </div>
 
@@ -384,7 +386,7 @@
           <button class="btn-exp btn-excel" onclick="exportarRelReuniao('excel')">📊 Excel</button>
           <button class="btn-exp btn-pdf"   onclick="exportarRelReuniao('pdf')">📄 PDF</button>
           <button class="btn-exp btn-csv"   onclick="exportarRelReuniao('csv')">📁 CSV</button>
-          <button class="btn-exp" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)" onclick="previsualizarRelReuniao()">👁 Prévia</button>
+          <button class="btn-exp btn-previa" onclick="previsualizarRelReuniao()">👁 Prévia</button>
         </div>
       </div>
 
