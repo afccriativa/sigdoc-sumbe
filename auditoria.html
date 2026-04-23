@@ -422,6 +422,89 @@
       .filtros-grid{grid-template-columns:1fr 1fr}
       .barra-label{width:90px;font-size:11px}
     }
+
+    /* ── FASE 1: PESQUISA GLOBAL ── */
+    .barra-pesquisa-global{
+      background:var(--card);border:1px solid var(--border);
+      border-radius:var(--r-lg);padding:13px 18px;margin-bottom:16px;
+      display:flex;align-items:center;gap:12px;
+      transition:border-color .2s
+    }
+    .barra-pesquisa-global:focus-within{border-color:var(--green)}
+    .pesquisa-icon{font-size:16px;color:var(--txt-muted);flex-shrink:0}
+    .pesquisa-input{
+      flex:1;background:none;border:none;outline:none;
+      font-size:14px;color:var(--txt);font-family:var(--font)
+    }
+    .pesquisa-input::placeholder{color:var(--txt-dim)}
+    .pesquisa-atalho{
+      font-size:10px;color:var(--txt-dim);font-family:var(--mono);
+      background:rgba(255,255,255,.05);border:1px solid var(--border2);
+      padding:2px 7px;border-radius:5px;white-space:nowrap;flex-shrink:0
+    }
+    .pesquisa-clear{
+      background:rgba(255,255,255,.07);border:1px solid var(--border2);
+      color:var(--txt-muted);padding:4px 10px;border-radius:6px;
+      font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);
+      display:none;transition:background .15s
+    }
+    .pesquisa-clear.visivel{display:block}
+    .pesquisa-clear:hover{background:rgba(255,255,255,.13);color:var(--txt)}
+    .pesquisa-contador{
+      font-size:11px;color:var(--txt-muted);font-family:var(--mono);
+      white-space:nowrap;padding:3px 10px;
+      background:rgba(255,255,255,.04);border:1px solid var(--border);
+      border-radius:8px;display:none
+    }
+    .pesquisa-contador.visivel{display:block}
+
+    /* ── FASE 1: KPI CLICÁVEL ── */
+    .ind-card.clicavel{cursor:pointer}
+    .ind-card.clicavel:hover{
+      transform:translateY(-3px);
+      border-color:rgba(255,255,255,.18);
+      box-shadow:0 8px 28px rgba(0,0,0,.35)
+    }
+    .ind-card.clicavel.activo{
+      border-color:var(--green) !important;
+      box-shadow:0 0 0 1px var(--green),0 6px 24px rgba(16,200,134,.15)
+    }
+    .ind-card.clicavel.activo .ind-label{color:var(--green)}
+    .ind-kpi-hint{
+      font-size:9px;color:var(--txt-dim);margin-top:6px;
+      opacity:0;transition:opacity .15s
+    }
+    .ind-card.clicavel:hover .ind-kpi-hint,
+    .ind-card.clicavel.activo .ind-kpi-hint{opacity:1}
+    .ind-card.clicavel.activo .ind-kpi-hint{color:var(--green)}
+
+    /* ── FASE 1: FILTROS RÁPIDOS (PRESETS) ── */
+    .filtros-rapidos-row{
+      display:flex;flex-wrap:wrap;align-items:center;gap:7px;
+      padding-bottom:14px;margin-bottom:14px;
+      border-bottom:1px solid var(--border)
+    }
+    .filtros-rapidos-label{
+      font-size:10px;font-weight:700;text-transform:uppercase;
+      letter-spacing:1px;color:var(--txt-dim);margin-right:4px;
+      flex-shrink:0
+    }
+    .btn-preset{
+      background:rgba(255,255,255,.05);border:1px solid var(--border2);
+      color:var(--txt-muted);padding:5px 13px;border-radius:20px;
+      font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);
+      transition:all .15s;white-space:nowrap
+    }
+    .btn-preset:hover{
+      background:rgba(255,255,255,.1);color:var(--txt);
+      border-color:rgba(255,255,255,.25)
+    }
+    .btn-preset.activo{
+      background:var(--green-dim);border-color:var(--green-border);color:var(--green)
+    }
+    .btn-preset-sep{
+      width:1px;height:16px;background:var(--border2);margin:0 3px;flex-shrink:0
+    }
   </style>
 </head>
 <body>
@@ -467,43 +550,79 @@
       <span>Dados em tempo real — leitura directa das colecções <strong>documentos</strong> e <strong>sessoes</strong> do Firebase.</span>
     </div>
 
+    <!-- PESQUISA GLOBAL -->
+    <div class="barra-pesquisa-global">
+      <span class="pesquisa-icon">🔍</span>
+      <input
+        class="pesquisa-input"
+        id="pesquisa-global"
+        type="text"
+        placeholder="Pesquisar por nome, e-mail, documento, referência ou unidade…"
+        oninput="onPesquisaGlobal(this.value)"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <span class="pesquisa-atalho" id="pesquisa-atalho">Ctrl+K</span>
+      <span class="pesquisa-contador" id="pesquisa-contador">0 resultados</span>
+      <button class="pesquisa-clear" id="pesquisa-clear" onclick="limparPesquisa()">✕ Limpar</button>
+    </div>
+
     <!-- INDICADORES -->
     <div class="indicadores-rapidos">
-      <div class="ind-card">
+      <div class="ind-card clicavel" id="kpi-total" onclick="filtrarPorKPI('total')" title="Ver todos os eventos">
         <div class="ind-icone ind-bg-azul">📋</div>
         <div class="ind-num" id="ind-total">—</div>
         <div class="ind-label">Total de Eventos</div>
+        <div class="ind-kpi-hint">Clique para ver todos</div>
       </div>
-      <div class="ind-card">
+      <div class="ind-card clicavel" id="kpi-docs" onclick="filtrarPorKPI('GERAR')" title="Filtrar documentos gerados">
         <div class="ind-icone ind-bg-verde">📄</div>
         <div class="ind-num" id="ind-docs">—</div>
         <div class="ind-label">Documentos Gerados</div>
+        <div class="ind-kpi-hint">Filtrar por GERAR</div>
       </div>
-      <div class="ind-card">
+      <div class="ind-card clicavel" id="kpi-aprovados" onclick="filtrarPorKPI('APROVAR')" title="Filtrar aprovações">
         <div class="ind-icone ind-bg-laranja">✅</div>
         <div class="ind-num" id="ind-aprovados">—</div>
         <div class="ind-label">Aprovações</div>
+        <div class="ind-kpi-hint">Filtrar por APROVAR</div>
       </div>
-      <div class="ind-card">
+      <div class="ind-card clicavel" id="kpi-rejeicoes" onclick="filtrarPorKPI('REJEITAR')" title="Filtrar rejeições">
         <div class="ind-icone ind-bg-vermelho">❌</div>
         <div class="ind-num" id="ind-rejeicoes">—</div>
         <div class="ind-label">Rejeições</div>
+        <div class="ind-kpi-hint">Filtrar por REJEITAR</div>
       </div>
-      <div class="ind-card">
+      <div class="ind-card clicavel" id="kpi-logins" onclick="filtrarPorKPI('LOGIN')" title="Filtrar sessões">
         <div class="ind-icone ind-bg-roxo">🔑</div>
         <div class="ind-num" id="ind-logins">—</div>
         <div class="ind-label">Sessões Iniciadas</div>
+        <div class="ind-kpi-hint">Filtrar por LOGIN</div>
       </div>
-      <div class="ind-card">
+      <div class="ind-card clicavel" id="kpi-leituras" onclick="filtrarPorKPI('leituras')" title="Filtrar consultas de dados" style="background:var(--card)">
         <div class="ind-icone" style="background:rgba(245,158,11,.15)">👁️</div>
         <div class="ind-num" id="ind-leituras">—</div>
         <div class="ind-label">Consultas de Dados</div>
+        <div class="ind-kpi-hint">Filtrar por VER_*</div>
       </div>
     </div>
 
     <!-- FILTROS -->
     <div class="painel-filtros">
       <div class="filtros-titulo">🔍 Filtrar Registos</div>
+
+      <!-- FILTROS RÁPIDOS -->
+      <div class="filtros-rapidos-row">
+        <span class="filtros-rapidos-label">⚡ Acesso rápido</span>
+        <button class="btn-preset" id="preset-hoje" onclick="aplicarPreset('hoje')">Hoje</button>
+        <button class="btn-preset" id="preset-24h" onclick="aplicarPreset('24h')">Últimas 24h</button>
+        <button class="btn-preset" id="preset-7d" onclick="aplicarPreset('7d')">Últimos 7 dias</button>
+        <button class="btn-preset" id="preset-30d" onclick="aplicarPreset('30d')">Últimos 30 dias</button>
+        <span class="btn-preset-sep"></span>
+        <button class="btn-preset" id="preset-secretaria" onclick="aplicarPreset('secretaria')">✉️ Só Secretaria</button>
+        <button class="btn-preset" id="preset-rejeicoes" onclick="aplicarPreset('rejeicoes')">❌ Só Rejeições</button>
+        <button class="btn-preset" id="preset-logins" onclick="aplicarPreset('logins')">🔑 Só Sessões</button>
+      </div>
       <div class="filtros-grid">
         <div class="filtro-campo">
           <label>Data Inicial</label>
@@ -1831,6 +1950,233 @@
     a.click(); URL.revokeObjectURL(url);
     mostrarNotif("✅ CSV da Secretaria exportado!", "notif-sucesso");
   };
+  // ════════════════════════════════════════════════════════
+  //  FASE 1 — UX: PESQUISA GLOBAL + KPI CLICÁVEIS + PRESETS
+  // ════════════════════════════════════════════════════════
+
+  // Estado da pesquisa global
+  let _pesquisaGlobal = "";
+  let _kpiActivo      = null;   // id do KPI activo (ou null)
+  let _presetActivo   = null;   // id do preset activo (ou null)
+
+  // ── Pesquisa global ──────────────────────────────────────
+  window.onPesquisaGlobal = function(valor) {
+    _pesquisaGlobal = valor.trim().toLowerCase();
+    const clearBtn  = document.getElementById("pesquisa-clear");
+    const atalho    = document.getElementById("pesquisa-atalho");
+    clearBtn.classList.toggle("visivel", _pesquisaGlobal.length > 0);
+    atalho.style.display = _pesquisaGlobal.length > 0 ? "none" : "";
+    _aplicarTodosFiltros();
+  };
+
+  window.limparPesquisa = function() {
+    document.getElementById("pesquisa-global").value = "";
+    _pesquisaGlobal = "";
+    document.getElementById("pesquisa-clear").classList.remove("visivel");
+    document.getElementById("pesquisa-atalho").style.display = "";
+    document.getElementById("pesquisa-contador").classList.remove("visivel");
+    _aplicarTodosFiltros();
+  };
+
+  // Atalho de teclado Ctrl+K / Cmd+K para focar pesquisa
+  document.addEventListener("keydown", function(ev) {
+    if ((ev.ctrlKey || ev.metaKey) && ev.key === "k") {
+      ev.preventDefault();
+      const inp = document.getElementById("pesquisa-global");
+      if (inp) { inp.focus(); inp.select(); }
+    }
+    if (ev.key === "Escape") {
+      const inp = document.getElementById("pesquisa-global");
+      if (document.activeElement === inp) { inp.blur(); limparPesquisa(); }
+    }
+  });
+
+  // ── Filtrar por KPI ──────────────────────────────────────
+  window.filtrarPorKPI = function(tipo) {
+    // Toggle: clicar no mesmo KPI activo limpa o filtro
+    if (_kpiActivo === tipo) {
+      _kpiActivo = null;
+      _limparEstadoKPIs();
+      // Limpar select de acção
+      document.getElementById("filtro-accao").value = "";
+      document.getElementById("filtro-modulo").value = "";
+      _aplicarTodosFiltros();
+      return;
+    }
+
+    _kpiActivo = tipo;
+    _limparEstadoKPIs();
+    document.getElementById("kpi-" + (
+      tipo === "total" ? "total" :
+      tipo === "GERAR" ? "docs" :
+      tipo === "APROVAR" ? "aprovados" :
+      tipo === "REJEITAR" ? "rejeicoes" :
+      tipo === "LOGIN" ? "logins" :
+      tipo === "leituras" ? "leituras" : "total"
+    )).classList.add("activo");
+
+    // Preencher filtros correspondentes
+    const accaoSel = document.getElementById("filtro-accao");
+    const moduloSel = document.getElementById("filtro-modulo");
+    accaoSel.value = "";
+    moduloSel.value = "";
+
+    if (tipo === "total") { /* sem filtro extra */ }
+    else if (tipo === "leituras") { /* filtrado na função abaixo */ }
+    else { accaoSel.value = tipo; }
+
+    _aplicarTodosFiltros();
+  };
+
+  function _limparEstadoKPIs() {
+    ["total","docs","aprovados","rejeicoes","logins","leituras"].forEach(k => {
+      const el = document.getElementById("kpi-" + k);
+      if (el) el.classList.remove("activo");
+    });
+  }
+
+  // ── Filtros rápidos (presets) ────────────────────────────
+  window.aplicarPreset = function(preset) {
+    // Toggle
+    if (_presetActivo === preset) {
+      _presetActivo = null;
+      _limparEstadoPresets();
+      limparFiltros();
+      return;
+    }
+
+    _presetActivo = preset;
+    _limparEstadoPresets();
+    document.getElementById("preset-" + preset)?.classList.add("activo");
+
+    // Limpar outros filtros primeiro
+    document.getElementById("filtro-accao").value = "";
+    document.getElementById("filtro-modulo").value = "";
+    document.getElementById("filtro-utilizador").value = "";
+    document.getElementById("filtro-data-ini").value = "";
+    document.getElementById("filtro-data-fim").value = "";
+
+    const hoje = new Date();
+    const fmt  = d => d.toISOString().slice(0, 10);
+
+    if (preset === "hoje") {
+      document.getElementById("filtro-data-ini").value = fmt(hoje);
+      document.getElementById("filtro-data-fim").value = fmt(hoje);
+    } else if (preset === "24h") {
+      const d = new Date(hoje); d.setHours(d.getHours() - 24);
+      document.getElementById("filtro-data-ini").value = fmt(d);
+      document.getElementById("filtro-data-fim").value = fmt(hoje);
+    } else if (preset === "7d") {
+      const d = new Date(hoje); d.setDate(d.getDate() - 7);
+      document.getElementById("filtro-data-ini").value = fmt(d);
+      document.getElementById("filtro-data-fim").value = fmt(hoje);
+    } else if (preset === "30d") {
+      const d = new Date(hoje); d.setDate(d.getDate() - 30);
+      document.getElementById("filtro-data-ini").value = fmt(d);
+      document.getElementById("filtro-data-fim").value = fmt(hoje);
+    } else if (preset === "secretaria") {
+      document.getElementById("filtro-modulo").value = "secretaria";
+    } else if (preset === "rejeicoes") {
+      document.getElementById("filtro-accao").value = "REJEITAR";
+    } else if (preset === "logins") {
+      document.getElementById("filtro-modulo").value = "sessoes";
+    }
+
+    _aplicarTodosFiltros();
+  };
+
+  function _limparEstadoPresets() {
+    ["hoje","24h","7d","30d","secretaria","rejeicoes","logins"].forEach(p => {
+      document.getElementById("preset-" + p)?.classList.remove("activo");
+    });
+  }
+
+  // ── Motor de filtros unificado ───────────────────────────
+  // Substitui a lógica de renderTabela quando há pesquisa activa.
+  // A função window.aplicarFiltros original continua a funcionar para
+  // os filtros do painel — aqui acrescentamos apenas a camada de pesquisa.
+  function _aplicarTodosFiltros() {
+    const dataIni = document.getElementById("filtro-data-ini").value;
+    const dataFim = document.getElementById("filtro-data-fim").value;
+    const email   = document.getElementById("filtro-utilizador").value;
+    const accao   = document.getElementById("filtro-accao").value;
+    const modulo  = document.getElementById("filtro-modulo").value;
+
+    let f = [..._todosEventos];
+
+    // Filtros do painel
+    if (dataIni) { const d = new Date(dataIni); f = f.filter(e => e.timestamp >= d); }
+    if (dataFim) { const d = new Date(dataFim); d.setHours(23,59,59); f = f.filter(e => e.timestamp <= d); }
+    if (email)   f = f.filter(e => e.emailUtilizador === email);
+    if (modulo)  f = f.filter(e => e.modulo === modulo);
+
+    // Filtro de acção: o KPI "leituras" engloba VER_FICHA e VER_DOCUMENTO
+    if (_kpiActivo === "leituras") {
+      f = f.filter(e => e.accao === "VER_FICHA" || e.accao === "VER_DOCUMENTO");
+    } else if (accao) {
+      f = f.filter(e => e.accao === accao);
+    }
+
+    // Pesquisa global — multi-campo
+    if (_pesquisaGlobal) {
+      f = f.filter(e => {
+        const campos = [
+          e.nomeUtilizador, e.emailUtilizador, e.tipoDocumento,
+          e.funcionarioVisado, e.referencia, e.observacao,
+          e.perfilUtilizador, e.unidade || "", e.accao
+        ];
+        return campos.some(c => (c || "").toLowerCase().includes(_pesquisaGlobal));
+      });
+    }
+
+    _eventosFiltrados = f;
+    renderTabela(f);
+
+    // Actualizar contador de pesquisa
+    const contador = document.getElementById("pesquisa-contador");
+    if (_pesquisaGlobal) {
+      contador.textContent = f.length + " resultado" + (f.length !== 1 ? "s" : "");
+      contador.classList.add("visivel");
+    } else {
+      contador.classList.remove("visivel");
+    }
+  }
+
+  // Redirigir os botões do painel para o motor unificado
+  // (sem substituir window.aplicarFiltros para preservar compatibilidade)
+  const _aplicarFiltrosOriginal = window.aplicarFiltros;
+  window.aplicarFiltros = function() {
+    _kpiActivo    = null;
+    _presetActivo = null;
+    _limparEstadoKPIs();
+    _limparEstadoPresets();
+    _aplicarTodosFiltros();
+    const total = _eventosFiltrados.length;
+    mostrarNotif("Filtros aplicados — " + total + " resultado(s)", "notif-info");
+  };
+
+  const _limparFiltrosOriginal = window.limparFiltros;
+  window.limparFiltros = function() {
+    document.getElementById("filtro-data-ini").value = "";
+    document.getElementById("filtro-data-fim").value = "";
+    document.getElementById("filtro-utilizador").value = "";
+    document.getElementById("filtro-accao").value = "";
+    document.getElementById("filtro-modulo").value = "";
+    _pesquisaGlobal = "";
+    _kpiActivo      = null;
+    _presetActivo   = null;
+    const inp = document.getElementById("pesquisa-global");
+    if (inp) inp.value = "";
+    document.getElementById("pesquisa-clear")?.classList.remove("visivel");
+    document.getElementById("pesquisa-contador")?.classList.remove("visivel");
+    const atalho = document.getElementById("pesquisa-atalho");
+    if (atalho) atalho.style.display = "";
+    _limparEstadoKPIs();
+    _limparEstadoPresets();
+    _eventosFiltrados = [..._todosEventos];
+    renderTabela(_todosEventos);
+  };
+
 </script>
 </body>
 </html>
