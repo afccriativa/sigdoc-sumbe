@@ -11,36 +11,36 @@
   <script src="sigdoc-session.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#0f172a;min-height:100vh}
-    #ecra-carregando{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:14px;color:#94a3b8;font-size:13px}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:#0d1422;color:#e2e8f0;min-height:100vh}
+    #ecra-carregando{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:14px;color:rgba(255,255,255,.4);font-size:13px}
     #ecra-negado{display:none;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:14px}
     #ecra-principal{display:none}
-    .spinner{width:22px;height:22px;border:2px solid rgba(0,0,0,.1);border-top-color:#10c886;border-radius:50%;animation:spin .7s linear infinite}
+    .spinner{width:22px;height:22px;border:2px solid rgba(255,255,255,.1);border-top-color:#3b82f6;border-radius:50%;animation:spin .7s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
     /* topbar */
-    .topbar{height:56px;background:linear-gradient(135deg,#052e1c 0%,#0b4f3a 60%,#0d6e4f 100%);border-bottom:none;box-shadow:0 2px 20px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50}
+    .topbar{height:56px;background:#111827;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50}
     .topbar-titulo{font-size:15px;font-weight:800;letter-spacing:-.3px}
-    .topbar-sub{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px}
-    .badge-perfil{padding:3px 10px;border-radius:99px;font-size:10px;font-weight:700;background:rgba(16,200,134,.15);color:#10c886}
+    .topbar-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+    .badge-perfil{padding:3px 10px;border-radius:99px;font-size:10px;font-weight:700;background:rgba(59,130,246,.15);color:#3b82f6}
     /* layout */
     .content{padding:28px}
     .g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px}
     @media(max-width:900px){.g2{grid-template-columns:1fr}}
     /* secção */
-    .sec{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin:28px 0 14px;display:flex;align-items:center;gap:8px}
-    .sec::after{content:'';flex:1;height:1px;background:#e2e8f0}
+    .sec{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin:28px 0 14px;display:flex;align-items:center;gap:8px}
+    .sec::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
     /* card de relatório */
-    .rel-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:22px 24px;display:flex;flex-direction:column;gap:16px}
+    .rel-card{background:#1a2236;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:22px 24px;display:flex;flex-direction:column;gap:16px}
     .rel-card-head{display:flex;align-items:flex-start;gap:14px}
     .rel-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
     .rel-info{flex:1;min-width:0}
     .rel-titulo{font-size:14px;font-weight:800;margin-bottom:3px}
-    .rel-desc{font-size:12px;color:#64748b;line-height:1.5}
+    .rel-desc{font-size:12px;color:rgba(255,255,255,.4);line-height:1.5}
     /* filtros */
     .rel-filtros{display:flex;flex-direction:column;gap:8px}
-    .campo-label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px}
-    .campo-select,.campo-input{width:100%;padding:8px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#0f172a;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif}
-    .campo-select:focus,.campo-input:focus{outline:none;border-color:#10c886}
+    .campo-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px}
+    .campo-select,.campo-input{width:100%;padding:8px 10px;background:#111827;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#e2e8f0;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif}
+    .campo-select:focus,.campo-input:focus{outline:none;border-color:#3b82f6}
     /* botões de exportação */
     .btn-strip{display:flex;gap:8px;flex-wrap:wrap}
     .btn-exp{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:9px;font-size:12px;font-weight:700;border:none;cursor:pointer;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif}
@@ -57,24 +57,45 @@
     .btn-previa{background:rgba(100,116,139,.08);color:#475569;border:1px solid rgba(100,116,139,.25)}
     .btn-previa:hover{background:rgba(100,116,139,.16);color:#1e293b}
     /* preview */
-    .preview-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:22px 24px;margin-bottom:22px}
+    .preview-card{background:#1a2236;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:22px 24px;margin-bottom:22px}
     .preview-titulo{font-size:13px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
-    .preview-count{font-size:11px;font-weight:600;color:#64748b;font-family:'DM Mono',monospace}
+    .preview-count{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace}
     .preview-table-wrap{overflow-x:auto}
     table.preview{width:100%;border-collapse:collapse;font-size:12px}
-    table.preview th{text-align:left;padding:7px 10px;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid #e2e8f0}
-    table.preview td{padding:8px 10px;border-bottom:1px solid #f1f5f9;color:#0f172a}
-    table.preview tr:hover td{background:#f8fafc}
+    table.preview th{text-align:left;padding:7px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid rgba(255,255,255,.1)}
+    table.preview td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.05);color:#e2e8f0}
+    table.preview tr:hover td{background:rgba(255,255,255,.03)}
     table.preview tr:last-child td{border-bottom:none}
     .badge-estado{padding:2px 7px;border-radius:99px;font-size:10px;font-weight:700}
     .be-activo{background:rgba(16,200,134,.12);color:#10c886}
     .be-licenca{background:rgba(245,158,11,.12);color:#f59e0b}
     .be-inactivo{background:rgba(239,68,68,.12);color:#ef4444}
     /* notif */
-    #notif{position:fixed;bottom:20px;right:20px;z-index:9999;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;color:#0f172a;opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none;max-width:300px}
+    #notif{position:fixed;bottom:20px;right:20px;z-index:9999;background:#1e2a3a;border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none;max-width:300px}
     #notif.v{opacity:1;transform:translateY(0)}
     /* vazio */
-    .vazio{padding:32px;text-align:center;color:#94a3b8;font-size:13px}
+    .vazio{padding:32px;text-align:center;color:rgba(255,255,255,.2);font-size:13px}
+
+    /* ── TEMA SIGDOC UNIFICADO — overrides de cor ── */
+    body{background:#f8fafc;color:#0f172a}
+    .spinner{border:2px solid rgba(0,0,0,.1);border-top-color:#10c886}
+    .topbar{background:linear-gradient(135deg,#052e1c 0%,#0b4f3a 60%,#0d6e4f 100%);border-bottom:none;box-shadow:0 2px 20px rgba(0,0,0,.25)}
+    .topbar-sub{color:rgba(255,255,255,.55)}
+    .badge-perfil{background:rgba(16,200,134,.15);color:#10c886}
+    .sec{color:#64748b}
+    .sec::after{background:#e2e8f0}
+    .rel-card{background:#fff;border:1px solid #e2e8f0}
+    .rel-desc{color:#64748b}
+    .campo-label{color:#64748b}
+    .campo-select,.campo-input{background:#f8fafc;border:1px solid #e2e8f0;color:#0f172a}
+    .campo-select:focus,.campo-input:focus{border-color:#10c886}
+    .preview-card{background:#fff;border:1px solid #e2e8f0}
+    .preview-count{color:#64748b}
+    table.preview th{color:#94a3b8;border-bottom:1px solid #e2e8f0}
+    table.preview td{color:#0f172a;border-bottom:1px solid #f1f5f9}
+    table.preview tr:hover td{background:#f8fafc}
+    .vazio{color:#94a3b8}
+    #notif{background:#fff;border:1px solid #e2e8f0;color:#0f172a}
 
     /* ── Aniversariantes do Mês ── */
     .aniv-filtros-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
@@ -124,6 +145,13 @@
     .infra-nd {color:#94a3b8;font-style:italic}
     .infra-vazio{padding:32px;text-align:center;color:#94a3b8;font-size:13px;border:1px dashed #e2e8f0;border-radius:10px;margin-top:14px}
     #infra-resultado{margin-top:14px}
+
+    /* ── Contador de registos junto aos botões de exportação ── */
+    .count-badge{font-size:11px;font-weight:600;color:#64748b;align-self:center;
+      padding:3px 9px;border-radius:6px;background:#f1f5f9;
+      font-family:'DM Mono',monospace;white-space:nowrap;transition:all .2s}
+    .count-badge:empty{display:none}
+    .count-badge.zero{color:#dc2626;background:#fef2f2}
   </style>
 </head>
 <body>
@@ -164,7 +192,7 @@
         <div class="rel-filtros">
           <div>
             <label class="campo-label">Estado</label>
-            <select class="campo-select" id="f-mg-estado">
+            <select class="campo-select" id="f-mg-estado" onchange="contarMG()">
               <option value="">Todos os estados</option>
               <option value="activo">Em Serviço Activo</option>
               <option value="licenca">De Licença</option>
@@ -173,7 +201,7 @@
           </div>
           <div>
             <label class="campo-label">Vínculo</label>
-            <select class="campo-select" id="f-mg-vinculo">
+            <select class="campo-select" id="f-mg-vinculo" onchange="contarMG()">
               <option value="">Todos os vínculos</option>
               <option value="quadro">Pessoal do Quadro</option>
               <option value="provisorio">Provimento Provisório</option>
@@ -185,6 +213,7 @@
           <button class="btn-exp btn-pdf"   onclick="exportarMapaGeral('pdf')">📄 PDF</button>
           <button class="btn-exp btn-csv"   onclick="exportarMapaGeral('csv')">📁 CSV</button>
           <button class="btn-exp btn-previa" onclick="previsualizarMapaGeral()">👁 Prévia</button>
+          <span id="mg-count" class="count-badge"></span>
         </div>
       </div>
 
@@ -200,7 +229,7 @@
         <div class="rel-filtros">
           <div>
             <label class="campo-label">Unidade</label>
-            <select class="campo-select" id="f-mu-unidade">
+            <select class="campo-select" id="f-mu-unidade" onchange="contarMU()">
               <option value="">Todas as unidades</option>
             </select>
           </div>
@@ -210,6 +239,7 @@
           <button class="btn-exp btn-pdf"   onclick="exportarMapaUnidade('pdf')">📄 PDF</button>
           <button class="btn-exp btn-csv"   onclick="exportarMapaUnidade('csv')">📁 CSV</button>
           <button class="btn-exp btn-previa" onclick="previsualizarMapaUnidade()">👁 Prévia</button>
+          <span id="mu-count" class="count-badge"></span>
         </div>
       </div>
 
@@ -232,6 +262,7 @@
           <button class="btn-exp btn-excel" onclick="exportarCobertura('excel')">📊 Excel</button>
           <button class="btn-exp btn-pdf"   onclick="exportarCobertura('pdf')">📄 PDF</button>
           <button class="btn-exp btn-previa" onclick="previsualizarCobertura()">👁 Prévia</button>
+          <span id="cob-count" class="count-badge"></span>
         </div>
       </div>
 
@@ -247,7 +278,7 @@
         <div class="rel-filtros">
           <div>
             <label class="campo-label">Unidade</label>
-            <select class="campo-select" id="f-sal-unidade">
+            <select class="campo-select" id="f-sal-unidade" onchange="contarSal()">
               <option value="">Todas as unidades</option>
             </select>
           </div>
@@ -256,6 +287,7 @@
           <button class="btn-exp btn-excel" onclick="exportarSalarial('excel')">📊 Excel</button>
           <button class="btn-exp btn-pdf"   onclick="exportarSalarial('pdf')">📄 PDF</button>
           <button class="btn-exp btn-previa" onclick="previsualizarSalarial()">👁 Prévia</button>
+          <span id="sal-count" class="count-badge"></span>
         </div>
       </div>
 
@@ -304,7 +336,7 @@
         <div class="rel-filtros">
           <div>
             <label class="campo-label">Período</label>
-            <select class="campo-select" id="f-sec-periodo">
+            <select class="campo-select" id="f-sec-periodo" onchange="clearCount('sec-count')">
               <option value="30">Últimos 30 dias</option>
               <option value="90" selected>Últimos 90 dias</option>
               <option value="180">Últimos 180 dias</option>
@@ -313,7 +345,7 @@
           </div>
           <div>
             <label class="campo-label">Estado</label>
-            <select class="campo-select" id="f-sec-estado">
+            <select class="campo-select" id="f-sec-estado" onchange="clearCount('sec-count')">
               <option value="">Todos</option>
               <option value="novo">Novos</option>
               <option value="em_analise">Em análise</option>
@@ -327,6 +359,7 @@
           <button class="btn-exp btn-pdf"   onclick="exportarRelSecPedidos('pdf')">📄 PDF</button>
           <button class="btn-exp btn-csv"   onclick="exportarRelSecPedidos('csv')">📁 CSV</button>
           <button class="btn-exp btn-previa" onclick="previsualizarRelSecPedidos()">👁 Prévia</button>
+          <span id="sec-count" class="count-badge"></span>
         </div>
       </div>
 
@@ -342,7 +375,7 @@
         <div class="rel-filtros">
           <div>
             <label class="campo-label">Período</label>
-            <select class="campo-select" id="f-reun-periodo">
+            <select class="campo-select" id="f-reun-periodo" onchange="clearCount('reun-count')">
               <option value="30">Últimos 30 dias</option>
               <option value="90" selected>Últimos 90 dias</option>
               <option value="180">Últimos 180 dias</option>
@@ -351,7 +384,7 @@
           </div>
           <div>
             <label class="campo-label">Estado</label>
-            <select class="campo-select" id="f-reun-estado">
+            <select class="campo-select" id="f-reun-estado" onchange="clearCount('reun-count')">
               <option value="">Todos</option>
               <option value="pendente">Pendente</option>
               <option value="confirmada">Confirmada</option>
@@ -366,6 +399,7 @@
           <button class="btn-exp btn-pdf"   onclick="exportarRelReuniao('pdf')">📄 PDF</button>
           <button class="btn-exp btn-csv"   onclick="exportarRelReuniao('csv')">📁 CSV</button>
           <button class="btn-exp btn-previa" onclick="previsualizarRelReuniao()">👁 Prévia</button>
+          <span id="reun-count" class="count-badge"></span>
         </div>
       </div>
 
@@ -385,7 +419,7 @@
       <div class="aniv-filtros-grid">
         <div>
           <label class="campo-label">Mês</label>
-          <select class="campo-select" id="f-aniv-mes">
+          <select class="campo-select" id="f-aniv-mes" onchange="previsualizarAniversariantes()">
             <option value="1">Janeiro</option>
             <option value="2">Fevereiro</option>
             <option value="3">Março</option>
@@ -402,13 +436,13 @@
         </div>
         <div>
           <label class="campo-label">Unidade</label>
-          <select class="campo-select" id="f-aniv-unidade">
+          <select class="campo-select" id="f-aniv-unidade" onchange="previsualizarAniversariantes()">
             <option value="">Todas as unidades</option>
           </select>
         </div>
         <div>
           <label class="campo-label">Categoria</label>
-          <select class="campo-select" id="f-aniv-categoria">
+          <select class="campo-select" id="f-aniv-categoria" onchange="previsualizarAniversariantes()">
             <option value="">Todas as categorias</option>
           </select>
         </div>
@@ -419,6 +453,7 @@
         <button class="btn-exp btn-pdf"   onclick="exportarAniversariantes('pdf')">📄 PDF</button>
         <button class="btn-exp" style="background:rgba(234,179,8,.1);color:#854d0e;border:1px solid rgba(234,179,8,.3)"
                 onclick="previsualizarAniversariantes()">🎂 Ver lista</button>
+        <span id="aniv-count" class="count-badge"></span>
       </div>
 
       <div id="aniv-resultado"></div>
@@ -465,6 +500,7 @@
         <button class="btn-exp btn-pdf"   onclick="exportarInfra('pdf')">📄 PDF</button>
         <button class="btn-exp" style="background:rgba(16,200,134,.1);color:#10c886;border:1px solid rgba(16,200,134,.3)"
           onclick="previsualizarInfra()">🏗️ Ver tabela</button>
+        <span id="infra-count" class="count-badge"></span>
       </div>
       <div id="infra-resultado"></div>
     </div>
@@ -524,6 +560,20 @@
     el.classList.add('v');
     clearTimeout(_nt); _nt = setTimeout(() => el.classList.remove('v'), 3500);
   }
+
+  // ── CONTADOR DE REGISTOS ─────────────────────────────────
+  function setCount(id, n) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (n === null) { el.textContent = ''; el.className = 'count-badge'; return; }
+    el.textContent = n + (n === 1 ? ' registo' : ' registos');
+    el.className = 'count-badge' + (n === 0 ? ' zero' : '');
+  }
+  // Expostos globalmente para uso em onchange inline
+  window.contarMG   = () => setCount('mg-count',  filtrarGeral().length);
+  window.contarMU   = () => setCount('mu-count',  filtrarUnidade().length);
+  window.contarSal  = () => setCount('sal-count', filtrarSalarial().length);
+  window.clearCount = id  => setCount(id, null);
 
   // ── AUTH ────────────────────────────────────────────────
   onAuthStateChanged(auth, async (user) => {
@@ -668,6 +718,12 @@
     const selMes = document.getElementById("f-aniv-mes");
     if (selMes) selMes.value = String(mesActual);
     previsualizarAniversariantes();
+
+    // Inicializar contadores locais (dados já disponíveis em _funcs/_unidades)
+    contarMG(); contarMU(); contarSal();
+    const _todasUnids = [...new Set([...Object.keys(_unidades), ..._funcs.map(f=>f.unidade).filter(Boolean)])]
+      .filter(n => n !== '—' && n !== 'Não especificada');
+    setCount('cob-count', _todasUnids.length);
   }
 
   // ════════════════════════════════════════════════════════
@@ -1135,6 +1191,7 @@
     if (!wrap) return;
 
     const lista = filtrarAniversariantes();
+    setCount('aniv-count', lista.length);
     const hj    = new Date();
     const diaH  = hj.getDate(), mesH = hj.getMonth() + 1;
     const mesN  = parseInt(document.getElementById("f-aniv-mes")?.value) || mesH;
@@ -1337,6 +1394,7 @@
     const wrap = document.getElementById('infra-resultado');
     if (!wrap) return;
     const lista = filtrarInfra();
+    setCount('infra-count', lista.length);
     if (!lista.length) {
       wrap.innerHTML = '<div class="infra-vazio">🏗️ Nenhuma unidade corresponde aos filtros seleccionados.</div>';
       return;
@@ -1539,8 +1597,9 @@
         document.getElementById('f-sec-periodo').value,
         document.getElementById('f-sec-estado').value
       );
-      if (!pedidos.length) { notif('Nenhum pedido encontrado.','erro'); return; }
+      if (!pedidos.length) { notif('Nenhum pedido encontrado.','erro'); setCount('sec-count', 0); return; }
       mostrarPrevia('Pedidos da Secretaria', COLS_SEC_PED, linhasSecPedidos(pedidos));
+      setCount('sec-count', pedidos.length);
       notif(`✅ ${pedidos.length} pedidos carregados`);
     } catch(e) { notif('Erro: '+e.message,'erro'); }
     finally {
@@ -1646,8 +1705,9 @@
         document.getElementById('f-reun-periodo').value,
         document.getElementById('f-reun-estado').value
       );
-      if (!reunioes.length) { notif('Nenhuma reunião encontrada.','erro'); return; }
+      if (!reunioes.length) { notif('Nenhuma reunião encontrada.','erro'); setCount('reun-count', 0); return; }
       mostrarPrevia('Reuniões', COLS_REUN, linhasReuniao(reunioes));
+      setCount('reun-count', reunioes.length);
       notif(`✅ ${reunioes.length} reuniões carregadas`);
     } catch(e) { notif('Erro: '+e.message,'erro'); }
     finally {
