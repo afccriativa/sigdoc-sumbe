@@ -506,6 +506,110 @@
       width:1px;height:16px;background:var(--border2);margin:0 3px;flex-shrink:0
     }
 
+    /* ── FASE 3: PROGRESSO DE CARREGAMENTO ── */
+    .progresso-carga{
+      display:none;background:var(--card);border:1px solid var(--border);
+      border-radius:var(--r);padding:12px 16px;margin-bottom:14px;
+      animation:fadeIn .25s ease
+    }
+    .progresso-carga.visivel{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+    .prog-titulo{
+      font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+      color:var(--txt-muted);margin-bottom:10px;display:flex;align-items:center;gap:7px
+    }
+    .prog-spinner{
+      width:10px;height:10px;border:2px solid rgba(255,255,255,.1);
+      border-top-color:var(--green);border-radius:50%;
+      animation:spin .7s linear infinite;flex-shrink:0
+    }
+    .prog-lista{display:flex;flex-wrap:wrap;gap:7px}
+    .prog-item{
+      display:inline-flex;align-items:center;gap:5px;
+      font-size:11px;font-weight:600;padding:4px 11px;border-radius:8px;
+      border:1px solid var(--border2);background:rgba(255,255,255,.04);
+      color:var(--txt-muted);transition:all .25s
+    }
+    .prog-item.a-carregar{
+      border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.08);color:var(--blue)
+    }
+    .prog-item.concluido{
+      border-color:var(--green-border);background:var(--green-dim);color:var(--green)
+    }
+    .prog-item.erro{
+      border-color:var(--red-border);background:var(--red-dim);color:var(--red)
+    }
+    .prog-barra-wrap{
+      margin-top:10px;height:3px;background:rgba(255,255,255,.06);
+      border-radius:2px;overflow:hidden
+    }
+    .prog-barra-fill{
+      height:100%;background:linear-gradient(90deg,#1d4ed8,var(--green));
+      border-radius:2px;transition:width .4s ease;width:0%
+    }
+
+    /* ── FASE 3: SECRETARIA — CLASSES PADRONIZADAS ── */
+    .sec-kpis{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+      gap:10px;padding:16px 20px;border-bottom:1px solid var(--border)
+    }
+    .sec-kpi-card{
+      background:rgba(255,255,255,.04);border:1px solid var(--border);
+      border-radius:10px;padding:12px 10px;text-align:center;transition:all .18s
+    }
+    .sec-kpi-card:hover{border-color:var(--border2);background:rgba(255,255,255,.06)}
+    .sec-kpi-icone{font-size:18px;margin-bottom:4px}
+    .sec-kpi-num{font-size:20px;font-weight:900;font-family:var(--mono);line-height:1;color:#fff}
+    .sec-kpi-label{
+      font-size:9px;color:var(--txt-muted);font-weight:700;
+      text-transform:uppercase;letter-spacing:.5px;margin-top:4px
+    }
+    .sec-subtabs{
+      display:flex;gap:0;border-bottom:1px solid var(--border);
+      padding:0 20px;margin-bottom:0
+    }
+    .sec-subtab-btn{
+      padding:10px 18px;background:none;border:none;
+      border-bottom:2.5px solid transparent;margin-bottom:-1px;
+      color:var(--txt-muted);font-size:13px;font-weight:700;
+      cursor:pointer;font-family:var(--font);transition:all .15s;white-space:nowrap
+    }
+    .sec-subtab-btn:hover:not(.activa){color:var(--txt);background:rgba(255,255,255,.04)}
+    .sec-subtab-btn.activa{color:var(--green);border-bottom-color:var(--green)}
+    .sec-tabela-wrap{overflow-x:auto}
+    .sec-tabela{width:100%;border-collapse:collapse;font-size:12px}
+    .sec-tabela thead tr{border-bottom:1px solid rgba(255,255,255,.1)}
+    .sec-tabela thead th{
+      padding:9px 14px;text-align:left;color:var(--txt-dim);
+      font-size:10px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.6px;background:rgba(255,255,255,.025);white-space:nowrap
+    }
+    .sec-tabela tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .12s}
+    .sec-tabela tbody tr:hover td{background:rgba(255,255,255,.03)}
+    .sec-tabela tbody td{padding:10px 14px;vertical-align:middle}
+    .sec-td-data{white-space:nowrap;font-size:11px;color:var(--txt-muted);font-family:var(--mono)}
+    .sec-func-nome{font-size:12px;font-weight:700;color:var(--txt)}
+    .sec-func-sub{font-size:10px;color:var(--txt-muted);margin-top:2px}
+    .sec-td-texto{font-size:11px;color:rgba(255,255,255,.65)}
+    .sec-td-msgs{font-size:12px;font-weight:700;color:var(--txt-muted)}
+    .sec-td-motivo{font-size:11px;color:rgba(239,68,68,.75);max-width:200px}
+    .badge-assunto{
+      background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.22);
+      border-radius:5px;padding:2px 9px;font-size:11px;font-weight:700;
+      color:#a5b4fc;display:inline-block
+    }
+    .badge-estado{
+      border-radius:5px;padding:2px 9px;font-size:11px;
+      font-weight:700;display:inline-block;white-space:nowrap
+    }
+    .msg-bubble{border-radius:7px;padding:7px 10px;margin-top:5px;font-size:11px;border:1px solid transparent}
+    .msg-bubble-sec{background:rgba(34,211,238,.06);border-color:rgba(34,211,238,.18)}
+    .msg-bubble-func{background:rgba(99,102,241,.07);border-color:rgba(99,102,241,.18)}
+    .msg-bubble-autor{font-weight:700;color:rgba(255,255,255,.72)}
+    .msg-bubble-hora{font-size:10px;color:var(--txt-dim);margin-left:8px;font-family:var(--mono)}
+    .msg-bubble-texto{color:rgba(255,255,255,.55);margin-top:3px;line-height:1.45}
+    .sec-empty{font-size:11px;color:var(--txt-dim)}
+
     /* ── FASE 2: DESTACAR EVENTOS CRÍTICOS ── */
     /* Borda lateral colorida + fundo suave */
     tbody tr.evento-critico-rejeitar td:first-child{
@@ -683,6 +787,22 @@
     <div class="aviso-live">
       <div class="ponto-verde"></div>
       <span>Dados em tempo real — leitura directa das colecções <strong>documentos</strong> e <strong>sessoes</strong> do Firebase.</span>
+    </div>
+
+    <!-- BARRA DE PROGRESSO DE CARREGAMENTO -->
+    <div id="progresso-carga" class="progresso-carga">
+      <div class="prog-titulo">
+        <div class="prog-spinner"></div>
+        A sincronizar dados do Firebase…
+      </div>
+      <div class="prog-lista">
+        <span class="prog-item" id="prog-utilizadores">👤 Utilizadores</span>
+        <span class="prog-item" id="prog-documentos">📄 Documentos</span>
+        <span class="prog-item" id="prog-sessoes">🔑 Sessões</span>
+        <span class="prog-item" id="prog-auditoria">👁️ Fichas</span>
+        <span class="prog-item" id="prog-secretaria">✉️ Secretaria</span>
+      </div>
+      <div class="prog-barra-wrap"><div class="prog-barra-fill" id="prog-barra"></div></div>
     </div>
 
     <!-- PESQUISA GLOBAL -->
@@ -911,27 +1031,25 @@
         </div>
 
         <!-- KPIs sumário secretaria -->
-        <div id="sec-kpis-aud" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px"></div>
+        <div id="sec-kpis-aud" class="sec-kpis"></div>
 
         <!-- Sub-tabs: Pedidos | Reuniões -->
-        <div style="display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:16px">
-          <button id="subtab-pedidos" onclick="mostrarSubtab('pedidos')"
-            style="padding:8px 18px;background:none;border:none;border-bottom:2px solid var(--green);color:var(--green);font-size:13px;font-weight:700;cursor:pointer">
+        <div class="sec-subtabs">
+          <button id="subtab-pedidos" class="sec-subtab-btn activa" onclick="mostrarSubtab('pedidos')">
             ✉️ Pedidos
           </button>
-          <button id="subtab-reunioes" onclick="mostrarSubtab('reunioes')"
-            style="padding:8px 18px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,.4);font-size:13px;font-weight:700;cursor:pointer">
+          <button id="subtab-reunioes" class="sec-subtab-btn" onclick="mostrarSubtab('reunioes')">
             📅 Reuniões
           </button>
         </div>
 
-        <div id="subtab-content-pedidos">
-          <div id="sec-pedidos-aud" class="tabela-wrap">
+        <div id="subtab-content-pedidos" style="padding:0 0 4px">
+          <div id="sec-pedidos-aud" class="sec-tabela-wrap">
             <div class="vazio"><div class="icone-vazio">⏳</div><p>A carregar…</p></div>
           </div>
         </div>
-        <div id="subtab-content-reunioes" style="display:none">
-          <div id="sec-reunioes-aud" class="tabela-wrap">
+        <div id="subtab-content-reunioes" style="display:none;padding:0 0 4px">
+          <div id="sec-reunioes-aud" class="sec-tabela-wrap">
             <div class="vazio"><div class="icone-vazio">⏳</div><p>A carregar…</p></div>
           </div>
         </div>
@@ -1084,20 +1202,44 @@
 
   // ── CARREGAR TUDO ──
   window.carregarTudo = async function() {
-    mostrarNotif("A carregar dados…", "notif-info");
+    // Mostrar barra de progresso
+    const prog = document.getElementById("progresso-carga");
+    const barra = document.getElementById("prog-barra");
+    const itens = ["utilizadores","documentos","sessoes","auditoria","secretaria"];
+    itens.forEach(k => {
+      const el = document.getElementById("prog-" + k);
+      if (el) el.className = "prog-item";
+    });
+    if (prog) { prog.classList.add("visivel"); barra.style.width = "0%"; }
+
+    function progresso(id, estado, pct) {
+      const el = document.getElementById("prog-" + id);
+      if (el) el.className = "prog-item " + estado;
+      if (barra) barra.style.width = pct + "%";
+    }
+
     try {
+      // Utilizadores
+      progresso("utilizadores","a-carregar", 5);
+      await carregarUtilizadoresMap();
+      progresso("utilizadores","concluido", 20);
+
+      // Colecções em paralelo, cada uma actualiza o seu item
+      progresso("documentos","a-carregar", 20);
+      progresso("sessoes","a-carregar", 20);
+      progresso("auditoria","a-carregar", 20);
+      progresso("secretaria","a-carregar", 20);
+
       const [eventosDocumentos, eventosSessoes, eventosAuditoria, dadosSec] = await Promise.all([
-        carregarEventosDocumentos(),
-        carregarEventosSessoes(),
-        carregarEventosAuditoria(),
-        carregarEventosSecretaria()
+        carregarEventosDocumentos().then(r => { progresso("documentos","concluido", 40); return r; }),
+        carregarEventosSessoes().then(r    => { progresso("sessoes","concluido",    60); return r; }),
+        carregarEventosAuditoria().then(r  => { progresso("auditoria","concluido",  75); return r; }),
+        carregarEventosSecretaria().then(r => { progresso("secretaria","concluido", 90); return r; })
       ]);
 
-      // dadosSec = { eventos, pedidos, reunioes }
       _pedidosSecAud  = dadosSec.pedidos;
       _reunioesSecAud = dadosSec.reunioes;
 
-      // Juntar e ordenar por data (mais recente primeiro)
       _todosEventos = [...eventosDocumentos, ...eventosSessoes, ...eventosAuditoria, ...dadosSec.eventos]
         .sort((a, b) => b.timestamp - a.timestamp);
       _eventosFiltrados = [..._todosEventos];
@@ -1109,10 +1251,19 @@
       renderRelatorioDocumentos(_todosEventos);
       renderTimeline(_todosEventos);
       renderSecretariaAuditoria();
+
+      progresso("secretaria","concluido", 100);
       mostrarNotif("✅ " + _todosEventos.length + " eventos carregados.", "notif-sucesso");
     } catch(e) {
       console.error("Erro ao carregar:", e);
+      itens.forEach(k => {
+        const el = document.getElementById("prog-" + k);
+        if (el && el.classList.contains("a-carregar")) el.className = "prog-item erro";
+      });
       mostrarNotif("❌ Erro ao carregar dados. Verifique a conexão.", "notif-erro");
+    } finally {
+      // Ocultar barra após breve pausa
+      setTimeout(() => { if (prog) prog.classList.remove("visivel"); }, 2200);
     }
   };
 
@@ -1548,21 +1699,22 @@
     const totalReu  = _reunioesSecAud.length;
     const realizadas = _reunioesSecAud.filter(r => r.estado === "realizada").length;
     const taxa      = totalPed > 0 ? Math.round(fechados/totalPed*100) : 0;
+    const taxaCor   = taxa >= 70 ? "var(--green)" : taxa >= 40 ? "var(--amber)" : "var(--red)";
 
-    const kpi = (icon, val, lbl, cor) =>
-      `<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 18px;min-width:110px;text-align:center">
-        <div style="font-size:20px;margin-bottom:2px">${icon}</div>
-        <div style="font-size:22px;font-weight:900;font-family:'DM Mono',monospace;color:${cor};line-height:1">${val}</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:600;margin-top:3px">${lbl}</div>
+    const kpi = (icone, val, lbl, cor) =>
+      `<div class="sec-kpi-card">
+        <div class="sec-kpi-icone">${icone}</div>
+        <div class="sec-kpi-num" style="color:${cor}">${val}</div>
+        <div class="sec-kpi-label">${lbl}</div>
       </div>`;
 
     kpiEl.innerHTML =
-      kpi("✉️", totalPed,   "Total Pedidos",   "#6366f1") +
-      kpi("📬", abertos,    "Em Aberto",        "#f59e0b") +
-      kpi("🔒", fechados,   "Encerrados",       "#10c886") +
-      kpi("📊", taxa + "%", "Taxa Resolução",   taxa >= 70 ? "#10c886" : taxa >= 40 ? "#f59e0b" : "#ef4444") +
-      kpi("📅", totalReu,   "Reuniões",         "#8b5cf6") +
-      kpi("🎯", realizadas, "Realizadas",       "#6ee7b7");
+      kpi("✉️", totalPed,   "Total Pedidos",  "#a5b4fc") +
+      kpi("📬", abertos,    "Em Aberto",       "var(--amber)") +
+      kpi("🔒", fechados,   "Encerrados",      "var(--green)") +
+      kpi("📊", taxa + "%", "Taxa Resolução",  taxaCor) +
+      kpi("📅", totalReu,   "Reuniões",        "var(--purple)") +
+      kpi("🎯", realizadas, "Realizadas",      "#6ee7b7");
   }
 
   // ── PAGINAÇÃO ──
@@ -2011,50 +2163,47 @@
       const dataCria = fmtTs(p.criadoEm);
       const dataUlt  = fmtTs(p.ultimaMensagemEm || p.criadoEm);
 
-      // Últimas mensagens (até 2)
+      // Últimas mensagens (até 2) — com classes
       const msgs = Array.isArray(p.mensagens) ? p.mensagens.slice(-2) : [];
       const msgHtml = msgs.map(m => {
         const isPerfil = m.perfil && m.perfil !== "funcionario";
-        const bg = isPerfil ? "rgba(34,211,238,.07)" : "rgba(99,102,241,.07)";
-        const bdr = isPerfil ? "rgba(34,211,238,.2)" : "rgba(99,102,241,.2)";
-        return `<div style="background:${bg};border:1px solid ${bdr};border-radius:7px;padding:7px 10px;margin-top:6px;font-size:11px">
-          <span style="font-weight:700;color:rgba(255,255,255,.7)">${isPerfil ? "🏢 Secretaria" : "👤 " + m.nome}</span>
-          <span style="color:rgba(255,255,255,.3);margin-left:8px;font-size:10px">${fmtTs(m.em)}</span>
-          <div style="color:rgba(255,255,255,.55);margin-top:3px;line-height:1.4">${(m.texto||"").slice(0,140)}${(m.texto||"").length>140?"…":""}</div>
+        return `<div class="msg-bubble ${isPerfil ? "msg-bubble-sec" : "msg-bubble-func"}">
+          <span class="msg-bubble-autor">${isPerfil ? "🏢 Secretaria" : "👤 " + (m.nome||"—")}</span>
+          <span class="msg-bubble-hora">${fmtTs(m.em)}</span>
+          <div class="msg-bubble-texto">${(m.texto||"").slice(0,140)}${(m.texto||"").length>140?"…":""}</div>
         </div>`;
       }).join("");
 
-      return `<tr style="border-bottom:1px solid rgba(255,255,255,.05)">
-        <td style="padding:10px 12px;white-space:nowrap;font-size:11px;color:rgba(255,255,255,.4)">${dataCria}</td>
-        <td style="padding:10px 12px">
-          <div style="font-size:12px;font-weight:700;color:#e2e8f0">${func}${num}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.4)">${unidade}</div>
+      // Linha crítica para pedidos não fechados
+      const trClass = (estado === "novo") ? "evento-critico-pendente" : "";
+
+      return `<tr class="${trClass}">
+        <td class="sec-td-data">${dataCria}</td>
+        <td>
+          <div class="sec-func-nome">${func}${num}</div>
+          <div class="sec-func-sub">${unidade}</div>
         </td>
-        <td style="padding:10px 12px">
-          <span style="background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;color:#a5b4fc">${assunto}</span>
+        <td><span class="badge-assunto">${assunto}</span></td>
+        <td>
+          <span class="badge-estado" style="background:${cor}22;border:1px solid ${cor}44;color:${cor}">${lbl}</span>
         </td>
-        <td style="padding:10px 12px">
-          <span style="background:${cor}22;border:1px solid ${cor}44;border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;color:${cor}">${lbl}</span>
-        </td>
-        <td style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,.4)">${dataUlt}</td>
-        <td style="padding:10px 12px;font-size:12px;font-weight:700;color:rgba(255,255,255,.5)">${nMsg} msg</td>
-        <td style="padding:10px 12px;max-width:320px">
-          ${msgHtml || '<span style="font-size:11px;color:rgba(255,255,255,.25)">—</span>'}
-        </td>
+        <td class="sec-td-data">${dataUlt}</td>
+        <td class="sec-td-msgs">${nMsg} msg</td>
+        <td style="max-width:300px">${msgHtml || '<span class="sec-empty">—</span>'}</td>
       </tr>`;
     }).join("");
 
     el.innerHTML = `
-      <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <table class="sec-tabela">
         <thead>
-          <tr style="border-bottom:1px solid rgba(255,255,255,.12)">
-            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Data</th>
-            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Funcionário</th>
-            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Assunto</th>
-            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Estado</th>
-            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Últ. actividade</th>
-            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Msgs</th>
-            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Últimas mensagens</th>
+          <tr>
+            <th>Data</th>
+            <th>Funcionário</th>
+            <th>Assunto</th>
+            <th>Estado</th>
+            <th>Últ. actividade</th>
+            <th>Msgs</th>
+            <th>Últimas mensagens</th>
           </tr>
         </thead>
         <tbody>${linhas}</tbody>
@@ -2075,44 +2224,46 @@
     });
 
     const linhas = sorted.map(r => {
-      const estado  = r.estado || "pendente";
-      const cor     = ESTADOS_REU_COR[estado] || "#888";
-      const lbl     = ESTADOS_REU_LABEL[estado] || estado;
-      const func    = r.funcionarioNome || "—";
-      const num     = r.funcionarioNumero ? ` · Ag. ${r.funcionarioNumero}` : "";
-      const unidade = r.unidade || "—";
-      const dest    = r.destinatario || "—";
+      const estado   = r.estado || "pendente";
+      const cor      = ESTADOS_REU_COR[estado] || "#888";
+      const lbl      = ESTADOS_REU_LABEL[estado] || estado;
+      const func     = r.funcionarioNome || "—";
+      const num      = r.funcionarioNumero ? ` · Ag. ${r.funcionarioNumero}` : "";
+      const unidade  = r.unidade || "—";
+      const dest     = r.destinatario || "—";
       const dataCria = fmtTs(r.criadoEm);
       const dataSug  = r.dataSugerida || "—";
       const motivo   = r.motivoRecusa || "";
 
-      return `<tr style="border-bottom:1px solid rgba(255,255,255,.05)">
-        <td style="padding:10px 12px;white-space:nowrap;font-size:11px;color:rgba(255,255,255,.4)">${dataCria}</td>
-        <td style="padding:10px 12px">
-          <div style="font-size:12px;font-weight:700;color:#e2e8f0">${func}${num}</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.4)">${unidade}</div>
+      const trClass  = estado === "recusada" ? "evento-critico-reuniao-recusada" : "";
+
+      return `<tr class="${trClass}">
+        <td class="sec-td-data">${dataCria}</td>
+        <td>
+          <div class="sec-func-nome">${func}${num}</div>
+          <div class="sec-func-sub">${unidade}</div>
         </td>
-        <td style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,.65)">${r.assunto||"—"}</td>
-        <td style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,.65)">${dest}</td>
-        <td style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,.5)">${dataSug}</td>
-        <td style="padding:10px 12px">
-          <span style="background:${cor}22;border:1px solid ${cor}44;border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;color:${cor}">${lbl}</span>
+        <td class="sec-td-texto">${r.assunto||"—"}</td>
+        <td class="sec-td-texto">${dest}</td>
+        <td class="sec-td-data">${dataSug}</td>
+        <td>
+          <span class="badge-estado" style="background:${cor}22;border:1px solid ${cor}44;color:${cor}">${lbl}</span>
         </td>
-        <td style="padding:10px 12px;font-size:11px;color:rgba(239,68,68,.7);max-width:200px">${motivo ? "⚠️ " + motivo : ""}</td>
+        <td class="sec-td-motivo">${motivo ? "⚠️ " + motivo : '<span class="sec-empty">—</span>'}</td>
       </tr>`;
     }).join("");
 
     el.innerHTML = `
-      <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <table class="sec-tabela">
         <thead>
-          <tr style="border-bottom:1px solid rgba(255,255,255,.12)">
-            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Data pedido</th>
-            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Funcionário</th>
-            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Assunto</th>
-            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Destinatário</th>
-            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">Data sugerida</th>
-            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Estado</th>
-            <th style="padding:8px 12px;text-align:left;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Motivo recusa</th>
+          <tr>
+            <th>Data pedido</th>
+            <th>Funcionário</th>
+            <th>Assunto</th>
+            <th>Destinatário</th>
+            <th>Data sugerida</th>
+            <th>Estado</th>
+            <th>Motivo recusa</th>
           </tr>
         </thead>
         <tbody>${linhas}</tbody>
@@ -2124,10 +2275,7 @@
     ["pedidos","reunioes"].forEach(t => {
       document.getElementById("subtab-content-" + t).style.display = t === qual ? "" : "none";
       const btn = document.getElementById("subtab-" + t);
-      if (btn) {
-        btn.style.borderBottomColor = t === qual ? "var(--green)" : "transparent";
-        btn.style.color = t === qual ? "var(--green)" : "rgba(255,255,255,.4)";
-      }
+      if (btn) btn.classList.toggle("activa", t === qual);
     });
   };
 
