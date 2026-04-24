@@ -76,6 +76,13 @@
     /* vazio */
     .vazio{padding:32px;text-align:center;color:rgba(255,255,255,.2);font-size:13px}
 
+
+    /* ── SVG Icon system ── */
+    .icon-svg{display:inline-block;vertical-align:middle;flex-shrink:0}
+    @keyframes icon-spin{to{transform:rotate(360deg)}}
+    .icon-svg.spinning{animation:icon-spin .7s linear infinite}
+    .campo-label{display:flex;align-items:center;gap:5px}
+    .topbar-titulo{display:flex;align-items:center;gap:8px}
     /* ── TEMA SIGDOC UNIFICADO — overrides de cor ── */
     body{background:#f8fafc;color:#0f172a}
     .spinner{border:2px solid rgba(0,0,0,.1);border-top-color:#10c886}
@@ -161,7 +168,7 @@
   <div>A verificar acesso…</div>
 </div>
 <div id="ecra-negado">
-  <div style="font-size:40px">🔒</div>
+  <div style="color:#60a5fa"><svg class="icon-svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
   <div style="font-size:16px;font-weight:700">Acesso não autorizado</div>
   <a href="index.html" style="margin-top:12px;padding:9px 22px;border-radius:8px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:13px;font-weight:700;text-decoration:none">← Voltar</a>
 </div>
@@ -169,7 +176,7 @@
 <div id="ecra-principal">
   <div class="topbar">
     <div>
-      <div class="topbar-titulo">📋 Relatórios e Exportação</div>
+      <div class="topbar-titulo"><svg class="icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> Relatórios e Exportação</div>
       <div class="topbar-sub" id="topbar-sub">A carregar…</div>
     </div>
     <span class="badge-perfil" id="badge-perfil">—</span>
@@ -177,13 +184,13 @@
   <div class="content">
 
     <!-- SECÇÃO 1: Mapas de Pessoal -->
-    <div class="sec">👥 Mapas de Pessoal</div>
+    <div class="sec"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Mapas de Pessoal</div>
     <div class="g2">
 
       <!-- Mapa Geral -->
       <div class="rel-card">
         <div class="rel-card-head">
-          <div class="rel-icon" style="background:rgba(59,130,246,.15)">📋</div>
+          <div class="rel-icon" style="background:rgba(59,130,246,.15);color:#3b82f6"><svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></div>
           <div class="rel-info">
             <div class="rel-titulo">Mapa Geral de Pessoal</div>
             <div class="rel-desc">Lista completa de funcionários com todos os dados pessoais e profissionais.</div>
@@ -209,10 +216,10 @@
           </div>
         </div>
         <div class="btn-strip">
-          <button class="btn-exp btn-excel" onclick="exportarMapaGeral('excel')">📊 Excel</button>
-          <button class="btn-exp btn-pdf"   onclick="exportarMapaGeral('pdf')">📄 PDF</button>
-          <button class="btn-exp btn-csv"   onclick="exportarMapaGeral('csv')">📁 CSV</button>
-          <button class="btn-exp btn-previa" onclick="previsualizarMapaGeral()">👁 Prévia</button>
+          <button class="btn-exp btn-excel" onclick="exportarMapaGeral('excel')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Excel</button>
+          <button class="btn-exp btn-pdf"   onclick="exportarMapaGeral('pdf')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> PDF</button>
+          <button class="btn-exp btn-csv"   onclick="exportarMapaGeral('csv')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> CSV</button>
+          <button class="btn-exp btn-previa" onclick="previsualizarMapaGeral()"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Prévia</button>
           <span id="mg-count" class="count-badge"></span>
         </div>
       </div>
@@ -220,7 +227,7 @@
       <!-- Mapa por Unidade -->
       <div class="rel-card">
         <div class="rel-card-head">
-          <div class="rel-icon" style="background:rgba(16,200,134,.15)">🏥</div>
+          <div class="rel-icon" style="background:rgba(16,200,134,.15);color:#10c886"><svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0-2 2v16"/><path d="M9 13h6m-3-3v6"/></svg></div>
           <div class="rel-info">
             <div class="rel-titulo">Mapa por Unidade Sanitária</div>
             <div class="rel-desc">Lista de funcionários de uma unidade específica com dados de colocação.</div>
@@ -235,10 +242,10 @@
           </div>
         </div>
         <div class="btn-strip">
-          <button class="btn-exp btn-excel" onclick="exportarMapaUnidade('excel')">📊 Excel</button>
-          <button class="btn-exp btn-pdf"   onclick="exportarMapaUnidade('pdf')">📄 PDF</button>
-          <button class="btn-exp btn-csv"   onclick="exportarMapaUnidade('csv')">📁 CSV</button>
-          <button class="btn-exp btn-previa" onclick="previsualizarMapaUnidade()">👁 Prévia</button>
+          <button class="btn-exp btn-excel" onclick="exportarMapaUnidade('excel')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Excel</button>
+          <button class="btn-exp btn-pdf"   onclick="exportarMapaUnidade('pdf')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> PDF</button>
+          <button class="btn-exp btn-csv"   onclick="exportarMapaUnidade('csv')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> CSV</button>
+          <button class="btn-exp btn-previa" onclick="previsualizarMapaUnidade()"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Prévia</button>
           <span id="mu-count" class="count-badge"></span>
         </div>
       </div>
@@ -246,22 +253,22 @@
     </div>
 
     <!-- SECÇÃO 2: Relatórios de Gestão -->
-    <div class="sec">📊 Relatórios de Gestão</div>
+    <div class="sec"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Relatórios de Gestão</div>
     <div class="g2">
 
       <!-- Cobertura -->
       <div class="rel-card">
         <div class="rel-card-head">
-          <div class="rel-icon" style="background:rgba(167,139,250,.15)">📍</div>
+          <div class="rel-icon" style="background:rgba(167,139,250,.15);color:#a78bfa"><svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
           <div class="rel-info">
             <div class="rel-titulo">Relatório de Cobertura</div>
             <div class="rel-desc">Efectivo cadastrado vs esperado por unidade, com percentagem de cobertura.</div>
           </div>
         </div>
         <div class="btn-strip" style="margin-top:8px">
-          <button class="btn-exp btn-excel" onclick="exportarCobertura('excel')">📊 Excel</button>
-          <button class="btn-exp btn-pdf"   onclick="exportarCobertura('pdf')">📄 PDF</button>
-          <button class="btn-exp btn-previa" onclick="previsualizarCobertura()">👁 Prévia</button>
+          <button class="btn-exp btn-excel" onclick="exportarCobertura('excel')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Excel</button>
+          <button class="btn-exp btn-pdf"   onclick="exportarCobertura('pdf')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> PDF</button>
+          <button class="btn-exp btn-previa" onclick="previsualizarCobertura()"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Prévia</button>
           <span id="cob-count" class="count-badge"></span>
         </div>
       </div>
@@ -269,7 +276,7 @@
       <!-- Mapa Salarial -->
       <div class="rel-card" id="card-salarial">
         <div class="rel-card-head">
-          <div class="rel-icon" style="background:rgba(245,158,11,.15)">💰</div>
+          <div class="rel-icon" style="background:rgba(245,158,11,.15);color:#f59e0b"><svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></div>
           <div class="rel-info">
             <div class="rel-titulo">Mapa Salarial</div>
             <div class="rel-desc">Lista de funcionários com salário base e totais por unidade. Acesso restrito.</div>
@@ -284,9 +291,9 @@
           </div>
         </div>
         <div class="btn-strip">
-          <button class="btn-exp btn-excel" onclick="exportarSalarial('excel')">📊 Excel</button>
-          <button class="btn-exp btn-pdf"   onclick="exportarSalarial('pdf')">📄 PDF</button>
-          <button class="btn-exp btn-previa" onclick="previsualizarSalarial()">👁 Prévia</button>
+          <button class="btn-exp btn-excel" onclick="exportarSalarial('excel')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Excel</button>
+          <button class="btn-exp btn-pdf"   onclick="exportarSalarial('pdf')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> PDF</button>
+          <button class="btn-exp btn-previa" onclick="previsualizarSalarial()"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Prévia</button>
           <span id="sal-count" class="count-badge"></span>
         </div>
       </div>
@@ -294,11 +301,11 @@
     </div>
 
     <!-- SECÇÃO 3: Fichas Individuais -->
-    <div class="sec">👤 Ficha Individual</div>
+    <div class="sec"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Ficha Individual</div>
     <div class="g2">
       <div class="rel-card">
         <div class="rel-card-head">
-          <div class="rel-icon" style="background:rgba(34,211,238,.15)">🪪</div>
+          <div class="rel-icon" style="background:rgba(34,211,238,.15);color:#22d3ee"><svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2.5"/><path d="M13 11h5m-5 3h4"/></svg></div>
           <div class="rel-info">
             <div class="rel-titulo">Ficha de Funcionário</div>
             <div class="rel-desc">Ficha completa individual em formato PDF, para arquivo ou entrega.</div>
@@ -315,19 +322,19 @@
           </div>
         </div>
         <div class="btn-strip">
-          <button class="btn-exp btn-pdf" onclick="exportarFicha()">📄 Gerar Ficha PDF</button>
+          <button class="btn-exp btn-pdf" onclick="exportarFicha()"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Gerar Ficha PDF</button>
         </div>
       </div>
     </div><!-- /g2 Ficha Individual -->
 
     <!-- SECÇÃO 4: Actividade da Secretaria -->
-    <div class="sec">✉️ Actividade da Secretaria</div>
+    <div class="sec"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Actividade da Secretaria</div>
     <div class="g2">
 
       <!-- Relatório de Pedidos -->
       <div class="rel-card">
         <div class="rel-card-head">
-          <div class="rel-icon" style="background:rgba(59,130,246,.15)">📨</div>
+          <div class="rel-icon" style="background:rgba(59,130,246,.15);color:#3b82f6"><svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
           <div class="rel-info">
             <div class="rel-titulo">Relatório de Pedidos</div>
             <div class="rel-desc">Volume, estado, assunto, tempo médio de resposta e unidades mais activas.</div>
@@ -355,10 +362,10 @@
           </div>
         </div>
         <div class="btn-strip">
-          <button class="btn-exp btn-excel" onclick="exportarRelSecPedidos('excel')">📊 Excel</button>
-          <button class="btn-exp btn-pdf"   onclick="exportarRelSecPedidos('pdf')">📄 PDF</button>
-          <button class="btn-exp btn-csv"   onclick="exportarRelSecPedidos('csv')">📁 CSV</button>
-          <button class="btn-exp btn-previa" onclick="previsualizarRelSecPedidos()">👁 Prévia</button>
+          <button class="btn-exp btn-excel" onclick="exportarRelSecPedidos('excel')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Excel</button>
+          <button class="btn-exp btn-pdf"   onclick="exportarRelSecPedidos('pdf')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> PDF</button>
+          <button class="btn-exp btn-csv"   onclick="exportarRelSecPedidos('csv')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> CSV</button>
+          <button class="btn-exp btn-previa" onclick="previsualizarRelSecPedidos()"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Prévia</button>
           <span id="sec-count" class="count-badge"></span>
         </div>
       </div>
@@ -366,7 +373,7 @@
       <!-- Relatório de Reuniões -->
       <div class="rel-card">
         <div class="rel-card-head">
-          <div class="rel-icon" style="background:rgba(167,139,250,.15)">📅</div>
+          <div class="rel-icon" style="background:rgba(167,139,250,.15);color:#a78bfa"><svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
           <div class="rel-info">
             <div class="rel-titulo">Relatório de Reuniões</div>
             <div class="rel-desc">Pedidos de reunião com estado, destinatário, data preferida e resultado.</div>
@@ -395,10 +402,10 @@
           </div>
         </div>
         <div class="btn-strip">
-          <button class="btn-exp btn-excel" onclick="exportarRelReuniao('excel')">📊 Excel</button>
-          <button class="btn-exp btn-pdf"   onclick="exportarRelReuniao('pdf')">📄 PDF</button>
-          <button class="btn-exp btn-csv"   onclick="exportarRelReuniao('csv')">📁 CSV</button>
-          <button class="btn-exp btn-previa" onclick="previsualizarRelReuniao()">👁 Prévia</button>
+          <button class="btn-exp btn-excel" onclick="exportarRelReuniao('excel')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Excel</button>
+          <button class="btn-exp btn-pdf"   onclick="exportarRelReuniao('pdf')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> PDF</button>
+          <button class="btn-exp btn-csv"   onclick="exportarRelReuniao('csv')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> CSV</button>
+          <button class="btn-exp btn-previa" onclick="previsualizarRelReuniao()"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Prévia</button>
           <span id="reun-count" class="count-badge"></span>
         </div>
       </div>
@@ -406,10 +413,10 @@
     </div>
 
     <!-- SECÇÃO 5: Aniversariantes do Mês -->
-    <div class="sec">🎂 Aniversariantes do Mês</div>
+    <div class="sec"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v2"/><path d="M12 8v2"/><path d="M17 8v2"/><path d="M7 4s0-2 2-2c2 0 2.5 2.5 3 4"/><path d="M17 4s0-2-2-2c-2 0-2.5 2.5-3 4"/></svg> Aniversariantes do Mês</div>
     <div class="rel-card">
       <div class="rel-card-head">
-        <div class="rel-icon" style="background:rgba(234,179,8,.12)">🎂</div>
+        <div class="rel-icon" style="background:rgba(234,179,8,.12);color:#eab308"><svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v2"/><path d="M12 8v2"/><path d="M17 8v2"/><path d="M7 4s0-2 2-2c2 0 2.5 2.5 3 4"/><path d="M17 4s0-2-2-2c-2 0-2.5 2.5-3 4"/></svg></div>
         <div class="rel-info">
           <div class="rel-titulo">Aniversariantes do Mês</div>
           <div class="rel-desc">Funcionários que fazem aniversário no mês seleccionado, com destaque para hoje e os próximos 3 dias.</div>
@@ -449,10 +456,10 @@
       </div>
 
       <div class="btn-strip">
-        <button class="btn-exp btn-excel" onclick="exportarAniversariantes('excel')">📊 Excel</button>
-        <button class="btn-exp btn-pdf"   onclick="exportarAniversariantes('pdf')">📄 PDF</button>
+        <button class="btn-exp btn-excel" onclick="exportarAniversariantes('excel')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Excel</button>
+        <button class="btn-exp btn-pdf"   onclick="exportarAniversariantes('pdf')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> PDF</button>
         <button class="btn-exp" style="background:rgba(234,179,8,.1);color:#854d0e;border:1px solid rgba(234,179,8,.3)"
-                onclick="previsualizarAniversariantes()">🎂 Ver lista</button>
+                onclick="previsualizarAniversariantes()"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1"/><path d="M2 21h20"/><path d="M7 8v2"/><path d="M12 8v2"/><path d="M17 8v2"/><path d="M7 4s0-2 2-2c2 0 2.5 2.5 3 4"/><path d="M17 4s0-2-2-2c-2 0-2.5 2.5-3 4"/></svg> Ver lista</button>
         <span id="aniv-count" class="count-badge"></span>
       </div>
 
@@ -460,10 +467,10 @@
     </div>
 
     <!-- SECÇÃO 6: Infra-estrutura das Unidades -->
-    <div class="sec">🏗️ Infra-estrutura das Unidades</div>
+    <div class="sec"><svg class="icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M9 20V8l6-4v16"/><path d="M9 12H3v8"/><path d="M15 8h6v12h-6"/></svg> Infra-estrutura das Unidades</div>
     <div class="rel-card">
       <div class="rel-card-head">
-        <div class="rel-icon" style="background:rgba(16,200,134,.15)">🏗️</div>
+        <div class="rel-icon" style="background:rgba(16,200,134,.15);color:#10c886"><svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M9 20V8l6-4v16"/><path d="M9 12H3v8"/><path d="M15 8h6v12h-6"/></svg></div>
         <div class="rel-info">
           <div class="rel-titulo">Relatório de Infra-estrutura</div>
           <div class="rel-desc">Condições físicas de cada unidade sanitária: camas, água potável, energia eléctrica, laboratório e posto fixo de vacinação.</div>
@@ -471,7 +478,7 @@
       </div>
       <div class="infra-filtros-grid">
         <div>
-          <label class="campo-label">🔬 Laboratório</label>
+          <label class="campo-label"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg> Laboratório</label>
           <select class="campo-select" id="f-infra-lab" onchange="previsualizarInfra()">
             <option value="">Todos</option>
             <option value="sim">Com laboratório</option>
@@ -479,7 +486,7 @@
           </select>
         </div>
         <div>
-          <label class="campo-label">⚡ Energia eléctrica</label>
+          <label class="campo-label"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Energia eléctrica</label>
           <select class="campo-select" id="f-infra-ene" onchange="previsualizarInfra()">
             <option value="">Todos</option>
             <option value="sim">Com energia</option>
@@ -487,7 +494,7 @@
           </select>
         </div>
         <div>
-          <label class="campo-label">💧 Água potável</label>
+          <label class="campo-label"><svg class="icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg> Água potável</label>
           <select class="campo-select" id="f-infra-agua" onchange="previsualizarInfra()">
             <option value="">Todos</option>
             <option value="sim">Com água potável</option>
@@ -496,10 +503,10 @@
         </div>
       </div>
       <div class="btn-strip">
-        <button class="btn-exp btn-excel" onclick="exportarInfra('excel')">📊 Excel</button>
-        <button class="btn-exp btn-pdf"   onclick="exportarInfra('pdf')">📄 PDF</button>
+        <button class="btn-exp btn-excel" onclick="exportarInfra('excel')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Excel</button>
+        <button class="btn-exp btn-pdf"   onclick="exportarInfra('pdf')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> PDF</button>
         <button class="btn-exp" style="background:rgba(16,200,134,.1);color:#10c886;border:1px solid rgba(16,200,134,.3)"
-          onclick="previsualizarInfra()">🏗️ Ver tabela</button>
+          onclick="previsualizarInfra()"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M9 20V8l6-4v16"/><path d="M9 12H3v8"/><path d="M15 8h6v12h-6"/></svg> Ver tabela</button>
         <span id="infra-count" class="count-badge"></span>
       </div>
       <div id="infra-resultado"></div>
@@ -551,11 +558,36 @@
       : [].concat(roles || []).includes(obterPerfilPrincipalRelatorios(docPerfil));
   }
 
+
+  // ── ICON SYSTEM — SVG inline icons (replaces emoji) ─────────────────────
+  const I = {
+    barChart:   `<svg class='icon-svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='18' y1='20' x2='18' y2='10'/><line x1='12' y1='20' x2='12' y2='4'/><line x1='6' y1='20' x2='6' y2='14'/></svg>`,
+    fileText:   `<svg class='icon-svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/><line x1='16' y1='13' x2='8' y2='13'/><line x1='16' y1='17' x2='8' y2='17'/><polyline points='10 9 9 9 8 9'/></svg>`,
+    folder:     `<svg class='icon-svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/></svg>`,
+    download:   `<svg class='icon-svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points='7 10 12 15 17 10'/><line x1='12' y1='15' x2='12' y2='3'/></svg>`,
+    eye:        `<svg class='icon-svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'/><circle cx='12' cy='12' r='3'/></svg>`,
+    loader:     `<svg class='icon-svg spinning' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='12' y1='2' x2='12' y2='6'/><line x1='12' y1='18' x2='12' y2='22'/><line x1='4.93' y1='4.93' x2='7.76' y2='7.76'/><line x1='16.24' y1='16.24' x2='19.07' y2='19.07'/><line x1='2' y1='12' x2='6' y2='12'/><line x1='18' y1='12' x2='22' y2='12'/><line x1='4.93' y1='19.07' x2='7.76' y2='16.24'/><line x1='16.24' y1='7.76' x2='19.07' y2='4.93'/></svg>`,
+    check:      `<svg class='icon-svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/><polyline points='22 4 12 14.01 9 11.01'/></svg>`,
+    xCircle:    `<svg class='icon-svg' width='36' height='36' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><line x1='15' y1='9' x2='9' y2='15'/><line x1='9' y1='9' x2='15' y2='15'/></svg>`,
+    cake:       `<svg class='icon-svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-8a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v8'/><path d='M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1'/><path d='M2 21h20'/><path d='M7 8v2'/><path d='M12 8v2'/><path d='M17 8v2'/><path d='M7 4s0-2 2-2c2 0 2.5 2.5 3 4'/><path d='M17 4s0-2-2-2c-2 0-2.5 2.5-3 4'/></svg>`,
+    cakeMd:     `<svg class='icon-svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-8a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v8'/><path d='M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1'/><path d='M2 21h20'/><path d='M7 8v2'/><path d='M12 8v2'/><path d='M17 8v2'/><path d='M7 4s0-2 2-2c2 0 2.5 2.5 3 4'/><path d='M17 4s0-2-2-2c-2 0-2.5 2.5-3 4'/></svg>`,
+    star:       `<svg class='icon-svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg>`,
+    arrowRight: `<svg class='icon-svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg>`,
+    hospital:   `<svg class='icon-svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 21h18'/><path d='M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0-2 2v16'/><path d='M9 13h6m-3-3v6'/></svg>`,
+    bed:        `<svg class='icon-svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2 4v16'/><path d='M2 8h18a2 2 0 0 1 2 2v10'/><path d='M2 17h20'/><path d='M6 8v9'/></svg>`,
+    droplets:   `<svg class='icon-svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z'/><path d='M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97'/></svg>`,
+    zap:        `<svg class='icon-svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>`,
+    flask:      `<svg class='icon-svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2'/><path d='M8.5 2h7'/><path d='M7 16h10'/></svg>`,
+    building:   `<svg class='icon-svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2 20h20'/><path d='M9 20V8l6-4v16'/><path d='M9 12H3v8'/><path d='M15 8h6v12h-6'/></svg>`,
+    calendar:   `<svg class='icon-svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2' ry='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/></svg>`,
+    printer:    `<svg class='icon-svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 6 2 18 2 18 9'/><path d='M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2'/><rect x='6' y='14' width='12' height='8'/></svg>`,
+  };
+
   // ── NOTIF ───────────────────────────────────────────────
   let _nt;
   function notif(msg, tipo='ok') {
     const el = document.getElementById('notif');
-    el.textContent = msg;
+    el.innerHTML = msg;
     el.style.borderColor = tipo==='erro' ? 'rgba(239,68,68,.3)' : 'rgba(255,255,255,.13)';
     el.classList.add('v');
     clearTimeout(_nt); _nt = setTimeout(() => el.classList.remove('v'), 3500);
@@ -621,8 +653,8 @@
       const ecraCarregando = document.getElementById("ecra-carregando");
       const erroMsg = e.code || e.message || "Erro desconhecido";
       const icone = document.createElement("div");
-      icone.style.fontSize = "36px";
-      icone.textContent = "❌";
+      icone.style.color = "#f87171";
+      icone.innerHTML = I.xCircle;
 
       const tituloErro = document.createElement("div");
       tituloErro.style.fontSize = "14px";
@@ -833,7 +865,7 @@
       </style>
     </head><body>
     ${html}
-    <button class="print-btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="print-btn" onclick="window.print()"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Imprimir / Guardar PDF</button>
     </body></html>`);
     win.document.close();
   }
@@ -843,7 +875,7 @@
   // ════════════════════════════════════════════════════════
   function mostrarPrevia(titulo, colunas, linhas) {
     const card = document.getElementById("preview-card");
-    document.getElementById("preview-titulo-txt").textContent = "👁 Prévia — " + titulo;
+    document.getElementById("preview-titulo-txt").innerHTML = I.eye + " Prévia — " + titulo;
     document.getElementById("preview-count").textContent = linhas.length + " registos";
     const table = document.getElementById("preview-table");
     const max = Math.min(linhas.length, 10);
@@ -911,19 +943,19 @@
     if (!funcs.length) { notif("Nenhum funcionário corresponde aos filtros.", "erro"); return; }
     const linhas = linhasGeral(funcs);
     const nome = "Mapa_Geral_Pessoal_" + hoje();
-    if (fmt === "excel") { downloadExcel(COLS_GERAL, linhas, nome); notif("📊 Excel gerado com "+funcs.length+" registos"); }
-    else if (fmt === "csv") { downloadCSV(COLS_GERAL, linhas, nome); notif("📁 CSV gerado com "+funcs.length+" registos"); }
+    if (fmt === "excel") { downloadExcel(COLS_GERAL, linhas, nome); notif(I.barChart + " Excel gerado com "+funcs.length+" registos"); }
+    else if (fmt === "csv") { downloadCSV(COLS_GERAL, linhas, nome); notif(I.download + " CSV gerado com "+funcs.length+" registos"); }
     else pdfMapaGeral(funcs);
   };
 
   window.previsualizarMapaGeral = function() {
     const btn = document.querySelector('[onclick="previsualizarMapaGeral()"]');
-    const orig = btn?.textContent;
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
+    const orig = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A carregar…'; }
     try {
       mostrarPrevia("Mapa Geral de Pessoal", ["Nº","Nome","Sexo","Categoria","Unidade","Vínculo","Estado"], filtrarGeral().map(f=>[f.numero||"—",f.nome||"—",f.sexo||"—",f.categoria||"—",abrev(f.unidade||"—"),lv(f.vinculo),le(f.estado||"activo")]));
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = orig; }
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
     }
   };
 
@@ -940,7 +972,7 @@
       <div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span><span>Total: ${funcs.length} funcionários</span></div>
       <table><thead><tr>${["Nº","Nome","Sexo","Categoria","Unidade","Vínculo","Admissão","Anos","Estado"].map(headerHTML).join("")}</tr></thead><tbody>${rows}</tbody></table>
     `, titulo);
-    notif("📄 PDF aberto em nova janela — use Imprimir para guardar");
+    notif(I.fileText + " PDF aberto em nova janela — use Imprimir para guardar");
   }
 
   // ════════════════════════════════════════════════════════
@@ -956,8 +988,8 @@
       return [f.numero||"—",f.nome||"—",f.sexo||"—",f.categoria||"—",f.seccao||"—",lv(f.vinculo),fmtData(f.admissao),anos,le(f.estado||"activo"),f.telefone||"—"];
     });
     const nome = "Mapa_" + abrev(unid).replace(/\s+/g,"_") + "_" + hoje();
-    if (fmt==="excel") { downloadExcel(cols, linhas, nome); notif("📊 Excel gerado com "+funcs.length+" registos"); }
-    else if (fmt==="csv") { downloadCSV(cols, linhas, nome); notif("📁 CSV gerado"); }
+    if (fmt==="excel") { downloadExcel(cols, linhas, nome); notif(I.barChart + " Excel gerado com "+funcs.length+" registos"); }
+    else if (fmt==="csv") { downloadCSV(cols, linhas, nome); notif(I.download + " CSV gerado"); }
     else {
       const rows = funcs.map(f => {
         const anos = f.admissao ? new Date().getFullYear() - new Date(f.admissao).getFullYear() : "—";
@@ -965,20 +997,20 @@
         return `<tr>${cellHTML(f.numero||"—")}<td><strong>${escapeHTML(f.nome||"—")}</strong></td>${cellHTML(f.sexo||"—")}${cellHTML(f.categoria||"—")}${cellHTML(f.seccao||"—")}${cellHTML(lv(f.vinculo))}${cellHTML(fmtData(f.admissao))}${cellHTML(anos)}<td><span class="badge ${ecls}">${escapeHTML(le(f.estado||"activo"))}</span></td></tr>`;
       }).join("");
       abrirPDF(`<h1>Mapa de Pessoal — ${escapeHTML(unid)}</h1><div class="sub">Direcção Municipal de Saúde do Sumbe</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span><span>Total: ${funcs.length} funcionários</span></div><table><thead><tr>${["Nº","Nome","Sexo","Categoria","Secção","Vínculo","Admissão","Anos","Estado"].map(headerHTML).join("")}</tr></thead><tbody>${rows}</tbody></table>`,`Mapa ${unid}`);
-      notif("📄 PDF aberto em nova janela");
+      notif(I.fileText + " PDF aberto em nova janela");
     }
   };
 
   window.previsualizarMapaUnidade = function() {
     const btn = document.querySelector('[onclick="previsualizarMapaUnidade()"]');
-    const orig = btn?.textContent;
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
+    const orig = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A carregar…'; }
     try {
       const funcs = filtrarUnidade();
       const unid  = document.getElementById("f-mu-unidade").value || "Todas";
       mostrarPrevia("Mapa — "+abrev(unid), ["Nº","Nome","Categoria","Unidade","Vínculo","Estado"], funcs.map(f=>[f.numero||"—",f.nome||"—",f.categoria||"—",abrev(f.unidade||"—"),lv(f.vinculo),le(f.estado||"activo")]));
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = orig; }
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
     }
   };
 
@@ -1011,7 +1043,7 @@
       const est = cob===null?"Sem meta":cob>=90?"✓ Adequada":cob>=60?"⚠ Parcial":"✗ Crítica";
       return [u.nome, u.estOp, u.cad, u.esp||"—", cob!==null?cob+"%":"—", est];
     });
-    if (fmt==="excel") { downloadExcel(cols, linhas, "Relatorio_Cobertura_"+hoje()); notif("📊 Excel de cobertura gerado"); }
+    if (fmt==="excel") { downloadExcel(cols, linhas, "Relatorio_Cobertura_"+hoje()); notif(I.barChart + " Excel de cobertura gerado"); }
     else {
       const rows = lista.map(u => {
         const cob  = u.esp>0?Math.round(u.cad/u.esp*100):null;
@@ -1023,14 +1055,14 @@
       const tot = lista.reduce((s,u)=>s+u.cad,0);
       const totEsp = lista.reduce((s,u)=>s+u.esp,0);
       abrirPDF(`<h1>Relatório de Cobertura por Unidade</h1><div class="sub">Direcção Municipal de Saúde do Sumbe</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span></div><table><thead><tr>${["Unidade Sanitária","Est. Operacional","Cadastrados","Esperado","Cobertura"].map(headerHTML).join("")}</tr></thead><tbody>${rows}</tbody></table><div class="totais">Total cadastrados: <strong>${tot}</strong> &nbsp;|&nbsp; Total esperado: <strong>${totEsp||"—"}</strong></div>`, "Relatório de Cobertura");
-      notif("📄 PDF aberto em nova janela");
+      notif(I.fileText + " PDF aberto em nova janela");
     }
   };
 
   window.previsualizarCobertura = function() {
     const btn = document.querySelector('[onclick="previsualizarCobertura()"]');
-    const orig = btn?.textContent;
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
+    const orig = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A carregar…'; }
     try {
       const cm = {};
       _funcs.forEach(f => { const u = f.unidade||"—"; cm[u]=(cm[u]||0)+1; });
@@ -1041,7 +1073,7 @@
       mostrarPrevia("Cobertura", ["Unidade","Est. Operacional","Cadastrados","Esperado","Cobertura"],
         lista.map(u=>{const c=u.esp>0?Math.round(u.cad/u.esp*100):null;return[abrev(u.nome),u.estOp,u.cad,u.esp||"—",c!==null?c+"%":"s/meta"];}));
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = orig; }
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
     }
   };
 
@@ -1055,25 +1087,25 @@
     const cols   = ["Nº Agente","Nome","Unidade","Categoria","Vínculo","Salário Base (Kz)"];
     const linhas = funcs.map(f => [f.numero||"—",f.nome||"—",f.unidade||"—",f.categoria||"—",lv(f.vinculo),Number(f.salarioBase)||0]);
     const total  = funcs.reduce((s,f)=>s+(Number(f.salarioBase)||0),0);
-    if (fmt==="excel") { downloadExcel([...cols,["TOTAL","","","","",total]], linhas, "Mapa_Salarial_"+hoje()); notif("📊 Mapa salarial exportado"); }
+    if (fmt==="excel") { downloadExcel([...cols,["TOTAL","","","","",total]], linhas, "Mapa_Salarial_"+hoje()); notif(I.barChart + " Mapa salarial exportado"); }
     else {
       const rows = funcs.map(f=>`<tr>${cellHTML(f.numero||"—")}<td><strong>${escapeHTML(f.nome||"—")}</strong></td>${cellHTML(abrev(f.unidade||"—"))}${cellHTML(f.categoria||"—")}${cellHTML(lv(f.vinculo))}${cellHTML(fmtKz(f.salarioBase),' style="text-align:right;font-weight:700"')}</tr>`).join("");
       abrirPDF(`<h1>Mapa Salarial</h1><div class="sub">Direcção Municipal de Saúde do Sumbe — CONFIDENCIAL</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span><span>${funcs.length} funcionários com salário registado</span></div><table><thead><tr>${["Nº","Nome","Unidade","Categoria","Vínculo","Salário Base"].map(headerHTML).join("")}</tr></thead><tbody>${rows}</tbody></table><div class="totais">Massa salarial total: <strong>${fmtKz(total)}</strong></div>`, "Mapa Salarial");
-      notif("📄 PDF aberto em nova janela");
+      notif(I.fileText + " PDF aberto em nova janela");
     }
   };
 
   window.previsualizarSalarial = function() {
   if (!temAlgumRoleRelatorios(_perfilDoc || _perfil, ["admin","chefe","tecnico"])) { notif("Sem permissão.","erro"); return; }
     const btn = document.querySelector('[onclick="previsualizarSalarial()"]');
-    const orig = btn?.textContent;
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
+    const orig = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A carregar…'; }
     try {
       const funcs = filtrarSalarial();
       mostrarPrevia("Mapa Salarial", ["Nº","Nome","Unidade","Categoria","Salário Base"],
         funcs.map(f=>[f.numero||"—",f.nome||"—",abrev(f.unidade||"—"),f.categoria||"—",fmtKz(f.salarioBase)]));
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = orig; }
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
     }
   };
 
@@ -1120,7 +1152,7 @@
         <div style="text-align:center">_______________________<br>Director Municipal de Saúde</div>
       </div>`,
       "Ficha — " + f.nome);
-    notif("📄 Ficha de " + f.nome + " aberta em nova janela");
+    notif(I.fileText + " Ficha de " + f.nome + " aberta em nova janela");
   };
 
   // ════════════════════════════════════════════════════════
@@ -1184,8 +1216,8 @@
    */
   window.previsualizarAniversariantes = function() {
     const btn = document.querySelector('[onclick="previsualizarAniversariantes()"]');
-    const orig = btn?.textContent;
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
+    const orig = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A carregar…'; }
     try {
     const wrap = document.getElementById("aniv-resultado");
     if (!wrap) return;
@@ -1200,7 +1232,7 @@
     const nProx = lista.filter(r => r.diasAte > 0 && r.diasAte <= 3).length;
 
     if (!lista.length) {
-      wrap.innerHTML = `<div class="aniv-vazio">🎂 Nenhum aniversariante encontrado para o período e filtros seleccionados.</div>`;
+      wrap.innerHTML = `<div class="aniv-vazio">${I.cakeMd} Nenhum aniversariante encontrado para o período e filtros seleccionados.</div>`;
       return;
     }
 
@@ -1211,18 +1243,18 @@
     };
 
     const resumoHoje = nHoje > 0
-      ? `<span class="aniv-pill aniv-pill-hoje">🎉 ${nHoje} fazem anos hoje</span>` : "";
+      ? `<span class="aniv-pill aniv-pill-hoje">${I.star} ${nHoje} fazem anos hoje</span>` : "";
     const resumoProx = nProx > 0
-      ? `<span class="aniv-pill aniv-pill-prox">🔜 ${nProx} nos próximos 3 dias</span>` : "";
+      ? `<span class="aniv-pill aniv-pill-prox">${I.arrowRight} ${nProx} nos próximos 3 dias</span>` : "";
 
     const linhasHTML = lista.map(r => {
       const eHoje    = (mesN === mesH && r.dia === diaH);
       const eProx    = (!eHoje && r.diasAte > 0 && r.diasAte <= 3);
       const rowClass = eHoje ? "aniv-hoje" : eProx ? "aniv-prox" : "";
       const badge    = eHoje
-        ? `<span class="aniv-badge-hoje">🎉 Hoje!</span>`
+        ? `<span class="aniv-badge-hoje">${I.star} Hoje!</span>`
         : eProx
-          ? `<span class="aniv-badge-prox">🔜 Em ${r.diasAte}d</span>`
+          ? `<span class="aniv-badge-prox">${I.arrowRight} Em ${r.diasAte}d</span>`
           : "";
       return `<tr class="${rowClass}">
         <td style="font-weight:800;font-size:14px;width:40px">${r.dia}</td>
@@ -1237,7 +1269,7 @@
 
     wrap.innerHTML = `
       <div class="aniv-resumo">
-        <span class="aniv-pill aniv-pill-total">🎂 ${lista.length} aniversariante${lista.length !== 1 ? "s" : ""}</span>
+        <span class="aniv-pill aniv-pill-total">${I.cake} ${lista.length} aniversariante${lista.length !== 1 ? "s" : ""}</span>
         ${resumoHoje}
         ${resumoProx}
       </div>
@@ -1251,7 +1283,7 @@
         </table>
       </div>`;
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = orig; }
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
     }
   };
 
@@ -1292,7 +1324,7 @@
 
     if (fmt === "excel") {
       downloadExcel(COLS, linhas, `Aniversariantes_${nomeMes}_${hoje()}`);
-      notif(`📊 Excel exportado — ${lista.length} aniversariante${lista.length !== 1 ? "s" : ""}`);
+      notif(I.barChart + ` Excel exportado — ${lista.length} aniversariante${lista.length !== 1 ? "s" : ""}`);
       return;
     }
 
@@ -1301,7 +1333,7 @@
       const eHoje = (mesN === mesH && r.dia === diaH);
       const bgRow = eHoje ? ' style="background:#fefce8"' : "";
       const dest  = eHoje
-        ? '<span class="badge" style="background:#fef08a;color:#713f12;font-size:8px">🎉 Hoje</span>'
+        ? '<span class="badge" style="background:#fef08a;color:#713f12;font-size:8px">★ Hoje</span>'
         : "";
       return `<tr${bgRow}>
         ${cellHTML(r.dia, ' style="text-align:center;font-weight:800"')}
@@ -1321,7 +1353,7 @@
       <div class="meta">
         <span>Data: ${dataHoje}</span>
         <span>Total: ${lista.length} aniversariante${lista.length !== 1 ? "s" : ""}</span>
-        ${nHoje > 0 ? `<span>🎉 Fazem anos hoje: ${nHoje}</span>` : ""}
+        ${nHoje > 0 ? `<span>★ Fazem anos hoje: ${nHoje}</span>` : ""}
       </div>
       <table>
         <thead><tr>${["Dia","Nome","Data Nasc.","Idade","Unidade","Categoria","Sexo",""].map(headerHTML).join("")}</tr></thead>
@@ -1329,7 +1361,7 @@
       </table>
       <div class="totais">Total: <strong>${lista.length}</strong> aniversariante${lista.length !== 1 ? "s" : ""} em ${escapeHTML(nomeMes)}</div>
     `, titulo);
-    notif("📄 PDF aberto em nova janela");
+    notif(I.fileText + " PDF aberto em nova janela");
   };
 
   const abrev = n => (n||"").replace("Direcção Municipal de Saúde do Sumbe","DMS").replace("Centro de Saúde","CS").replace("Posto de Saúde","PS");
@@ -1388,15 +1420,15 @@
 
   window.previsualizarInfra = function() {
     const btn = document.querySelector('[onclick="previsualizarInfra()"]');
-    const orig = btn?.textContent;
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
+    const orig = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A carregar…'; }
     try {
     const wrap = document.getElementById('infra-resultado');
     if (!wrap) return;
     const lista = filtrarInfra();
     setCount('infra-count', lista.length);
     if (!lista.length) {
-      wrap.innerHTML = '<div class="infra-vazio">🏗️ Nenhuma unidade corresponde aos filtros seleccionados.</div>';
+      wrap.innerHTML = '<div class="infra-vazio">' + I.building + ' Nenhuma unidade corresponde aos filtros seleccionados.</div>';
       return;
     }
     const totalCamas = lista.reduce((s, u) => {
@@ -1432,11 +1464,11 @@
 
     wrap.innerHTML =
       '<div class="infra-resumo">'
-      + '<span class="infra-pill infra-pill-total">🏥 ' + lista.length + ' unidade' + (lista.length !== 1 ? 's' : '') + '</span>'
-      + (totalCamas > 0 ? '<span class="infra-pill infra-pill-camas">🛏 ' + totalCamas + ' camas no total</span>' : '')
-      + (semAgua > 0 ? '<span class="infra-pill infra-pill-alerta">💧 ' + semAgua + ' sem água potável</span>' : '')
-      + (semEne  > 0 ? '<span class="infra-pill infra-pill-alerta">⚡ ' + semEne  + ' sem energia</span>' : '')
-      + (comLab  > 0 ? '<span class="infra-pill infra-pill-camas">🔬 ' + comLab  + ' com laboratório</span>' : '')
+      + '<span class="infra-pill infra-pill-total">' + I.hospital + ' ' + lista.length + ' unidade' + (lista.length !== 1 ? 's' : '') + '</span>'
+      + (totalCamas > 0 ? '<span class="infra-pill infra-pill-camas">' + I.bed + ' ' + totalCamas + ' camas no total</span>' : '')
+      + (semAgua > 0 ? '<span class="infra-pill infra-pill-alerta">' + I.droplets + ' ' + semAgua + ' sem água potável</span>' : '')
+      + (semEne  > 0 ? '<span class="infra-pill infra-pill-alerta">' + I.zap + ' ' + semEne  + ' sem energia</span>' : '')
+      + (comLab  > 0 ? '<span class="infra-pill infra-pill-camas">' + I.flask + ' ' + comLab  + ' com laboratório</span>' : '')
       + '</div>'
       + '<div class="infra-table-wrap"><table class="infra">'
       + '<thead><tr>'
@@ -1450,7 +1482,7 @@
       + '<tbody>' + linhasHTML + '</tbody>'
       + '</table></div>';
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = orig; }
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
     }
   };
 
@@ -1469,7 +1501,7 @@
 
     if (fmt === 'excel') {
       downloadExcel(COLS_INFRA, linhas, 'Infra_Unidades_' + hoje());
-      notif('📊 Excel de infra-estrutura gerado');
+      notif(I.barChart + ' Excel de infra-estrutura gerado');
       return;
     }
 
@@ -1521,7 +1553,7 @@
       + '</div>',
       'Infra-estrutura das Unidades'
     );
-    notif('📄 PDF de infra-estrutura aberto');
+    notif(I.fileText + ' PDF de infra-estrutura aberto');
   };
 
   // ════════════════════════════════════════════════════════
@@ -1588,10 +1620,10 @@
 
   window.previsualizarRelSecPedidos = async function() {
     const btn = document.querySelector('[onclick="previsualizarRelSecPedidos()"]');
-    const orig = btn?.textContent;
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
+    const orig = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A carregar…'; }
     try {
-      notif('⏳ A carregar pedidos…');
+      notif(I.loader + ' A carregar pedidos…');
       const pedidos = await fetchSecretaria(
         'pedidos_secretaria',
         document.getElementById('f-sec-periodo').value,
@@ -1600,16 +1632,16 @@
       if (!pedidos.length) { notif('Nenhum pedido encontrado.','erro'); setCount('sec-count', 0); return; }
       mostrarPrevia('Pedidos da Secretaria', COLS_SEC_PED, linhasSecPedidos(pedidos));
       setCount('sec-count', pedidos.length);
-      notif(`✅ ${pedidos.length} pedidos carregados`);
+      notif(I.check + ` ${pedidos.length} pedidos carregados`);
     } catch(e) { notif('Erro: '+e.message,'erro'); }
     finally {
-      if (btn) { btn.disabled = false; btn.textContent = orig; }
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
     }
   };
 
   window.exportarRelSecPedidos = async function(fmt) {
     try {
-      notif('⏳ A exportar…');
+      notif(I.loader + ' A exportar…');
       const pedidos = await fetchSecretaria(
         'pedidos_secretaria',
         document.getElementById('f-sec-periodo').value,
@@ -1636,20 +1668,20 @@
 
       if (fmt === 'excel') {
         downloadExcel(COLS_SEC_PED, linhas, 'pedidos_secretaria_'+hoje());
-        notif('📊 Excel exportado — '+total+' pedidos');
+        notif(I.barChart + ' Excel exportado — '+total+' pedidos');
       } else if (fmt === 'csv') {
         const csv = [COLS_SEC_PED.join(';'), ...linhas.map(l=>l.map(c=>'"'+(c||'').toString().replace(/"/g,'""')+'"').join(';'))].join('\n');
         const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
         const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
         a.download = 'pedidos_secretaria_'+hoje()+'.csv'; a.click(); URL.revokeObjectURL(a.href);
-        notif('✅ CSV exportado');
+        notif(I.check + ' CSV exportado');
       } else {
         const periodoSel = document.getElementById('f-sec-periodo').value;
         const _pLabels = {'30':'Últimos 30 dias','90':'Últimos 90 dias','180':'Últimos 180 dias','0':'Todo o período (sem limite)'};
         const periodoLabel = _pLabels[periodoSel] || 'Últimos '+periodoSel+' dias';
         const periodoBadge = periodoSel === '0'
-          ? `<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:4px;font-weight:700">📅 ${periodoLabel}</span>`
-          : `<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:4px;font-weight:700">⚠️ ${periodoLabel}</span>`;
+          ? `<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:4px;font-weight:700">▸ ${periodoLabel}</span>`
+          : `<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:4px;font-weight:700">⚠ ${periodoLabel}</span>`;
         const rows = linhasParaHTML(linhas);
         abrirPDF(`
           <h1>${titulo}</h1>
@@ -1665,7 +1697,7 @@
           <tbody>${rows}</tbody></table>
           <div class="totais">Total pedidos: <strong>${total}</strong> &nbsp;|&nbsp; Fechados: <strong>${fechados}</strong> &nbsp;|&nbsp; Taxa resolução: <strong>${taxa}%</strong></div>
         `, titulo);
-        notif('✅ PDF aberto');
+        notif(I.check + ' PDF aberto');
       }
     } catch(e) { notif('Erro: '+e.message,'erro'); }
   };
@@ -1696,10 +1728,10 @@
 
   window.previsualizarRelReuniao = async function() {
     const btn = document.querySelector('[onclick="previsualizarRelReuniao()"]');
-    const orig = btn?.textContent;
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ A carregar…'; }
+    const orig = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A carregar…'; }
     try {
-      notif('⏳ A carregar reuniões…');
+      notif(I.loader + ' A carregar reuniões…');
       const reunioes = await fetchSecretaria(
         'reunioes',
         document.getElementById('f-reun-periodo').value,
@@ -1708,16 +1740,16 @@
       if (!reunioes.length) { notif('Nenhuma reunião encontrada.','erro'); setCount('reun-count', 0); return; }
       mostrarPrevia('Reuniões', COLS_REUN, linhasReuniao(reunioes));
       setCount('reun-count', reunioes.length);
-      notif(`✅ ${reunioes.length} reuniões carregadas`);
+      notif(I.check + ` ${reunioes.length} reuniões carregadas`);
     } catch(e) { notif('Erro: '+e.message,'erro'); }
     finally {
-      if (btn) { btn.disabled = false; btn.textContent = orig; }
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
     }
   };
 
   window.exportarRelReuniao = async function(fmt) {
     try {
-      notif('⏳ A exportar…');
+      notif(I.loader + ' A exportar…');
       const reunioes = await fetchSecretaria(
         'reunioes',
         document.getElementById('f-reun-periodo').value,
@@ -1733,20 +1765,20 @@
 
       if (fmt === 'excel') {
         downloadExcel(COLS_REUN, linhas, 'reunioes_secretaria_'+hoje());
-        notif('📊 Excel exportado — '+total+' reuniões');
+        notif(I.barChart + ' Excel exportado — '+total+' reuniões');
       } else if (fmt === 'csv') {
         const csv = [COLS_REUN.join(';'), ...linhas.map(l=>l.map(c=>'"'+(c||'').toString().replace(/"/g,'""')+'"').join(';'))].join('\n');
         const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
         const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
         a.download = 'reunioes_secretaria_'+hoje()+'.csv'; a.click(); URL.revokeObjectURL(a.href);
-        notif('✅ CSV exportado');
+        notif(I.check + ' CSV exportado');
       } else {
         const periodoSel = document.getElementById('f-reun-periodo').value;
         const _pLabels = {'30':'Últimos 30 dias','90':'Últimos 90 dias','180':'Últimos 180 dias','0':'Todo o período (sem limite)'};
         const periodoLabel = _pLabels[periodoSel] || 'Últimos '+periodoSel+' dias';
         const periodoBadge = periodoSel === '0'
-          ? `<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:4px;font-weight:700">📅 ${periodoLabel}</span>`
-          : `<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:4px;font-weight:700">⚠️ ${periodoLabel}</span>`;
+          ? `<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:4px;font-weight:700">▸ ${periodoLabel}</span>`
+          : `<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:4px;font-weight:700">⚠ ${periodoLabel}</span>`;
         const rows = linhasParaHTML(linhas);
         abrirPDF(`
           <h1>${titulo}</h1>
@@ -1762,7 +1794,7 @@
           <tbody>${rows}</tbody></table>
           <div class="totais">Total: <strong>${total}</strong> &nbsp;|&nbsp; Realizadas: <strong>${realiz}</strong> &nbsp;|&nbsp; Recusadas: <strong>${recus}</strong></div>
         `, titulo);
-        notif('✅ PDF aberto');
+        notif(I.check + ' PDF aberto');
       }
     } catch(e) { notif('Erro: '+e.message,'erro'); }
   };
