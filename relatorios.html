@@ -71,8 +71,12 @@
     .be-licenca{background:rgba(245,158,11,.12);color:#f59e0b}
     .be-inactivo{background:rgba(239,68,68,.12);color:#ef4444}
     /* notif */
-    #notif{position:fixed;bottom:20px;right:20px;z-index:9999;background:#1e2a3a;border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none;max-width:300px}
+    #notif{position:fixed;bottom:20px;right:20px;z-index:9999;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;opacity:0;transform:translateY(10px);transition:opacity .2s,transform .2s,background .15s,border-color .15s;pointer-events:none;max-width:320px;display:flex;align-items:center;gap:9px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
     #notif.v{opacity:1;transform:translateY(0)}
+    #notif.tipo-ok{background:#f0fdf4;border:1px solid #86efac;color:#166534}
+    #notif.tipo-erro{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b}
+    #notif.tipo-loading{background:#eff6ff;border:1px solid #93c5fd;color:#1e40af}
+    #notif .notif-icon{flex-shrink:0;display:inline-flex}
     /* vazio */
     .vazio{padding:32px;text-align:center;color:rgba(255,255,255,.2);font-size:13px}
     /* preview — fechar */
@@ -107,7 +111,6 @@
     table.preview td{color:#0f172a;border-bottom:1px solid #f1f5f9}
     table.preview tr:hover td{background:#f8fafc}
     .vazio{color:#94a3b8}
-    #notif{background:#fff;border:1px solid #e2e8f0;color:#0f172a}
 
     /* ── Aniversariantes do Mês ── */
     .aniv-filtros-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
@@ -594,12 +597,23 @@
 
   // ── NOTIF ───────────────────────────────────────────────
   let _nt;
+  // SVG icons for notif types
+  const _notifIcons = {
+    ok:      `<svg class='notif-icon' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/><polyline points='22 4 12 14.01 9 11.01'/></svg>`,
+    erro:    `<svg class='notif-icon' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><line x1='15' y1='9' x2='9' y2='15'/><line x1='9' y1='9' x2='15' y2='15'/></svg>`,
+    loading: `<svg class='notif-icon spinning' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><line x1='12' y1='2' x2='12' y2='6'/><line x1='12' y1='18' x2='12' y2='22'/><line x1='4.93' y1='4.93' x2='7.76' y2='7.76'/><line x1='16.24' y1='16.24' x2='19.07' y2='19.07'/><line x1='2' y1='12' x2='6' y2='12'/><line x1='18' y1='12' x2='22' y2='12'/><line x1='4.93' y1='19.07' x2='7.76' y2='16.24'/><line x1='16.24' y1='7.76' x2='19.07' y2='4.93'/></svg>`,
+  };
+
   function notif(msg, tipo='ok') {
     const el = document.getElementById('notif');
-    el.innerHTML = msg;
-    el.style.borderColor = tipo==='erro' ? 'rgba(239,68,68,.3)' : 'rgba(255,255,255,.13)';
+    // Detect loading type from spinner in msg
+    const tipoReal = tipo === 'ok' && msg && typeof msg === 'string' && msg.includes('spinning') ? 'loading' : tipo;
+    const icon = _notifIcons[tipoReal] || _notifIcons.ok;
+    el.innerHTML = icon + `<span>${msg}</span>`;
+    el.className = `tipo-${tipoReal}`;
     el.classList.add('v');
-    clearTimeout(_nt); _nt = setTimeout(() => el.classList.remove('v'), 3500);
+    const delay = tipoReal === 'loading' ? 6000 : 3500;
+    clearTimeout(_nt); _nt = setTimeout(() => el.classList.remove('v'), delay);
   }
 
   // ── CONTADOR DE REGISTOS ─────────────────────────────────
@@ -1653,7 +1667,7 @@
     const orig = btn?.innerHTML;
     if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A carregar…'; }
     try {
-      notif(I.loader + ' A carregar pedidos…');
+      notif('A carregar pedidos…', 'loading');
       const pedidos = await fetchSecretaria(
         'pedidos_secretaria',
         document.getElementById('f-sec-periodo').value,
@@ -1670,8 +1684,11 @@
   };
 
   window.exportarRelSecPedidos = async function(fmt) {
+    const btn = document.querySelector(`[onclick="exportarRelSecPedidos('${fmt}')"]`);
+    const orig = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A exportar…'; }
     try {
-      notif(I.loader + ' A exportar…');
+      notif('A exportar…', 'loading');
       const pedidos = await fetchSecretaria(
         'pedidos_secretaria',
         document.getElementById('f-sec-periodo').value,
@@ -1730,6 +1747,7 @@
         notif(I.check + ' PDF aberto');
       }
     } catch(e) { notif('Erro: '+e.message,'erro'); }
+    finally { if (btn) { btn.disabled = false; btn.innerHTML = orig; } }
   };
 
   // ════════════════════════════════════════════════════════
@@ -1761,7 +1779,7 @@
     const orig = btn?.innerHTML;
     if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A carregar…'; }
     try {
-      notif(I.loader + ' A carregar reuniões…');
+      notif('A carregar reuniões…', 'loading');
       const reunioes = await fetchSecretaria(
         'reunioes',
         document.getElementById('f-reun-periodo').value,
@@ -1778,8 +1796,11 @@
   };
 
   window.exportarRelReuniao = async function(fmt) {
+    const btn = document.querySelector(`[onclick="exportarRelReuniao('${fmt}')"]`);
+    const orig = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A exportar…'; }
     try {
-      notif(I.loader + ' A exportar…');
+      notif('A exportar…', 'loading');
       const reunioes = await fetchSecretaria(
         'reunioes',
         document.getElementById('f-reun-periodo').value,
@@ -1827,6 +1848,7 @@
         notif(I.check + ' PDF aberto');
       }
     } catch(e) { notif('Erro: '+e.message,'erro'); }
+    finally { if (btn) { btn.disabled = false; btn.innerHTML = orig; } }
   };
 </script>
 </body>
