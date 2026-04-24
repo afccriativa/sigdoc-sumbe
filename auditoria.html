@@ -505,6 +505,141 @@
     .btn-preset-sep{
       width:1px;height:16px;background:var(--border2);margin:0 3px;flex-shrink:0
     }
+
+    /* ── FASE 2: DESTACAR EVENTOS CRÍTICOS ── */
+    /* Borda lateral colorida + fundo suave */
+    tbody tr.evento-critico-rejeitar td:first-child{
+      border-left:3px solid var(--red);
+    }
+    tbody tr.evento-critico-rejeitar{
+      background:rgba(239,68,68,.04) !important;
+    }
+    tbody tr.evento-critico-rejeitar:hover td{
+      background:rgba(239,68,68,.09) !important;
+    }
+    tbody tr.evento-critico-pendente td:first-child{
+      border-left:3px solid var(--amber);
+    }
+    tbody tr.evento-critico-pendente{
+      background:rgba(245,158,11,.03) !important;
+    }
+    tbody tr.evento-critico-pendente:hover td{
+      background:rgba(245,158,11,.08) !important;
+    }
+    tbody tr.evento-critico-reuniao-recusada td:first-child{
+      border-left:3px solid #f97316;
+    }
+    tbody tr.evento-critico-reuniao-recusada{
+      background:rgba(249,115,22,.04) !important;
+    }
+    /* Ícone de alerta na célula de evento para críticos */
+    .badge-critico-alerta{
+      display:inline-flex;align-items:center;gap:3px;
+      font-size:10px;font-weight:700;color:var(--red);
+      background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);
+      border-radius:6px;padding:2px 7px;margin-left:6px;vertical-align:middle;
+      white-space:nowrap;animation:piscar-alerta 2.2s ease-in-out infinite
+    }
+    .badge-alerta-amber{
+      color:var(--amber) !important;
+      background:rgba(245,158,11,.1) !important;
+      border-color:rgba(245,158,11,.25) !important;
+    }
+    @keyframes piscar-alerta{
+      0%,100%{opacity:1} 50%{opacity:.55}
+    }
+
+    /* ── FASE 2: EXPANSÃO INLINE ── */
+    tbody tr.linha-principal{cursor:pointer}
+    tbody tr.linha-principal td{transition:background .12s}
+    tbody tr.linha-principal.expandida td{
+      background:rgba(59,130,246,.06) !important;
+      border-top:1px solid rgba(59,130,246,.18) !important;
+    }
+    tbody tr.linha-principal.expandida .btn-expand-toggle{
+      background:var(--blue-dim);color:var(--blue);border-color:var(--blue-border)
+    }
+    tbody tr.linha-expand{display:none}
+    tbody tr.linha-expand.activa{display:table-row}
+    .expand-painel{
+      background:rgba(255,255,255,.025);
+      border-top:1px solid rgba(255,255,255,.06);
+      border-bottom:1px solid rgba(255,255,255,.06);
+      padding:14px 20px 16px;
+      animation:slideDown .18s ease
+    }
+    @keyframes slideDown{
+      from{opacity:0;transform:translateY(-6px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    .expand-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+      gap:10px 20px;margin-bottom:12px
+    }
+    .expand-campo{border-left:2px solid rgba(255,255,255,.08);padding-left:10px}
+    .expand-rotulo{
+      font-size:9px;font-weight:700;text-transform:uppercase;
+      letter-spacing:.8px;color:var(--txt-dim);margin-bottom:3px
+    }
+    .expand-valor{font-size:12px;color:var(--txt);font-weight:500;line-height:1.4}
+    .expand-obs{
+      font-size:12px;color:var(--txt-muted);
+      background:rgba(255,255,255,.03);border:1px solid var(--border);
+      border-radius:8px;padding:9px 12px;margin-top:6px;line-height:1.55
+    }
+    .expand-obs.obs-rejeicao{
+      background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.2);
+      color:rgba(255,180,180,.85)
+    }
+    .expand-acoes{
+      display:flex;gap:8px;margin-top:12px;padding-top:10px;
+      border-top:1px solid var(--border)
+    }
+    .btn-expand-toggle{
+      background:rgba(255,255,255,.06);border:1px solid var(--border2);
+      color:var(--txt-muted);padding:4px 11px;border-radius:6px;
+      font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);
+      transition:all .15s;white-space:nowrap
+    }
+    .btn-expand-toggle:hover{background:rgba(255,255,255,.12);color:var(--txt)}
+    .btn-expand-detalhe{
+      background:var(--blue-dim);color:var(--blue);
+      border:1px solid var(--blue-border);padding:4px 12px;border-radius:6px;
+      font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);
+      transition:background .15s
+    }
+    .btn-expand-detalhe:hover{background:rgba(59,130,246,.22)}
+
+    /* ── FASE 2: DENSIDADE ── */
+    .btn-densidade{
+      background:rgba(255,255,255,.05);border:1px solid var(--border2);
+      color:var(--txt-muted);padding:5px 11px;border-radius:8px;
+      font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);
+      transition:all .15s;display:inline-flex;align-items:center;gap:5px
+    }
+    .btn-densidade:hover{background:rgba(255,255,255,.1);color:var(--txt)}
+    .btn-densidade.activo{
+      background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.3);color:var(--blue)
+    }
+    /* Modo compacto */
+    body.densidade-compacto tbody td{
+      padding:7px 16px !important;
+    }
+    body.densidade-compacto .utilizador-nome{font-size:12px}
+    body.densidade-compacto .utilizador-perfil{display:none}
+    body.densidade-compacto .mini-avatar{width:24px;height:24px;font-size:9px}
+    body.densidade-compacto .timestamp strong{font-size:11px}
+    body.densidade-compacto .timestamp{font-size:10px}
+    body.densidade-compacto .doc-secundario{display:none}
+    body.densidade-compacto .expand-painel{padding:10px 16px 12px}
+    /* Modo confortável */
+    body.densidade-confortavel tbody td{
+      padding:18px 16px !important;
+    }
+    body.densidade-confortavel .utilizador-nome{font-size:14px}
+    body.densidade-confortavel .mini-avatar{width:36px;height:36px;font-size:13px}
+    body.densidade-confortavel .timestamp strong{font-size:14px}
   </style>
 </head>
 <body>
@@ -701,6 +836,15 @@
         <div class="cabecalho-painel">
           <h3>Registo Completo de Eventos</h3>
           <div class="cabecalho-acoes">
+            <!-- Densidade -->
+            <div style="display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:9px;padding:3px">
+              <button class="btn-densidade activo" id="dens-padrao"
+                onclick="definirDensidade('padrao')" title="Densidade padrão">⬛ Padrão</button>
+              <button class="btn-densidade" id="dens-compacto"
+                onclick="definirDensidade('compacto')" title="Modo compacto — mais linhas">▤ Compacto</button>
+              <button class="btn-densidade" id="dens-confortavel"
+                onclick="definirDensidade('confortavel')" title="Modo confortável — mais espaço">☰ Conforto</button>
+            </div>
             <span class="contagem" id="contagem-log">— registos</span>
             <button class="btn-recarregar" onclick="carregarTudo()">↺ Actualizar</button>
             <button class="btn-exportar" onclick="exportarCSV()">⬇ Exportar CSV</button>
@@ -1443,13 +1587,79 @@
 
     const tbody = document.getElementById("tbody-log");
     if (total === 0) {
-      tbody.innerHTML = `<tr><td colspan="6"><div class="vazio"><div class="icone-vazio">🔍</div><p>Nenhum evento encontrado.</p><small>Ajuste os filtros e tente novamente.</small></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7"><div class="vazio"><div class="icone-vazio">🔍</div><p>Nenhum evento encontrado.</p><small>Ajuste os filtros e tente novamente.</small></div></td></tr>`;
     } else {
       tbody.innerHTML = fatia.map(e => {
         const cor  = corAccao(e.accao);
         const inic = iniciaisNome(e.nomeUtilizador);
-        return `<tr onclick="abrirDetalhe('${e.id}')">
-          <td><div class="timestamp"><strong>${fmtData(e.timestamp)}</strong>${fmtHora(e.timestamp)}</div></td>
+
+        // ── Classificação crítica ──
+        const eCritico   = e.accao === "REJEITAR" || e.accao === "REUNIAO_RECUSADA";
+        const ePendente  = e.accao === "PEDIDO_NOVO" && (e.estado === "novo" || e.estado === "pendente");
+        let classeLinha  = "linha-principal";
+        let badgeAlerta  = "";
+        if (e.accao === "REJEITAR")          { classeLinha += " evento-critico-rejeitar"; badgeAlerta = `<span class="badge-critico-alerta">⚠ Rejeitado</span>`; }
+        if (e.accao === "REUNIAO_RECUSADA")  { classeLinha += " evento-critico-reuniao-recusada"; badgeAlerta = `<span class="badge-critico-alerta badge-alerta-amber">⚠ Recusada</span>`; }
+        if (ePendente)                       { classeLinha += " evento-critico-pendente"; badgeAlerta = `<span class="badge-critico-alerta badge-alerta-amber">● Pendente</span>`; }
+
+        // ── Linha expand (detalhe inline) ──
+        const motivoHtml = (e.accao === "REJEITAR" && e.motivoRejeicao)
+          ? `<div class="expand-obs obs-rejeicao">⚠️ <strong>Motivo da rejeição:</strong> ${e.motivoRejeicao}</div>`
+          : `<div class="expand-obs">${e.observacao || "—"}</div>`;
+
+        const camposHtml = e.camposAcedidos && e.camposAcedidos.length
+          ? `<div class="expand-campo"><div class="expand-rotulo">Campos Acedidos</div><div class="expand-valor">${e.camposAcedidos.join(", ")}</div></div>`
+          : "";
+
+        const unidadeHtml = e.unidade
+          ? `<div class="expand-campo"><div class="expand-rotulo">Unidade</div><div class="expand-valor">${e.unidade}</div></div>`
+          : "";
+
+        const expandContent = `
+          <td colspan="7" style="padding:0">
+            <div class="expand-painel">
+              <div class="expand-grid">
+                <div class="expand-campo">
+                  <div class="expand-rotulo">Utilizador</div>
+                  <div class="expand-valor">${e.nomeUtilizador}</div>
+                </div>
+                <div class="expand-campo">
+                  <div class="expand-rotulo">E-mail</div>
+                  <div class="expand-valor" style="font-family:var(--mono);font-size:11px">${e.emailUtilizador}</div>
+                </div>
+                <div class="expand-campo">
+                  <div class="expand-rotulo">Perfil</div>
+                  <div class="expand-valor">${e.perfilUtilizador}</div>
+                </div>
+                <div class="expand-campo">
+                  <div class="expand-rotulo">Funcionário Visado</div>
+                  <div class="expand-valor">${e.funcionarioVisado}</div>
+                </div>
+                <div class="expand-campo">
+                  <div class="expand-rotulo">Referência</div>
+                  <div class="expand-valor">${e.referencia || "—"}</div>
+                </div>
+                <div class="expand-campo">
+                  <div class="expand-rotulo">ID do Evento</div>
+                  <div class="expand-valor" style="font-family:var(--mono);font-size:10px;color:var(--txt-muted)">${e.id}</div>
+                </div>
+                ${unidadeHtml}
+                ${camposHtml}
+              </div>
+              ${motivoHtml}
+              <div class="expand-acoes">
+                <button class="btn-expand-detalhe" onclick="event.stopPropagation();abrirDetalhe('${e.id}')">📋 Ver detalhe completo</button>
+              </div>
+            </div>
+          </td>`;
+
+        return `<tr class="${classeLinha}" id="linha-${e.id}" onclick="toggleExpandLinha('${e.id}')">
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <button class="btn-expand-toggle" onclick="event.stopPropagation();toggleExpandLinha('${e.id}')" title="Expandir / colapsar">▸</button>
+              <div class="timestamp"><strong>${fmtData(e.timestamp)}</strong>${fmtHora(e.timestamp)}</div>
+            </div>
+          </td>
           <td>
             <div class="utilizador-linha">
               <div class="mini-avatar" style="background:${cor}">${inic}</div>
@@ -1459,14 +1669,17 @@
               </div>
             </div>
           </td>
-          <td><span class="badge badge-${e.accao}">${labelAccao(e.accao)}</span></td>
+          <td><span class="badge badge-${e.accao}">${labelAccao(e.accao)}</span>${badgeAlerta}</td>
           <td>
             <div class="doc-tipo">${e.tipoDocumento !== "—" ? e.tipoDocumento : '<span style="color:rgba(255,255,255,.2)">—</span>'}</div>
             ${e.funcionarioVisado !== "—" ? `<div class="doc-secundario">${e.funcionarioVisado}${e.referencia ? " · " + e.referencia : ""}</div>` : ""}
           </td>
           <td><div class="doc-tipo" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:rgba(255,255,255,.4);">${e.observacao}</div></td>
           <td><button class="btn-detalhe" onclick="event.stopPropagation();abrirDetalhe('${e.id}')">Detalhes</button></td>
-        </tr>`;
+        </tr>
+        <tr class="linha-expand" id="expand-${e.id}">
+          ${expandContent}
+        </tr>`
       }).join("");
     }
 
@@ -2176,6 +2389,79 @@
     _eventosFiltrados = [..._todosEventos];
     renderTabela(_todosEventos);
   };
+
+  // ════════════════════════════════════════════════════════
+  //  FASE 2 — UX: EXPANSÃO INLINE + DENSIDADE
+  // ════════════════════════════════════════════════════════
+
+  // ── Expansão inline ──────────────────────────────────────
+  let _expandidoActual = null; // id da linha actualmente expandida
+
+  window.toggleExpandLinha = function(id) {
+    const linhaPrincipal = document.getElementById("linha-" + id);
+    const linhaExpand    = document.getElementById("expand-" + id);
+    if (!linhaPrincipal || !linhaExpand) return;
+
+    const jaExpandido = linhaPrincipal.classList.contains("expandida");
+
+    // Colapsar anterior (se diferente)
+    if (_expandidoActual && _expandidoActual !== id) {
+      const lpAnt = document.getElementById("linha-" + _expandidoActual);
+      const leAnt = document.getElementById("expand-" + _expandidoActual);
+      if (lpAnt) lpAnt.classList.remove("expandida");
+      if (leAnt) leAnt.classList.remove("activa");
+      // Repor ícone do botão anterior
+      const btnAnt = lpAnt?.querySelector(".btn-expand-toggle");
+      if (btnAnt) btnAnt.textContent = "▸";
+    }
+
+    if (jaExpandido) {
+      // Colapsar actual
+      linhaPrincipal.classList.remove("expandida");
+      linhaExpand.classList.remove("activa");
+      const btn = linhaPrincipal.querySelector(".btn-expand-toggle");
+      if (btn) btn.textContent = "▸";
+      _expandidoActual = null;
+    } else {
+      // Expandir
+      linhaPrincipal.classList.add("expandida");
+      linhaExpand.classList.add("activa");
+      const btn = linhaPrincipal.querySelector(".btn-expand-toggle");
+      if (btn) btn.textContent = "▾";
+      _expandidoActual = id;
+      // Scroll suave para manter linha visível
+      linhaPrincipal.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  };
+
+  // ── Modo de densidade ────────────────────────────────────
+  let _densidadeActual = "padrao";
+
+  window.definirDensidade = function(modo) {
+    _densidadeActual = modo;
+    document.body.classList.remove("densidade-compacto", "densidade-confortavel");
+    if (modo === "compacto")    document.body.classList.add("densidade-compacto");
+    if (modo === "confortavel") document.body.classList.add("densidade-confortavel");
+
+    // Actualizar estado visual dos botões
+    ["padrao", "compacto", "confortavel"].forEach(m => {
+      document.getElementById("dens-" + m)?.classList.toggle("activo", m === modo);
+    });
+
+    // Guardar preferência na sessão
+    try { sessionStorage.setItem("sigdoc_densidade", modo); } catch(_) {}
+  };
+
+  // Restaurar preferência guardada
+  (function() {
+    try {
+      const guardado = sessionStorage.getItem("sigdoc_densidade");
+      if (guardado && ["padrao","compacto","confortavel"].includes(guardado)) {
+        // Adiar até o DOM estar pronto
+        setTimeout(() => definirDensidade(guardado), 0);
+      }
+    } catch(_) {}
+  })();
 
 </script>
 </body>
