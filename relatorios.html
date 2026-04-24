@@ -75,6 +75,11 @@
     #notif.v{opacity:1;transform:translateY(0)}
     /* vazio */
     .vazio{padding:32px;text-align:center;color:rgba(255,255,255,.2);font-size:13px}
+    /* preview — fechar */
+    .preview-fechar{background:none;border:none;cursor:pointer;color:#94a3b8;padding:5px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;transition:background .12s,color .12s;flex-shrink:0;line-height:0}
+    .preview-fechar:hover{background:#fee2e2;color:#dc2626}
+    #preview-card{transition:opacity .15s,transform .15s}
+    #preview-card.a-fechar{opacity:0;transform:translateY(-6px);pointer-events:none}
 
 
     /* ── SVG Icon system ── */
@@ -199,7 +204,7 @@
         <div class="rel-filtros">
           <div>
             <label class="campo-label">Estado</label>
-            <select class="campo-select" id="f-mg-estado" onchange="contarMG()">
+            <select class="campo-select" id="f-mg-estado" onchange="contarMG();invalidarPrevia('Mapa Geral de Pessoal')">
               <option value="">Todos os estados</option>
               <option value="activo">Em Serviço Activo</option>
               <option value="licenca">De Licença</option>
@@ -208,7 +213,7 @@
           </div>
           <div>
             <label class="campo-label">Vínculo</label>
-            <select class="campo-select" id="f-mg-vinculo" onchange="contarMG()">
+            <select class="campo-select" id="f-mg-vinculo" onchange="contarMG();invalidarPrevia('Mapa Geral de Pessoal')">
               <option value="">Todos os vínculos</option>
               <option value="quadro">Pessoal do Quadro</option>
               <option value="provisorio">Provimento Provisório</option>
@@ -236,7 +241,7 @@
         <div class="rel-filtros">
           <div>
             <label class="campo-label">Unidade</label>
-            <select class="campo-select" id="f-mu-unidade" onchange="contarMU()">
+            <select class="campo-select" id="f-mu-unidade" onchange="contarMU();invalidarPrevia('Mapa por Unidade Sanitária')">
               <option value="">Todas as unidades</option>
             </select>
           </div>
@@ -285,7 +290,7 @@
         <div class="rel-filtros">
           <div>
             <label class="campo-label">Unidade</label>
-            <select class="campo-select" id="f-sal-unidade" onchange="contarSal()">
+            <select class="campo-select" id="f-sal-unidade" onchange="contarSal();invalidarPrevia('Mapa Salarial')">
               <option value="">Todas as unidades</option>
             </select>
           </div>
@@ -317,7 +322,8 @@
             <input class="campo-input" id="f-ficha-func"
                    list="func-datalist"
                    placeholder="Escrever nome ou nº de agente…"
-                   autocomplete="off">
+                   autocomplete="off"
+                   oninput="invalidarPrevia(null)">
             <datalist id="func-datalist"></datalist>
           </div>
         </div>
@@ -343,7 +349,7 @@
         <div class="rel-filtros">
           <div>
             <label class="campo-label">Período</label>
-            <select class="campo-select" id="f-sec-periodo" onchange="clearCount('sec-count')">
+            <select class="campo-select" id="f-sec-periodo" onchange="clearCount('sec-count');invalidarPrevia('Relatório de Pedidos')">
               <option value="30">Últimos 30 dias</option>
               <option value="90" selected>Últimos 90 dias</option>
               <option value="180">Últimos 180 dias</option>
@@ -352,7 +358,7 @@
           </div>
           <div>
             <label class="campo-label">Estado</label>
-            <select class="campo-select" id="f-sec-estado" onchange="clearCount('sec-count')">
+            <select class="campo-select" id="f-sec-estado" onchange="clearCount('sec-count');invalidarPrevia('Relatório de Pedidos')">
               <option value="">Todos</option>
               <option value="novo">Novos</option>
               <option value="em_analise">Em análise</option>
@@ -382,7 +388,7 @@
         <div class="rel-filtros">
           <div>
             <label class="campo-label">Período</label>
-            <select class="campo-select" id="f-reun-periodo" onchange="clearCount('reun-count')">
+            <select class="campo-select" id="f-reun-periodo" onchange="clearCount('reun-count');invalidarPrevia('Relatório de Reuniões')">
               <option value="30">Últimos 30 dias</option>
               <option value="90" selected>Últimos 90 dias</option>
               <option value="180">Últimos 180 dias</option>
@@ -391,7 +397,7 @@
           </div>
           <div>
             <label class="campo-label">Estado</label>
-            <select class="campo-select" id="f-reun-estado" onchange="clearCount('reun-count')">
+            <select class="campo-select" id="f-reun-estado" onchange="clearCount('reun-count');invalidarPrevia('Relatório de Reuniões')">
               <option value="">Todos</option>
               <option value="pendente">Pendente</option>
               <option value="confirmada">Confirmada</option>
@@ -517,6 +523,9 @@
       <div class="preview-titulo">
         <span id="preview-titulo-txt">Prévia</span>
         <span class="preview-count" id="preview-count"></span>
+        <button class="preview-fechar" title="Fechar prévia" onclick="fecharPrevia()" aria-label="Fechar prévia">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
       <div class="preview-table-wrap">
         <table class="preview" id="preview-table"></table>
@@ -921,8 +930,29 @@
     }
 
     table.replaceChildren(thead, tbody);
-    card.style.display = "block";
+    card.classList.remove("a-fechar");
+    card.style.display   = "block";
+    card.style.opacity   = "";
+    card.style.transform = "";
+    card.dataset.previaContexto = titulo;
     card.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function fecharPrevia() {
+    const card = document.getElementById("preview-card");
+    card.classList.add("a-fechar");
+    setTimeout(() => {
+      card.style.display = "none";
+      card.classList.remove("a-fechar");
+      card.dataset.previaContexto = "";
+    }, 150);
+  }
+
+  // Chamada pelos onchange dos filtros — invalida prévia se pertencer ao mesmo contexto
+  function invalidarPrevia(contexto) {
+    const card = document.getElementById("preview-card");
+    if (card.style.display === "none") return;
+    if (!contexto || card.dataset.previaContexto === contexto) fecharPrevia();
   }
 
   // ════════════════════════════════════════════════════════
