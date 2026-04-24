@@ -938,7 +938,7 @@
     card.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function fecharPrevia() {
+  window.fecharPrevia = function() {
     const card = document.getElementById("preview-card");
     card.classList.add("a-fechar");
     setTimeout(() => {
@@ -946,14 +946,14 @@
       card.classList.remove("a-fechar");
       card.dataset.previaContexto = "";
     }, 150);
-  }
+  };
 
   // Chamada pelos onchange dos filtros — invalida prévia se pertencer ao mesmo contexto
-  function invalidarPrevia(contexto) {
+  window.invalidarPrevia = function(contexto) {
     const card = document.getElementById("preview-card");
     if (card.style.display === "none") return;
-    if (!contexto || card.dataset.previaContexto === contexto) fecharPrevia();
-  }
+    if (!contexto || card.dataset.previaContexto === contexto) window.fecharPrevia();
+  };
 
   // ════════════════════════════════════════════════════════
   //  MAPA GERAL
