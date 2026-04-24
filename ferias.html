@@ -7,6 +7,7 @@
   <meta name="theme-color" content="#0b4f3a"/>
   <script src="sigdoc-config.js"></script>
   <script src="sigdoc-nav.js"></script>
+  <script src="sigdoc-session.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
@@ -275,7 +276,7 @@
   <div class="layout">
 
     <!-- ── COLUNA ESQUERDA: Formulário + Lista ── -->
-    <div style="display:flex;flex-direction:column;gap:16px">
+    <div id="coluna-form" style="display:flex;flex-direction:column;gap:16px">
 
       <!-- FORMULÁRIO DE REGISTO -->
       <div class="card" id="card-form">
@@ -298,6 +299,8 @@
                 oninput="pesquisarFunc(this.value)"/>
               <div class="pesq-resultados" id="pesq-resultados"></div>
             </div>
+            <input type="hidden" id="func-id"/>
+            <input type="hidden" id="func-user-uid"/>
             <input type="hidden" id="func-uid"/>
             <div class="form-hint" id="func-selecionado-info"></div>
           </div>
@@ -432,12 +435,17 @@ let _perfilDoc  = null;
 let _nome       = '';
 let _todosRegistos   = [];
 let _todosFuncionarios = [];
+let _mapaFuncPorId = new Map();
+let _mapaFuncPorUid = new Map();
 let _abaActiva  = 'todos';
 let _registoSelId = null;
 let _toRejeitar = null; // id do registo a rejeitar
 let _abrvUnidade = window.SIGDOC_CONFIG?.abrvUnidade || (n => n);
 
-const PERFIS_GESTAO = ['admin','director','chefe','tecnico','secretaria'];
+const PERFIS_ACESSO = ['admin','director','chefe','tecnico'];
+const PERFIS_CRIACAO = ['admin','chefe','tecnico'];
+const PERFIS_APROVACAO = ['admin','director','chefe'];
+const PERFIS_GESTAO = PERFIS_ACESSO;
 function normalizarPerfilFerias(docPerfil) {
   return window.SIGDOC_AUTHZ
     ? window.SIGDOC_AUTHZ.normalizarPerfilDoc(docPerfil)
@@ -452,6 +460,70 @@ function temAlgumRoleFerias(docPerfil, roles) {
   return window.SIGDOC_AUTHZ
     ? window.SIGDOC_AUTHZ.temAlgumRole(docPerfil, roles)
     : [].concat(roles || []).includes(obterPerfilPrincipalFerias(docPerfil));
+}
+function temAcessoModuloFerias(docPerfil) {
+  return temAlgumRoleFerias(docPerfil, PERFIS_ACESSO);
+}
+function podeCriarRegistoFerias(docPerfil) {
+  return temAlgumRoleFerias(docPerfil, PERFIS_CRIACAO);
+}
+function podeAprovarRegistoFerias(docPerfil) {
+  return temAlgumRoleFerias(docPerfil, PERFIS_APROVACAO);
+}
+function obterNomeFuncionarioFerias(funcionario) {
+  return funcionario?.nomeCompleto || funcionario?.nome || 'â€”';
+}
+function obterUidFuncionarioFerias(funcionario) {
+  const uid = String(funcionario?.uidUtilizador || funcionario?.portalUid || '').trim();
+  return uid || null;
+}
+function indexarFuncionariosFerias(funcionarios) {
+  _mapaFuncPorId = new Map();
+  _mapaFuncPorUid = new Map();
+  funcionarios.forEach(funcionario => {
+    if (!funcionario?.id) return;
+    _mapaFuncPorId.set(funcionario.id, funcionario);
+    const uid = obterUidFuncionarioFerias(funcionario);
+    if (uid) _mapaFuncPorUid.set(uid, funcionario);
+  });
+}
+function normalizarRegistoFerias(registo) {
+  const item = { ...registo };
+  let funcionario = null;
+  if (item.funcionarioId && _mapaFuncPorId.has(item.funcionarioId)) {
+    funcionario = _mapaFuncPorId.get(item.funcionarioId);
+  }
+  if (!funcionario && item.funcionarioUid && _mapaFuncPorUid.has(item.funcionarioUid)) {
+    funcionario = _mapaFuncPorUid.get(item.funcionarioUid);
+  }
+  if (!funcionario && item.funcionarioUid && _mapaFuncPorId.has(item.funcionarioUid)) {
+    funcionario = _mapaFuncPorId.get(item.funcionarioUid);
+  }
+  const funcionarioId = item.funcionarioId || funcionario?.id || null;
+  let funcionarioUid = item.funcionarioUid || null;
+  if (funcionario && funcionarioUid === funcionario.id) {
+    funcionarioUid = obterUidFuncionarioFerias(funcionario);
+  }
+  if (!funcionarioUid && funcionario) {
+    funcionarioUid = obterUidFuncionarioFerias(funcionario);
+  }
+  return {
+    ...item,
+    funcionarioId,
+    funcionarioUid: funcionarioUid || null,
+    funcionarioNome: item.funcionarioNome || obterNomeFuncionarioFerias(funcionario),
+    unidade: item.unidade || funcionario?.unidade || ''
+  };
+}
+function mostrarAcessoNegadoFerias(mensagem) {
+  document.getElementById('ecra-carregando').style.display = 'none';
+  document.getElementById('ecra-principal').style.display = 'none';
+  const ecraNegado = document.getElementById('ecra-negado');
+  const titulo = ecraNegado.querySelector('h2');
+  const detalhe = ecraNegado.querySelector('p');
+  if (titulo) titulo.textContent = 'Acesso nao autorizado';
+  if (detalhe) detalhe.textContent = mensagem;
+  ecraNegado.style.display = 'flex';
 }
 const TIPO_LABEL = {
   'ferias':'Férias Anuais',
@@ -494,6 +566,11 @@ onAuthStateChanged(auth, async (user) => {
     _nome   = dados.nome   || user.email;
     _user   = user;
 
+    if (!temAcessoModuloFerias(dados)) {
+      mostrarAcessoNegadoFerias('Este modulo e interno da equipa de RH e nao esta disponivel para o seu perfil.');
+      return;
+    }
+
     // Nav lateral
     window._sigdocAuth = auth;
     SIGDOC_NAV.mount({
@@ -503,6 +580,10 @@ onAuthStateChanged(auth, async (user) => {
       roles:  dados.roles || [_perfil],
       onLogout: async () => { await signOut(auth); window.location.href = 'index.html'; }
     });
+
+    if (window.SIGDOC_SESSION?.vigiar) {
+      window.SIGDOC_SESSION.vigiar(db, user.uid, auth);
+    }
 
     document.getElementById('ecra-carregando').style.display = 'none';
     document.getElementById('ecra-principal').style.display  = 'block';
@@ -515,6 +596,13 @@ onAuthStateChanged(auth, async (user) => {
       document.getElementById('func-uid').value = user.uid;
       document.getElementById('form-sub').textContent = 'Solicitar férias ou comunicar ausência';
       document.getElementById('hero-titulo').textContent = 'As Minhas Férias e Ausências';
+    }
+
+    if (!podeCriarRegistoFerias(_perfilDoc || _perfil)) {
+      const colunaForm = document.getElementById('coluna-form');
+      if (colunaForm) colunaForm.style.display = 'none';
+      const layout = document.querySelector('.layout');
+      if (layout) layout.style.gridTemplateColumns = '1fr';
     }
 
     await carregarDados();
@@ -535,6 +623,7 @@ async function carregarDados() {
     if (temAlgumRoleFerias(_perfilDoc || _perfil, PERFIS_GESTAO)) {
       const snapF = await getDocs(collection(db, 'funcionarios'));
       _todosFuncionarios = snapF.docs.map(d => ({id:d.id,...d.data()}));
+      indexarFuncionariosFerias(_todosFuncionarios);
       populaFiltroUnidades(_todosFuncionarios);
     }
 
@@ -548,7 +637,7 @@ async function carregarDados() {
                 orderBy('criadoEm', 'desc'));
     }
     const snapR = await getDocs(q);
-    _todosRegistos = snapR.docs.map(d => ({id:d.id,...d.data()}));
+    _todosRegistos = snapR.docs.map(d => normalizarRegistoFerias({id:d.id,...d.data()}));
 
     actualizarKPIs();
     renderLista();
@@ -562,8 +651,9 @@ async function carregarDados() {
 }
 
 function populaFiltroUnidades(funcs) {
-  const unidades = [...new Set(funcs.map(f => f.unidade).filter(Boolean))].sort();
   const sel = document.getElementById('fil-unidade');
+  sel.innerHTML = '<option value="">Todas as unidades</option>';
+  const unidades = [...new Set(funcs.map(f => f.unidade).filter(Boolean))].sort();
   unidades.forEach(u => {
     const o = document.createElement('option');
     o.value = u; o.textContent = _abrvUnidade(u);
@@ -577,7 +667,7 @@ function actualizarKPIs() {
   const aprovados = _todosRegistos.filter(r => r.estado === 'aprovado').length;
   const pendentes = _todosRegistos.filter(r => r.estado === 'pendente').length;
   const diasApr   = _todosRegistos
-    .filter(r => r.estado === 'aprovado')
+    .filter(r => r.estado === 'aprovado' && r.tipo === 'ferias')
     .reduce((s, r) => s + (r.diasSolicitados || 0), 0);
 
   document.getElementById('kpi-total').textContent     = total;
@@ -649,7 +739,7 @@ window.verDetalhe = function(id) {
   const r = _todosRegistos.find(x => x.id === id);
   if (!r) return;
 
-  const podeAprovar = temAlgumRoleFerias(_perfilDoc || _perfil, ['admin','director','chefe']) && r.estado === 'pendente';
+  const podeAprovar = podeAprovarRegistoFerias(_perfilDoc || _perfil) && r.estado === 'pendente';
 
   const badgeEstado = r.estado === 'aprovado'
     ? '<span class="badge badge-aprovado">✓ Aprovado</span>'
@@ -751,6 +841,8 @@ window.confirmarRejeicao = async function() {
 // ── Pesquisa de funcionário ──
 window.pesquisarFunc = function(termo) {
   const res = document.getElementById('pesq-resultados');
+  document.getElementById('func-id').value = '';
+  document.getElementById('func-user-uid').value = '';
   document.getElementById('func-uid').value = '';
   document.getElementById('func-selecionado-info').textContent = '';
   document.getElementById('btn-registar').disabled = true;
@@ -758,8 +850,26 @@ window.pesquisarFunc = function(termo) {
   if (termo.length < 2) { res.style.display = 'none'; return; }
   const t = termo.toLowerCase();
   const matches = _todosFuncionarios
-    .filter(f => (f.nomeCompleto||f.nome||'').toLowerCase().includes(t) || (f.bi||'').includes(t))
+    .filter(f => obterNomeFuncionarioFerias(f).toLowerCase().includes(t) || (f.bi||'').includes(t))
     .slice(0, 8);
+
+  if (!matches.length) {
+    res.innerHTML = '<div class="pesq-vazio">Sem resultados</div>';
+    res.style.display = 'block';
+    return;
+  }
+
+  res.innerHTML = matches.map(f => {
+    const nome = obterNomeFuncionarioFerias(f);
+    const cat  = f.categoria || '';
+    const uni  = _abrvUnidade(f.unidade || '');
+    return `<div class="pesq-item" onclick="seleccionarFunc('${f.id}')">
+      <div class="pesq-item-nome">${nome}</div>
+      <div class="pesq-item-info">${cat}${cat&&uni?' Â· ':''}${uni}</div>
+    </div>`;
+  }).join('');
+  res.style.display = 'block';
+  return;
 
   if (!matches.length) {
     res.innerHTML = '<div class="pesq-vazio">Sem resultados</div>';
@@ -894,6 +1004,132 @@ function limparFormulario() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  document.getElementById('func-uid').value = '';
+  document.getElementById('func-selecionado-info').textContent = '';
+  document.getElementById('grupo-dias-info').style.display = 'none';
+  document.getElementById('btn-registar').disabled = true;
+}
+
+window.cancelarForm = limparFormulario;
+window.seleccionarFunc = function(funcionarioId) {
+  const funcionario = _mapaFuncPorId.get(funcionarioId);
+  if (!funcionario) {
+    toast('âŒ NÃ£o foi possÃ­vel localizar o funcionÃ¡rio seleccionado.', 'erro');
+    return;
+  }
+  const nome = obterNomeFuncionarioFerias(funcionario);
+  const unidade = _abrvUnidade(funcionario.unidade || '');
+  document.getElementById('func-id').value = funcionario.id;
+  document.getElementById('func-user-uid').value = obterUidFuncionarioFerias(funcionario) || '';
+  document.getElementById('func-uid').value = funcionario.id;
+  document.getElementById('input-pesquisa-func').value = nome;
+  document.getElementById('func-selecionado-info').textContent = 'âœ“ ' + nome + (unidade ? ' Â· ' + unidade : '');
+  document.getElementById('func-selecionado-info').className = 'form-hint verde';
+  document.getElementById('pesq-resultados').style.display = 'none';
+  validarFormulario();
+};
+
+function validarFormulario() {
+  const funcionarioId = document.getElementById('func-id').value;
+  const tipo = document.getElementById('tipo-ausencia').value;
+  const dIni = document.getElementById('data-inicio').value;
+  const dFim = document.getElementById('data-fim').value;
+  const ok = funcionarioId && tipo && dIni && dFim && new Date(dFim) >= new Date(dIni);
+  document.getElementById('btn-registar').disabled = !ok;
+  return ok;
+}
+
+window.onTipoChange = validarFormulario;
+
+window.calcularDias = function() {
+  const dIni = document.getElementById('data-inicio').value;
+  const dFim = document.getElementById('data-fim').value;
+  const grupoInfo = document.getElementById('grupo-dias-info');
+  const diasEl = document.getElementById('dias-calculados');
+  if (dIni && dFim) {
+    const diff = Math.ceil((new Date(dFim) - new Date(dIni)) / 86400000) + 1;
+    if (diff > 0) {
+      diasEl.className = 'form-hint verde';
+      diasEl.textContent = `âœ“ ${diff} dia${diff!==1?'s':''}`;
+      grupoInfo.style.display = 'block';
+    } else {
+      diasEl.className = 'form-hint vermelho';
+      diasEl.textContent = 'âš  A data de fim nÃ£o pode ser anterior Ã  de inÃ­cio.';
+      grupoInfo.style.display = 'block';
+    }
+  }
+  validarFormulario();
+};
+
+window.submeterRegisto = async function() {
+  if (!validarFormulario()) return;
+  if (!podeCriarRegistoFerias(_perfilDoc || _perfil)) {
+    toast('âŒ O seu perfil nÃ£o pode criar novos registos neste mÃ³dulo.', 'erro');
+    return;
+  }
+
+  const funcionarioId = document.getElementById('func-id').value;
+  const tipo = document.getElementById('tipo-ausencia').value;
+  const dIni = document.getElementById('data-inicio').value;
+  const dFim = document.getElementById('data-fim').value;
+  const obs = document.getElementById('observacoes').value.trim();
+  const dias = Math.ceil((new Date(dFim) - new Date(dIni)) / 86400000) + 1;
+  const funcionario = _mapaFuncPorId.get(funcionarioId);
+
+  if (!funcionario) {
+    toast('âŒ O funcionÃ¡rio seleccionado deixou de estar disponÃ­vel. Tente pesquisar novamente.', 'erro');
+    return;
+  }
+
+  const btnTexto = document.getElementById('btn-registar-texto');
+  btnTexto.textContent = 'â³ A registarâ€¦';
+  document.getElementById('btn-registar').disabled = true;
+
+  try {
+    const novo = {
+      funcionarioId,
+      funcionarioUid: obterUidFuncionarioFerias(funcionario),
+      funcionarioNome: obterNomeFuncionarioFerias(funcionario),
+      unidade: funcionario.unidade || '',
+      tipo,
+      dataInicio: dIni,
+      dataFim: dFim,
+      diasSolicitados: dias,
+      observacoes: obs,
+      estado: 'pendente',
+      criadoPor: _user.uid,
+      criadoPorNome: _nome,
+      criadoEm: serverTimestamp()
+    };
+
+    const ref = await addDoc(collection(db, 'ferias_ausencias'), novo);
+    const novoLocal = normalizarRegistoFerias({
+      ...novo,
+      id: ref.id,
+      criadoEm: { seconds: Date.now()/1000 }
+    });
+    _todosRegistos.unshift(novoLocal);
+
+    actualizarKPIs();
+    renderLista();
+    limparFormulario();
+    toast('âœ… Registo criado com sucesso.');
+    window.verDetalhe(ref.id);
+  } catch(e) {
+    toast('âŒ Erro ao guardar: ' + (e.message || e), 'erro');
+  } finally {
+    btnTexto.textContent = 'âœ” Registar';
+    validarFormulario();
+  }
+};
+
+function limparFormulario() {
+  ['input-pesquisa-func','tipo-ausencia','data-inicio','data-fim','observacoes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('func-id').value = '';
+  document.getElementById('func-user-uid').value = '';
   document.getElementById('func-uid').value = '';
   document.getElementById('func-selecionado-info').textContent = '';
   document.getElementById('grupo-dias-info').style.display = 'none';
