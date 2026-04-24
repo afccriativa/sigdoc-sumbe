@@ -506,6 +506,111 @@
       width:1px;height:16px;background:var(--border2);margin:0 3px;flex-shrink:0
     }
 
+    /* ══════════════════════════════════════════════════════
+       FASE 4 — REFINAMENTO: MICRO-INTERACÇÕES & RUÍDO VISUAL
+       ══════════════════════════════════════════════════════ */
+
+    /* Transições globais mais suaves */
+    button,input,select,.badge,.ind-card,.card-utilizador,
+    .timeline-corpo,.aba-btn,.pag-btn,.btn-preset,
+    .btn-densidade,.sec-kpi-card,.sec-subtab-btn{
+      transition:all .18s cubic-bezier(.4,0,.2,1) !important;
+    }
+    /* Feedback de clique */
+    button:active:not(:disabled){transform:scale(.96) !important}
+    .ind-card.clicavel:active{transform:translateY(-1px) scale(.98) !important}
+    /* Row hover mais expressivo */
+    tbody tr.linha-principal:hover td{background:rgba(255,255,255,.05) !important}
+    tbody tr.linha-principal.expandida:hover td{background:rgba(59,130,246,.08) !important}
+    /* Aba hover com borda arredondada */
+    .aba-btn:hover:not(.activa){
+      color:var(--txt);background:rgba(255,255,255,.055);border-radius:6px 6px 0 0;
+    }
+    /* Fade suave ao mudar de aba */
+    .aba-conteudo.activa{animation:abaFade .22s ease}
+    @keyframes abaFade{
+      from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}
+    }
+    /* Badges — brilho no hover */
+    .badge{transition:filter .15s !important}
+    .badge:hover{filter:brightness(1.15)}
+    .badge-REJEITAR{
+      border:1px solid var(--red-border);
+      box-shadow:0 0 0 0 rgba(239,68,68,0);transition:box-shadow .3s !important
+    }
+    tbody tr:hover .badge-REJEITAR{box-shadow:0 0 0 3px rgba(239,68,68,.12)}
+    /* Focus ring acessível */
+    button:focus-visible,input:focus-visible,select:focus-visible{
+      outline:2px solid var(--green);outline-offset:2px
+    }
+    /* Scrollbar discreta */
+    .tabela-wrap::-webkit-scrollbar,.sec-tabela-wrap::-webkit-scrollbar,
+    .abas-nav::-webkit-scrollbar{height:4px;width:4px}
+    .tabela-wrap::-webkit-scrollbar-track,.sec-tabela-wrap::-webkit-scrollbar-track,
+    .abas-nav::-webkit-scrollbar-track{background:transparent}
+    .tabela-wrap::-webkit-scrollbar-thumb,.sec-tabela-wrap::-webkit-scrollbar-thumb,
+    .abas-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:2px}
+    .tabela-wrap::-webkit-scrollbar-thumb:hover,.sec-tabela-wrap::-webkit-scrollbar-thumb:hover{
+      background:rgba(255,255,255,.22)
+    }
+    /* Notificação — slide com mola */
+    .notificacao{animation:notifSlide .28s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes notifSlide{
+      from{opacity:0;transform:translateY(14px) scale(.95)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+    /* Modal — entrada fluida */
+    .overlay.activo{animation:overlayFade .2s ease}
+    @keyframes overlayFade{from{opacity:0}to{opacity:1}}
+    .overlay.activo .modal{animation:modalEntra .25s cubic-bezier(.34,1.3,.64,1)}
+    @keyframes modalEntra{
+      from{opacity:0;transform:translateY(-18px) scale(.97)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+    /* Botão ↺ — rotação ao activar */
+    .btn-recarregar.a-rodar{animation:rodar .55s ease}
+    @keyframes rodar{to{transform:rotate(360deg)}}
+    /* Aviso live — texto menos pesado */
+    .aviso-live strong{color:var(--green)}
+    .aviso-live span{color:rgba(255,255,255,.5);font-size:12px}
+    /* Reduzir ruído nos títulos dos filtros */
+    .filtros-titulo{color:rgba(255,255,255,.28);font-size:9px}
+    .filtros-rapidos-label{color:rgba(255,255,255,.2)}
+    /* Contador de registos — menos peso */
+    .contagem{font-size:10px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:rgba(255,255,255,.35)}
+    /* Paginação — botão activo com anel */
+    .pag-btn.activo{box-shadow:0 0 0 1px var(--green)}
+    .pag-btn:hover:not(:disabled):not(.activo){
+      background:rgba(255,255,255,.1);color:var(--txt);border-color:rgba(255,255,255,.2)
+    }
+    /* Timeline — hover com deslocamento horizontal */
+    .timeline-corpo{transition:all .18s cubic-bezier(.4,0,.2,1) !important}
+    .timeline-corpo:hover{border-color:var(--border2);transform:translateX(3px);background:rgba(255,255,255,.055)}
+    /* Cards utilizador — sombra no hover */
+    .card-utilizador:hover{box-shadow:0 8px 28px rgba(0,0,0,.3);transform:translateY(-2px)}
+    /* Pesquisa — ícone anima no focus */
+    .barra-pesquisa-global:focus-within .pesquisa-icon{
+      animation:iconPop .25s cubic-bezier(.34,1.56,.64,1)
+    }
+    @keyframes iconPop{from{transform:scale(.85)}to{transform:scale(1)}}
+    /* Expand toggle — transição suave */
+    .btn-expand-toggle{
+      transition:transform .18s ease,background .15s,color .15s !important;
+      font-size:13px;line-height:1
+    }
+    /* Skeleton loader para tbody inicial */
+    .tbody-skeleton td{padding:14px 16px !important}
+    .skel-linha{
+      height:13px;border-radius:4px;
+      background:linear-gradient(90deg,
+        rgba(255,255,255,.04) 25%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.04) 75%
+      );
+      background-size:200% 100%;animation:shimmer 1.4s infinite
+    }
+    @keyframes shimmer{to{background-position:-200% 0}}
+    .skel-linha.w-30{width:30%}.skel-linha.w-50{width:50%}
+    .skel-linha.w-70{width:70%}.skel-linha.w-90{width:90%}
+
     /* ── FASE 3: PROGRESSO DE CARREGAMENTO ── */
     .progresso-carga{
       display:none;background:var(--card);border:1px solid var(--border);
@@ -966,7 +1071,7 @@
                 onclick="definirDensidade('confortavel')" title="Modo confortável — mais espaço">☰ Conforto</button>
             </div>
             <span class="contagem" id="contagem-log">— registos</span>
-            <button class="btn-recarregar" onclick="carregarTudo()">↺ Actualizar</button>
+            <button class="btn-recarregar" onclick="this.classList.add('a-rodar');setTimeout(()=>this.classList.remove('a-rodar'),600);carregarTudo()">↺ Actualizar</button>
             <button class="btn-exportar" onclick="exportarCSV()">⬇ Exportar CSV</button>
           </div>
         </div>
@@ -983,7 +1088,11 @@
               </tr>
             </thead>
             <tbody id="tbody-log">
-              <tr><td colspan="6"><div class="vazio"><div class="icone-vazio">⏳</div><p>A carregar dados do Firebase…</p></div></td></tr>
+              <tr class="tbody-skeleton"><td><div class="skel-linha w-30"></div></td><td><div class="skel-linha w-70"></div></td><td><div class="skel-linha w-50"></div></td><td><div class="skel-linha w-90"></div></td><td><div class="skel-linha w-70"></div></td><td></td></tr>
+              <tr class="tbody-skeleton"><td><div class="skel-linha w-30"></div></td><td><div class="skel-linha w-50"></div></td><td><div class="skel-linha w-30"></div></td><td><div class="skel-linha w-70"></div></td><td><div class="skel-linha w-90"></div></td><td></td></tr>
+              <tr class="tbody-skeleton"><td><div class="skel-linha w-30"></div></td><td><div class="skel-linha w-90"></div></td><td><div class="skel-linha w-50"></div></td><td><div class="skel-linha w-70"></div></td><td><div class="skel-linha w-50"></div></td><td></td></tr>
+              <tr class="tbody-skeleton"><td><div class="skel-linha w-30"></div></td><td><div class="skel-linha w-60"></div></td><td><div class="skel-linha w-70"></div></td><td><div class="skel-linha w-50"></div></td><td><div class="skel-linha w-90"></div></td><td></td></tr>
+              <tr class="tbody-skeleton"><td><div class="skel-linha w-30"></div></td><td><div class="skel-linha w-80"></div></td><td><div class="skel-linha w-50"></div></td><td><div class="skel-linha w-30"></div></td><td><div class="skel-linha w-70"></div></td><td></td></tr>
             </tbody>
           </table>
         </div>
@@ -2610,6 +2719,120 @@
       }
     } catch(_) {}
   })();
+
+  // ════════════════════════════════════════════════════════
+  //  FASE 4 — REFINAMENTO: MICRO-INTERACÇÕES
+  // ════════════════════════════════════════════════════════
+
+  // ── Ripple em todos os botões ────────────────────────────
+  document.addEventListener("click", function(ev) {
+    const btn = ev.target.closest("button");
+    if (!btn || btn.disabled) return;
+    // Não aplicar a botões que já têm animação própria
+    if (btn.classList.contains("btn-expand-toggle")) return;
+
+    const r   = btn.getBoundingClientRect();
+    const rip = document.createElement("span");
+    const sz  = Math.max(r.width, r.height) * 1.4;
+    rip.style.cssText = `
+      position:absolute;border-radius:50%;pointer-events:none;
+      width:${sz}px;height:${sz}px;
+      left:${ev.clientX - r.left - sz/2}px;
+      top:${ev.clientY  - r.top  - sz/2}px;
+      background:rgba(255,255,255,.18);
+      transform:scale(0);animation:ripple .5s ease-out forwards;
+    `;
+    if (!btn.style.position || btn.style.position === "static") {
+      btn.style.position = "relative";
+    }
+    btn.style.overflow = "hidden";
+    btn.appendChild(rip);
+    setTimeout(() => rip.remove(), 520);
+  });
+
+  // Keyframe do ripple injectado dinamicamente (uma só vez)
+  (function() {
+    const s = document.createElement("style");
+    s.textContent = "@keyframes ripple{to{transform:scale(1);opacity:0}}";
+    document.head.appendChild(s);
+  })();
+
+  // ── Contador animado nos KPIs ────────────────────────────
+  function animarContador(el, valorFinal) {
+    if (!el || isNaN(valorFinal)) { if(el) el.textContent = valorFinal; return; }
+    const duracao = 650;
+    const inicio  = performance.now();
+    const from    = 0;
+    function passo(agora) {
+      const p = Math.min((agora - inicio) / duracao, 1);
+      // Ease-out cubic
+      const ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(from + (valorFinal - from) * ease);
+      if (p < 1) requestAnimationFrame(passo);
+    }
+    requestAnimationFrame(passo);
+  }
+
+  // Substituir actualizarIndicadores para usar contadores animados
+  const _actualizarIndicadoresOriginal = window.actualizarIndicadores;
+  window.actualizarIndicadores = function(eventos) {
+    _actualizarIndicadoresOriginal(eventos);
+    // Re-animar os valores depois de serem escritos
+    const mapa = {
+      "ind-total":     eventos.length,
+      "ind-docs":      eventos.filter(e => e.accao === "GERAR").length,
+      "ind-aprovados": eventos.filter(e => e.accao === "APROVAR").length,
+      "ind-rejeicoes": eventos.filter(e => e.accao === "REJEITAR").length,
+      "ind-logins":    eventos.filter(e => e.accao === "LOGIN").length,
+      "ind-leituras":  eventos.filter(e => e.accao === "VER_FICHA" || e.accao === "VER_DOCUMENTO").length,
+    };
+    Object.entries(mapa).forEach(([id, val]) => {
+      animarContador(document.getElementById(id), val);
+    });
+  };
+
+  // ── Tooltip nativo melhorado nos badges de acção ─────────
+  // Descrições amigáveis para o title=""
+  const _BADGE_TOOLTIP = {
+    GERAR:              "Documento criado/gerado",
+    APROVAR:            "Documento aprovado",
+    REJEITAR:           "Documento rejeitado",
+    LOGIN:              "Sessão iniciada",
+    LOGOUT:             "Sessão terminada",
+    VER_FICHA:          "Consulta de ficha de funcionário",
+    VER_DOCUMENTO:      "Consulta de documento",
+    PEDIDO_NOVO:        "Novo pedido aberto na secretaria",
+    PEDIDO_RESPOSTA:    "Resposta adicionada ao pedido",
+    PEDIDO_FECHADO:     "Pedido encerrado",
+    REUNIAO_PEDIDO:     "Reunião solicitada",
+    REUNIAO_CONFIRMADA: "Reunião confirmada",
+    REUNIAO_RECUSADA:   "Reunião recusada",
+    REUNIAO_REMARCADA:  "Reunião remarcada",
+    REUNIAO_REALIZADA:  "Reunião realizada",
+  };
+
+  // Delegação de eventos — adicionar title dinâmico aos badges na tabela
+  document.getElementById("tbody-log")?.addEventListener("mouseover", function(ev) {
+    const badge = ev.target.closest(".badge");
+    if (!badge || badge.title) return;
+    const cls = [...badge.classList].find(c => c.startsWith("badge-") && c !== "badge");
+    if (cls) {
+      const accao = cls.replace("badge-", "");
+      badge.title = _BADGE_TOOLTIP[accao] || accao;
+    }
+  });
+
+  // ── "Toast" de confirmação ao copiar ID do evento ────────
+  document.addEventListener("click", function(ev) {
+    const el = ev.target.closest(".expand-valor");
+    if (!el) return;
+    const txt = el.textContent.trim();
+    // Só copiar se parecer um ID (sem espaços, mais de 10 chars)
+    if (txt.length < 10 || txt.includes(" ")) return;
+    navigator.clipboard?.writeText(txt).then(() => {
+      mostrarNotif("📋 ID copiado para a área de transferência", "notif-info");
+    }).catch(() => {});
+  });
 
 </script>
 </body>
