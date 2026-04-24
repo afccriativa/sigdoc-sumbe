@@ -1070,8 +1070,10 @@
               <button class="btn-densidade" id="dens-confortavel"
                 onclick="definirDensidade('confortavel')" title="Modo confortável — mais espaço">☰ Conforto</button>
             </div>
+            <!-- Indicador de cache -->
+            <span id="cache-estado" style="font-size:11px;display:flex;align-items:center;gap:5px;padding:3px 10px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;white-space:nowrap"></span>
             <span class="contagem" id="contagem-log">— registos</span>
-            <button class="btn-recarregar" onclick="this.classList.add('a-rodar');setTimeout(()=>this.classList.remove('a-rodar'),600);carregarTudo()">↺ Actualizar</button>
+            <button class="btn-recarregar" onclick="this.classList.add('a-rodar');setTimeout(()=>this.classList.remove('a-rodar'),600);forcarActualizacao()" title="Forçar actualização do Firebase (ignora cache)">↺ Actualizar</button>
             <button class="btn-exportar" onclick="exportarCSV()">⬇ Exportar CSV</button>
           </div>
         </div>
@@ -1103,6 +1105,20 @@
             <div class="pag-paginas" id="pag-nums-auditoria"></div>
             <button class="pag-btn" id="pag-next-auditoria" onclick="mudaPagAuditoria(1)">Seguinte →</button>
           </div>
+        </div>
+
+        <!-- CARREGAR MAIS (paginação server-side) -->
+        <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <button id="btn-carregar-mais"
+            onclick="carregarMais()"
+            style="background:rgba(255,255,255,.05);border:1px solid var(--border2);color:var(--txt-muted);padding:8px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .18s"
+            onmouseover="if(!this.disabled)this.style.background='rgba(255,255,255,.1)'"
+            onmouseout="this.style.background='rgba(255,255,255,.05)'"
+          >Carregar mais 50 registos por colecção</button>
+          <span id="carregar-mais-info" style="font-size:11px;color:var(--txt-dim)"></span>
+          <span style="font-size:10px;color:rgba(255,255,255,.2);margin-left:auto">
+            Página actual: <strong style="color:rgba(255,255,255,.4)" id="cache-page-info">—</strong>
+          </span>
         </div>
       </div>
 
@@ -1198,7 +1214,8 @@
   import { getAuth, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import {
-    getFirestore, collection, getDocs, query, orderBy, limit, doc, getDoc
+    getFirestore, collection, getDocs, query, orderBy, limit,
+    startAfter, doc, getDoc
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   // ── CONFIGURAÇÃO FIREBASE (mesma dos outros módulos) ──
@@ -1238,11 +1255,106 @@
   }
 
   // ── ESTADO GLOBAL ──
-  let _todosEventos = [];
+  let _todosEventos     = [];
   let _eventosFiltrados = [];
-  let _mapaUtilizadores = {}; // uid → { nome, perfil }
-  let _pedidosSecAud  = [];   // pedidos_secretaria raw — para a aba dedicada
-  let _reunioesSecAud = [];   // reunioes raw — para a aba dedicada
+  let _mapaUtilizadores = {};
+  let _pedidosSecAud    = [];
+  let _reunioesSecAud   = [];
+
+  // ── PAGINAÇÃO SERVER-SIDE — cursores por colecção ──
+  const PAGE_SIZE = 50; // documentos por página por colecção
+  const CACHE_TTL = 5 * 60 * 1000; // 5 minutos em ms
+
+  let _cursores = {
+    documentos:   { lastDoc: null, hasMore: true },
+    sessoes:      { lastDoc: null, hasMore: true },
+    auditoria:    { lastDoc: null, hasMore: true },
+    sec_pedidos:  { lastDoc: null, hasMore: true },
+    sec_reunioes: { lastDoc: null, hasMore: true },
+  };
+  let _carregarMaisActivo = false; // evitar cliques duplos
+
+  // ══════════════════════════════════════════════════════════
+  //  CACHE LOCAL — IndexedDB
+  //  DB: SIGDOC_AUD  |  Store: cache  |  chave: colecao
+  // ══════════════════════════════════════════════════════════
+  const _IDB = (() => {
+    const DB_NAME    = "SIGDOC_AUD";
+    const DB_VERSION = 1;
+    const STORE      = "cache";
+    let _db = null;
+
+    function abrir() {
+      return new Promise((res, rej) => {
+        if (_db) { res(_db); return; }
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = ev => {
+          const db = ev.target.result;
+          if (!db.objectStoreNames.contains(STORE))
+            db.createObjectStore(STORE, { keyPath: "colecao" });
+        };
+        req.onsuccess = ev => { _db = ev.target.result; res(_db); };
+        req.onerror   = ev => { console.warn("IDB erro:", ev.target.error); rej(ev.target.error); };
+      });
+    }
+
+    return {
+      async get(colecao) {
+        try {
+          const db = await abrir();
+          return new Promise((res, rej) => {
+            const tx  = db.transaction(STORE, "readonly");
+            const req = tx.objectStore(STORE).get(colecao);
+            req.onsuccess = () => res(req.result || null);
+            req.onerror   = () => res(null);
+          });
+        } catch { return null; }
+      },
+
+      async set(colecao, dados) {
+        try {
+          const db = await abrir();
+          return new Promise((res, rej) => {
+            const tx  = db.transaction(STORE, "readwrite");
+            const req = tx.objectStore(STORE).put({ colecao, ...dados, ts: Date.now() });
+            req.onsuccess = () => res(true);
+            req.onerror   = () => res(false);
+          });
+        } catch { return false; }
+      },
+
+      async limpar() {
+        try {
+          const db = await abrir();
+          return new Promise((res) => {
+            const tx = db.transaction(STORE, "readwrite");
+            tx.objectStore(STORE).clear();
+            tx.oncomplete = () => res(true);
+            tx.onerror    = () => res(false);
+          });
+        } catch { return false; }
+      },
+
+      fresco(registo) {
+        if (!registo || !registo.ts) return false;
+        return (Date.now() - registo.ts) < CACHE_TTL;
+      }
+    };
+  })();
+
+  // Actualizar indicador de cache na UI
+  function _actualizarIndicadorCache(estado, detalhe) {
+    const el = document.getElementById("cache-estado");
+    if (!el) return;
+    const mapa = {
+      cache:   { cor:"rgba(16,200,134,.7)",  icone:"💾", txt: detalhe || "Dados do cache" },
+      live:    { cor:"rgba(59,130,246,.8)",   icone:"🔄", txt: detalhe || "Dados actualizados" },
+      parcial: { cor:"rgba(245,158,11,.75)",  icone:"⚡", txt: detalhe || "Página adicional" },
+      erro:    { cor:"rgba(239,68,68,.75)",   icone:"⚠️", txt: detalhe || "Erro de ligação" },
+    };
+    const cfg = mapa[estado] || mapa.live;
+    el.innerHTML = `<span style="color:${cfg.cor}">${cfg.icone}</span> <span style="color:rgba(255,255,255,.45);font-size:11px">${cfg.txt}</span>`;
+  }
 
   // ── AUTENTICAÇÃO ──
   onAuthStateChanged(auth, async (user) => {
@@ -1309,10 +1421,9 @@
     } catch(e) { console.error("Erro mapa utilizadores:", e); mostrarNotif("⚠️ Não foi possível carregar o mapa de utilizadores.", "notif-info"); }
   }
 
-  // ── CARREGAR TUDO ──
-  window.carregarTudo = async function() {
-    // Mostrar barra de progresso
-    const prog = document.getElementById("progresso-carga");
+  // ── CARREGAR TUDO (com cache + paginação server-side) ──
+  window.carregarTudo = async function(forcarFirebase = false) {
+    const prog  = document.getElementById("progresso-carga");
     const barra = document.getElementById("prog-barra");
     const itens = ["utilizadores","documentos","sessoes","auditoria","secretaria"];
     itens.forEach(k => {
@@ -1327,31 +1438,104 @@
       if (barra) barra.style.width = pct + "%";
     }
 
+    // Resetar cursores (nova carga completa)
+    _cursores = {
+      documentos:   { lastDoc: null, hasMore: true },
+      sessoes:      { lastDoc: null, hasMore: true },
+      auditoria:    { lastDoc: null, hasMore: true },
+      sec_pedidos:  { lastDoc: null, hasMore: true },
+      sec_reunioes: { lastDoc: null, hasMore: true },
+    };
+
     try {
-      // Utilizadores
-      progresso("utilizadores","a-carregar", 5);
+      // ── 1. Utilizadores (sempre ao vivo — é o mapa de nomes) ──
+      progresso("utilizadores", "a-carregar", 5);
       await carregarUtilizadoresMap();
-      progresso("utilizadores","concluido", 20);
+      progresso("utilizadores", "concluido", 20);
 
-      // Colecções em paralelo, cada uma actualiza o seu item
-      progresso("documentos","a-carregar", 20);
-      progresso("sessoes","a-carregar", 20);
-      progresso("auditoria","a-carregar", 20);
-      progresso("secretaria","a-carregar", 20);
-
-      const [eventosDocumentos, eventosSessoes, eventosAuditoria, dadosSec] = await Promise.all([
-        carregarEventosDocumentos().then(r => { progresso("documentos","concluido", 40); return r; }),
-        carregarEventosSessoes().then(r    => { progresso("sessoes","concluido",    60); return r; }),
-        carregarEventosAuditoria().then(r  => { progresso("auditoria","concluido",  75); return r; }),
-        carregarEventosSecretaria().then(r => { progresso("secretaria","concluido", 90); return r; })
+      // ── 2. Verificar cache para cada colecção ──
+      const [cDocs, cSess, cAud, cSec] = await Promise.all([
+        _IDB.get("documentos"),
+        _IDB.get("sessoes"),
+        _IDB.get("auditoria"),
+        _IDB.get("secretaria"),
       ]);
 
-      _pedidosSecAud  = dadosSec.pedidos;
-      _reunioesSecAud = dadosSec.reunioes;
+      const usarCache = !forcarFirebase && [cDocs, cSess, cAud, cSec].every(c => _IDB.fresco(c));
 
-      _todosEventos = [...eventosDocumentos, ...eventosSessoes, ...eventosAuditoria, ...dadosSec.eventos]
-        .sort((a, b) => b.timestamp - a.timestamp);
+      if (usarCache) {
+        // ─── SERVIR DO CACHE ───────────────────────────────────
+        progresso("documentos",  "concluido", 40);
+        progresso("sessoes",     "concluido", 60);
+        progresso("auditoria",   "concluido", 75);
+        progresso("secretaria",  "concluido", 90);
+
+        _pedidosSecAud  = cSec.pedidos  || [];
+        _reunioesSecAud = cSec.reunioes || [];
+
+        // Reidratar timestamps: IDB serializa Date → string; converter de volta
+        function reidratarEventos(lista) {
+          return (lista || []).map(e => ({
+            ...e,
+            timestamp: e.timestamp instanceof Date ? e.timestamp : new Date(e.timestamp)
+          }));
+        }
+
+        _todosEventos = [
+          ...reidratarEventos(cDocs.eventos),
+          ...reidratarEventos(cSess.eventos),
+          ...reidratarEventos(cAud.eventos),
+          ...reidratarEventos(cSec.eventos),
+        ].sort((a,b) => b.timestamp - a.timestamp);
+
+        // Cursores: sem hasMore se veio do cache (forçar load mais para ir ao Firebase)
+        _cursores.documentos.hasMore  = cDocs.hasMore  ?? false;
+        _cursores.sessoes.hasMore     = cSess.hasMore  ?? false;
+        _cursores.auditoria.hasMore   = cAud.hasMore   ?? false;
+        _cursores.sec_pedidos.hasMore = cSec.hasMorePedidos  ?? false;
+        _cursores.sec_reunioes.hasMore= cSec.hasMoreReunioes ?? false;
+
+        const idade = Math.round((Date.now() - Math.min(cDocs.ts, cSess.ts, cAud.ts, cSec.ts)) / 1000);
+        const idadeStr = idade < 60 ? `${idade}s atrás` : `${Math.round(idade/60)}min atrás`;
+        _actualizarIndicadorCache("cache", `Cache · ${_todosEventos.length} eventos · ${idadeStr}`);
+
+      } else {
+        // ─── BUSCAR DO FIREBASE (página 1) ────────────────────
+        progresso("documentos",  "a-carregar", 20);
+        progresso("sessoes",     "a-carregar", 20);
+        progresso("auditoria",   "a-carregar", 20);
+        progresso("secretaria",  "a-carregar", 20);
+
+        const [rDocs, rSess, rAud, rSec] = await Promise.all([
+          carregarEventosDocumentos().then(r  => { progresso("documentos", "concluido", 40); return r; }),
+          carregarEventosSessoes().then(r     => { progresso("sessoes",    "concluido", 60); return r; }),
+          carregarEventosAuditoria().then(r   => { progresso("auditoria",  "concluido", 75); return r; }),
+          carregarEventosSecretaria().then(r  => { progresso("secretaria", "concluido", 90); return r; }),
+        ]);
+
+        _pedidosSecAud  = rSec.pedidos;
+        _reunioesSecAud = rSec.reunioes;
+
+        // Guardar no cache
+        await Promise.all([
+          _IDB.set("documentos", { eventos: rDocs.eventos, hasMore: rDocs.hasMore }),
+          _IDB.set("sessoes",    { eventos: rSess.eventos, hasMore: rSess.hasMore }),
+          _IDB.set("auditoria",  { eventos: rAud.eventos,  hasMore: rAud.hasMore }),
+          _IDB.set("secretaria", {
+            eventos: rSec.eventos, pedidos: rSec.pedidos, reunioes: rSec.reunioes,
+            hasMorePedidos: rSec.hasMorePedidos, hasMoreReunioes: rSec.hasMoreReunioes,
+          }),
+        ]);
+
+        _todosEventos = [
+          ...rDocs.eventos, ...rSess.eventos, ...rAud.eventos, ...rSec.eventos,
+        ].sort((a,b) => b.timestamp - a.timestamp);
+
+        _actualizarIndicadorCache("live", `Firebase · ${_todosEventos.length} eventos carregados`);
+      }
+
       _eventosFiltrados = [..._todosEventos];
+      _actualizarBotaoCarregarMais();
 
       popularFiltroEmail();
       actualizarIndicadores(_todosEventos);
@@ -1360,152 +1544,158 @@
       renderRelatorioDocumentos(_todosEventos);
       renderTimeline(_todosEventos);
       renderSecretariaAuditoria();
-
-      progresso("secretaria","concluido", 100);
-      mostrarNotif("✅ " + _todosEventos.length + " eventos carregados.", "notif-sucesso");
+      progresso("secretaria", "concluido", 100);
+      mostrarNotif(
+        usarCache
+          ? `💾 ${_todosEventos.length} eventos (cache local)`
+          : `✅ ${_todosEventos.length} eventos carregados do Firebase`,
+        "notif-sucesso"
+      );
     } catch(e) {
       console.error("Erro ao carregar:", e);
       itens.forEach(k => {
         const el = document.getElementById("prog-" + k);
         if (el && el.classList.contains("a-carregar")) el.className = "prog-item erro";
       });
+      _actualizarIndicadorCache("erro", "Erro de ligação");
       mostrarNotif("❌ Erro ao carregar dados. Verifique a conexão.", "notif-erro");
     } finally {
-      // Ocultar barra após breve pausa
       setTimeout(() => { if (prog) prog.classList.remove("visivel"); }, 2200);
     }
   };
 
+  // ── FORÇAR ACTUALIZAÇÃO (ignora cache, vai ao Firebase) ──
+  window.forcarActualizacao = async function() {
+    await _IDB.limpar();
+    await carregarTudo(true);
+  };
+
   // ── EVENTOS DA COLECÇÃO "documentos" ──
-  async function carregarEventosDocumentos() {
+  async function carregarEventosDocumentos(cursorDoc = null) {
     const eventos = [];
     try {
-      const snap = await getDocs(query(collection(db, "documentos"), orderBy("geradoEm", "desc"), limit(200)));
+      let q = query(collection(db, "documentos"), orderBy("geradoEm", "desc"), limit(PAGE_SIZE));
+      if (cursorDoc) q = query(collection(db, "documentos"), orderBy("geradoEm", "desc"), startAfter(cursorDoc), limit(PAGE_SIZE));
+
+      const snap = await getDocs(q);
+      const lastDoc = snap.docs[snap.docs.length - 1] || null;
+      const hasMore = snap.docs.length === PAGE_SIZE;
+      if (lastDoc) _cursores.documentos.lastDoc = lastDoc;
+      _cursores.documentos.hasMore = hasMore;
+
       snap.forEach(d => {
         const doc = d.data();
         const tipoDoc = labelTipoDoc(doc.tipo);
         const funcionario = doc.funcionarioNome || "—";
         const numRef = doc.numGuia && doc.anoGuia ? `Nº ${doc.numGuia}/${doc.anoGuia}` : "";
 
-        // Evento: GERAR
         if (doc.geradoEm) {
           const ts = toDate(doc.geradoEm);
-          const nomeUtil = obterNomeEmail(doc.geradoPor, doc.geradoPorEmail);
+          const nomeUtil  = obterNomeEmail(doc.geradoPor, doc.geradoPorEmail);
           const perfilUtil = obterPerfilEmail(doc.geradoPor);
           eventos.push({
-            id: d.id + "_gerar",
-            docId: d.id,
-            timestamp: ts,
-            accao: "GERAR",
-            emailUtilizador: doc.geradoPorEmail || "—",
-            nomeUtilizador: nomeUtil,
-            perfilUtilizador: perfilUtil,
-            tipoDocumento: tipoDoc,
-            funcionarioVisado: funcionario,
-            referencia: numRef,
+            id: d.id + "_gerar", docId: d.id, timestamp: ts, accao: "GERAR",
+            emailUtilizador: doc.geradoPorEmail || "—", nomeUtilizador: nomeUtil,
+            perfilUtilizador: perfilUtil, tipoDocumento: tipoDoc,
+            funcionarioVisado: funcionario, referencia: numRef,
             observacao: `Documento ${tipoDoc} ${numRef} gerado para ${funcionario}.`,
-            estado: doc.estado || "pendente",
-            modulo: "documentos"
+            estado: doc.estado || "pendente", modulo: "documentos"
           });
         }
-
-        // Evento: APROVAR ou REJEITAR
         if (doc.aprovadoEm && (doc.estado === "aprovado" || doc.estado === "rejeitado")) {
           const ts = toDate(doc.aprovadoEm);
-          const nomeUtil = obterNomeEmail(doc.aprovadoPor, doc.aprovadoPorEmail);
+          const nomeUtil  = obterNomeEmail(doc.aprovadoPor, doc.aprovadoPorEmail);
           const perfilUtil = obterPerfilEmail(doc.aprovadoPor);
           const accao = doc.estado === "aprovado" ? "APROVAR" : "REJEITAR";
           eventos.push({
-            id: d.id + "_" + accao.toLowerCase(),
-            docId: d.id,
-            timestamp: ts,
-            accao,
-            emailUtilizador: doc.aprovadoPorEmail || "—",
-            nomeUtilizador: nomeUtil,
-            perfilUtilizador: perfilUtil,
-            tipoDocumento: tipoDoc,
-            funcionarioVisado: funcionario,
-            referencia: numRef,
+            id: d.id + "_" + accao.toLowerCase(), docId: d.id, timestamp: ts, accao,
+            emailUtilizador: doc.aprovadoPorEmail || "—", nomeUtilizador: nomeUtil,
+            perfilUtilizador: perfilUtil, tipoDocumento: tipoDoc,
+            funcionarioVisado: funcionario, referencia: numRef,
             observacao: accao === "APROVAR"
               ? `${tipoDoc} ${numRef} de ${funcionario} aprovado.`
               : `${tipoDoc} ${numRef} de ${funcionario} rejeitado. Motivo: ${doc.observacao || "não especificado"}.`,
-            motivoRejeicao: doc.observacao || "",
-            modulo: "documentos"
+            motivoRejeicao: doc.observacao || "", modulo: "documentos"
           });
         }
       });
-    } catch(e) { console.error("Erro documentos:", e); mostrarNotif("❌ Erro ao carregar eventos de documentos.", "notif-erro"); }
-    return eventos;
+    } catch(e) { console.error("Erro documentos:", e); mostrarNotif("❌ Erro ao carregar documentos.", "notif-erro"); }
+    return { eventos, hasMore: _cursores.documentos.hasMore };
   }
 
-  // ── EVENTOS DA COLECÇÃO "sessoes" ──
-  async function carregarEventosSessoes() {
+  async function carregarEventosSessoes(cursorDoc = null) {
     const eventos = [];
     try {
-      const snap = await getDocs(query(collection(db, "sessoes"), orderBy("timestamp", "desc"), limit(100)));
+      let q = query(collection(db, "sessoes"), orderBy("timestamp", "desc"), limit(PAGE_SIZE));
+      if (cursorDoc) q = query(collection(db, "sessoes"), orderBy("timestamp", "desc"), startAfter(cursorDoc), limit(PAGE_SIZE));
+
+      const snap = await getDocs(q);
+      const lastDoc = snap.docs[snap.docs.length - 1] || null;
+      const hasMore = snap.docs.length === PAGE_SIZE;
+      if (lastDoc) _cursores.sessoes.lastDoc = lastDoc;
+      _cursores.sessoes.hasMore = hasMore;
+
       snap.forEach(d => {
         const s = d.data();
         const ts = toDate(s.timestamp);
         const accao = s.tipo === "saida" ? "LOGOUT" : "LOGIN";
-        const nomeUtil = s.nome || s.email || "—";
+        const nomeUtil  = s.nome || s.email || "—";
         const perfilUtil = etiquetasPerfil[s.perfil] || s.perfil || "—";
         eventos.push({
-          id: d.id,
-          timestamp: ts,
-          accao,
-          emailUtilizador: s.email || "—",
-          nomeUtilizador: nomeUtil,
-          perfilUtilizador: perfilUtil,
-          tipoDocumento: "—",
-          funcionarioVisado: "—",
-          referencia: "",
+          id: d.id, timestamp: ts, accao,
+          emailUtilizador: s.email || "—", nomeUtilizador: nomeUtil,
+          perfilUtilizador: perfilUtil, tipoDocumento: "—",
+          funcionarioVisado: "—", referencia: "",
           observacao: accao === "LOGIN"
             ? `${nomeUtil} (${perfilUtil}) iniciou sessão no sistema.`
             : `${nomeUtil} (${perfilUtil}) encerrou a sessão.`,
           modulo: "sessoes"
         });
       });
-    } catch(e) { console.error("Erro sessoes:", e); mostrarNotif("❌ Erro ao carregar eventos de sessões.", "notif-erro"); }
-    return eventos;
+    } catch(e) { console.error("Erro sessoes:", e); mostrarNotif("❌ Erro ao carregar sessões.", "notif-erro"); }
+    return { eventos, hasMore: _cursores.sessoes.hasMore };
   }
 
-  // ── EVENTOS DA COLECÇÃO "auditoria" (leituras de fichas e documentos) ──
-  async function carregarEventosAuditoria() {
+  async function carregarEventosAuditoria(cursorDoc = null) {
     const eventos = [];
     try {
-      const snap = await getDocs(
-        query(collection(db, "auditoria"), orderBy("timestamp", "desc"), limit(500))
-      );
+      let q = query(collection(db, "auditoria"), orderBy("timestamp", "desc"), limit(PAGE_SIZE));
+      if (cursorDoc) q = query(collection(db, "auditoria"), orderBy("timestamp", "desc"), startAfter(cursorDoc), limit(PAGE_SIZE));
+
+      const snap = await getDocs(q);
+      const lastDoc = snap.docs[snap.docs.length - 1] || null;
+      const hasMore = snap.docs.length === PAGE_SIZE;
+      if (lastDoc) _cursores.auditoria.lastDoc = lastDoc;
+      _cursores.auditoria.hasMore = hasMore;
+
       snap.forEach(d => {
         const e = d.data();
         const ts = toDate(e.timestamp);
         eventos.push({
-          id:                d.id,
-          timestamp:         ts,
-          accao:             e.accao || "VER_FICHA",
-          emailUtilizador:   e.emailUtilizador || "—",
-          nomeUtilizador:    e.nomeUtilizador  || "—",
-          perfilUtilizador:  e.perfilUtilizador || "—",
-          tipoDocumento:     e.tipoDocumento   || "—",
-          funcionarioVisado: e.funcionarioVisado || "—",
-          referencia:        e.referencia       || "",
-          observacao:        e.observacao       || "",
-          camposAcedidos:    e.camposAcedidos   || [],
-          docId:             e.docId            || "",
-          estadoDocumento:   e.estadoDocumento  || "",
+          id: d.id, timestamp: ts,
+          accao:             e.accao             || "VER_FICHA",
+          emailUtilizador:   e.emailUtilizador   || "—",
+          nomeUtilizador:    e.nomeUtilizador     || "—",
+          perfilUtilizador:  e.perfilUtilizador   || "—",
+          tipoDocumento:     e.tipoDocumento      || "—",
+          funcionarioVisado: e.funcionarioVisado  || "—",
+          referencia:        e.referencia         || "",
+          observacao:        e.observacao         || "",
+          camposAcedidos:    e.camposAcedidos     || [],
+          docId:             e.docId              || "",
+          estadoDocumento:   e.estadoDocumento    || "",
           modulo: (e.accao||"").startsWith("PEDIDO_") || (e.accao||"").startsWith("REUNIAO_")
             ? "secretaria" : "auditoria"
         });
       });
     } catch(e) {
-      // A coleção pode ainda não existir (sem registos ainda) — não é erro
       if (e.code !== "not-found") console.warn("Auditoria:", e);
     }
-    return eventos;
+    return { eventos, hasMore: _cursores.auditoria.hasMore };
   }
 
   // ── EVENTOS DAS COLECÇÕES "pedidos_secretaria" e "reunioes" ──
-  async function carregarEventosSecretaria() {
+  async function carregarEventosSecretaria(cursorPedidos = null, cursorReunioes = null) {
     const eventos = [];
     const pedidos  = [];
     const reunioes = [];
@@ -1519,7 +1709,6 @@
       pendente:'Pendente',confirmada:'Confirmada',recusada:'Recusada',
       remarcada:'Remarcada',realizada:'Realizada'
     };
-
     function tsToDate(ts) {
       if (!ts) return null;
       if (ts.toDate) return ts.toDate();
@@ -1529,94 +1718,33 @@
 
     // ── pedidos_secretaria ──
     try {
-      const snap = await getDocs(query(
-        collection(db, "pedidos_secretaria"), orderBy("criadoEm","desc"), limit(300)
-      ));
-      snap.forEach(d => {
+      let qP = query(collection(db, "pedidos_secretaria"), orderBy("criadoEm","desc"), limit(PAGE_SIZE));
+      if (cursorPedidos) qP = query(collection(db, "pedidos_secretaria"), orderBy("criadoEm","desc"), startAfter(cursorPedidos), limit(PAGE_SIZE));
+      const snapP = await getDocs(qP);
+      const lastDocP = snapP.docs[snapP.docs.length - 1] || null;
+      if (lastDocP) _cursores.sec_pedidos.lastDoc  = lastDocP;
+      _cursores.sec_pedidos.hasMore = snapP.docs.length === PAGE_SIZE;
+
+      snapP.forEach(d => {
         const p = d.data();
         pedidos.push({ id: d.id, ...p });
+        const tsAberto  = tsToDate(p.criadoEm);
+        const tsFechado = tsToDate(p.fechadoEm);
+        const tsResp    = tsToDate(p.respondidoEm);
+        const assunto   = ASSUNTOS[p.assunto] || p.assunto || "—";
+        const func      = p.funcionarioNome || "—";
+        const numAgente = p.funcionarioNumero ? ` (Ag. ${p.funcionarioNumero})` : "";
+        const unidade   = p.unidade || "—";
 
-        const tsAberto   = tsToDate(p.criadoEm);
-        const tsFechado  = tsToDate(p.fechadoEm);
-        const tsResp     = tsToDate(p.respondidoEm);
-        const assunto    = ASSUNTOS[p.assunto] || p.assunto || "—";
-        const func       = p.funcionarioNome || "—";
-        const numAgente  = p.funcionarioNumero ? ` (Ag. ${p.funcionarioNumero})` : "";
-        const unidade    = p.unidade || "—";
-
-        // Evento: pedido aberto
-        if (tsAberto) eventos.push({
-          id: d.id + "_novo",
-          timestamp: tsAberto,
-          accao: "PEDIDO_NOVO",
-          emailUtilizador: p.funcionarioEmail || "—",
-          nomeUtilizador:  func + numAgente,
-          perfilUtilizador: "Funcionário",
-          tipoDocumento: "Pedido Secretaria",
-          funcionarioVisado: func,
-          referencia: assunto,
-          observacao: `${func}${numAgente} abriu pedido: "${assunto}" · Unidade: ${unidade}`,
-          modulo: "secretaria",
-          pedidoId: d.id,
-          unidade
-        });
-
-        // Evento: 1ª resposta da secretaria
-        if (tsResp && p.estado !== "novo") eventos.push({
-          id: d.id + "_resp",
-          timestamp: tsResp,
-          accao: "PEDIDO_RESPOSTA",
-          emailUtilizador: p.respondidoPorEmail || "—",
-          nomeUtilizador:  p.respondidoPor || "Secretaria",
-          perfilUtilizador: "Secretaria",
-          tipoDocumento: "Pedido Secretaria",
-          funcionarioVisado: func,
-          referencia: assunto,
-          observacao: `Resposta dada ao pedido "${assunto}" de ${func}${numAgente}`,
-          modulo: "secretaria",
-          pedidoId: d.id,
-          unidade
-        });
-
-        // Evento: pedido fechado
-        if (tsFechado && p.estado === "fechado") eventos.push({
-          id: d.id + "_fechado",
-          timestamp: tsFechado,
-          accao: "PEDIDO_FECHADO",
-          emailUtilizador: p.respondidoPorEmail || "—",
-          nomeUtilizador:  p.respondidoPor || "Secretaria",
-          perfilUtilizador: "Secretaria",
-          tipoDocumento: "Pedido Secretaria",
-          funcionarioVisado: func,
-          referencia: assunto,
-          observacao: `Pedido "${assunto}" de ${func}${numAgente} encerrado`,
-          modulo: "secretaria",
-          pedidoId: d.id,
-          unidade
-        });
-
-        // Eventos das mensagens intermediárias (array mensagens)
+        if (tsAberto) eventos.push({ id: d.id+"_novo", timestamp: tsAberto, accao:"PEDIDO_NOVO", emailUtilizador: p.funcionarioEmail||"—", nomeUtilizador: func+numAgente, perfilUtilizador:"Funcionário", tipoDocumento:"Pedido Secretaria", funcionarioVisado:func, referencia:assunto, observacao:`${func}${numAgente} abriu pedido: "${assunto}" · Unidade: ${unidade}`, modulo:"secretaria", pedidoId:d.id, unidade });
+        if (tsResp && p.estado !== "novo") eventos.push({ id: d.id+"_resp", timestamp:tsResp, accao:"PEDIDO_RESPOSTA", emailUtilizador: p.respondidoPorEmail||"—", nomeUtilizador: p.respondidoPor||"Secretaria", perfilUtilizador:"Secretaria", tipoDocumento:"Pedido Secretaria", funcionarioVisado:func, referencia:assunto, observacao:`Resposta dada ao pedido "${assunto}" de ${func}${numAgente}`, modulo:"secretaria", pedidoId:d.id, unidade });
+        if (tsFechado && p.estado==="fechado") eventos.push({ id: d.id+"_fechado", timestamp:tsFechado, accao:"PEDIDO_FECHADO", emailUtilizador: p.respondidoPorEmail||"—", nomeUtilizador: p.respondidoPor||"Secretaria", perfilUtilizador:"Secretaria", tipoDocumento:"Pedido Secretaria", funcionarioVisado:func, referencia:assunto, observacao:`Pedido "${assunto}" de ${func}${numAgente} encerrado`, modulo:"secretaria", pedidoId:d.id, unidade });
         if (Array.isArray(p.mensagens)) {
           p.mensagens.forEach((m, i) => {
-            if (i === 0) return; // já coberto por PEDIDO_NOVO
-            const tmsg = tsToDate(m.em);
-            if (!tmsg) return;
+            if (i === 0) return;
+            const tmsg = tsToDate(m.em); if (!tmsg) return;
             const isPerfil = m.perfil && m.perfil !== "funcionario";
-            eventos.push({
-              id: d.id + "_msg_" + i,
-              timestamp: tmsg,
-              accao: isPerfil ? "PEDIDO_RESPOSTA" : "PEDIDO_NOVO",
-              emailUtilizador: m.email || "—",
-              nomeUtilizador:  m.nome  || "—",
-              perfilUtilizador: isPerfil ? "Secretaria" : "Funcionário",
-              tipoDocumento: "Pedido Secretaria",
-              funcionarioVisado: func,
-              referencia: assunto,
-              observacao: `${isPerfil ? "Secretaria" : func} adicionou mensagem no pedido "${assunto}"`,
-              modulo: "secretaria",
-              pedidoId: d.id,
-              unidade
-            });
+            eventos.push({ id: d.id+"_msg_"+i, timestamp:tmsg, accao: isPerfil?"PEDIDO_RESPOSTA":"PEDIDO_NOVO", emailUtilizador: m.email||"—", nomeUtilizador: m.nome||"—", perfilUtilizador: isPerfil?"Secretaria":"Funcionário", tipoDocumento:"Pedido Secretaria", funcionarioVisado:func, referencia:assunto, observacao:`${isPerfil?"Secretaria":func} adicionou mensagem no pedido "${assunto}"`, modulo:"secretaria", pedidoId:d.id, unidade });
           });
         }
       });
@@ -1624,75 +1752,34 @@
 
     // ── reunioes ──
     try {
-      const ACCOES_REU = {
-        pendente:   "REUNIAO_PEDIDO",
-        confirmada: "REUNIAO_CONFIRMADA",
-        recusada:   "REUNIAO_RECUSADA",
-        remarcada:  "REUNIAO_REMARCADA",
-        realizada:  "REUNIAO_REALIZADA"
-      };
-      const snap = await getDocs(query(
-        collection(db, "reunioes"), orderBy("criadoEm","desc"), limit(200)
-      ));
-      snap.forEach(d => {
+      const ACCOES_REU = { pendente:"REUNIAO_PEDIDO", confirmada:"REUNIAO_CONFIRMADA", recusada:"REUNIAO_RECUSADA", remarcada:"REUNIAO_REMARCADA", realizada:"REUNIAO_REALIZADA" };
+      let qR = query(collection(db, "reunioes"), orderBy("criadoEm","desc"), limit(PAGE_SIZE));
+      if (cursorReunioes) qR = query(collection(db, "reunioes"), orderBy("criadoEm","desc"), startAfter(cursorReunioes), limit(PAGE_SIZE));
+      const snapR = await getDocs(qR);
+      const lastDocR = snapR.docs[snapR.docs.length - 1] || null;
+      if (lastDocR) _cursores.sec_reunioes.lastDoc  = lastDocR;
+      _cursores.sec_reunioes.hasMore = snapR.docs.length === PAGE_SIZE;
+
+      snapR.forEach(d => {
         const r = d.data();
         reunioes.push({ id: d.id, ...r });
-
-        const func     = r.funcionarioNome || "—";
-        const numAgente = r.funcionarioNumero ? ` (Ag. ${r.funcionarioNumero})` : "";
-        const assunto  = r.assunto || "—";
-        const unidade  = r.unidade || "—";
-        const dest     = r.destinatario || "—";
-
-        // Evento de criação do pedido
+        const func = r.funcionarioNome||"—", numAgente = r.funcionarioNumero?` (Ag. ${r.funcionarioNumero})`:"", assunto = r.assunto||"—", unidade = r.unidade||"—", dest = r.destinatario||"—";
         const tsCria = tsToDate(r.criadoEm);
-        if (tsCria) eventos.push({
-          id: d.id + "_reu_novo",
-          timestamp: tsCria,
-          accao: "REUNIAO_PEDIDO",
-          emailUtilizador: r.funcionarioEmail || "—",
-          nomeUtilizador:  func + numAgente,
-          perfilUtilizador: "Funcionário",
-          tipoDocumento: "Reunião",
-          funcionarioVisado: func,
-          referencia: `${assunto} · ${dest}`,
-          observacao: `${func}${numAgente} solicitou reunião sobre "${assunto}" com ${dest} · Unidade: ${unidade}`,
-          modulo: "secretaria",
-          reuniaoId: d.id,
-          unidade
-        });
-
-        // Evento de actualização de estado (se diferente de pendente)
+        if (tsCria) eventos.push({ id: d.id+"_reu_novo", timestamp:tsCria, accao:"REUNIAO_PEDIDO", emailUtilizador: r.funcionarioEmail||"—", nomeUtilizador: func+numAgente, perfilUtilizador:"Funcionário", tipoDocumento:"Reunião", funcionarioVisado:func, referencia:`${assunto} · ${dest}`, observacao:`${func}${numAgente} solicitou reunião sobre "${assunto}" com ${dest} · Unidade: ${unidade}`, modulo:"secretaria", reuniaoId:d.id, unidade });
         const tsAct = tsToDate(r.actualizadoEm);
         if (tsAct && r.estado && r.estado !== "pendente") {
-          const accao = ACCOES_REU[r.estado] || "REUNIAO_PEDIDO";
-          const obs = {
-            confirmada: `Reunião sobre "${assunto}" de ${func}${numAgente} confirmada. Local: ${r.local||"—"}, data: ${r.dataSugerida||"a definir"}`,
-            recusada:   `Reunião sobre "${assunto}" de ${func}${numAgente} recusada. Motivo: ${r.motivoRecusa||"não especificado"}`,
-            remarcada:  `Reunião sobre "${assunto}" de ${func}${numAgente} remarcada para ${r.dataSugerida||"data a definir"}`,
-            realizada:  `Reunião sobre "${assunto}" de ${func}${numAgente} marcada como realizada`
-          }[r.estado] || `Reunião sobre "${assunto}" actualizada para: ${ESTADOS_REU[r.estado]||r.estado}`;
-
-          eventos.push({
-            id: d.id + "_reu_" + r.estado,
-            timestamp: tsAct,
-            accao,
-            emailUtilizador: r.geridoPorEmail || "—",
-            nomeUtilizador:  r.geridoPor || "Secretaria",
-            perfilUtilizador: "Secretaria",
-            tipoDocumento: "Reunião",
-            funcionarioVisado: func,
-            referencia: `${assunto} · ${dest}`,
-            observacao: obs,
-            modulo: "secretaria",
-            reuniaoId: d.id,
-            unidade
-          });
+          const accao = ACCOES_REU[r.estado]||"REUNIAO_PEDIDO";
+          const obs = { confirmada:`Reunião "${assunto}" de ${func}${numAgente} confirmada. Local: ${r.local||"—"}, data: ${r.dataSugerida||"a definir"}`, recusada:`Reunião "${assunto}" de ${func}${numAgente} recusada. Motivo: ${r.motivoRecusa||"não especificado"}`, remarcada:`Reunião "${assunto}" de ${func}${numAgente} remarcada para ${r.dataSugerida||"data a definir"}`, realizada:`Reunião "${assunto}" de ${func}${numAgente} marcada como realizada` }[r.estado] || `Reunião "${assunto}" actualizada para: ${ESTADOS_REU[r.estado]||r.estado}`;
+          eventos.push({ id: d.id+"_reu_"+r.estado, timestamp:tsAct, accao, emailUtilizador: r.geridoPorEmail||"—", nomeUtilizador: r.geridoPor||"Secretaria", perfilUtilizador:"Secretaria", tipoDocumento:"Reunião", funcionarioVisado:func, referencia:`${assunto} · ${dest}`, observacao:obs, modulo:"secretaria", reuniaoId:d.id, unidade });
         }
       });
     } catch(e) { console.warn("reunioes auditoria:", e); }
 
-    return { eventos, pedidos, reunioes };
+    return {
+      eventos, pedidos, reunioes,
+      hasMorePedidos:  _cursores.sec_pedidos.hasMore,
+      hasMoreReunioes: _cursores.sec_reunioes.hasMore,
+    };
   }
 
   // ── MAPEAMENTO DE TIPOS DE DOCUMENTO ──
@@ -2833,6 +2920,107 @@
       mostrarNotif("📋 ID copiado para a área de transferência", "notif-info");
     }).catch(() => {});
   });
+
+  // ── CARREGAR MAIS (próxima página do Firebase) ──
+  window.carregarMais = async function() {
+    if (_carregarMaisActivo) return;
+    const temMais = _cursores.documentos.hasMore || _cursores.sessoes.hasMore
+                 || _cursores.auditoria.hasMore  || _cursores.sec_pedidos.hasMore
+                 || _cursores.sec_reunioes.hasMore;
+    if (!temMais) return;
+
+    _carregarMaisActivo = true;
+    _actualizarBotaoCarregarMais(true);
+
+    try {
+      const [rDocs, rSess, rAud, rSec] = await Promise.all([
+        _cursores.documentos.hasMore
+          ? carregarEventosDocumentos(_cursores.documentos.lastDoc)
+          : Promise.resolve({ eventos: [], hasMore: false }),
+        _cursores.sessoes.hasMore
+          ? carregarEventosSessoes(_cursores.sessoes.lastDoc)
+          : Promise.resolve({ eventos: [], hasMore: false }),
+        _cursores.auditoria.hasMore
+          ? carregarEventosAuditoria(_cursores.auditoria.lastDoc)
+          : Promise.resolve({ eventos: [], hasMore: false }),
+        (_cursores.sec_pedidos.hasMore || _cursores.sec_reunioes.hasMore)
+          ? carregarEventosSecretaria(
+              _cursores.sec_pedidos.hasMore  ? _cursores.sec_pedidos.lastDoc  : null,
+              _cursores.sec_reunioes.hasMore ? _cursores.sec_reunioes.lastDoc : null
+            )
+          : Promise.resolve({ eventos: [], pedidos: [], reunioes: [], hasMorePedidos: false, hasMoreReunioes: false }),
+      ]);
+
+      // Acumular nos arrays existentes
+      const novosEventos = [...rDocs.eventos, ...rSess.eventos, ...rAud.eventos, ...rSec.eventos];
+      _pedidosSecAud  = [..._pedidosSecAud,  ...(rSec.pedidos  || [])];
+      _reunioesSecAud = [..._reunioesSecAud, ...(rSec.reunioes || [])];
+
+      // Garantir que todos os timestamps são Date (vindos do Firebase já são, mas por segurança)
+      const normalizar = e => ({ ...e, timestamp: e.timestamp instanceof Date ? e.timestamp : new Date(e.timestamp) });
+      _todosEventos = [..._todosEventos.map(normalizar), ...novosEventos.map(normalizar)]
+        .sort((a,b) => b.timestamp - a.timestamp);
+      _eventosFiltrados = [..._todosEventos];
+
+      // Actualizar cache com os dados acumulados
+      await Promise.all([
+        _IDB.set("documentos", { eventos: _todosEventos.filter(e => e.modulo === "documentos"), hasMore: _cursores.documentos.hasMore }),
+        _IDB.set("sessoes",    { eventos: _todosEventos.filter(e => e.modulo === "sessoes"),    hasMore: _cursores.sessoes.hasMore }),
+        _IDB.set("auditoria",  { eventos: _todosEventos.filter(e => e.modulo === "auditoria"),  hasMore: _cursores.auditoria.hasMore }),
+        _IDB.set("secretaria", {
+          eventos:  _todosEventos.filter(e => e.modulo === "secretaria"),
+          pedidos:  _pedidosSecAud, reunioes: _reunioesSecAud,
+          hasMorePedidos:  _cursores.sec_pedidos.hasMore,
+          hasMoreReunioes: _cursores.sec_reunioes.hasMore,
+        }),
+      ]);
+
+      popularFiltroEmail();
+      actualizarIndicadores(_todosEventos);
+      renderTabela(_todosEventos);
+      renderSecretariaAuditoria();
+      _actualizarBotaoCarregarMais();
+      _actualizarIndicadorCache("parcial", `Firebase · ${_todosEventos.length} eventos acumulados`);
+      mostrarNotif(`⚡ +${novosEventos.length} eventos carregados (total: ${_todosEventos.length})`, "notif-info");
+    } catch(e) {
+      console.error("Erro carregar mais:", e);
+      mostrarNotif("❌ Erro ao carregar página adicional.", "notif-erro");
+    } finally {
+      _carregarMaisActivo = false;
+      _actualizarBotaoCarregarMais();
+    }
+  };
+
+  function _actualizarBotaoCarregarMais(aCarregar = false) {
+    const btn = document.getElementById("btn-carregar-mais");
+    const info = document.getElementById("carregar-mais-info");
+    if (!btn) return;
+    const temMais = _cursores.documentos.hasMore || _cursores.sessoes.hasMore
+                 || _cursores.auditoria.hasMore  || _cursores.sec_pedidos.hasMore
+                 || _cursores.sec_reunioes.hasMore;
+
+    btn.disabled = aCarregar || !temMais;
+    if (aCarregar) {
+      btn.textContent = "A carregar…";
+    } else if (!temMais) {
+      btn.textContent = "✓ Todos os dados carregados";
+      btn.style.opacity = ".45";
+    } else {
+      btn.textContent = `Carregar mais ${PAGE_SIZE} registos por colecção`;
+      btn.style.opacity = "1";
+    }
+    if (info) {
+      const restantes = [];
+      if (_cursores.documentos.hasMore)  restantes.push("documentos");
+      if (_cursores.sessoes.hasMore)     restantes.push("sessões");
+      if (_cursores.auditoria.hasMore)   restantes.push("auditoria");
+      if (_cursores.sec_pedidos.hasMore) restantes.push("pedidos");
+      if (_cursores.sec_reunioes.hasMore)restantes.push("reuniões");
+      info.textContent = temMais
+        ? `Há mais registos em: ${restantes.join(", ")}`
+        : `${_todosEventos.length} eventos no total`;
+    }
+  }
 
 </script>
 </body>
