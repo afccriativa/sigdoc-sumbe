@@ -86,6 +86,18 @@
     #preview-card.a-fechar{opacity:0;transform:translateY(-6px);pointer-events:none}
 
 
+    /* ── Banner de erro de carregamento ── */
+    #erro-dados{display:none;margin:0 28px 0;border-radius:12px;padding:16px 20px;background:#fef2f2;border:1px solid #fca5a5;color:#991b1b}
+    #erro-dados.visivel{display:flex;align-items:flex-start;gap:14px}
+    .erro-dados-icone{flex-shrink:0;color:#ef4444;margin-top:1px}
+    .erro-dados-corpo{flex:1;min-width:0}
+    .erro-dados-titulo{font-size:13px;font-weight:800;margin-bottom:3px}
+    .erro-dados-msg{font-size:12px;color:#b91c1c;line-height:1.5;margin-bottom:10px}
+    .erro-dados-acoes{display:flex;gap:8px;flex-wrap:wrap}
+    .btn-retry{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:#ef4444;color:#fff;font-family:"Plus Jakarta Sans",sans-serif;transition:background .15s}
+    .btn-retry:hover{background:#dc2626}
+    .btn-retry:disabled{opacity:.6;cursor:not-allowed}
+    .erro-dados-detalhe{font-size:10px;font-family:"DM Mono",monospace;background:#fee2e2;padding:4px 8px;border-radius:5px;color:#9f1239;margin-top:6px;word-break:break-all}
     /* ── SVG Icon system ── */
     .icon-svg{display:inline-block;vertical-align:middle;flex-shrink:0}
     @keyframes icon-spin{to{transform:rotate(360deg)}}
@@ -189,6 +201,23 @@
     </div>
     <span class="badge-perfil" id="badge-perfil">—</span>
   </div>
+  <div id="erro-dados">
+    <div class="erro-dados-icone">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div class="erro-dados-corpo">
+      <div class="erro-dados-titulo" id="erro-dados-titulo">Erro ao carregar dados</div>
+      <div class="erro-dados-msg" id="erro-dados-msg">Não foi possível obter os dados do Firestore.</div>
+      <div class="erro-dados-acoes">
+        <button class="btn-retry" id="btn-retry" onclick="tentarCarregarDados()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Tentar novamente
+        </button>
+      </div>
+      <div class="erro-dados-detalhe" id="erro-dados-detalhe" style="display:none"></div>
+    </div>
+  </div>
+
   <div class="content">
 
     <!-- SECÇÃO 1: Mapas de Pessoal -->
@@ -669,7 +698,11 @@
         if (cs) cs.style.display = "none";
       }
 
-      await carregarDados();
+      try {
+        await carregarDados();
+      } catch(e) {
+        _erroCarregar(e);
+      }
 
     } catch(e) {
       console.error(e);
@@ -712,6 +745,50 @@
   });
 
   // ── CARREGAR DADOS ──────────────────────────────────────
+  function _erroCarregar(e) {
+    const banner  = document.getElementById("erro-dados");
+    const titulo  = document.getElementById("erro-dados-titulo");
+    const msg     = document.getElementById("erro-dados-msg");
+    const detalhe = document.getElementById("erro-dados-detalhe");
+    const sub     = document.getElementById("topbar-sub");
+
+    const erros = {
+      "permission-denied":  ["Sem permissão de acesso",    "O seu perfil não tem acesso à colecção de funcionários. Contacte o administrador do sistema."],
+      "unavailable":        ["Serviço indisponível",        "O Firestore está temporariamente inacessível. Verifique a ligação à internet e tente novamente."],
+      "not-found":          ["Colecção não encontrada",     "A colecção de funcionários não foi encontrada. Verifique a configuração do projecto Firebase."],
+      "resource-exhausted": ["Quota excedida",             "O limite de leituras do Firestore foi atingido. Aguarde alguns minutos e tente novamente."],
+      "failed-precondition":["Índice em falta",            "Esta consulta requer um índice no Firestore. Consulte a consola Firebase para criar o índice necessário."],
+      "unauthenticated":    ["Sessão expirada",             "A sua sessão expirou. Recarregue a página para autenticar novamente."],
+    };
+    const [t, m] = erros[e.code] || ["Erro inesperado", "Ocorreu um erro ao carregar os dados. Consulte os detalhes abaixo."];
+
+    titulo.textContent  = t;
+    msg.textContent     = m;
+    if (e.code || e.message) {
+      detalhe.textContent = (e.code ? e.code + " — " : "") + (e.message || "");
+      detalhe.style.display = "block";
+    }
+    banner.classList.add("visivel");
+    if (sub) sub.textContent = "Erro ao carregar dados";
+    console.error("[carregarDados]", e);
+  }
+
+  window.tentarCarregarDados = async function() {
+    const btn    = document.getElementById("btn-retry");
+    const banner = document.getElementById("erro-dados");
+    const sub    = document.getElementById("topbar-sub");
+    if (btn) { btn.disabled = true; btn.innerHTML = I.loader + " A carregar…"; }
+    banner.classList.remove("visivel");
+    if (sub) sub.textContent = "A carregar…";
+    try {
+      await carregarDados();
+    } catch(e) {
+      _erroCarregar(e);
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d=\'M20.49 15a9 9 0 1 1-2.12-9.36L23 10\'/></svg> Tentar novamente'; }
+    }
+  };
+
   async function carregarDados() {
     const [snapF, snapU] = await Promise.all([
       getDocs(collection(db, "funcionarios")),
