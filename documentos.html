@@ -266,10 +266,9 @@
     }
 
     /* ================================================
-       IMPRESSÃO — A4 paisagem, só o documento
+       IMPRESSÃO — regras comuns (orientação injectada dinamicamente por JS)
        ================================================ */
     @media print {
-      @page { size: A4 landscape; margin: 3mm; }
       /* Esconder absolutamente tudo — incluindo sidebar injectada pelo sigdoc-nav.js */
       body * { visibility: hidden; }
       /* Mostrar apenas o conteúdo do documento */
@@ -468,9 +467,8 @@
       margin: 8mm 0 0;
     }
     
-    /* PRINT */
+    /* PRINT — Guia Médica (orientação injectada dinamicamente por JS) */
     @media print {
-      @page { size: A4 portrait; margin: 0; }
       body * { visibility: hidden; }
       #area-impressao, #area-impressao * { visibility: visible !important; }
       #area-impressao { position: absolute; top: 0; left: 0; width: 100%; display: block !important; }
@@ -2114,7 +2112,35 @@
     renderizarPreviewArquivo(docSel);
   };
 
-  window.imprimirDocumento = function() { window.print(); };
+  window.imprimirDocumento = function() {
+    // Determinar o tipo de documento activo para escolher a orientação correcta
+    const tipoDoc = document.getElementById("tipo-documento").value;
+    const isGuiaFerias = tipoDoc === "guia-ferias";
+
+    // Definir configuração de página consoante o tipo de documento:
+    // - Guia de Férias: A4 paisagem (duas colunas lado a lado)
+    // - Guia Médica e Declaração de Serviço: A4 retrato
+    const pageCSS = isGuiaFerias
+      ? "@page { size: A4 landscape; margin: 3mm; }"
+      : "@page { size: A4 portrait; margin: 0; }";
+
+    // Injectar o estilo de página correcto, substituindo qualquer anterior
+    let estiloExistente = document.getElementById("sigdoc-print-page");
+    if (estiloExistente) estiloExistente.remove();
+    const estiloImpressao = document.createElement("style");
+    estiloImpressao.id = "sigdoc-print-page";
+    estiloImpressao.textContent = pageCSS;
+    document.head.appendChild(estiloImpressao);
+
+    // Remover o estilo injectado após a impressão (limpar estado)
+    window.addEventListener("afterprint", function limparEstiloImpressao() {
+      const el = document.getElementById("sigdoc-print-page");
+      if (el) el.remove();
+      window.removeEventListener("afterprint", limparEstiloImpressao);
+    });
+
+    window.print();
+  };
 
   function construirDocumento(d) {
     return window.construirGuiaFerias
