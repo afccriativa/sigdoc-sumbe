@@ -565,6 +565,8 @@
 <body>
 
 <div class="barra-topo">
+  <!-- F1-H: Botão de regresso — o CSS .btn-voltar já existia mas o elemento estava ausente do HTML -->
+  <a href="index.html" class="btn-voltar">← Voltar</a>
   <div class="titulo-pagina">
     &#128196; Geração de Documentos
     <span>Direcção Municipal da Saúde do Sumbe</span>
@@ -738,7 +740,8 @@
 </div>
 
 <div id="area-impressao"></div>
-<div class="notificacao" id="notificacao"></div>
+<!-- F1-C: role="status" + aria-live="polite" para que leitores de ecrã anunciem o feedback -->
+<div class="notificacao" id="notificacao" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <script type="module">
   import { initializeApp }                                          from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -870,6 +873,18 @@
   let unsubGuiasEmitidas = null;
   window._solicitacaoOrigemId = null;
   window._solicitacaoOrigemFuncionarioUid = null;
+
+  // ── F1-D: Utilitário de escape HTML ──────────────────────────────────────
+  // Previne XSS ao inserir dados externos em innerHTML.
+  // Deve ser usado em TODAS as interpolações de dados de utilizador ou Firestore.
+  function escaparHTML(str) {
+    return String(str ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
   const PERFIS_ACESSO = ["admin","director","chefe","tecnico"];
   function normalizarPerfilDocumentos(docPerfil) {
     return window.SIGDOC_AUTHZ
@@ -1509,12 +1524,17 @@
       div.innerHTML = '<div class="resultado-item"><span style="color:#aaa">Nenhum funcionário encontrado.</span></div>';
       div.style.display = "block"; return;
     }
+    // F1-D: dados escapados; ID guardado em data-id em vez de onclick inline
     div.innerHTML = r.map(f =>
-      `<div class="resultado-item" onclick="seleccionarFuncionario('${f.id}')">
-        <div class="func-nome">${f.nome || "—"}</div>
-        <div class="func-info">${(f.cargo||f.categoria) || "—"} &middot; ${f.unidade || "—"}</div>
+      `<div class="resultado-item" data-id="${escaparHTML(f.id)}">
+        <div class="func-nome">${escaparHTML(f.nome || "—")}</div>
+        <div class="func-info">${escaparHTML((f.cargo||f.categoria) || "—")} &middot; ${escaparHTML(f.unidade || "—")}</div>
       </div>`
     ).join("");
+    // Delegar o clique nos itens após injectar o HTML
+    div.querySelectorAll(".resultado-item[data-id]").forEach(item => {
+      item.addEventListener("click", () => seleccionarFuncionario(item.dataset.id));
+    });
     div.style.display = "block";
   };
 
@@ -2053,6 +2073,7 @@
       lista.innerHTML = `<div class="arquivo-vazio">Nenhum documento encontrado para o filtro actual.</div>`;
       return;
     }
+    // F1-D: d.id escapado; onclick substituído por data-id + addEventListener
     lista.innerHTML = docs.map(d => {
       const data = d.geradoEm?.toDate?.()
         ? d.geradoEm.toDate().toLocaleDateString("pt-AO", { day:"2-digit", month:"short", year:"numeric" })
@@ -2064,15 +2085,19 @@
       return `
         <div class="guia-emitida-item">
           <div class="guia-emitida-main">
-            <div class="guia-emitida-titulo">${ref} · ${d.funcionarioNome || "Funcionario nao identificado"}</div>
-            <div class="guia-emitida-meta">${data} · ${detalhe}</div>
+            <div class="guia-emitida-titulo">${escaparHTML(ref)} · ${escaparHTML(d.funcionarioNome || "Funcionario nao identificado")}</div>
+            <div class="guia-emitida-meta">${escaparHTML(data)} · ${escaparHTML(detalhe)}</div>
           </div>
           <div class="guia-emitida-acoes">
-            <span class="guia-estado ${estado}">${estado}</span>
-            <button class="btn-arquivo-acao" onclick="abrirGuiaEmitida('${d.id}')" ${podeVer ? "" : "disabled"}>Ver no painel</button>
+            <span class="guia-estado ${escaparHTML(estado)}">${escaparHTML(estado)}</span>
+            <button class="btn-arquivo-acao" data-doc-id="${escaparHTML(d.id)}" ${podeVer ? "" : "disabled"}>Ver no painel</button>
           </div>
         </div>`;
     }).join("");
+    // Delegar eventos nos botões após injectar o HTML
+    lista.querySelectorAll(".btn-arquivo-acao[data-doc-id]").forEach(btn => {
+      btn.addEventListener("click", () => window.abrirGuiaEmitida(btn.dataset.docId));
+    });
   }
 
   function carregarGuiasEmitidas() {
@@ -2141,12 +2166,6 @@
 
     window.print();
   };
-
-  function construirDocumento(d) {
-    return window.construirGuiaFerias
-      ? window.construirGuiaFerias(d)
-      : '';
-  }
 
   function mostrarNotificacao(msg, tipo) {
     const el = document.getElementById("notificacao");
