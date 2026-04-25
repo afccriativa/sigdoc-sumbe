@@ -143,8 +143,10 @@
         }
         .ds-pagina {
           width: 210mm;
-          min-height: 297mm;
-          padding: 16mm 18mm 24mm;
+          height: 297mm;
+          max-height: 297mm;
+          overflow: hidden;
+          padding: 12mm 18mm 14mm;
           box-sizing: border-box;
         }
         .ds-cabecalho {
@@ -180,7 +182,7 @@
           margin: 9mm 0 5mm;
         }
         .ds-corpo p {
-          margin: 0 0 4.8mm;
+          margin: 0 0 3mm;
           font-size: 12pt;
           line-height: 1.6;
           text-align: justify;
@@ -189,18 +191,18 @@
           font-weight: 700;
         }
         .ds-data {
-          margin-top: 12mm;
+          margin-top: 6mm;
           font-size: 12pt;
           text-align: left;
         }
         .ds-assinatura {
-          margin-top: 16mm;
+          margin-top: 8mm;
           text-align: center;
         }
         .ds-assinatura-titulo {
           font-size: 12pt;
           font-weight: 700;
-          margin-bottom: 16mm;
+          margin-bottom: 10mm;
         }
         .ds-assinatura-linha {
           width: 78mm;
@@ -221,8 +223,11 @@
           body { margin: 0; padding: 0; }
           .ds-documento { width: 210mm; }
           .ds-pagina {
-            min-height: 297mm;
-            page-break-after: always;
+            height: 297mm;
+            max-height: 297mm;
+            overflow: hidden;
+            page-break-after: avoid;
+            page-break-inside: avoid;
           }
         }
       </style>
