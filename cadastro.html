@@ -1792,33 +1792,48 @@
 
   onAuthStateChanged(auth, async u=>{
     if(!u){window.location.href="index.html";return;}
-    utilizadorActual=u;
-    const snap=await getDoc(doc(db,"utilizadores",u.uid));
-    if(!snap.exists()){window.location.href="index.html";return;}
-    const d=normalizarPerfilCadastro(snap.data());
-    if(!temAlgumRoleCadastro(d, perfisPermitidos)){document.getElementById("ecrã-negado").style.display="flex";return;}
-    _perfilActual = d;
+    try {
+      utilizadorActual=u;
+      const snap=await getDoc(doc(db,"utilizadores",u.uid));
+      if(!snap.exists()){window.location.href="index.html";return;}
+      const d=normalizarPerfilCadastro(snap.data());
+      if(!temAlgumRoleCadastro(d, perfisPermitidos)){document.getElementById("ecrã-negado").style.display="flex";return;}
+      _perfilActual = d;
 
-    // Montar navegação lateral
-    window._sigdocAuth = auth;
-    SIGDOC_NAV.mount({
-      pagina:   "cadastro",
-      nome:     d.nome || u.email,
-      perfil:   obterPerfilPrincipalCadastro(d),
-      roles:    d.roles || [obterPerfilPrincipalCadastro(d)],
-      onLogout: async () => {
-        const { signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
-        await signOut(auth);
-        window.location.href = "index.html";
-      }
-    });
+      // Montar navegação lateral
+      window._sigdocAuth = auth;
+      SIGDOC_NAV.mount({
+        pagina:   "cadastro",
+        nome:     d.nome || u.email,
+        perfil:   obterPerfilPrincipalCadastro(d),
+        roles:    d.roles || [obterPerfilPrincipalCadastro(d)],
+        onLogout: async () => {
+          const { signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
+          await signOut(auth);
+          window.location.href = "index.html";
+        }
+      });
 
       // ── Gestão de sessão concorrente ──
       SIGDOC_SESSION.vigiar(db, u.uid, auth);
 
-          document.getElementById("conteudo-principal").style.display="block";
-    if(window.lucide) lucide.createIcons();
-    carregarFuncionarios();
+      document.getElementById("conteudo-principal").style.display="block";
+      if(window.lucide) lucide.createIcons();
+      carregarFuncionarios();
+    } catch(e) {
+      // Falha de rede ou Firestore durante o arranque — não redirecionar;
+      // mostrar ecrã de erro com opção de retry para preservar o contexto.
+      console.error("SIGDOC: falha ao carregar perfil de utilizador —", e);
+      const ecraNegado = document.getElementById("ecrã-negado");
+      ecraNegado.innerHTML = `
+        <div style="color:var(--c-700)"><i data-lucide="wifi-off" style="width:56px;height:56px;stroke-width:1.5"></i></div>
+        <h2 style="color:var(--c-800)">Erro de Ligação</h2>
+        <p style="color:var(--neu-500)">Não foi possível contactar o servidor.<br>Verifique a sua ligação à internet e tente novamente.</p>
+        <button class="btn-novo" style="margin-top:8px;cursor:pointer;" onclick="location.reload()">↺ Tentar novamente</button>
+        <a href="index.html" style="font-size:13px;color:var(--neu-500);margin-top:4px;">← Voltar ao Painel</a>`;
+      ecraNegado.style.display = "flex";
+      if(window.lucide) lucide.createIcons();
+    }
   });
 
   async function carregarFuncionarios(){
