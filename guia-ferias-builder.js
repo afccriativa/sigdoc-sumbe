@@ -86,6 +86,26 @@
         '</div>' +
       '</div>';
 
-    return '<div class="documento-oficial">' + metade + metade + '</div>';
+    return '<style>' +
+      '@media print {' +
+        '@page { size: A4 landscape; margin: 0; }' +
+        'html, body {' +
+          'width: 297mm !important;' +
+          'height: 210mm !important;' +
+          'max-height: 210mm !important;' +
+          'overflow: hidden !important;' +
+          'margin: 0 !important;' +
+          'padding: 0 !important;' +
+        '}' +
+        '.documento-oficial {' +
+          'width: 297mm !important;' +
+          'height: 210mm !important;' +
+          'overflow: hidden !important;' +
+          'page-break-after: avoid !important;' +
+          'page-break-inside: avoid !important;' +
+        '}' +
+      '}' +
+      '</style>' +
+      '<div class="documento-oficial">' + metade + metade + '</div>';
   };
 })();
