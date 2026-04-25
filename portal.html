@@ -3198,7 +3198,7 @@
            sendPasswordResetEmail,
            setPersistence, browserLocalPersistence }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, doc, query, where, orderBy, serverTimestamp, onSnapshot, arrayUnion, increment, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, setDoc, doc, query, where, orderBy, serverTimestamp, onSnapshot, arrayUnion, increment, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
   const firebaseConfig = window.SIGDOC_CONFIG.config;
   const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
   setPersistence(auth,browserLocalPersistence).catch(e=>console.warn(e));
@@ -3343,6 +3343,67 @@
       : [].concat(roles || []).includes(typeof docPerfil === "string" ? docPerfil : docPerfil?.perfil);
   }
 
+  async function resolverFuncionarioAssociadoPortal(user, dadosBrutos){
+    const funcionarioId = dadosBrutos?.funcionarioId || "";
+    if(funcionarioId){
+      try{
+        const snapFunc = await getDoc(doc(db,"funcionarios",funcionarioId));
+        if(snapFunc.exists()) return { id: snapFunc.id, ...snapFunc.data() };
+      }catch(ef){
+        console.warn("Funcionario associado no portal:", ef);
+      }
+    }
+    try{
+      const snapPorUid = await getDocs(query(collection(db,"funcionarios"), where("portalUid","==",user.uid)));
+      if(!snapPorUid.empty) return { id: snapPorUid.docs[0].id, ...snapPorUid.docs[0].data() };
+    }catch(ef2){
+      console.warn("Funcionario por portalUid no portal:", ef2);
+    }
+    return null;
+  }
+
+  async function resolverPerfilPortalAutenticado(user){
+    const refUtilizador = doc(db,"utilizadores",user.uid);
+    const snapUtilizador = await getDoc(refUtilizador);
+    const dadosBrutos = snapUtilizador.exists() ? snapUtilizador.data() : null;
+    const funcAssoc = await resolverFuncionarioAssociadoPortal(user, dadosBrutos);
+
+    if(funcAssoc){
+      _funcDoc = funcAssoc;
+      _funcDocId = funcAssoc.id;
+    }
+
+    if(!dadosBrutos && !funcAssoc) return null;
+
+    const base = normalizarPerfilPortal(dadosBrutos || {});
+    const reparo = {};
+
+    if(!dadosBrutos){
+      Object.assign(reparo, payloadPerfilPortal([]), {
+        nome: funcAssoc?.nome || user.displayName || user.email || "Funcionario",
+        email: user.email || "",
+        unidade: funcAssoc?.unidade || "",
+        activo: true,
+        criadoEm: serverTimestamp()
+      });
+    }else if(window.SIGDOC_AUTHZ?.precisaMigracao?.(dadosBrutos)){
+      Object.assign(reparo, payloadPerfilPortal(base.roles || []));
+    }
+
+    if(funcAssoc?.id && base.funcionarioId !== funcAssoc.id) reparo.funcionarioId = funcAssoc.id;
+    if(!base.nome && (funcAssoc?.nome || user.displayName || user.email)) reparo.nome = funcAssoc?.nome || user.displayName || user.email;
+    if((!base.email || base.email !== user.email) && user.email) reparo.email = user.email;
+    if(!base.unidade && funcAssoc?.unidade) reparo.unidade = funcAssoc.unidade;
+    if(base.activo === undefined) reparo.activo = true;
+
+    if(Object.keys(reparo).length){
+      reparo.ultimoAcesso = serverTimestamp();
+      await setDoc(refUtilizador, reparo, { merge:true });
+    }
+
+    return normalizarPerfilPortal({ ...(dadosBrutos || {}), ...reparo });
+  }
+
   onAuthStateChanged(auth,async user=>{
     if(!user||user.isAnonymous){
       mostrarEcra("ecra-entrada");
@@ -3351,20 +3412,9 @@
     }
     _utilizador=user;
     try{
-      const snap=await getDoc(doc(db,"utilizadores",user.uid));
-      if(!snap.exists()){mostrarEcra("ecra-entrada");esconderLoading();return;}
-      const dados=normalizarPerfilPortal(snap.data());
+      const dados = await resolverPerfilPortalAutenticado(user);
+      if(!dados){mostrarEcra("ecra-entrada");esconderLoading();return;}
       if(!temRolePortal(dados, ["funcionario"])){mostrarEcra("ecra-entrada");esconderLoading();return;}
-      if(dados.funcionarioId){
-        try{const sf=await getDoc(doc(db,"funcionarios",dados.funcionarioId));if(sf.exists()){_funcDoc=sf.data();_funcDocId=sf.id;}}catch(ef){console.warn(ef);}
-      }
-      if(!_funcDoc){
-        try{
-          const qf=query(collection(db,"funcionarios"),where("portalUid","==",user.uid));
-          const sf=await getDocs(qf);
-          if(!sf.empty){_funcDoc=sf.docs[0].data();_funcDocId=sf.docs[0].id;await updateDoc(doc(db,"utilizadores",user.uid),{funcionarioId:_funcDocId});}
-        }catch(ef2){console.warn(ef2);}
-      }
       mostrarPortal(user,dados);
       esconderLoading();
       // ── Sessão activa: gerar token + listener de expulsão ──
@@ -3588,7 +3638,6 @@
       if(auth.currentUser&&auth.currentUser.isAnonymous){const linked=await linkWithCredential(auth.currentUser,cred);uid=linked.user.uid;userFinal=linked.user;}
       else{const c=await createUserWithEmailAndPassword(auth,email,senha);uid=c.user.uid;userFinal=c.user;}
       _utilizador=userFinal;
-      const{setDoc}=await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
       await setDoc(doc(db,"utilizadores",uid),{nome:_funcDoc.nome,email,unidade:_funcDoc.unidade||"",activo:true,funcionarioId:_funcDocId,criadoEm:serverTimestamp(),ultimoAcesso:serverTimestamp(),...payloadPerfilPortal([])});
       await updateDoc(doc(db,"funcionarios",_funcDocId),{portalUid:uid,portalEmail:email,portalCriadoEm:serverTimestamp()});
       const nome=(_funcDoc.nome||"").split(" ")[0];
