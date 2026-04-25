@@ -1824,7 +1824,11 @@
     documentoGerado = true;
 
     if (!documentoSubmetido) {
-      document.getElementById("btn-submeter").disabled = false;
+      // F1-E: repor display antes de habilitar — o botão pode estar hidden (style.display="none")
+      // se o utilizador tiver submetido um documento antes de abrir o arquivo e gerar um novo.
+      const btnSubGerar = document.getElementById("btn-submeter");
+      btnSubGerar.style.display = "";
+      btnSubGerar.disabled      = false;
     }
 
     if (!silencioso) mostrarNotificacao("✅ Documento gerado! Clique em 'Guardar Documento' para arquivar e enviar para validação.");
@@ -2046,10 +2050,16 @@
       badgeEstado.textContent = "Arquivo historico aberto para consulta e reimpressao";
     }
     document.getElementById("btn-imprimir").disabled = false;
-    document.getElementById("btn-submeter").disabled = true;
+    // F1-E: restaurar visibilidade do btn-submeter — após submissão bem-sucedida,
+    // _criarDocumento usa style.display="none", tornando o botão permanentemente invisível.
+    // É necessário repor display, disabled E o texto antes de qualquer nova geração.
+    const btnSubArquivo = document.getElementById("btn-submeter");
+    btnSubArquivo.style.display = "";          // tornar visível (estava none após submissão)
+    btnSubArquivo.disabled    = true;           // arquivo é só leitura — não se pode re-submeter
+    btnSubArquivo.innerHTML   = "&#128228; Guardar Documento"; // repor texto
     dadosUltimoDocumento = null;
-    documentoGerado = false;
-    documentoSubmetido = false;
+    documentoGerado      = false;
+    documentoSubmetido   = false;
     document.querySelector(".painel-preview")?.scrollIntoView({ behavior: "smooth", block: "start" });
     mostrarNotificacao(`📄 Arquivo de ${nomeTipo} aberto na pre-visualizacao.`);
   }
