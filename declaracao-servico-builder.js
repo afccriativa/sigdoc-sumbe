@@ -185,7 +185,7 @@
           height: 24mm;
           object-fit: contain;
           display: block;
-          margin: 0 auto 3mm;
+          margin: 0 auto 1mm;
         }
         .ds-cabecalho p {
           margin: 0;
