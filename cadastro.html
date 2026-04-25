@@ -403,7 +403,7 @@
       position:relative;background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(247,250,249,.94));border-radius:var(--r-xl);
       width:100%;max-width:700px;
       display:flex;flex-direction:column;max-height:90vh;
-      box-shadow:var(--sh-lg);margin:auto;overflow:hidden;border:1px solid rgba(255,255,255,.76);
+      box-shadow:var(--sh-lg);margin:auto;overflow:clip;border:1px solid rgba(255,255,255,.76);
       animation:slideUp .35s cubic-bezier(.16,1,.3,1);
     }
     .modal::before{
@@ -411,6 +411,7 @@
       background:linear-gradient(180deg,rgba(167,243,208,.08),rgba(167,243,208,0));
     }
     @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    #form-funcionario{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
 
     .modal-head{
       position:relative;background:linear-gradient(135deg,var(--c-950),var(--c-850) 46%,var(--c-700));
@@ -607,7 +608,7 @@
     }
     .ficha-fechar{margin-left:auto;flex-shrink:0;z-index:1}
 
-    .ficha-corpo{padding:0;background:linear-gradient(180deg,#f8fafc,#f1f5f9)}
+    .ficha-corpo{padding:0;background:linear-gradient(180deg,#f8fafc,#f1f5f9);flex:1;overflow-y:auto;min-height:0}
     .ficha-tabs{
       display:flex;gap:10px;border-bottom:none;
       padding:16px 22px 0;background:transparent;flex-wrap:wrap;
