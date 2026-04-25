@@ -655,8 +655,8 @@
       <div class="cartao-cabecalho">&#128203; Tipo de Documento</div>
       <div class="cartao-corpo">
         <div>
-          <label>Seleccione o documento a gerar</label>
-          <select id="tipo-documento" onchange="actualizarCamposFormulario()">
+          <label for="tipo-documento">Seleccione o documento a gerar</label>
+          <select id="tipo-documento" onchange="actualizarCamposFormulario()" aria-label="Tipo de documento a gerar">
             <option value="guia-ferias">Guia de Férias</option>
             <option value="declaracao-servico">Declaração de Adiantamento Salarial</option>
             <option value="guia-medica">Guia Médica</option>
@@ -671,85 +671,110 @@
       <div class="cartao-corpo">
 
         <div>
-          <label>Número da Guia</label>
+          <label for="num-guia">Número da Guia</label>
           <div class="row2" id="linha-numero-guia">
             <div id="campo-num-guia">
-              <input type="number" id="num-guia" placeholder="Ex: 12" min="1" oninput="actualizarPreview()"/>
+              <input type="number" id="num-guia" placeholder="Ex: 12" min="1"
+                     aria-label="Número da guia" aria-required="true" aria-invalid="false"
+                     oninput="actualizarPreview()"/>
             </div>
             <div id="campo-ano-guia">
-              <input type="number" id="ano-guia" placeholder="Ano" value="2026" oninput="actualizarPreview()"/>
+              <input type="number" id="ano-guia" placeholder="Ano" value="2026"
+                     aria-label="Ano da guia" aria-required="true" aria-invalid="false"
+                     oninput="actualizarPreview()"/>
             </div>
           </div>
         </div>
 
         <div>
-          <label>Funcionário</label>
+          <label for="pesquisa-func">Funcionário</label>
           <div class="campo-pesquisa-func">
-            <input type="text" id="pesquisa-func" placeholder="Nome ou número de agente..." oninput="pesquisarFuncionario(this.value)" autocomplete="off"/>
-            <div class="resultados-pesquisa" id="resultados-pesquisa"></div>
+            <input type="text" id="pesquisa-func" placeholder="Nome ou número de agente..."
+                   aria-label="Pesquisar funcionário" aria-required="true" aria-invalid="false"
+                   aria-autocomplete="list" aria-controls="resultados-pesquisa"
+                   oninput="pesquisarFuncionario(this.value)" autocomplete="off"/>
+            <div class="resultados-pesquisa" id="resultados-pesquisa" role="listbox" aria-label="Resultados da pesquisa de funcionários"></div>
           </div>
           <div id="alerta-bi" style="display:none;margin-top:6px;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:600;line-height:1.4"></div>
         </div>
 
         <!-- ✅ CAMPO DINÂMICO: Unidade Sanitária (aparece para guia-medica) -->
         <div id="campo-unidade-sanitaria" style="display:none">
-          <label>Unidade Sanitária a Consultar <span style="color:var(--c-700)">*</span></label>
-          <input type="text" id="unidade-sanitaria" placeholder="Ex: Hospital Municipal do Sumbe, Centro Médico..." oninput="actualizarPreview()"/>
+          <label for="unidade-sanitaria">Unidade Sanitária a Consultar <span style="color:var(--c-700)" aria-hidden="true">*</span></label>
+          <input type="text" id="unidade-sanitaria" placeholder="Ex: Hospital Municipal do Sumbe, Centro Médico..."
+                 aria-required="true" aria-invalid="false"
+                 oninput="actualizarPreview()"/>
           <div style="font-size:10px;color:#6b7280;margin-top:4px;font-style:italic">Será preenchido automaticamente na guia: "Vai apresentar-se ao..."</div>
         </div>
 
         <div id="campos-declaracao-servico" style="display:none">
           <div class="row2">
             <div>
-              <label>Número de meses do adiantamento <span style="color:var(--c-700)">*</span></label>
-              <input type="number" id="declaracao-meses" min="1" max="12" step="1" placeholder="Ex: 4" oninput="actualizarPreview()"/>
+              <label for="declaracao-meses">Número de meses do adiantamento <span style="color:var(--c-700)" aria-hidden="true">*</span></label>
+              <input type="number" id="declaracao-meses" min="1" max="12" step="1" placeholder="Ex: 4"
+                     aria-required="true" aria-invalid="false"
+                     oninput="actualizarPreview()"/>
               <div style="font-size:10px;color:#6b7280;margin-top:4px;font-style:italic">Usado na observação final da declaração: "(4) quatro meses".</div>
             </div>
             <div>
-              <label>Salário líquido em AKZ <span style="color:var(--c-700)">*</span></label>
-              <input type="text" id="declaracao-salario" inputmode="decimal" placeholder="Ex: 205.082,30" oninput="mascaraValorKzDocumentos(this); actualizarPreview()"/>
+              <label for="declaracao-salario">Salário líquido em AKZ <span style="color:var(--c-700)" aria-hidden="true">*</span></label>
+              <input type="text" id="declaracao-salario" inputmode="decimal" placeholder="Ex: 205.082,30"
+                     aria-required="true" aria-invalid="false"
+                     oninput="mascaraValorKzDocumentos(this); actualizarPreview()"/>
               <div style="font-size:10px;color:#6b7280;margin-top:4px;font-style:italic">Valor a constar no corpo da declaração.</div>
             </div>
           </div>
           <div style="margin-top:14px">
-            <label>Número de conta / IBAN <span style="color:var(--c-700)">*</span></label>
-            <input type="text" id="declaracao-conta" maxlength="40" placeholder="Ex: 0282-N41339-011" oninput="this.value=this.value.toUpperCase(); actualizarPreview()"/>
+            <label for="declaracao-conta">Número de conta / IBAN <span style="color:var(--c-700)" aria-hidden="true">*</span></label>
+            <input type="text" id="declaracao-conta" maxlength="40" placeholder="Ex: 0282-N41339-011"
+                   aria-required="true" aria-invalid="false"
+                   oninput="this.value=this.value.toUpperCase(); actualizarPreview()"/>
             <div style="font-size:10px;color:#6b7280;margin-top:4px;font-style:italic">Conta indicada no compromisso de depósito/credito ao BPC.</div>
           </div>
         </div>
 
         <div id="campo-cargo-categoria">
-          <label>Cargo / Categoria</label>
-          <input type="text" id="cargo-func" placeholder="Preenchido automaticamente" readonly/>
-          <input type="text" id="categoria-func" style="display:none" readonly/>
+          <label for="cargo-func">Cargo / Categoria</label>
+          <input type="text" id="cargo-func" placeholder="Preenchido automaticamente"
+                 aria-label="Cargo ou categoria do funcionário" aria-readonly="true" readonly/>
+          <input type="text" id="categoria-func" aria-hidden="true" style="display:none" readonly/>
           <div id="hint-cargo-cat" style="display:none;font-size:10px;color:#6b7280;margin-top:4px;font-style:italic"></div>
         </div>
 
         <div id="campo-local-colocacao">
-          <label>Local de Colocação</label>
-          <input type="text" id="local-func" placeholder="Preenchido automaticamente" readonly/>
+          <label for="local-func">Local de Colocação</label>
+          <input type="text" id="local-func" placeholder="Preenchido automaticamente"
+                 aria-label="Local de colocação do funcionário" aria-readonly="true" readonly/>
         </div>
 
         <div class="row2" id="linha-ferias-periodo">
           <div id="campo-num-dias">
-            <label>Dias úteis com direito</label>
-            <input type="number" id="num-dias" placeholder="Auto calculado" readonly/>
+            <label for="num-dias">Dias úteis com direito</label>
+            <input type="number" id="num-dias" placeholder="Auto calculado"
+                   aria-label="Número de dias úteis de férias com direito — calculado automaticamente"
+                   aria-readonly="true" aria-required="true" aria-invalid="false" readonly/>
             <div id="info-dias" class="info-calc"></div>
           </div>
           <div id="campo-data-inicio">
-            <label>Data de início das férias</label>
-            <input type="date" id="data-inicio" oninput="calcularApresentacao(); actualizarPreview()"/>
+            <label for="data-inicio">Data de início das férias</label>
+            <input type="date" id="data-inicio"
+                   aria-required="true" aria-invalid="false"
+                   oninput="calcularApresentacao(); actualizarPreview()"/>
           </div>
         </div>
 
         <div class="row2" id="linha-ferias-datas">
           <div id="campo-data-emissao">
-            <label>Data de emissão</label>
-            <input type="date" id="data-emissao" oninput="actualizarPreview()"/>
+            <label for="data-emissao">Data de emissão</label>
+            <input type="date" id="data-emissao"
+                   aria-required="true" aria-invalid="false"
+                   oninput="actualizarPreview()"/>
           </div>
           <div id="campo-data-apresentacao">
-            <label>Data de apresentação</label>
-            <input type="date" id="data-apresentacao" readonly/>
+            <label for="data-apresentacao">Data de apresentação</label>
+            <input type="date" id="data-apresentacao"
+                   aria-label="Data de apresentação ao serviço — calculada automaticamente"
+                   aria-readonly="true" readonly/>
             <div id="info-apresentacao" class="info-calc">&#128197; Calculada (excluindo fins-de-semana e feriados)</div>
           </div>
         </div>
@@ -757,8 +782,10 @@
         <div id="info-feriados" class="info-ferias"></div>
 
         <div>
-          <label id="label-nome-chefe">Nome do Chefe de Secção</label>
-          <input type="text" id="nome-chefe" value="Hildebrando M.T. Cassacula" oninput="actualizarPreview()"/>
+          <label id="label-nome-chefe" for="nome-chefe">Nome do Chefe de Secção</label>
+          <input type="text" id="nome-chefe" value="Hildebrando M.T. Cassacula"
+                 aria-label="Nome do responsável pela assinatura do documento"
+                 oninput="actualizarPreview()"/>
         </div>
 
       </div>
@@ -797,7 +824,10 @@
         </div>
         <span class="arquivo-badge" id="arquivo-guias-total">0 documentos</span>
       </div>
-      <input class="arquivo-filtro" type="text" id="pesquisa-guia-emitida" placeholder="Pesquisar por referência, funcionário ou detalhe..." oninput="filtrarGuiasEmitidas()"/>
+      <input class="arquivo-filtro" type="text" id="pesquisa-guia-emitida"
+             placeholder="Pesquisar por referência, funcionário ou detalhe..."
+             aria-label="Filtrar documentos emitidos por referência, funcionário ou detalhe"
+             oninput="filtrarGuiasEmitidas()"/>
       <div class="lista-guias-emitidas" id="lista-guias-emitidas">
         <div class="arquivo-vazio">A carregar arquivo de documentos...</div>
       </div>
@@ -962,12 +992,19 @@
     // Verificar se já existe algum campo com erro — se sim, não roubar o foco
     const primeiroChamada = !document.querySelector(".campo-erro-input");
     campo.classList.add("campo-erro-input");
+    // F2-C: sinalizar estado inválido para tecnologias de apoio
+    campo.setAttribute("aria-invalid", "true");
     // Reutilizar elemento existente ou criar um novo
     let msgEl = campo.parentElement.querySelector(".campo-erro-msg");
     if (!msgEl) {
       msgEl = document.createElement("div");
       msgEl.className = "campo-erro-msg";
-      campo.after(msgEl);  // inserir imediatamente após o campo
+      // Associar a mensagem ao campo via aria-describedby para leitores de ecrã
+      const msgId = campoId + "-erro-msg";
+      msgEl.id = msgId;
+      msgEl.setAttribute("role", "alert");
+      campo.setAttribute("aria-describedby", msgId);
+      campo.after(msgEl);
     }
     msgEl.textContent = mensagem;
     msgEl.style.display = "flex";
@@ -980,6 +1017,8 @@
     const campo = document.getElementById(campoId);
     if (!campo) return;
     campo.classList.remove("campo-erro-input");
+    // F2-C: restaurar estado válido para tecnologias de apoio
+    campo.setAttribute("aria-invalid", "false");
     const msgEl = campo.parentElement.querySelector(".campo-erro-msg");
     if (msgEl) msgEl.style.display = "none";
   }
