@@ -815,19 +815,19 @@
   <!-- KPIs -->
   <div class="kpi-row">
     <div class="kpi-card kpi-card-total">
-      <div class="kpi-icon">👥</div>
+      <div class="kpi-icon"><i data-lucide="users" style="width:22px;height:22px;stroke-width:2"></i></div>
       <div><div class="kpi-num" id="ind-total">—</div><div class="kpi-lbl">Total de Funcionários</div></div>
     </div>
     <div class="kpi-card kpi-card-activo">
-      <div class="kpi-icon">✅</div>
+      <div class="kpi-icon"><i data-lucide="user-check" style="width:22px;height:22px;stroke-width:2"></i></div>
       <div><div class="kpi-num" id="ind-activos">—</div><div class="kpi-lbl">Em Serviço Activo</div></div>
     </div>
     <div class="kpi-card kpi-card-quadro">
-      <div class="kpi-icon">📋</div>
+      <div class="kpi-icon"><i data-lucide="clipboard-list" style="width:22px;height:22px;stroke-width:2"></i></div>
       <div><div class="kpi-num" id="ind-quadro">—</div><div class="kpi-lbl">Pessoal do Quadro</div></div>
     </div>
     <div class="kpi-card kpi-card-provisorio">
-      <div class="kpi-icon">🔄</div>
+      <div class="kpi-icon"><i data-lucide="refresh-cw" style="width:22px;height:22px;stroke-width:2"></i></div>
       <div><div class="kpi-num" id="ind-provisorio">—</div><div class="kpi-lbl">Provimento Provisório</div></div>
     </div>
   </div>
@@ -840,7 +840,7 @@
       <span>Filtre rapidamente a base de funcionários e entre em ação com menos cliques e mais contexto visual.</span>
     </div>
     <div class="pesquisa-wrap">
-      <span class="pesquisa-icone">🔍</span>
+      <span class="pesquisa-icone"><i data-lucide="search" style="width:16px;height:16px;stroke-width:2"></i></span>
       <input type="text" id="campo-pesquisa" placeholder="Pesquisar por nome, número de agente..." oninput="pesquisar()"/>
     </div>
     <select class="filtro-select" id="filtro-local" onchange="pesquisar()">
@@ -870,7 +870,7 @@
     <button class="btn-novo" onclick="abrirFormulario()">+ Novo Funcionário</button>
     <button class="btn-novo btn-alerta" id="btn-filtro-form"
       onclick="filtrarFormPendente(this)">
-      📋 Formulários por rever
+      <i data-lucide="clipboard-list" style="width:14px;height:14px;stroke-width:2"></i> Formulários por rever
       <span id="conta-form-pend" class="btn-badge-conta" style="display:none">0</span>
     </button>
   </div>
@@ -897,7 +897,7 @@
           </tr>
         </thead>
         <tbody id="corpo-tabela">
-          <tr><td colspan="6"><div class="vazio-tabela"><div class="icone">⏳</div><p>A carregar funcionários...</p></div></td></tr>
+          <tr><td colspan="6"><div class="vazio-tabela"><div class="icone"><i data-lucide="hourglass" style="width:40px;height:40px;stroke-width:1.5"></i></div><p>A carregar funcionários...</p></div></td></tr>
         </tbody>
       </table>
     </div>
@@ -914,7 +914,7 @@
 
 <!-- ACESSO NEGADO -->
 <div id="ecrã-negado">
-  <div style="font-size:56px;">🔒</div>
+  <div style="color:var(--c-700)"><i data-lucide="lock-keyhole" style="width:56px;height:56px;stroke-width:1.5"></i></div>
   <h2 style="color:var(--c-800)">Acesso Restrito</h2>
   <p style="color:var(--neu-500)">Não tem permissão para aceder a esta página.</p>
   <a href="index.html" class="btn-novo" style="margin-top:8px;text-decoration:none;">← Voltar ao Painel</a>
@@ -924,7 +924,7 @@
 <div id="overlay-dup">
   <div class="dup-modal">
     <div class="dup-head" id="dup-head">
-      <div class="dup-icon" id="dup-icon">⚠️</div>
+      <div class="dup-icon" id="dup-icon"><i data-lucide="alert-triangle" style="width:26px;height:26px;stroke-width:2"></i></div>
       <div>
         <div class="dup-titulo" id="dup-titulo">Possível Duplicado Detectado</div>
         <div class="dup-sub" id="dup-sub">Verifique antes de prosseguir</div>
@@ -952,7 +952,7 @@
   <div class="modal">
     <div class="modal-head">
       <div>
-        <div class="modal-head-titulo" id="titulo-modal">➕ Registar Novo Funcionário</div>
+        <div class="modal-head-titulo" id="titulo-modal"><i data-lucide="plus" style="width:18px;height:18px;stroke-width:2.5"></i> Registar Novo Funcionário</div>
         <div class="modal-head-sub">Preencha todos os campos obrigatórios (*)</div>
       </div>
       <button class="btn-fechar" onclick="fecharFormulario()">✕</button>
@@ -963,13 +963,13 @@
 
       <!-- Dados Pessoais -->
       <div class="secao-form">
-        <div class="secao-titulo">📋 Dados Pessoais</div>
+        <div class="secao-titulo"><i data-lucide="file-text" style="width:13px;height:13px;stroke-width:2.5"></i> Dados Pessoais</div>
 
         <!-- ── Fotografia do Funcionário ── -->
         <div class="foto-bloco">
           <div class="foto-circulo" id="foto-circulo-admin" onclick="document.getElementById('f-foto-input').click()">
             <span id="foto-inicial-admin">?</span>
-            <div class="foto-circulo-overlay">📷</div>
+            <div class="foto-circulo-overlay"><i data-lucide="camera" style="width:20px;height:20px;stroke-width:2"></i></div>
           </div>
           <input type="file" id="f-foto-input" accept="image/jpeg,image/png,image/webp"
             style="display:none" onchange="previewFotoAdmin(this)"/>
@@ -979,7 +979,7 @@
             <div class="foto-bloco-estado" id="foto-bloco-estado">Sem fotografia</div>
           </div>
           <button class="foto-bloco-btn" type="button" onclick="document.getElementById('f-foto-input').click()">
-            📷 Escolher
+            <i data-lucide="camera" style="width:12px;height:12px;stroke-width:2.5"></i> Escolher
           </button>
         </div>
 
@@ -1019,7 +1019,7 @@
       <!-- Dados Pessoais Complementares (recolhível) -->
       <div class="secao-form recolhida" id="secao-complementar">
         <button type="button" class="secao-titulo-btn" onclick="toggleSecao('secao-complementar')">
-          <span class="secao-label">👤 Dados Pessoais Complementares <span class="badge-opcional">Opcional</span></span>
+          <span class="secao-label"><i data-lucide="user" style="width:13px;height:13px;stroke-width:2.5"></i> Dados Pessoais Complementares <span class="badge-opcional">Opcional</span></span>
           <span class="secao-chevron">▼</span>
         </button>
         <div class="secao-corpo">
@@ -1054,7 +1054,7 @@
             <div class="campo col-2">
               <label>E-mail Pessoal</label>
               <input type="email" id="f-email" placeholder="exemplo@correo.com"/>
-              <span class="campo-hint">ℹ️ Opcional — necessário para activação da conta no Portal do Funcionário</span>
+              <span class="campo-hint"><i data-lucide="info" style="width:11px;height:11px;stroke-width:2.5"></i> Opcional — necessário para activação da conta no Portal do Funcionário</span>
             </div>
           </div>
         </div>
@@ -1062,7 +1062,7 @@
 
       <!-- Dados Profissionais -->
       <div class="secao-form">
-        <div class="secao-titulo">💼 Dados Profissionais</div>
+        <div class="secao-titulo"><i data-lucide="briefcase" style="width:13px;height:13px;stroke-width:2.5"></i> Dados Profissionais</div>
         <div class="grid-2">
           <div class="campo campo-obrig">
             <label>Número de Agente</label>
@@ -1133,7 +1133,7 @@
             <input type="text" id="f-cargo-manual"
               placeholder="Escreva o cargo / função..."
               style="display:none;margin-top:6px;width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;box-sizing:border-box"/>
-            <span class="campo-hint">ℹ️ Só preencher se o cargo for diferente da categoria. Usado nos documentos oficiais.</span>
+            <span class="campo-hint"><i data-lucide="info" style="width:11px;height:11px;stroke-width:2.5"></i> Só preencher se o cargo for diferente da categoria. Usado nos documentos oficiais.</span>
           </div>
           <div class="campo campo-obrig col-2">
             <label>Local de Colocação</label>
@@ -1172,7 +1172,7 @@
               <option value="Secção de Logística Hospitalar e Medicamentos">Secção de Logística Hospitalar e Medicamentos</option>
               <option value="Secretaria">Secretaria</option>
             </select>
-            <span class="campo-hint">ℹ️ Obrigatório para funcionários da Direcção Municipal</span>
+            <span class="campo-hint"><i data-lucide="info" style="width:11px;height:11px;stroke-width:2.5"></i> Obrigatório para funcionários da Direcção Municipal</span>
           </div>
           <div class="campo col-2 campo-oculto" id="campo-area-wrap">
             <label>Área / Serviço no Centro de Saúde</label>
@@ -1195,7 +1195,7 @@
               <option value="Administração / Secretaria">Administração / Secretaria</option>
               <option value="Outro">Outro</option>
             </select>
-            <span class="campo-hint">ℹ️ Indique a área onde desempenha funções no centro de saúde.</span>
+            <span class="campo-hint"><i data-lucide="info" style="width:11px;height:11px;stroke-width:2.5"></i> Indique a área onde desempenha funções no centro de saúde.</span>
           </div>
           <div class="campo campo-obrig">
             <label>Tipo de Vínculo</label>
@@ -1214,7 +1214,7 @@
 
       <!-- Estado e Observações -->
       <div class="secao-form">
-        <div class="secao-titulo">📌 Estado, Escolaridade e Observações</div>
+        <div class="secao-titulo"><i data-lucide="pin" style="width:13px;height:13px;stroke-width:2.5"></i> Estado, Escolaridade e Observações</div>
         <div class="grid-2">
           <div class="campo">
             <label>Estado Actual</label>
@@ -1300,27 +1300,27 @@
                 style="width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;box-sizing:border-box"/>
               <span class="campo-hint">Aceita 150000, 150.000 ou 150.000,00 Kz. O sistema normaliza automaticamente.</span>
               <div style="font-size:11px;color:var(--c-700);background:var(--c-50);border:1px solid var(--c-100);padding:6px 10px;border-radius:8px;margin-top:6px">
-                🔒 Campo visível apenas para perfis admin, chefe e técnico
+                <i data-lucide="lock-keyhole" style="width:11px;height:11px;stroke-width:2.5"></i> Campo visível apenas para perfis admin, chefe e técnico
               </div>
             </div>
       </div>
       <!-- Formação Académica (recolhível) -->
       <div class="secao-form recolhida" id="secao-formacao">
         <button type="button" class="secao-titulo-btn" onclick="toggleSecao('secao-formacao')">
-          <span class="secao-label">🎓 Formação Académica <span class="badge-opcional">Opcional</span></span>
+          <span class="secao-label"><i data-lucide="graduation-cap" style="width:13px;height:13px;stroke-width:2.5"></i> Formação Académica <span class="badge-opcional">Opcional</span></span>
           <span class="secao-chevron">▼</span>
         </button>
         <div class="secao-corpo">
           <div class="campo">
             <label>Está actualmente a frequentar algum curso?</label>
             <div class="toggle-estudando">
-              <button type="button" id="btn-estuda-sim" onclick="setEstudando(true)">✅ Sim, está a estudar</button>
-              <button type="button" id="btn-estuda-nao" onclick="setEstudando(false)">❌ Não</button>
+              <button type="button" id="btn-estuda-sim" onclick="setEstudando(true)"><i data-lucide="check" style="width:12px;height:12px;stroke-width:2.5"></i> Sim, está a estudar</button>
+              <button type="button" id="btn-estuda-nao" onclick="setEstudando(false)"><i data-lucide="x" style="width:12px;height:12px;stroke-width:2.5"></i> Não</button>
             </div>
             <input type="hidden" id="f-estudando" value=""/>
           </div>
           <div class="curso-wrap" id="curso-wrap">
-            <div class="campo-hint" style="margin-bottom:12px">📚 Indique os dados do curso. Esta informação é relevante para processos de progressão na carreira.</div>
+            <div class="campo-hint" style="margin-bottom:12px"><i data-lucide="book-open" style="width:11px;height:11px;stroke-width:2.5"></i> Indique os dados do curso. Esta informação é relevante para processos de progressão na carreira.</div>
             <div class="grid-2">
               <div class="campo">
                 <label>Nome do Curso</label>
@@ -1360,7 +1360,7 @@
     </div>
     <div class="modal-foot">
       <button type="button" class="btn-cancelar" onclick="fecharFormulario()">Cancelar</button>
-      <button type="submit" class="btn-guardar" id="btn-guardar">💾 Guardar Funcionário</button>
+      <button type="submit" class="btn-guardar" id="btn-guardar"><i data-lucide="save" style="width:14px;height:14px;stroke-width:2"></i> Guardar Funcionário</button>
     </div>
     </form>
   </div>
@@ -1383,10 +1383,10 @@
     </div>
     <div class="ficha-corpo">
       <div class="ficha-tabs">
-        <button class="tab-btn activo" onclick="mudarTab('dados',this)">📋 Dados</button>
-        <button class="tab-btn" onclick="mudarTab('historico',this)">📄 Documentos</button>
+        <button class="tab-btn activo" onclick="mudarTab('dados',this)"><i data-lucide="clipboard-list" style="width:14px;height:14px;stroke-width:2"></i> Dados</button>
+        <button class="tab-btn" onclick="mudarTab('historico',this)"><i data-lucide="file" style="width:14px;height:14px;stroke-width:2"></i> Documentos</button>
         <button class="tab-btn" onclick="mudarTab('solicitacoes',this)">
-          📩 Solicitações
+          <i data-lucide="mail" style="width:14px;height:14px;stroke-width:2"></i> Solicitações
           <span id="badge-sol-ficha" style="background:var(--r-600);color:white;border-radius:var(--r-full);padding:1px 7px;font-size:10px;font-weight:700;display:none;margin-left:4px;">0</span>
         </button>
       </div>
@@ -1394,10 +1394,10 @@
         <div class="ficha-grid" id="ficha-grid-dados"></div>
       </div>
       <div class="tab-conteudo" id="tab-solicitacoes">
-        <div id="ficha-solicitacoes"><div class="hist-vazio"><div style="font-size:32px;margin-bottom:8px;">⏳</div><p>A carregar solicitações...</p></div></div>
+        <div id="ficha-solicitacoes"><div class="hist-vazio"><div style="margin-bottom:8px;color:var(--neu-300)"><i data-lucide="hourglass" style="width:32px;height:32px;stroke-width:1.5"></i></div><p>A carregar solicitações...</p></div></div>
       </div>
       <div class="tab-conteudo" id="tab-historico">
-        <div id="ficha-historico"><div class="hist-vazio"><div style="font-size:40px;margin-bottom:10px;">📂</div><p>Seleccione um funcionário para ver o histórico.</p></div></div>
+        <div id="ficha-historico"><div class="hist-vazio"><div style="margin-bottom:10px;color:var(--neu-300)"><i data-lucide="folder-open" style="width:40px;height:40px;stroke-width:1.5"></i></div><p>Seleccione um funcionário para ver o histórico.</p></div></div>
       </div>
     </div>
   </div>
@@ -1419,15 +1419,15 @@
     if(diff < 0){
       hint.style.display='block';
       hint.style.background='#fef2f2'; hint.style.borderColor='#fecaca'; hint.style.color='#dc2626';
-      hint.textContent='⚠️ BI expirado há ' + Math.abs(diff) + ' dias. Actualizar antes de gerar documentos.';
+      hint.innerHTML='<i data-lucide="alert-triangle" style="width:11px;height:11px;stroke-width:2.5"></i> BI expirado há ' + Math.abs(diff) + ' dias. Actualizar antes de gerar documentos.';
     } else if(diff <= 90){
       hint.style.display='block';
       hint.style.background='#fffbeb'; hint.style.borderColor='#fde68a'; hint.style.color='#92400e';
-      hint.textContent='⏳ BI expira em ' + diff + ' dias. Considere renovar brevemente.';
+      hint.innerHTML='<i data-lucide="hourglass" style="width:11px;height:11px;stroke-width:2.5"></i> BI expira em ' + diff + ' dias. Considere renovar brevemente.';
     } else {
       hint.style.display='block';
       hint.style.background='#f0fdf4'; hint.style.borderColor='#bbf7d0'; hint.style.color='#166534';
-      hint.textContent='✅ BI válido até ' + vDate.toLocaleDateString('pt-PT') + '.';
+      hint.innerHTML='<i data-lucide="check-circle" style="width:11px;height:11px;stroke-width:2.5"></i> BI válido até ' + vDate.toLocaleDateString('pt-PT') + '.';
     }
   };
 
@@ -1446,16 +1446,16 @@
     hint.style.display = 'block';
     if (isIBAN) {
       hint.style.background = '#f0fdf4'; hint.style.borderColor = '#bbf7d0'; hint.style.color = '#166534';
-      hint.textContent = '✅ Formato IBAN angolano válido (AO + 23 dígitos).';
+      hint.innerHTML = '<i data-lucide="check-circle" style="width:11px;height:11px;stroke-width:2.5"></i> Formato IBAN angolano válido (AO + 23 dígitos).';
     } else if (isNIB) {
       hint.style.background = '#f0fdf4'; hint.style.borderColor = '#bbf7d0'; hint.style.color = '#166534';
-      hint.textContent = '✅ NIB com 21 dígitos reconhecido.';
+      hint.innerHTML = '<i data-lucide="check-circle" style="width:11px;height:11px;stroke-width:2.5"></i> NIB com 21 dígitos reconhecido.';
     } else if (raw.startsWith('AO') && raw.length < 25) {
       hint.style.background = '#fffbeb'; hint.style.borderColor = '#fde68a'; hint.style.color = '#92400e';
-      hint.textContent = '⏳ IBAN AO incompleto — faltam ' + (25 - raw.length) + ' caracteres.';
+      hint.innerHTML = '<i data-lucide="hourglass" style="width:11px;height:11px;stroke-width:2.5"></i> IBAN AO incompleto — faltam ' + (25 - raw.length) + ' caracteres.';
     } else {
       hint.style.background = '#f9fafb'; hint.style.borderColor = '#e5e7eb'; hint.style.color = '#6b7280';
-      hint.textContent = 'ℹ️ Guardado como inserido. Formato esperado: AO06 + 21 dígitos.';
+      hint.innerHTML = '<i data-lucide="info" style="width:11px;height:11px;stroke-width:2.5"></i> Guardado como inserido. Formato esperado: AO06 + 21 dígitos.';
     }
   };
 
@@ -1808,6 +1808,7 @@
       SIGDOC_SESSION.vigiar(db, u.uid, auth);
 
           document.getElementById("conteudo-principal").style.display="block";
+    if(window.lucide) lucide.createIcons();
     carregarFuncionarios();
   });
 
@@ -1894,7 +1895,8 @@
 
   function criarLinkDocumento(funcId, tipo, url, texto) {
     if (!url) return null;
-    const link = criarNo("a", null, texto);
+    const link = document.createElement("a");
+    link.innerHTML = texto;
     link.style.color = "var(--c-700)";
     link.style.fontWeight = "700";
     if (url === "local") {
@@ -1957,7 +1959,9 @@
       const td = document.createElement("td");
       td.colSpan = 6;
       const vazio = criarNo("div", "vazio-tabela");
-      vazio.appendChild(criarNo("div", "icone", "👥"));
+      const _iconeVazio = criarNo("div", "icone");
+      _iconeVazio.innerHTML = '<i data-lucide="users" style="width:48px;height:48px;stroke-width:1.5"></i>';
+      vazio.appendChild(_iconeVazio);
       vazio.appendChild(criarNo("p", null, "Nenhum funcionário encontrado."));
       vazio.appendChild(criarNo("small", null, "Clique em \"+ Novo Funcionário\" para começar."));
       td.appendChild(vazio);
@@ -1977,7 +1981,8 @@
         const tdNome = document.createElement("td");
         const nome = criarNo("div", "func-nome", f.nome || "—");
         if (f.formularioPendente) {
-          const badgePend = criarNo("span", "badge-form-pend", "📋 Form. pendente");
+          const badgePend = criarNo("span", "badge-form-pend");
+          badgePend.innerHTML = '<i data-lucide="clipboard-list" style="width:10px;height:10px;stroke-width:2.5"></i> Form. pendente';
           nome.appendChild(badgePend);
         }
         tdNome.appendChild(nome);
@@ -2116,12 +2121,12 @@
         actualizarBadgeFormPend();
         renderizarTabela(todosOsFuncionarios);
       }
-      notif("✅ Formulário marcado como revisto.", "sucesso");
+      notif("Formulário marcado como revisto.", "sucesso");
     } catch(e) {
       console.error(e);
-      notif("❌ Erro ao guardar. Tente novamente.", "erro");
+      notif("Erro ao guardar. Tente novamente.", "erro");
       btn.disabled = false;
-      btn.textContent = "✅ Marcar como revisto";
+      btn.innerHTML = '<i data-lucide="check" style="width:12px;height:12px;stroke-width:2.5"></i> Marcar como revisto'; if(window.lucide) lucide.createIcons();
     }
   };
 
@@ -2147,20 +2152,21 @@
   window.abrirFormulario=function(){
     if(!_exigirPerfil(["admin","chefe","tecnico"])){console.warn("Acesso negado: abrirFormulario");return;}
     funcionarioEmEdicao=null;
-    document.getElementById("titulo-modal").textContent="➕ Registar Novo Funcionário";
+    document.getElementById("titulo-modal").innerHTML='<i data-lucide="plus" style="width:18px;height:18px;stroke-width:2.5"></i> Registar Novo Funcionário';
     document.getElementById("funcionario-id").value="";
     limparForm();
     // Mostrar salário apenas para perfis com acesso
     var wrapSal=document.getElementById('campo-salario-wrap');
     if(wrapSal) wrapSal.style.display=temAlgumRoleCadastro(_perfilActual, ['admin','chefe','tecnico'])?'block':'none';
     document.getElementById("overlay-formulario").classList.add("activo");
+    if(window.lucide) lucide.createIcons();
   };
 
   window.editarFuncionario=function(id){
     if(!_exigirPerfil(["admin","chefe","tecnico"])){console.warn("Acesso negado: editarFuncionario");return;}
     const f=todosOsFuncionarios.find(x=>x.id===id);if(!f)return;
     funcionarioEmEdicao=id;
-    document.getElementById("titulo-modal").textContent="✏️ Editar Funcionário";
+    document.getElementById("titulo-modal").innerHTML='<i data-lucide="pencil" style="width:18px;height:18px;stroke-width:2.5"></i> Editar Funcionário';
     document.getElementById("funcionario-id").value=id;
     ["nome","sexo","nascimento","bi","telefone","numero","unidade","vinculo","admissao","escolaridade","observacoes","inss","banco","provinciaNatal","municipioNatal"].forEach(k=>{
       const el=document.getElementById("f-"+k); if(el) el.value=f[k]||"";
@@ -2247,6 +2253,7 @@
     // ── Foto: carregar preview se existir ──
     carregarFotoAdmin(f.fotoUrl||'', f.nome||'');
     document.getElementById("overlay-formulario").classList.add("activo");
+    if(window.lucide) lucide.createIcons();
   };
 
   window.fecharFormulario=function(){
@@ -2339,7 +2346,7 @@
       img.onerror = function() { img.remove(); if(inicial) inicial.style.display='flex'; };
       if (inicial) inicial.style.display = 'none';
       circulo.insertBefore(img, circulo.firstChild);
-      if (estado) { estado.textContent = '✅ Foto carregada'; estado.style.color = '#16a34a'; }
+      if (estado) { estado.innerHTML = '<i data-lucide="image" style="width:11px;height:11px;stroke-width:2.5"></i> Foto carregada'; estado.style.color = '#16a34a'; if(window.lucide) lucide.createIcons(); }
     } else {
       var ini = (nome || '?')[0].toUpperCase();
       if (inicial) { inicial.textContent = ini; inicial.style.display = 'flex'; }
@@ -2358,7 +2365,7 @@
       notif('Formato não suportado. Use JPG, PNG ou WEBP.', 'erro'); input.value = ''; return;
     }
     var estado = document.getElementById('foto-bloco-estado');
-    if (estado) { estado.textContent = '⏳ A processar foto…'; estado.style.color = '#6b7280'; }
+    if (estado) { estado.innerHTML = '<i data-lucide="hourglass" style="width:11px;height:11px;stroke-width:2.5"></i> A processar foto…'; estado.style.color = '#6b7280'; if(window.lucide) lucide.createIcons(); }
     _comprimirParaBase64(file).then(function(base64) {
       _fotoNovaBase64 = base64;
       var circulo = document.getElementById('foto-circulo-admin');
@@ -2369,7 +2376,7 @@
       img.src = base64; img.alt = 'Preview';
       if (inicial) inicial.style.display = 'none';
       circulo.insertBefore(img, circulo.firstChild);
-      if (estado) { estado.textContent = '📷 Nova foto pronta (será guardada ao clicar Guardar)'; estado.style.color = '#d97706'; }
+      if (estado) { estado.innerHTML = '<i data-lucide="camera" style="width:11px;height:11px;stroke-width:2.5"></i> Nova foto pronta (será guardada ao clicar Guardar)'; estado.style.color = '#d97706'; if(window.lucide) lucide.createIcons(); }
     }).catch(function(e) {
       notif('Erro ao processar a foto: ' + e.message, 'erro');
       if (estado) { estado.textContent = 'Sem fotografia'; estado.style.color = ''; }
@@ -2557,9 +2564,9 @@
       await gravarFuncionarioComIndices(dados);
 
       if (funcionarioEmEdicao) {
-        notif('✅ Funcionário "' + nome + '" actualizado!');
+        notif('Funcionário "' + nome + '" actualizado!');
       } else {
-        notif('✅ Funcionário "' + nome + '" registado com sucesso!');
+        notif('Funcionário "' + nome + '" registado com sucesso!');
       }
       fecharFormulario(); carregarFuncionarios();
     } catch(e) {
@@ -2570,7 +2577,7 @@
         notif('Erro ao guardar. Verifique a conexão.','erro');
       }
     } finally {
-      btn.disabled = false; btn.innerHTML = '💾 Guardar Funcionário';
+      btn.disabled = false; btn.innerHTML = '<i data-lucide="save" style="width:14px;height:14px;stroke-width:2"></i> Guardar Funcionário'; if(window.lucide) lucide.createIcons();
     }
   }
 
@@ -2599,7 +2606,7 @@
 
     if (tipo === 'numero') {
       head.className   = 'dup-head';   // vermelho
-      icon.textContent = '🚫';
+      icon.innerHTML = '<i data-lucide="ban" style="width:26px;height:26px;stroke-width:2"></i>'; if(window.lucide) lucide.createIcons();
       titulo.textContent = 'Número de Agente Já Registado';
       sub.textContent    = 'Operação bloqueada — corrija antes de continuar';
       renderMensagemDup(
@@ -2612,7 +2619,7 @@
       btnP.style.display = 'none';
     } else if (tipo === 'bi') {
       head.className   = 'dup-head dup-head-aviso';  // âmbar
-      icon.textContent = '⚠️';
+      icon.innerHTML = '<i data-lucide="alert-triangle" style="width:26px;height:26px;stroke-width:2"></i>'; if(window.lucide) lucide.createIcons();
       titulo.textContent = 'Bilhete de Identidade Duplicado';
       sub.textContent    = 'Confirme se pretende continuar';
       renderMensagemDup(
@@ -2624,7 +2631,7 @@
       btnP.style.display = 'inline-block';
     } else {
       head.className   = 'dup-head dup-head-aviso';
-      icon.textContent = '⚠️';
+      icon.innerHTML = '<i data-lucide="alert-triangle" style="width:26px;height:26px;stroke-width:2"></i>'; if(window.lucide) lucide.createIcons();
       titulo.textContent = 'Possível Registo Duplicado';
       sub.textContent    = 'Nome e data de nascimento coincidem';
       renderMensagemDup(
@@ -2769,7 +2776,7 @@
   }
 
   window.abrirDocFicha = async function(funcId, tipo, linkEl) {
-    if (linkEl) { linkEl._textoOrig = linkEl.innerHTML; linkEl.innerHTML = '⏳ A carregar…'; linkEl.style.pointerEvents='none'; }
+    if (linkEl) { linkEl._textoOrig = linkEl.innerHTML; linkEl.innerHTML = '<i data-lucide="hourglass" style="width:12px;height:12px;stroke-width:2.5"></i> A carregar…'; linkEl.style.pointerEvents='none'; if(window.lucide) lucide.createIcons(); }
     try {
       var snap = await getDoc(doc(db, 'funcionarios', funcId, 'ficheiros', tipo));
       if (!snap.exists()) { alert('Documento não encontrado no sistema.'); return; }
@@ -2860,7 +2867,7 @@
                     font-size:11px;font-weight:700;text-decoration:none;
                     vertical-align:middle;margin-left:4px;
                     border:1px solid rgba(18,65,161,.15)"
-             onclick="event.stopPropagation()">🏥 Ver unidade</a>`
+             onclick="event.stopPropagation()"><i data-lucide=\"hospital\" style=\"width:11px;height:11px;stroke-width:2.5\"></i> Ver unidade</a>`
          : null,
        span2:true, html:true},
       ...(subLocal?[{r:eDirFicha?"Secção":"Área / Serviço",v:subLocal,span2:true}]:[]),
@@ -2873,7 +2880,7 @@
                 background:rgba(5,150,105,.12);color:#059669;
                 font-size:11px;font-weight:700;vertical-align:middle;
                 margin-left:6px;border:1px solid rgba(5,150,105,.22)">
-                👑 Em funções${_unidadesRespMap[f.id].dataInicio
+                <i data-lucide=\"crown\" style=\"width:11px;height:11px;stroke-width:2.5\"></i> Em funções${_unidadesRespMap[f.id].dataInicio
                   ? ' desde ' + fmtData(_unidadesRespMap[f.id].dataInicio)
                   : ''}
               </span>`
@@ -2890,13 +2897,13 @@
       ...(temDocs?[{r:"Documentos do Formulário",v:
         (f.urlBI
           ? (f.urlBI==='local'
-              ? `<a href="#" onclick="event.preventDefault();abrirDocFicha('${f.id}','bi',this)" style="color:var(--c-700);font-weight:700;">🪪 Ver BI</a>  `
-              : `<a href="${f.urlBI}" target="_blank" style="color:var(--c-700);font-weight:700;">🪪 Ver BI</a>  `)
+              ? `<a href="#" onclick="event.preventDefault();abrirDocFicha('${f.id}','bi',this)" style="color:var(--c-700);font-weight:700;"><i data-lucide=\"id-card\" style=\"width:12px;height:12px;stroke-width:2.5\"></i> Ver BI</a>  `
+              : `<a href="${f.urlBI}" target="_blank" style="color:var(--c-700);font-weight:700;"><i data-lucide=\"id-card\" style=\"width:12px;height:12px;stroke-width:2.5\"></i> Ver BI</a>  `)
           : "") +
         (f.urlCert
           ? (f.urlCert==='local'
-              ? `<a href="#" onclick="event.preventDefault();abrirDocFicha('${f.id}','cert',this)" style="color:var(--c-700);font-weight:700;">🎓 Ver Certificado</a>`
-              : `<a href="${f.urlCert}" target="_blank" style="color:var(--c-700);font-weight:700;">🎓 Ver Certificado</a>`)
+              ? `<a href="#" onclick="event.preventDefault();abrirDocFicha('${f.id}','cert',this)" style="color:var(--c-700);font-weight:700;"><i data-lucide=\"graduation-cap\" style=\"width:12px;height:12px;stroke-width:2.5\"></i> Ver Certificado</a>`
+              : `<a href="${f.urlCert}" target="_blank" style="color:var(--c-700);font-weight:700;"><i data-lucide=\"graduation-cap\" style=\"width:12px;height:12px;stroke-width:2.5\"></i> Ver Certificado</a>`)
           : ""),
         span2:true,html:true}]:[]),
       {r:"Naturalidade",v:(f.municipioNatal&&f.provinciaNatal)?f.municipioNatal+', '+f.provinciaNatal:(f.provinciaNatal||f.municipioNatal||null)},
@@ -2923,7 +2930,8 @@
       {r:"Local de Colocação",span2:true,render:function(valor){
         if(!unidadeNomeFicha || unidadeNomeFicha === "—"){ valor.textContent="—"; return; }
         valor.appendChild(document.createTextNode(unidadeNomeFicha));
-        const link = criarNo("a", null, "🏥 Ver unidade");
+        const link = document.createElement("a");
+        link.innerHTML = '<i data-lucide="hospital" style="width:11px;height:11px;stroke-width:2.5"></i> Ver unidade';
         link.href = "unidades.html";
         link.title = "Ver ficha da unidade";
         link.style.display = "inline-flex";
@@ -2950,7 +2958,8 @@
         render:function(valor){
           const resp = _unidadesRespMap[f.id];
           valor.appendChild(document.createTextNode(resp.nomeUnidade || "—"));
-          const badge = criarNo("span", null, "📑 Em funções" + (resp.dataInicio ? " desde " + fmtData(resp.dataInicio) : ""));
+          const badge = criarNo("span", null);
+          badge.innerHTML = '<i data-lucide="crown" style="width:11px;height:11px;stroke-width:2.5"></i> Em funções' + (resp.dataInicio ? " desde " + fmtData(resp.dataInicio) : "");
           badge.style.display = "inline-flex";
           badge.style.alignItems = "center";
           badge.style.gap = "4px";
@@ -2983,12 +2992,12 @@
       {r:"Escolaridade",v:f.escolaridade},{r:"A frequentar curso?",v:acadInfo},
       ...(temDocs?[{r:"Documentos do Formulário",span2:true,render:function(valor){
         let adicionou = false;
-        const linkBI = criarLinkDocumento(f.id, "bi", f.urlBI, "🪪 Ver BI");
+        const linkBI = criarLinkDocumento(f.id, "bi", f.urlBI, '<i data-lucide="id-card" style="width:12px;height:12px;stroke-width:2.5"></i> Ver BI');
         if(linkBI){
           valor.appendChild(linkBI);
           adicionou = true;
         }
-        const linkCert = criarLinkDocumento(f.id, "cert", f.urlCert, "🎓 Ver Certificado");
+        const linkCert = criarLinkDocumento(f.id, "cert", f.urlCert, '<i data-lucide="graduation-cap" style="width:12px;height:12px;stroke-width:2.5"></i> Ver Certificado');
         if(linkCert){
           if(adicionou) valor.appendChild(document.createTextNode("  "));
           valor.appendChild(linkCert);
@@ -3033,13 +3042,16 @@
       const faixa = document.createElement("div");
       faixa.id = "faixa-form-pend";
       faixa.className = "faixa-form-pend";
-      const faixaTxt = criarNo("div", "faixa-form-pend-txt", "📋 Formulário profissional submetido pelo funcionário");
+      const faixaTxt = criarNo("div", "faixa-form-pend-txt");
+      faixaTxt.innerHTML = '<i data-lucide="clipboard-list" style="width:13px;height:13px;stroke-width:2.5"></i> Formulário profissional submetido pelo funcionário';
       faixaTxt.appendChild(criarNo("small", null, "Enviado em " + ts + " — reveja os dados e marque como revisto"));
-      const btnRevisto = criarNo("button", "btn-rever-form", "✅ Marcar como revisto");
+      const btnRevisto = criarNo("button", "btn-rever-form");
+      btnRevisto.innerHTML = '<i data-lucide="check" style="width:12px;height:12px;stroke-width:2.5"></i> Marcar como revisto';
       btnRevisto.type = "button";
       btnRevisto.addEventListener("click", function(){ marcarFormRevisto(f.id, btnRevisto); });
       faixa.append(faixaTxt, btnRevisto);
       fichaConteudo.insertBefore(faixa, fichaConteudo.firstChild);
+      if(window.lucide) lucide.createIcons();
     }
 
     document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("activo"));
@@ -3049,15 +3061,17 @@
     carregarHistorico(f.id,f.nome);
     carregarSolicitacoesFicha(f.id,f.nome);
     document.getElementById("overlay-ficha").classList.add("activo");
+    if(window.lucide) lucide.createIcons();
   };
 
   async function carregarHistorico(funcId,nome){
     const div=document.getElementById("ficha-historico");
     limparConteudo(div);
     const loading = criarNo("div","hist-vazio");
-    const loadingIcon = criarNo("div", null, "⏳");
-    loadingIcon.style.fontSize = "32px";
+    const loadingIcon = criarNo("div", null);
+    loadingIcon.innerHTML = '<i data-lucide="hourglass" style="width:32px;height:32px;stroke-width:1.5"></i>';
     loadingIcon.style.marginBottom = "8px";
+    loadingIcon.style.color = "var(--neu-300)";
     loading.append(loadingIcon, criarNo("p", null, "A carregar histórico..."));
     div.appendChild(loading);
     try{
@@ -3067,9 +3081,10 @@
       if(docs.length===0){
         limparConteudo(div);
         const vazio = criarNo("div","hist-vazio");
-        const icone = criarNo("div", null, "📂");
-        icone.style.fontSize = "40px";
+        const icone = criarNo("div", null);
+        icone.innerHTML = '<i data-lucide="folder-open" style="width:40px;height:40px;stroke-width:1.5"></i>';
         icone.style.marginBottom = "10px";
+        icone.style.color = "var(--neu-300)";
         const texto = criarNo("p");
         texto.appendChild(document.createTextNode("Nenhum documento emitido ainda para "));
         texto.appendChild(criarNo("strong", null, nome));
@@ -3078,7 +3093,12 @@
         div.appendChild(vazio);
         return;
       }
-      const icones={"guia-ferias":"🏖️","declaracao":"📜","guia-medica":"🏥","oficio":"📋"};
+      const icones={
+        "guia-ferias":'<i data-lucide="palmtree" style="width:18px;height:18px;stroke-width:2"></i>',
+        "declaracao":'<i data-lucide="file-signature" style="width:18px;height:18px;stroke-width:2"></i>',
+        "guia-medica":'<i data-lucide="hospital" style="width:18px;height:18px;stroke-width:2"></i>',
+        "oficio":'<i data-lucide="clipboard-list" style="width:18px;height:18px;stroke-width:2"></i>'
+      };
       const tipos={"guia-ferias":"Guia de Férias","declaracao":"Declaração de Serviço","guia-medica":"Guia Médica","oficio":"Ofício"};
       limparConteudo(div);
       const cabecalho = criarNo("div", null, docs.length + " documento(s) no histórico");
@@ -3093,15 +3113,17 @@
         const dataFmt=ts?ts.toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric"}):"—";
         const horaFmt=ts?ts.toLocaleTimeString("pt-AO",{hour:"2-digit",minute:"2-digit"}):"";
         const tipo=tipos[d.tipo]||d.tipo||"Documento";
-        const icone=icones[d.tipo]||"📄";
+        const icone=icones[d.tipo]||'<i data-lucide="file" style="width:18px;height:18px;stroke-width:2"></i>';
         const numFmt=d.numGuia&&d.anoGuia?`Nº ${d.numGuia}/${d.anoGuia}`:"";
         const dias=d.numDias?`· ${d.numDias} dias`:"";
         const inicio=d.dataInicio?`· Início: ${fmtDataSim(d.dataInicio)}`:"";
         const estCores={pendente:{c:"#92400e",bg:"var(--a-100)"},aprovado:{c:"var(--c-700)",bg:"var(--c-100)"},rejeitado:{c:"var(--r-600)",bg:"var(--r-100)"}};
         const est=estCores[d.estado]||estCores.pendente;
-        const estTxt={pendente:"⏳ Aguarda",aprovado:"✅ Aprovado",rejeitado:"❌ Rejeitado"}[d.estado]||d.estado;
+        const estTxt={pendente:"Aguarda",aprovado:"Aprovado",rejeitado:"Rejeitado"}[d.estado]||d.estado;
         const item = criarNo("div","hist-item");
-        item.appendChild(criarNo("div","hist-icon",icone));
+        const _hIcon = criarNo("div","hist-icon");
+        _hIcon.innerHTML = icone;
+        item.appendChild(_hIcon);
 
         const info = criarNo("div","hist-info");
         info.appendChild(criarNo("div","hist-tipo", (tipo + " " + numFmt).trim()));
@@ -3125,7 +3147,8 @@
         info.appendChild(porLinha);
 
         if (d.observacao) {
-          const obs = criarNo("div","hist-det", '💬 "' + d.observacao + '"');
+          const obs = criarNo("div","hist-det");
+          obs.innerHTML = '<i data-lucide="message-circle" style="width:11px;height:11px;stroke-width:2.5"></i> "' + d.observacao + '"';
           obs.style.fontStyle = "italic";
           info.appendChild(obs);
         }
@@ -3139,10 +3162,12 @@
         item.append(info, data);
         div.appendChild(item);
       });
+      if(window.lucide) lucide.createIcons();
     }catch(e){
       limparConteudo(div);
       const erro = criarNo("div","hist-vazio");
-      const texto = criarNo("p", null, "⚠️ Erro ao carregar histórico.");
+      const texto = criarNo("p");
+      texto.innerHTML = '<i data-lucide="alert-triangle" style="width:13px;height:13px;stroke-width:2.5"></i> Erro ao carregar histórico.';
       texto.style.color = "var(--r-600)";
       erro.appendChild(texto);
       div.appendChild(erro);
@@ -3159,9 +3184,10 @@
       if(sols.length===0){
         limparConteudo(div);
         const vazio = criarNo("div","hist-vazio");
-        const icone = criarNo("div", null, "📩");
-        icone.style.fontSize = "36px";
+        const icone = criarNo("div", null);
+        icone.innerHTML = '<i data-lucide="mail" style="width:36px;height:36px;stroke-width:1.5"></i>';
         icone.style.marginBottom = "10px";
+        icone.style.color = "var(--neu-300)";
         vazio.append(icone, criarNo("p", null, "Nenhuma solicitação enviada ainda."));
         div.appendChild(vazio);
         if(badge)badge.style.display="none";
@@ -3169,8 +3195,14 @@
       }
       const pend=sols.filter(s=>s.estado==="nova"||s.estado==="processando").length;
       if(badge&&pend>0){badge.textContent=pend;badge.style.display="inline";}else if(badge)badge.style.display="none";
-      const TIPOS={"guia-ferias":"🏖️ Guia de Férias","declaracao-servico":"📜 Declaração","guia-medica":"🏥 Guia Médica","oficio":"📋 Ofício"};
-      const ESTADOS={nova:"🆕 Nova",processando:"🔄 A processar",concluida:"✅ Concluída",rejeitada:"❌ Rejeitada"};
+      const TIPOS={"guia-ferias":"Guia de Férias","declaracao-servico":"Declaração","guia-medica":"Guia Médica","oficio":"Ofício"};
+      const TIPOS_ICONE={
+        "guia-ferias":'<i data-lucide="palmtree" style="width:18px;height:18px;stroke-width:2"></i>',
+        "declaracao-servico":'<i data-lucide="file-signature" style="width:18px;height:18px;stroke-width:2"></i>',
+        "guia-medica":'<i data-lucide="hospital" style="width:18px;height:18px;stroke-width:2"></i>',
+        "oficio":'<i data-lucide="clipboard-list" style="width:18px;height:18px;stroke-width:2"></i>'
+      };
+      const ESTADOS={nova:"Nova",processando:"A processar",concluida:"Concluída",rejeitada:"Rejeitada"};
       const COR={nova:{bg:"#ede9fe",c:"#5b21b6"},processando:{bg:"var(--b-100)",c:"var(--b-800)"},concluida:{bg:"var(--c-100)",c:"var(--c-700)"},rejeitada:{bg:"var(--r-100)",c:"var(--r-600)"}};
       limparConteudo(div);
       const cabecalho = criarNo("div", null, sols.length + " solicitação(ões)");
@@ -3184,21 +3216,27 @@
         const ts=s.criadaEm?.toDate?.();
         const data=ts?ts.toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric"}):"—";
         const tipo=TIPOS[s.tipo]||s.tipo||"Documento";
+        const iconeHtmlSol=TIPOS_ICONE[s.tipo]||'<i data-lucide="file" style="width:18px;height:18px;stroke-width:2"></i>';
         const cor=COR[s.estado]||COR.nova;
         const item = criarNo("div","hist-item");
-        const icon = criarNo("div","hist-icon",tipo.split(" ")[0]);
+        const icon = criarNo("div","hist-icon");
+        icon.innerHTML = iconeHtmlSol;
         icon.style.background = cor.bg;
         icon.style.color = cor.c;
         item.appendChild(icon);
 
         const info = criarNo("div","hist-info");
-        info.appendChild(criarNo("div","hist-tipo", tipo.substring(tipo.indexOf(" ")+1)));
+        info.appendChild(criarNo("div","hist-tipo", tipo));
         info.appendChild(criarNo("div","hist-det", "Enviado em " + data));
         if (s.dataInicioFerias) {
-          info.appendChild(criarNo("div","hist-det", "📅 Início férias: " + fmtDataSim(s.dataInicioFerias)));
+          const _detInicio = criarNo("div","hist-det");
+          _detInicio.innerHTML = '<i data-lucide="calendar" style="width:11px;height:11px;stroke-width:2.5"></i> Início férias: ' + fmtDataSim(s.dataInicioFerias);
+          info.appendChild(_detInicio);
         }
         if (s.motivo) {
-          info.appendChild(criarNo("div","hist-det", "💬 " + s.motivo));
+          const _detMotivo = criarNo("div","hist-det");
+          _detMotivo.innerHTML = '<i data-lucide="message-circle" style="width:11px;height:11px;stroke-width:2.5"></i> ' + s.motivo;
+          info.appendChild(_detMotivo);
         }
         item.appendChild(info);
 
@@ -3215,12 +3253,14 @@
 
         div.appendChild(item);
       });
+      if(window.lucide) lucide.createIcons();
     }catch(e){
       limparConteudo(div);
       const erro = criarNo("div","hist-vazio");
-      const icone = criarNo("div", null, "⚠️");
-      icone.style.fontSize = "32px";
-      erro.append(icone, criarNo("p", null, "Sem acesso às solicitações."));
+      const _iconeErrSol = criarNo("div", null);
+      _iconeErrSol.innerHTML = '<i data-lucide="alert-triangle" style="width:32px;height:32px;stroke-width:1.5"></i>';
+      _iconeErrSol.style.color = "var(--r-600)";
+      erro.append(_iconeErrSol, criarNo("p", null, "Sem acesso às solicitações."));
       div.appendChild(erro);
     }
   }
