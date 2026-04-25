@@ -107,16 +107,19 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         margin-bottom: 4mm;
         display: flex;
         font-size: 11pt;
+        border-bottom: none !important;
       }
       .gm-label {
         font-weight: bold;
         width: 45mm;
       }
       .gm-valor {
-  flex: 1;
-  padding: 0 1mm;
-  /* REMOVE ESTA LINHA SE EXISTIR: border-bottom: 1px solid #000; */
-}
+        flex: 1;
+        padding: 0 1mm;
+        border-bottom: none !important;
+        box-shadow: none !important;
+        text-decoration: none !important;
+      }
       .gm-texto-final {
         font-size: 10pt;
         font-weight: bold;
