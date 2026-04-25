@@ -20,9 +20,46 @@
     /* ── ecrãs ── */
     #ecra-carregando{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:14px;color:rgba(255,255,255,.4)}
     #ecra-negado{display:none;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:14px}
-    #ecra-principal{display:none}
     .spinner{width:22px;height:22px;border:2px solid rgba(255,255,255,.1);border-top-color:#3b82f6;border-radius:50%;animation:spin .7s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── Phase 3: Skeleton Loading ──────────────────────────── */
+    @keyframes sk-shimmer {
+      0%   { background-position: -1200px 0; }
+      100% { background-position:  1200px 0; }
+    }
+    .sk {
+      background: linear-gradient(
+        90deg,
+        rgba(255,255,255,.04) 25%,
+        rgba(255,255,255,.10) 50%,
+        rgba(255,255,255,.04) 75%
+      );
+      background-size: 2400px 100%;
+      animation: sk-shimmer 2.2s ease-in-out infinite;
+      border-radius: 6px;
+      /* Texto e children invisíveis — só o bloco cinzento aparece */
+      color: transparent !important;
+    }
+    .sk * { visibility: hidden !important; }
+
+    /* Fade-in suave ao revelar #ecra-principal (auth ok → skeleton → dados) */
+    @keyframes ecra-fadein {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    #ecra-principal { display: none; }
+    #ecra-principal.visivel {
+      display: block;
+      animation: ecra-fadein 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    /* Fade-in do conteúdo real após skeleton → dados */
+    @keyframes content-reveal {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .content-reveal { animation: content-reveal 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
     /* ── topbar ── */
     .topbar{height:56px;background:#111827;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50}
     .topbar-titulo{font-size:15px;font-weight:800;letter-spacing:-.3px}
@@ -543,6 +580,176 @@
     clearTimeout(_nt); _nt = setTimeout(() => el.classList.remove('v'), 3500);
   }
 
+  // ════════════════════════════════════════════════════════
+  //  FASE 3 — SKELETON LAYOUT (Perceived Performance)
+  //  Chamado imediatamente após autenticação, ANTES dos dados
+  //  do Firestore chegarem. Preenche o ecrã com blocos
+  //  cinzentos animados que imitam exactamente o layout real.
+  //  Quando render() é invocado, o DOM é substituído pelos
+  //  dados reais via renderSkeleton() + renders individuais.
+  // ════════════════════════════════════════════════════════
+  function _renderSkeletonLayout() {
+
+    /* ── helpers locais ────────────────────────────── */
+    const skBlock = (h, w = '100%', extra = '') =>
+      `<div class="sk" style="height:${h}px;width:${w};border-radius:6px;${extra}"></div>`;
+
+    const skSec = (w = 160) => `
+      <div style="margin:24px 0 12px;display:flex;align-items:center;gap:8px">
+        ${skBlock(11, `${w}px`, 'border-radius:3px;flex-shrink:0')}
+        <div style="flex:1;height:1px;background:rgba(255,255,255,.07)"></div>
+      </div>`;
+
+    const skKPI = () => `
+      <div class="kpi">
+        ${skBlock(20, '20px', 'margin-bottom:8px;border-radius:4px')}
+        ${skBlock(30, '68%', 'margin-bottom:7px')}
+        ${skBlock(11, '52%', 'margin-bottom:4px;border-radius:3px')}
+        ${skBlock(10, '38%', 'border-radius:3px')}
+      </div>`;
+
+    const skGC = (h = 180) => `
+      <div class="gc">
+        ${skBlock(14, '52%', 'margin-bottom:8px;border-radius:4px')}
+        ${skBlock(11, '38%', 'margin-bottom:18px;border-radius:3px')}
+        ${skBlock(h, '100%', 'border-radius:8px')}
+      </div>`;
+
+    /* ── 1. Barra de filtros skeleton ──────────────── */
+    const fWrap = document.getElementById('filtros-wrap');
+    if (fWrap) {
+      fWrap.style.display = 'block';
+      fWrap.innerHTML = `
+        <div class="filtros-inner">
+          ${[130, 140, 120, 110, 100].map(w => `
+            <div class="filtro-grupo">
+              ${skBlock(9, '58px', 'margin-bottom:5px;border-radius:3px')}
+              ${skBlock(32, `${w}px`, 'border-radius:8px')}
+            </div>`).join('')}
+          <div class="filtros-acoes" style="margin-left:auto">
+            ${skBlock(32, '88px', 'border-radius:8px')}
+          </div>
+        </div>`;
+    }
+
+    /* ── 2. Período global skeleton ────────────────── */
+    const pgWrap = document.getElementById('periodo-global-wrap');
+    if (pgWrap) {
+      pgWrap.innerHTML = `
+        <div class="pg-container">
+          <div class="pg-section-title" style="margin-bottom:14px">
+            ${skBlock(16, '210px', 'border-radius:4px')}
+          </div>
+          <div class="pg-cards-grid">
+            ${Array(6).fill(0).map(() => `
+              <div class="pg-card" style="pointer-events:none">
+                ${skBlock(10, '55px', 'margin-bottom:6px;border-radius:3px')}
+                ${skBlock(20, '70px', 'border-radius:4px')}
+              </div>`).join('')}
+          </div>
+          <div class="pg-info-bar">
+            ${skBlock(11, '210px', 'border-radius:3px')}
+            ${skBlock(11, '130px', 'border-radius:3px')}
+          </div>
+        </div>`;
+    }
+
+    /* ── 3. Conteúdo principal skeleton ────────────── */
+    const content = document.getElementById('content');
+    if (!content) return;
+
+    content.innerHTML = `
+      <!-- KPIs -->
+      <div class="kpi-strip">
+        ${Array(5).fill(0).map(skKPI).join('')}
+      </div>
+
+      ${skSec(220)}
+      <div class="g1" style="margin-bottom:20px">
+        <div class="gc">${skBlock(64, '100%', 'border-radius:8px')}</div>
+      </div>
+
+      ${skSec(210)}
+      <div class="gen-card" style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            ${skBlock(20, '200px', 'border-radius:5px')}
+            ${skBlock(12, '165px', 'border-radius:3px')}
+          </div>
+          ${skBlock(28, '90px', 'border-radius:99px')}
+        </div>
+        <div style="display:flex;align-items:center;gap:32px;flex-wrap:wrap">
+          ${skBlock(160, '160px', 'border-radius:50%;flex-shrink:0')}
+          <div style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:12px">
+            ${skBlock(68, '100%', 'border-radius:12px')}
+            ${skBlock(68, '100%', 'border-radius:12px')}
+          </div>
+        </div>
+        <div style="margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.07);display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+          ${Array(4).fill(0).map(() => `
+            <div style="display:flex;flex-direction:column;gap:6px">
+              ${skBlock(10, '62%', 'border-radius:3px')}
+              ${skBlock(22, '50%', 'border-radius:4px')}
+            </div>`).join('')}
+        </div>
+      </div>
+
+      ${skSec(200)}
+      <div class="g2" style="margin-bottom:20px">
+        ${skGC(168)} ${skGC(168)}
+      </div>
+
+      ${skSec(160)}
+      <div class="g1" style="margin-bottom:20px">
+        <div class="gc">
+          ${skBlock(14, '52%', 'margin-bottom:18px;border-radius:4px')}
+          <div class="g2" style="margin-bottom:0;gap:12px">
+            ${skBlock(110, '100%', 'border-radius:8px')}
+            ${skBlock(110, '100%', 'border-radius:8px')}
+          </div>
+        </div>
+      </div>
+
+      <div class="g1" style="margin-bottom:20px">${skGC(180)}</div>
+
+      ${skSec(180)}
+      <div class="g1" style="margin-bottom:20px">
+        <div class="gc">
+          ${skBlock(14, '52%', 'margin-bottom:18px;border-radius:4px')}
+          ${Array(5).fill(0).map(() => `
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+              ${skBlock(12, '40%', 'border-radius:3px')}
+              <div style="flex:1"></div>
+              ${skBlock(22, '44px', 'border-radius:6px;flex-shrink:0')}
+              ${skBlock(5, '80px', 'border-radius:99px;flex-shrink:0')}
+            </div>`).join('')}
+        </div>
+      </div>
+
+      ${skSec(200)}
+      <div class="g2" style="margin-bottom:20px">
+        ${skGC(200)} ${skGC(200)}
+      </div>
+
+      ${skSec(200)}
+      <div class="g1" style="margin-bottom:20px">${skGC(140)}</div>
+
+      ${skSec(230)}
+      <div class="g2" style="margin-bottom:20px">
+        ${skGC(160)} ${skGC(160)}
+      </div>
+      <div class="g2" style="margin-bottom:20px">
+        ${skGC(160)} ${skGC(160)}
+      </div>
+      <div class="g2" style="margin-bottom:20px">
+        ${skGC(160)} ${skGC(160)}
+      </div>
+
+      ${skSec(175)}
+      <div class="g1" style="margin-bottom:32px">${skGC(140)}</div>
+    `;
+  }
+
   onAuthStateChanged(auth, async (user) => {
     // Activar ícones estáticos (topbar, ecra-negado) assim que o DOM está pronto
     if (window.lucide) lucide.createIcons();
@@ -578,11 +785,15 @@
       // ── Gestão de sessão concorrente ──
       SIGDOC_SESSION.vigiar(db, user.uid, auth);
 
-            // Mostrar ecrã principal
+            // Mostrar ecrã principal com animação de entrada
       document.getElementById("ecra-carregando").style.display = "none";
-      document.getElementById("ecra-principal").style.display  = "block";
+      const ecraPrincipal = document.getElementById("ecra-principal");
+      ecraPrincipal.classList.add("visivel");
       document.getElementById("badge-perfil").textContent =
         {admin:"Administrador",director:"Director",chefe:"Chefe RH",tecnico:"Técnico RH"}[perfil] || perfil;
+
+      // ── Fase 3: mostrar skeleton imediatamente antes dos dados chegarem ──
+      _renderSkeletonLayout();
 
       // Carregar dados iniciais
       await carregarEstatisticas(perfil);
@@ -1013,6 +1224,9 @@
     `;
 
     content.dataset.skeletonReady = 'true';
+    // Animar entrada do conteúdo real (substitui skeleton)
+    content.classList.add('content-reveal');
+    content.addEventListener('animationend', () => content.classList.remove('content-reveal'), { once: true });
     if (window.lucide) lucide.createIcons({ nodes: [content] });
   }
 
