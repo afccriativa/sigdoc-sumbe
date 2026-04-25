@@ -97,7 +97,7 @@
         radial-gradient(circle at 82% 22%,rgba(110,231,183,.20),transparent 18%),
         radial-gradient(circle at 94% 10%,rgba(251,191,36,.16),transparent 12%),
         linear-gradient(135deg,var(--c-950) 0%,var(--c-900) 26%,var(--c-850) 58%,var(--c-700) 100%);
-      padding:56px 28px 118px;position:relative;overflow:hidden;
+      padding:32px 28px 84px;position:relative;overflow:hidden;
       margin-top:-14px;border-bottom-left-radius:34px;border-bottom-right-radius:34px;
       box-shadow:var(--hero-shadow);
     }
@@ -127,7 +127,7 @@
       text-transform:uppercase;margin-bottom:18px;backdrop-filter:blur(12px);
     }
     .hero-txt h2{
-      font-size:clamp(32px,5vw,58px);line-height:1.02;font-weight:800;color:var(--white);
+      font-size:clamp(28px,4vw,46px);line-height:1.02;font-weight:800;color:var(--white);
       letter-spacing:-.05em;max-width:10ch;
     }
     .hero-txt p{
@@ -166,7 +166,7 @@
 
     /* ── CONTEÚDO ── */
     .conteudo{
-      max-width:1240px;margin:-74px auto 0;padding:0 20px 60px;position:relative;z-index:10;
+      max-width:1240px;margin:-58px auto 0;padding:0 20px 60px;position:relative;z-index:10;
     }
 
     /* ── KPI CARDS ── */
@@ -1199,15 +1199,6 @@
             </select>
           </div>
           <div class="campo campo-obrig">
-            <label>Regime de Vínculo Funcional</label>
-            <select id="f-regime" required>
-              <option value="">Seleccione...</option>
-              <option value="geral">Regime Geral</option>
-              <option value="especial">Regime Especial</option>
-            </select>
-            <span class="campo-hint">ℹ️ Regime Geral: Estatuto Geral dos Funcionários. Regime Especial: carreira específica de saúde.</span>
-          </div>
-          <div class="campo campo-obrig">
             <label>Data de Admissão</label>
             <input type="date" id="f-admissao"/>
           </div>
@@ -2159,7 +2150,7 @@
     funcionarioEmEdicao=id;
     document.getElementById("titulo-modal").textContent="✏️ Editar Funcionário";
     document.getElementById("funcionario-id").value=id;
-    ["nome","sexo","nascimento","bi","telefone","numero","unidade","vinculo","regime","admissao","escolaridade","observacoes","inss","banco","provinciaNatal","municipioNatal"].forEach(k=>{
+    ["nome","sexo","nascimento","bi","telefone","numero","unidade","vinculo","admissao","escolaridade","observacoes","inss","banco","provinciaNatal","municipioNatal"].forEach(k=>{
       const el=document.getElementById("f-"+k); if(el) el.value=f[k]||"";
     });
     const unidadeEdit = infoUnidadeFuncionario(f);
@@ -2252,7 +2243,7 @@
 
   function limparForm(){
     ["f-nome","f-bi","f-telefone","f-numero","f-admissao","f-observacoes","f-nascimento"].forEach(id=>document.getElementById(id).value="");
-    ["f-sexo","f-categoria","f-unidade","f-vinculo","f-regime","f-escolaridade","f-seccao","f-area"].forEach(id=>document.getElementById(id).value="");
+    ["f-sexo","f-categoria","f-unidade","f-vinculo","f-escolaridade","f-seccao","f-area"].forEach(id=>document.getElementById(id).value="");
     const _mc=document.getElementById("f-categoria-manual"); if(_mc){_mc.value="";_mc.style.display="none";_mc.disabled=true;_mc.required=false;}
     const _cg=document.getElementById("f-cargo"); if(_cg) _cg.value="";
     const _cgm=document.getElementById("f-cargo-manual"); if(_cgm){_cgm.value="";_cgm.style.display="none";_cgm.disabled=true;_cgm.required=false;}
@@ -2649,10 +2640,9 @@
     const unidadeInfo = obterUnidadeSelecionadaCadastro();
     const unidade = unidadeInfo.nome;
     const vinculo=document.getElementById("f-vinculo").value;
-    const regime=document.getElementById("f-regime").value;
     const admissao=document.getElementById("f-admissao").value;
     const seccao=document.getElementById("f-seccao").value;
-    if(!nome||!sexo||!numero||!categoria||!unidade||!vinculo||!regime||!admissao){
+    if(!nome||!sexo||!numero||!categoria||!unidade||!vinculo||!admissao){
       notif("Preencha todos os campos obrigatórios (*)","erro");return;
     }
     if(window.SIGDOC_UNIDADES.isDms(unidadeInfo) && !seccao){
@@ -2667,7 +2657,7 @@
     }
     const bi=document.getElementById("f-bi").value.trim();
     const dados={
-      nome,sexo,numero,categoria,cargo,unidade,vinculo,regime,admissao,seccao,
+      nome,sexo,numero,categoria,cargo,unidade,vinculo,admissao,seccao,
       unidadeId: unidadeInfo.id || "",
       unidadeTipo: unidadeInfo.tipo || window.SIGDOC_UNIDADES.obterTipo(unidadeInfo.nome) || "",
       area: window.SIGDOC_UNIDADES.isCentro(unidadeInfo) ? document.getElementById("f-area").value : "",
@@ -2978,7 +2968,6 @@
       {r:"Anos de Serviço",v:anos!==null?anos+" anos":"—",badge:true,bval:anos},
       {r:"Dias de Férias com Direito",v:dias+" dias úteis"},
       {r:"Estado Actual",v:{activo:"Em Serviço Activo",inactivo:"Inactivo",licenca:"De Licença"}[f.estado]||f.estado},
-      {r:"Regime Funcional",v:f.regime==="especial"?"⚡ Regime Especial":f.regime==="geral"?"📋 Regime Geral":"—"},
       {r:"Escolaridade",v:f.escolaridade},{r:"A frequentar curso?",v:acadInfo},
       ...(temDocs?[{r:"Documentos do Formulário",span2:true,render:function(valor){
         let adicionou = false;
