@@ -1206,6 +1206,15 @@
             </select>
           </div>
           <div class="campo campo-obrig">
+            <label>Regime de Trabalho</label>
+            <select id="f-regime">
+              <option value="">Seleccione...</option>
+              <option value="geral">Regime Geral</option>
+              <option value="especial">Regime Especial</option>
+            </select>
+            <span class="campo-hint"><i data-lucide="info" style="width:11px;height:11px;stroke-width:2.5"></i> Regime Geral — Lei Geral do Trabalho. Regime Especial — Estatuto específico do sector da saúde.</span>
+          </div>
+          <div class="campo campo-obrig">
             <label>Data de Admissão</label>
             <input type="date" id="f-admissao"/>
           </div>
@@ -1572,7 +1581,7 @@
   }
 
   function configurarFormularioCadastro() {
-    ["f-nome","f-sexo","f-numero","f-categoria","f-unidade","f-vinculo","f-admissao"].forEach(function(id) {
+    ["f-nome","f-sexo","f-numero","f-categoria","f-unidade","f-vinculo","f-regime","f-admissao"].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) el.required = true;
     });
@@ -2168,7 +2177,7 @@
     funcionarioEmEdicao=id;
     document.getElementById("titulo-modal").innerHTML='<i data-lucide="pencil" style="width:18px;height:18px;stroke-width:2.5"></i> Editar Funcionário';
     document.getElementById("funcionario-id").value=id;
-    ["nome","sexo","nascimento","bi","telefone","numero","unidade","vinculo","admissao","escolaridade","observacoes","inss","banco","provinciaNatal","municipioNatal"].forEach(k=>{
+    ["nome","sexo","nascimento","bi","telefone","numero","unidade","vinculo","regime","admissao","escolaridade","observacoes","inss","banco","provinciaNatal","municipioNatal"].forEach(k=>{
       const el=document.getElementById("f-"+k); if(el) el.value=f[k]||"";
     });
     const unidadeEdit = infoUnidadeFuncionario(f);
@@ -2262,7 +2271,7 @@
 
   function limparForm(){
     ["f-nome","f-bi","f-telefone","f-numero","f-admissao","f-observacoes","f-nascimento"].forEach(id=>document.getElementById(id).value="");
-    ["f-sexo","f-categoria","f-unidade","f-vinculo","f-escolaridade","f-seccao","f-area"].forEach(id=>document.getElementById(id).value="");
+    ["f-sexo","f-categoria","f-unidade","f-vinculo","f-regime","f-escolaridade","f-seccao","f-area"].forEach(id=>document.getElementById(id).value="");
     const _mc=document.getElementById("f-categoria-manual"); if(_mc){_mc.value="";_mc.style.display="none";_mc.disabled=true;_mc.required=false;}
     const _cg=document.getElementById("f-cargo"); if(_cg) _cg.value="";
     const _cgm=document.getElementById("f-cargo-manual"); if(_cgm){_cgm.value="";_cgm.style.display="none";_cgm.disabled=true;_cgm.required=false;}
@@ -2659,9 +2668,10 @@
     const unidadeInfo = obterUnidadeSelecionadaCadastro();
     const unidade = unidadeInfo.nome;
     const vinculo=document.getElementById("f-vinculo").value;
+    const regime=document.getElementById("f-regime").value;
     const admissao=document.getElementById("f-admissao").value;
     const seccao=document.getElementById("f-seccao").value;
-    if(!nome||!sexo||!numero||!categoria||!unidade||!vinculo||!admissao){
+    if(!nome||!sexo||!numero||!categoria||!unidade||!vinculo||!regime||!admissao){
       notif("Preencha todos os campos obrigatórios (*)","erro");return;
     }
     if(window.SIGDOC_UNIDADES.isDms(unidadeInfo) && !seccao){
@@ -2676,7 +2686,7 @@
     }
     const bi=document.getElementById("f-bi").value.trim();
     const dados={
-      nome,sexo,numero,categoria,cargo,unidade,vinculo,admissao,seccao,
+      nome,sexo,numero,categoria,cargo,unidade,vinculo,regime,admissao,seccao,
       unidadeId: unidadeInfo.id || "",
       unidadeTipo: unidadeInfo.tipo || window.SIGDOC_UNIDADES.obterTipo(unidadeInfo.nome) || "",
       area: window.SIGDOC_UNIDADES.isCentro(unidadeInfo) ? document.getElementById("f-area").value : "",
@@ -2889,6 +2899,8 @@
                 : ''),
         span2:true, html:true
       }] : []),
+      {r:"Tipo de Vínculo",v:{"quadro":"Pessoal do Quadro","provisorio":"Provimento Provisório"}[f.vinculo]||f.vinculo||null},
+      {r:"Regime de Trabalho",v:{"geral":"Regime Geral","especial":"Regime Especial"}[f.regime]||f.regime||null},
       {r:"Data de Admissão",v:f.admissao?fmtData(f.admissao):null},
       {r:"Anos de Serviço",v:anos!==null?anos+" anos":"—",badge:true,bval:anos},
       {r:"Dias de Férias com Direito",v:dias+" dias úteis"},
@@ -2985,6 +2997,8 @@
           }
         }
       }] : []),
+      {r:"Tipo de Vínculo",v:{"quadro":"Pessoal do Quadro","provisorio":"Provimento Provisório"}[f.vinculo]||f.vinculo||null},
+      {r:"Regime de Trabalho",v:{"geral":"Regime Geral","especial":"Regime Especial"}[f.regime]||f.regime||null},
       {r:"Data de Admissão",v:f.admissao?fmtData(f.admissao):null},
       {r:"Anos de Serviço",v:anos!==null?anos+" anos":"—",badge:true,bval:anos},
       {r:"Dias de Férias com Direito",v:dias+" dias úteis"},
