@@ -86,6 +86,25 @@
     #preview-card.a-fechar{opacity:0;transform:translateY(-6px);pointer-events:none}
 
 
+    /* ── Modal popup bloqueado ── */
+    #popup-bloqueado{display:none;position:fixed;inset:0;z-index:10001;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(3px)}
+    #popup-bloqueado.visivel{display:flex}
+    .pb-card{background:#1e2a3a;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:28px 28px 24px;max-width:420px;width:90%;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+    .pb-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
+    .pb-icon{flex-shrink:0;color:#f59e0b;margin-top:2px}
+    .pb-titulo{font-size:15px;font-weight:800;color:#f1f5f9;margin-bottom:4px}
+    .pb-sub{font-size:12px;color:#94a3b8;line-height:1.5}
+    .pb-link-wrap{background:#0f172a;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 14px;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+    .pb-link{font-size:12px;font-family:"DM Mono",monospace;color:#38bdf8;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+    .pb-link:hover{text-decoration:underline}
+    .pb-copy{background:rgba(255,255,255,.08);border:none;border-radius:6px;cursor:pointer;padding:5px 7px;color:#94a3b8;display:inline-flex;align-items:center;flex-shrink:0;transition:background .12s,color .12s}
+    .pb-copy:hover{background:rgba(255,255,255,.14);color:#f1f5f9}
+    .pb-copy.copiado{color:#34d399}
+    .pb-acoes{display:flex;gap:8px;justify-content:flex-end}
+    .pb-btn-fechar{padding:8px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.12);background:transparent;color:#94a3b8;cursor:pointer;font-family:"Plus Jakarta Sans",sans-serif;transition:background .12s,color .12s}
+    .pb-btn-fechar:hover{background:rgba(255,255,255,.08);color:#f1f5f9}
+    .pb-btn-abrir{padding:8px 18px;border-radius:8px;font-size:12px;font-weight:700;border:none;background:#3b82f6;color:#fff;cursor:pointer;font-family:"Plus Jakarta Sans",sans-serif;display:inline-flex;align-items:center;gap:6px;transition:background .12s}
+    .pb-btn-abrir:hover{background:#2563eb}
     /* ── Banner de erro de carregamento ── */
     #erro-dados{display:none;margin:0 28px 0;border-radius:12px;padding:16px 20px;background:#fef2f2;border:1px solid #fca5a5;color:#991b1b}
     #erro-dados.visivel{display:flex;align-items:flex-start;gap:14px}
@@ -201,6 +220,34 @@
     </div>
     <span class="badge-perfil" id="badge-perfil">—</span>
   </div>
+  <!-- Modal: popup bloqueado pelo browser -->
+  <div id="popup-bloqueado" role="dialog" aria-modal="true" aria-labelledby="pb-titulo-txt">
+    <div class="pb-card">
+      <div class="pb-header">
+        <div class="pb-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div>
+          <div class="pb-titulo" id="pb-titulo-txt">Janela bloqueada pelo browser</div>
+          <div class="pb-sub">O seu browser bloqueou a abertura automática do PDF.<br>Clique no link abaixo para abrir manualmente, ou permita popups para este site.</div>
+        </div>
+      </div>
+      <div class="pb-link-wrap">
+        <a class="pb-link" id="pb-link" href="#" target="_blank" rel="noopener">—</a>
+        <button class="pb-copy" id="pb-copy-btn" title="Copiar link" onclick="copiarLinkPB()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
+      <div class="pb-acoes">
+        <button class="pb-btn-fechar" onclick="fecharModalPB()">Fechar</button>
+        <a class="pb-btn-abrir" id="pb-btn-abrir" href="#" target="_blank" rel="noopener" onclick="fecharModalPB()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Abrir PDF
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div id="erro-dados">
     <div class="erro-dados-icone">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -937,10 +984,38 @@
   // ════════════════════════════════════════════════════════
   //  EXPORTAR PDF (janela de impressão)
   // ════════════════════════════════════════════════════════
+  // ── Helpers do modal popup-bloqueado ──────────────────────────────────────
+  let _pbBlobURL = null;
+
+  window.fecharModalPB = function() {
+    document.getElementById("popup-bloqueado").classList.remove("visivel");
+    // Revogar Blob URL após fecho para libertar memória
+    setTimeout(() => { if (_pbBlobURL) { URL.revokeObjectURL(_pbBlobURL); _pbBlobURL = null; } }, 500);
+  };
+
+  window.copiarLinkPB = function() {
+    const link = document.getElementById("pb-link")?.href;
+    if (!link || link === "#") return;
+    navigator.clipboard.writeText(link).then(() => {
+      const btn = document.getElementById("pb-copy-btn");
+      btn.classList.add("copiado");
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      setTimeout(() => {
+        btn.classList.remove("copiado");
+        btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      }, 2000);
+    }).catch(() => notif("Não foi possível copiar o link", "erro"));
+  };
+
+  // Fechar modal com ESC ou clique no overlay
+  document.addEventListener("keydown", e => { if (e.key === "Escape") window.fecharModalPB?.(); });
+  document.getElementById("popup-bloqueado")?.addEventListener("click", e => {
+    if (e.target === e.currentTarget) window.fecharModalPB();
+  });
+
   function abrirPDF(html, titulo) {
-    const win = window.open("", "_blank");
     const tituloSeguro = escapeHTML(titulo);
-    win.document.write(`<!DOCTYPE html><html lang="pt"><head>
+    const fullHTML = `<!DOCTYPE html><html lang="pt"><head>
       <meta charset="UTF-8"/>
       <title>${tituloSeguro}</title>
       <style>
@@ -966,8 +1041,25 @@
     </head><body>
     ${html}
     <button class="print-btn" onclick="window.print()"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Imprimir / Guardar PDF</button>
-    </body></html>`);
-    win.document.close();
+    </body></html>`;
+
+    // Criar Blob URL — funciona mesmo com popups bloqueados
+    if (_pbBlobURL) URL.revokeObjectURL(_pbBlobURL);
+    const blob = new Blob([fullHTML], { type: "text/html;charset=utf-8" });
+    _pbBlobURL = URL.createObjectURL(blob);
+
+    // Tentativa: window.open directo
+    const win = window.open(_pbBlobURL, "_blank");
+
+    if (!win || win.closed || typeof win.closed === "undefined") {
+      // Popup bloqueado — mostrar modal com link manual
+      const linkEl   = document.getElementById("pb-link");
+      const abrirEl  = document.getElementById("pb-btn-abrir");
+      if (linkEl)  { linkEl.href = _pbBlobURL; linkEl.textContent = titulo + ".html"; }
+      if (abrirEl) { abrirEl.href = _pbBlobURL; }
+      document.getElementById("popup-bloqueado").classList.add("visivel");
+      notif("Popup bloqueado — use o link no modal", "erro");
+    }
   }
 
   // ════════════════════════════════════════════════════════
