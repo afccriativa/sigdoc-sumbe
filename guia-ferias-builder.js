@@ -25,6 +25,7 @@
   }
 
   function obterInsigniaSrc(opcoes) {
+    // Mantem compatibilidade com eventuais chamadas antigas, mas usa o asset local por defeito.
     return (opcoes && opcoes.insigniaSrc) ? opcoes.insigniaSrc : "insignia.jpeg";
   }
 
