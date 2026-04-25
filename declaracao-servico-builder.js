@@ -165,7 +165,8 @@
           margin: 0 auto;
           background: #fff;
           color: #000;
-          font-family: "Calibri", "Arial", sans-serif;
+          font-family: Arial, sans-serif;
+          font-size: 12pt;
         }
         .ds-pagina {
           width: 210mm;
@@ -189,7 +190,7 @@
         }
         .ds-cabecalho p {
           margin: 0;
-          font-size: 11pt;
+          font-size: 12pt;
           font-weight: 700;
         }
         .ds-titulo {
@@ -242,7 +243,7 @@
           text-transform: uppercase;
         }
         .ds-assinatura-cargo {
-          font-size: 11pt;
+          font-size: 12pt;
           margin-top: 2mm;
         }
         @media print {
