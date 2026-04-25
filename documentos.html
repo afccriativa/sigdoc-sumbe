@@ -91,7 +91,7 @@
     .painel-preview { }
     .preview-cabecalho { background: white; border-radius: 12px 12px 0 0; padding: 14px 20px; border-bottom: 1px solid #eef0f3; font-size: 14px; font-weight: 700; color: var(--verde-primario); display: flex; align-items: center; justify-content: space-between; box-shadow: var(--sombra); }
     .badge-preview { font-size: 11px; background: #e8f4f8; color: var(--verde-primario); padding: 3px 10px; border-radius: 10px; font-weight: 600; }
-    .area-preview { background: #b0b3b8; border-radius: 0 0 12px 12px; padding: 20px 12px; display: flex; align-items: flex-start; justify-content: center; min-height: 560px; overflow: visible; }
+    .area-preview { background: #b0b3b8; border-radius: 0 0 12px 12px; padding: 20px 12px; display: flex; align-items: flex-start; justify-content: center; min-height: 560px; overflow: visible; transition: min-height 0.35s ease; }
     .vazio-preview { text-align: center; color: #777; padding: 80px 20px; }
     .vazio-preview .icone { font-size: 48px; margin-bottom: 12px; }
     .vazio-preview p { font-size: 13px; }
@@ -110,18 +110,48 @@
       overflow: visible;
     }
 
-    /* F1-G: Wrapper da Guia Médica (A4 retrato, 2 páginas empilhadas ~794×2251px)
+    /* F1-G: Wrapper da Guia Médica (A4 retrato, 2 páginas empilhadas ~794×2247px)
        Substitui os magic numbers inline: scale(0.6) e margin-bottom:-400px.
-       transform-origin:top center centra o documento horizontalmente sem div extra. */
+       transform-origin:top center centra o documento horizontalmente sem div extra.
+       
+       F3-A: margin-bottom recalculado para eliminar espaço vazio excessivo.
+       Com 2 págs. de 1122px + gap 3px = 2247px de altura no layout (transform não afecta o
+       layout). Visual a scale(0.6) = 2247×0.6 ≈ 1348px. Para que a área cinzenta
+       acompanhe a altura visual: margem negativa = 2247 − 1367 = −880px.
+       Resultado: layout contribution = 1367px; área-preview ≈ 1367+40 padding = 1407px. */
     .doc-wrapper-gm {
       transform: scale(0.6);
       transform-origin: top center;
-      /* Sem esta margem o painel teria 2251px de altura (layout ignora transform).
-         -400px mantém espaço respirável; o excesso extravasa via overflow:visible. */
-      margin-bottom: -400px;
+      margin-bottom: -880px;
     }
 
-    @media (max-width: 760px) {
+    /* ================================================
+       F3-A — ALTURA ADAPTATIVA DO PAINEL DE PRÉ-VISUALIZAÇÃO
+       ================================================
+       Cada tipo de documento tem dimensões físicas distintas que determinam
+       a altura natural do preview. O atributo [data-tipo-doc] é aplicado
+       em JS sempre que o tipo de documento muda ou um documento é gerado.
+       A transição (definida na regra base .area-preview) garante animação suave.
+       
+       Cálculos por tipo (desktop, escala activa):
+         Guia de Férias (scale 0.67, 1 pág. A4 paisagem 1122×794px):
+           − Visual: 794 × 0.67 ≈ 532px  |  margin-bottom: -258 → layout 536px
+           − min-height: 580px  (documento cabe com ~44px de respiro cinzento)
+           
+         Declaração de Adiantamento (scale 0.67, 1 pág. A4 retrato ~1122×1122px):
+           − Visual: 1122 × 0.67 ≈ 752px  |  margin-bottom: -258 → layout 864px
+           − min-height: 900px  (ajuste conservador para variações de conteúdo)
+           
+         Guia Médica (scale 0.6, 2 págs. A4 retrato empilhadas, 794×2247px):
+           − Visual: 2247 × 0.6 ≈ 1348px  |  margin-bottom: -880 → layout 1367px
+           − min-height: 1420px  (documento completo visível com ~52px de respiro)
+    ================================================ */
+
+    .area-preview[data-tipo-doc="guia-ferias"]        { min-height: 580px; }
+    .area-preview[data-tipo-doc="declaracao-servico"] { min-height: 900px; }
+    .area-preview[data-tipo-doc="guia-medica"]        { min-height: 1420px; }
+
+
       .arquivo-topo { align-items:stretch; }
       .arquivo-filtro { max-width:none; }
       .guia-emitida-item { flex-direction:column; align-items:flex-start; }
@@ -299,9 +329,18 @@
       .layout { grid-template-columns: 1fr; }
       .doc-wrapper { transform: scale(0.34); margin-bottom: -520px; }
       .doc-wrapper-centrado { width: 382px; }  /* 1122 × 0.34 ≈ 382 */
-      /* F1-G: Guia Médica em ecrã estreito — escala reduzida para caber no painel */
-      .doc-wrapper-gm { transform: scale(0.42); margin-bottom: -1060px; }
-      /* 794 × 0.42 ≈ 333px de largura visual; 2251 × 0.42 ≈ 945px de altura visual */
+      /* F1-G + F3-A: Guia Médica em ecrã estreito — escala reduzida.
+         Visual: 2247 × 0.42 ≈ 944px  |  margem recalculada: 2247 − 930 = −1317px
+         Resultado: layout 930px; área-preview ≈ 930+40 = 970px. */
+      .doc-wrapper-gm { transform: scale(0.42); margin-bottom: -1317px; }
+
+      /* F3-A: alturas adaptativas para ecrã estreito (escala reduzida) */
+      /* Guia de Férias (scale 0.34): visual 794×0.34 ≈ 270px; layout 274px */
+      .area-preview[data-tipo-doc="guia-ferias"]        { min-height: 320px; }
+      /* Declaração (scale 0.34): visual 1122×0.34 ≈ 382px; layout 602px */
+      .area-preview[data-tipo-doc="declaracao-servico"] { min-height: 640px; }
+      /* Guia Médica (scale 0.42): visual ≈ 944px; layout 930px */
+      .area-preview[data-tipo-doc="guia-medica"]        { min-height: 980px; }
     }
 
     /* ================================================
@@ -1681,6 +1720,9 @@
       if (camposDeclaracao) camposDeclaracao.style.display = "none";
     }
     actualizarPreview();
+    // F3-A: sincronizar o atributo de altura com o tipo de documento activo —
+    // activa a regra CSS [data-tipo-doc] correcta e dispara a transição suave.
+    document.getElementById("area-preview")?.setAttribute("data-tipo-doc", tipoDoc);
   };
 
   // F2-D: variável de controlo do debounce — partilhada entre chamadas
@@ -1817,6 +1859,10 @@
     const tipoDoc = document.getElementById("tipo-documento").value;
     const nomeFuncionario = document.getElementById("pesquisa-func").value.trim();
     const dataEmissao = document.getElementById("data-emissao").value;
+
+    // F3-A: garantir que a altura do painel reflecte o tipo activo mesmo quando
+    // gerarDocumento é chamado directamente (ex: actualizarPreview, deep-link).
+    document.getElementById("area-preview")?.setAttribute("data-tipo-doc", tipoDoc);
 
     // F2-A: limpar todos os erros anteriores antes de re-validar
     if (!silencioso) limparTodosErros();
@@ -2231,6 +2277,8 @@
     const badgePreview = document.getElementById("badge-preview-documento");
     const badgeEstado = document.getElementById("badge-estado");
     const nomeTipo = nomeTipoDocumentoGerado(d.tipo || d.tipoDocumento || "");
+    // F3-A: ajustar a altura do painel ao tipo do documento do arquivo
+    areaPreview.setAttribute("data-tipo-doc", d.tipo || "guia-ferias");
     if ((d.tipo || "") === "guia-medica") {
       // F1-G: usar classe CSS .doc-wrapper-gm em vez de style inline com magic numbers
       areaPreview.innerHTML = '<div class="doc-wrapper-gm">' + d.htmlArquivo + '</div>';
