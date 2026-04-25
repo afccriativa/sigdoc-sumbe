@@ -104,6 +104,20 @@
     return `DIRECÇÃO MUNICIPAL DA SAÚDE DO SUMBE, ${d.getDate()} DE ${MESES[d.getMonth()]} DE ${d.getFullYear()}.`;
   }
 
+  /**
+   * Determina a preposição correcta consoante o tipo de unidade de colocação.
+   * Exemplos: "no Centro de Saúde", "no Posto de Saúde", "na Direcção", "no Hospital"
+   */
+  function preposicaoLocal(local) {
+    const texto = String(local || "").trim().toLowerCase();
+    // Palavras femininas → "na"
+    if (/^(direc[çc]|clín|clinica|sede|maternidade|enfermaria|farmácia|farmacia)/.test(texto)) return "na";
+    // Palavras masculinas → "no"
+    if (/^(centro|posto|hospital|laboratório|laboratorio|dispensário|dispensario|servi[çc])/.test(texto)) return "no";
+    // Predefinição
+    return "em";
+  }
+
   window.construirDeclaracaoServico = function(dados) {
     const {
       nomeFuncionario = "___________________________",
@@ -122,6 +136,7 @@
     const tratamento = feminino ? "a senhora" : "o senhor";
     const funcionarioTxt = feminino ? "funcionária" : "funcionário";
     const colocadoTxt = feminino ? "colocada" : "colocado";
+    const preposicao = preposicaoLocal(localColocacao);
     const mesesNumero = Number.isFinite(Number(mesesAdiantamento)) && Number(mesesAdiantamento) > 0
       ? String(Number(mesesAdiantamento))
       : "__";
@@ -220,14 +235,26 @@
         }
         @media print {
           @page { size: A4 portrait; margin: 0; }
-          body { margin: 0; padding: 0; }
-          .ds-documento { width: 210mm; }
+          html, body {
+            height: 297mm !important;
+            max-height: 297mm !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          .ds-documento {
+            width: 210mm;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            overflow: hidden !important;
+          }
           .ds-pagina {
-            height: 297mm;
-            max-height: 297mm;
-            overflow: hidden;
-            page-break-after: avoid;
-            page-break-inside: avoid;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            overflow: hidden !important;
+            page-break-after: avoid !important;
+            page-break-before: avoid !important;
+            page-break-inside: avoid !important;
           }
         }
       </style>
@@ -248,7 +275,7 @@
             <p>
               Para efeito de obtenção de adiantamento salarial, junto do Banco de Poupança e Crédito (BPC),
               declara-se que ${tratamento} <strong>${escapeHtml(nomeFuncionario)}</strong>, é ${funcionarioTxt}
-              do Ministério da Saúde, ${colocadoTxt} em <strong>${escapeHtml(localColocacao)}</strong>,
+              do Ministério da Saúde, ${colocadoTxt} ${preposicao} <strong>${escapeHtml(localColocacao)}</strong>,
               com a categoria de <strong>${escapeHtml(categoria)}</strong>, agente nº
               <strong>${escapeHtml(numeroAgente)}</strong>, auferindo o salário líquido mensal de
               <strong>AKZ ${escapeHtml(salarioFmt)}</strong> (${escapeHtml(salarioExt)}).
@@ -272,8 +299,8 @@
               ${escapeHtml(mesesSufixo)}.
             </p>
             <p>
-              Por ser verdade e nos ter sido solicitado, foi passada a presente declaração que vai devidamente
-              assinada e autenticada com o carimbo a óleo em uso nesta Instituição.
+              <strong>Por ser verdade e nos ter sido solicitado, foi passada a presente declaração que vai devidamente
+              assinada e autenticada com o carimbo a óleo em uso nesta Instituição.</strong>
             </p>
           </div>
 
