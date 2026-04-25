@@ -208,6 +208,7 @@
         .ds-data {
           margin-top: 6mm;
           font-size: 12pt;
+          font-weight: 700;
           text-align: left;
         }
         .ds-assinatura {
@@ -216,7 +217,7 @@
         }
         .ds-assinatura-titulo {
           font-size: 12pt;
-          font-weight: 700;
+          font-weight: 400;
           margin-bottom: 10mm;
         }
         .ds-assinatura-linha {
@@ -287,7 +288,7 @@
           <div class="ds-corpo">
             <p>
               A Direcção acima citada compromete-se a depositar/creditar os salários do seu funcionário,
-              pagos da conta nº <strong>${escapeHtml(contaFmt)}</strong>, até a totalidade do referido adiantamento.
+              creditados na conta nº <strong>${escapeHtml(contaFmt)}</strong>, até à totalidade do referido adiantamento.
             </p>
             <p>
               2- A Direcção acima citada compromete-se a comunicar ao Banco quaisquer alterações que vierem
@@ -299,8 +300,8 @@
               ${escapeHtml(mesesSufixo)}.
             </p>
             <p>
-              <strong>Por ser verdade e nos ter sido solicitado, foi passada a presente declaração que vai devidamente
-              assinada e autenticada com o carimbo a óleo em uso nesta Instituição.</strong>
+              Por ser verdade e nos ter sido solicitado, foi passada a presente declaração que vai devidamente
+              assinada e autenticada com o carimbo a óleo em uso nesta Instituição.
             </p>
           </div>
 
