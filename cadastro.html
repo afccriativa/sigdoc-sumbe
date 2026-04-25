@@ -2755,15 +2755,15 @@
   async function registarLeitura(accao, dados) {
     try {
       const u = utilizadorActual;
-      if (!u) return;
-      const snapU = await getDoc(doc(db, "utilizadores", u.uid));
-      const du = snapU.exists() ? normalizarPerfilCadastro(snapU.data()) : {};
+      if (!u || !_perfilActual) return;
+      // Optimização: _perfilActual já foi carregado no onAuthStateChanged —
+      // elimina getDoc redundante ao Firestore (1 leitura faturada por abertura de ficha).
       await addDoc(collection(db, "auditoria"), {
         timestamp:          serverTimestamp(),
         accao,
         emailUtilizador:    u.email || "—",
-        nomeUtilizador:     du.nome || u.email || "—",
-        perfilUtilizador:   obterPerfilPrincipalCadastro(du) || "—",
+        nomeUtilizador:     _perfilActual.nome || u.email || "—",
+        perfilUtilizador:   obterPerfilPrincipalCadastro(_perfilActual) || "—",
         uidUtilizador:      u.uid,
         ...dados
       });
