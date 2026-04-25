@@ -53,6 +53,7 @@
 
     .btn-gerar { background: linear-gradient(135deg, var(--azul), var(--azul-claro)); color: white; border: none; padding: 13px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-gerar:hover { opacity: 0.9; }
+    .btn-gerar:disabled { opacity: 0.5; cursor: not-allowed; } /* F1-F */
     .btn-imprimir { background: var(--verde); color: white; border: none; padding: 13px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-imprimir:hover { opacity: 0.9; }
     .btn-imprimir:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -559,6 +560,33 @@
       }
     }
 
+    /* ================================================
+       F1-F — INDICADORES DE LOADING
+       ================================================ */
+
+    /* Spinner de rotação — usado em botões durante operações assíncronas */
+    @keyframes sigdoc-spin {
+      to { transform: rotate(360deg); }
+    }
+    .sigdoc-spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: white;
+      border-radius: 50%;
+      display: inline-block;
+      animation: sigdoc-spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    /* Pulse — usado na área do arquivo enquanto o onSnapshot ainda não respondeu */
+    @keyframes sigdoc-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.35; }
+    }
+    .arquivo-vazio-loading {
+      animation: sigdoc-pulse 1.4s ease-in-out infinite;
+    }
+
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 </head>
@@ -941,11 +969,27 @@
   });
 
   async function carregarFuncionarios() {
+    // F1-F: bloquear btn-gerar enquanto a lista de funcionários ainda não está disponível.
+    // Sem este bloqueio, o utilizador pode tentar gerar antes dos dados chegarem do Firestore.
+    const btnGerar = document.querySelector(".btn-gerar");
+    if (btnGerar) {
+      btnGerar.disabled = true;
+      btnGerar.innerHTML = '<span class="sigdoc-spinner"></span> A carregar funcionários...';
+    }
     try {
       const snap = await getDocs(collection(db, "funcionarios"));
       todosFuncionarios = [];
       snap.forEach(d => todosFuncionarios.push({ id: d.id, ...d.data() }));
-    } catch(e) { console.error("Erro:", e); mostrarNotificacao("❌ Erro ao carregar lista de funcionários. Recarregue a página.", "erro"); }
+    } catch(e) {
+      console.error("Erro:", e);
+      mostrarNotificacao("❌ Erro ao carregar lista de funcionários. Recarregue a página.", "erro");
+    } finally {
+      // Repor sempre o botão — mesmo em caso de erro de rede
+      if (btnGerar) {
+        btnGerar.disabled = false;
+        btnGerar.innerHTML = '&#128065; Gerar Pré-visualização';
+      }
+    }
   }
 
 
@@ -1927,7 +1971,8 @@
   // Lógica de submissão isolada — chamada após verificação de duplicados
   async function _criarDocumento(btnSub) {
     btnSub.disabled = true;
-    btnSub.textContent = "A guardar...";
+    // F1-F: spinner visual para que o utilizador saiba que a operação está em curso
+    btnSub.innerHTML = '<span class="sigdoc-spinner"></span> A guardar...';
     try {
       const docRef = await addDoc(collection(db, "documentos"), {
         ...dadosUltimoDocumento,
@@ -2114,7 +2159,8 @@
     const lista = document.getElementById("lista-guias-emitidas");
     if (!lista) return;
     if (unsubGuiasEmitidas) { unsubGuiasEmitidas(); unsubGuiasEmitidas = null; }
-    lista.innerHTML = `<div class="arquivo-vazio">A carregar arquivo de documentos...</div>`;
+    // F1-F: classe arquivo-vazio-loading aplica animação pulse enquanto o onSnapshot não responde
+    lista.innerHTML = `<div class="arquivo-vazio arquivo-vazio-loading">⏳ A carregar arquivo de documentos...</div>`;
     unsubGuiasEmitidas = onSnapshot(
       collection(db, "documentos"),
       snap => {
