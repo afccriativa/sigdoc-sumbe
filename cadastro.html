@@ -11,6 +11,7 @@
   <script src="sigdoc-session.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
     :root {
       --c-950:#03140f;--c-900:#07261c;--c-850:#0c3c2b;--c-800:#11553d;--c-700:#157a56;--c-600:#1da972;--c-500:#33d391;
@@ -315,7 +316,7 @@
     tbody tr:hover td{background:rgba(236,253,245,.78)}
     tbody tr:last-child{border-bottom:none}
     tbody td{
-      padding:18px;font-size:13px;color:var(--neu-700);vertical-align:middle;
+      padding:13px 18px;font-size:13px;color:var(--neu-700);vertical-align:middle;
       border-bottom:1px solid rgba(148,163,184,.14);background:transparent;
     }
     .func-nome{font-weight:700;font-size:14px;color:var(--neu-900)}
@@ -355,8 +356,9 @@
 
     .acoes-linha{display:flex;gap:6px}
     .btn-ver-linha,.btn-editar-linha{
-      padding:8px 13px;border-radius:12px;font-size:11px;
+      padding:8px;border-radius:12px;font-size:11px;
       font-weight:800;font-family:var(--font);cursor:pointer;border:none;transition:all .18s ease;
+      display:inline-flex;align-items:center;justify-content:center;
     }
     .btn-ver-linha{background:var(--b-100);color:var(--b-800)}
     .btn-ver-linha:hover{background:#bfdbfe;transform:translateY(-1px)}
@@ -2002,10 +2004,14 @@
         const tdAcoes = document.createElement("td");
         tdAcoes.addEventListener("click", function(event) { event.stopPropagation(); });
         const acoes = criarNo("div", "acoes-linha");
-        const btnVer = criarNo("button", "btn-ver-linha", "Ver");
+        const btnVer = criarNo("button", "btn-ver-linha");
+        btnVer.title = "Ver Ficha";
+        btnVer.innerHTML = '<i data-lucide="eye" style="width:15px;height:15px;stroke-width:2.5"></i>';
         btnVer.type = "button";
         btnVer.addEventListener("click", function() { window.verFicha(f.id); });
-        const btnEditar = criarNo("button", "btn-editar-linha", "Editar");
+        const btnEditar = criarNo("button", "btn-editar-linha");
+        btnEditar.title = "Editar Funcionário";
+        btnEditar.innerHTML = '<i data-lucide="pencil" style="width:15px;height:15px;stroke-width:2.5"></i>';
         btnEditar.type = "button";
         btnEditar.addEventListener("click", function() { window.editarFuncionario(f.id); });
         acoes.append(btnVer, btnEditar);
@@ -2040,6 +2046,7 @@
       }
     }
     nums.innerHTML = html;
+    if (window.lucide) lucide.createIcons();
   }
 
   window.mudaPagCadastro = function(dir) {
