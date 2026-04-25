@@ -625,6 +625,160 @@
       animation: sigdoc-pulse 1.4s ease-in-out infinite;
     }
 
+    /* ================================================
+       F3-B — ESTADO VAZIO: GUIA VISUAL DE 3 PASSOS
+       Substitui o placeholder estático por um guia
+       reactivo que orienta o utilizador passo a passo.
+       ================================================ */
+    .guia-passos-wrap {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 28px 16px 16px;
+    }
+    .gp-cabecalho {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+    .gp-cabecalho-icone {
+      font-size: 34px;
+      display: block;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+    }
+    .gp-cabecalho-titulo {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1a2332;
+    }
+    .gp-cabecalho-sub {
+      font-size: 11px;
+      color: #4b5563;
+      margin-top: 3px;
+      font-weight: 500;
+    }
+    .gp-lista {
+      display: flex;
+      flex-direction: column;
+    }
+    .gp-passo {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding-bottom: 18px;
+      position: relative;
+    }
+    .gp-passo:last-child { padding-bottom: 0; }
+    /* Linha vertical que liga um passo ao seguinte */
+    .gp-passo:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 17px;           /* centro do círculo de 36px */
+      top: 36px;            /* imediatamente abaixo do círculo */
+      height: calc(100% - 36px);
+      width: 2px;
+      background: #d1d5db;
+      transition: background 0.3s ease;
+    }
+    .gp-passo--concluido:not(:last-child)::after {
+      background: var(--verde-acento);
+    }
+    /* Círculo numerado */
+    .gp-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+      background: #e2e8f0;
+      color: #94a3b8;
+      border: 2px solid #cbd5e1;
+      position: relative;
+      z-index: 1;           /* fica à frente da linha conectora */
+    }
+    /* Número exibido via pseudo-elemento — permite trocar por ✓ no estado concluído */
+    .gp-num::before { content: attr(data-num); }
+    .gp-passo--ativo .gp-num {
+      background: var(--verde-acento);
+      color: white;
+      border-color: var(--verde-acento);
+      box-shadow: 0 0 0 4px rgba(18,163,114,0.20);
+    }
+    .gp-passo--concluido .gp-num {
+      background: var(--verde-primario);
+      color: white;
+      border-color: var(--verde-primario);
+    }
+    .gp-passo--concluido .gp-num::before {
+      content: '✓';
+      font-size: 16px;
+      font-weight: 900;
+    }
+    /* Cartão de cada passo */
+    .gp-card {
+      flex: 1;
+      background: white;
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+      border: 1.5px solid #e2e8f0;
+      transition: all 0.3s ease;
+      opacity: 0.55;        /* passos pendentes ficam esmaecidos */
+    }
+    .gp-passo--ativo .gp-card {
+      border-color: var(--verde-acento);
+      box-shadow: 0 2px 12px rgba(18,163,114,0.14);
+      opacity: 1;
+    }
+    .gp-passo--concluido .gp-card {
+      background: #f0fdf4;
+      border-color: #86efac;
+      opacity: 1;
+    }
+    .gp-card-titulo {
+      font-size: 12px;
+      font-weight: 700;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .gp-passo--ativo .gp-card-titulo   { color: var(--verde-primario); }
+    .gp-passo--concluido .gp-card-titulo { color: #166534; }
+    .gp-card-desc {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 3px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+    .gp-passo--ativo .gp-card-desc   { color: #4b5563; }
+    .gp-passo--concluido .gp-card-desc { color: #16a34a; font-weight: 600; }
+    /* Badge inferior: indica o tipo de documento actualmente seleccionado */
+    .gp-tipo-badge {
+      margin-top: 18px;
+      text-align: center;
+    }
+    .gp-tipo-badge-inner {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,255,255,0.82);
+      border: 1.5px solid rgba(255,255,255,0.55);
+      backdrop-filter: blur(4px);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #374151;
+    }
+    .gp-tipo-badge-inner strong { color: var(--verde-primario); font-weight: 800; }
+
   </style>
   <!-- F2-E: preconnect — elimina latência de DNS + TLS para o Google Fonts em redes lentas -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -809,10 +963,59 @@
       <span class="badge-preview" id="badge-preview-documento">Guia de Férias</span>
     </div>
     <div class="area-preview" id="area-preview">
-      <div class="vazio-preview">
-        <div class="icone">&#128196;</div>
-        <p>Preencha o formulário e clique em<br><strong>"Gerar Pré-visualização"</strong></p>
-      </div>
+
+      <!-- F3-B: Guia visual de 3 passos — substituiu o placeholder estático.
+           É removido automaticamente quando gerarDocumento() substitui o innerHTML. -->
+      <div class="vazio-preview" id="vazio-preview">
+        <div class="guia-passos-wrap">
+
+          <div class="gp-cabecalho">
+            <span class="gp-cabecalho-icone">&#128196;</span>
+            <div class="gp-cabecalho-titulo">Como gerar um documento</div>
+            <div class="gp-cabecalho-sub">Siga os 3 passos abaixo para emitir o documento oficial</div>
+          </div>
+
+          <div class="gp-lista">
+
+            <!-- Passo 1: Tipo — sempre concluído (há sempre uma selecção predefinida) -->
+            <div class="gp-passo gp-passo--concluido" id="gp-passo-1">
+              <div class="gp-num" data-num="1"></div>
+              <div class="gp-card">
+                <div class="gp-card-titulo">&#128203; Seleccionar tipo de documento</div>
+                <div class="gp-card-desc" id="gp-desc-1">Guia de F&#233;rias seleccionada</div>
+              </div>
+            </div>
+
+            <!-- Passo 2: Funcionário — activo até selecção, depois concluído -->
+            <div class="gp-passo gp-passo--ativo" id="gp-passo-2">
+              <div class="gp-num" data-num="2"></div>
+              <div class="gp-card">
+                <div class="gp-card-titulo">&#128269; Pesquisar funcion&#225;rio</div>
+                <div class="gp-card-desc" id="gp-desc-2">Pesquise e seleccione o funcion&#225;rio no formul&#225;rio &#224; esquerda</div>
+              </div>
+            </div>
+
+            <!-- Passo 3: Gerar — activo após funcionário seleccionado -->
+            <div class="gp-passo" id="gp-passo-3">
+              <div class="gp-num" data-num="3"></div>
+              <div class="gp-card">
+                <div class="gp-card-titulo">&#128065; Gerar pr&#233;-visualiza&#231;&#227;o</div>
+                <div class="gp-card-desc">Clique em <strong style="color:var(--verde-primario)">"Gerar Pr&#233;-visualiza&#231;&#227;o"</strong> para ver o documento</div>
+              </div>
+            </div>
+
+          </div><!-- /.gp-lista -->
+
+          <!-- Badge: tipo de documento actualmente seleccionado no formulário -->
+          <div class="gp-tipo-badge">
+            <div class="gp-tipo-badge-inner">
+              &#128196; Documento activo:&nbsp;<strong id="gp-tipo-nome">Guia de F&#233;rias</strong>
+            </div>
+          </div>
+
+        </div><!-- /.guia-passos-wrap -->
+      </div><!-- /.vazio-preview -->
+
     </div>
   </div>
 
@@ -1681,6 +1884,7 @@
       if (camposDeclaracao) camposDeclaracao.style.display = "none";
     }
     actualizarPreview();
+    actualizarPassosGuia(); // F3-B: reflectir tipo seleccionado no guia de passos
   };
 
   // F2-D: variável de controlo do debounce — partilhada entre chamadas
@@ -1802,12 +2006,54 @@
 
     calcularApresentacao();
     if (documentoGerado) window.gerarDocumento(true);
+    actualizarPassosGuia(); // F3-B: marcar passo 2 como concluído e activar passo 3
   };
 
   document.addEventListener("click", e => {
     if (!e.target.closest(".campo-pesquisa-func"))
       document.getElementById("resultados-pesquisa").style.display = "none";
   });
+
+  // ── F3-B: Actualizar estado visual dos passos da guia vazia ──────────────
+  // Reflecte o progresso do utilizador no preenchimento do formulário:
+  //  - Passo 1 (tipo): sempre concluído (há sempre uma selecção predefinida).
+  //  - Passo 2 (funcionário): activo enquanto não há selecção; concluído depois.
+  //  - Passo 3 (gerar): activo quando funcionário está seleccionado; neutro antes.
+  // Sai silenciosamente se a guia já não estiver no DOM (gerarDocumento() substitui
+  // o innerHTML de #area-preview, removendo #gp-passo-1 e companhia).
+  function actualizarPassosGuia() {
+    const passo1   = document.getElementById("gp-passo-1");
+    const passo2   = document.getElementById("gp-passo-2");
+    const passo3   = document.getElementById("gp-passo-3");
+    const desc1    = document.getElementById("gp-desc-1");
+    const desc2    = document.getElementById("gp-desc-2");
+    const tipoNome = document.getElementById("gp-tipo-nome");
+    // Guia já não está no DOM (documento gerado) — nada a fazer
+    if (!passo1 || !passo2 || !passo3) return;
+
+    const tipo     = document.getElementById("tipo-documento")?.value || "";
+    const nomeTipo = nomeTipoDocumentoGerado(tipo);
+    const temFunc  = !!funcionarioSeleccionado;
+
+    // Actualizar badge com o tipo actualmente seleccionado
+    if (tipoNome) tipoNome.textContent = nomeTipo;
+    if (desc1)    desc1.textContent   = nomeTipo + " seleccionada";
+
+    // Passo 1 — sempre concluído
+    passo1.className = "gp-passo gp-passo--concluido";
+
+    if (temFunc) {
+      // Funcionário escolhido: passo 2 concluído, passo 3 activo
+      passo2.className = "gp-passo gp-passo--concluido";
+      if (desc2) desc2.textContent = "✓ " + (funcionarioSeleccionado.nome || "Funcionário seleccionado");
+      passo3.className = "gp-passo gp-passo--ativo";
+    } else {
+      // Ainda sem funcionário: passo 2 activo, passo 3 neutro
+      passo2.className = "gp-passo gp-passo--ativo";
+      if (desc2) desc2.textContent = "Pesquise e seleccione o funcionário no formulário à esquerda";
+      passo3.className = "gp-passo";
+    }
+  }
 
   window.actualizarPreview = function() {
     if (documentoGerado) window.gerarDocumento(true);
