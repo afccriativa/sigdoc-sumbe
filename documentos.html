@@ -873,6 +873,56 @@
     }
     .gp-tipo-badge-inner strong { color: var(--verde-primario); font-weight: 800; }
 
+    /* ================================================
+       F3-D — INDICADOR DE PROGRESSO DO FORMULÁRIO
+       Barra + contador de campos obrigatórios preenchidos.
+       Posicionado abaixo do cabeçalho do 2º cartão;
+       mostra X de Y campos preenchidos por tipo de doc.
+       ================================================ */
+    .form-progresso-wrap {
+      padding: 10px 20px 12px;
+      border-bottom: 1px solid #eef0f3;
+      background: #fafbfc;
+    }
+    .form-progresso-topo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 7px;
+    }
+    .form-progresso-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      letter-spacing: 0.1px;
+    }
+    .form-progresso-contador {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--verde-primario);
+      font-variant-numeric: tabular-nums;
+      transition: color 0.3s;
+    }
+    .form-progresso-contador--completo { color: #16a34a; }
+    /* Trilho da barra */
+    .form-progresso-trilho {
+      height: 5px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    /* Preenchimento animado */
+    .form-progresso-barra {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--verde-acento);
+      width: 0%;
+      transition: width 0.35s ease, background 0.35s ease;
+    }
+    .form-progresso-barra--completo {
+      background: #16a34a;  /* verde mais escuro quando tudo preenchido */
+    }
+
   </style>
   <!-- F2-E: preconnect — elimina latência de DNS + TLS para o Google Fonts em redes lentas -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -920,6 +970,18 @@
 
     <div class="cartao">
       <div class="cartao-cabecalho" id="titulo-dados-documento">&#127958; Dados da Guia de Férias</div>
+
+      <!-- F3-D: Indicador de progresso — actualizado por actualizarProgressoFormulario() -->
+      <div class="form-progresso-wrap" id="form-progresso-wrap">
+        <div class="form-progresso-topo">
+          <span class="form-progresso-label">Campos obrigatórios</span>
+          <span class="form-progresso-contador" id="form-progresso-contador">0 de 5</span>
+        </div>
+        <div class="form-progresso-trilho">
+          <div class="form-progresso-barra" id="form-progresso-barra"></div>
+        </div>
+      </div>
+
       <div class="cartao-corpo">
 
         <div>
@@ -1350,10 +1412,11 @@
     document.querySelectorAll(".campo-erro-msg").forEach(el => { el.style.display = "none"; });
   }
 
-  // Listener global: ao editar qualquer campo, limpar o seu erro imediatamente.
+  // Listener global: ao editar qualquer campo, limpar o seu erro e actualizar progresso.
   // Evita acumular oninput redundantes em cada elemento do formulário.
   document.addEventListener("input", e => {
     if (e.target && e.target.id) limparErro(e.target.id);
+    actualizarProgressoFormulario(); // F3-D: reflectir preenchimento em tempo real
   });
 
   const PERFIS_ACESSO = ["admin","director","chefe","tecnico"];
@@ -1408,6 +1471,7 @@
     actualizarCamposFormulario();
     await verificarParamsPortal();
     await verificarParamSecretaria();
+    actualizarProgressoFormulario(); // F3-D: estado inicial (data-emissao já preenchida)
     carregarGuiasEmitidas();
   });
 
@@ -1998,7 +2062,8 @@
       if (camposDeclaracao) camposDeclaracao.style.display = "none";
     }
     actualizarPreview();
-    actualizarPassosGuia(); // F3-B: reflectir tipo seleccionado no guia de passos
+    actualizarPassosGuia();      // F3-B: reflectir tipo seleccionado no guia de passos
+    actualizarProgressoFormulario(); // F3-D: recalcular campos obrigatórios para o novo tipo
   };
 
   // F2-D: variável de controlo do debounce — partilhada entre chamadas
@@ -2120,7 +2185,8 @@
 
     calcularApresentacao();
     if (documentoGerado) window.gerarDocumento(true);
-    actualizarPassosGuia(); // F3-B: marcar passo 2 como concluído e activar passo 3
+    actualizarPassosGuia();          // F3-B: marcar passo 2 como concluído e activar passo 3
+    actualizarProgressoFormulario(); // F3-D: funcionário seleccionado conta como campo preenchido
   };
 
   document.addEventListener("click", e => {
@@ -2167,6 +2233,48 @@
       if (desc2) desc2.textContent = "Pesquise e seleccione o funcionário no formulário à esquerda";
       passo3.className = "gp-passo";
     }
+  }
+
+  // ── F3-D: Indicador de progresso do formulário ──────────────────────────
+  // Mapa de campos obrigatórios por tipo de documento.
+  // "pesquisa-func" é tratado de forma especial: só conta quando
+  // funcionarioSeleccionado !== null (não basta ter texto no campo).
+  const _CAMPOS_OBRIGATORIOS = {
+    "guia-ferias":        ["num-guia", "pesquisa-func", "data-inicio", "data-emissao", "nome-chefe"],
+    "guia-medica":        ["num-guia", "pesquisa-func", "unidade-sanitaria", "data-emissao", "nome-chefe"],
+    "declaracao-servico": ["pesquisa-func", "declaracao-meses", "declaracao-salario", "declaracao-conta", "data-emissao", "nome-chefe"]
+  };
+
+  function actualizarProgressoFormulario() {
+    const barra     = document.getElementById("form-progresso-barra");
+    const contador  = document.getElementById("form-progresso-contador");
+    if (!barra || !contador) return;
+
+    const tipo   = (document.getElementById("tipo-documento")?.value || "guia-ferias");
+    const campos = _CAMPOS_OBRIGATORIOS[tipo] || _CAMPOS_OBRIGATORIOS["guia-ferias"];
+    const total  = campos.length;
+
+    let preenchidos = 0;
+    campos.forEach(id => {
+      if (id === "pesquisa-func") {
+        // Funcionário só conta quando foi efectivamente seleccionado da lista
+        if (funcionarioSeleccionado) preenchidos++;
+      } else {
+        const el = document.getElementById(id);
+        if (el && String(el.value ?? "").trim() !== "") preenchidos++;
+      }
+    });
+
+    const pct      = total > 0 ? Math.round((preenchidos / total) * 100) : 0;
+    const completo = preenchidos === total;
+
+    // Actualizar barra
+    barra.style.width = pct + "%";
+    barra.classList.toggle("form-progresso-barra--completo", completo);
+
+    // Actualizar contador: "X de Y" — cor verde escuro quando completo
+    contador.textContent = `${preenchidos} de ${total}`;
+    contador.classList.toggle("form-progresso-contador--completo", completo);
   }
 
   window.actualizarPreview = function() {
