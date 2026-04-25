@@ -2011,12 +2011,12 @@
         const acoes = criarNo("div", "acoes-linha");
         const btnVer = criarNo("button", "btn-ver-linha");
         btnVer.title = "Ver Ficha";
-        btnVer.innerHTML = '<i data-lucide="eye" style="width:15px;height:15px;stroke-width:2.5"></i>';
+        btnVer.innerHTML = '<i data-lucide="eye" style="width:16px;height:16px;stroke-width:2"></i>';
         btnVer.type = "button";
         btnVer.addEventListener("click", function() { window.verFicha(f.id); });
         const btnEditar = criarNo("button", "btn-editar-linha");
         btnEditar.title = "Editar Funcionário";
-        btnEditar.innerHTML = '<i data-lucide="pencil" style="width:15px;height:15px;stroke-width:2.5"></i>';
+        btnEditar.innerHTML = '<i data-lucide="pencil" style="width:16px;height:16px;stroke-width:2"></i>';
         btnEditar.type = "button";
         btnEditar.addEventListener("click", function() { window.editarFuncionario(f.id); });
         acoes.append(btnVer, btnEditar);
