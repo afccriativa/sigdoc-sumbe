@@ -10,6 +10,7 @@
   <script src="sigdoc-config.js"></script>
   <script src="sigdoc-nav.js"></script>
   <script src="sigdoc-session.js"></script>
+  <script src="declaracao-servico-builder.js"></script>
   <style>
     :root {
       --c-900:#052e1c;--c-800:#0b4f3a;--c-700:#0d6e4f;--c-600:#12a372;--c-500:#10c886;
@@ -511,8 +512,51 @@
 
   let todasSolicitacoes=[],filtroSolActual="nova",solSel=null;
 
-  const TIPOS_SOL={"guia-ferias":{nome:"Guia de Férias",icone:"🏖️"},"declaracao-servico":{nome:"Declaração de Serviço",icone:"📜"},"guia-medica":{nome:"Guia Médica",icone:"🏥"},"oficio":{nome:"Ofício / Nota",icone:"📋"}};
+  const TIPOS_SOL={"guia-ferias":{nome:"Guia de Férias",icone:"🏖️"},"declaracao-servico":{nome:"Declaração de Adiantamento Salarial",icone:"📜"},"guia-medica":{nome:"Guia Médica",icone:"🏥"},"oficio":{nome:"Ofício / Nota",icone:"📋"}};
   const ESTADOS_SOL={nova:{txt:"🆕 Nova",cls:"b-nova"},processando:{txt:"🔄 A processar",cls:"b-proc"},concluida:{txt:"✅ Concluída",cls:"b-conc"},rejeitada:{txt:"❌ Rejeitada",cls:"b-rej"}};
+
+  function formatarMoedaKzAprovacao(valor){
+    const numero = Number(valor);
+    if(!Number.isFinite(numero)) return "—";
+    return numero.toLocaleString("pt-PT",{minimumFractionDigits:2,maximumFractionDigits:2}) + " AKZ";
+  }
+
+  function formatarMesesAprovacao(total){
+    const numero = Number(total);
+    if(!Number.isFinite(numero) || numero <= 0) return "—";
+    return numero + (numero === 1 ? " mês" : " meses");
+  }
+
+  function tipoDocNome(tipo){
+    return TIPOS_SOL[tipo]?.nome || tipo || "Documento";
+  }
+
+  function referenciaDocumento(d){
+    const tipo = d.tipo || d.tipoDocumento || "";
+    if((tipo === "guia-ferias" || tipo === "guia-medica") && d.numGuia && d.anoGuia){
+      const prefixo = tipo === "guia-medica" ? "Guia Médica" : "Guia de Férias";
+      return `${prefixo} nº ${d.numGuia}/${d.anoGuia}`;
+    }
+    return tipoDocNome(tipo);
+  }
+
+  function ehPendenteDocumento(estado){
+    return estado === "pendente" || estado === "gerado";
+  }
+
+  function detalheSolicitacaoAprovacao(s){
+    const tipo = s.tipo || s.tipoDocumento || "";
+    if(tipo === "guia-medica"){
+      return s.unidadeSanitaria || s.unidadeSanitariaFinal || "";
+    }
+    if(tipo === "declaracao-servico"){
+      const partes = [];
+      if(s.mesesAdiantamento) partes.push(formatarMesesAprovacao(s.mesesAdiantamento));
+      if(s.salarioLiquido) partes.push(formatarMoedaKzAprovacao(s.salarioLiquido));
+      return partes.join(" · ");
+    }
+    return s.motivo || "";
+  }
 
   const PERFIS_ACESSO = ["admin", "director", "chefe", "tecnico"];
 
