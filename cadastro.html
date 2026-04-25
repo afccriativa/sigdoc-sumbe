@@ -3074,6 +3074,7 @@
     loadingIcon.style.color = "var(--neu-300)";
     loading.append(loadingIcon, criarNo("p", null, "A carregar histórico..."));
     div.appendChild(loading);
+    if(window.lucide) lucide.createIcons();
     try{
       const snap=await getDocs(query(collection(db,"documentos"),where("funcionarioId","==",funcId)));
       const docs=snap.docs.map(d=>({id:d.id,...d.data()}));
@@ -3091,6 +3092,7 @@
         texto.appendChild(document.createTextNode("."));
         vazio.append(icone, texto);
         div.appendChild(vazio);
+        if(window.lucide) lucide.createIcons();
         return;
       }
       const icones={
@@ -3171,6 +3173,7 @@
       texto.style.color = "var(--r-600)";
       erro.appendChild(texto);
       div.appendChild(erro);
+      if(window.lucide) lucide.createIcons();
     }
   }
 
@@ -3191,6 +3194,7 @@
         vazio.append(icone, criarNo("p", null, "Nenhuma solicitação enviada ainda."));
         div.appendChild(vazio);
         if(badge)badge.style.display="none";
+        if(window.lucide) lucide.createIcons();
         return;
       }
       const pend=sols.filter(s=>s.estado==="nova"||s.estado==="processando").length;
@@ -3262,6 +3266,7 @@
       _iconeErrSol.style.color = "var(--r-600)";
       erro.append(_iconeErrSol, criarNo("p", null, "Sem acesso às solicitações."));
       div.appendChild(erro);
+      if(window.lucide) lucide.createIcons();
     }
   }
 
