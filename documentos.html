@@ -86,6 +86,17 @@
       overflow: visible;
     }
 
+    /* F1-G: Wrapper da Guia Médica (A4 retrato, 2 páginas empilhadas ~794×2251px)
+       Substitui os magic numbers inline: scale(0.6) e margin-bottom:-400px.
+       transform-origin:top center centra o documento horizontalmente sem div extra. */
+    .doc-wrapper-gm {
+      transform: scale(0.6);
+      transform-origin: top center;
+      /* Sem esta margem o painel teria 2251px de altura (layout ignora transform).
+         -400px mantém espaço respirável; o excesso extravasa via overflow:visible. */
+      margin-bottom: -400px;
+    }
+
     @media (max-width: 760px) {
       .arquivo-topo { align-items:stretch; }
       .arquivo-filtro { max-width:none; }
@@ -264,6 +275,9 @@
       .layout { grid-template-columns: 1fr; }
       .doc-wrapper { transform: scale(0.34); margin-bottom: -520px; }
       .doc-wrapper-centrado { width: 382px; }  /* 1122 × 0.34 ≈ 382 */
+      /* F1-G: Guia Médica em ecrã estreito — escala reduzida para caber no painel */
+      .doc-wrapper-gm { transform: scale(0.42); margin-bottom: -1060px; }
+      /* 794 × 0.42 ≈ 333px de largura visual; 2251 × 0.42 ≈ 945px de altura visual */
     }
 
     /* ================================================
@@ -1806,7 +1820,8 @@
       }, unidadeSanitaria || 'Hospital Municipal do Sumbe');
       
       // Para Guia Médica, não usamos o wrapper escalado da Guia de Férias
-      document.getElementById("area-preview").innerHTML = '<div style="transform: scale(0.6); transform-origin: top center; margin-bottom: -400px;">' + htmlDoc + '</div>';
+      // F1-G: usar classe CSS .doc-wrapper-gm em vez de style inline com magic numbers
+      document.getElementById("area-preview").innerHTML = '<div class="doc-wrapper-gm">' + htmlDoc + '</div>';
       document.getElementById("area-impressao").innerHTML = htmlDoc;
       
       dadosUltimoDocumento = {
@@ -2081,7 +2096,8 @@
     const badgeEstado = document.getElementById("badge-estado");
     const nomeTipo = nomeTipoDocumentoGerado(d.tipo || d.tipoDocumento || "");
     if ((d.tipo || "") === "guia-medica") {
-      areaPreview.innerHTML = '<div style="transform: scale(0.6); transform-origin: top center; margin-bottom: -400px;">' + d.htmlArquivo + '</div>';
+      // F1-G: usar classe CSS .doc-wrapper-gm em vez de style inline com magic numbers
+      areaPreview.innerHTML = '<div class="doc-wrapper-gm">' + d.htmlArquivo + '</div>';
     } else {
       areaPreview.innerHTML = '<div class="doc-wrapper-centrado"><div class="doc-wrapper" style="display:block">' + d.htmlArquivo + '</div></div>';
     }
