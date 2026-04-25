@@ -626,6 +626,10 @@
     }
 
   </style>
+  <!-- F2-E: preconnect — elimina latência de DNS + TLS para o Google Fonts em redes lentas -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <!-- display=swap já presente: evita FOIT — texto visível com fonte de sistema enquanto carrega -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 </head>
 <body>
@@ -1679,7 +1683,11 @@
     actualizarPreview();
   };
 
-  window.pesquisarFuncionario = function(termo) {
+  // F2-D: variável de controlo do debounce — partilhada entre chamadas
+  let _timerPesquisaFunc = null;
+
+  // Lógica de pesquisa propriamente dita — executada após o debounce
+  function _executarPesquisaFuncionario(termo) {
     const div = document.getElementById("resultados-pesquisa");
     if (!termo || termo.length < 2) { div.style.display = "none"; return; }
     const r = todosFuncionarios.filter(f =>
@@ -1702,6 +1710,15 @@
       item.addEventListener("click", () => seleccionarFuncionario(item.dataset.id));
     });
     div.style.display = "block";
+  }
+
+  // F2-D: wrapper com debounce de 200ms — adia a pesquisa até o utilizador pausar de escrever.
+  // Cancela o timer anterior a cada tecla; só executa quando não houver nova tecla durante 200ms.
+  // O valor do campo é capturado no momento da chamada e passado ao setTimeout via closure,
+  // garantindo que se usa sempre o termo mais recente mesmo que o campo mude entre chamadas.
+  window.pesquisarFuncionario = function(termo) {
+    clearTimeout(_timerPesquisaFunc);
+    _timerPesquisaFunc = setTimeout(() => _executarPesquisaFuncionario(termo), 200);
   };
 
   window.seleccionarFuncionario = function(id) {
