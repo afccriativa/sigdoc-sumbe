@@ -3,7 +3,13 @@
  * Gera um documento A4 retrato fiel ao modelo físico usado no processo.
  */
 (function() {
-  const INSIGNIA_SRC = "angola_coat_of_arms-removebg-preview.png";
+  // ============================================================
+  // insignia_Base64 (PNG 200px)
+  // Cole aqui o valor gerado pelo conversor-base64.html
+  // Formato: data:image/png;base64,XXXXXXX...
+  // ============================================================
+  const INSIGNIA_BASE64 = "insignia.jpeg";
+  // ============================================================
   const MESES = [
     "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
     "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"
@@ -146,6 +152,11 @@
     const salarioExt = valorAkzPorExtenso(salarioLiquido);
     const contaFmt = String(numeroConta || "________________").trim().toUpperCase();
     const dataCabecalho = formatarDataCabecalho(dataEmissao);
+
+    // Usa Base64 embutida; fallback para URL caso ainda não tenha sido preenchida
+    const INSIGNIA_SRC = (INSIGNIA_BASE64 && INSIGNIA_BASE64 !== "BASE64_AQUI")
+      ? INSIGNIA_BASE64
+      : "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Coat_of_arms_of_Angola.svg/200px-Coat_of_arms_of_Angola.svg.png";
 
     return `
       <style>
