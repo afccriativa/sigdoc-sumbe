@@ -139,22 +139,22 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         margin-top: 2mm;
       }
       .gm-prescricao-bloco {
-        margin-top: 10mm;
-        padding-top: 5mm;
+        margin-top: 6mm;
+        padding-top: 2mm;
       }
       .gm-prescricao-titulo {
         font-weight: bold;
         text-decoration: underline;
         font-size: 10pt;
-        margin-bottom: 3mm;
+        margin-bottom: 2mm;
         text-align: center;
       }
       .gm-linhas-prescricao {
-        margin-bottom: 5mm;
+        margin-bottom: 3mm;
       }
       .gm-linha-vazia {
         border-bottom: 1px solid #000;
-        height: 8mm;
+        height: 7mm;
       }
       .gm-prescricao-rodape {
         display: flex;
@@ -193,26 +193,28 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
         html, body {
           margin: 0 !important;
           padding: 0 !important;
-          height: auto !important;
-          overflow: visible !important;
+          width: 210mm !important;
+          height: 594mm !important;
+          max-height: 594mm !important;
+          overflow: hidden !important;
         }
         .gm-documento {
-          width: 210mm;
-          overflow: visible !important;
+          width: 210mm !important;
+          overflow: hidden !important;
         }
         .gm-pagina {
-          width: 210mm;
+          width: 210mm !important;
           height: 297mm !important;
           max-height: 297mm !important;
           overflow: hidden !important;
-          border: none;
-          margin: 0;
-          padding: 15mm 20mm 30mm;
-          box-sizing: border-box;
+          border: none !important;
+          margin: 0 !important;
+          padding: 15mm 20mm 30mm !important;
+          box-sizing: border-box !important;
           display: block !important;
           visibility: visible !important;
-          page-break-after: always;
-          page-break-inside: avoid;
+          page-break-after: always !important;
+          page-break-inside: avoid !important;
         }
         .gm-pagina:last-child {
           page-break-after: avoid !important;
