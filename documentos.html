@@ -9,6 +9,7 @@
   <script src="sigdoc-nav.js"></script>
   <script src="sigdoc-session.js"></script>
   <script src="guia-medica-builder.js"></script>
+  <script src="declaracao-servico-builder.js"></script>
   <style>
     :root {
       --font: 'Plus Jakarta Sans', sans-serif; --mono: 'DM Mono', monospace;
@@ -590,7 +591,7 @@
           <label>Seleccione o documento a gerar</label>
           <select id="tipo-documento" onchange="actualizarCamposFormulario()">
             <option value="guia-ferias">Guia de Férias</option>
-            <option value="declaracao" disabled>Declaração de Serviço (em breve)</option>
+            <option value="declaracao-servico">Declaração de Adiantamento Salarial</option>
             <option value="guia-medica">Guia Médica</option>
             <option value="oficio" disabled>Ofício (em breve)</option>
           </select>
@@ -628,6 +629,26 @@
           <label>Unidade Sanitária a Consultar <span style="color:var(--c-700)">*</span></label>
           <input type="text" id="unidade-sanitaria" placeholder="Ex: Hospital Municipal do Sumbe, Centro Médico..." oninput="actualizarPreview()"/>
           <div style="font-size:10px;color:#6b7280;margin-top:4px;font-style:italic">Será preenchido automaticamente na guia: "Vai apresentar-se ao..."</div>
+        </div>
+
+        <div id="campos-declaracao-servico" style="display:none">
+          <div class="row2">
+            <div>
+              <label>Número de meses do adiantamento <span style="color:var(--c-700)">*</span></label>
+              <input type="number" id="declaracao-meses" min="1" max="12" step="1" placeholder="Ex: 4" oninput="actualizarPreview()"/>
+              <div style="font-size:10px;color:#6b7280;margin-top:4px;font-style:italic">Usado na observação final da declaração: "(4) quatro meses".</div>
+            </div>
+            <div>
+              <label>Salário líquido em AKZ <span style="color:var(--c-700)">*</span></label>
+              <input type="text" id="declaracao-salario" inputmode="decimal" placeholder="Ex: 205.082,30" oninput="mascaraValorKzDocumentos(this); actualizarPreview()"/>
+              <div style="font-size:10px;color:#6b7280;margin-top:4px;font-style:italic">Valor a constar no corpo da declaração.</div>
+            </div>
+          </div>
+          <div style="margin-top:14px">
+            <label>Número de conta / IBAN <span style="color:var(--c-700)">*</span></label>
+            <input type="text" id="declaracao-conta" maxlength="40" placeholder="Ex: 0282-N41339-011" oninput="this.value=this.value.toUpperCase(); actualizarPreview()"/>
+            <div style="font-size:10px;color:#6b7280;margin-top:4px;font-style:italic">Conta indicada no compromisso de depósito/credito ao BPC.</div>
+          </div>
         </div>
 
         <div id="campo-cargo-categoria">
@@ -669,7 +690,7 @@
         <div id="info-feriados" class="info-ferias"></div>
 
         <div>
-          <label>Nome do Chefe de Secção</label>
+          <label id="label-nome-chefe">Nome do Chefe de Secção</label>
           <input type="text" id="nome-chefe" value="Hildebrando M.T. Cassacula" oninput="actualizarPreview()"/>
         </div>
 
@@ -701,17 +722,17 @@
 
 <div class="arquivo-wrap">
   <div class="cartao">
-    <div class="cartao-cabecalho">&#128450; Arquivo de Guias Medicas Emitidas</div>
+    <div class="cartao-cabecalho">&#128450; Arquivo de Documentos Emitidos</div>
     <div class="cartao-corpo">
       <div class="arquivo-topo">
         <div>
-          <div class="arquivo-sub">Consulte as guias medicas ja geradas a partir da coleccao <strong>documentos</strong> e abra qualquer uma directamente no painel de pre-visualizacao.</div>
+          <div class="arquivo-sub">Consulte os documentos já gerados a partir da colecção <strong>documentos</strong> e abra qualquer um directamente no painel de pré-visualização.</div>
         </div>
-        <span class="arquivo-badge" id="arquivo-guias-total">0 guias</span>
+        <span class="arquivo-badge" id="arquivo-guias-total">0 documentos</span>
       </div>
-      <input class="arquivo-filtro" type="text" id="pesquisa-guia-emitida" placeholder="Pesquisar por numero, funcionario ou unidade..." oninput="filtrarGuiasEmitidas()"/>
+      <input class="arquivo-filtro" type="text" id="pesquisa-guia-emitida" placeholder="Pesquisar por referência, funcionário ou detalhe..." oninput="filtrarGuiasEmitidas()"/>
       <div class="lista-guias-emitidas" id="lista-guias-emitidas">
-        <div class="arquivo-vazio">A carregar arquivo de guias medicas...</div>
+        <div class="arquivo-vazio">A carregar arquivo de documentos...</div>
       </div>
     </div>
   </div>
@@ -941,6 +962,117 @@
     const params = new URLSearchParams(window.location.search);
     const origem = params.get('origem');
     const tipo = params.get('tipo');
+
+    if (origem === 'portal' && tipo === 'declaracao-servico') {
+      const solId = params.get('sol') || '';
+      const funcId = params.get('funcionarioId') || params.get('func') || '';
+      const funcUid = params.get('funcionarioUid') || '';
+      const nome = params.get('funcionarioNome') || params.get('nome') || '';
+      const cat = params.get('cat') || '';
+      const unid = params.get('unid') || '';
+      const meses = parseInt(params.get('mesesAdiantamento') || '', 10);
+      const salario = Number(params.get('salarioLiquido') || '');
+      const conta = normalizarNumeroContaDocumentos(params.get('numeroConta') || '');
+
+      document.getElementById('tipo-documento').value = 'declaracao-servico';
+      actualizarCamposFormulario();
+
+      const banner = document.getElementById('banner-portal-origem');
+      const infoTxt = document.getElementById('bp-info-texto');
+      if (banner) {
+        banner.style.display = 'block';
+        const partes = [];
+        if (Number.isInteger(meses) && meses > 0) partes.push(formatarMesesAdiantamentoDocumentos(meses));
+        if (Number.isFinite(salario) && salario > 0) partes.push(formatarMoedaKzDocumentos(salario));
+        infoTxt.textContent =
+          `Solicitação: Declaração de Adiantamento Salarial para ${nome || '(funcionário não identificado)'}. ` +
+          `${partes.length ? partes.join(' · ') + '. ' : ''}` +
+          `Confira os dados importados e clique em Gerar.`;
+      }
+
+      let tentativas = 0;
+      while (todosFuncionarios.length === 0 && tentativas < 20) {
+        await new Promise(r => setTimeout(r, 200));
+        tentativas++;
+      }
+
+      if (nome) {
+        const campoNome = document.getElementById('pesquisa-func');
+        campoNome.value = nome;
+        campoNome.classList.add('campo-preenchido');
+      }
+      if (cat) {
+        const campoCargo = document.getElementById('cargo-func');
+        const campoCategoria = document.getElementById('categoria-func');
+        if (campoCargo) {
+          campoCargo.value = cat;
+          campoCargo.classList.add('campo-preenchido');
+        }
+        if (campoCategoria) campoCategoria.value = cat;
+      }
+      if (unid) {
+        const campoLoc = document.getElementById('local-func');
+        if (campoLoc) {
+          campoLoc.value = unid;
+          campoLoc.classList.add('campo-preenchido');
+        }
+      }
+      if (Number.isInteger(meses) && meses > 0) {
+        const campoMeses = document.getElementById('declaracao-meses');
+        if (campoMeses) {
+          campoMeses.value = String(meses);
+          campoMeses.classList.add('campo-preenchido');
+        }
+      }
+      if (Number.isFinite(salario) && salario > 0) {
+        const campoSalario = document.getElementById('declaracao-salario');
+        if (campoSalario) {
+          campoSalario.value = formatarMoedaKzDocumentos(salario, { sufixo: false });
+          campoSalario.classList.add('campo-preenchido');
+        }
+      }
+      if (conta) {
+        const campoConta = document.getElementById('declaracao-conta');
+        if (campoConta) {
+          campoConta.value = conta;
+          campoConta.classList.add('campo-preenchido');
+        }
+      }
+
+      let funcObj = null;
+      if (funcId && todosFuncionarios.length > 0) {
+        funcObj = todosFuncionarios.find(f => f.id === funcId);
+      }
+      if (!funcObj && nome) {
+        funcObj = todosFuncionarios.find(f =>
+          (f.nome || '').toLowerCase() === nome.toLowerCase()
+        );
+      }
+
+      if (funcObj) {
+        funcionarioSeleccionado = funcObj;
+        document.getElementById('cargo-func').value = funcObj.cargo || funcObj.categoria || cat || '';
+        document.getElementById('cargo-func').classList.add('campo-preenchido');
+        document.getElementById('categoria-func').value = funcObj.categoria || cat || '';
+        document.getElementById('local-func').value = funcObj.unidade || unid || '';
+        if (!document.getElementById('declaracao-conta').value && funcObj.numeroConta) {
+          document.getElementById('declaracao-conta').value = normalizarNumeroContaDocumentos(funcObj.numeroConta);
+        }
+        if (!Number.isFinite(obterNumeroKzDocumentos(document.getElementById('declaracao-salario').value)) && Number(funcObj.salarioBase) > 0) {
+          document.getElementById('declaracao-salario').value = formatarMoedaKzDocumentos(funcObj.salarioBase, { sufixo: false });
+        }
+      }
+
+      window._solicitacaoOrigemId = solId || null;
+      window._solicitacaoOrigemFuncionarioUid = funcUid || null;
+
+      setTimeout(() => {
+        const btnGerar = document.querySelector('.btn-gerar');
+        btnGerar?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+
+      return;
+    }
 
     if (origem === 'portal' && tipo === 'guia-medica') {
       const solId = params.get('sol') || '';
@@ -1191,6 +1323,82 @@
     return anos >= 0 ? anos : 0;
   }
 
+  function obterNumeroKzDocumentos(valor) {
+    const bruto = String(valor ?? "").trim();
+    if (!bruto) return NaN;
+    const limpo = bruto
+      .replace(/\s+/g, "")
+      .replace(/Kz/gi, "")
+      .replace(/\./g, "")
+      .replace(/,/g, ".");
+    const numero = Number(limpo);
+    return Number.isFinite(numero) ? numero : NaN;
+  }
+
+  function formatarMoedaKzDocumentos(valor, { sufixo = true } = {}) {
+    const numero = Number(valor);
+    if (!Number.isFinite(numero)) return "—";
+    const texto = numero.toLocaleString("pt-PT", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    return sufixo ? texto + " AKZ" : texto;
+  }
+
+  function formatarMesesAdiantamentoDocumentos(total) {
+    const numero = Number(total);
+    if (!Number.isFinite(numero) || numero <= 0) return "—";
+    return numero + (numero === 1 ? " mês" : " meses");
+  }
+
+  function normalizarNumeroContaDocumentos(valor) {
+    return String(valor ?? "").trim().replace(/\s+/g, " ").toUpperCase();
+  }
+
+  function nomeTipoDocumentoGerado(tipo) {
+    return {
+      "guia-ferias": "Guia de Férias",
+      "guia-medica": "Guia Médica",
+      "declaracao-servico": "Declaração de Adiantamento Salarial",
+      "oficio": "Ofício"
+    }[tipo] || tipo || "Documento";
+  }
+
+  function referenciaDocumentoArquivo(d) {
+    const tipo = d?.tipo || d?.tipoDocumento || "";
+    if ((tipo === "guia-ferias" || tipo === "guia-medica") && d?.numGuia && d?.anoGuia) {
+      return `Nº ${d.numGuia}/${d.anoGuia}`;
+    }
+    return nomeTipoDocumentoGerado(tipo);
+  }
+
+  function detalheDocumentoArquivo(d) {
+    const tipo = d?.tipo || d?.tipoDocumento || "";
+    if (tipo === "guia-medica") {
+      return d?.unidadeSanitaria || "Unidade não indicada";
+    }
+    if (tipo === "declaracao-servico") {
+      const partes = [];
+      if (d?.mesesAdiantamento) partes.push(formatarMesesAdiantamentoDocumentos(d.mesesAdiantamento));
+      if (d?.salarioLiquido) partes.push(formatarMoedaKzDocumentos(d.salarioLiquido));
+      if (d?.numeroConta) partes.push(normalizarNumeroContaDocumentos(d.numeroConta));
+      return partes.join(" · ") || "Sem detalhe adicional";
+    }
+    return d?.localColocacao || d?.categoria || "Sem detalhe adicional";
+  }
+
+  window.mascaraValorKzDocumentos = function(inp) {
+    const bruto = (inp?.value || "").trim();
+    if (!bruto) {
+      if (inp) inp.value = "";
+      return;
+    }
+    const numero = obterNumeroKzDocumentos(bruto);
+    inp.value = Number.isFinite(numero)
+      ? formatarMoedaKzDocumentos(numero, { sufixo: false })
+      : bruto.replace(/[^\d,.\s]/g, "");
+  };
+
   function calcularDiasDireito(anos) {
     if (anos === null) return 22;
     if (anos >= 30) return 31;
@@ -1227,11 +1435,15 @@
   window.actualizarCamposFormulario = function() {
     const tipoDoc = document.getElementById("tipo-documento").value;
     const campoUnidade = document.getElementById("campo-unidade-sanitaria");
+    const camposDeclaracao = document.getElementById("campos-declaracao-servico");
     const isGuiaMedica = tipoDoc === "guia-medica";
+    const isDeclaracaoServico = tipoDoc === "declaracao-servico";
     const tituloDados = document.getElementById("titulo-dados-documento");
     const badgePreview = document.getElementById("badge-preview-documento");
     const linhaNumeroGuia = document.getElementById("linha-numero-guia");
     const campoAnoGuia = document.getElementById("campo-ano-guia");
+    const labelNomeChefe = document.getElementById("label-nome-chefe");
+    const campoNomeChefe = document.getElementById("nome-chefe");
     const camposSoFerias = [
       "campo-cargo-categoria",
       "campo-local-colocacao",
@@ -1243,40 +1455,66 @@
     if (tituloDados) {
       tituloDados.innerHTML = isGuiaMedica
         ? "&#127973; Dados da Guia Médica"
-        : "&#127958; Dados da Guia de Férias";
+        : isDeclaracaoServico
+          ? "&#128196; Dados da Declaração de Adiantamento Salarial"
+          : "&#127958; Dados da Guia de Férias";
     }
     if (badgePreview) {
-      badgePreview.textContent = isGuiaMedica ? "Guia Médica" : "Guia de Férias";
+      badgePreview.textContent = isGuiaMedica
+        ? "Guia Médica"
+        : isDeclaracaoServico
+          ? "Declaração de Adiantamento Salarial"
+          : "Guia de Férias";
     }
 
     camposSoFerias.forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.style.display = isGuiaMedica ? "none" : "";
+      if (el) el.style.display = (isGuiaMedica || isDeclaracaoServico) ? "none" : "";
     });
 
     if (campoAnoGuia) {
-      campoAnoGuia.style.display = isGuiaMedica ? "none" : "";
+      campoAnoGuia.style.display = (isGuiaMedica || isDeclaracaoServico) ? "none" : "";
     }
     if (linhaNumeroGuia) {
+      linhaNumeroGuia.style.display = isDeclaracaoServico ? "none" : "grid";
       linhaNumeroGuia.style.gridTemplateColumns = isGuiaMedica ? "1fr" : "";
     }
 
-    if (isGuiaMedica) {
-      if (!document.getElementById("data-emissao").value) {
-        document.getElementById("data-emissao").value = new Date().toISOString().split("T")[0];
+    if (labelNomeChefe) {
+      labelNomeChefe.textContent = isDeclaracaoServico
+        ? "Nome do Director Municipal"
+        : "Nome do Chefe de Secção";
+    }
+    if (campoNomeChefe) {
+      const defaultFerias = "Hildebrando M.T. Cassacula";
+      const defaultDeclaracao = "António Fernando Afonso";
+      if (isDeclaracaoServico) {
+        if (!campoNomeChefe.value || campoNomeChefe.value === defaultFerias) {
+          campoNomeChefe.value = defaultDeclaracao;
+        }
+      } else if (!campoNomeChefe.value || campoNomeChefe.value === defaultDeclaracao) {
+        campoNomeChefe.value = defaultFerias;
       }
-      // Mostrar campo unidade sanitária para guia médica
+    }
+
+    if (!document.getElementById("data-emissao").value) {
+      document.getElementById("data-emissao").value = new Date().toISOString().split("T")[0];
+    }
+
+    if (isGuiaMedica) {
       campoUnidade.style.display = "block";
-      // Carregar unidade de uma solicitação do portal se existir
+      if (camposDeclaracao) camposDeclaracao.style.display = "none";
       const urlParams = new URLSearchParams(window.location.search);
       const unidadeParam = urlParams.get('unidadeSanitaria') || urlParams.get('unidade');
       if (unidadeParam) {
         document.getElementById("unidade-sanitaria").value = decodeURIComponent(unidadeParam);
       }
-    } else {
-      // Esconder campo para outros documentos
+    } else if (isDeclaracaoServico) {
       campoUnidade.style.display = "none";
-      document.getElementById("unidade-sanitaria").value = "";
+      if (camposDeclaracao) camposDeclaracao.style.display = "block";
+    } else {
+      campoUnidade.style.display = "none";
+      if (camposDeclaracao) camposDeclaracao.style.display = "none";
     }
     actualizarPreview();
   };
@@ -1321,6 +1559,17 @@
     }
     document.getElementById("local-func").value = f.unidade || "";
     document.getElementById("resultados-pesquisa").style.display = "none";
+
+    if (document.getElementById("tipo-documento").value === "declaracao-servico") {
+      const campoConta = document.getElementById("declaracao-conta");
+      const campoSalario = document.getElementById("declaracao-salario");
+      if (campoConta && !campoConta.value.trim() && f.numeroConta) {
+        campoConta.value = normalizarNumeroContaDocumentos(f.numeroConta);
+      }
+      if (campoSalario && !Number.isFinite(obterNumeroKzDocumentos(campoSalario.value)) && Number(f.salarioBase) > 0) {
+        campoSalario.value = formatarMoedaKzDocumentos(f.salarioBase, { sufixo: false });
+      }
+    }
 
     // ── Alerta de Validade do BI ──
     (function() {
@@ -1395,7 +1644,72 @@
     let htmlDoc;
     let tipo = tipoDoc;
 
-    if (tipoDoc === 'guia-medica') {
+    if (tipoDoc === 'declaracao-servico') {
+      if (!window.construirDeclaracaoServico) {
+        mostrarNotificacao("❌ Erro: Construtor da declaração não carregado.");
+        return;
+      }
+
+      const mesesAdiantamento = parseInt(document.getElementById("declaracao-meses").value, 10);
+      const salarioLiquido = obterNumeroKzDocumentos(document.getElementById("declaracao-salario").value);
+      const numeroConta = normalizarNumeroContaDocumentos(document.getElementById("declaracao-conta").value);
+      const categoria = document.getElementById("categoria-func").value.trim() || document.getElementById("cargo-func").value.trim();
+      const localColocacao = document.getElementById("local-func").value.trim() || funcionarioSeleccionado?.unidade || "";
+      const nomeDirector = document.getElementById("nome-chefe").value.trim() || "António Fernando Afonso";
+      const sexo = funcionarioSeleccionado?.sexo || "Masculino";
+
+      if (!silencioso) {
+        if (!Number.isInteger(mesesAdiantamento) || mesesAdiantamento <= 0) {
+          mostrarNotificacao("⚠️ Indique o número de meses do adiantamento.");
+          document.getElementById("declaracao-meses").focus();
+          return;
+        }
+        if (!Number.isFinite(salarioLiquido) || salarioLiquido <= 0) {
+          mostrarNotificacao("⚠️ Indique o salário líquido em AKZ.");
+          document.getElementById("declaracao-salario").focus();
+          return;
+        }
+        if (!numeroConta) {
+          mostrarNotificacao("⚠️ Indique o número de conta a constar no compromisso.");
+          document.getElementById("declaracao-conta").focus();
+          return;
+        }
+      }
+
+      htmlDoc = construirDeclaracaoServico({
+        nomeFuncionario: nomeFuncionario || "___________________________",
+        sexo,
+        categoria: categoria || funcionarioSeleccionado?.categoria || "___________________________",
+        localColocacao: localColocacao || "___________________________",
+        numeroAgente: funcionarioSeleccionado?.numero || "________________",
+        salarioLiquido,
+        mesesAdiantamento,
+        numeroConta,
+        dataEmissao,
+        nomeDirector
+      });
+
+      document.getElementById("area-preview").innerHTML =
+        '<div class="doc-wrapper-centrado"><div class="doc-wrapper" style="display:block">' + htmlDoc + '</div></div>';
+      document.getElementById("area-impressao").innerHTML = htmlDoc;
+
+      dadosUltimoDocumento = {
+        tipo: "declaracao-servico",
+        funcionarioId: funcionarioSeleccionado ? funcionarioSeleccionado.id : null,
+        funcionarioUid: funcionarioSeleccionado?.uidUtilizador || window._solicitacaoOrigemFuncionarioUid || null,
+        funcionarioNome: nomeFuncionario,
+        funcionarioNumero: funcionarioSeleccionado?.numero || "",
+        categoria: categoria || funcionarioSeleccionado?.categoria || "",
+        localColocacao,
+        dataEmissao,
+        nomeChefe: nomeDirector,
+        sexo,
+        mesesAdiantamento,
+        salarioLiquido,
+        numeroConta
+      };
+
+    } else if (tipoDoc === 'guia-medica') {
       // ── GUIA MÉDICA ───
       if (!window.construirGuiaMedica) {
         mostrarNotificacao("❌ Erro: Construtor de Guia Médica não carregado.");
@@ -1509,7 +1823,7 @@
       document.getElementById("btn-submeter").disabled = false;
     }
 
-    if (!silencioso) mostrarNotificacao("✅ Documento gerado! Clique em 'Submeter para Aprovação' para enviar ao Chefe.");
+    if (!silencioso) mostrarNotificacao("✅ Documento gerado! Clique em 'Guardar Documento' para arquivar e enviar para validação.");
   };
 
 
@@ -1638,7 +1952,7 @@
         const _tipoLabel = {
           'guia-ferias':        'Guia de Férias',
           'guia-medica':        'Guia Médica',
-          'declaracao-servico': 'Declaração de Serviço',
+          'declaracao-servico': 'Declaração de Adiantamento Salarial',
           'oficio':             'Ofício'
         }[dadosUltimoDocumento?.tipo] || dadosUltimoDocumento?.tipo || 'Documento';
         await criarNotificacao(
@@ -1680,7 +1994,7 @@
           // Notificar no chat do pedido (opcional, mas melhora a experiência)
           try {
             await addDoc(collection(db, "solicitacoes", window._solicitacaoOrigemId, "mensagens"), {
-              texto: `✅ O seu documento (${dadosUltimoDocumento.tipo}) foi gerado e está pronto para levantamento/impressão.`,
+              texto: `✅ O seu documento (${nomeTipoDocumentoGerado(dadosUltimoDocumento.tipo)}) foi gerado e está pronto para levantamento/impressão.`,
               remetenteUid: utilizadorActual.uid,
               remetenteNome: "Sistema RH",
               criadaEm: serverTimestamp(),
@@ -1705,20 +2019,21 @@
 
   function renderizarPreviewArquivo(d) {
     if (!d || !d.htmlArquivo) {
-      mostrarNotificacao("⚠️ Esta guia ainda nao tem arquivo visual disponivel.", "aviso");
+      mostrarNotificacao("⚠️ Este documento ainda nao tem arquivo visual disponivel.", "aviso");
       return;
     }
     const areaPreview = document.getElementById("area-preview");
     const areaImpressao = document.getElementById("area-impressao");
     const badgePreview = document.getElementById("badge-preview-documento");
     const badgeEstado = document.getElementById("badge-estado");
+    const nomeTipo = nomeTipoDocumentoGerado(d.tipo || d.tipoDocumento || "");
     if ((d.tipo || "") === "guia-medica") {
       areaPreview.innerHTML = '<div style="transform: scale(0.6); transform-origin: top center; margin-bottom: -400px;">' + d.htmlArquivo + '</div>';
     } else {
       areaPreview.innerHTML = '<div class="doc-wrapper-centrado"><div class="doc-wrapper" style="display:block">' + d.htmlArquivo + '</div></div>';
     }
     areaImpressao.innerHTML = d.htmlArquivo;
-    if (badgePreview) badgePreview.textContent = "Guia Medica arquivada";
+    if (badgePreview) badgePreview.textContent = nomeTipo;
     if (badgeEstado) {
       badgeEstado.style.display = "flex";
       badgeEstado.style.background = "#eff6ff";
@@ -1732,7 +2047,7 @@
     documentoGerado = false;
     documentoSubmetido = false;
     document.querySelector(".painel-preview")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    mostrarNotificacao("📄 Guia medica arquivada aberta na pre-visualizacao.");
+    mostrarNotificacao(`📄 Arquivo de ${nomeTipo} aberto na pre-visualizacao.`);
   }
 
   function renderizarListaGuiasEmitidas() {
@@ -1744,29 +2059,29 @@
         d.numGuia ? String(d.numGuia) : "",
         d.anoGuia ? String(d.anoGuia) : "",
         d.funcionarioNome || "",
-        d.unidadeSanitaria || "",
+        detalheDocumentoArquivo(d),
         d.estado || ""
       ].join(" ").toLowerCase();
       return !termo || alvo.includes(termo);
     });
-    if (badge) badge.textContent = `${guiasEmitidasCache.length} guias`;
+    if (badge) badge.textContent = `${guiasEmitidasCache.length} documentos`;
     if (!docs.length) {
-      lista.innerHTML = `<div class="arquivo-vazio">Nenhuma guia medica encontrada para o filtro actual.</div>`;
+      lista.innerHTML = `<div class="arquivo-vazio">Nenhum documento encontrado para o filtro actual.</div>`;
       return;
     }
     lista.innerHTML = docs.map(d => {
       const data = d.geradoEm?.toDate?.()
         ? d.geradoEm.toDate().toLocaleDateString("pt-AO", { day:"2-digit", month:"short", year:"numeric" })
         : "—";
-      const ref = d.numGuia && d.anoGuia ? `Nº ${d.numGuia}/${d.anoGuia}` : "Sem numero";
-      const unidade = d.unidadeSanitaria || "Unidade nao indicada";
+      const ref = referenciaDocumentoArquivo(d);
+      const detalhe = detalheDocumentoArquivo(d);
       const estado = d.estado || "gerado";
       const podeVer = !!d.htmlArquivo;
       return `
         <div class="guia-emitida-item">
           <div class="guia-emitida-main">
             <div class="guia-emitida-titulo">${ref} · ${d.funcionarioNome || "Funcionario nao identificado"}</div>
-            <div class="guia-emitida-meta">${data} · ${unidade}</div>
+            <div class="guia-emitida-meta">${data} · ${detalhe}</div>
           </div>
           <div class="guia-emitida-acoes">
             <span class="guia-estado ${estado}">${estado}</span>
@@ -1780,9 +2095,9 @@
     const lista = document.getElementById("lista-guias-emitidas");
     if (!lista) return;
     if (unsubGuiasEmitidas) { unsubGuiasEmitidas(); unsubGuiasEmitidas = null; }
-    lista.innerHTML = `<div class="arquivo-vazio">A carregar arquivo de guias medicas...</div>`;
+    lista.innerHTML = `<div class="arquivo-vazio">A carregar arquivo de documentos...</div>`;
     unsubGuiasEmitidas = onSnapshot(
-      query(collection(db, "documentos"), where("tipo", "==", "guia-medica")),
+      collection(db, "documentos"),
       snap => {
         guiasEmitidasCache = snap.docs
           .map(d => ({ id: d.id, ...d.data() }))
@@ -1795,7 +2110,7 @@
       },
       err => {
         console.error("Guias emitidas:", err);
-        lista.innerHTML = `<div class="arquivo-vazio">Nao foi possivel carregar o arquivo de guias medicas.</div>`;
+        lista.innerHTML = `<div class="arquivo-vazio">Nao foi possivel carregar o arquivo de documentos.</div>`;
       }
     );
   }
@@ -1807,7 +2122,7 @@
   window.abrirGuiaEmitida = function(id) {
     const docSel = guiasEmitidasCache.find(d => d.id === id);
     if (!docSel) {
-      mostrarNotificacao("❌ Guia medica nao encontrada.", "erro");
+      mostrarNotificacao("❌ Documento arquivado nao encontrado.", "erro");
       return;
     }
     renderizarPreviewArquivo(docSel);
