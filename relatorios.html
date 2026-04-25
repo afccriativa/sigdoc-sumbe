@@ -902,7 +902,7 @@
     contarMG(); contarMU(); contarSal();
     const _todasUnids = [...new Set([...Object.keys(_unidades), ..._funcs.map(f=>f.unidade).filter(Boolean)])]
       .filter(n => n !== '—' && n !== 'Não especificada');
-    setCount('cob-count', _todasUnids.length);
+    contarCob();
   }
 
   // ════════════════════════════════════════════════════════
@@ -1243,13 +1243,26 @@
   // ════════════════════════════════════════════════════════
   //  COBERTURA
   // ════════════════════════════════════════════════════════
-  window.exportarCobertura = function(fmt) {
+  function filtrarCobertura() {
     const cm = {};
     _funcs.forEach(f => { const u = f.unidade||"—"; cm[u]=(cm[u]||0)+1; });
     const todas = new Set([...Object.keys(cm),...Object.keys(_unidades)]);
-    const lista = [...todas].filter(n=>n!=="—"&&n!=="Não especificada")
-      .map(nome=>({nome,cad:cm[nome]||0,esp:_unidades[nome]?.efectivo?.esperado||0,estOp:estOpLabel(nome)}))
-      .sort((a,b)=>(b.esp||b.cad)-(a.esp||a.cad));
+    return [...todas]
+      .filter(n => n !== "—" && n !== "Não especificada")
+      .map(nome => ({ nome, cad:cm[nome]||0, esp:_unidades[nome]?.efectivo?.esperado||0, estOp:estOpLabel(nome) }))
+      .sort((a,b) => (b.esp||b.cad)-(a.esp||a.cad));
+  }
+
+  function contarCob() {
+    setCount("cob-count", filtrarCobertura().length);
+  }
+
+  window.exportarCobertura = function(fmt) {
+    const btn  = document.querySelector(`[onclick="exportarCobertura('${fmt}')"]`);
+    const orig = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A gerar…'; }
+    try {
+    const lista = filtrarCobertura();
     const cols   = ["Unidade Sanitária","Est. Operacional","Cadastrados","Efectivo Esperado","Cobertura (%)","Nível"];
     const linhas = lista.map(u => {
       const cob = u.esp>0?Math.round(u.cad/u.esp*100):null;
@@ -1270,6 +1283,9 @@
       abrirPDF(`<h1>Relatório de Cobertura por Unidade</h1><div class="sub">Direcção Municipal de Saúde do Sumbe</div><div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span></div><table><thead><tr>${["Unidade Sanitária","Est. Operacional","Cadastrados","Esperado","Cobertura"].map(headerHTML).join("")}</tr></thead><tbody>${rows}</tbody></table><div class="totais">Total cadastrados: <strong>${tot}</strong> &nbsp;|&nbsp; Total esperado: <strong>${totEsp||"—"}</strong></div>`, "Relatório de Cobertura");
       notif(I.fileText + " PDF aberto em nova janela");
     }
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+    }
   };
 
   window.previsualizarCobertura = function() {
@@ -1277,12 +1293,7 @@
     const orig = btn?.innerHTML;
     if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A carregar…'; }
     try {
-      const cm = {};
-      _funcs.forEach(f => { const u = f.unidade||"—"; cm[u]=(cm[u]||0)+1; });
-      const todas = new Set([...Object.keys(cm),...Object.keys(_unidades)]);
-      const lista = [...todas].filter(n=>n!=="—"&&n!=="Não especificada")
-        .map(nome=>({nome,cad:cm[nome]||0,esp:_unidades[nome]?.efectivo?.esperado||0,estOp:estOpLabel(nome)}))
-        .sort((a,b)=>(b.esp||b.cad)-(a.esp||a.cad));
+      const lista = filtrarCobertura();
       mostrarPrevia("Cobertura", ["Unidade","Est. Operacional","Cadastrados","Esperado","Cobertura"],
         lista.map(u=>{const c=u.esp>0?Math.round(u.cad/u.esp*100):null;return[abrev(u.nome),u.estOp,u.cad,u.esp||"—",c!==null?c+"%":"s/meta"];}));
     } finally {
