@@ -44,6 +44,30 @@
     .info-calc { font-size: 11px; background: #e8f8f0; color: #1e8449; padding: 6px 10px; border-radius: 6px; margin-top: 4px; font-weight: 600; display: none; }
     .info-ferias { font-size: 11px; background: #fef9e7; color: #7d6608; padding: 6px 10px; border-radius: 6px; margin-top: 4px; display: none; }
 
+    /* ================================================
+       F2-A — VALIDAÇÃO INLINE
+       ================================================ */
+    /* Borda vermelha aplicada ao campo inválido */
+    .campo-erro-input {
+      border-color: var(--vermelho) !important;
+      background: #fff8f8 !important;
+    }
+    /* Mensagem de erro exibida imediatamente abaixo do campo */
+    .campo-erro-msg {
+      font-size: 11px;
+      color: var(--vermelho);
+      font-weight: 600;
+      margin-top: 5px;
+      display: none;
+      align-items: flex-start;
+      gap: 4px;
+      line-height: 1.4;
+    }
+    .campo-erro-msg::before {
+      content: "⚠";
+      flex-shrink: 0;
+    }
+
     .campo-pesquisa-func { position: relative; }
     .resultados-pesquisa { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 2px solid var(--azul-claro); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 50; max-height: 220px; overflow-y: auto; display: none; }
     .resultado-item { padding: 10px 14px; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f0f2f4; }
@@ -927,6 +951,51 @@
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
   }
+
+  // ── F2-A: Validação inline com estados visuais de erro ───────────────────
+  // Aplica borda vermelha ao campo e exibe mensagem de erro abaixo dele.
+  // A mensagem é inserida num elemento .campo-erro-msg criado dinamicamente
+  // dentro do parentElement do campo (normalmente o <div> contentor).
+  function marcarErro(campoId, mensagem) {
+    const campo = document.getElementById(campoId);
+    if (!campo) return;
+    // Verificar se já existe algum campo com erro — se sim, não roubar o foco
+    const primeiroChamada = !document.querySelector(".campo-erro-input");
+    campo.classList.add("campo-erro-input");
+    // Reutilizar elemento existente ou criar um novo
+    let msgEl = campo.parentElement.querySelector(".campo-erro-msg");
+    if (!msgEl) {
+      msgEl = document.createElement("div");
+      msgEl.className = "campo-erro-msg";
+      campo.after(msgEl);  // inserir imediatamente após o campo
+    }
+    msgEl.textContent = mensagem;
+    msgEl.style.display = "flex";
+    // Focar apenas o primeiro campo inválido para não desorientar o utilizador
+    if (primeiroChamada) campo.focus();
+  }
+
+  // Remove o estado de erro de um campo específico.
+  function limparErro(campoId) {
+    const campo = document.getElementById(campoId);
+    if (!campo) return;
+    campo.classList.remove("campo-erro-input");
+    const msgEl = campo.parentElement.querySelector(".campo-erro-msg");
+    if (msgEl) msgEl.style.display = "none";
+  }
+
+  // Remove todos os estados de erro do formulário (chamado no início de cada tentativa de geração).
+  function limparTodosErros() {
+    document.querySelectorAll(".campo-erro-input").forEach(el => el.classList.remove("campo-erro-input"));
+    document.querySelectorAll(".campo-erro-msg").forEach(el => { el.style.display = "none"; });
+  }
+
+  // Listener global: ao editar qualquer campo, limpar o seu erro imediatamente.
+  // Evita acumular oninput redundantes em cada elemento do formulário.
+  document.addEventListener("input", e => {
+    if (e.target && e.target.id) limparErro(e.target.id);
+  });
+
   const PERFIS_ACESSO = ["admin","director","chefe","tecnico"];
   function normalizarPerfilDocumentos(docPerfil) {
     return window.SIGDOC_AUTHZ
@@ -1692,8 +1761,13 @@
     const tipoDoc = document.getElementById("tipo-documento").value;
     const nomeFuncionario = document.getElementById("pesquisa-func").value.trim();
     const dataEmissao = document.getElementById("data-emissao").value;
-    
+
+    // F2-A: limpar todos os erros anteriores antes de re-validar
+    if (!silencioso) limparTodosErros();
+
     if (!silencioso && (!nomeFuncionario || !dataEmissao)) {
+      if (!nomeFuncionario) marcarErro("pesquisa-func", "Seleccione um funcionário da lista.");
+      if (!dataEmissao)     marcarErro("data-emissao", "Data de emissão obrigatória.");
       mostrarNotificacao("⚠️ Preencha Funcionário e Data de Emissão.");
       return;
     }
@@ -1717,18 +1791,18 @@
 
       if (!silencioso) {
         if (!Number.isInteger(mesesAdiantamento) || mesesAdiantamento <= 0) {
+          marcarErro("declaracao-meses", "Indique o número de meses do adiantamento.");
           mostrarNotificacao("⚠️ Indique o número de meses do adiantamento.");
-          document.getElementById("declaracao-meses").focus();
           return;
         }
         if (!Number.isFinite(salarioLiquido) || salarioLiquido <= 0) {
+          marcarErro("declaracao-salario", "Indique o salário líquido em AKZ.");
           mostrarNotificacao("⚠️ Indique o salário líquido em AKZ.");
-          document.getElementById("declaracao-salario").focus();
           return;
         }
         if (!numeroConta) {
+          marcarErro("declaracao-conta", "Indique o número de conta a constar no compromisso.");
           mostrarNotificacao("⚠️ Indique o número de conta a constar no compromisso.");
-          document.getElementById("declaracao-conta").focus();
           return;
         }
       }
@@ -1779,16 +1853,17 @@
       
       if (!silencioso) {
         if (!unidadeSanitaria) {
+          marcarErro("unidade-sanitaria", "Indique a Unidade Sanitária a consultar.");
           mostrarNotificacao("⚠️ Indique a Unidade Sanitária a consultar.");
-          document.getElementById("unidade-sanitaria").focus();
           return;
         }
         if (!numGuia) {
+          marcarErro("num-guia", "Insira o Número da Guia.");
           mostrarNotificacao("⚠️ Insira o Número da Guia.");
-          document.getElementById("num-guia").focus();
           return;
         }
         if (!funcionarioSeleccionado) {
+          marcarErro("pesquisa-func", "Seleccione um funcionário da lista para obter os dados de filiação.");
           mostrarNotificacao("⚠️ Seleccione um funcionário da lista para obter os dados de filiação.");
           return;
         }
@@ -1850,6 +1925,11 @@
       const sexo = funcionarioSeleccionado ? (funcionarioSeleccionado.sexo || "Masculino") : "Masculino";
 
       if (!silencioso && (!numGuia || !nomeFuncionario || !numDias || !dataInicio || !dataEmissao)) {
+        if (!numGuia)       marcarErro("num-guia",    "Número da Guia obrigatório.");
+        if (!nomeFuncionario) marcarErro("pesquisa-func", "Seleccione um funcionário da lista.");
+        if (!numDias)       marcarErro("num-dias",    "Dias de férias em falta — seleccione um funcionário.");
+        if (!dataInicio)    marcarErro("data-inicio", "Data de início das férias obrigatória.");
+        if (!dataEmissao)   marcarErro("data-emissao","Data de emissão obrigatória.");
         mostrarNotificacao("⚠️ Preencha todos os campos obrigatórios.");
         return;
       }
