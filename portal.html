@@ -4333,15 +4333,6 @@
     const salarioLiquido = _tipoSel === "declaracao-servico"
       ? obterNumeroKzPortal(document.getElementById("sol-salario-liquido").value)
       : NaN;
-    const mesesAdiantamento = _tipoSel==="declaracao-servico"
-      ? parseInt(document.getElementById("sol-meses-adiantamento").value,10)
-      : null;
-    const numeroConta = _tipoSel==="declaracao-servico"
-      ? normalizarNumeroContaPortal(document.getElementById("sol-numero-conta").value)
-      : "";
-    const salarioLiquido = _tipoSel==="declaracao-servico"
-      ? obterNumeroKzPortal(document.getElementById("sol-salario-liquido").value)
-      : NaN;
     const btn    = document.getElementById("btn-submeter-sol");
     const msg    = document.getElementById("msg-solicitacao");
     if(btn){ btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A verificar…'; }
@@ -4481,6 +4472,15 @@
 
     // 3. Unidade sanitária obrigatória para guia médica
     const motivo = document.getElementById("sol-motivo").value.trim();
+    const mesesAdiantamento = _tipoSel === "declaracao-servico"
+      ? parseInt(document.getElementById("sol-meses-adiantamento").value,10)
+      : null;
+    const numeroConta = _tipoSel === "declaracao-servico"
+      ? normalizarNumeroContaPortal(document.getElementById("sol-numero-conta").value)
+      : "";
+    const salarioLiquido = _tipoSel === "declaracao-servico"
+      ? obterNumeroKzPortal(document.getElementById("sol-salario-liquido").value)
+      : NaN;
     if (_tipoSel === "guia-medica" && !motivo) {
       msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Por favor, indique a <strong>unidade sanitária</strong> antes de rever o pedido.</div>`;
       document.getElementById("sol-motivo")?.focus();
