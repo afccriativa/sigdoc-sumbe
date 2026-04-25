@@ -12,6 +12,8 @@
   <!-- Bibliotecas para Exportação (Excel e PDF) -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Lucide Icons via CDN (UMD) -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Plus Jakarta Sans',sans-serif;background:#0d1422;color:#e2e8f0;min-height:100vh}
@@ -33,7 +35,15 @@
     @media(max-width:1100px){.kpi-strip{grid-template-columns:repeat(3,1fr)}}
     @media(max-width:700px){.kpi-strip{grid-template-columns:repeat(2,1fr)}}
     .kpi{background:#1a2236;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:16px 18px}
-    .kpi-icon{font-size:18px;margin-bottom:8px}
+    .kpi-icon{margin-bottom:8px;display:flex;align-items:center}
+    .kpi-icon svg{width:20px;height:20px;stroke-width:1.5}
+    /* ── Ícones globais Lucide ── */
+    i[data-lucide]{display:inline-flex;align-items:center;justify-content:center}
+    i[data-lucide] svg,.lucide-icon svg{stroke-width:1.5}
+    .sec i[data-lucide] svg{width:13px;height:13px;stroke-width:2;opacity:.7}
+    .btn-exp i[data-lucide] svg{width:13px;height:13px;stroke-width:2}
+    .topbar-titulo i[data-lucide] svg{width:16px;height:16px;stroke-width:2;vertical-align:-2px}
+    .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0;vertical-align:middle;margin-right:2px}
     .kpi-val{font-size:26px;font-weight:800;font-family:'DM Mono',monospace;letter-spacing:-1px;line-height:1}
     .kpi-lbl{font-size:11px;color:rgba(255,255,255,.4);margin-top:5px;font-weight:600}
     .kpi-sub{font-size:10px;color:rgba(255,255,255,.2);margin-top:2px}
@@ -152,67 +162,37 @@
     /* ── @media print ── */
     @media print{
       *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-      body{background:#fff!important;color:#111827!important;font-size:11px}
-      /* Ocultar tudo que não é conteúdo RH */
-      #ecra-carregando,#ecra-negado,#notif,
-      .topbar,.topbar-actions,.btn-exp,
-      #filtros-wrap,#periodo-global-wrap,
-      .pg-container,.pg-cards-grid,.pg-info-bar,.pg-datepicker-modal,
-      #act-periodo-wrap,
-      [id*="sigdoc-nav"],[class*="sidebar"],[class*="nav-wrap"],
-      [class*="nav-lateral"],[class*="nav-menu"],
-      nav,aside,
-      #modal-drill{display:none!important}
-      /* Mostrar o que interessa */
+      body{background:#fff!important;color:#111827!important}
+      #ecra-carregando,#ecra-negado,#notif,.topbar,.btn-exp,
+      #filtros-wrap,[id*="sigdoc-nav"],[class*="sidebar"],[class*="nav-wrap"],
+      nav,aside,.topbar-actions{display:none!important}
       #ecra-principal{display:block!important}
-      #print-header{display:block!important;padding:0 0 14px;border-bottom:2px solid #1e3a5f;margin-bottom:18px}
-      /* Estilos cabeçalho */
-      .ph-sistema{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#64748b;margin-bottom:3px}
-      .ph-titulo{font-size:18px;font-weight:900;color:#1e293b;margin-bottom:8px;letter-spacing:-.4px}
-      .ph-meta-grid{display:flex;gap:20px;flex-wrap:wrap}
+      #print-header{display:block!important;padding:0 0 16px;border-bottom:2px solid #1e3a5f;margin-bottom:20px}
+      .ph-sistema{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#64748b;margin-bottom:4px}
+      .ph-titulo{font-size:20px;font-weight:800;color:#1e293b;margin-bottom:10px;letter-spacing:-.4px}
+      .ph-meta-grid{display:flex;gap:24px;flex-wrap:wrap}
       .ph-meta-item{display:flex;flex-direction:column;gap:1px}
-      .ph-meta-lbl{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8}
-      .ph-meta-val{font-size:11px;font-weight:700;color:#1e293b}
-      /* Layout */
-      .content{padding:0 12px!important}
-      /* KPIs: 7 colunas (5+2 de regime) → 4+3 em 2 linhas ou auto-fill */
-      .kpi-strip{display:grid;grid-template-columns:repeat(4,1fr)!important;gap:8px!important}
-      /* Cards */
-      .kpi,.gc,.gen-card{background:#f8fafc!important;border-color:#e2e8f0!important;border-radius:8px!important}
-      .kpi{padding:10px 12px!important}
-      .kpi-val{font-size:20px!important;color:#1d4ed8!important}
-      .kpi-lbl{font-size:9px!important;color:#374151!important}
-      .kpi-sub{font-size:8px!important;color:#6b7280!important}
-      /* Textos internos */
-      .kpi-lbl,.kpi-sub,.gc-sub,.bh-lbl,.bh-val,.donut-txt,.donut-n,
-      .cob-nome,.cob-cad,.cob-esp,.pir-n,.pir-eixo,
-      .gen-stat-lbl,.gen-stat-val,.gen-det-nome,.gen-det-sub,.gen-det-pct,
-      .gen-det-delta,.gen-card-titulo,.gen-card-sub,.gen-total-pill{color:#1e293b!important}
-      /* Barras e trilhos */
+      .ph-meta-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8}
+      .ph-meta-val{font-size:12px;font-weight:700;color:#1e293b}
+      .content{padding:0 16px!important}
+      .kpi-strip{grid-template-columns:repeat(5,1fr)!important}
+      .kpi,.gc,.gen-card,.dq-acoes{background:#f8fafc!important;border-color:#e2e8f0!important}
+      .kpi-lbl,.kpi-sub,.gc-sub,.bh-lbl,.bh-val,.donut-txt,.donut-n,.cob-nome,.cob-cad,.cob-esp,.pir-n,.pir-eixo,.gen-stat-lbl,.gen-stat-val,.gen-det-nome,.gen-det-sub,.gen-det-pct,.gen-det-delta,.gen-card-titulo,.gen-card-sub,.gen-total-pill{color:#1e293b!important}
+      .kpi-val{color:#1d4ed8!important}
       .bh-track,.cob-bar{background:#e2e8f0!important}
-      /* Secções */
-      .sec{color:#64748b!important;border-bottom:1px solid #e2e8f0;padding-bottom:4px;font-size:9px!important}
+      .sec{color:#64748b!important;border-bottom:1px solid #e2e8f0;padding-bottom:4px}
       .sec::after{display:none}
-      /* Grelha */
-      .g2{grid-template-columns:1fr 1fr!important;gap:12px!important}
-      /* Misc */
       .vazio{color:#94a3b8!important}
       .gen-det-card{background:#fff!important;border:1px solid #e2e8f0!important}
       .gen-footer{border-top-color:#e2e8f0!important}
       .donut-dot,.pir-dot,.gen-det-pill{border:1px solid rgba(0,0,0,.05)}
-      /* SVG inline — manter cores */
-      svg text{fill:#1e293b!important}
-      /* Quebras de página */
-      .gc,.gen-card{page-break-inside:avoid}
-      #reforma-wrap,#formacao-wrap{page-break-before:auto}
-      /* Rodapé de impressão */
-      @page{margin:14mm 12mm;size:A4 portrait}
     }
 
     /* ── Estilos do Período Global ── */
     .pg-container { background: #111827; border-bottom: 1px solid rgba(255,255,255,.07); padding: 16px 24px; }
     .pg-section-title { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-    .pg-section-title-icon { font-size: 18px; }
+    .pg-section-title-icon { display:flex;align-items:center }
+    .pg-section-title-icon svg { width:18px;height:18px;stroke-width:1.5;color:rgba(255,255,255,.5) }
     .pg-section-title-text { font-size: 13px; font-weight: 800; color: #e2e8f0; display: flex; align-items: center; gap: 8px; }
     .pg-section-title-highlight { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.3); text-transform: uppercase; letter-spacing: .5px; }
     .pg-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 12px; }
@@ -263,7 +243,9 @@
     .drill-table tr:hover td { background: rgba(255,255,255,.02); }
     .drill-badge { padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; white-space: nowrap; }
     .drill-empty { padding: 60px; text-align: center; color: rgba(255,255,255,.2); display: flex; flex-direction: column; gap: 12px; align-items: center; }
-    .drill-empty-icon { font-size: 40px; opacity: .5; }
+    .drill-empty-icon { font-size: 40px; opacity: .5; display:flex;align-items:center;justify-content:center }
+    .drill-empty-icon svg { width:48px;height:48px;stroke-width:1;opacity:.4 }
+    .modal-drill-close svg { width:16px;height:16px;stroke-width:2 }
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
     
     /* Cursor pointer para elementos clicáveis nos gráficos */
@@ -351,7 +333,7 @@
 </div>
 
 <div id="ecra-negado">
-  <div style="font-size:48px">🔒</div>
+<div style="font-size:48px;display:flex;align-items:center;justify-content:center"><i data-lucide="lock-keyhole" style="width:64px;height:64px;color:rgba(255,255,255,.3)"></i></div>
   <div style="font-size:18px;font-weight:800">Acesso Negado</div>
   <div style="font-size:13px;color:rgba(255,255,255,.5);text-align:center;max-width:300px">Esta página é exclusiva para a Direcção e Administração do SIGDOC.</div>
   <a href="index.html" style="margin-top:16px;padding:10px 24px;background:#3b82f6;color:#fff;border-radius:99px;text-decoration:none;font-weight:700;font-size:13px">Voltar ao Início</a>
@@ -372,13 +354,13 @@
 
   <div class="topbar">
     <div>
-      <div class="topbar-titulo">📊 Estatísticas Avançadas</div>
+      <div class="topbar-titulo"><i data-lucide="bar-chart-2"></i> Estatísticas Avançadas</div>
       <div class="topbar-sub" id="topbar-sub">A carregar dados…</div>
     </div>
     <div class="topbar-actions">
-      <button class="btn-exp btn-xls pronto" id="btn-xls" onclick="window._exportarExcel()">📗 Exportar Excel</button>
-      <button class="btn-exp btn-pdf pronto" id="btn-pdf" onclick="window._exportarPDF()">📕 Relatório PDF</button>
-      <button class="btn-exp btn-prn pronto" id="btn-prn" onclick="window._imprimir()">🖨️ Imprimir</button>
+      <button class="btn-exp btn-xls pronto" id="btn-xls" onclick="window._exportarExcel()"><i data-lucide="file-spreadsheet"></i> Exportar Excel</button>
+      <button class="btn-exp btn-pdf pronto" id="btn-pdf" onclick="window._exportarPDF()"><i data-lucide="file-text"></i> Relatório PDF</button>
+      <button class="btn-exp btn-prn pronto" id="btn-prn" onclick="window.print()"><i data-lucide="printer"></i> Imprimir</button>
       <span class="badge-perfil" id="badge-perfil">—</span>
     </div>
   </div>
@@ -401,7 +383,7 @@
         <p id="drill-subtitle">Detalhes do Indicador</p>
         <h3 id="drill-title">Lista de Registos</h3>
       </div>
-      <button class="modal-drill-close" onclick="window._fecharDrill()">✕</button>
+      <button class="modal-drill-close" onclick="window._fecharDrill()"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-drill-body" id="drill-content">
       <!-- Conteúdo dinâmico aqui -->
@@ -487,6 +469,8 @@
   }
 
   onAuthStateChanged(auth, async (user) => {
+    // Activar ícones estáticos (topbar, ecra-negado) assim que o DOM está pronto
+    if (window.lucide) lucide.createIcons();
     if (!user) { window.location.href = "index.html"; return; }
 
     try {
@@ -536,7 +520,7 @@
     } catch(e) {
       console.error("Auth/Firestore error:", e);
       document.getElementById("ecra-carregando").innerHTML =
-        `<div style="font-size:36px">❌</div>
+        `<div style="display:flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:99px;background:rgba(239,68,68,.1)"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></div>
          <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.7)">Erro ao carregar</div>
          <div style="font-size:11px;font-family:monospace;background:rgba(239,68,68,.1);padding:8px 14px;border-radius:8px;color:#fca5a5;max-width:300px;text-align:center">${e.code || e.message || String(e)}</div>
          <a href="index.html" style="margin-top:8px;padding:9px 22px;border-radius:8px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:13px;font-weight:700;text-decoration:none">← Voltar</a>`;
@@ -600,10 +584,10 @@
       console.error("Firestore error:", e);
       document.getElementById("content").innerHTML =
         `<div style="display:flex;flex-direction:column;align-items:center;padding:48px;gap:14px;color:rgba(255,255,255,.4)">
-           <div style="font-size:36px">⚠️</div>
+           <div style="display:flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:99px;background:rgba(245,158,11,.1)"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
            <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.7)">Erro ao carregar estatísticas</div>
            <div style="font-size:11px;font-family:monospace;background:rgba(239,68,68,.1);padding:8px 14px;border-radius:8px;color:#fca5a5">${e.code || e.message}</div>
-           <button onclick="location.reload()" style="padding:9px 22px;border-radius:8px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:13px;font-weight:700;cursor:pointer">🔄 Tentar novamente</button>
+           <button onclick="location.reload()" style="display:flex;align-items:center;gap:6px;padding:9px 22px;border-radius:8px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:13px;font-weight:700;cursor:pointer"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Tentar novamente</button>
          </div>`;
     }
   }
@@ -653,7 +637,6 @@
         ${buildSelect('vinculo',   'Vínculo',           vinculos, v => VINCULO_LABEL[v])}
         ${buildSelect('estado',    'Estado',            estados,  v => ESTADO_LABEL[v])}
         ${buildSelect('sexo',      'Sexo',              sexos)}
-        ${buildSelect('regime',    'Regime',            ['geral','especial'], v => v==='geral'?'Regime Geral':'Regime Especial')}
         
         <div class="filtros-acoes">
           <div id="fil-badge" class="filtros-badge">0 filtros</div>
@@ -670,11 +653,11 @@
     if (!pgWrap) return;
 
     const PERIODOS = [
-      { label: '7 dias',  dias: 7,   icon: '⚡' },
-      { label: '30 dias', dias: 30,  icon: '📅' },
-      { label: '90 dias', dias: 90,  icon: '📊' },
-      { label: '180 dias',dias: 180, icon: '🗓️' },
-      { label: 'Tudo',    dias: 0,   icon: '🌎' }
+      { label: '7 dias',  dias: 7,   icon: '<i data-lucide="zap"></i>' },
+      { label: '30 dias', dias: 30,  icon: '<i data-lucide="calendar"></i>' },
+      { label: '90 dias', dias: 90,  icon: '<i data-lucide="bar-chart-2"></i>' },
+      { label: '180 dias',dias: 180, icon: '<i data-lucide="calendar-days"></i>' },
+      { label: 'Tudo',    dias: 0,   icon: '<i data-lucide="globe"></i>' }
     ];
 
     const getRangeText = () => {
@@ -689,7 +672,7 @@
       const activeClass = isActive ? 'pg-card-active' : '';
       return `
         <div class="pg-card ${activeClass}" onclick="window._setPeriodoGlobal(${p.dias})">
-          <div class="pg-card-label">${p.icon} ${p.label}</div>
+          <div class="pg-card-label" style="display:flex;align-items:center;gap:4px">${p.icon} ${p.label}</div>
           <div class="pg-card-value">${p.label === 'Tudo' ? '∞' : p.label}</div>
         </div>
       `;
@@ -698,7 +681,7 @@
     pgWrap.innerHTML = `
       <div class="pg-container">
         <div class="pg-section-title">
-          <div class="pg-section-title-icon">⏱️</div>
+          <div class="pg-section-title-icon"><i data-lucide="timer"></i></div>
           <div class="pg-section-title-text">
             Período de análise
             <span class="pg-section-title-highlight">| Filtro temporal</span>
@@ -707,17 +690,19 @@
         <div class="pg-cards-grid">
           ${cardsHtml}
           <div class="pg-card pg-card-custom" onclick="window._abrirDatepicker()">
-            <div class="pg-card-label">📅 Personalizado</div>
+            <div class="pg-card-label"><i data-lucide="calendar-range" style="width:11px;height:11px;display:inline;vertical-align:-1px"></i> Personalizado</div>
             <div class="pg-card-value">Intervalo</div>
           </div>
         </div>
         <div class="pg-info-bar">
           <div class="pg-period-info">
             <div class="pg-period-badge">Período activo</div>
-            <div class="pg-range-display">📍 ${getRangeText()}</div>
+            <div class="pg-range-display" style="display:flex;align-items:center;gap:4px"><i data-lucide="map-pin" style="width:11px;height:11px;flex-shrink:0"></i> ${getRangeText()}</div>
           </div>
-          <div class="pg-range-display">
-            ${_periodoDocs === 0 ? '📊 Histórico completo' : `📈 Últimos ${_periodoDocs} dias`}
+          <div class="pg-range-display" style="display:flex;align-items:center;gap:4px">
+            ${_periodoDocs === 0
+              ? '<i data-lucide="database" style="width:11px;height:11px"></i> Histórico completo'
+              : `<i data-lucide="trending-up" style="width:11px;height:11px"></i> Últimos ${_periodoDocs} dias`}
           </div>
         </div>
       </div>
@@ -730,7 +715,7 @@
       modal.className = 'pg-datepicker-modal';
       modal.innerHTML = `
         <div class="pg-datepicker-card">
-          <div class="pg-datepicker-title"><span>📅</span> Seleccionar intervalo</div>
+          <div class="pg-datepicker-title"><i data-lucide="calendar-range" style="width:18px;height:18px"></i> Seleccionar intervalo</div>
           <div class="pg-datepicker-fields">
             <div class="pg-datepicker-field"><label>Data inicial</label><input type="date" id="pg-data-inicio"></div>
             <div class="pg-datepicker-field"><label>Data final</label><input type="date" id="pg-data-fim"></div>
@@ -742,6 +727,7 @@
         </div>`;
       document.body.appendChild(modal);
     }
+    if (window.lucide) lucide.createIcons();
   }
 
   window._abrirDatepicker = function() {
@@ -790,7 +776,6 @@
     _filtros.vinculo   = document.getElementById('fil-vinculo')?.value   || '';
     _filtros.estado    = document.getElementById('fil-estado')?.value    || '';
     _filtros.sexo      = document.getElementById('fil-sexo')?.value      || '';
-    _filtros.regime    = document.getElementById('fil-regime')?.value    || '';
 
     let resultado = _todosOsFuncs;
     if (_filtros.unidade)   resultado = resultado.filter(f => f.unidade   === _filtros.unidade);
@@ -798,7 +783,6 @@
     if (_filtros.vinculo)   resultado = resultado.filter(f => f.vinculo   === _filtros.vinculo);
     if (_filtros.estado)    resultado = resultado.filter(f => (f.estado||'activo') === _filtros.estado);
     if (_filtros.sexo)      resultado = resultado.filter(f => f.sexo      === _filtros.sexo);
-    if (_filtros.regime)    resultado = resultado.filter(f => (f.regime||'geral')  === _filtros.regime);
 
     const nActivos = Object.values(_filtros).filter(Boolean).length;
     document.getElementById('fil-badge')?.classList.toggle('vis', nActivos > 0);
@@ -806,7 +790,7 @@
     document.getElementById('btn-limpar')?.classList.toggle('vis', nActivos > 0);
     document.getElementById('fil-resultado').textContent = `${resultado.length} de ${_todosOsFuncs.length} funcionários`;
 
-    ['unidade','categoria','vinculo','estado','sexo','regime'].forEach(k => {
+    ['unidade','categoria','vinculo','estado','sexo'].forEach(k => {
       document.getElementById('fil-' + k)?.classList.toggle('activo', !!_filtros[k]);
     });
 
@@ -859,121 +843,83 @@
       <div id="banner-filtro" style="display:none;align-items:center;gap:10px;
            background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.18);
            border-radius:10px;padding:10px 16px;margin-bottom:16px;flex-wrap:wrap">
-        <span style="font-size:13px;font-weight:700;color:#60a5fa">🔍 Visualização filtrada</span>
+        <span style="font-size:13px;font-weight:700;color:#60a5fa;display:flex;align-items:center;gap:6px"><i data-lucide="search" style="width:14px;height:14px"></i> Visualização filtrada</span>
         <span id="banner-texto" style="font-size:12px;color:rgba(255,255,255,.5)"></span>
         <button onclick="window._limparFiltros()"
                 style="margin-left:auto;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);
-                       color:#60a5fa;border-radius:6px;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer">
-          ✕ Limpar
+                       color:#60a5fa;border-radius:6px;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+          <i data-lucide="x" style="width:11px;height:11px;stroke-width:2.5"></i> Limpar
         </button>
       </div>
 
-      <div class="sec" style="margin-top:0">📅 Actividade no Período</div>
+      <div class="sec" style="margin-top:0"><i data-lucide="calendar-clock"></i> Actividade no Período</div>
       <div id="act-periodo-wrap"></div>
 
       <!-- KPIs: estrutura fixa — só os valores são actualizados -->
       <div class="kpi-strip">
         <div class="kpi">
-          <div class="kpi-icon">👥</div>
+          <div class="kpi-icon"><i data-lucide="users" style="color:#3b82f6"></i></div>
           <div class="kpi-val" style="color:#3b82f6" data-kpi="total">—</div>
           <div class="kpi-lbl">Total Funcionários</div>
           <div class="kpi-sub" data-kpi="activos">—</div>
         </div>
         <div class="kpi">
-          <div class="kpi-icon">👨</div>
+          <div class="kpi-icon"><i data-lucide="user-round" style="color:#3b82f6"></i></div>
           <div class="kpi-val" style="color:#3b82f6" data-kpi="masc">—</div>
           <div class="kpi-lbl">Masculino</div>
           <div class="kpi-sub" data-kpi="pctMasc">—</div>
         </div>
         <div class="kpi">
-          <div class="kpi-icon">👩</div>
+          <div class="kpi-icon"><i data-lucide="user-round" style="color:#f472b6"></i></div>
           <div class="kpi-val" style="color:#f472b6" data-kpi="fem">—</div>
           <div class="kpi-lbl">Feminino</div>
           <div class="kpi-sub" data-kpi="pctFem">—</div>
         </div>
         <div class="kpi">
-          <div class="kpi-icon">🎂</div>
+          <div class="kpi-icon"><i data-lucide="cake" style="color:#f59e0b"></i></div>
           <div class="kpi-val" style="color:#f59e0b" data-kpi="idMed">—</div>
           <div class="kpi-lbl">Idade Média</div>
           <div class="kpi-sub">anos</div>
         </div>
         <div class="kpi">
-          <div class="kpi-icon">💰</div>
+          <div class="kpi-icon"><i data-lucide="banknote" style="color:#10c886"></i></div>
           <div class="kpi-val" style="color:#10c886;font-size:17px" data-kpi="massa">—</div>
           <div class="kpi-lbl">Massa Salarial</div>
           <div class="kpi-sub" data-kpi="nSalarios">—</div>
         </div>
-        <div class="kpi">
-          <div class="kpi-icon">📋</div>
-          <div class="kpi-val" style="color:#10c886" data-kpi="regGeral">—</div>
-          <div class="kpi-lbl">Regime Geral</div>
-          <div class="kpi-sub" data-kpi="pctRegGeral">—</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-icon">⚡</div>
-          <div class="kpi-val" style="color:#f59e0b" data-kpi="regEspecial">—</div>
-          <div class="kpi-lbl">Regime Especial</div>
-          <div class="kpi-sub" data-kpi="pctRegEspecial">—</div>
-        </div>
       </div>
 
-      <div class="sec">👤 Distribuição por Género</div>
+      <div class="sec"><i data-lucide="users-round"></i> Distribuição por Género</div>
       <div id="genero-card-wrap"></div>
 
-      <div class="sec">📊 Composição do Pessoal</div>
+      <div class="sec"><i data-lucide="pie-chart"></i> Composição do Pessoal</div>
       <div class="g2">
         <div class="gc"><div class="gc-titulo">Pirâmide Etária</div><div id="piramide"></div></div>
         <div class="gc"><div class="gc-titulo">Tipo de Vínculo</div><div id="vinculo-wrap"></div></div>
       </div>
 
-      <div class="sec">⚖️ Regime de Vínculo Funcional</div>
-      <div class="g2">
-        <div class="gc">
-          <div class="gc-titulo">Distribuição por Regime</div>
-          <div class="gc-sub">Regime Geral vs Regime Especial</div>
-          <div id="regime-donut"></div>
-        </div>
-        <div class="gc">
-          <div class="gc-titulo">Regime por Unidade Sanitária</div>
-          <div class="gc-sub">Geral (verde) · Especial (âmbar)</div>
-          <div id="regime-unidade"></div>
-        </div>
-      </div>
-      <div class="g2">
-        <div class="gc">
-          <div class="gc-titulo">Regime × Nível Académico</div>
-          <div class="gc-sub">Distribuição da escolaridade por regime</div>
-          <div id="regime-escolaridade"></div>
-        </div>
-        <div class="gc">
-          <div class="gc-titulo">Regime × Em Formação</div>
-          <div class="gc-sub">Funcionários actualmente a estudar por regime</div>
-          <div id="regime-formacao"></div>
-        </div>
-      </div>
-
-      <div class="sec">🎂 Extremos Etários</div>
+      <div class="sec"><i data-lucide="calendar-heart"></i> Extremos Etários</div>
       <div class="g1" id="extremos-wrap"></div>
 
       <div class="g1"><div class="gc">
-        <div class="gc-titulo">📈 Evolução de Cadastros</div>
+        <div class="gc-titulo"><i data-lucide="trending-up" style="display:inline;vertical-align:-3px;width:14px;height:14px;stroke-width:2"></i> Evolução de Cadastros</div>
         <div class="gc-sub" id="evo-cadastros-sub">Novos registos por mês</div>
         <div id="evo-cadastros"></div>
       </div></div>
 
-      <div class="sec">🛡️ Qualidade do Cadastro</div>
+      <div class="sec"><i data-lucide="shield-check"></i> Qualidade do Cadastro</div>
       <div id="dq-wrap"></div>
 
-      <div class="sec">🏥 Distribuição por Unidade</div>
+      <div class="sec"><i data-lucide="building-2"></i> Distribuição por Unidade</div>
       <div class="g2">
         <div class="gc"><div class="gc-titulo">Top 8 Unidades</div><div id="cobertura"></div></div>
         <div class="gc"><div class="gc-titulo">Massa Salarial por Unidade</div><div id="sal-unit"></div></div>
       </div>
 
-      <div class="sec">🎓 Formação Académica em Curso</div>
+      <div class="sec"><i data-lucide="graduation-cap"></i> Formação Académica em Curso</div>
       <div class="g1" id="formacao-wrap"></div>
 
-      <div class="sec">📂 Documentos e Secretaria</div>
+      <div class="sec"><i data-lucide="folder-open"></i> Documentos e Secretaria</div>
       <div class="g2">
         <div class="gc"><div class="gc-titulo">Funil de Pedidos</div><div id="sec-funil"></div></div>
         <div class="gc"><div class="gc-titulo">Taxa de Resolução</div><div id="sec-waffle"></div></div>
@@ -987,11 +933,12 @@
         <div class="gc"><div class="gc-titulo">Gestão de Reuniões</div><div id="sec-reunioes-ring"></div></div>
       </div>
 
-      <div class="sec">⏳ Previsão de Reforma</div>
+      <div class="sec"><i data-lucide="hourglass"></i> Previsão de Reforma</div>
       <div class="g1" id="reforma-wrap"></div>
     `;
 
     content.dataset.skeletonReady = 'true';
+    if (window.lucide) lucide.createIcons({ nodes: [content] });
   }
 
   // ════════════════════════════════════════════════════════
@@ -1008,15 +955,9 @@
       const massa   = funcs.reduce((s, f) => s + (Number(f.salarioBase) || 0), 0);
       const nSals   = funcs.filter(f => f.salarioBase).length;
       const idMed   = idadeMedia(funcs);
-      // ── Regime ──
-      const regEspecial = funcs.filter(f => f.regime === 'especial').length;
-      const regGeral    = total - regEspecial; // inclui "geral" explícito + não definido
       return { total, masc, fem, activos, massa, nSals, idMed,
                pctM: total ? Math.round(masc / total * 100) : 0,
-               pctF: total ? Math.round(fem  / total * 100) : 0,
-               regGeral, regEspecial,
-               pctRG: total ? Math.round(regGeral    / total * 100) : 0,
-               pctRE: total ? Math.round(regEspecial / total * 100) : 0 };
+               pctF: total ? Math.round(fem  / total * 100) : 0 };
     }, hash);
 
     // Actualiza apenas o nó de texto — não toca no DOM se o valor não mudou
@@ -1025,19 +966,15 @@
       if (el && el.textContent !== String(val)) el.textContent = val;
     };
 
-    set('total',          stats.total);
-    set('activos',        `${stats.activos} activos`);
-    set('masc',           stats.masc);
-    set('pctMasc',        `${stats.pctM}%`);
-    set('fem',            stats.fem);
-    set('pctFem',         `${stats.pctF}%`);
-    set('idMed',          stats.idMed || '—');
-    set('massa',          stats.massa ? fmtKz(stats.massa) : '—');
-    set('nSalarios',      `${stats.nSals} registos`);
-    set('regGeral',       stats.regGeral);
-    set('pctRegGeral',    `${stats.pctRG}%`);
-    set('regEspecial',    stats.regEspecial);
-    set('pctRegEspecial', `${stats.pctRE}%`);
+    set('total',    stats.total);
+    set('activos',  `${stats.activos} activos`);
+    set('masc',     stats.masc);
+    set('pctMasc',  `${stats.pctM}%`);
+    set('fem',      stats.fem);
+    set('pctFem',   `${stats.pctF}%`);
+    set('idMed',    stats.idMed || '—');
+    set('massa',    stats.massa ? fmtKz(stats.massa) : '—');
+    set('nSalarios', `${stats.nSals} registos`);
   }
 
   // ════════════════════════════════════════════════════════
@@ -1082,11 +1019,15 @@
     renderCobertura(funcs, unidades);
     renderSalarial(funcs);
     renderFormacao(funcs);
-    renderRegime(funcs);
+
+    // 5. Secretaria: independente dos filtros RH — só renderiza uma vez
     renderSecretariaEstat();
 
     // 6. Reforma
     renderReforma(funcs);
+
+    // 7. Activar ícones Lucide em todo o conteúdo renderizado
+    if (window.lucide) lucide.createIcons();
   }
 
   // ════════════════════════════════════════════════════════
@@ -1115,12 +1056,14 @@
     renderSalarial(funcs);
     renderReforma(funcs);
     renderFormacao(funcs);
-    renderRegime(funcs);
 
     // ⚠️ renderSecretariaEstat() NÃO é chamado aqui:
     //    os dados de secretaria são independentes dos filtros de RH.
     //    Só são re-renderizados quando o período global muda
     //    (via _setPeriodoGlobal → carregarEstatisticas).
+
+    // Activar ícones Lucide após re-renderização parcial
+    if (window.lucide) lucide.createIcons();
   }
 
   function renderActividadePeriodo(docs) {
@@ -1161,7 +1104,7 @@
       <div class="gen-card">
         <div class="gen-card-header">
           <div><div class="gen-card-titulo">Distribuição por Género</div><div class="gen-card-sub">Efectivo total do universo seleccionado</div></div>
-          <div class="gen-total-pill">👥 ${total} Total</div>
+          <div class="gen-total-pill"><i data-lucide="users" style="width:13px;height:13px;stroke-width:2"></i> ${total} Total</div>
         </div>
         <div class="gen-body">
           <div class="gen-donut-wrap">
@@ -1184,6 +1127,7 @@
           <div><div class="gen-stat-lbl">Idade Média F</div><div class="gen-stat-val">${idF}</div></div>
         </div>
       </div>`;
+    if (window.lucide) lucide.createIcons({ nodes: [el] });
   }
 
   function renderPiramide(funcs) {
@@ -1378,412 +1322,97 @@
   }
 
   // ════════════════════════════════════════════════════════
-  //  HELPERS DE EXPORTAÇÃO
-  // ════════════════════════════════════════════════════════
-
-  /** Devolve label legível de cada filtro activo */
-  function _textoFiltrosActivos() {
-    const VINC = { quadro: 'Pessoal do Quadro', provisorio: 'Provisório' };
-    const EST  = { activo: 'Em Serviço', licenca: 'De Licença', inactivo: 'Inactivo' };
-    const REG  = { geral: 'Regime Geral', especial: 'Regime Especial' };
-    const partes = [];
-    if (_filtros.unidade)   partes.push('Unidade: ' + _filtros.unidade.replace('Direcção Municipal de Saúde do Sumbe','DMS').replace('Centro de Saúde','CS').replace('Posto de Saúde','PS'));
-    if (_filtros.categoria) partes.push('Cat.: ' + _filtros.categoria);
-    if (_filtros.vinculo)   partes.push(VINC[_filtros.vinculo] || _filtros.vinculo);
-    if (_filtros.estado)    partes.push(EST[_filtros.estado]   || _filtros.estado);
-    if (_filtros.sexo)      partes.push(_filtros.sexo);
-    if (_filtros.regime)    partes.push(REG[_filtros.regime]   || _filtros.regime);
-    return partes.length ? partes.join(' · ') : 'Sem filtros (universo completo)';
-  }
-
-  /** Preenche o cabeçalho de impressão/PDF com metadados actuais */
-  function _preencherCabecalhoRelatorio() {
-    const funcs = _funcsFiltrados.length ? _funcsFiltrados : _todosOsFuncs;
-    const data  = document.getElementById('ph-data');
-    const total = document.getElementById('ph-total');
-    const filt  = document.getElementById('ph-filtros');
-    const user  = document.getElementById('ph-user');
-    if (data)  data.textContent  = new Date().toLocaleString('pt-AO', { dateStyle:'short', timeStyle:'short' });
-    if (total) total.textContent = funcs.length + ' funcionário(s)';
-    if (filt)  filt.textContent  = _textoFiltrosActivos();
-    if (user)  user.textContent  = _nomeUtilizador || '—';
-  }
-
-  /** Estado visual do botão durante operação */
-  function _setBtnEstado(id, carregando, textoOrig) {
-    const btn = document.getElementById(id);
-    if (!btn) return;
-    if (carregando) {
-      btn.dataset.orig   = btn.textContent;
-      btn.textContent    = '⏳ A processar…';
-      btn.disabled       = true;
-      btn.style.opacity  = '.6';
-    } else {
-      btn.textContent    = textoOrig || btn.dataset.orig || btn.textContent;
-      btn.disabled       = false;
-      btn.style.opacity  = '';
-    }
-  }
-
-  // ════════════════════════════════════════════════════════
-  //  EXPORTAR EXCEL — dados completos + abas estruturadas
+  //  EXPORTAÇÃO MULTI-FORMATO (EXCEL & PDF)
   // ════════════════════════════════════════════════════════
   window._exportarExcel = function() {
-    if (typeof XLSX === 'undefined') { notif('⚠ Biblioteca Excel não carregada'); return; }
+    if (typeof XLSX === 'undefined') { notif('⚠ Erro: Biblioteca Excel não carregada'); return; }
+    
+    const wb = XLSX.utils.book_new();
+    const dataStr = new Date().toISOString().slice(0,10);
 
-    const funcs   = (_funcsFiltrados.length ? _funcsFiltrados : _todosOsFuncs);
-    if (!funcs.length) { notif('⚠ Sem dados para exportar'); return; }
+    // 1. Aba RH (Funcionários)
+    const funcs = _funcsFiltrados.length ? _funcsFiltrados : _todosOsFuncs;
+    const wsRH = XLSX.utils.json_to_sheet(funcs.map(f => ({
+      'Nº': f.numero || '',
+      'Nome Completo': f.nome || '',
+      'Categoria': f.categoria || '',
+      'Unidade': f.unidade || '',
+      'Vínculo': f.vinculo || '',
+      'Estado': f.estado || 'activo',
+      'BI': f.bi || '',
+      'INSS': f.inss || '',
+      'Sexo': f.sexo || ''
+    })));
+    XLSX.utils.book_append_sheet(wb, wsRH, "RH - Funcionários");
 
-    _setBtnEstado('btn-xls', true);
-
-    try {
-      const wb      = XLSX.utils.book_new();
-      const dataStr = new Date().toISOString().slice(0, 10);
-
-      // ── Labels legíveis ──
-      const VINC = { quadro: 'Pessoal do Quadro', provisorio: 'Provimento Provisório' };
-      const EST  = { activo: 'Em Serviço Activo', licenca: 'De Licença', inactivo: 'Inactivo' };
-      const REG  = { geral: 'Regime Geral', especial: 'Regime Especial' };
-
-      // ── Aba 1: Funcionários ──
-      const linhas = funcs.map((f, i) => ({
-        '#':                     i + 1,
-        'Nº Agente':             f.numero        || '',
-        'Nome Completo':         f.nome          || '',
-        'Sexo':                  f.sexo          || '',
-        'Data de Nascimento':    f.nascimento    || '',
-        'Categoria Profissional':f.categoria     || '',
-        'Cargo / Função':        f.cargo         || '',
-        'Unidade Sanitária':     f.unidade       || '',
-        'Secção / Área':         f.seccao || f.area || '',
-        'Tipo de Vínculo':       VINC[f.vinculo] || f.vinculo || '',
-        'Regime Funcional':      REG[f.regime]   || (f.regime ? f.regime : 'Regime Geral'),
-        'Data de Admissão':      f.admissao      || '',
-        'Estado':                EST[f.estado]   || f.estado || 'Em Serviço Activo',
-        'Nível Académico':       f.escolaridade  || '',
-        'A Estudar?':            f.estudando === true || f.estudando === 'true' ? 'Sim' : f.estudando === false || f.estudando === 'false' ? 'Não' : '',
-        'Curso em Frequência':   f.curso         || '',
-        'Instituição':           f.instituicao   || '',
-        'BI':                    f.bi            || '',
-        'Validade BI':           f.biValidade    || '',
-        'INSS':                  f.inss          || '',
-        'Banco':                 f.banco         || '',
-        'Telefone':              f.telefone      || '',
-        'E-mail':                f.email         || '',
-        'Salário Base (Kz)':     f.salarioBase   || '',
-      }));
-
-      const wsRH = XLSX.utils.json_to_sheet(linhas);
-
-      // Larguras de coluna
-      wsRH['!cols'] = [
-        {wch:4},{wch:10},{wch:34},{wch:12},{wch:16},{wch:36},{wch:30},{wch:38},
-        {wch:30},{wch:22},{wch:18},{wch:14},{wch:20},{wch:30},{wch:10},{wch:30},
-        {wch:22},{wch:18},{wch:12},{wch:10},{wch:14},{wch:20},{wch:26},{wch:16}
-      ];
-
-      // Estilo do cabeçalho (negrito)
-      const range = XLSX.utils.decode_range(wsRH['!ref']);
-      for (let C = range.s.c; C <= range.e.c; C++) {
-        const addr = XLSX.utils.encode_cell({ r: 0, c: C });
-        if (!wsRH[addr]) continue;
-        wsRH[addr].s = { font: { bold: true }, fill: { fgColor: { rgb: 'E2E8F0' } } };
-      }
-
-      XLSX.utils.book_append_sheet(wb, wsRH, 'Funcionários');
-
-      // ── Aba 2: Resumo por Regime ──
-      const geral    = funcs.filter(f => (f.regime || 'geral') !== 'especial').length;
-      const especial = funcs.filter(f => f.regime === 'especial').length;
-      const wsRes = XLSX.utils.aoa_to_sheet([
-        ['Indicador', 'Total', '% do Total'],
-        ['Total de Funcionários', funcs.length, '100%'],
-        ['Regime Geral',    geral,    funcs.length ? Math.round(geral/funcs.length*100)+'%' : '0%'],
-        ['Regime Especial', especial, funcs.length ? Math.round(especial/funcs.length*100)+'%' : '0%'],
-        ['Masculino', funcs.filter(f=>f.sexo==='Masculino').length, ''],
-        ['Feminino',  funcs.filter(f=>f.sexo==='Feminino').length,  ''],
-        ['Em Serviço Activo', funcs.filter(f=>!f.estado||f.estado==='activo').length, ''],
-        ['Pessoal do Quadro',       funcs.filter(f=>f.vinculo==='quadro').length,    ''],
-        ['Provimento Provisório',   funcs.filter(f=>f.vinculo==='provisorio').length,''],
-        ['Com INSS registado',      funcs.filter(f=>f.inss).length, ''],
-        ['Filtros aplicados', _textoFiltrosActivos(), ''],
-        ['Exportado em', new Date().toLocaleString('pt-AO'), ''],
-        ['Exportado por', _nomeUtilizador || '—', ''],
-      ]);
-      wsRes['!cols'] = [{wch:30},{wch:12},{wch:14}];
-      XLSX.utils.book_append_sheet(wb, wsRes, 'Resumo');
-
-      // ── Aba 3: Secretaria — Pedidos ──
-      if (_pedidosSec.length) {
-        const wsPed = XLSX.utils.json_to_sheet(_pedidosSec.map(p => {
-          const ms = toMs(p.criadoEm);
-          return {
-            'Data':       ms ? new Date(ms).toLocaleDateString('pt-PT') : '—',
-            'Assunto':    ASSUNTOS_EST[p.assunto] || p.assunto || 'Outro',
-            'Requerente': p.nome        || '',
-            'Estado':     p.estado      || 'novo',
-            'Descrição':  p.descricao   || ''
-          };
-        }));
-        wsPed['!cols'] = [{wch:12},{wch:28},{wch:30},{wch:14},{wch:40}];
-        XLSX.utils.book_append_sheet(wb, wsPed, 'Secretaria — Pedidos');
-      }
-
-      // ── Aba 4: Reuniões ──
-      if (_reunioesSec.length) {
-        const wsReu = XLSX.utils.json_to_sheet(_reunioesSec.map(r => {
-          const ms = toMs(r.criadoEm);
-          return {
-            'Data':          ms ? new Date(ms).toLocaleDateString('pt-PT') : '—',
-            'Assunto':       r.assunto       || '',
-            'Participantes': r.participantes || '',
-            'Estado':        r.estado        || 'pendente'
-          };
-        }));
-        wsReu['!cols'] = [{wch:12},{wch:36},{wch:30},{wch:14}];
-        XLSX.utils.book_append_sheet(wb, wsReu, 'Reuniões');
-      }
-
-      // ── Aba 5: Actividade Documental ──
-      if (_todosOsDocs.length) {
-        const wsDocs = XLSX.utils.json_to_sheet(_todosOsDocs.map(d => {
-          const ms = toMs(d.geradoEm);
-          return {
-            'Data':       ms ? new Date(ms).toLocaleDateString('pt-PT') : '—',
-            'Tipo':       d.tipo || d.nome || 'Documento',
-            'Gerado por': d.utilizadorNome || d.geradoPorEmail || ''
-          };
-        }));
-        wsDocs['!cols'] = [{wch:12},{wch:28},{wch:30}];
-        XLSX.utils.book_append_sheet(wb, wsDocs, 'Actividade Documental');
-      }
-
-      XLSX.writeFile(wb, `relatorio_rh_${dataStr}.xlsx`);
-      notif('✅ Excel exportado com sucesso!');
-    } catch(e) {
-      console.error('Excel error:', e);
-      notif('❌ Erro ao gerar Excel: ' + (e.message || e));
-    } finally {
-      _setBtnEstado('btn-xls', false, '📗 Exportar Excel');
+    // 2. Aba Secretaria (Pedidos)
+    if (_pedidosSec.length) {
+      const wsPed = XLSX.utils.json_to_sheet(_pedidosSec.map(p => ({
+        'Data': new Date(toMs(p.criadoEm)).toLocaleDateString('pt-PT'),
+        'Assunto': ASSUNTOS_EST[p.assunto] || p.assunto || 'Outro',
+        'Requerente': p.nome || '',
+        'Estado': p.estado || 'novo',
+        'Descrição': p.descricao || ''
+      })));
+      XLSX.utils.book_append_sheet(wb, wsPed, "Secretaria - Pedidos");
     }
+
+    // 3. Aba Reuniões
+    if (_reunioesSec.length) {
+      const wsReu = XLSX.utils.json_to_sheet(_reunioesSec.map(r => ({
+        'Data': new Date(toMs(r.criadoEm)).toLocaleDateString('pt-PT'),
+        'Assunto': r.assunto || '',
+        'Participantes': r.participantes || '',
+        'Estado': r.estado || 'pendente'
+      })));
+      XLSX.utils.book_append_sheet(wb, wsReu, "Reuniões");
+    }
+
+    // 4. Aba Documentos (Atividade)
+    if (_todosOsDocs.length) {
+      const wsDocs = XLSX.utils.json_to_sheet(_todosOsDocs.map(d => ({
+        'Data': new Date(toMs(d.geradoEm)).toLocaleDateString('pt-PT'),
+        'Tipo': d.tipo || d.nome || 'Documento',
+        'Gerado por': d.utilizadorNome || ''
+      })));
+      XLSX.utils.book_append_sheet(wb, wsDocs, "Atividade Documental");
+    }
+
+    XLSX.writeFile(wb, `SIGDOC_Relatorio_Completo_${dataStr}.xlsx`);
+    notif('✅ Excel exportado com sucesso!');
   };
 
-  // ════════════════════════════════════════════════════════
-  //  EXPORTAR PDF — relatório limpo em tema claro
-  //  Constrói HTML dedicado ao invés de capturar o ecrã escuro
-  // ════════════════════════════════════════════════════════
   window._exportarPDF = function() {
-    if (typeof html2pdf === 'undefined') { notif('⚠ Biblioteca PDF não carregada'); return; }
-
-    const funcs = (_funcsFiltrados.length ? _funcsFiltrados : _todosOsFuncs);
-    if (!funcs.length) { notif('⚠ Sem dados para exportar'); return; }
-
-    _setBtnEstado('btn-pdf', true);
-    notif('⏳ A gerar PDF…');
-
-    // ── Calcular indicadores para o relatório ──
-    const total      = funcs.length;
-    const masc       = funcs.filter(f => f.sexo === 'Masculino').length;
-    const fem        = funcs.filter(f => f.sexo === 'Feminino').length;
-    const activos    = funcs.filter(f => !f.estado || f.estado === 'activo').length;
-    const quadro     = funcs.filter(f => f.vinculo === 'quadro').length;
-    const provisorio = funcs.filter(f => f.vinculo === 'provisorio').length;
-    const regGeral   = funcs.filter(f => (f.regime || 'geral') !== 'especial').length;
-    const regEspec   = funcs.filter(f => f.regime === 'especial').length;
-    const estudando  = funcs.filter(f => f.estudando === true || f.estudando === 'true').length;
-    const pct = (n, d) => d ? Math.round(n / d * 100) + '%' : '0%';
-
-    // Top 8 unidades
-    const unidadesMap = {};
-    funcs.forEach(f => { const u = f.unidade||'—'; unidadesMap[u] = (unidadesMap[u]||0)+1; });
-    const topUnidades = Object.entries(unidadesMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
-    const maxU = topUnidades.length ? topUnidades[0][1] : 1;
-
-    // Top 6 categorias
-    const catMap = {};
-    funcs.forEach(f => { const c = f.categoria||'—'; catMap[c] = (catMap[c]||0)+1; });
-    const topCats = Object.entries(catMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
-
-    // Escolaridade
-    const escMap = {};
-    funcs.forEach(f => { if (f.escolaridade) { escMap[f.escolaridade]=(escMap[f.escolaridade]||0)+1; } });
-    const topEsc = Object.entries(escMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
-
-    const dataStr  = new Date().toLocaleDateString('pt-AO', { day:'2-digit', month:'long', year:'numeric' });
-    const horaStr  = new Date().toLocaleTimeString('pt-AO', { hour:'2-digit', minute:'2-digit' });
-    const filtros  = _textoFiltrosActivos();
-
-    // ── Construir HTML do relatório ──
-    const barHtml = (label, val, max, cor) => {
-      const w = max ? Math.round(val/max*100) : 0;
-      return `<div style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
-          <span style="font-size:10px;font-weight:600;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:72%">${label}</span>
-          <span style="font-size:10px;font-weight:800;font-family:monospace;color:#111827">${val}</span>
-        </div>
-        <div style="height:6px;background:#e5e7eb;border-radius:99px;overflow:hidden">
-          <div style="height:100%;width:${w}%;background:${cor};border-radius:99px"></div>
-        </div>
-      </div>`;
-    };
-
-    const kpiHtml = (icon, val, label, sub, cor) =>
-      `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;border-top:3px solid ${cor}">
-        <div style="font-size:16px;margin-bottom:4px">${icon}</div>
-        <div style="font-size:22px;font-weight:900;color:${cor};font-family:monospace;letter-spacing:-1px">${val}</div>
-        <div style="font-size:10px;font-weight:700;color:#6b7280;margin-top:3px;text-transform:uppercase;letter-spacing:.5px">${label}</div>
-        ${sub ? `<div style="font-size:9px;color:#9ca3af;margin-top:1px">${sub}</div>` : ''}
-      </div>`;
-
-    const html = `<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8">
-    <style>
-      *{box-sizing:border-box;margin:0;padding:0}
-      body{font-family:'Segoe UI',Arial,sans-serif;color:#111827;background:#fff;font-size:12px;line-height:1.5}
-      h2{font-size:13px;font-weight:800;color:#1e293b;margin:20px 0 10px;padding-bottom:5px;border-bottom:1px solid #e2e8f0;letter-spacing:-.2px}
-      .page-break{page-break-before:always}
-    </style></head><body>
-
-    <!-- Cabeçalho -->
-    <div style="padding:0 0 16px;border-bottom:2px solid #1e3a5f;margin-bottom:20px">
-      <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#64748b;margin-bottom:3px">SIGDOC-SUMBE — Sistema de Gestão Documental e Recursos Humanos</div>
-      <div style="font-size:22px;font-weight:900;color:#1e293b;margin-bottom:10px;letter-spacing:-.5px">Relatório de Estatísticas RH</div>
-      <div style="display:flex;gap:32px;flex-wrap:wrap">
-        <div><div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8">Data de Emissão</div><div style="font-size:12px;font-weight:700;color:#1e293b">${dataStr} · ${horaStr}</div></div>
-        <div><div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8">Universo</div><div style="font-size:12px;font-weight:700;color:#1e293b">${total} funcionário(s)</div></div>
-        <div><div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8">Filtros Aplicados</div><div style="font-size:11px;font-weight:600;color:#374151">${filtros}</div></div>
-        <div><div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8">Emitido por</div><div style="font-size:12px;font-weight:700;color:#1e293b">${_nomeUtilizador || '—'}</div></div>
-      </div>
-    </div>
-
-    <!-- KPIs principais -->
-    <h2>Indicadores Principais</h2>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
-      ${kpiHtml('👥', total,   'Total',           '',                          '#3b82f6')}
-      ${kpiHtml('✅', activos, 'Em Serviço',      pct(activos,total),          '#10b981')}
-      ${kpiHtml('👨', masc,    'Masculino',        pct(masc,total),             '#3b82f6')}
-      ${kpiHtml('👩', fem,     'Feminino',         pct(fem,total),              '#f472b6')}
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
-      ${kpiHtml('📋', regGeral,   'Regime Geral',    pct(regGeral,total),   '#10b981')}
-      ${kpiHtml('⚡', regEspec,   'Regime Especial', pct(regEspec,total),   '#f59e0b')}
-      ${kpiHtml('📑', quadro,     'Quadro',          pct(quadro,total),     '#6366f1')}
-      ${kpiHtml('🔄', provisorio, 'Provisório',      pct(provisorio,total), '#94a3b8')}
-    </div>
-
-    <!-- Tabela resumo de regime -->
-    <h2>Regime de Vínculo Funcional</h2>
-    <table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:11px">
-      <thead><tr style="background:#f1f5f9">
-        <th style="padding:8px 12px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;border-bottom:1px solid #e2e8f0">Regime</th>
-        <th style="padding:8px 12px;text-align:right;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;border-bottom:1px solid #e2e8f0">Nº Funcionários</th>
-        <th style="padding:8px 12px;text-align:right;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;border-bottom:1px solid #e2e8f0">% do Total</th>
-      </tr></thead>
-      <tbody>
-        <tr><td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;font-weight:700">Regime Geral</td><td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;text-align:right;font-family:monospace;font-weight:800;color:#10b981">${regGeral}</td><td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;text-align:right;font-family:monospace">${pct(regGeral,total)}</td></tr>
-        <tr><td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;font-weight:700">Regime Especial</td><td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;text-align:right;font-family:monospace;font-weight:800;color:#f59e0b">${regEspec}</td><td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;text-align:right;font-family:monospace">${pct(regEspec,total)}</td></tr>
-        <tr style="background:#f8fafc"><td style="padding:8px 12px;font-weight:900">Total</td><td style="padding:8px 12px;text-align:right;font-family:monospace;font-weight:900">${total}</td><td style="padding:8px 12px;text-align:right;font-family:monospace;font-weight:900">100%</td></tr>
-      </tbody>
-    </table>
-
-    <!-- Distribuição por Unidade -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
-      <div>
-        <h2 style="margin-top:0">Distribuição por Unidade</h2>
-        ${topUnidades.map(([n,v])=>barHtml(n.replace('Direcção Municipal de Saúde do Sumbe','DMS — Sede').replace('Centro de Saúde','CS').replace('Posto de Saúde','PS'),v,maxU,'#3b82f6')).join('')}
-      </div>
-      <div>
-        <h2 style="margin-top:0">Top Categorias Profissionais</h2>
-        ${topCats.map(([n,v],i)=>barHtml(n,v,topCats[0][1],['#3b82f6','#10b981','#f59e0b','#6366f1','#f472b6','#22d3ee'][i])).join('')}
-      </div>
-    </div>
-
-    <!-- Escolaridade -->
-    ${topEsc.length ? `
-    <h2>Nível Académico</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
-      ${topEsc.map(([n,v])=>barHtml(n,v,topEsc[0][1],'#6366f1')).join('')}
-    </div>` : ''}
-
-    <!-- Tabela completa de funcionários (primeiros 50) -->
-    <div class="page-break"></div>
-    <h2>Lista de Funcionários ${funcs.length > 50 ? '(primeiros 50 de '+funcs.length+')' : '('+funcs.length+')'}</h2>
-    <table style="width:100%;border-collapse:collapse;font-size:9px">
-      <thead><tr style="background:#1e293b;color:#fff">
-        <th style="padding:6px 8px;text-align:left">#</th>
-        <th style="padding:6px 8px;text-align:left">Nº</th>
-        <th style="padding:6px 8px;text-align:left">Nome</th>
-        <th style="padding:6px 8px;text-align:left">Categoria</th>
-        <th style="padding:6px 8px;text-align:left">Unidade</th>
-        <th style="padding:6px 8px;text-align:left">Vínculo</th>
-        <th style="padding:6px 8px;text-align:left">Regime</th>
-        <th style="padding:6px 8px;text-align:left">Estado</th>
-      </tr></thead>
-      <tbody>
-        ${funcs.slice(0,50).map((f,i)=>{
-          const VINC = {quadro:'Quadro',provisorio:'Provisório'};
-          const EST  = {activo:'Activo',licenca:'Licença',inactivo:'Inactivo'};
-          const REG  = {geral:'Geral',especial:'Especial'};
-          const bg   = i%2===0?'#ffffff':'#f8fafc';
-          return `<tr style="background:${bg}">
-            <td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;color:#9ca3af">${i+1}</td>
-            <td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;font-family:monospace;font-weight:700">${f.numero||'—'}</td>
-            <td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;font-weight:600">${f.nome||'—'}</td>
-            <td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;color:#374151">${f.categoria||'—'}</td>
-            <td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;color:#374151">${(f.unidade||'—').replace('Direcção Municipal de Saúde do Sumbe','DMS').replace('Centro de Saúde','CS').replace('Posto de Saúde','PS')}</td>
-            <td style="padding:5px 8px;border-bottom:1px solid #f1f5f9">${VINC[f.vinculo]||f.vinculo||'—'}</td>
-            <td style="padding:5px 8px;border-bottom:1px solid #f1f5f9;font-weight:700;color:${f.regime==='especial'?'#d97706':'#059669'}">${REG[f.regime||'geral']||'Geral'}</td>
-            <td style="padding:5px 8px;border-bottom:1px solid #f1f5f9">${EST[f.estado||'activo']||f.estado||'Activo'}</td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>
-    ${funcs.length > 50 ? `<div style="text-align:center;padding:10px;font-size:10px;color:#9ca3af;margin-top:6px">… mais ${funcs.length-50} funcionários não apresentados. Exporte para Excel para a lista completa.</div>` : ''}
-
-    <!-- Rodapé -->
-    <div style="margin-top:24px;padding-top:10px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;font-size:8px;color:#9ca3af">
-      <span>SIGDOC-SUMBE — Administração Municipal de Saúde do Sumbe</span>
-      <span>Emitido em ${dataStr} · ${horaStr} · por ${_nomeUtilizador||'—'}</span>
-    </div>
-    </body></html>`;
-
-    // ── Extrair apenas o conteúdo do <body> para html2pdf (string mode) ──
-    // O modo 'string' cria internamente um div com innerHTML,
-    // por isso o DOCTYPE/html/head devem ser omitidos.
-    const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-    const bodyHtml  = bodyMatch ? bodyMatch[1] : html;
-
+    if (typeof html2pdf === 'undefined') { notif('⚠ Erro: Biblioteca PDF não carregada'); return; }
+    
+    notif('⏳ A gerar PDF... aguarde.');
+    const element = document.getElementById('ecra-principal');
     const opt = {
-      margin:      [12, 10, 12, 10],
-      filename:    `relatorio_rh_${new Date().toISOString().slice(0,10)}.pdf`,
-      image:       { type: 'jpeg', quality: 0.97 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false },
-      jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      margin:       [10, 10],
+      filename:     `SIGDOC_Relatorio_Executivo_${new Date().toISOString().slice(0,10)}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0d1422' },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    html2pdf().set(opt).from(bodyHtml, 'string').save()
-      .then(() => {
-        notif('✅ PDF gerado com sucesso!');
-      })
-      .catch(err => {
-        console.error('PDF error:', err);
-        notif('❌ Erro ao gerar PDF. Tente Imprimir → Guardar como PDF.');
-      })
-      .finally(() => {
-        _setBtnEstado('btn-pdf', false, '📕 Relatório PDF');
-      });
+    // Esconder botões e elementos de navegação antes de gerar
+    const actions = document.querySelector('.topbar-actions');
+    if (actions) actions.style.display = 'none';
+    
+    html2pdf().set(opt).from(element).save().then(() => {
+      if (actions) actions.style.display = 'flex';
+      notif('✅ Relatório PDF gerado!');
+    }).catch(err => {
+      console.error('PDF Error:', err);
+      if (actions) actions.style.display = 'flex';
+      notif('❌ Erro ao gerar PDF');
+    });
   };
 
-  // ════════════════════════════════════════════════════════
-  //  IMPRESSÃO — preenche cabeçalho e dispara window.print()
-  // ════════════════════════════════════════════════════════
   window.onbeforeprint = function() {
-    _preencherCabecalhoRelatorio();
-  };
-
-  // Chamado pelo botão Imprimir — preenche metadados e imprime
-  window._imprimir = function() {
-    _preencherCabecalhoRelatorio();
-    window.print();
+    document.getElementById('ph-data').textContent = new Date().toLocaleString();
+    document.getElementById('ph-total').textContent = `${_funcsFiltrados.length || _todosOsFuncs.length} funcionários`;
+    document.getElementById('ph-user').textContent = _nomeUtilizador;
   };
 
   // ════════════════════════════════════════════════════════
@@ -1801,7 +1430,7 @@
     sEl.textContent = subtitulo;
     
     if (!dados || dados.length === 0) {
-      cEl.innerHTML = `<div class="drill-empty"><div class="drill-empty-icon">📂</div><p>Nenhum registo encontrado para este indicador.</p></div>`;
+      cEl.innerHTML = `<div class="drill-empty"><div class="drill-empty-icon"><i data-lucide="folder-open"></i></div><p>Nenhum registo encontrado para este indicador.</p></div>`;
     } else {
       let html = '';
       
@@ -1848,6 +1477,7 @@
     
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
+    if (window.lucide) lucide.createIcons({ nodes: [cEl] });
   };
 
   window._fecharDrill = function() {
@@ -1926,7 +1556,9 @@
       const cor         = isMaisNovo ? '#60a5fa' : '#fbbf24';
       const cardClass   = isMaisNovo ? 'ee-card-novo' : 'ee-card-velho';
       const badgeClass  = isMaisNovo ? 'ee-badge-novo' : 'ee-badge-velho';
-      const icone       = isMaisNovo ? '🌱' : '🌳';
+      const icone       = isMaisNovo
+        ? '<i data-lucide="sprout" style="width:12px;height:12px;stroke-width:2"></i>'
+        : '<i data-lucide="tree-pine" style="width:12px;height:12px;stroke-width:2"></i>';
       const badgeTxt    = isMaisNovo ? 'Mais novo' : 'Mais velho';
 
       return `
@@ -1940,9 +1572,9 @@
           </div>
           <div class="ee-nome">${f.nome || '—'}</div>
           <div class="ee-meta">
-            <div class="ee-meta-linha">🏥 <span>${abrvUnidade(f.unidade)}</span></div>
-            <div class="ee-meta-linha">🎂 <span>${fmtNasc(f.nascimento)}</span></div>
-            ${f.categoria ? `<div class="ee-meta-linha">📋 <span>${f.categoria}</span></div>` : ''}
+            <div class="ee-meta-linha"><i data-lucide="building-2" style="width:12px;height:12px;flex-shrink:0"></i> <span>${abrvUnidade(f.unidade)}</span></div>
+            <div class="ee-meta-linha"><i data-lucide="cake" style="width:12px;height:12px;flex-shrink:0"></i> <span>${fmtNasc(f.nascimento)}</span></div>
+            ${f.categoria ? `<div class="ee-meta-linha"><i data-lucide="briefcase" style="width:12px;height:12px;flex-shrink:0"></i> <span>${f.categoria}</span></div>` : ''}
           </div>
         </div>`;
     }
@@ -1975,6 +1607,7 @@
         </div>
         ${barraAmpitude}
       </div>`;
+    if (window.lucide) lucide.createIcons({ nodes: [el] });
   }
 
   // ════════════════════════════════════════════════════════
@@ -1993,147 +1626,6 @@
    *   🟡 Atenção  → anosRestantes ≤ 3
    *   🟢 Normal   → anosRestantes > 3
    */
-  // ════════════════════════════════════════════════════════
-  //  REGIME DE VÍNCULO FUNCIONAL — donut + cruzamentos
-  // ════════════════════════════════════════════════════════
-  function renderRegime(funcs) {
-    const total = funcs.length;
-    if (!total) return;
-
-    // Contagens base (funcionários sem campo regime contam como geral)
-    const regEspecial = funcs.filter(f => f.regime === 'especial').length;
-    const regGeral    = funcs.filter(f => (f.regime || 'geral') === 'geral').length;
-    const regNDef     = total - regGeral - regEspecial; // nunca > 0 com a lógica acima, mas por segurança
-
-    // ── 1. Donut principal ──
-    renderDonut('regime-donut', [
-      { label: 'Regime Geral',    val: regGeral    },
-      { label: 'Regime Especial', val: regEspecial },
-      ...(regNDef > 0 ? [{ label: 'Não definido', val: regNDef }] : [])
-    ]);
-
-    // ── 2. Regime por Unidade Sanitária ──
-    const elU = document.getElementById('regime-unidade');
-    if (elU) {
-      const abrvU = n => (n||'—')
-        .replace('Direcção Municipal de Saúde do Sumbe', 'DMS — Sede')
-        .replace('Centro de Saúde', 'CS')
-        .replace('Posto de Saúde', 'PS');
-      const mapa = {};
-      funcs.forEach(f => {
-        const u = abrvU(f.unidade);
-        if (!mapa[u]) mapa[u] = { g: 0, e: 0 };
-        f.regime === 'especial' ? mapa[u].e++ : mapa[u].g++;
-      });
-      const lista = Object.entries(mapa)
-        .sort((a, b) => (b[1].g + b[1].e) - (a[1].g + a[1].e))
-        .slice(0, 8);
-      const maxU = Math.max(...lista.map(([, v]) => v.g + v.e), 1);
-      elU.innerHTML = lista.map(([nome, v]) => {
-        const tot = v.g + v.e;
-        const pG  = tot ? Math.round(v.g / tot * 100) : 0;
-        const pE  = 100 - pG;
-        return `<div class="bh">
-          <div class="bh-head">
-            <span class="bh-lbl">${nome}</span>
-            <span style="display:flex;gap:6px;align-items:center">
-              <span style="font-size:10px;font-weight:800;font-family:'DM Mono',monospace;color:#10c886">${v.g}G</span>
-              <span style="color:rgba(255,255,255,.2);font-size:10px">/</span>
-              <span style="font-size:10px;font-weight:800;font-family:'DM Mono',monospace;color:#f59e0b">${v.e}E</span>
-            </span>
-          </div>
-          <div style="height:7px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;width:${Math.round(tot/maxU*100)}%">
-            <div style="display:flex;height:100%">
-              <div style="width:${pG}%;background:#10c886;border-radius:99px 0 0 99px;min-width:${v.g>0?2:0}px"></div>
-              <div style="width:${pE}%;background:#f59e0b;border-radius:0 99px 99px 0;min-width:${v.e>0?2:0}px"></div>
-            </div>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    // ── 3. Regime × Nível Académico ──
-    const elE = document.getElementById('regime-escolaridade');
-    if (elE) {
-      const SHORT = {
-        'Ensino Primário (4ª Classe)':            'Primário',
-        'Ensino Básico (6ª Classe)':              '6ª Classe',
-        '1º Ciclo do Secundário (9ª Classe)':     '9ª Classe',
-        '2º Ciclo do Secundário (12ª/13ª Classe)':'12ª/13ª',
-        'Ensino Médio Técnico (IMPS ou equiv.)':  'Médio Técnico',
-        'Bacharel':        'Bacharel',
-        'Licenciatura':    'Licenciatura',
-        'Pós-Graduação':   'Pós-Graduação',
-        'Mestrado':        'Mestrado',
-        'Doutoramento':    'Doutoramento'
-      };
-      const escM = {};
-      funcs.forEach(f => {
-        const e = SHORT[f.escolaridade] || f.escolaridade || '—';
-        if (!escM[e]) escM[e] = { g: 0, e: 0 };
-        f.regime === 'especial' ? escM[e].e++ : escM[e].g++;
-      });
-      const listaE = Object.entries(escM)
-        .sort((a, b) => (b[1].g + b[1].e) - (a[1].g + a[1].e))
-        .slice(0, 8);
-      const maxE = Math.max(...listaE.map(([, v]) => v.g + v.e), 1);
-      elE.innerHTML = listaE.map(([nome, v], i) => {
-        const tot = v.g + v.e;
-        return `<div class="bh">
-          <div class="bh-head">
-            <span class="bh-lbl">${nome}</span>
-            <span class="bh-val">${tot}</span>
-          </div>
-          <div class="bh-track"><div class="bh-fill" style="width:${Math.round(tot/maxE*100)}%;background:${CORES[i%CORES.length]}"></div></div>
-          <div style="font-size:9px;color:rgba(255,255,255,.3);margin-top:2px">
-            <span style="color:#10c886">${v.g} Geral</span>
-            &nbsp;·&nbsp;
-            <span style="color:#f59e0b">${v.e} Especial</span>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    // ── 4. Regime × Em Formação ──
-    const elF = document.getElementById('regime-formacao');
-    if (elF) {
-      const isEst = f => f.estudando === true || f.estudando === 'true' || f.estudando === 'sim';
-      const gEst  = funcs.filter(f => (f.regime || 'geral') === 'geral'    && isEst(f)).length;
-      const eEst  = funcs.filter(f => f.regime === 'especial' && isEst(f)).length;
-      const pctGE = regGeral    ? Math.round(gEst / regGeral    * 100) : 0;
-      const pctEE = regEspecial ? Math.round(eEst / regEspecial * 100) : 0;
-      elF.innerHTML = `
-        <div style="display:flex;flex-direction:column;gap:18px;padding-top:4px">
-          <div>
-            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-              <span style="font-size:12px;font-weight:700;color:#10c886">📋 Regime Geral</span>
-              <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:800;color:#e2e8f0">${gEst} <span style="font-size:10px;color:rgba(255,255,255,.4)">a estudar (${pctGE}%)</span></span>
-            </div>
-            <div class="bh-track"><div class="bh-fill" style="width:${pctGE}%;background:#10c886"></div></div>
-            <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:4px">${regGeral - gEst} não estudam · Total no Regime: ${regGeral}</div>
-          </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-              <span style="font-size:12px;font-weight:700;color:#f59e0b">⚡ Regime Especial</span>
-              <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:800;color:#e2e8f0">${eEst} <span style="font-size:10px;color:rgba(255,255,255,.4)">a estudar (${pctEE}%)</span></span>
-            </div>
-            <div class="bh-track"><div class="bh-fill" style="width:${pctEE}%;background:#f59e0b"></div></div>
-            <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:4px">${regEspecial - eEst} não estudam · Total no Regime: ${regEspecial}</div>
-          </div>
-          <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div style="text-align:center">
-              <div style="font-size:22px;font-weight:900;font-family:'DM Mono',monospace;color:#10c886">${pctGE}%</div>
-              <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:3px">Taxa estudo · Geral</div>
-            </div>
-            <div style="text-align:center">
-              <div style="font-size:22px;font-weight:900;font-family:'DM Mono',monospace;color:#f59e0b">${pctEE}%</div>
-              <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:3px">Taxa estudo · Especial</div>
-            </div>
-          </div>
-        </div>`;
-    }
-  }
-
   function renderReforma(funcs) {
     const el = document.getElementById('reforma-wrap');
     if (!el) return;
@@ -2156,12 +1648,12 @@
     // ── Classificação visual ──
     function classificar(anosRestantes) {
       if (anosRestantes === 0)
-        return { cor: '#ef4444', bg: 'rgba(239,68,68,.18)', emoji: '🔴', label: 'Em reforma' };
+        return { cor: '#ef4444', bg: 'rgba(239,68,68,.18)', dot: '<span class="status-dot" style="background:#ef4444"></span>', label: 'Em reforma' };
       if (anosRestantes <= 1)
-        return { cor: '#ef4444', bg: 'rgba(239,68,68,.14)', emoji: '🔴', label: 'Crítico' };
+        return { cor: '#ef4444', bg: 'rgba(239,68,68,.14)', dot: '<span class="status-dot" style="background:#ef4444"></span>', label: 'Crítico' };
       if (anosRestantes <= 3)
-        return { cor: '#f59e0b', bg: 'rgba(245,158,11,.14)', emoji: '🟡', label: 'Atenção' };
-      return   { cor: '#10c886', bg: 'rgba(16,200,134,.12)', emoji: '🟢', label: 'Normal' };
+        return { cor: '#f59e0b', bg: 'rgba(245,158,11,.14)', dot: '<span class="status-dot" style="background:#f59e0b"></span>', label: 'Atenção' };
+      return   { cor: '#10c886', bg: 'rgba(16,200,134,.12)', dot: '<span class="status-dot" style="background:#10c886"></span>', label: 'Normal' };
     }
 
     // ── Abreviatura de unidade (reutiliza padrão existente no ficheiro) ──
@@ -2199,15 +1691,15 @@
     const nAtencao  = candidatos.filter(f => f.anosRestantes > 1 && f.anosRestantes <= 3).length;
 
     const badgesCriticos = nCriticos > 0
-      ? `<span style="padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(239,68,68,.14);color:#ef4444;border:1px solid rgba(239,68,68,.25)">🔴 ${nCriticos} crítico${nCriticos > 1 ? 's' : ''}</span>`
+      ? `<span style="padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(239,68,68,.14);color:#ef4444;border:1px solid rgba(239,68,68,.25);display:inline-flex;align-items:center;gap:5px"><span class="status-dot" style="background:#ef4444"></span> ${nCriticos} crítico${nCriticos > 1 ? 's' : ''}</span>`
       : '';
     const badgesAtencao = nAtencao > 0
-      ? `<span style="padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(245,158,11,.14);color:#f59e0b;border:1px solid rgba(245,158,11,.25)">🟡 ${nAtencao} em atenção</span>`
+      ? `<span style="padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(245,158,11,.14);color:#f59e0b;border:1px solid rgba(245,158,11,.25);display:inline-flex;align-items:center;gap:5px"><span class="status-dot" style="background:#f59e0b"></span> ${nAtencao} em atenção</span>`
       : '';
 
     // ── Gerar itens da lista ──
     const itemsHtml = candidatos.map((f, i) => {
-      const { cor, bg, emoji, label } = classificar(f.anosRestantes);
+      const { cor, bg, dot, label } = classificar(f.anosRestantes);
       const barra = Math.round((f.anosTrabalhados / ANOS_REFORMA) * 100);
       return `
         <div class="reforma-item" style="--reforma-cor:${cor};--reforma-bg:${bg}">
@@ -2229,7 +1721,7 @@
               <span class="reforma-stat-lbl">anos restantes</span>
             </div>
           </div>
-          <span class="reforma-badge" style="background:${bg};color:${cor}">${emoji} ${label}</span>
+          <span class="reforma-badge" style="background:${bg};color:${cor};display:inline-flex;align-items:center;gap:4px">${dot} ${label}</span>
         </div>`;
     }).join('');
 
@@ -2270,6 +1762,7 @@
           ${itemsHtml}
         </div>
       </div>`;
+    if (window.lucide) lucide.createIcons({ nodes: [el] });
   }
 
   // ════════════════════════════════════════════════════════
@@ -2451,19 +1944,19 @@
       <!-- KPIs de formação -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
         <div class="kpi" style="border-color:rgba(59,130,246,.25)">
-          <div class="kpi-icon">🎓</div>
+          <div class="kpi-icon"><i data-lucide="graduation-cap" style="color:${kpiCor}"></i></div>
           <div class="kpi-val" style="color:${kpiCor}">${d.totalEstudantes}</div>
           <div class="kpi-lbl">Em Formação</div>
           <div class="kpi-sub">${d.percentagem}% do efectivo</div>
         </div>
         <div class="kpi">
-          <div class="kpi-icon">📚</div>
+          <div class="kpi-icon"><i data-lucide="book-open" style="color:#a78bfa"></i></div>
           <div class="kpi-val" style="color:#a78bfa">${d.porCurso.length}</div>
           <div class="kpi-lbl">Cursos Distintos</div>
           <div class="kpi-sub">${d.porCurso[0] ? d.porCurso[0].label.substring(0,26) : '—'}</div>
         </div>
         <div class="kpi">
-          <div class="kpi-icon">🏫</div>
+          <div class="kpi-icon"><i data-lucide="landmark" style="color:#f59e0b"></i></div>
           <div class="kpi-val" style="color:#f59e0b">${d.porInst.length}</div>
           <div class="kpi-lbl">Instituições</div>
           <div class="kpi-sub">${d.porInst[0] ? d.porInst[0].label.substring(0,26) : '—'}</div>
@@ -2540,6 +2033,7 @@
 
     // Guardar dados para o drill-down
     window._formacaoData = d;
+    if (window.lucide) lucide.createIcons({ nodes: [wrap] });
   }
 
   window._abrirDrillFormacao = function(tipo, filtro) {
@@ -2569,7 +2063,7 @@
       </tr>`).join('');
 
     const vazio = lista.length === 0
-      ? '<div class="drill-empty"><div class="drill-empty-icon">🎓</div><p>Sem registos para este filtro.</p></div>'
+      ? '<div class="drill-empty"><div class="drill-empty-icon"><i data-lucide="graduation-cap"></i></div><p>Sem registos para este filtro.</p></div>'
       : '';
 
     const modal  = document.querySelector('.modal-drill');
@@ -2591,6 +2085,7 @@
         <tbody>${linhas}</tbody>
       </table>`;
     modal.classList.add('active');
+    if (window.lucide) lucide.createIcons({ nodes: [mBody] });
   };
 
 </script>
