@@ -336,6 +336,68 @@
       .reforma-stats { gap: 10px; }
       .reforma-stat-val { font-size: 13px; }
     }
+
+    /* ── Tooltip flutuante ── */
+    #sigdoc-tt {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      background: rgba(8, 14, 28, 0.97);
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 10px;
+      padding: 9px 13px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      color: #e2e8f0;
+      line-height: 1.45;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 10px 32px rgba(0,0,0,.55), 0 1px 0 rgba(255,255,255,.06) inset;
+      max-width: 220px;
+      white-space: nowrap;
+      opacity: 0;
+      transform: translateY(7px) scale(.97);
+      transition: opacity .13s ease, transform .13s ease;
+      will-change: opacity, transform;
+    }
+    #sigdoc-tt.vis {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    #sigdoc-tt .tt-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 3px;
+    }
+    #sigdoc-tt .tt-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    #sigdoc-tt .tt-row {
+      font-size: 11px;
+      color: rgba(255,255,255,.52);
+      font-family: 'DM Mono', monospace;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    #sigdoc-tt .tt-pct {
+      color: #e2e8f0;
+      font-weight: 700;
+    }
+    #sigdoc-tt .tt-sep {
+      color: rgba(255,255,255,.2);
+    }
+    /* Garante que [data-tt] com min-height seja hoverable */
+    [data-tt] { cursor: default; }
+    .pir-bm[data-tt], .pir-bf[data-tt] { min-width: 2px; }
+    @media print { #sigdoc-tt { display: none !important; } }
   </style>
 </head>
 <body>
@@ -1123,8 +1185,8 @@
           <div class="gen-donut-wrap">
             <svg width="160" height="160" viewBox="0 0 100 100" style="transform:rotate(-90deg)">
               <circle cx="50" cy="50" r="${R}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="12"/>
-              <circle cx="50" cy="50" r="${R}" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round" stroke-dasharray="${segM} ${circ-segM}" stroke-dashoffset="${offM}"/>
-              <circle cx="50" cy="50" r="${R}" fill="none" stroke="#f472b6" stroke-width="12" stroke-linecap="round" stroke-dasharray="${segF} ${circ-segF}" stroke-dashoffset="${offF}"/>
+              <circle cx="50" cy="50" r="${R}" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round" stroke-dasharray="${segM} ${circ-segM}" stroke-dashoffset="${offM}" data-tt="Masculino|${masc} func.|${pctM}%|#3b82f6" style="cursor:pointer"/>
+              <circle cx="50" cy="50" r="${R}" fill="none" stroke="#f472b6" stroke-width="12" stroke-linecap="round" stroke-dasharray="${segF} ${circ-segF}" stroke-dashoffset="${offF}" data-tt="Feminino|${fem} func.|${pctF}%|#f472b6" style="cursor:pointer"/>
             </svg>
             <div class="gen-donut-center"><div class="gen-donut-pct">${pctM}%</div><div class="gen-donut-lbl">Masculino</div></div>
           </div>
@@ -1154,7 +1216,7 @@
     });
     const mx = Math.max(...d.map(x => Math.max(x.m, x.fem)), 1);
     document.getElementById("piramide").innerHTML = [...d].reverse().map(x =>
-      `<div class="pir-linha"><div class="pir-n">${x.m}</div><div style="display:flex;justify-content:flex-end;width:100%"><div class="pir-bm" style="width:${Math.round(x.m/mx*100)}%"></div></div><div class="pir-eixo">${x.f}</div><div style="width:100%"><div class="pir-bf" style="width:${Math.round(x.fem/mx*100)}%"></div></div><div class="pir-n">${x.fem}</div></div>`).join("") +
+      `<div class="pir-linha"><div class="pir-n">${x.m}</div><div style="display:flex;justify-content:flex-end;width:100%"><div class="pir-bm" style="width:${Math.round(x.m/mx*100)}%" data-tt="Masculino · ${x.f}|${x.m} func.||#60a5fa"></div></div><div class="pir-eixo">${x.f}</div><div style="width:100%"><div class="pir-bf" style="width:${Math.round(x.fem/mx*100)}%" data-tt="Feminino · ${x.f}|${x.fem} func.||#f472b6"></div></div><div class="pir-n">${x.fem}</div></div>`).join("") +
       `<div class="pir-leg"><div class="pir-leg-item"><div class="pir-dot" style="background:#60a5fa"></div>Masculino</div><div class="pir-leg-item"><div class="pir-dot" style="background:#f472b6"></div>Feminino</div></div>`;
   }
 
@@ -1169,7 +1231,7 @@
       const s = { ...d, pct, offset: cm, color: CORES[i % CORES.length] };
       cm += pct; return s;
     });
-    el.innerHTML = `<div class="donut-wrap"><svg width="140" height="140" viewBox="0 0 140 140"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="${sw}"/>${segs.map(s => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${sw}" stroke-dasharray="${circ*s.pct/100} ${circ*(1-s.pct/100)}" stroke-dashoffset="${circ*(25-s.offset)/100}"/>`).join("")}<text x="${cx}" y="${cy+6}" text-anchor="middle" fill="rgba(255,255,255,.7)" font-size="22" font-weight="800" font-family="DM Mono,monospace">${total}</text></svg><div class="donut-leg">${segs.map(s => `<div class="donut-item"><div class="donut-dot" style="background:${s.color}"></div><div class="donut-txt">${s.label}</div><div class="donut-n">${s.val}</div></div>`).join("")}</div></div>`;
+    el.innerHTML = `<div class="donut-wrap"><svg width="140" height="140" viewBox="0 0 140 140"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="${sw}"/>${segs.map(s => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${sw}" stroke-dasharray="${circ*s.pct/100} ${circ*(1-s.pct/100)}" stroke-dashoffset="${circ*(25-s.offset)/100}" data-tt="${s.label}|${s.val} func.|${Math.round(s.pct)}%|${s.color}" style="cursor:pointer"/>`).join("")}<text x="${cx}" y="${cy+6}" text-anchor="middle" fill="rgba(255,255,255,.7)" font-size="22" font-weight="800" font-family="DM Mono,monospace">${total}</text></svg><div class="donut-leg">${segs.map(s => `<div class="donut-item"><div class="donut-dot" style="background:${s.color}"></div><div class="donut-txt">${s.label}</div><div class="donut-n">${s.val}</div></div>`).join("")}</div></div>`;
   }
 
   function renderEvolucaoCadastros(funcs) {
@@ -1201,7 +1263,7 @@
       const esteM = m.mes === agora.getMonth() && m.ano === agora.getFullYear();
       const barH = Math.max((m.n/maxN) * (svgH-padT-padB), m.n > 0 ? 3 : 1);
       const x = padL + i * barW + gap/2, y = padT + (svgH-padT-padB) - barH;
-      bars += `<rect x="${x}" y="${y}" width="${barW-gap}" height="${barH}" rx="3" fill="${esteM?'#10c886':'#a78bfa'}"/>`;
+      bars += `<rect x="${x}" y="${y}" width="${barW-gap}" height="${barH}" rx="3" fill="${esteM?'#10c886':'#a78bfa'}" data-tt="${m.label}|${m.n} cadastro${m.n!==1?'s':''}||${esteM?'#10c886':'#a78bfa'}"/>`;
       if (m.n > 0) bars += `<text x="${x+(barW-gap)/2}" y="${y-4}" text-anchor="middle" font-size="9" fill="${esteM?'#10c886':'#a78bfa'}" font-weight="700" font-family="DM Mono,monospace">${m.n}</text>`;
     });
     el.innerHTML = `<svg width="100%" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="none">${bars}</svg><div style="display:flex;padding:3px 0 0 ${padL}px">${meses.map(m => `<span style="flex:1;text-align:center;font-size:9px;color:#94a3b8">${m.label}</span>`).join('')}</div>`;
@@ -1225,7 +1287,7 @@
     const cm = {}; funcs.forEach(f => { const u = f.unidade || "—"; cm[u] = (cm[u] || 0) + 1; });
     const lista = Object.entries(cm).filter(([n]) => n !== "—").sort((a,b)=>b[1]-a[1]).slice(0,8);
     const max = Math.max(...lista.map(u=>u[1]), 1);
-    el.innerHTML = lista.map(([n,v], i) => `<div class="bh"><div class="bh-head"><span class="bh-lbl">${n}</span><span class="bh-val">${v}</span></div><div class="bh-track"><div class="bh-fill" style="width:${Math.round(v/max*100)}%;background:${CORES[i%CORES.length]}"></div></div></div>`).join("");
+    el.innerHTML = lista.map(([n,v], i) => `<div class="bh" data-tt="${n}|${v} func.|${Math.round(v/max*100)}%|${CORES[i%CORES.length]}"><div class="bh-head"><span class="bh-lbl">${n}</span><span class="bh-val">${v}</span></div><div class="bh-track"><div class="bh-fill" style="width:${Math.round(v/max*100)}%;background:${CORES[i%CORES.length]}"></div></div></div>`).join("");
   }
 
   function renderSalarial(funcs) {
@@ -1234,7 +1296,7 @@
     const bu = {}; cs.forEach(f => { const u = f.unidade || "—"; bu[u] = (bu[u] || 0) + Number(f.salarioBase); });
     const lista = Object.entries(bu).sort((a,b)=>b[1]-a[1]).slice(0,8);
     const max = Math.max(...lista.map(u=>u[1]), 1);
-    el.innerHTML = lista.map(([n,v], i) => `<div class="bh"><div class="bh-head"><span class="bh-lbl">${n}</span><span class="bh-val">${fmtKz(v)}</span></div><div class="bh-track"><div class="bh-fill" style="width:${Math.round(v/max*100)}%;background:${CORES[(i+2)%CORES.length]}"></div></div></div>`).join("");
+    el.innerHTML = lista.map(([n,v], i) => `<div class="bh" data-tt="${n}|${fmtKz(v)}|${Math.round(v/max*100)}%|${CORES[(i+2)%CORES.length]}"><div class="bh-head"><span class="bh-lbl">${n}</span><span class="bh-val">${fmtKz(v)}</span></div><div class="bh-track"><div class="bh-fill" style="width:${Math.round(v/max*100)}%;background:${CORES[(i+2)%CORES.length]}"></div></div></div>`).join("");
   }
 
   function fmtKz(v) { return v >= 1e6 ? (v/1e6).toFixed(1).replace(".",",") + " MKz" : v >= 1e3 ? (v/1e3).toFixed(0) + "K Kz" : v.toLocaleString("pt-PT") + " Kz"; }
@@ -1872,7 +1934,7 @@
       const pct = max ? Math.round(count / max * 100) : 0;
       const clickAttr = clickFn ? `onclick="${clickFn}" style="cursor:pointer"` : '';
       return `
-        <div class="bh" ${clickAttr}>
+        <div class="bh" ${clickAttr} data-tt="${label}|${count} registo${count!==1?'s':''}|${pct}% do máx.|${cor}">
           <div class="bh-head">
             <span class="bh-lbl" title="${label}">${label}</span>
             <span class="bh-val">${count}</span>
@@ -1894,7 +1956,7 @@
         const pct = Math.round(count / total * 100);
         segs += `<circle cx="40" cy="40" r="${R}" fill="none" stroke="${cor}" stroke-width="9"
                    stroke-dasharray="${seg} ${circ - seg}" stroke-dashoffset="${offset}"
-                   stroke-linecap="round"/>`;
+                   stroke-linecap="round" data-tt="${label}|${count} registo${count!==1?'s':''}|${pct}%|${cor}" style="cursor:pointer"/>`;
         offset -= seg;
         legItems += `
           <div class="donut-item">
@@ -2101,6 +2163,80 @@
     if (window.lucide) lucide.createIcons({ nodes: [mBody] });
   };
 
+</script>
+<script>
+/* ── SIGDOC Tooltip Engine — apresentação only, sem lógica de negócio ── */
+(function () {
+  'use strict';
+
+  /* Criar o elemento flutuante */
+  const tt = document.createElement('div');
+  tt.id = 'sigdoc-tt';
+  document.body.appendChild(tt);
+
+  let hideTimer = null;
+
+  /* Renderizar conteúdo a partir de "LABEL|VALOR|PCT|COR" */
+  function renderTt(raw) {
+    const parts  = raw.split('|');
+    const label  = parts[0] || '';
+    const valTxt = parts[1] || '';
+    const pctTxt = parts[2] || '';
+    const cor    = parts[3] || '';
+
+    const dotHtml = cor
+      ? `<span class="tt-dot" style="background:${cor}"></span>`
+      : '';
+
+    let rowHtml = '';
+    if (valTxt || pctTxt) {
+      const valPart = valTxt ? `<span>${valTxt}</span>` : '';
+      const sepPart = (valTxt && pctTxt) ? `<span class="tt-sep">·</span>` : '';
+      const pctPart = pctTxt ? `<span class="tt-pct">${pctTxt}</span>` : '';
+      rowHtml = `<div class="tt-row">${valPart}${sepPart}${pctPart}</div>`;
+    }
+
+    return `<div class="tt-label">${dotHtml}${label}</div>${rowHtml}`;
+  }
+
+  /* Posicionar o tooltip respeitando os limites do viewport */
+  function posTt(cx, cy) {
+    const pad = 14;
+    const rect = tt.getBoundingClientRect();
+    let x = cx + pad;
+    let y = cy - 48;
+    if (x + rect.width + 8 > window.innerWidth)  x = cx - rect.width - pad;
+    if (y < 8)                                     y = cy + pad;
+    if (y + rect.height + 8 > window.innerHeight) y = window.innerHeight - rect.height - 8;
+    tt.style.left = x + 'px';
+    tt.style.top  = y + 'px';
+  }
+
+  /* Delegação de eventos — só mousemove para manter performante */
+  document.addEventListener('mousemove', function (e) {
+    clearTimeout(hideTimer);
+    const el = e.target.closest('[data-tt]');
+    if (!el) {
+      hideTimer = setTimeout(function () { tt.classList.remove('vis'); }, 60);
+      return;
+    }
+    const raw = el.getAttribute('data-tt');
+    if (!raw) return;
+    tt.innerHTML = renderTt(raw);
+    posTt(e.clientX, e.clientY);
+    tt.classList.add('vis');
+  }, { passive: true });
+
+  /* Ocultar ao sair do documento */
+  document.addEventListener('mouseleave', function () {
+    tt.classList.remove('vis');
+  });
+
+  /* Ocultar em scroll para não ficar preso */
+  document.addEventListener('scroll', function () {
+    tt.classList.remove('vis');
+  }, { passive: true, capture: true });
+})();
 </script>
 </body>
 </html>
