@@ -190,16 +190,32 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
       }
       @media print {
         @page { size: A4 portrait; margin: 0; }
-        body { margin: 0; padding: 0; }
-        .gm-documento { width: 210mm; }
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          height: auto !important;
+          overflow: visible !important;
+        }
+        .gm-documento {
+          width: 210mm;
+          overflow: visible !important;
+        }
         .gm-pagina {
           width: 210mm;
+          height: 297mm !important;
+          max-height: 297mm !important;
+          overflow: hidden !important;
           border: none;
           margin: 0;
-          height: 297mm;
-          page-break-after: always;
+          padding: 15mm 20mm 30mm;
+          box-sizing: border-box;
           display: block !important;
           visibility: visible !important;
+          page-break-after: always;
+          page-break-inside: avoid;
+        }
+        .gm-pagina:last-child {
+          page-break-after: avoid !important;
         }
         .gm-pagina * { visibility: visible !important; }
       }
