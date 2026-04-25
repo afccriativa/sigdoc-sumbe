@@ -3,13 +3,6 @@
  * Gera um documento A4 retrato fiel ao modelo físico usado no processo.
  */
 (function() {
-  // ============================================================
-  // insignia_Base64 (PNG 200px)
-  // Cole aqui o valor gerado pelo conversor-base64.html
-  // Formato: data:image/png;base64,XXXXXXX...
-  // ============================================================
-  const INSIGNIA_BASE64 = "insignia.jpeg";
-  // ============================================================
   const MESES = [
     "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
     "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"
@@ -124,7 +117,14 @@
     return "em";
   }
 
-  window.construirDeclaracaoServico = function(dados) {
+  function obterInsigniaSrc(opcoes) {
+    if (window.SIGDOCBuilderUtils && typeof window.SIGDOCBuilderUtils.obterInsigniaSrc === "function") {
+      return window.SIGDOCBuilderUtils.obterInsigniaSrc(opcoes);
+    }
+    return (opcoes && opcoes.insigniaSrc) ? opcoes.insigniaSrc : "insignia.jpeg";
+  }
+
+  window.construirDeclaracaoServico = function(dados, opcoes) {
     const {
       nomeFuncionario = "___________________________",
       sexo = "Masculino",
@@ -154,9 +154,7 @@
     const dataCabecalho = formatarDataCabecalho(dataEmissao);
 
     // Usa Base64 embutida; fallback para URL caso ainda não tenha sido preenchida
-    const INSIGNIA_SRC = (INSIGNIA_BASE64 && INSIGNIA_BASE64 !== "BASE64_AQUI")
-      ? INSIGNIA_BASE64
-      : "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Coat_of_arms_of_Angola.svg/200px-Coat_of_arms_of_Angola.svg.png";
+    const INSIGNIA_SRC = obterInsigniaSrc(opcoes);
 
     return `
       <style>
