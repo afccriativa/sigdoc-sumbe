@@ -25,7 +25,9 @@
   }
 
   function obterInsigniaSrc(opcoes) {
-    // Mantem compatibilidade com eventuais chamadas antigas, mas usa o asset local por defeito.
+    if (window.SIGDOCBuilderUtils && typeof window.SIGDOCBuilderUtils.obterInsigniaSrc === "function") {
+      return window.SIGDOCBuilderUtils.obterInsigniaSrc(opcoes);
+    }
     return (opcoes && opcoes.insigniaSrc) ? opcoes.insigniaSrc : "insignia.jpeg";
   }
 
