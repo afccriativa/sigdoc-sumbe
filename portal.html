@@ -10,6 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <script src="sigdoc-config.js"></script>
   <script src="sigdoc-nav.js"></script>
+  <script src="sigdoc-session.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
@@ -3376,32 +3377,51 @@
     if(!dadosBrutos && !funcAssoc) return null;
 
     const base = normalizarPerfilPortal(dadosBrutos || {});
-    const reparo = {};
+    const reparo = !dadosBrutos ? {
+      ...payloadPerfilPortal([]),
+      nome: funcAssoc?.nome || user.displayName || user.email || "Funcionario",
+      email: user.email || "",
+      unidade: funcAssoc?.unidade || "",
+      activo: true,
+      criadoEm: serverTimestamp(),
+      ultimoAcesso: serverTimestamp(),
+      ...(funcAssoc?.id ? { funcionarioId: funcAssoc.id } : {})
+    } : (
+      funcAssoc?.id && base.funcionarioId !== funcAssoc.id
+        ? { funcionarioId: funcAssoc.id }
+        : {}
+    );
 
-    if(!dadosBrutos){
-      Object.assign(reparo, payloadPerfilPortal([]), {
+    if(Object.keys(reparo).length){
+      try{
+        await setDoc(refUtilizador, reparo, { merge:true });
+      }catch(eReparo){
+        console.warn("Reparo do perfil do portal:", eReparo);
+      }
+    }
+    const dadosCalculados = {
+      ...(dadosBrutos || {}),
+      ...(!dadosBrutos ? {
         nome: funcAssoc?.nome || user.displayName || user.email || "Funcionario",
         email: user.email || "",
         unidade: funcAssoc?.unidade || "",
         activo: true,
-        criadoEm: serverTimestamp()
-      });
-    }else if(window.SIGDOC_AUTHZ?.precisaMigracao?.(dadosBrutos)){
-      Object.assign(reparo, payloadPerfilPortal(base.roles || []));
+        ...payloadPerfilPortal([])
+      } : {}),
+      ...(funcAssoc?.id ? { funcionarioId: funcAssoc.id } : {})
+    };
+    return normalizarPerfilPortal(dadosCalculados);
+  }
+
+  async function iniciarVigilanciaSessaoPortal(user){
+    if(window.SIGDOC_SESSION?.gerarEPersistirToken && window.SIGDOC_SESSION?.registarLogin && window.SIGDOC_SESSION?.vigiar){
+      const token = window.SIGDOC_SESSION.gerarEPersistirToken();
+      _sessaoToken = token;
+      await window.SIGDOC_SESSION.registarLogin(db, user.uid, token, { updateDoc, doc, serverTimestamp });
+      await window.SIGDOC_SESSION.vigiar(db, user.uid, auth, { onSnapshot, doc, signOut });
+      return;
     }
-
-    if(funcAssoc?.id && base.funcionarioId !== funcAssoc.id) reparo.funcionarioId = funcAssoc.id;
-    if(!base.nome && (funcAssoc?.nome || user.displayName || user.email)) reparo.nome = funcAssoc?.nome || user.displayName || user.email;
-    if((!base.email || base.email !== user.email) && user.email) reparo.email = user.email;
-    if(!base.unidade && funcAssoc?.unidade) reparo.unidade = funcAssoc.unidade;
-    if(base.activo === undefined) reparo.activo = true;
-
-    if(Object.keys(reparo).length){
-      reparo.ultimoAcesso = serverTimestamp();
-      await setDoc(refUtilizador, reparo, { merge:true });
-    }
-
-    return normalizarPerfilPortal({ ...(dadosBrutos || {}), ...reparo });
+    await iniciarSessaoActiva(user);
   }
 
   onAuthStateChanged(auth,async user=>{
@@ -3418,7 +3438,7 @@
       mostrarPortal(user,dados);
       esconderLoading();
       // ── Sessão activa: gerar token + listener de expulsão ──
-      iniciarSessaoActiva(user);
+      await iniciarVigilanciaSessaoPortal(user);
       // ── Sino: notificações em tempo real ──
       iniciarSinoPortal(user.uid);
     }catch(e){console.error(e);mostrarEcra("ecra-entrada");esconderLoading();}
@@ -5023,11 +5043,14 @@
     if (_unsubSols)  { _unsubSols();  _unsubSols  = null; }
     if (_unsubDocs)  { _unsubDocs();  _unsubDocs  = null; }
     if (_unsubSessao){ _unsubSessao(); _unsubSessao = null; }
+    if (window.SIGDOC_SESSION?.parar) window.SIGDOC_SESSION.parar();
     // Apagar token de sessão no Firestore (não bloqueia o logout)
     if (_utilizador && _sessaoToken) {
       try { await updateDoc(doc(db,"utilizadores",_utilizador.uid),{sessaoToken:null}); } catch(_){}
     }
     await signOut(auth);
+    if (window.SIGDOC_SESSION?.limparToken) window.SIGDOC_SESSION.limparToken();
+    try { sessionStorage.removeItem("sigdoc_portal_session_token"); } catch(_) {}
     _funcDoc=null;_funcDocId=null;_utilizador=null;_tipoSel=null;_sessaoToken=null;
     mostrarEcra("ecra-entrada");
   };
@@ -5470,6 +5493,7 @@
     // Gerar token único para esta sessão
     _sessaoToken = crypto.randomUUID ? crypto.randomUUID()
                  : (Math.random().toString(36)+Date.now().toString(36)).slice(2,18);
+    try { sessionStorage.setItem("sigdoc_portal_session_token", _sessaoToken); } catch(_) {}
 
     // Escrever token no documento do utilizador
     try {
@@ -5489,6 +5513,7 @@
         // Conta desactivada pelo admin
         if (d.activo === false) { _forcarLogout("conta desactivada"); return; }
         // Token anulado ou substituído pelo admin (expulsão remota)
+        if (!d.sessaoToken) return;
         if (d.sessaoToken !== _sessaoToken) { _forcarLogout("sessao_expirada"); return; }
       },
       (err) => { console.warn("Listener sessão:", err); }
@@ -5499,8 +5524,11 @@
     if (_unsubSessao) { _unsubSessao(); _unsubSessao = null; }
     if (_unsubSols)   { _unsubSols();   _unsubSols   = null; }
     if (_unsubDocs)   { _unsubDocs();   _unsubDocs   = null; }
+    if (window.SIGDOC_SESSION?.parar) window.SIGDOC_SESSION.parar();
     _sessaoToken = null;
+    try { sessionStorage.removeItem("sigdoc_portal_session_token"); } catch(_) {}
     signOut(auth).catch(()=>{});
+    if (window.SIGDOC_SESSION?.limparToken) window.SIGDOC_SESSION.limparToken();
     _funcDoc=null; _funcDocId=null; _utilizador=null; _tipoSel=null;
     // Mostrar mensagem adequada
     const msgs = {
