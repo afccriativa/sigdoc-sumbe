@@ -2863,7 +2863,7 @@
             <div class="tdico">🏖️</div><div class="tdnome">Guia de Férias</div><div class="tdsub">Autorização de férias anuais</div>
           </div>
           <div class="tipo-card" onclick="seleccionarTipo('declaracao-servico',this)">
-            <div class="tdico">📜</div><div class="tdnome">Declaração de Serviço</div><div class="tdsub">Declaração de vínculo</div>
+            <div class="tdico">📜</div><div class="tdnome">Declaração de Adiantamento Salarial</div><div class="tdsub">Pedido para adiantamento junto do BPC</div>
           </div>
           <div class="tipo-card" onclick="seleccionarTipo('guia-medica',this)">
             <div class="tdico">🏥</div><div class="tdnome">Guia Médica</div><div class="tdsub">Para consultas médicas</div>
@@ -2893,10 +2893,29 @@
               <div class="campo-err-msg" aria-live="polite" id="erro-data-inicio"></div>
               <div class="campo-ok-msg"  aria-live="polite" id="ok-data-inicio"></div>
             </div>
-            <div class="campo-g">
+            <div class="campo-g" id="campo-motivo-wrap">
               <label id="lbl-sol-motivo">Finalidade / Motivo <span style="font-size:10px;font-weight:400;color:var(--txt-4)">(opcional)</span></label>
               <textarea id="sol-motivo" class="campo-inp" rows="4" placeholder="Descreva brevemente o motivo…" style="resize:vertical"></textarea>
               <div class="campo-hint" id="hint-sol-motivo">Opcional — ajuda a RH a processar mais rapidamente.</div>
+            </div>
+            <div id="campos-declaracao-wrap" style="display:none">
+              <div class="row2">
+                <div class="campo-g">
+                  <label>Número de meses <em style="color:var(--red)">*</em></label>
+                  <input type="number" id="sol-meses-adiantamento" class="campo-inp campo-mono" min="1" max="12" step="1" placeholder="Ex: 4"/>
+                  <div class="campo-hint">Quantidade de meses do adiantamento solicitado.</div>
+                </div>
+                <div class="campo-g">
+                  <label>Salário líquido em AKZ <em style="color:var(--red)">*</em></label>
+                  <input type="text" id="sol-salario-liquido" class="campo-inp campo-mono" inputmode="decimal" placeholder="Ex: 205.082,30" oninput="mascaraValorKzPortal(this)"/>
+                  <div class="campo-hint">Valor mensal informado pelo funcionário para constar da declaração.</div>
+                </div>
+              </div>
+              <div class="campo-g">
+                <label>Número de conta <em style="color:var(--red)">*</em></label>
+                <input type="text" id="sol-numero-conta" class="campo-inp campo-mono" maxlength="40" placeholder="Ex: 0282-N41339-011" oninput="this.value=this.value.toUpperCase()"/>
+                <div class="campo-hint">Conta a creditar para o adiantamento salarial solicitado.</div>
+              </div>
             </div>
           </div>
           <button class="btn-submeter" id="btn-submeter-sol" onclick="abrirRevisaoPedido()">
@@ -3188,7 +3207,7 @@
   let _recEmailResolvido="",_recContaLocalizada=null;
   let _sessaoToken=null,_unsubSessao=null;
 
-  const LABELS_TIPO={"guia-ferias":{nome:"Guia de Férias",icone:"🏖️",bg:"#fef9e7"},"declaracao-servico":{nome:"Declaração de Serviço",icone:"📜",bg:"#eff6ff"},"guia-medica":{nome:"Guia Médica",icone:"🏥",bg:"var(--c-50)"},"oficio":{nome:"Ofício / Nota",icone:"📋",bg:"var(--p-100)"}};
+  const LABELS_TIPO={"guia-ferias":{nome:"Guia de Férias",icone:"🏖️",bg:"#fef9e7"},"declaracao-servico":{nome:"Declaração de Adiantamento Salarial",icone:"📜",bg:"#eff6ff"},"guia-medica":{nome:"Guia Médica",icone:"🏥",bg:"var(--c-50)"},"oficio":{nome:"Ofício / Nota",icone:"📋",bg:"var(--p-100)"}};
   const LABELS_ESTADO={nova:{texto:"Recebida",classe:"est-nova"},processando:{texto:"Em processamento",classe:"est-processando"},concluida:{texto:"Disponível",classe:"est-aprovado"},rejeitada:{texto:"Anulada",classe:"est-rejeitado"},pendente:{texto:"Em validação",classe:"est-processando"},aprovado:{texto:"Disponível",classe:"est-aprovado"},gerado:{texto:"Em validação",classe:"est-processando"}};
 
   function escapeHtml(valor){
@@ -3198,6 +3217,61 @@
       .replace(/>/g,"&gt;")
       .replace(/"/g,"&quot;")
       .replace(/'/g,"&#39;");
+  }
+
+  function obterNumeroKzPortal(valor){
+    const bruto = String(valor ?? "").trim();
+    if(!bruto) return NaN;
+    const limpo = bruto
+      .replace(/\s+/g,"")
+      .replace(/Kz/gi,"")
+      .replace(/\./g,"")
+      .replace(/,/g,".");
+    const numero = Number(limpo);
+    return Number.isFinite(numero) ? Math.round(numero * 100) / 100 : NaN;
+  }
+
+  function formatarMoedaKzPortal(valor,{sufixo=true}={}){
+    const numero = Number(valor);
+    if(!Number.isFinite(numero)) return "—";
+    const texto = numero.toLocaleString("pt-PT",{minimumFractionDigits:2,maximumFractionDigits:2});
+    return sufixo ? texto + " AKZ" : texto;
+  }
+
+  function formatarMesesAdiantamento(total){
+    const numero = Number(total);
+    if(!Number.isFinite(numero) || numero <= 0) return "—";
+    return numero + (numero === 1 ? " mês" : " meses");
+  }
+
+  function normalizarNumeroContaPortal(valor){
+    return String(valor ?? "").trim().replace(/\s+/g," ").toUpperCase();
+  }
+
+  function obterDetalheCurtoPortal(item){
+    const tipo = item?.tipo || item?.tipoDocumento || "";
+    if(tipo === "guia-medica"){
+      return item.unidadeSanitariaFinal || item.unidadeSanitaria || "";
+    }
+    if(tipo === "declaracao-servico"){
+      const partes = [];
+      if(item.mesesAdiantamento) partes.push(formatarMesesAdiantamento(item.mesesAdiantamento));
+      if(item.salarioLiquido) partes.push(formatarMoedaKzPortal(item.salarioLiquido));
+      return partes.join(" · ");
+    }
+    return item?.motivo || "";
+  }
+
+  function obterBlocoDeclaracaoPortal(item){
+    if((item?.tipo || item?.tipoDocumento || "") !== "declaracao-servico") return "";
+    const linhas = [
+      { rotulo: "Meses do adiantamento", valor: formatarMesesAdiantamento(item.mesesAdiantamento) },
+      { rotulo: "Salário líquido", valor: formatarMoedaKzPortal(item.salarioLiquido) },
+      { rotulo: "Número de conta", valor: normalizarNumeroContaPortal(item.numeroConta) || "—" }
+    ];
+    return `<div style="display:grid;gap:8px;background:var(--neu-50);border-radius:var(--r-sm);padding:12px">
+      ${linhas.map(linha => `<div style="display:flex;justify-content:space-between;gap:12px"><span style="font-size:13px;color:var(--neu-400)">${linha.rotulo}</span><span style="font-size:13px;font-weight:700;text-align:right">${escapeHtml(linha.valor)}</span></div>`).join("")}
+    </div>`;
   }
 
   function renderListaDocumentos(itens,{limit=null,tituloVazio,detalheVazio,mostrarAcao=false}={}) {
@@ -3217,9 +3291,7 @@
       const ts = s.criadaEm?.toDate ? s.criadaEm.toDate() : (s.geradoEm?.toDate ? s.geradoEm.toDate() : null);
       const data = ts ? ts.toLocaleDateString("pt-AO", { day: "2-digit", month: "short", year: "numeric" }) : "—";
       const num = s.numGuia && s.anoGuia ? ` · Nº ${escapeHtml(`${s.numGuia}/${s.anoGuia}`)}` : "";
-      const detalheCurto = tipo === "guia-medica"
-        ? (s.unidadeSanitariaFinal || s.unidadeSanitaria || "")
-        : (s.motivo || "");
+      const detalheCurto = obterDetalheCurtoPortal(s);
       const detalhe = detalheCurto
         ? ` · ${escapeHtml(detalheCurto.substring(0, 50))}${detalheCurto.length > 50 ? "…" : ""}`
         : "";
@@ -3930,9 +4002,8 @@
     const info=LABELS_TIPO[tipo]||{nome:tipo,icone:"📄"};
     const estInfo=LABELS_ESTADO[s.estado||"nova"]||{texto:s.estado,classe:"est-nova"};
     const ts=s.criadaEm?.toDate?s.criadaEm.toDate():(s.geradoEm?.toDate?s.geradoEm.toDate():null);
-    const detalhePrincipal = tipo==="guia-medica"
-      ? (s.unidadeSanitariaFinal || s.unidadeSanitaria || "")
-      : (s.motivo || "");
+    const detalhePrincipal = obterDetalheCurtoPortal(s);
+    const detalheDeclaracao = obterBlocoDeclaracaoPortal(s);
     const estadoAjuda = origem==="solicitacao" && s.estado==="nova"
       ? "✅ O pedido foi recebido pelo RH e aguarda tomada a cargo."
       : origem==="solicitacao" && s.estado==="processando"
@@ -3955,7 +4026,8 @@
     document.getElementById("modal-sol-corpo").innerHTML=`<div style="display:flex;flex-direction:column;gap:10px">
       <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--neu-400)">Estado</span><span class="badge-est-portal ${estInfo.classe}">${estInfo.texto}</span></div>
       <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--neu-400)">Tipo</span><span style="font-size:13px;font-weight:700">${info.nome}</span></div>
-      ${detalhePrincipal?`<div style="background:var(--neu-50);border-radius:var(--r-sm);padding:12px;font-size:13px"><strong>${tipo==='guia-medica'?'Unidade Sanitária':'Motivo'}:</strong> ${detalhePrincipal}</div>`:""}
+      ${tipo==='declaracao-servico' ? detalheDeclaracao : ""}
+      ${detalhePrincipal && tipo!=='declaracao-servico' ? `<div style="background:var(--neu-50);border-radius:var(--r-sm);padding:12px;font-size:13px"><strong>${tipo==='guia-medica'?'Unidade Sanitária':'Motivo'}:</strong> ${escapeHtml(detalhePrincipal)}</div>` : ""}
       ${(s.dataInicioFerias||s.dataInicio)?`<div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--neu-400)">Início férias</span><span style="font-size:13px;font-weight:700">${s.dataInicioFerias||s.dataInicio}</span></div>`:""}
       ${estadoAjuda?`<div class="alerta alerta-info" style="margin-top:4px">${estadoAjuda}</div>`:""}
       ${extra}
@@ -4071,6 +4143,8 @@
     document.getElementById("form-solicitacao-extra").style.display="block";
     document.getElementById("msg-solicitacao").innerHTML="";
     const cd=document.getElementById("campo-data-inicio-wrap");
+    const campoMotivoWrap=document.getElementById("campo-motivo-wrap");
+    const camposDeclaracao=document.getElementById("campos-declaracao-wrap");
     cd.style.display=tipo==="guia-ferias"?"block":"none";
     if(tipo!=="guia-ferias")document.getElementById("sol-data-inicio").value="";
     
@@ -4080,11 +4154,19 @@
     const hintMotivo = document.getElementById("hint-sol-motivo");
     
     if(tipo === "guia-medica") {
+      if(campoMotivoWrap) campoMotivoWrap.style.display="block";
+      if(camposDeclaracao) camposDeclaracao.style.display="none";
       lblMotivo.innerHTML = 'Unidade Sanitária a Consultar <span style="font-size:10px;font-weight:400;color:var(--txt-4)">(obrigatório)</span>';
       inpMotivo.placeholder = "Ex: Hospital Municipal do Sumbe, Centro Médico, etc";
       hintMotivo.textContent = "Indique a unidade sanitária onde vai fazer a consulta.";
       inpMotivo.style.borderColor = "var(--amber)";
+    } else if(tipo === "declaracao-servico") {
+      if(campoMotivoWrap) campoMotivoWrap.style.display="none";
+      if(camposDeclaracao) camposDeclaracao.style.display="block";
+      inpMotivo.style.borderColor = "";
     } else {
+      if(campoMotivoWrap) campoMotivoWrap.style.display="block";
+      if(camposDeclaracao) camposDeclaracao.style.display="none";
       lblMotivo.innerHTML = 'Finalidade / Motivo <span style="font-size:10px;font-weight:400;color:var(--txt-4)">(opcional)</span>';
       inpMotivo.placeholder = "Descreva brevemente o motivo…";
       hintMotivo.textContent = "Opcional — ajuda a RH a processar mais rapidamente.";
@@ -4116,6 +4198,18 @@
   };
 
   // ── Máscara telefone Angola: 9XX XXX XXX ou 2XX XXX XXX ────────
+  window.mascaraValorKzPortal=function(inp){
+    const bruto=(inp?.value||"").trim();
+    if(!bruto){
+      inp.value="";
+      return;
+    }
+    const numero=obterNumeroKzPortal(bruto);
+    inp.value=Number.isFinite(numero)
+      ? formatarMoedaKzPortal(numero,{sufixo:false})
+      : bruto.replace(/[^\d,.\s]/g,"");
+  };
+
   window.mascaraTelefone=function(inp){
     let v=inp.value.replace(/\D/g,'').slice(0,9);
     if(v.length>6)      v=v.slice(0,3)+' '+v.slice(3,6)+' '+v.slice(6);
@@ -4161,6 +4255,24 @@
     }
 
     const motivo = document.getElementById("sol-motivo").value.trim();
+    const mesesAdiantamento = _tipoSel === "declaracao-servico"
+      ? parseInt(document.getElementById("sol-meses-adiantamento").value,10)
+      : null;
+    const numeroConta = _tipoSel === "declaracao-servico"
+      ? normalizarNumeroContaPortal(document.getElementById("sol-numero-conta").value)
+      : "";
+    const salarioLiquido = _tipoSel === "declaracao-servico"
+      ? obterNumeroKzPortal(document.getElementById("sol-salario-liquido").value)
+      : NaN;
+    const mesesAdiantamento = _tipoSel==="declaracao-servico"
+      ? parseInt(document.getElementById("sol-meses-adiantamento").value,10)
+      : null;
+    const numeroConta = _tipoSel==="declaracao-servico"
+      ? normalizarNumeroContaPortal(document.getElementById("sol-numero-conta").value)
+      : "";
+    const salarioLiquido = _tipoSel==="declaracao-servico"
+      ? obterNumeroKzPortal(document.getElementById("sol-salario-liquido").value)
+      : NaN;
     const btn    = document.getElementById("btn-submeter-sol");
     const msg    = document.getElementById("msg-solicitacao");
     if(btn){ btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A verificar…'; }
@@ -4179,6 +4291,26 @@
         if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
         return;
       }
+      if(_tipoSel==="declaracao-servico"){
+        if(!Number.isInteger(mesesAdiantamento) || mesesAdiantamento<=0){
+          msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Indique o <strong>número de meses</strong> do adiantamento.</div>`;
+          document.getElementById("sol-meses-adiantamento")?.focus();
+          if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
+          return;
+        }
+        if(!numeroConta){
+          msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Indique o <strong>número de conta</strong> para o adiantamento.</div>`;
+          document.getElementById("sol-numero-conta")?.focus();
+          if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
+          return;
+        }
+        if(!Number.isFinite(salarioLiquido) || salarioLiquido<=0){
+          msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Indique o <strong>salário líquido</strong> em AKZ.</div>`;
+          document.getElementById("sol-salario-liquido")?.focus();
+          if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
+          return;
+        }
+      }
 
       // ── VALIDAÇÃO DE DUPLICADOS ──
       if(_funcDocId){
@@ -4190,7 +4322,7 @@
           where("estado","in",["nova","processando"])
         ));
         if(!snapDup.empty){
-          const NOMES_TIPO={"guia-ferias":"Guia de Férias","declaracao-servico":"Declaração de Serviço","guia-medica":"Guia Médica","oficio":"Ofício"};
+          const NOMES_TIPO={"guia-ferias":"Guia de Férias","declaracao-servico":"Declaração de Adiantamento Salarial","guia-medica":"Guia Médica","oficio":"Ofício"};
           const nomeTipo=NOMES_TIPO[_tipoSel]||_tipoSel;
           msg.innerHTML=`<div class="alerta alerta-aviso">
             ⚠️ <strong>Já tem um pedido activo de ${nomeTipo}.</strong><br>
@@ -4224,6 +4356,10 @@
 
       if(_tipoSel === "guia-medica") {
         dadosSolicitacao.unidadeSanitaria = motivo;
+      } else if(_tipoSel === "declaracao-servico") {
+        dadosSolicitacao.mesesAdiantamento = mesesAdiantamento;
+        dadosSolicitacao.numeroConta = numeroConta;
+        dadosSolicitacao.salarioLiquido = salarioLiquido;
       } else {
         dadosSolicitacao.motivo = motivo;
       }
@@ -4236,6 +4372,9 @@
       document.querySelectorAll(".tipo-card").forEach(c=>c.classList.remove("seleccionado"));
       document.getElementById("form-solicitacao-extra").style.display="none";
       document.getElementById("sol-motivo").value="";
+      document.getElementById("sol-meses-adiantamento").value="";
+      document.getElementById("sol-numero-conta").value="";
+      document.getElementById("sol-salario-liquido").value="";
       setTimeout(()=>carregarSolicitacoes(_utilizador.uid,_funcDocId),1500);
     }catch(e){
       console.error(e);
@@ -4278,11 +4417,28 @@
       document.getElementById("sol-motivo")?.focus();
       return;
     }
+    if (_tipoSel === "declaracao-servico") {
+      if (!Number.isInteger(mesesAdiantamento) || mesesAdiantamento <= 0) {
+        msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Indique o <strong>número de meses</strong> do adiantamento antes de rever o pedido.</div>`;
+        document.getElementById("sol-meses-adiantamento")?.focus();
+        return;
+      }
+      if (!numeroConta) {
+        msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Indique o <strong>número de conta</strong> antes de rever o pedido.</div>`;
+        document.getElementById("sol-numero-conta")?.focus();
+        return;
+      }
+      if (!Number.isFinite(salarioLiquido) || salarioLiquido <= 0) {
+        msg.innerHTML=`<div class="alerta alerta-aviso">⚠️ Indique o <strong>salário líquido</strong> em AKZ antes de rever o pedido.</div>`;
+        document.getElementById("sol-salario-liquido")?.focus();
+        return;
+      }
+    }
 
     // 4. Tudo válido — construir resumo
     const NOMES = {
       "guia-ferias":         { nome:"Guia de Férias",       icone:"🏖️", sub:"Autorização de férias anuais" },
-      "declaracao-servico":  { nome:"Declaração de Serviço", icone:"📜", sub:"Declaração de vínculo laboral" },
+      "declaracao-servico":  { nome:"Declaração de Adiantamento Salarial", icone:"📜", sub:"Pedido para adiantamento salarial junto do BPC" },
       "guia-medica":         { nome:"Guia Médica",           icone:"🏥", sub:"Para consultas médicas" },
       "oficio":              { nome:"Ofício / Nota",         icone:"📋", sub:"Comunicação oficial" }
     };
@@ -4300,17 +4456,39 @@
          </div>`
       : "";
 
-    // Linha de motivo/unidade sanitária
-    const labelExtra = _tipoSel === "guia-medica" ? "Unidade sanitária" : "Motivo";
-    const linhaExtra = motivo
-      ? `<div class="revisao-linha">
-           <span class="revisao-linha-label">${labelExtra}</span>
-           <span class="revisao-linha-valor">${escapeHtml(motivo)}</span>
-         </div>`
-      : `<div class="revisao-linha">
-           <span class="revisao-linha-label">${labelExtra}</span>
-           <span class="revisao-linha-valor vazio">Não indicado</span>
-         </div>`;
+    let linhasTipo = "";
+    if (_tipoSel === "guia-medica") {
+      linhasTipo = motivo
+        ? `<div class="revisao-linha">
+             <span class="revisao-linha-label">Unidade sanitária</span>
+             <span class="revisao-linha-valor">${escapeHtml(motivo)}</span>
+           </div>`
+        : "";
+    } else if (_tipoSel === "declaracao-servico") {
+      linhasTipo = `
+        <div class="revisao-linha">
+          <span class="revisao-linha-label">Meses do adiantamento</span>
+          <span class="revisao-linha-valor">${escapeHtml(formatarMesesAdiantamento(mesesAdiantamento))}</span>
+        </div>
+        <div class="revisao-linha">
+          <span class="revisao-linha-label">Salário líquido</span>
+          <span class="revisao-linha-valor">${escapeHtml(formatarMoedaKzPortal(salarioLiquido))}</span>
+        </div>
+        <div class="revisao-linha">
+          <span class="revisao-linha-label">Número de conta</span>
+          <span class="revisao-linha-valor">${escapeHtml(numeroConta)}</span>
+        </div>`;
+    } else {
+      linhasTipo = motivo
+        ? `<div class="revisao-linha">
+             <span class="revisao-linha-label">Motivo</span>
+             <span class="revisao-linha-valor">${escapeHtml(motivo)}</span>
+           </div>`
+        : `<div class="revisao-linha">
+             <span class="revisao-linha-label">Motivo</span>
+             <span class="revisao-linha-valor vazio">Não indicado</span>
+           </div>`;
+    }
 
     document.getElementById("revisao-modal-corpo").innerHTML = `
       <div class="revisao-tipo-badge">
@@ -4334,7 +4512,7 @@
           <span class="revisao-linha-valor">${escapeHtml(unidade)}</span>
         </div>
         ${linhaData}
-        ${linhaExtra}
+        ${linhasTipo}
       </div>
       <div class="revisao-aviso">
         <span class="revisao-aviso-ic">ℹ️</span>
