@@ -7,15 +7,15 @@
  * Para actualizar, use o utilitário "conversor-base64.html" incluído no repositório.
  */
 
-// ============================================================
-// insignia_Base64 (PNG 200px)
-// Cole aqui o valor gerado pelo conversor-base64.html
-// Formato: data:image/png;base64,XXXXXXX...
-// ============================================================
-const INSIGNIA_BASE64 = "insignia.jpeg";
-// ============================================================
+(function() {
+function obterInsigniaSrc(opcoes) {
+  if (window.SIGDOCBuilderUtils && typeof window.SIGDOCBuilderUtils.obterInsigniaSrc === "function") {
+    return window.SIGDOCBuilderUtils.obterInsigniaSrc(opcoes);
+  }
+  return (opcoes && opcoes.insigniaSrc) ? opcoes.insigniaSrc : "insignia.jpeg";
+}
 
-window.construirGuiaMedica = function(dados, unidadeSanitaria) {
+window.construirGuiaMedica = function(dados, unidadeSanitaria, opcoes) {
   const {
     numGuia = '___',
     nomeFuncionario = '__________________________________________',
@@ -42,9 +42,7 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
   }
 
   // Usa Base64 embutida; fallback para URL caso ainda não tenha sido preenchida
-  const INSIGNIA_SRC = (INSIGNIA_BASE64 && INSIGNIA_BASE64 !== "BASE64_AQUI")
-    ? INSIGNIA_BASE64
-    : "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Coat_of_arms_of_Angola.svg/200px-Coat_of_arms_of_Angola.svg.png";
+  const INSIGNIA_SRC = obterInsigniaSrc(opcoes);
 
   return `
     <style>
@@ -359,3 +357,4 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria) {
     </div>
   `;
 };
+})();
