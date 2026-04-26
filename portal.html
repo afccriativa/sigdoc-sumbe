@@ -13,30 +13,7 @@
   <script src="sigdoc-session.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@16..48,100..700,0..1,-50..200" rel="stylesheet"/>
   <style>
-    /* ── Definição local da classe Material Symbols ──
-       Garante que os ícones funcionam mesmo que o CSS
-       do Google Fonts demore a carregar ou falhe.
-       O @font-face é injectado pelo Google Fonts;
-       a classe fica disponível de imediato. */
-    .material-symbols-outlined {
-      font-family: 'Material Symbols Outlined', sans-serif;
-      font-weight: normal;
-      font-style: normal;
-      font-size: 24px;
-      line-height: 1;
-      letter-spacing: normal;
-      text-transform: none;
-      display: inline-block;
-      white-space: nowrap;
-      word-wrap: normal;
-      direction: ltr;
-      -webkit-font-smoothing: antialiased;
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-      user-select: none;
-    }
-  </style>
     :root {
       --primary:   #065f46;
       --primary-d: #044231;
@@ -2475,9 +2452,9 @@
     <div class="entrada-titulo">Portal do<br><em>Funcionário</em></div>
     <p class="entrada-sub">Acesso exclusivo aos funcionários da Direcção Municipal da Saúde do Sumbe. Consulte e solicite documentos sem se deslocar.</p>
     <div class="chips">
-      <div class="chip"><span class="chip-ic material-symbols-outlined" style="font-size:15px;font-variation-settings:'FILL' 0,'wght' 300">description</span> Solicitar Guias de Férias e outros documentos</div>
-      <div class="chip"><span class="chip-ic material-symbols-outlined" style="font-size:15px;font-variation-settings:'FILL' 0,'wght' 300">track_changes</span> Acompanhar o estado em tempo real</div>
-      <div class="chip"><span class="chip-ic material-symbols-outlined" style="font-size:15px;font-variation-settings:'FILL' 0,'wght' 300">person</span> Consultar e actualizar o seu perfil</div>
+      <div class="chip"><span class="chip-ic" style="font-size:15px">📄</span> Solicitar Guias de Férias e outros documentos</div>
+      <div class="chip"><span class="chip-ic" style="font-size:15px">🔄</span> Acompanhar o estado em tempo real</div>
+      <div class="chip"><span class="chip-ic" style="font-size:15px">👤</span> Consultar e actualizar o seu perfil</div>
     </div>
     <div class="entrada-rodape">SIGDOC-SUMBE · Kwanza Sul, Angola · 2026</div>
   </div>
@@ -2492,9 +2469,9 @@
       <h2>SIGDOC-SUMBE</h2>
       <p>Sistema Integrado de Gestão Documental e RH</p>
     </div>
-    <button class="btn-ent btn-ent-prim" onclick="mostrarEcra('ecra-verificacao')"><span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:'FILL' 0,'wght' 400">manage_search</span> Verificar pré-registo</button>
+    <button class="btn-ent btn-ent-prim" onclick="mostrarEcra('ecra-verificacao')"><span style="font-size:18px">🔍</span> Verificar pré-registo</button>
     <div class="sep"><span>Já tem conta?</span></div>
-    <button class="btn-ent btn-ent-sec" onclick="mostrarEcra('ecra-login-func')"><span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:'FILL' 0,'wght' 400">key</span> Entrar com a minha conta</button>
+    <button class="btn-ent btn-ent-sec" onclick="mostrarEcra('ecra-login-func')"><span style="font-size:18px">🔑</span> Entrar com a minha conta</button>
     <div class="sep" style="margin-top:20px"></div>
     <p class="link-admin">Administração? <a href="index.html">Aceder ao painel →</a></p>
   </div>
@@ -2521,16 +2498,16 @@
         <p class="verif-escolha-label">Como pretende identificar-se?</p>
         <div class="verif-cards">
           <button class="verif-card" id="verif-card-numero" onclick="selecionarMetodoVerif('numero')" type="button">
-            <span class="verif-card-ic"><span class="material-symbols-outlined" style="font-size:28px;color:var(--primary);font-variation-settings:'FILL' 0,'wght' 300">badge</span></span>
+            <span class="verif-card-ic"><span style="font-size:28px">🪪</span></span>
             <span class="verif-card-titulo">Nº de Agente</span>
             <span class="verif-card-sub">8 dígitos numéricos</span>
-            <span class="verif-card-check material-symbols-outlined">check_circle</span>
+            <span class="verif-card-check">✅</span>
           </button>
           <button class="verif-card" id="verif-card-bi" onclick="selecionarMetodoVerif('bi')" type="button">
-            <span class="verif-card-ic"><span class="material-symbols-outlined" style="font-size:28px;color:var(--primary);font-variation-settings:'FILL' 0,'wght' 300">assignment_ind</span></span>
+            <span class="verif-card-ic"><span style="font-size:28px">🪪</span></span>
             <span class="verif-card-titulo">Bilhete de Identidade</span>
             <span class="verif-card-sub">14 caracteres</span>
-            <span class="verif-card-check material-symbols-outlined">check_circle</span>
+            <span class="verif-card-check">✅</span>
           </button>
         </div>
       </div>
@@ -2621,7 +2598,7 @@
             oninput="avaliarForca();validarCampoSenha();validarCriarConta()" autocomplete="new-password"/>
           <span class="campo-icone" id="ico-senha"></span>
           <button type="button" class="btn-ver-senha" onclick="toggleVerSenha('cc-senha',this)" aria-label="Mostrar ou ocultar senha" title="Mostrar/Ocultar senha">
-            <span class="material-symbols-outlined">visibility</span>
+            👁️
           </button>
         </div>
         <div class="forca-senha" id="forca-wrap" style="display:none">
@@ -2642,7 +2619,7 @@
             oninput="validarCampoSenha2();validarCriarConta()" autocomplete="new-password"/>
           <span class="campo-icone" id="ico-senha2"></span>
           <button type="button" class="btn-ver-senha" onclick="toggleVerSenha('cc-senha2',this)" aria-label="Mostrar ou ocultar confirmação de senha" title="Mostrar/Ocultar senha">
-            <span class="material-symbols-outlined">visibility</span>
+            👁️
           </button>
         </div>
         <div class="campo-err-msg" aria-live="polite" id="erro-senha2"></div>
@@ -2661,7 +2638,7 @@
 <div id="ecra-bem-vindo" class="ecra ecra-fluxo">
   <div class="caixa">
     <div class="caixa-topo" style="text-align:center;padding:40px 32px">
-      <div style="width:64px;height:64px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;background:var(--primary-xl);border-radius:50%;margin:0 auto 16px"><span class="material-symbols-outlined" style="font-size:36px;color:var(--primary);font-variation-settings:'FILL' 1,'wght' 400">celebration</span></div>
+      <div style="width:64px;height:64px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;background:var(--primary-xl);border-radius:50%;margin:0 auto 16px"><span style="font-size:36px">🎉</span></div>
       <div class="caixa-passo">Passo 3 de 3 — Concluído</div>
       <div class="caixa-titulo" id="bv-titulo">Bem-vindo ao Portal!</div>
       <div class="caixa-sub" id="bv-sub">A sua conta foi criada com sucesso.</div>
@@ -2692,7 +2669,7 @@
         <div class="campo-inp-wrap">
           <input type="password" id="lf-senha" class="campo-inp" placeholder="A sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')fazerLoginFuncionario()"/>
           <button type="button" class="btn-ver-senha" onclick="toggleVerSenha('lf-senha',this)" aria-label="Mostrar ou ocultar senha" title="Mostrar/Ocultar senha">
-            <span class="material-symbols-outlined">visibility</span>
+            👁️
           </button>
         </div>
       </div>
@@ -2814,21 +2791,21 @@
     <nav class="ds-nav">
       <div class="ds-nav-grupo">Menu Principal</div>
       <button class="ds-nav-btn activo" id="dsn-inicio" onclick="navegarAba('aba-docs',this)">
-        <span class="material-symbols-outlined">home</span> Início
+        🏠 Início
       </button>
       <button class="ds-nav-btn" id="dsn-docs" onclick="navegarAba('aba-meus-docs',this)">
-        <span class="material-symbols-outlined">description</span> Documentos
+        📄 Documentos
         <span class="ds-nav-badge" id="ds-badge-pendentes">0</span>
       </button>
       <div class="ds-nav-grupo">Acções</div>
       <button class="ds-nav-btn" id="dsn-pedir" onclick="navegarAba('aba-solicitar',this)">
-        <span class="material-symbols-outlined">add_circle</span> Novo pedido
+        ➕ Novo pedido
       </button>
       <button class="ds-nav-btn" id="dsn-secretaria" onclick="navegarAba('aba-secretaria',this)">
-        <span class="material-symbols-outlined">support_agent</span> Secretaria
+        💬 Secretaria
       </button>
       <button class="ds-nav-btn" id="dsn-perfil" onclick="navegarAba('aba-perfil',this)">
-        <span class="material-symbols-outlined">person</span> Perfil
+        👤 Perfil
       </button>
     </nav>
     <div class="ds-rodape">
@@ -2839,7 +2816,7 @@
           <div class="ds-rodape-cargo" id="ds-cargo">—</div>
         </div>
         <button class="ds-logout" onclick="event.stopPropagation();fazerLogoutFuncionario()" title="Sair">
-          <span class="material-symbols-outlined">logout</span>
+          ⇥
         </button>
       </div>
     </div>
@@ -2851,7 +2828,7 @@
     <div class="dt-live"><span class="dt-live-dot"></span> Documentos actualizados em tempo real</div>
     <div class="dt-actions">
       <button class="dt-sino-btn" id="dt-sino-btn" onclick="abrirSinoPortal()" title="Notificações" aria-label="Notificações">
-        <span class="material-symbols-outlined">notifications</span>
+        🔔
         <span class="dt-sino-badge" id="dt-sino-badge"></span>
       </button>
       <div class="dt-avatar" id="dt-avatar" onclick="navegarAba('aba-perfil')">?</div>
@@ -2867,7 +2844,7 @@
       </div>
       <div class="portal-header-actions">
         <button class="sino-btn" id="ph-sino-btn" onclick="abrirSinoPortal()" title="Notificações" aria-label="Notificações">
-          <span class="material-symbols-outlined">notifications</span>
+          🔔
           <span class="sino-badge" id="ph-sino-badge"></span>
         </button>
         <div class="ph-avatar" id="pt-avatar" onclick="navegarAba('aba-perfil')">?</div>
@@ -2882,12 +2859,12 @@
   <!-- ── BANNER PERFIL INCOMPLETO ── -->
   <div class="banner-perfil-inc" id="banner-completar">
     <div class="bpi-topo">
-      <div class="bpi-icone"><span class="material-symbols-outlined">priority_high</span></div>
+      <div class="bpi-icone">⚠️</div>
       <div class="bpi-titulo">O seu perfil está incompleto</div>
     </div>
     <div class="bpi-texto">Preencha o formulário profissional para que os seus documentos sejam processados correctamente.</div>
     <button class="bpi-btn" onclick="window.location.href='formulario.html'">
-      <span class="material-symbols-outlined">edit_document</span> Completar Perfil
+      📝 Completar Perfil
     </button>
   </div>
 
@@ -2905,11 +2882,11 @@
           </div>
           <div class="portal-hero-actions">
             <button class="portal-hero-btn portal-hero-btn-prim" onclick="navegarAba('aba-solicitar')">
-              <span class="material-symbols-outlined">add_circle</span>
+              ➕
               Novo pedido
             </button>
             <button class="portal-hero-btn portal-hero-btn-sec" onclick="navegarAba('aba-meus-docs')">
-              <span class="material-symbols-outlined">folder_open</span>
+              📂
               Ver documentos
             </button>
           </div>
@@ -2918,19 +2895,19 @@
 
       <div class="portal-home-actions">
         <button class="home-action-card primary" onclick="navegarAba('aba-solicitar')">
-          <div class="home-action-icon"><span class="material-symbols-outlined">edit_document</span></div>
+          <div class="home-action-icon">📝</div>
           <div class="home-action-eyebrow">Ação principal</div>
           <div class="home-action-title">Criar um novo pedido</div>
           <div class="home-action-desc">Escolha o documento, preencha os dados e acompanhe a resposta em tempo real.</div>
         </button>
         <button class="home-action-card" onclick="navegarAba('aba-secretaria')">
-          <div class="home-action-icon"><span class="material-symbols-outlined">support_agent</span></div>
+          <div class="home-action-icon">💬</div>
           <div class="home-action-eyebrow">Apoio</div>
           <div class="home-action-title">Falar com a secretaria</div>
           <div class="home-action-desc">Envie mensagens e acompanhe conversas sem sair do portal.</div>
         </button>
         <button class="home-action-card" onclick="navegarAba('aba-perfil')">
-          <div class="home-action-icon"><span class="material-symbols-outlined">person_edit</span></div>
+          <div class="home-action-icon">✏️</div>
           <div class="home-action-eyebrow">Perfil</div>
           <div class="home-action-title">Atualizar os seus dados</div>
           <div class="home-action-desc">Mantenha o perfil e os contactos corretos para evitar atrasos nos pedidos.</div>
@@ -2939,18 +2916,18 @@
 
       <!-- KPIs mobile (escondidos no desktop) -->
       <div class="kpi-total-card">
-        <div class="kpi-total-icon"><span class="material-symbols-outlined">file_copy</span></div>
+        <div class="kpi-total-icon">📋</div>
         <div class="kpi-total-num" id="pk-total">—</div>
         <div class="kpi-total-lbl">Total de Solicitações</div>
       </div>
       <div class="kpi-grid">
         <div class="kpi-mini kpi-verde">
-          <span class="material-symbols-outlined">check_circle</span>
+          ✅
           <div class="kpi-mini-num" id="pk-aprovados">—</div>
           <div class="kpi-mini-lbl">Aprovados</div>
         </div>
         <div class="kpi-mini kpi-laranja">
-          <span class="material-symbols-outlined">schedule</span>
+          ⏰
           <div class="kpi-mini-num" id="pk-pendentes">—</div>
           <div class="kpi-mini-lbl">Pendentes</div>
         </div>
@@ -2959,15 +2936,15 @@
       <!-- KPIs desktop (escondidos em mobile via CSS) -->
       <div class="desk-kpi-row">
         <div class="desk-kpi-card">
-          <div class="desk-kpi-icon azul"><span class="material-symbols-outlined">file_copy</span></div>
+          <div class="desk-kpi-icon azul">📋</div>
           <div><div class="desk-kpi-num" id="dk-total">—</div><div class="desk-kpi-lbl">Total de Solicitações</div></div>
         </div>
         <div class="desk-kpi-card">
-          <div class="desk-kpi-icon verde"><span class="material-symbols-outlined">check_circle</span></div>
+          <div class="desk-kpi-icon verde">✅</div>
           <div><div class="desk-kpi-num" id="dk-aprovados">—</div><div class="desk-kpi-lbl">Aprovados</div></div>
         </div>
         <div class="desk-kpi-card">
-          <div class="desk-kpi-icon amber"><span class="material-symbols-outlined">schedule</span></div>
+          <div class="desk-kpi-icon amber">⏰</div>
           <div><div class="desk-kpi-num" id="dk-pendentes">—</div><div class="desk-kpi-lbl">Pendentes</div></div>
         </div>
       </div>
@@ -2984,7 +2961,7 @@
           </div>
         </div>
         <div id="lista-docs-portal">
-          <div class="vazio-portal"><div class="vi"><span class="material-symbols-outlined" style="font-size:44px;color:var(--txt-4);font-variation-settings:'FILL' 0,'wght' 200">hourglass_empty</span></div><p>A carregar os seus documentos…</p></div>
+          <div class="vazio-portal"><div class="vi"><span style="font-size:44px">⏳</span></div><p>A carregar os seus documentos…</p></div>
         </div>
       </div>
 
@@ -3000,10 +2977,10 @@
           </div>
           <div class="perfil-card-acoes">
             <button class="perfil-card-btn" onclick="navegarAba('aba-perfil')" title="Ver perfil" aria-label="Ver perfil completo">
-              <span class="material-symbols-outlined">badge</span>
+              🪪
             </button>
             <button class="perfil-card-btn" onclick="navegarAba('aba-solicitar')" title="Novo pedido" aria-label="Criar novo pedido">
-              <span class="material-symbols-outlined">add_circle</span>
+              ➕
             </button>
           </div>
         </div>
@@ -3052,7 +3029,7 @@
           </div>
         </div>
         <div id="lista-docs-meus">
-          <div class="vazio-portal"><div class="vi"><span class="material-symbols-outlined" style="font-size:44px;color:var(--txt-4);font-variation-settings:'FILL' 0,'wght' 200">hourglass_empty</span></div><p>A carregar…</p></div>
+          <div class="vazio-portal"><div class="vi"><span style="font-size:44px">⏳</span></div><p>A carregar…</p></div>
         </div>
       </div>
     </div>
@@ -3067,16 +3044,16 @@
         </div>
         <div class="tipo-grid" id="tipos-doc-grid">
           <div class="tipo-card" onclick="seleccionarTipo('guia-ferias',this)">
-            <div class="tdico"><span class="material-symbols-outlined" style="font-size:28px;color:#92400e;font-variation-settings:'FILL' 1,'wght' 400">beach_access</span></div><div class="tdnome">Guia de Férias</div><div class="tdsub">Autorização de férias anuais</div>
+            <div class="tdico"><span style="font-size:28px">🌴</span></div><div class="tdnome">Guia de Férias</div><div class="tdsub">Autorização de férias anuais</div>
           </div>
           <div class="tipo-card" onclick="seleccionarTipo('declaracao-servico',this)">
-            <div class="tdico"><span class="material-symbols-outlined" style="font-size:28px;color:#1d4ed8;font-variation-settings:'FILL' 1,'wght' 400">receipt_long</span></div><div class="tdnome">Declaração de Adiantamento Salarial</div><div class="tdsub">Pedido para adiantamento junto do BPC</div>
+            <div class="tdico"><span style="font-size:28px">🧾</span></div><div class="tdnome">Declaração de Adiantamento Salarial</div><div class="tdsub">Pedido para adiantamento junto do BPC</div>
           </div>
           <div class="tipo-card" onclick="seleccionarTipo('guia-medica',this)">
-            <div class="tdico"><span class="material-symbols-outlined" style="font-size:28px;color:var(--primary);font-variation-settings:'FILL' 1,'wght' 400">local_hospital</span></div><div class="tdnome">Guia Médica</div><div class="tdsub">Para consultas médicas</div>
+            <div class="tdico"><span style="font-size:28px">🏥</span></div><div class="tdnome">Guia Médica</div><div class="tdsub">Para consultas médicas</div>
           </div>
           <div class="tipo-card" onclick="seleccionarTipo('oficio',this)">
-            <div class="tdico"><span class="material-symbols-outlined" style="font-size:28px;color:#4338ca;font-variation-settings:'FILL' 1,'wght' 400">assignment</span></div><div class="tdnome">Ofício / Nota</div><div class="tdsub">Comunicação oficial</div>
+            <div class="tdico"><span style="font-size:28px">📋</span></div><div class="tdnome">Ofício / Nota</div><div class="tdsub">Comunicação oficial</div>
           </div>
         </div>
       </div>
@@ -3126,7 +3103,7 @@
             </div>
           </div>
           <button class="btn-submeter" id="btn-submeter-sol" onclick="abrirRevisaoPedido()">
-            <span class="material-symbols-outlined">rate_review</span> Rever e enviar
+            ✍️ Rever e enviar
           </button>
         </div>
         <div id="msg-solicitacao" style="margin-top:12px"></div>
@@ -3144,9 +3121,9 @@
                onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('perf-foto-input').click()}">
             <div class="perfil-av-wrap">
               <div class="perfil-card-av" id="perf-avatar">?</div>
-              <div class="perfil-av-overlay" aria-hidden="true"><span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:'FILL' 1,'wght' 400">photo_camera</span></div>
+              <div class="perfil-av-overlay" aria-hidden="true"><span style="font-size:18px">📷</span></div>
             </div>
-            <span class="perfil-foto-label" aria-hidden="true"><span class="material-symbols-outlined" style="font-size:12px;font-variation-settings:'FILL' 0,'wght' 400;vertical-align:middle">photo_camera</span> Alterar foto</span>
+            <span class="perfil-foto-label" aria-hidden="true"><span style="font-size:12px">📷</span> Alterar foto</span>
             <input type="file" id="perf-foto-input" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="previewFotoPerfil(this)">
           </div>
           <div>
@@ -3167,20 +3144,20 @@
       <div>
         <!-- A MINHA UNIDADE -->
         <div class="minha-unidade" id="minha-unidade-card">
-          <div class="mu-loading"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;font-variation-settings:'FILL' 0,'wght' 300;margin-right:4px">local_hospital</span>A carregar informações da unidade…</div>
+          <div class="mu-loading"><span style="font-size:16px">🏥</span>A carregar informações da unidade…</div>
         </div>
 
         <!-- UNIDADE SOB RESPONSABILIDADE — revelado por JS quando aplicável -->
         <div class="resp-unidade" id="resp-unidade-card"></div>
 
         <div class="docs-carr">
-          <div class="docs-carr-titulo" style="display:flex;align-items:center;gap:6px"><span class="material-symbols-outlined" style="font-size:16px;font-variation-settings:'FILL' 0,'wght' 400">attach_file</span>Os meus documentos carregados</div>
+          <div class="docs-carr-titulo" style="display:flex;align-items:center;gap:6px"><span style="font-size:16px">📎</span>Os meus documentos carregados</div>
           <div id="zona-docs-carregados"><div class="doc-fich-vazio">A verificar documentos...</div></div>
         </div>
         <div class="perfil-edit-sec" style="margin-top:12px">
-          <div class="perfil-edit-titulo" style="display:flex;align-items:center;gap:6px"><span class="material-symbols-outlined" style="font-size:16px;font-variation-settings:'FILL' 0,'wght' 400">tune</span>Edição rápida</div>
+          <div class="perfil-edit-titulo" style="display:flex;align-items:center;gap:6px"><span style="font-size:16px">⚙️</span>Edição rápida</div>
           <a href="formulario.html" class="perfil-link-principal">
-            <span class="material-symbols-outlined">edit_document</span>
+            📝
             Completar ou atualizar formulário
           </a>
           <div class="campo-g">
@@ -3205,7 +3182,7 @@
           <div class="perfil-zona-perigo">
             <div class="perfil-zona-perigo-label">Conta</div>
             <button class="btn-perigo" onclick="abrirModalLogout()">
-              <span class="material-symbols-outlined">logout</span>
+              ⇥
               Terminar sessão
             </button>
           </div>
@@ -3329,20 +3306,20 @@
   <!-- ── BOTTOM NAV MOBILE ── -->
   <nav class="bottom-nav">
     <button class="bn-btn activo" id="bn-inicio" onclick="navegarAba('aba-docs',this)">
-      <span class="material-symbols-outlined">home</span><span class="bn-lbl">Início</span>
+      🏠<span class="bn-lbl">Início</span>
     </button>
     <button class="bn-btn" id="bn-docs" onclick="navegarAba('aba-meus-docs',this)">
-      <span class="material-symbols-outlined">description</span><span class="bn-lbl">Documentos</span>
+      📄<span class="bn-lbl">Documentos</span>
       <span class="bn-badge" id="badge-pendentes">0</span>
     </button>
     <button class="bn-btn bn-btn-destaque" id="bn-pedir" onclick="navegarAba('aba-solicitar',this)">
-      <span class="bn-icon-wrap"><span class="material-symbols-outlined">add</span></span><span class="bn-lbl">Novo</span>
+      <span class="bn-icon-wrap">➕</span><span class="bn-lbl">Novo</span>
     </button>
     <button class="bn-btn" id="bn-secretaria" onclick="navegarAba('aba-secretaria',this)">
-      <span class="material-symbols-outlined">support_agent</span><span class="bn-lbl">Secretaria</span>
+      💬<span class="bn-lbl">Secretaria</span>
     </button>
     <button class="bn-btn" id="bn-perfil" onclick="navegarAba('aba-perfil',this)">
-      <span class="material-symbols-outlined">person</span><span class="bn-lbl">Perfil</span>
+      👤<span class="bn-lbl">Perfil</span>
     </button>
   </nav>
 
@@ -3369,7 +3346,7 @@
     </div>
     <div class="modal-revisao-acoes">
       <button class="btn-confirmar-envio" id="btn-confirmar-envio" onclick="confirmarEnvioSolicitacao()">
-        <span class="material-symbols-outlined">send</span>
+        📤
         Confirmar envio
       </button>
       <button class="btn-rever-pedido" onclick="fecharRevisaoPedido()">← Rever pedido</button>
@@ -3383,7 +3360,7 @@
         <div class="viewer-titulo" id="viewer-doc-titulo">Guia Medica</div>
         <div class="viewer-sub" id="viewer-doc-sub">Visualizacao apenas de leitura</div>
       </div>
-      <button class="viewer-close" onclick="fecharVisualizacaoPortal()" aria-label="Fechar visualizacao" title="Fechar"><span class="material-symbols-outlined" style="font-size:20px">close</span></button>
+      <button class="viewer-close" onclick="fecharVisualizacaoPortal()" aria-label="Fechar visualizacao" title="Fechar"><span style="font-size:20px">✕</span></button>
     </div>
     <div class="viewer-aviso">Documento disponivel apenas para consulta visual no portal do funcionario.</div>
     <div class="viewer-body">
@@ -3415,10 +3392,10 @@
   let _sessaoToken=null,_unsubSessao=null;
 
   const LABELS_TIPO={
-    "guia-ferias":{"nome":"Guia de Férias","icone":`<span class="material-symbols-outlined" style="font-size:22px;color:#92400e;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">beach_access</span>`,"bg":"#fef9e7"},
-    "declaracao-servico":{"nome":"Declaração de Adiantamento Salarial","icone":`<span class="material-symbols-outlined" style="font-size:22px;color:#1d4ed8;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">receipt_long</span>`,"bg":"#eff6ff"},
-    "guia-medica":{"nome":"Guia Médica","icone":`<span class="material-symbols-outlined" style="font-size:22px;color:var(--primary,#065f46);font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">local_hospital</span>`,"bg":"var(--primary-xl,#d1fae5)"},
-    "oficio":{"nome":"Ofício / Nota","icone":`<span class="material-symbols-outlined" style="font-size:22px;color:#4338ca;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">assignment</span>`,"bg":"#e0e7ff"}
+    "guia-ferias":{"nome":"Guia de Férias","icone":`<span style="font-size:22px">🌴</span>`,"bg":"#fef9e7"},
+    "declaracao-servico":{"nome":"Declaração de Adiantamento Salarial","icone":`<span style="font-size:22px">🧾</span>`,"bg":"#eff6ff"},
+    "guia-medica":{"nome":"Guia Médica","icone":`<span style="font-size:22px">🏥</span>`,"bg":"var(--primary-xl,#d1fae5)"},
+    "oficio":{"nome":"Ofício / Nota","icone":`<span style="font-size:22px">📋</span>`,"bg":"#e0e7ff"}
   };
   const LABELS_ESTADO={nova:{texto:"Recebida",classe:"est-nova"},processando:{texto:"Em processamento",classe:"est-processando"},concluida:{texto:"Disponível",classe:"est-aprovado"},rejeitada:{texto:"Anulada",classe:"est-rejeitado"},pendente:{texto:"Em validação",classe:"est-processando"},aprovado:{texto:"Disponível",classe:"est-aprovado"},gerado:{texto:"Em validação",classe:"est-processando"}};
 
@@ -3490,7 +3467,7 @@
     const lista = typeof limit === "number" ? itens.slice(0, limit) : itens;
     if (lista.length === 0) {
       return `<div class="vazio-portal">
-        <div class="vi"><span class="material-symbols-outlined" style="font-size:44px;color:var(--txt-4,#9ca3af);font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 200">folder_open</span></div>
+        <div class="vi"><span style="font-size:44px">📂</span></div>
         <p>${escapeHtml(tituloVazio || "Ainda não existem registos.")}</p>
         ${detalheVazio ? `<small>${escapeHtml(detalheVazio)}</small>` : ""}
         ${mostrarAcao ? `<button class="btn-vazio-acao" onclick="navegarAba('aba-solicitar')">Novo pedido</button>` : ""}
@@ -3498,7 +3475,7 @@
     }
     return `<div class="lista-docs">${lista.map(s => {
       const tipo = s.tipo || s.tipoDocumento || "outro";
-      const info = LABELS_TIPO[tipo] || { nome: tipo, icone: `<span class="material-symbols-outlined" style="font-size:22px;color:var(--txt-3,#6b7280);font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 300">description</span>`, bg: "var(--bg,#f3f4f6)" };
+      const info = LABELS_TIPO[tipo] || { nome: tipo, icone: `<span style="font-size:22px">📄</span>`, bg: "var(--bg,#f3f4f6)" };
       const estInfo = LABELS_ESTADO[s.estado || "nova"] || { texto: s.estado, classe: "est-nova" };
       const ts = s.criadaEm?.toDate ? s.criadaEm.toDate() : (s.geradoEm?.toDate ? s.geradoEm.toDate() : null);
       const data = ts ? ts.toLocaleDateString("pt-AO", { day: "2-digit", month: "short", year: "numeric" }) : "—";
@@ -3674,7 +3651,7 @@
     const vazio = !inp.value.trim();
     inp.classList.toggle('campo-erro', !vazio && !valido);
     inp.classList.toggle('campo-ok',   !vazio &&  valido);
-    if (ico) { ico.innerHTML = vazio ? '' : '<span class="material-symbols-outlined" style="font-size:15px;color:'+(valido?'var(--primary-l)':'#ef4444')+';font-variation-settings:\'FILL\' 1,\'wght\' 400">'+(valido?'check_circle':'cancel')+'</span>'; ico.style.display = vazio ? 'none' : 'block'; }
+    if (ico) { ico.innerHTML = vazio ? '' : (valido ? '✅' : '✕'); ico.style.display = vazio ? 'none' : 'block'; }
     if (err) { err.textContent = (!vazio && !valido) ? msgErro : ''; err.style.display = (!vazio && !valido) ? 'block' : 'none'; }
     if (ok)  { ok.textContent  = (!vazio &&  valido) ? (msgOk||'') : ''; ok.style.display  = (!vazio &&  valido) ? 'block' : 'none'; }
     return valido || vazio;
@@ -3724,7 +3701,7 @@
       cardNum && cardNum.classList.add('activo');
       cardBi  && cardBi.classList.remove('activo');
       chipLabel.textContent = 'Nº de Agente';
-      chipIc.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;font-variation-settings:\'FILL\' 0,\'wght\' 300">badge</span>';
+      chipIc.innerHTML = '<span style="font-size:16px">🪪</span>';
       inpBi.value = ''; // garantir campo inactivo limpo
       setTimeout(() => inpNum.focus(), 80);
     } else {
@@ -3733,7 +3710,7 @@
       cardBi  && cardBi.classList.add('activo');
       cardNum && cardNum.classList.remove('activo');
       chipLabel.textContent = 'Bilhete de Identidade';
-      chipIc.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;font-variation-settings:\'FILL\' 0,\'wght\' 300">assignment_ind</span>';
+      chipIc.innerHTML = '<span style="font-size:16px">🪪</span>';
       inpNum.value = ''; // garantir campo inactivo limpo
       setTimeout(() => inpBi.focus(), 80);
     }
@@ -3826,7 +3803,7 @@
     const ico = document.getElementById("ico-senha");
     inp.classList.toggle("campo-erro", s.length>0 && !valido);
     inp.classList.toggle("campo-ok",   s.length>0 &&  valido);
-    if(ico){ico.innerHTML=s.length===0?'':'<span class="material-symbols-outlined" style="font-size:15px;color:'+(valido?'var(--primary-l)':'#ef4444')+';font-variation-settings:\'FILL\' 1,\'wght\' 400">'+(valido?'check_circle':'cancel')+'</span>';ico.style.display=s.length?'block':'none';}
+    if(ico){ico.innerHTML=s.length===0?'':(valido ? '✅' : '✕');ico.style.display=s.length?'block':'none';}
   };
 
   window.validarCampoSenha2 = function() {
@@ -4154,7 +4131,7 @@
     const div = document.getElementById("lista-docs-portal");
     const docsDiv = document.getElementById("lista-docs-meus");
     [div, docsDiv].forEach(el => {
-      if (el) el.innerHTML = `<div class="vazio-portal"><div class="vi"><span class="material-symbols-outlined" style="font-size:44px;color:var(--txt-4);font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 200">hourglass_empty</span></div><p>A carregar…</p></div>`;
+      if (el) el.innerHTML = `<div class="vazio-portal"><div class="vi"><span style="font-size:44px">⏳</span></div><p>A carregar…</p></div>`;
     });
 
     // Cancelar listeners anteriores se existirem
@@ -4162,7 +4139,7 @@
     if (_unsubDocs) { _unsubDocs(); _unsubDocs = null; }
 
     if (!funcionarioId) {
-      const vazioHtml = `<div class="vazio-portal"><div class="vi"><span class="material-symbols-outlined" style="font-size:44px;color:var(--txt-4,#9ca3af);font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 200">folder_open</span></div><p>Ainda não tem documentos ou solicitações.</p><small>Assim que o perfil estiver associado corretamente, os seus registos vão aparecer aqui.</small></div>`;
+      const vazioHtml = `<div class="vazio-portal"><div class="vi"><span style="font-size:44px">📂</span></div><p>Ainda não tem documentos ou solicitações.</p><small>Assim que o perfil estiver associado corretamente, os seus registos vão aparecer aqui.</small></div>`;
       if (div) div.innerHTML = vazioHtml;
       if (docsDiv) docsDiv.innerHTML = vazioHtml;
       return;
@@ -4246,7 +4223,7 @@
       },
       err => {
         console.error(err);
-        const erroHtml = `<div class="vazio-portal"><div class="vi"><span class="material-symbols-outlined" style="font-size:44px;color:#f59e0b;font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 200">warning</span></div><p>Não foi possível carregar os registos.</p><small>Verifique a ligação e tente novamente.</small></div>`;
+        const erroHtml = `<div class="vazio-portal"><div class="vi">⚠️</div><p>Não foi possível carregar os registos.</p><small>Verifique a ligação e tente novamente.</small></div>`;
         if (div) div.innerHTML = erroHtml;
         if (docsDiv) docsDiv.innerHTML = erroHtml;
       }
@@ -4279,7 +4256,7 @@
   window.abrirDetalheDoc=function(id,origem){
     const s=(window._minhasSolicitacoes||[]).find(x=>x.id===id);if(!s)return;
     const tipo=s.tipo||s.tipoDocumento||"outro";
-    const info=LABELS_TIPO[tipo]||{nome:tipo,icone:`<span class="material-symbols-outlined" style="font-size:22px;color:var(--txt-3,#6b7280);font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 300">description</span>`};
+    const info=LABELS_TIPO[tipo]||{nome:tipo,icone:`<span style="font-size:22px">📄</span>`};
     const estInfo=LABELS_ESTADO[s.estado||"nova"]||{texto:s.estado,classe:"est-nova"};
     const ts=s.criadaEm?.toDate?s.criadaEm.toDate():(s.geradoEm?.toDate?s.geradoEm.toDate():null);
     const detalhePrincipal = obterDetalheCurtoPortal(s);
@@ -4472,7 +4449,7 @@
     const valido=d>=hoje;
     inp.classList.toggle("campo-erro",!valido);
     inp.classList.toggle("campo-ok",   valido);
-    if(ico){ico.innerHTML='<span class="material-symbols-outlined" style="font-size:15px;color:'+(valido?'var(--primary-l)':'#ef4444')+';font-variation-settings:\'FILL\' 1,\'wght\' 400">'+(valido?'check_circle':'cancel')+'</span>';ico.style.display="block";}
+    if(ico){ico.innerHTML=(valido ? '✅' : '✕');ico.style.display="block";}
     if(err){err.textContent=!valido?"A data não pode ser no passado.":"";err.style.display=!valido?"block":"none";}
     if(ok) {ok.textContent= valido?"Data válida":"";ok.style.display=valido?"block":"none";}
   };
@@ -4516,7 +4493,7 @@
     const valido=RE_TEL_AO.test(v);
     inp.classList.toggle("campo-erro",!valido);
     inp.classList.toggle("campo-ok",   valido);
-    if(ico){ico.innerHTML='<span class="material-symbols-outlined" style="font-size:15px;color:'+(valido?'var(--primary-l)':'#ef4444')+';font-variation-settings:\'FILL\' 1,\'wght\' 400">'+(valido?'check_circle':'cancel')+'</span>';ico.style.display="block";}
+    if(ico){ico.innerHTML=(valido ? '✅' : '✕');ico.style.display="block";}
     if(err){err.textContent=!valido?"Formato inválido. Use: 900 000 000":"";err.style.display=!valido?"block":"none";}
     if(ok) {ok.textContent= valido?"Número válido":"";ok.style.display=valido?"block":"none";}
   };
@@ -4552,33 +4529,33 @@
       const dataInicio=_tipoSel==="guia-ferias"?document.getElementById("sol-data-inicio").value:"";
       if(_tipoSel==="guia-ferias"&&!dataInicio){
         msg.innerHTML=`<div class="alerta alerta-aviso">Por favor, indique a <strong>data de início das férias</strong>.</div>`;
-        if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
+        if(btn){btn.disabled=false;btn.innerHTML='✍️ Rever e enviar';}
         return;
       }
 
       // Validação para Guia Médica — unidade sanitária obrigatória
       if(_tipoSel==="guia-medica"&&!motivo){
         msg.innerHTML=`<div class="alerta alerta-aviso">Por favor, indique a <strong>unidade sanitária</strong> onde vai fazer a consulta.</div>`;
-        if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
+        if(btn){btn.disabled=false;btn.innerHTML='✍️ Rever e enviar';}
         return;
       }
       if(_tipoSel==="declaracao-servico"){
         if(!Number.isInteger(mesesAdiantamento) || mesesAdiantamento<=0){
           msg.innerHTML=`<div class="alerta alerta-aviso">Indique o <strong>número de meses</strong> do adiantamento.</div>`;
           document.getElementById("sol-meses-adiantamento")?.focus();
-          if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
+          if(btn){btn.disabled=false;btn.innerHTML='✍️ Rever e enviar';}
           return;
         }
         if(!numeroConta){
           msg.innerHTML=`<div class="alerta alerta-aviso">Indique o <strong>número de conta</strong> para o adiantamento.</div>`;
           document.getElementById("sol-numero-conta")?.focus();
-          if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
+          if(btn){btn.disabled=false;btn.innerHTML='✍️ Rever e enviar';}
           return;
         }
         if(!Number.isFinite(salarioLiquido) || salarioLiquido<=0){
           msg.innerHTML=`<div class="alerta alerta-aviso">Indique o <strong>salário líquido</strong> em AKZ.</div>`;
           document.getElementById("sol-salario-liquido")?.focus();
-          if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
+          if(btn){btn.disabled=false;btn.innerHTML='✍️ Rever e enviar';}
           return;
         }
       }
@@ -4599,7 +4576,7 @@
             <strong>Já tem um pedido activo de ${nomeTipo}.</strong><br>
             Aguarde o processamento do pedido existente antes de submeter um novo.
           </div>`;
-          if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
+          if(btn){btn.disabled=false;btn.innerHTML='✍️ Rever e enviar';}
           return;
         }
       }
@@ -4638,7 +4615,7 @@
       await addDoc(collection(db,"solicitacoes"), dadosSolicitacao);
 
       msg.innerHTML=`<div class="alerta alerta-sucesso"><strong>Solicitação enviada!</strong> A Secção de RH irá processar o seu pedido brevemente. Pode acompanhar o andamento na área "Documentos".</div>`;
-      if(btn){btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';btn.disabled=false;}
+      if(btn){btn.innerHTML='✍️ Rever e enviar';btn.disabled=false;}
       _tipoSel=null;
       document.querySelectorAll(".tipo-card").forEach(c=>c.classList.remove("seleccionado"));
       document.getElementById("form-solicitacao-extra").style.display="none";
@@ -4652,7 +4629,7 @@
       let m="Erro ao enviar. Verifique a ligação e tente novamente.";
       if(e.code==="permission-denied")m="Sem permissão. Feche a sessão, entre novamente e tente outra vez.";
       msg.innerHTML=`<div class="alerta alerta-erro">${m}</div>`;
-      if(btn){btn.disabled=false;btn.innerHTML='<span class="material-symbols-outlined">rate_review</span> Rever e enviar';}
+      if(btn){btn.disabled=false;btn.innerHTML='✍️ Rever e enviar';}
     }
   };
 
@@ -4772,7 +4749,7 @@
 
     document.getElementById("revisao-modal-corpo").innerHTML = `
       <div class="revisao-tipo-badge">
-        <div class="revisao-tipo-ic"><span class="material-symbols-outlined" style="font-size:26px;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">${info.icone}</span></div>
+        <div class="revisao-tipo-ic">${info.icone}</div>
         <div>
           <div class="revisao-tipo-nome">${info.nome}</div>
           <div class="revisao-tipo-sub">${info.sub}</div>
@@ -4873,7 +4850,7 @@
         // Unidade sem ficha ainda — mostrar só o nome
         card.innerHTML = `
           <div class="mu-header">
-            <div class="mu-header-icon"><span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">local_hospital</span></div>
+            <div class="mu-header-icon"><span style="font-size:20px">🏥</span></div>
             <div>
               <div class="mu-header-titulo">${nomeUnidade}</div>
               <div class="mu-header-tipo">A minha unidade</div>
@@ -4896,7 +4873,7 @@
       // Responsável
       const respHTML = u.responsavel?.nome
         ? `<div class="mu-row">
-            <span class="mu-row-icon"><span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 300">person</span></span>
+            <span class="mu-row-icon"><span style="font-size:18px">👤</span></span>
             <div class="mu-row-info">
               <div class="mu-row-label">Responsável</div>
               <div class="mu-row-val"><strong>${u.responsavel.nome}</strong>${u.responsavel.cargo ? ' · ' + u.responsavel.cargo : ''}</div>
@@ -4906,12 +4883,12 @@
       // Contacto emergência
       const emergHTML = u.contactos?.emergencia
         ? `<div class="mu-row">
-            <span class="mu-row-icon"><span class="material-symbols-outlined" style="font-size:18px;color:#0369a1;font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 300">emergency</span></span>
+            <span class="mu-row-icon"><span style="font-size:18px">🚨</span></span>
             <div class="mu-row-info">
               <div class="mu-row-label">Emergência</div>
               <div class="mu-row-val">
                 <a href="tel:${u.contactos.emergencia}" class="mu-contacto-btn" style="display:inline-flex;align-items:center;gap:4px">
-                  <span class="material-symbols-outlined" style="font-size:14px;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">call</span>${u.contactos.emergencia}
+                  <span style="font-size:14px">📞</span>${u.contactos.emergencia}
                 </a>
               </div>
             </div>
@@ -4920,7 +4897,7 @@
       // Telefone geral
       const telHTML = u.contactos?.telefone
         ? `<div class="mu-row">
-            <span class="mu-row-icon"><span class="material-symbols-outlined" style="font-size:18px;color:#374151;font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 300">call</span></span>
+            <span class="mu-row-icon"><span style="font-size:18px">📞</span></span>
             <div class="mu-row-info">
               <div class="mu-row-label">Telefone</div>
               <div class="mu-row-val">${u.contactos.telefone}</div>
@@ -4931,14 +4908,14 @@
       let horHTML = '';
       if(u.horario?.semana){
         horHTML = `<div class="mu-row">
-          <span class="mu-row-icon"><span class="material-symbols-outlined" style="font-size:18px;color:#374151;font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 300">schedule</span></span>
+          <span class="mu-row-icon"><span style="font-size:18px">⏰</span></span>
           <div class="mu-row-info">
             <div class="mu-row-label">Horário de Funcionamento</div>
             <div class="mu-row-val">
               Seg–Sex: ${u.horario.semana}
               ${u.horario.sabado ? `<br>Sáb: ${u.horario.sabado}` : ''}
               ${u.horario.domingo ? `<br>Dom: ${u.horario.domingo}` : ''}
-              ${u.horario.urgencia24h ? `<br><span class="mu-urgencia"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:middle;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">emergency</span> Urgência 24h</span>` : ''}
+              ${u.horario.urgencia24h ? `<br><span class="mu-urgencia"><span style="font-size:12px">🚨</span> Urgência 24h</span>` : ''}
             </div>
           </div>
         </div>`;
@@ -4948,7 +4925,7 @@
       let servHTML = '';
       if((u.servicos||[]).length){
         servHTML = `<div class="mu-row">
-          <span class="mu-row-icon"><span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 300">medical_services</span></span>
+          <span class="mu-row-icon"><span style="font-size:18px">⚕️</span></span>
           <div class="mu-row-info">
             <div class="mu-row-label">Serviços Disponíveis</div>
             <div class="mu-servicos">
@@ -4960,7 +4937,7 @@
 
       card.innerHTML = `
         <div class="mu-header">
-          <div class="mu-header-icon"><span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">local_hospital</span></div>
+          <div class="mu-header-icon"><span style="font-size:20px">🏥</span></div>
           <div>
             <div class="mu-header-titulo">${u.nome}</div>
             <div class="mu-header-tipo">${tipoLabel}</div>
@@ -4978,7 +4955,7 @@
       console.warn('Erro ao carregar unidade:', e);
       card.innerHTML = `
         <div class="mu-header">
-          <div class="mu-header-icon"><span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">local_hospital</span></div>
+          <div class="mu-header-icon"><span style="font-size:20px">🏥</span></div>
           <div>
             <div class="mu-header-titulo">${nomeUnidade}</div>
             <div class="mu-header-tipo">A minha unidade</div>
@@ -5028,11 +5005,11 @@
 
       const cargoHTML = cargo ? `
         <div class="ru-row">
-          <span class="ru-row-icon"><span class="material-symbols-outlined" style="font-size:18px;color:#92400e;font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 300">military_tech</span></span>
+          <span class="ru-row-icon"><span style="font-size:18px">🏅</span></span>
           <div class="ru-row-info">
             <div class="ru-row-label">Cargo exercido</div>
             <div class="ru-row-val">
-              <span class="ru-badge-cargo"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:middle;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">workspace_premium</span> ${cargo}</span>
+              <span class="ru-badge-cargo">🏅 ${cargo}</span>
               ${dtInicio ? `<div style="font-size:11px;color:#6b7280;margin-top:4px">Em funções desde ${fmtData(dtInicio)}</div>` : ''}
             </div>
           </div>
@@ -5040,7 +5017,7 @@
 
       const telHTML = u.contactos?.telefone ? `
         <div class="ru-row">
-          <span class="ru-row-icon"><span class="material-symbols-outlined" style="font-size:18px;color:#374151;font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 300">call</span></span>
+          <span class="ru-row-icon"><span style="font-size:18px">📞</span></span>
           <div class="ru-row-info">
             <div class="ru-row-label">Contacto da unidade</div>
             <div class="ru-row-val">${u.contactos.telefone}</div>
@@ -5049,7 +5026,7 @@
 
       const localHTML = u.localizacao?.descricao ? `
         <div class="ru-row">
-          <span class="ru-row-icon"><span class="material-symbols-outlined" style="font-size:18px;color:#374151;font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 300">location_on</span></span>
+          <span class="ru-row-icon">📍</span>
           <div class="ru-row-info">
             <div class="ru-row-label">Localização</div>
             <div class="ru-row-val">${u.localizacao.descricao}</div>
@@ -5058,7 +5035,7 @@
 
       const servHTML = (u.servicos||[]).length ? `
         <div class="ru-row">
-          <span class="ru-row-icon"><span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 300">local_hospital</span></span>
+          <span class="ru-row-icon"><span style="font-size:18px">🏥</span></span>
           <div class="ru-row-info">
             <div class="ru-row-label">Serviços disponíveis</div>
             <div class="ru-row-val" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:3px">
@@ -5069,7 +5046,7 @@
 
       card.innerHTML = `
         <div class="ru-header">
-          <div class="ru-header-icon"><span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">workspace_premium</span></div>
+          <div class="ru-header-icon">🏅</div>
           <div>
             <div class="ru-header-titulo">${u.nome}</div>
             <div class="ru-header-tipo">Sob a minha responsabilidade</div>
@@ -5077,7 +5054,7 @@
         </div>
         <div class="ru-body">
           <div class="ru-row">
-            <span class="ru-row-icon"><span class="material-symbols-outlined" style="font-size:18px;color:#374151;font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 300">label</span></span>
+            <span class="ru-row-icon">🏷️</span>
             <div class="ru-row-info">
               <div class="ru-row-label">Tipo de unidade</div>
               <div class="ru-row-val">${tipoLabel}</div>
@@ -5085,7 +5062,7 @@
           </div>
           ${cargoHTML}
           <div class="ru-row">
-            <span class="ru-row-icon"><span class="material-symbols-outlined" style="font-size:18px;color:#374151;font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 300">group</span></span>
+            <span class="ru-row-icon">👥</span>
             <div class="ru-row-info">
               <div class="ru-row-label">Efectivo registado</div>
               <div class="ru-row-val">
@@ -5148,8 +5125,8 @@
     const zona=document.getElementById("zona-docs-carregados");if(!zona)return;
     const f=funcDoc||{};
     const lista=[];
-    if(f.urlBI)   lista.push({ tipo:'bi',   local: f.urlBI==='local',   url: f.urlBI,   icone:'<span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:\'FILL\' 0,\'wght\' 300">badge</span>', nome:'Bilhete de Identidade', sub:'Documento de identificação civil' });
-    if(f.urlCert) lista.push({ tipo:'cert', local: f.urlCert==='local', url: f.urlCert, icone:'<span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:\'FILL\' 0,\'wght\' 300">school</span>', nome:'Certificado / Diploma',  sub:'Habilitações académicas' });
+    if(f.urlBI)   lista.push({ tipo:'bi',   local: f.urlBI==='local',   url: f.urlBI,   icone:'<span style="font-size:18px">🪪</span>', nome:'Bilhete de Identidade', sub:'Documento de identificação civil' });
+    if(f.urlCert) lista.push({ tipo:'cert', local: f.urlCert==='local', url: f.urlCert, icone:'🎓', nome:'Certificado / Diploma',  sub:'Habilitações académicas' });
     if(lista.length===0){
       zona.innerHTML=`<div class="doc-fich-vazio">Ainda não carregou nenhum documento.<br><a href="formulario.html" style="color:var(--c-700);font-weight:700">Preencha o formulário profissional</a> para carregar o seu BI e certificados.</div>`;
       return;
@@ -5502,7 +5479,7 @@
         const idxsFunc = msgs.map((mm,ii)=>mm.autor==='funcionario'?ii:-1).filter(ii=>ii>=0);
         const isUltimaFunc = isFunc && i === idxsFunc[idxsFunc.length-1];
         const visto = isUltimaFunc
-          ? `<i class="chat-visto ${lido?'lido':'enviado'}"><span class="material-symbols-outlined" style="font-size:12px;font-variation-settings:&apos;FILL&apos; 0,&apos;wght&apos; 400">${lido?'done_all':'done'}</span></i>`
+          ? `<i class="chat-visto ${lido?'lido':'enviado'}">${lido?'✔✔':'✔'}</i>`
           : '';
         const initials = isFunc
           ? (_funcDoc?.nome||_utilizador?.email||'V').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()
@@ -5524,7 +5501,7 @@
       if ((p.naoLidasFuncionario||0) > 0) {
         updateDoc(doc(db,'pedidos_secretaria',pedidoId),{naoLidasFuncionario:0}).catch(()=>{});
       }
-    }, err => { console.error('Chat:',err); msgsEl.innerHTML='<div class="chat-vazio"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle">warning</span> Erro ao carregar.</div>'; });
+    }, err => { console.error('Chat:',err); msgsEl.innerHTML='<div class="chat-vazio">⚠️ Erro ao carregar.</div>'; });
   };
 
   window.fecharChatPortal = function() {
@@ -5813,7 +5790,7 @@
     if (_notifCache.length === 0) {
       body.innerHTML =
         '<div class="sino-vazio">' +
-          '<div class="sino-vazio-ic"><span class="material-symbols-outlined" style="font-size:44px;color:rgba(255,255,255,0.18);font-variation-settings:\'FILL\' 0,\'wght\' 200">notifications</span></div>' +
+          '<div class="sino-vazio-ic"><span style="font-size:44px">🔔</span></div>' +
           '<div class="sino-vazio-txt">Sem notificações</div>' +
         '</div>';
       return;
@@ -5821,18 +5798,18 @@
 
     // Mapas de ícone e classe por tipo
     const IC = {
-      doc_aprovado:         { ic: '<span class="material-symbols-outlined" style="font-size:20px;color:#065f46;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">check_circle</span>', cls: 'conf'   },
-      doc_rejeitado:        { ic: '<span class="material-symbols-outlined" style="font-size:20px;color:#dc2626;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">cancel</span>', cls: 'recus'  },
-      doc_gerado:           { ic: '<span class="material-symbols-outlined" style="font-size:20px;color:#1d4ed8;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">description</span>', cls: 'resp'   },
-      reuniao_confirmada:   { ic: '<span class="material-symbols-outlined" style="font-size:20px;color:#065f46;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">event_available</span>', cls: 'conf'   },
-      reuniao_recusada:     { ic: '<span class="material-symbols-outlined" style="font-size:20px;color:#dc2626;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">event_busy</span>', cls: 'recus'  },
-      mensagem_secretaria:  { ic: '<span class="material-symbols-outlined" style="font-size:20px;color:#4338ca;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">forum</span>', cls: 'resp'   },
-      sistema:              { ic: '<span class="material-symbols-outlined" style="font-size:20px;color:#0369a1;font-variation-settings:&apos;FILL&apos; 1,&apos;wght&apos; 400">info</span>', cls: 'remarc' },
+      doc_aprovado:         { ic: '<span style="font-size:20px">✅</span>', cls: 'conf'   },
+      doc_rejeitado:        { ic: '✕', cls: 'recus'  },
+      doc_gerado:           { ic: '<span style="font-size:20px">📄</span>', cls: 'resp'   },
+      reuniao_confirmada:   { ic: '✅', cls: 'conf'   },
+      reuniao_recusada:     { ic: '❌', cls: 'recus'  },
+      mensagem_secretaria:  { ic: '💬', cls: 'resp'   },
+      sistema:              { ic: 'ℹ️', cls: 'remarc' },
     };
 
     body.innerHTML = _notifCache.map(n => {
       const lida    = !!n.lida;
-      const icObj   = IC[n.tipo] || { ic: '<span class="material-symbols-outlined" style="font-size:20px;color:#6b7280;font-variation-settings:\'FILL\' 0,\'wght\' 300">notifications</span>', cls: '' };
+      const icObj   = IC[n.tipo] || { ic: '<span style="font-size:20px">🔔</span>', cls: '' };
       const data    = n.criadaEm?.toDate?.() || null;
       const dataStr = data
         ? data.toLocaleDateString('pt-AO', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })
@@ -5914,17 +5891,17 @@
 <div class="sino-drop-overlay" id="sino-overlay" onclick="fecharSinoPortal()"></div>
 <div class="sino-drop" id="sino-drop">
   <div class="sino-drop-header">
-    <span class="sino-drop-titulo" style="display:flex;align-items:center;gap:8px"><span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:'FILL' 1,'wght' 400">notifications</span>Notificações</span>
-    <button class="sino-drop-fechar" onclick="fecharSinoPortal()" aria-label="Fechar notificações" title="Fechar"><span class="material-symbols-outlined" style="font-size:20px">close</span></button>
+    <span class="sino-drop-titulo" style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">🔔</span>Notificações</span>
+    <button class="sino-drop-fechar" onclick="fecharSinoPortal()" aria-label="Fechar notificações" title="Fechar"><span style="font-size:20px">✕</span></button>
   </div>
   <div class="sino-drop-body" id="sino-drop-body">
     <div class="sino-vazio">
-      <div class="sino-vazio-ic"><span class="material-symbols-outlined" style="font-size:44px;color:var(--txt-4,#9ca3af);font-variation-settings:'FILL' 0,'wght' 200">notifications</span></div>
+      <div class="sino-vazio-ic"><span style="font-size:44px">🔔</span></div>
       <div class="sino-vazio-txt">Sem notificações</div>
     </div>
   </div>
   <div class="sino-drop-footer">
-    <button class="sino-marcar-lidas" onclick="marcarTodasLidas()" style="display:flex;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:16px;font-variation-settings:'FILL' 0,'wght' 400">done_all</span> Marcar todas como lidas</button>
+    <button class="sino-marcar-lidas" onclick="marcarTodasLidas()" style="display:flex;align-items:center;gap:6px;">✔✔ Marcar todas como lidas</button>
   </div>
 </div>
 
@@ -5984,19 +5961,19 @@
 <div class="chat-overlay" id="chat-overlay" onclick="if(event.target===this)fecharChatPortal()">
   <div class="chat-box">
     <div class="chat-header">
-      <div class="chat-header-av"><span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:'FILL' 1,'wght' 400">mail</span></div>
+      <div class="chat-header-av">📧</div>
       <div class="chat-header-info">
         <div class="chat-header-titulo" id="chat-titulo">Conversa</div>
         <div class="chat-header-sub" id="chat-sub">Secretaria · DMS Sumbe</div>
       </div>
-      <button class="chat-header-fechar" onclick="fecharChatPortal()" aria-label="Fechar chat" title="Fechar"><span class="material-symbols-outlined" style="font-size:20px">close</span></button>
+      <button class="chat-header-fechar" onclick="fecharChatPortal()" aria-label="Fechar chat" title="Fechar"><span style="font-size:20px">✕</span></button>
     </div>
     <div class="chat-estado-bar aberto" id="chat-estado-bar"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;vertical-align:middle;margin-right:5px"></span>Conversa aberta</div>
     <div class="chat-msgs" id="chat-msgs"></div>
     <div class="chat-input-row" id="chat-input-row">
       <textarea class="chat-input" id="chat-input" rows="1" placeholder="Escreva a sua mensagem…"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemChatPortal();}"></textarea>
-      <button class="chat-enviar" onclick="enviarMensagemChatPortal()" id="btn-chat-enviar" title="Enviar" aria-label="Enviar mensagem"><span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:'FILL' 1,'wght' 400">send</span></button>
+      <button class="chat-enviar" onclick="enviarMensagemChatPortal()" id="btn-chat-enviar" title="Enviar" aria-label="Enviar mensagem"><span style="font-size:20px">📤</span></button>
     </div>
   </div>
 </div>
@@ -6005,13 +5982,13 @@
 <div class="logout-modal-overlay" id="logout-modal-overlay" onclick="if(event.target===this)fecharModalLogout()">
   <div class="logout-modal" role="dialog" aria-modal="true" aria-labelledby="logout-modal-titulo-id">
     <div class="logout-modal-topo">
-      <div class="logout-modal-ic" aria-hidden="true"><span class="material-symbols-outlined" style="font-size:28px;color:#dc2626;font-variation-settings:'FILL' 1,'wght' 400">logout</span></div>
+      <div class="logout-modal-ic" aria-hidden="true"><span style="font-size:28px">⇥</span></div>
       <div class="logout-modal-titulo" id="logout-modal-titulo-id">Terminar sessão?</div>
       <div class="logout-modal-desc">Será desligado da sua conta no portal. Precisará de introduzir as suas credenciais novamente para aceder.</div>
     </div>
     <div class="logout-modal-corpo">
       <button class="btn-logout-confirmar" onclick="confirmarLogout()">
-        <span class="material-symbols-outlined">logout</span>
+        ⇥
         Sim, terminar sessão
       </button>
       <button class="btn-logout-cancelar" onclick="fecharModalLogout()">Cancelar</button>
