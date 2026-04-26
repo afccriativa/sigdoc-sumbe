@@ -15,6 +15,28 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@16..48,100..700,0..1,-50..200" rel="stylesheet"/>
   <style>
+    /* ── Definição local da classe Material Symbols ──
+       Garante que os ícones funcionam mesmo que o CSS
+       do Google Fonts demore a carregar ou falhe.
+       O @font-face é injectado pelo Google Fonts;
+       a classe fica disponível de imediato. */
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined', sans-serif;
+      font-weight: normal;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      user-select: none;
+    }
+  </style>
     :root {
       --primary:   #065f46;
       --primary-d: #044231;
