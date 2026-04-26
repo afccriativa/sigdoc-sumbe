@@ -435,6 +435,33 @@
     [data-tt] { cursor: default; }
     .pir-bm[data-tt], .pir-bf[data-tt] { min-width: 2px; }
     @media print { #sigdoc-tt { display: none !important; } }
+
+    /* ── REGIME — KPI cards de topo ── */
+    .regime-kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+    @media(max-width:900px){.regime-kpi-strip{grid-template-columns:repeat(2,1fr)}}
+    .regime-kpi{background:#1a2236;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:20px 24px;position:relative;overflow:hidden}
+    .regime-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+    .regime-kpi.geral::before{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+    .regime-kpi.especial::before{background:linear-gradient(90deg,#a78bfa,#c4b5fd)}
+    .regime-kpi.total::before{background:linear-gradient(90deg,#10c886,#34d399)}
+    .regime-kpi.alerta::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+    .regime-kpi-val{font-size:32px;font-weight:800;font-family:'DM Mono',monospace;letter-spacing:-1.5px;line-height:1;margin:8px 0 4px}
+    .regime-kpi-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.55)}
+    .regime-kpi-sub{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);margin-top:3px}
+    .regime-kpi-badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:800;font-family:'DM Mono',monospace;margin-top:8px}
+
+    /* ── REGIME — gráfico de barras empilhadas por unidade ── */
+    .regime-unidade-item{margin-bottom:14px}
+    .regime-unidade-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:8px}
+    .regime-unidade-nome{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+    .regime-unidade-total{font-size:11px;font-weight:800;font-family:'DM Mono',monospace;color:rgba(255,255,255,.5);flex-shrink:0}
+    .regime-stack{height:8px;border-radius:99px;overflow:hidden;display:flex;gap:1px}
+    .regime-stack-g{height:100%;background:#3b82f6;transition:width .4s ease}
+    .regime-stack-e{height:100%;background:#a78bfa;transition:width .4s ease}
+    .regime-unidade-leg{display:flex;gap:10px;margin-top:4px}
+    .regime-unidade-leg span{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;color:rgba(255,255,255,.45)}
+    .regime-unidade-leg .rg{color:#60a5fa}
+    .regime-unidade-leg .re{color:#c4b5fd}
   </style>
 </head>
 <body>
@@ -542,7 +569,7 @@
   let _todosOsFuncs  = [];
   let _todasUnidades = {};
   let _perfilActual  = '';
-  let _filtros        = { unidade: '', categoria: '', vinculo: '', estado: '', sexo: '' };
+  let _filtros        = { unidade: '', categoria: '', vinculo: '', estado: '', sexo: '', regime: '' };
   let _funcsFiltrados = [];   // subconjunto actualmente visível — usado pelo exportarCSV
   let _nomeUtilizador = '';   // para o cabeçalho de impressão
   let _pedidosSec    = [];    // pedidos_secretaria — independente dos filtros RH
@@ -893,9 +920,11 @@
     const vinculos  = ['quadro','provisorio'].filter(v => funcs.some(f => f.vinculo === v));
     const estados   = ['activo','licenca','inactivo'].filter(v => funcs.some(f => (f.estado||'activo') === v));
     const sexos     = ['Masculino','Feminino'].filter(v => funcs.some(f => f.sexo === v));
+    const regimes   = ['geral','especial'].filter(v => funcs.some(f => (f.regime || 'geral') === v));
 
     const VINCULO_LABEL = { quadro: 'Pessoal do Quadro', provisorio: 'Provisório' };
     const ESTADO_LABEL  = { activo: 'Em Serviço', licenca: 'De Licença', inactivo: 'Inactivo' };
+    const REGIME_LABEL  = { geral: 'Regime Geral', especial: 'Regime Especial' };
 
     const abrvUnidade = n => n
       .replace('Direcção Municipal de Saúde do Sumbe','DMS — Sede')
@@ -923,6 +952,7 @@
         ${buildSelect('vinculo',   'Vínculo',           vinculos, v => VINCULO_LABEL[v])}
         ${buildSelect('estado',    'Estado',            estados,  v => ESTADO_LABEL[v])}
         ${buildSelect('sexo',      'Sexo',              sexos)}
+        ${buildSelect('regime',    'Regime',            regimes,  v => REGIME_LABEL[v])}
         
         <div class="filtros-acoes">
           <div id="fil-badge" class="filtros-badge">0 filtros</div>
@@ -1062,6 +1092,7 @@
     _filtros.vinculo   = document.getElementById('fil-vinculo')?.value   || '';
     _filtros.estado    = document.getElementById('fil-estado')?.value    || '';
     _filtros.sexo      = document.getElementById('fil-sexo')?.value      || '';
+    _filtros.regime    = document.getElementById('fil-regime')?.value    || '';
 
     let resultado = _todosOsFuncs;
     if (_filtros.unidade)   resultado = resultado.filter(f => f.unidade   === _filtros.unidade);
@@ -1069,6 +1100,7 @@
     if (_filtros.vinculo)   resultado = resultado.filter(f => f.vinculo   === _filtros.vinculo);
     if (_filtros.estado)    resultado = resultado.filter(f => (f.estado||'activo') === _filtros.estado);
     if (_filtros.sexo)      resultado = resultado.filter(f => f.sexo      === _filtros.sexo);
+    if (_filtros.regime)    resultado = resultado.filter(f => (f.regime || 'geral') === _filtros.regime);
 
     const nActivos = Object.values(_filtros).filter(Boolean).length;
     document.getElementById('fil-badge')?.classList.toggle('vis', nActivos > 0);
@@ -1076,7 +1108,7 @@
     document.getElementById('btn-limpar')?.classList.toggle('vis', nActivos > 0);
     document.getElementById('fil-resultado').textContent = `${resultado.length} de ${_todosOsFuncs.length} funcionários`;
 
-    ['unidade','categoria','vinculo','estado','sexo'].forEach(k => {
+    ['unidade','categoria','vinculo','estado','sexo','regime'].forEach(k => {
       document.getElementById('fil-' + k)?.classList.toggle('activo', !!_filtros[k]);
     });
 
@@ -1089,8 +1121,8 @@
   };
 
   window._limparFiltros = function() {
-    _filtros = { unidade: '', categoria: '', vinculo: '', estado: '', sexo: '' };
-    ['unidade','categoria','vinculo','estado','sexo'].forEach(k => {
+    _filtros = { unidade: '', categoria: '', vinculo: '', estado: '', sexo: '', regime: '' };
+    ['unidade','categoria','vinculo','estado','sexo','regime'].forEach(k => {
       const sel = document.getElementById('fil-' + k);
       if (sel) { sel.value = ''; sel.classList.remove('activo'); }
     });
@@ -1182,6 +1214,21 @@
       <div class="g2">
         <div class="gc"><div class="gc-titulo">Pirâmide Etária</div><div id="piramide"></div></div>
         <div class="gc"><div class="gc-titulo">Tipo de Vínculo</div><div id="vinculo-wrap"></div></div>
+      </div>
+
+      <div class="sec"><i data-lucide="scale"></i> Regime de Trabalho</div>
+      <div class="regime-kpi-strip" id="regime-kpi-strip"></div>
+      <div class="g2">
+        <div class="gc">
+          <div class="gc-titulo">Distribuição Geral vs Especial</div>
+          <div class="gc-sub">Proporção entre regimes no universo filtrado</div>
+          <div id="regime-donut-wrap"></div>
+        </div>
+        <div class="gc">
+          <div class="gc-titulo">Regime por Unidade Sanitária</div>
+          <div class="gc-sub">Composição de cada unidade por regime</div>
+          <div id="regime-unidade-wrap"></div>
+        </div>
       </div>
 
       <div class="sec"><i data-lucide="calendar-heart"></i> Extremos Etários</div>
@@ -1305,6 +1352,7 @@
     renderExtremosEtarios(funcs);
     renderEvolucaoCadastros(funcs);
     renderQualidade(funcs);
+    renderRegime(funcs);
     renderCobertura(funcs, unidades);
     renderSalarial(funcs);
     renderFormacao(funcs);
@@ -1341,6 +1389,7 @@
     renderExtremosEtarios(funcs);
     renderEvolucaoCadastros(funcs);
     renderQualidade(funcs);
+    renderRegime(funcs);
     renderCobertura(funcs, unidades);
     renderSalarial(funcs);
     renderReforma(funcs);
@@ -1516,6 +1565,106 @@
   function fmtKz(v) { return v >= 1e6 ? (v/1e6).toFixed(1).replace(".",",") + " MKz" : v >= 1e3 ? (v/1e3).toFixed(0) + "K Kz" : v.toLocaleString("pt-PT") + " Kz"; }
   function idadeMedia(funcs) { const ids = funcs.filter(f=>f.nascimento).map(f=>new Date().getFullYear()-new Date(f.nascimento).getFullYear()); return ids.length ? Math.round(ids.reduce((a,b)=>a+b,0)/ids.length) : null; }
   function calcGrupo(funcs, campo, labels) { const m = {}; funcs.forEach(f => { const k = f[campo] || "activo"; m[k] = (m[k] || 0) + 1; }); return Object.entries(m).map(([k,v])=>({label:labels[k]||k,val:v})).sort((a,b)=>b.val-a.val); }
+
+  // ════════════════════════════════════════════════════════
+  //  REGIME — cálculo de métricas (Etapa 2)
+  // ════════════════════════════════════════════════════════
+
+  /** Totais e percentagens globais por regime. Usa memoização. */
+  function calcRegime(funcs) {
+    return _memoGet('regime', () => {
+      const total     = funcs.length;
+      const especial  = funcs.filter(f => f.regime === 'especial').length;
+      const geral     = total - especial; // inclui fallback para registos sem campo
+      const semRegime = funcs.filter(f => !f.regime).length;
+      return {
+        geral, especial, total, semRegime,
+        pctGeral:    total ? Math.round(geral    / total * 100) : 0,
+        pctEspecial: total ? Math.round(especial / total * 100) : 0
+      };
+    }, _hashFuncs(funcs));
+  }
+
+  /** Distribuição regime × unidade sanitária, ordenada por total desc. */
+  function calcRegimePorUnidade(funcs) {
+    return _memoGet('regimeUnidade', () => {
+      const mapa = {};
+      funcs.forEach(f => {
+        const u = f.unidade || '—';
+        if (!mapa[u]) mapa[u] = { unidade: u, geral: 0, especial: 0, total: 0 };
+        if (f.regime === 'especial') mapa[u].especial++;
+        else                        mapa[u].geral++;
+        mapa[u].total++;
+      });
+      return Object.values(mapa)
+        .sort((a, b) => b.total - a.total)
+        .map(r => ({
+          ...r,
+          pctGeral:    Math.round(r.geral    / r.total * 100),
+          pctEspecial: Math.round(r.especial / r.total * 100)
+        }));
+    }, _hashFuncs(funcs));
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  REGIME — visualização (Etapa 3)
+  // ════════════════════════════════════════════════════════
+  function renderRegime(funcs) {
+    const elKpi     = document.getElementById('regime-kpi-strip');
+    const elDonut   = document.getElementById('regime-donut-wrap');
+    const elUnidade = document.getElementById('regime-unidade-wrap');
+    if (!elKpi || !elDonut || !elUnidade) return;
+
+    const r = calcRegime(funcs);
+
+    // ── KPI Cards ──
+    elKpi.innerHTML = `
+      <div class="regime-kpi total">
+        <div class="regime-kpi-lbl">Total Funcionários</div>
+        <div class="regime-kpi-val" style="color:#10c886">${r.total}</div>
+        <div class="regime-kpi-sub">universo filtrado</div>
+      </div>
+      <div class="regime-kpi geral">
+        <div class="regime-kpi-lbl">Regime Geral</div>
+        <div class="regime-kpi-val" style="color:#60a5fa">${r.geral}</div>
+        <span class="regime-kpi-badge" style="background:rgba(59,130,246,.15);color:#60a5fa">${r.pctGeral}%</span>
+      </div>
+      <div class="regime-kpi especial">
+        <div class="regime-kpi-lbl">Regime Especial</div>
+        <div class="regime-kpi-val" style="color:#c4b5fd">${r.especial}</div>
+        <span class="regime-kpi-badge" style="background:rgba(167,139,250,.15);color:#c4b5fd">${r.pctEspecial}%</span>
+      </div>
+      <div class="regime-kpi alerta">
+        <div class="regime-kpi-lbl">Sem Regime Definido</div>
+        <div class="regime-kpi-val" style="color:${r.semRegime > 0 ? '#f59e0b' : 'rgba(255,255,255,.3)'}">${r.semRegime}</div>
+        <div class="regime-kpi-sub">${r.semRegime > 0 ? 'requer atenção' : 'cadastro completo'}</div>
+      </div>`;
+
+    // ── Donut — usa renderDonut já existente ──
+    renderDonut('regime-donut-wrap', calcGrupo(funcs, 'regime', { geral: 'Regime Geral', especial: 'Regime Especial' }));
+
+    // ── Distribuição por Unidade Sanitária ──
+    const porUnidade = calcRegimePorUnidade(funcs).slice(0, 10);
+    if (!porUnidade.length) {
+      elUnidade.innerHTML = '<div class="vazio">Sem dados</div>';
+      return;
+    }
+    elUnidade.innerHTML = porUnidade.map(u => `
+      <div class="regime-unidade-item">
+        <div class="regime-unidade-head">
+          <span class="regime-unidade-nome" title="${u.unidade}">${u.unidade}</span>
+          <span class="regime-unidade-total">${u.total}</span>
+        </div>
+        <div class="regime-stack">
+          <div class="regime-stack-g" style="width:${u.pctGeral}%"></div>
+          <div class="regime-stack-e" style="width:${u.pctEspecial}%"></div>
+        </div>
+        <div class="regime-unidade-leg">
+          <span class="rg">G: ${u.geral} (${u.pctGeral}%)</span>
+          <span class="re">E: ${u.especial} (${u.pctEspecial}%)</span>
+        </div>
+      </div>`).join('');
+  }
   function toMs(ts) { if (!ts) return null; if (ts.toDate) return ts.toDate().getTime(); if (ts.seconds) return ts.seconds * 1000; return new Date(ts).getTime(); }
 
   function renderSecretariaEstat() {
