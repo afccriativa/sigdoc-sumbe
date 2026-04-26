@@ -468,7 +468,6 @@
       font-size:11px;color:var(--c-700);background:var(--c-50);border:1px solid var(--c-200);
       padding:8px 11px;border-radius:14px;margin-top:4px;line-height:1.55;
     }
-
     /* ── Secções recolhíveis ── */
     .secao-titulo-btn{
       width:100%;display:flex;align-items:center;justify-content:space-between;
@@ -1006,7 +1005,14 @@
           </div>
           <div class="campo">
             <label>Validade do BI</label>
-            <input type="date" id="f-biValidade" onchange="verificarValidadeBI()"/>
+            <select id="f-biVitalicioOpcao" onchange="verificarValidadeBI()">
+              <option value="">O BI é vitalício?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
+            <div id="bi-validade-data-wrap" style="display:none">
+              <input type="date" id="f-biValidade" onchange="verificarValidadeBI()"/>
+            </div>
             <span class="campo-hint" id="hint-bi-validade" style="display:none"></span>
           </div>
           <div class="campo">
@@ -1416,12 +1422,49 @@
 
 <script>
   // ── Validação de Validade do BI ─────────────────────────
+  window.actualizarEstadoValidadeBI = function() {
+    var elVal  = document.getElementById('f-biValidade');
+    var elOpc  = document.getElementById('f-biVitalicioOpcao');
+    var wrap   = document.getElementById('bi-validade-data-wrap');
+    if(!elVal || !elOpc || !wrap){
+      return { vitalicio:false, requerData:false, opcao:'' };
+    }
+    var opcao = elOpc.value || '';
+    var vitalicio = opcao === 'sim';
+    var requerData = opcao === 'nao';
+    wrap.style.display = requerData ? 'block' : 'none';
+    elVal.disabled = !requerData;
+    if(vitalicio){
+      elVal.value = '';
+    }
+    return { vitalicio:vitalicio, requerData:requerData, opcao:opcao };
+  };
+
   window.verificarValidadeBI = function() {
     var elVal  = document.getElementById('f-biValidade');
     var hint   = document.getElementById('hint-bi-validade');
     if(!elVal || !hint) return;
+    var estado = actualizarEstadoValidadeBI();
+    if(estado.vitalicio){
+      hint.style.display='block';
+      hint.style.background='#eff6ff'; hint.style.borderColor='#bfdbfe'; hint.style.color='#1d4ed8';
+      hint.innerHTML='<i data-lucide="check-circle" style="width:11px;height:11px;stroke-width:2.5"></i> BI marcado como vitalicio. Nao e necessario informar uma data de validade.';
+      if(window.lucide) lucide.createIcons();
+      return;
+    }
+    if(!estado.requerData){
+      hint.style.display='none';
+      hint.textContent='';
+      return;
+    }
     var val = elVal.value;
-    if(!val){ hint.style.display='none'; hint.textContent=''; return; }
+    if(!val){
+      hint.style.display='block';
+      hint.style.background='#f8fafc'; hint.style.borderColor='#cbd5e1'; hint.style.color='#475569';
+      hint.innerHTML='<i data-lucide="info" style="width:11px;height:11px;stroke-width:2.5"></i> Informe a data de validade do BI.';
+      if(window.lucide) lucide.createIcons();
+      return;
+    }
     var hoje  = new Date(); hoje.setHours(0,0,0,0);
     var vDate = new Date(val + 'T00:00:00');
     var diff  = Math.round((vDate - hoje)/(1000*60*60*24));
@@ -1438,6 +1481,7 @@
       hint.style.background='#f0fdf4'; hint.style.borderColor='#bbf7d0'; hint.style.color='#166534';
       hint.innerHTML='<i data-lucide="check-circle" style="width:11px;height:11px;stroke-width:2.5"></i> BI válido até ' + vDate.toLocaleDateString('pt-PT') + '.';
     }
+    if(window.lucide) lucide.createIcons();
   };
 
   // ── Validação de Número de Conta / IBAN ─────────────────
@@ -2211,8 +2255,11 @@
       var el = document.getElementById(id); if(el) el.value = camposCompl[id];
     });
     // biValidade
+    var biVitalicioActual = f.biVitalicio === true || f.biVitalicio === 'true';
+    var elBiVitalOpcao = document.getElementById('f-biVitalicioOpcao');
+    if(elBiVitalOpcao) elBiVitalOpcao.value = biVitalicioActual ? 'sim' : (f.biValidade ? 'nao' : '');
     var elBiVal = document.getElementById('f-biValidade');
-    if(elBiVal){ elBiVal.value = f.biValidade||''; verificarValidadeBI(); }
+    if(elBiVal){ elBiVal.value = biVitalicioActual ? '' : (f.biValidade||''); verificarValidadeBI(); }
     var temCompl = f.estadoCivil||f.biEmissao||f.nomePai||f.nomeMae||f.morada||f.email;
     if(temCompl) expandirSecao('secao-complementar');
     else document.getElementById('secao-complementar').classList.add('recolhida');
@@ -2304,6 +2351,9 @@
     ['f-estadoCivil','f-biEmissao','f-biValidade','f-nomePai','f-nomeMae','f-morada','f-email'].forEach(function(id){
       var el = document.getElementById(id); if(el) el.value='';
     });
+    var elBiVitalOpcao = document.getElementById('f-biVitalicioOpcao');
+    if(elBiVitalOpcao) elBiVitalOpcao.value = '';
+    verificarValidadeBI();
     // ── Novos campos: Formação ──
     limparEstudando();
     // ── Recolher secções opcionais ──
@@ -2700,6 +2750,8 @@
       return;
     }
     const bi=document.getElementById("f-bi").value.trim();
+    const biVitalicioOpcao = document.getElementById("f-biVitalicioOpcao")?.value||'';
+    const biVitalicio = biVitalicioOpcao === 'sim';
     const dados={
       nome,sexo,numero,categoria,cargo,unidade,vinculo,regime,admissao,seccao,
       unidadeId: unidadeInfo.id || "",
@@ -2709,7 +2761,8 @@
       municipioNatal: document.getElementById("f-municipioNatal")?.value?.trim()||'',
       nascimento:document.getElementById("f-nascimento").value,
       bi,
-      biValidade: document.getElementById("f-biValidade")?.value||'',
+      biValidade: biVitalicioOpcao === 'nao' ? (document.getElementById("f-biValidade")?.value||'') : '',
+      biVitalicio,
       telefone:document.getElementById("f-telefone").value.trim(),
       estado:document.getElementById("f-estado").value,
       escolaridade:document.getElementById("f-escolaridade").value,
