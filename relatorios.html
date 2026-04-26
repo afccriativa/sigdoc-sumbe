@@ -202,6 +202,23 @@
       font-family:'DM Mono',monospace;white-space:nowrap;transition:all .2s}
     .count-badge:empty{display:none}
     .count-badge.zero{color:#dc2626;background:#fef2f2}
+    .campos-panel{padding:14px 16px;border:1px solid #e2e8f0;border-radius:12px;background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)}
+    .campos-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+    .campos-panel-sub{font-size:12px;color:#64748b;line-height:1.45}
+    .campos-panel-acoes{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .campo-select-sm{width:auto;min-width:170px}
+    .btn-campo-acao{padding:7px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s}
+    .btn-campo-acao:hover{border-color:#10c886;color:#0d7a52;background:#f0fdf4}
+    .btn-campo-acao:disabled{opacity:.55;cursor:not-allowed}
+    .campos-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    @media(max-width:1100px){.campos-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:620px){.campos-grid{grid-template-columns:1fr}}
+    .campo-check{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;transition:border-color .15s,box-shadow .15s,transform .15s}
+    .campo-check:hover{border-color:#86efac;box-shadow:0 8px 20px rgba(15,23,42,.05);transform:translateY(-1px)}
+    .campo-check input{margin-top:2px;accent-color:#10c886}
+    .campo-check-corpo{display:flex;flex-direction:column;gap:3px;min-width:0}
+    .campo-check-titulo{font-size:12px;font-weight:700;color:#0f172a}
+    .campo-check-chave{font-size:11px;color:#94a3b8;font-family:'DM Mono',monospace}
   </style>
 </head>
 <body>
@@ -302,6 +319,25 @@
               <option value="provisorio">Provimento Provisório</option>
             </select>
           </div>
+        </div>
+        <div class="campos-panel">
+          <div class="campos-panel-head">
+            <div>
+              <label class="campo-label" for="mg-campos-grid">Campos do relatorio</label>
+              <div class="campos-panel-sub" id="mg-campos-resumo">A preparar seleccao de campos...</div>
+            </div>
+            <div class="campos-panel-acoes">
+              <select class="campo-select campo-select-sm" id="mg-modelo-relatorio" onchange="aplicarModeloMapaGeral(this.value)">
+                <option value="">Modelos rapidos</option>
+                <option value="padrao">Modelo padrao</option>
+                <option value="rh">Relatorio RH</option>
+                <option value="administrativo">Relatorio administrativo</option>
+              </select>
+              <button type="button" class="btn-campo-acao" onclick="seleccionarTodosCamposMG()">Seleccionar todos</button>
+              <button type="button" class="btn-campo-acao" onclick="limparCamposMG()">Limpar seleccao</button>
+            </div>
+          </div>
+          <div class="campos-grid" id="mg-campos-grid"></div>
         </div>
         <div class="btn-strip">
           <button class="btn-exp btn-excel" onclick="exportarMapaGeral('excel')"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Excel</button>
@@ -742,6 +778,7 @@
       document.getElementById("ecra-principal").style.display  = "block";
       document.getElementById("badge-perfil").textContent =
         {admin:"Administrador",director:"Director",chefe:"Chefe RH",tecnico:"Técnico RH"}[_perfil] || _perfil;
+      inicializarMapaGeralPersonalizado();
 
       // Ocultar mapa salarial se não tiver permissão
       if (!temAlgumRoleRelatorios(_perfilDoc || _perfil, ["admin","chefe","tecnico"])) {
@@ -955,6 +992,51 @@
   const headerHTML = value => `<th>${escapeHTML(value ?? "")}</th>`;
   const linhasParaHTML = linhas =>
     linhas.map(l => `<tr>${l.map(c => cellHTML(c)).join("")}</tr>`).join("");
+  const formatoRegime = v => ({geral:"Regime Geral",especial:"Regime Especial"}[v] || v || "—");
+  const formatoModalidadeEstudo = v => ({
+    presencial:"Presencial",
+    "pos-laboral":"Pos-laboral",
+    distancia:"Ensino a Distancia / EAD",
+    "semi-presencial":"Semi-presencial"
+  }[v] || v || "—");
+
+  function calcularIdadeFuncionario(dataNascimento) {
+    if (!dataNascimento) return "—";
+    const data = new Date(dataNascimento);
+    if (Number.isNaN(data.getTime())) return "—";
+    const hojeActual = new Date();
+    let idade = hojeActual.getFullYear() - data.getFullYear();
+    const mes = hojeActual.getMonth() - data.getMonth();
+    if (mes < 0 || (mes === 0 && hojeActual.getDate() < data.getDate())) idade--;
+    return idade >= 0 ? String(idade) : "—";
+  }
+
+  function calcularTempoServico(dataAdmissao) {
+    if (!dataAdmissao) return "—";
+    const data = new Date(dataAdmissao);
+    if (Number.isNaN(data.getTime())) return "—";
+    const hojeActual = new Date();
+    let anos = hojeActual.getFullYear() - data.getFullYear();
+    const mes = hojeActual.getMonth() - data.getMonth();
+    if (mes < 0 || (mes === 0 && hojeActual.getDate() < data.getDate())) anos--;
+    if (anos < 0) return "—";
+    return anos === 1 ? "1 ano" : `${anos} anos`;
+  }
+
+  function obterNaturalidadeFuncionario(f) {
+    return [f.municipioNatal, f.provinciaNatal].filter(Boolean).join(", ") || "—";
+  }
+
+  function estadoEstudoFuncionario(v) {
+    if (v === true || v === "true" || v === "sim") return "Sim";
+    if (v === false || v === "false" || v === "nao" || v === "não") return "Nao";
+    return "—";
+  }
+
+  function valorCampoBaseFuncionario(f, key) {
+    const valor = f?.[key];
+    return valor === undefined || valor === null || valor === "" ? "—" : valor;
+  }
 
   // ════════════════════════════════════════════════════════
   //  EXPORTAR EXCEL (TSV abre directamente no Excel)
@@ -1195,6 +1277,301 @@
   // ════════════════════════════════════════════════════════
   //  MAPA POR UNIDADE
   // ════════════════════════════════════════════════════════
+  const STORAGE_MAPA_GERAL_CAMPOS = "sigdoc.relatorios.mapaGeral.campos.v1";
+  const MODELOS_RELATORIO_MAPA_GERAL = {
+    padrao: [
+      "numero","nome","sexo","nascimento","bi","telefone","categoria","unidade","seccao",
+      "vinculo","admissao","tempoServico","estado","escolaridade","naturalidade","inss","banco"
+    ],
+    rh: [
+      "numero","nome","sexo","nascimento","idade","bi","telefone","email","morada","estadoCivil",
+      "nomePai","nomeMae","categoria","cargo","unidade","seccao","vinculo","regime","admissao",
+      "tempoServico","estado","escolaridade","naturalidade","inss","banco","numeroConta"
+    ],
+    administrativo: [
+      "numero","nome","categoria","cargo","unidade","seccao","vinculo","regime","admissao",
+      "tempoServico","estado","telefone","email","observacoes"
+    ]
+  };
+  const CAMPOS_FUNCIONARIO = [
+    { key:"numero", label:"Numero Agente", previewLabel:"No" },
+    { key:"nome", label:"Nome Completo", previewLabel:"Nome", destaque:true },
+    { key:"sexo", label:"Sexo" },
+    { key:"nascimento", label:"Data de Nascimento", obter:f => fmtData(f.nascimento) },
+    { key:"idade", label:"Idade", obter:f => calcularIdadeFuncionario(f.nascimento) },
+    { key:"bi", label:"Numero BI" },
+    { key:"biEmissao", label:"Data de Emissao do BI", obter:f => fmtData(f.biEmissao) },
+    { key:"biValidade", label:"Validade do BI", obter:f => f.biVitalicio ? "Vitalicio" : fmtData(f.biValidade) },
+    { key:"telefone", label:"Telefone" },
+    { key:"email", label:"Email" },
+    { key:"morada", label:"Morada" },
+    { key:"estadoCivil", label:"Estado Civil" },
+    { key:"nomePai", label:"Nome do Pai" },
+    { key:"nomeMae", label:"Nome da Mae" },
+    { key:"provinciaNatal", label:"Provincia de Nascimento" },
+    { key:"municipioNatal", label:"Municipio de Nascimento" },
+    { key:"naturalidade", label:"Naturalidade", obter:f => obterNaturalidadeFuncionario(f) },
+    { key:"categoria", label:"Categoria" },
+    { key:"cargo", label:"Cargo" },
+    { key:"unidade", label:"Colocacao / Unidade" },
+    { key:"seccao", label:"Seccao" },
+    { key:"area", label:"Area" },
+    { key:"vinculo", label:"Vinculo", obter:f => lv(f.vinculo) },
+    { key:"regime", label:"Regime", obter:f => formatoRegime(f.regime) },
+    { key:"admissao", label:"Data de Admissao", previewLabel:"Admissao", obter:f => fmtData(f.admissao) },
+    { key:"tempoServico", label:"Tempo de Servico", obter:f => calcularTempoServico(f.admissao) },
+    { key:"estado", label:"Estado", obter:f => le(f.estado || "activo") },
+    { key:"escolaridade", label:"Escolaridade" },
+    { key:"inss", label:"Numero INSS" },
+    { key:"banco", label:"Banco" },
+    { key:"numeroConta", label:"Numero de Conta" },
+    { key:"estudando", label:"Em Formacao", obter:f => estadoEstudoFuncionario(f.estudando) },
+    { key:"curso", label:"Curso" },
+    { key:"instituicao", label:"Instituicao" },
+    { key:"anoCurso", label:"Ano do Curso" },
+    { key:"modalidadeEstudo", label:"Modalidade de Estudo", obter:f => formatoModalidadeEstudo(f.modalidadeEstudo) },
+    { key:"observacoes", label:"Observacoes" },
+    { key:"salarioBase", label:"Salario Base", obter:f => fmtKz(f.salarioBase), roles:["admin","chefe","tecnico"] }
+  ];
+  let camposSelecionados = [];
+
+  function podeVerCampoFuncionario(campo) {
+    return !campo.roles || temAlgumRoleRelatorios(_perfilDoc || _perfil, campo.roles);
+  }
+
+  function obterCamposDisponiveisMapaGeral() {
+    return CAMPOS_FUNCIONARIO.filter(podeVerCampoFuncionario);
+  }
+
+  function obterCampoFuncionario(key) {
+    return CAMPOS_FUNCIONARIO.find(campo => campo.key === key) || null;
+  }
+
+  function normalizarCamposMapaGeral(keys) {
+    const permitidos = new Set(obterCamposDisponiveisMapaGeral().map(campo => campo.key));
+    return [...new Set((keys || []).filter(key => permitidos.has(key)))];
+  }
+
+  function lerCamposMapaGeralGuardados() {
+    try {
+      const raw = localStorage.getItem(STORAGE_MAPA_GERAL_CAMPOS);
+      if (!raw) return null;
+      const dados = JSON.parse(raw);
+      return Array.isArray(dados) ? dados : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function guardarCamposMapaGeral() {
+    try {
+      localStorage.setItem(STORAGE_MAPA_GERAL_CAMPOS, JSON.stringify(camposSelecionados));
+    } catch (_) {}
+  }
+
+  function detectarModeloMapaGeral(campos) {
+    const normalizados = normalizarCamposMapaGeral(campos);
+    const assinatura = normalizados.join("|");
+    const entrada = Object.entries(MODELOS_RELATORIO_MAPA_GERAL).find(([, lista]) =>
+      normalizarCamposMapaGeral(lista).join("|") === assinatura
+    );
+    return entrada ? entrada[0] : "";
+  }
+
+  function obterCamposSeleccionadosMapaGeral(notificarSeVazio) {
+    const campos = obterCamposDisponiveisMapaGeral().filter(campo => camposSelecionados.includes(campo.key));
+    if (!campos.length && notificarSeVazio) {
+      notif("Seleccione pelo menos um campo.", "erro");
+    }
+    return campos;
+  }
+
+  function valorCampoFuncionario(f, campo) {
+    if (typeof campo.obter === "function") return campo.obter(f);
+    return valorCampoBaseFuncionario(f, campo.key);
+  }
+
+  function filtrarDados(funcionarios, camposActivos) {
+    return funcionarios.map(funcionario => camposActivos.reduce((acc, campo) => {
+      const meta = typeof campo === "string" ? obterCampoFuncionario(campo) : campo;
+      const key = meta?.key || campo;
+      acc[key] = meta ? valorCampoFuncionario(funcionario, meta) : valorCampoBaseFuncionario(funcionario, key);
+      return acc;
+    }, {}));
+  }
+
+  function construirRelatorioMapaGeral(funcs, camposActivos) {
+    const dadosFiltrados = filtrarDados(funcs, camposActivos);
+    const colunas = camposActivos.map(campo => campo.label);
+    const colunasPrevia = camposActivos.map(campo => campo.previewLabel || campo.label);
+    const linhas = dadosFiltrados.map(item => camposActivos.map(campo => item[campo.key] ?? "-"));
+    return { dadosFiltrados, colunas, colunasPrevia, linhas };
+  }
+
+  function actualizarResumoCamposMapaGeral() {
+    const total = obterCamposDisponiveisMapaGeral().length;
+    const activos = obterCamposSeleccionadosMapaGeral(false).length;
+    const resumo = document.getElementById("mg-campos-resumo");
+    const modelo = document.getElementById("mg-modelo-relatorio");
+    if (resumo) {
+      resumo.textContent = activos
+        ? `${activos} de ${total} campos seleccionados. A previa e as exportacoes reflectem exactamente esta seleccao.`
+        : "Nenhum campo seleccionado. Escolha pelo menos um campo para visualizar ou exportar.";
+    }
+    if (modelo) modelo.value = detectarModeloMapaGeral(camposSelecionados);
+  }
+
+  function sincronizarCheckboxesMapaGeral() {
+    const seleccionados = new Set(camposSelecionados);
+    document.querySelectorAll('input[name="mg-campo"]').forEach(input => {
+      input.checked = seleccionados.has(input.value);
+    });
+    actualizarResumoCamposMapaGeral();
+  }
+
+  function actualizarPreviaMapaGeralSeAberta() {
+    const card = document.getElementById("preview-card");
+    if (card?.style.display !== "none" && card?.dataset.previaContexto === "Mapa Geral de Pessoal") {
+      const campos = obterCamposSeleccionadosMapaGeral(false);
+      if (!campos.length) {
+        window.fecharPrevia();
+        return;
+      }
+      const relatorio = construirRelatorioMapaGeral(filtrarGeral(), campos);
+      mostrarPrevia("Mapa Geral de Pessoal", relatorio.colunasPrevia, relatorio.linhas);
+    }
+  }
+
+  function aplicarSeleccaoCamposMapaGeral(keys) {
+    camposSelecionados = normalizarCamposMapaGeral(keys);
+    guardarCamposMapaGeral();
+    sincronizarCheckboxesMapaGeral();
+    actualizarPreviaMapaGeralSeAberta();
+  }
+
+  function renderizarCamposMapaGeral() {
+    const grid = document.getElementById("mg-campos-grid");
+    if (!grid) return;
+    const campos = obterCamposDisponiveisMapaGeral();
+    grid.replaceChildren();
+    campos.forEach(campo => {
+      const label = document.createElement("label");
+      label.className = "campo-check";
+
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.name = "mg-campo";
+      input.value = campo.key;
+      input.checked = camposSelecionados.includes(campo.key);
+      input.addEventListener("change", () => {
+        const seleccionados = [...document.querySelectorAll('input[name="mg-campo"]:checked')].map(el => el.value);
+        aplicarSeleccaoCamposMapaGeral(seleccionados);
+      });
+
+      const corpo = document.createElement("span");
+      corpo.className = "campo-check-corpo";
+      const titulo = document.createElement("span");
+      titulo.className = "campo-check-titulo";
+      titulo.textContent = campo.label;
+      const chave = document.createElement("span");
+      chave.className = "campo-check-chave";
+      chave.textContent = campo.key;
+
+      corpo.append(titulo, chave);
+      label.append(input, corpo);
+      grid.appendChild(label);
+    });
+    actualizarResumoCamposMapaGeral();
+  }
+
+  function inicializarMapaGeralPersonalizado() {
+    const guardados = lerCamposMapaGeralGuardados();
+    camposSelecionados = normalizarCamposMapaGeral(
+      Array.isArray(guardados) && guardados.length ? guardados : MODELOS_RELATORIO_MAPA_GERAL.padrao
+    );
+    renderizarCamposMapaGeral();
+    sincronizarCheckboxesMapaGeral();
+  }
+
+  function exportarMapaGeralPDF(relatorio, total, campos) {
+    const titulo = "Mapa Geral de Pessoal";
+    const rows = relatorio.linhas.map(linha =>
+      `<tr>${linha.map((valor, index) => {
+        const campo = campos[index];
+        if (campo?.key === "estado") {
+          const estadoTxt = String(valor || "").toLowerCase();
+          const ecls = estadoTxt.includes("serv") ? "ba" : (estadoTxt.includes("lic") ? "bl" : "bi");
+          return `<td><span class="badge ${ecls}">${escapeHTML(valor)}</span></td>`;
+        }
+        if (campo?.destaque) {
+          return `<td><strong>${escapeHTML(valor)}</strong></td>`;
+        }
+        return cellHTML(valor);
+      }).join("")}</tr>`
+    ).join("");
+    abrirPDF(`
+      <h1>${titulo}</h1>
+      <div class="sub">Direccao Municipal de Saude do Sumbe</div>
+      <div class="meta"><span>Data: ${new Date().toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"})}</span><span>Total: ${total} funcionarios</span></div>
+      <table><thead><tr>${relatorio.colunas.map(headerHTML).join("")}</tr></thead><tbody>${rows}</tbody></table>
+    `, titulo);
+    notif(I.fileText + " PDF aberto em nova janela - use Imprimir para guardar");
+  }
+
+  window.aplicarModeloMapaGeral = function(modelo) {
+    if (!modelo || !MODELOS_RELATORIO_MAPA_GERAL[modelo]) return;
+    aplicarSeleccaoCamposMapaGeral(MODELOS_RELATORIO_MAPA_GERAL[modelo]);
+  };
+
+  window.seleccionarTodosCamposMG = function() {
+    aplicarSeleccaoCamposMapaGeral(obterCamposDisponiveisMapaGeral().map(campo => campo.key));
+  };
+
+  window.limparCamposMG = function() {
+    aplicarSeleccaoCamposMapaGeral([]);
+  };
+
+  window.gerarRelatorioPersonalizado = function(tipoExportacao) {
+    const funcs = filtrarGeral();
+    if (!funcs.length) {
+      notif("Nenhum funcionario corresponde aos filtros.", "erro");
+      return;
+    }
+    const campos = obterCamposSeleccionadosMapaGeral(true);
+    if (!campos.length) return;
+    const relatorio = construirRelatorioMapaGeral(funcs, campos);
+    const nome = "Mapa_Geral_Pessoal_" + hoje();
+    if (tipoExportacao === "excel") {
+      downloadExcel(relatorio.colunas, relatorio.linhas, nome);
+      notif(I.barChart + " Excel gerado com " + funcs.length + " registos");
+      return;
+    }
+    if (tipoExportacao === "csv") {
+      downloadCSV(relatorio.colunas, relatorio.linhas, nome);
+      notif(I.download + " CSV gerado com " + funcs.length + " registos");
+      return;
+    }
+    exportarMapaGeralPDF(relatorio, funcs.length, campos);
+  };
+
+  window.exportarMapaGeral = function(fmt) {
+    window.gerarRelatorioPersonalizado(fmt);
+  };
+
+  window.previsualizarMapaGeral = function() {
+    const btn = document.querySelector('[onclick="previsualizarMapaGeral()"]');
+    const orig = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.innerHTML = I.loader + ' A carregarâ€¦'; }
+    try {
+      const campos = obterCamposSeleccionadosMapaGeral(true);
+      if (!campos.length) return;
+      const relatorio = construirRelatorioMapaGeral(filtrarGeral(), campos);
+      mostrarPrevia("Mapa Geral de Pessoal", relatorio.colunasPrevia, relatorio.linhas);
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+    }
+  };
+
   window.exportarMapaUnidade = function(fmt) {
     const funcs = filtrarUnidade();
     const unid  = document.getElementById("f-mu-unidade").value || "Todas as Unidades";
