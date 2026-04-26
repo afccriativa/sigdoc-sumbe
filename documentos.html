@@ -1934,6 +1934,49 @@
     return String(valor ?? "").trim().replace(/\s+/g, " ").toUpperCase();
   }
 
+  function gerarNomeFicheiro(tipoDocumento, nomeFuncionario) {
+    if (window.SIGDOCBuilderUtils && typeof window.SIGDOCBuilderUtils.gerarNomeFicheiro === "function") {
+      return window.SIGDOCBuilderUtils.gerarNomeFicheiro(tipoDocumento, nomeFuncionario);
+    }
+
+    const limparSegmento = valor => String(valor ?? "")
+      .replace(/[\/\\:*?"<>|]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/^[. ]+|[. ]+$/g, "");
+
+    const nomeSeguro = limparSegmento(nomeFuncionario);
+    if (!nomeSeguro) return "Documento Sem Nome.pdf";
+
+    const nomesFormais = {
+      "guia-ferias": "Guia de F\u00e9rias",
+      "guia-medica": "Guia M\u00e9dica",
+      "declaracao-servico": "Declara\u00e7\u00e3o"
+    };
+    const tipoSeguro = nomesFormais[tipoDocumento] || limparSegmento(tipoDocumento) || "Documento";
+    return tipoSeguro + " - " + nomeSeguro + ".pdf";
+  }
+
+  function actualizarMetadadosImpressao(tipoDocumento, nomeFuncionario) {
+    const areaImpressao = document.getElementById("area-impressao");
+    if (!areaImpressao) return;
+
+    const normalizar = window.SIGDOCBuilderUtils && typeof window.SIGDOCBuilderUtils.normalizarEspacos === "function"
+      ? window.SIGDOCBuilderUtils.normalizarEspacos
+      : valor => String(valor ?? "").replace(/\s+/g, " ").trim();
+
+    areaImpressao.dataset.tipoDocumento = normalizar(tipoDocumento);
+    areaImpressao.dataset.nomeFuncionario = normalizar(nomeFuncionario);
+  }
+
+  function obterMetadadosImpressaoActuais() {
+    const areaImpressao = document.getElementById("area-impressao");
+    return {
+      tipoDocumento: areaImpressao?.dataset?.tipoDocumento || document.getElementById("tipo-documento")?.value || "",
+      nomeFuncionario: areaImpressao?.dataset?.nomeFuncionario || document.getElementById("pesquisa-func")?.value || ""
+    };
+  }
+
   function nomeTipoDocumentoGerado(tipo) {
     return {
       "guia-ferias": "Guia de Férias",
@@ -2543,6 +2586,10 @@
     }
 
     document.getElementById("btn-imprimir").disabled = false;
+    actualizarMetadadosImpressao(
+      dadosUltimoDocumento?.tipo || tipoDoc,
+      dadosUltimoDocumento?.funcionarioNome || nomeFuncionario
+    );
     documentoGerado = true;
 
     if (!documentoSubmetido) {
@@ -2765,6 +2812,7 @@
       areaPreview.innerHTML = '<div class="doc-wrapper-centrado"><div class="doc-wrapper" style="display:block">' + d.htmlArquivo + '</div></div>';
     }
     areaImpressao.innerHTML = d.htmlArquivo;
+    actualizarMetadadosImpressao(d.tipo || d.tipoDocumento || "", d.funcionarioNome || d.nomeFuncionario || "");
     if (badgePreview) badgePreview.textContent = nomeTipo;
     if (badgeEstado) {
       badgeEstado.style.display = "flex";
@@ -2982,7 +3030,10 @@
   window.imprimirDocumento = function() {
     // Determinar o tipo de documento activo para escolher a orientação correcta
     const tipoDoc = document.getElementById("tipo-documento").value;
-    const isGuiaFerias = tipoDoc === "guia-ferias";
+    const { tipoDocumento: tipoDocActual, nomeFuncionario } = obterMetadadosImpressaoActuais();
+    const tipoDocumentoImpressao = tipoDocActual || tipoDoc;
+    const nomeFicheiro = gerarNomeFicheiro(tipoDocumentoImpressao, nomeFuncionario);
+    const isGuiaFerias = tipoDocumentoImpressao === "guia-ferias";
 
     // Definir configuração de página consoante o tipo de documento:
     // - Guia de Férias: A4 paisagem (duas colunas lado a lado)
@@ -3006,7 +3057,26 @@
       window.removeEventListener("afterprint", limparEstiloImpressao);
     });
 
-    window.print();
+    const tituloOriginal = document.title;
+    let tituloRestaurado = false;
+    const restaurarTituloImpressao = function() {
+      if (tituloRestaurado) return;
+      tituloRestaurado = true;
+      document.title = tituloOriginal;
+      window.removeEventListener("afterprint", restaurarTituloImpressao);
+      window.removeEventListener("focus", restaurarTituloImpressao);
+    };
+
+    document.title = nomeFicheiro;
+    window.addEventListener("afterprint", restaurarTituloImpressao);
+    window.addEventListener("focus", restaurarTituloImpressao);
+
+    try {
+      window.print();
+    } catch (erro) {
+      restaurarTituloImpressao();
+      throw erro;
+    }
   };
 
   function mostrarNotificacao(msg, tipo) {
@@ -3020,4 +3090,3 @@
 </script>
 </body>
 </html>
-
