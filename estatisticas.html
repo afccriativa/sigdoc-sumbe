@@ -223,6 +223,17 @@
       .gen-det-card{background:#fff!important;border:1px solid #e2e8f0!important}
       .gen-footer{border-top-color:#e2e8f0!important}
       .donut-dot,.pir-dot,.gen-det-pill{border:1px solid rgba(0,0,0,.05)}
+      /* ── Regime — estilos de impressão ── */
+      .regime-kpi{background:#f8fafc!important;border-color:#e2e8f0!important}
+      .regime-kpi-lbl{color:#64748b!important}
+      .regime-kpi-sub{color:#94a3b8!important}
+      .regime-kpi-badge{border:1px solid rgba(0,0,0,.08)!important}
+      .regime-kpi-strip{page-break-inside:avoid;break-inside:avoid}
+      .regime-unidade-item{page-break-inside:avoid;break-inside:avoid}
+      .regime-unidade-nome{color:#1e293b!important}
+      .regime-unidade-total{color:#64748b!important}
+      .regime-unidade-leg span{color:#64748b!important}
+      .regime-stack{background:#e2e8f0!important}
       /* ── Evitar corte de cartões entre páginas ── */
       .kpi{page-break-inside:avoid;break-inside:avoid}
       .kpi-strip{page-break-inside:avoid;break-inside:avoid}
@@ -1640,8 +1651,13 @@
         <div class="regime-kpi-sub">${r.semRegime > 0 ? 'requer atenção' : 'cadastro completo'}</div>
       </div>`;
 
-    // ── Donut — usa renderDonut já existente ──
-    renderDonut('regime-donut-wrap', calcGrupo(funcs, 'regime', { geral: 'Regime Geral', especial: 'Regime Especial' }));
+    // ── Donut — dados construídos a partir de calcRegime para evitar
+    //    o fallback genérico "activo" presente em calcGrupo ──
+    const donutDados = [
+      { label: 'Regime Geral',    val: r.geral    },
+      { label: 'Regime Especial', val: r.especial }
+    ].filter(d => d.val > 0);
+    renderDonut('regime-donut-wrap', donutDados);
 
     // ── Distribuição por Unidade Sanitária ──
     const porUnidade = calcRegimePorUnidade(funcs).slice(0, 10);
@@ -1776,12 +1792,35 @@
       'Categoria': f.categoria || '',
       'Unidade': f.unidade || '',
       'Vínculo': f.vinculo || '',
+      'Regime de Trabalho': { geral: 'Regime Geral', especial: 'Regime Especial' }[f.regime] || 'Regime Geral',
       'Estado': f.estado || 'activo',
       'BI': f.bi || '',
       'INSS': f.inss || '',
       'Sexo': f.sexo || ''
     })));
     XLSX.utils.book_append_sheet(wb, wsRH, "RH - Funcionários");
+
+    // Aba Regime — resumo por totais e distribuição por unidade
+    const rCalc = calcRegime(funcs);
+    const regimeUnidadeLista = calcRegimePorUnidade(funcs);
+    const wsRegime = XLSX.utils.json_to_sheet([
+      { 'Indicador': 'Total Funcionários',    'Valor': rCalc.total,    'Percentagem': '100%' },
+      { 'Indicador': 'Regime Geral',          'Valor': rCalc.geral,    'Percentagem': rCalc.pctGeral + '%' },
+      { 'Indicador': 'Regime Especial',       'Valor': rCalc.especial, 'Percentagem': rCalc.pctEspecial + '%' },
+      { 'Indicador': 'Sem Regime Definido',   'Valor': rCalc.semRegime,'Percentagem': rCalc.total ? Math.round(rCalc.semRegime / rCalc.total * 100) + '%' : '0%' },
+      { 'Indicador': '', 'Valor': '', 'Percentagem': '' },
+      { 'Indicador': '— Distribuição por Unidade —', 'Valor': '', 'Percentagem': '' },
+      ...regimeUnidadeLista.map(u => ({
+        'Indicador': u.unidade,
+        'Valor': u.total,
+        'Percentagem': '',
+        'Regime Geral': u.geral,
+        '% Geral': u.pctGeral + '%',
+        'Regime Especial': u.especial,
+        '% Especial': u.pctEspecial + '%'
+      }))
+    ]);
+    XLSX.utils.book_append_sheet(wb, wsRegime, "Regime de Trabalho");
 
     // 2. Aba Secretaria (Pedidos)
     if (_pedidosSec.length) {
@@ -1851,6 +1890,19 @@
     document.getElementById('ph-data').textContent = new Date().toLocaleString();
     document.getElementById('ph-total').textContent = `${_funcsFiltrados.length || _todosOsFuncs.length} funcionários`;
     document.getElementById('ph-user').textContent = _nomeUtilizador;
+
+    const LABEL_FILTROS = {
+      unidade:   v => v,
+      categoria: v => v,
+      vinculo:   v => ({ quadro: 'Quadro', provisorio: 'Provisório' }[v] || v),
+      estado:    v => ({ activo: 'Em Serviço', licenca: 'De Licença', inactivo: 'Inactivo' }[v] || v),
+      sexo:      v => v,
+      regime:    v => ({ geral: 'Regime Geral', especial: 'Regime Especial' }[v] || v)
+    };
+    const activos = Object.entries(_filtros)
+      .filter(([, v]) => v)
+      .map(([k, v]) => LABEL_FILTROS[k] ? LABEL_FILTROS[k](v) : v);
+    document.getElementById('ph-filtros').textContent = activos.length ? activos.join(' · ') : 'Nenhum';
   };
 
   // ════════════════════════════════════════════════════════
