@@ -64,8 +64,14 @@
       line-height: 1.4;
     }
     .campo-erro-msg::before {
-      content: "⚠";
+      content: "";
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c0392b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/%3E%3Cline x1='12' y1='9' x2='12' y2='13'/%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'/%3E%3C/svg%3E") no-repeat center;
+      background-size: contain;
       flex-shrink: 0;
+      margin-top: 1px;
     }
 
     .campo-pesquisa-func { position: relative; }
@@ -809,9 +815,13 @@
       border-color: var(--verde-primario);
     }
     .gp-passo--concluido .gp-num::before {
-      content: '✓';
-      font-size: 16px;
-      font-weight: 900;
+      content: "";
+      display: block;
+      width: 16px;
+      height: 16px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") no-repeat center;
+      background-size: contain;
+      margin: auto;
     }
     /* Cartão de cada passo */
     .gp-card {
@@ -923,6 +933,30 @@
       background: #16a34a;  /* verde mais escuro quando tudo preenchido */
     }
 
+
+    /* ================================================
+       ICONOGRAFIA SVG INLINE
+       Substitui todos os emojis por ícones vectoriais.
+       stroke:currentColor herda a cor do elemento pai
+       (branco em botões, verde em cabeçalhos, etc.).
+       ================================================ */
+    .sigdoc-icon {
+      width: 15px;
+      height: 15px;
+      display: inline-block;
+      vertical-align: -2px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+    /* Nos botões os ícones ficam ligeiramente maiores */
+    .btn-gerar .sigdoc-icon,
+    .btn-submeter .sigdoc-icon,
+    .btn-imprimir .sigdoc-icon { width: 16px; height: 16px; vertical-align: -3px; }
   </style>
   <!-- F2-E: preconnect — elimina latência de DNS + TLS para o Google Fonts em redes lentas -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -934,9 +968,9 @@
 
 <div class="barra-topo">
   <!-- F1-H: Botão de regresso — o CSS .btn-voltar já existia mas o elemento estava ausente do HTML -->
-  <a href="index.html" class="btn-voltar">← Voltar</a>
+  <a href="index.html" class="btn-voltar"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Voltar</a>
   <div class="titulo-pagina">
-    &#128196; Geração de Documentos
+    <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Geração de Documentos
     <span>Direcção Municipal da Saúde do Sumbe</span>
   </div>
 </div>
@@ -948,13 +982,13 @@
 
     <!-- Banner aparece quando vem do portal -->
     <div class="banner-portal-origem" id="banner-portal-origem">
-      <div class="bp-titulo">📩 Solicitação do Portal do Funcionário</div>
+      <div class="bp-titulo"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg> Solicitação do Portal do Funcionário</div>
       <div class="bp-info" id="bp-info-texto">Os dados foram importados automaticamente da solicitação do funcionário.</div>
-      <div class="bp-badge">✅ Dados pré-preenchidos — apenas insira o Nº da Guia e gere</div>
+      <div class="bp-badge"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Dados pré-preenchidos — apenas insira o Nº da Guia e gere</div>
     </div>
 
     <div class="cartao">
-      <div class="cartao-cabecalho">&#128203; Tipo de Documento</div>
+      <div class="cartao-cabecalho"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> Tipo de Documento</div>
       <div class="cartao-corpo">
         <div>
           <label for="tipo-documento">Seleccione o documento a gerar</label>
@@ -969,7 +1003,7 @@
     </div>
 
     <div class="cartao">
-      <div class="cartao-cabecalho" id="titulo-dados-documento">&#127958; Dados da Guia de Férias</div>
+      <div class="cartao-cabecalho" id="titulo-dados-documento"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> Dados da Guia de Férias</div>
 
       <!-- F3-D: Indicador de progresso — actualizado por actualizarProgressoFormulario() -->
       <div class="form-progresso-wrap" id="form-progresso-wrap">
@@ -1089,7 +1123,7 @@
             <input type="date" id="data-apresentacao"
                    aria-label="Data de apresentação ao serviço — calculada automaticamente"
                    aria-readonly="true" readonly/>
-            <div id="info-apresentacao" class="info-calc">&#128197; Calculada (excluindo fins-de-semana e feriados)</div>
+            <div id="info-apresentacao" class="info-calc"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Calculada (excluindo fins-de-semana e feriados)</div>
           </div>
         </div>
 
@@ -1105,9 +1139,9 @@
       </div>
     </div>
 
-    <button class="btn-gerar" onclick="gerarDocumento()">&#128065; Gerar Pré-visualização</button>
-    <button class="btn-submeter" id="btn-submeter" onclick="submeterDocumento()" disabled>&#128228; Guardar Documento</button>
-    <button class="btn-imprimir" id="btn-imprimir" onclick="imprimirDocumento()" disabled>&#128424; Imprimir / Exportar PDF</button>
+    <button class="btn-gerar" onclick="gerarDocumento()"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Gerar Pré-visualização</button>
+    <button class="btn-submeter" id="btn-submeter" onclick="submeterDocumento()" disabled><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Guardar Documento</button>
+    <button class="btn-imprimir" id="btn-imprimir" onclick="imprimirDocumento()" disabled><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Imprimir / Exportar PDF</button>
     <div class="badge-estado" id="badge-estado"></div>
 
   </div>
@@ -1115,7 +1149,7 @@
   <!-- PRÉ-VISUALIZAÇÃO -->
   <div class="painel-preview">
     <div class="preview-cabecalho">
-      &#128193; Pré-visualização do Documento
+      <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Pré-visualização do Documento
       <span class="badge-preview" id="badge-preview-documento">Guia de Férias</span>
     </div>
     <div class="area-preview" id="area-preview">
@@ -1126,7 +1160,7 @@
         <div class="guia-passos-wrap">
 
           <div class="gp-cabecalho">
-            <span class="gp-cabecalho-icone">&#128196;</span>
+            <span class="gp-cabecalho-icone"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
             <div class="gp-cabecalho-titulo">Como gerar um documento</div>
             <div class="gp-cabecalho-sub">Siga os 3 passos abaixo para emitir o documento oficial</div>
           </div>
@@ -1146,7 +1180,7 @@
             <div class="gp-passo gp-passo--ativo" id="gp-passo-2">
               <div class="gp-num" data-num="2"></div>
               <div class="gp-card">
-                <div class="gp-card-titulo">&#128269; Pesquisar funcion&#225;rio</div>
+                <div class="gp-card-titulo"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Pesquisar funcion&#225;rio</div>
                 <div class="gp-card-desc" id="gp-desc-2">Pesquise e seleccione o funcion&#225;rio no formul&#225;rio &#224; esquerda</div>
               </div>
             </div>
@@ -1155,7 +1189,7 @@
             <div class="gp-passo" id="gp-passo-3">
               <div class="gp-num" data-num="3"></div>
               <div class="gp-card">
-                <div class="gp-card-titulo">&#128065; Gerar pr&#233;-visualiza&#231;&#227;o</div>
+                <div class="gp-card-titulo"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Gerar pr&#233;-visualiza&#231;&#227;o</div>
                 <div class="gp-card-desc">Clique em <strong style="color:var(--verde-primario)">"Gerar Pr&#233;-visualiza&#231;&#227;o"</strong> para ver o documento</div>
               </div>
             </div>
@@ -1165,7 +1199,7 @@
           <!-- Badge: tipo de documento actualmente seleccionado no formulário -->
           <div class="gp-tipo-badge">
             <div class="gp-tipo-badge-inner">
-              &#128196; Documento activo:&nbsp;<strong id="gp-tipo-nome">Guia de F&#233;rias</strong>
+              <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Documento activo:&nbsp;<strong id="gp-tipo-nome">Guia de F&#233;rias</strong>
             </div>
           </div>
 
@@ -1179,7 +1213,7 @@
 
 <div class="arquivo-wrap">
   <div class="cartao">
-    <div class="cartao-cabecalho">&#128450; Arquivo de Documentos Emitidos</div>
+    <div class="cartao-cabecalho"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg> Arquivo de Documentos Emitidos</div>
     <div class="cartao-corpo">
       <div class="arquivo-topo">
         <div>
@@ -1203,8 +1237,8 @@
         <div class="pag-nums" id="pag-nums"></div>
         <!-- Botões anterior / próximo -->
         <div class="pag-navegacao">
-          <button class="pag-btn" id="pag-btn-ant" aria-label="Página anterior" onclick="window.arquivoIrPagina(window._arquivoPaginaActual - 1)">&#8592; Anterior</button>
-          <button class="pag-btn" id="pag-btn-prox" aria-label="Página seguinte" onclick="window.arquivoIrPagina(window._arquivoPaginaActual + 1)">Seguinte &#8594;</button>
+          <button class="pag-btn" id="pag-btn-ant" aria-label="Página anterior" onclick="window.arquivoIrPagina(window._arquivoPaginaActual - 1)"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Anterior</button>
+          <button class="pag-btn" id="pag-btn-prox" aria-label="Página seguinte" onclick="window.arquivoIrPagina(window._arquivoPaginaActual + 1)"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> Seguinte</button>
         </div>
       </div>
 
@@ -1489,12 +1523,12 @@
       snap.forEach(d => todosFuncionarios.push({ id: d.id, ...d.data() }));
     } catch(e) {
       console.error("Erro:", e);
-      mostrarNotificacao("❌ Erro ao carregar lista de funcionários. Recarregue a página.", "erro");
+      mostrarNotificacao(_icon("x-circle") + " Erro ao carregar lista de funcionários. Recarregue a página.", "erro");
     } finally {
       // Repor sempre o botão — mesmo em caso de erro de rede
       if (btnGerar) {
         btnGerar.disabled = false;
-        btnGerar.innerHTML = '&#128065; Gerar Pré-visualização';
+        btnGerar.innerHTML = _icon('eye') + ' Gerar Pré-visualização';
       }
     }
   }
@@ -1785,7 +1819,7 @@
         else if (anos >= 20) msg = anos + ' anos → 22 + 6 = 28 dias úteis';
         else if (anos >= 10) msg = anos + ' anos → 22 + 3 = 25 dias úteis';
         else msg = anos + ' anos → 22 dias úteis';
-        infoEl.textContent = '✅ ' + msg;
+        infoEl.innerHTML = _icon('check-circle') + ' ' + msg;
         infoEl.style.display = 'block';
       }
     } else if (adm) {
@@ -1843,11 +1877,11 @@
     const titulo  = banner?.querySelector('.bp-titulo');
     const badge   = banner?.querySelector('.bp-badge');
     if (banner) {
-      if (titulo)  titulo.textContent  = '📋 Acesso via Secretaria';
+      if (titulo)  titulo.textContent  = 'Acesso via Secretaria';
       if (infoTxt) infoTxt.textContent = nome
         ? `Funcionário pré-seleccionado: ${nome}. Escolha o tipo de documento e preencha os campos necessários.`
         : 'Funcionário pré-seleccionado a partir do chat da Secretaria.';
-      if (badge)   badge.textContent   = '🔗 Dados importados do chat — verifique antes de gerar';
+      if (badge)   badge.textContent   = 'Dados importados do chat — verifique antes de gerar';
       banner.style.display = 'block';
     }
 
@@ -1968,7 +2002,7 @@
           const [a, m, d] = f.split("-");
           return d + "/" + m + "/" + a;
         }).join(", ");
-        infoFeriados.textContent = "📅 Feriados excluídos do cálculo: " + nomes;
+        infoFeriados.textContent = "Feriados excluídos do cálculo: " + nomes;
         infoFeriados.style.display = "block";
       } else {
         infoFeriados.style.display = "none";
@@ -1999,10 +2033,10 @@
 
     if (tituloDados) {
       tituloDados.innerHTML = isGuiaMedica
-        ? "&#127973; Dados da Guia Médica"
+        ? `${_icon("medical")} Dados da Guia Médica`
         : isDeclaracaoServico
-          ? "&#128196; Dados da Declaração de Adiantamento Salarial"
-          : "&#127958; Dados da Guia de Férias";
+          ? `${_icon("file-text")} Dados da Declaração de Adiantamento Salarial`
+          : `${_icon("sun")} Dados da Guia de Férias`;
     }
     if (badgePreview) {
       badgePreview.textContent = isGuiaMedica
@@ -2159,10 +2193,10 @@
       var diff = Math.round((dataVal - hoje) / (1000*60*60*24));
       if (diff < 0) {
         alertaEl.style.cssText = 'display:block;margin-top:6px;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:600;line-height:1.4;background:#fef2f2;border:1px solid #fecaca;color:#dc2626';
-        alertaEl.innerHTML = '⚠️ BI possivelmente expirado há <strong>' + Math.abs(diff) + ' dias</strong>. ' + fonte + '. Verifique antes de gerar documentos oficiais.';
+        alertaEl.innerHTML = _icon('alert') + ' BI possivelmente expirado há <strong>' + Math.abs(diff) + ' dias</strong>. ' + fonte + '. Verifique antes de gerar documentos oficiais.';
       } else if (diff <= 90) {
         alertaEl.style.cssText = 'display:block;margin-top:6px;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:600;line-height:1.4;background:#fffbeb;border:1px solid #fde68a;color:#92400e';
-        alertaEl.innerHTML = '⏳ BI expira em <strong>' + diff + ' dias</strong> (' + dataVal.toLocaleDateString('pt-PT') + '). Considere renovar em breve.';
+        alertaEl.innerHTML = _icon('clock') + ' BI expira em <strong>' + diff + ' dias</strong> (' + dataVal.toLocaleDateString('pt-PT') + '). Considere renovar em breve.';
       } else {
         alertaEl.style.display = 'none';
       }
@@ -2179,7 +2213,7 @@
       else if (anos >= 20) msg = anos + " anos de serviço → 22 + 6 = 28 dias úteis";
       else if (anos >= 10) msg = anos + " anos de serviço → 22 + 3 = 25 dias úteis";
       else msg = anos + " anos de serviço → 22 dias úteis";
-      infoEl.textContent = "✅ " + msg;
+      infoEl.innerHTML = _icon("check-circle") + " " + msg;
       infoEl.style.display = "block";
     }
 
@@ -2233,6 +2267,31 @@
       if (desc2) desc2.textContent = "Pesquise e seleccione o funcionário no formulário à esquerda";
       passo3.className = "gp-passo";
     }
+  }
+
+
+  // ── Iconografia SVG inline — helper JS ─────────────────────────────────────
+  // Retorna HTML de ícone SVG para uso em contextos innerHTML.
+  // Os mesmos caminhos do CSS estão aqui duplicados para uso em strings JS.
+  const _JS_SVG = {
+    "file-text":    '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+    "clipboard":    '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/>',
+    "sun":          '<circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>',
+    "medical":      '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/>',
+    "calendar":     '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+    "eye":          '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+    "save":         '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+    "printer":      '<polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+    "check-circle": '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+    "x-circle":     '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',
+    "alert":        '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+    "link":         '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+    "clock":        '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    "mail":         '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/>',
+  };
+  function _icon(name) {
+    const p = _JS_SVG[name] || "";
+    return `<svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
   }
 
   // ── F3-D: Indicador de progresso do formulário ──────────────────────────
@@ -2292,7 +2351,7 @@
     if (!silencioso && (!nomeFuncionario || !dataEmissao)) {
       if (!nomeFuncionario) marcarErro("pesquisa-func", "Seleccione um funcionário da lista.");
       if (!dataEmissao)     marcarErro("data-emissao", "Data de emissão obrigatória.");
-      mostrarNotificacao("⚠️ Preencha Funcionário e Data de Emissão.");
+      mostrarNotificacao(_icon("alert") + " Preencha Funcionário e Data de Emissão.");
       return;
     }
 
@@ -2301,7 +2360,7 @@
 
     if (tipoDoc === 'declaracao-servico') {
       if (!window.construirDeclaracaoServico) {
-        mostrarNotificacao("❌ Erro: Construtor da declaração não carregado.");
+        mostrarNotificacao(_icon("x-circle") + " Erro: Construtor da declaração não carregado.");
         return;
       }
 
@@ -2316,17 +2375,17 @@
       if (!silencioso) {
         if (!Number.isInteger(mesesAdiantamento) || mesesAdiantamento <= 0) {
           marcarErro("declaracao-meses", "Indique o número de meses do adiantamento.");
-          mostrarNotificacao("⚠️ Indique o número de meses do adiantamento.");
+          mostrarNotificacao(_icon("alert") + " Indique o número de meses do adiantamento.");
           return;
         }
         if (!Number.isFinite(salarioLiquido) || salarioLiquido <= 0) {
           marcarErro("declaracao-salario", "Indique o salário líquido em AKZ.");
-          mostrarNotificacao("⚠️ Indique o salário líquido em AKZ.");
+          mostrarNotificacao(_icon("alert") + " Indique o salário líquido em AKZ.");
           return;
         }
         if (!numeroConta) {
           marcarErro("declaracao-conta", "Indique o número de conta a constar no compromisso.");
-          mostrarNotificacao("⚠️ Indique o número de conta a constar no compromisso.");
+          mostrarNotificacao(_icon("alert") + " Indique o número de conta a constar no compromisso.");
           return;
         }
       }
@@ -2367,7 +2426,7 @@
     } else if (tipoDoc === 'guia-medica') {
       // ── GUIA MÉDICA ───
       if (!window.construirGuiaMedica) {
-        mostrarNotificacao("❌ Erro: Construtor de Guia Médica não carregado.");
+        mostrarNotificacao(_icon("x-circle") + " Erro: Construtor de Guia Médica não carregado.");
         return;
       }
       
@@ -2378,17 +2437,17 @@
       if (!silencioso) {
         if (!unidadeSanitaria) {
           marcarErro("unidade-sanitaria", "Indique a Unidade Sanitária a consultar.");
-          mostrarNotificacao("⚠️ Indique a Unidade Sanitária a consultar.");
+          mostrarNotificacao(_icon("alert") + " Indique a Unidade Sanitária a consultar.");
           return;
         }
         if (!numGuia) {
           marcarErro("num-guia", "Insira o Número da Guia.");
-          mostrarNotificacao("⚠️ Insira o Número da Guia.");
+          mostrarNotificacao(_icon("alert") + " Insira o Número da Guia.");
           return;
         }
         if (!funcionarioSeleccionado) {
           marcarErro("pesquisa-func", "Seleccione um funcionário da lista para obter os dados de filiação.");
-          mostrarNotificacao("⚠️ Seleccione um funcionário da lista para obter os dados de filiação.");
+          mostrarNotificacao(_icon("alert") + " Seleccione um funcionário da lista para obter os dados de filiação.");
           return;
         }
       }
@@ -2454,7 +2513,7 @@
         if (!numDias)       marcarErro("num-dias",    "Dias de férias em falta — seleccione um funcionário.");
         if (!dataInicio)    marcarErro("data-inicio", "Data de início das férias obrigatória.");
         if (!dataEmissao)   marcarErro("data-emissao","Data de emissão obrigatória.");
-        mostrarNotificacao("⚠️ Preencha todos os campos obrigatórios.");
+        mostrarNotificacao(_icon("alert") + " Preencha todos os campos obrigatórios.");
         return;
       }
 
@@ -2494,7 +2553,7 @@
       btnSubGerar.disabled      = false;
     }
 
-    if (!silencioso) mostrarNotificacao("✅ Documento gerado! Clique em 'Guardar Documento' para arquivar e enviar para validação.");
+    if (!silencioso) mostrarNotificacao(_icon("check-circle") + " Documento gerado! Clique em 'Guardar Documento' para arquivar e enviar para validação.");
   };
 
 
@@ -2515,11 +2574,11 @@
 
   window.submeterDocumento = async function() {
     if (!dadosUltimoDocumento || !utilizadorActual) {
-      mostrarNotificacao("⚠️ Gere o documento antes de submeter.");
+      mostrarNotificacao(_icon("alert") + " Gere o documento antes de submeter.");
       return;
     }
     if (documentoSubmetido) {
-      mostrarNotificacao("⚠️ Este documento já foi submetido.");
+      mostrarNotificacao(_icon("alert") + " Este documento já foi submetido.");
       return;
     }
 
@@ -2567,7 +2626,7 @@
 
           // Mostrar aviso e pedir confirmação explícita
           mostrarNotificacao(
-            `⚠️ Já existe um documento deste tipo para ${dadosUltimoDocumento.funcionarioNome} (${estadoTxt} em ${dataDoc}). Submeta novamente para confirmar.`,
+            `${_icon("alert")} Já existe um documento deste tipo para ${dadosUltimoDocumento.funcionarioNome} (${estadoTxt} em ${dataDoc}). Submeta novamente para confirmar.`,
             "aviso"
           );
           btnSub.disabled = false;
@@ -2630,7 +2689,7 @@
         await criarNotificacao(
           _funcUid,
           'doc_gerado',
-          '📄 ' + _tipoLabel + ' submetido para aprovação',
+          _icon('file-text') + ' ' + _tipoLabel + ' submetido para aprovação',
           'O seu ' + _tipoLabel + ' foi gerado e segue agora para validação do responsável.',
           { docId: docRef.id, tipoDoc: dadosUltimoDocumento?.tipo }
         );
@@ -2639,9 +2698,9 @@
       const badge = document.getElementById("badge-estado");
       badge.className = "badge-estado badge-gerado";
       badge.style.cssText = "display:flex;background:#eff6ff;color:#1d4ed8;border:1.5px solid #93c5fd;padding:10px;border-radius:8px;font-size:13px;font-weight:700;margin-top:4px;";
-      badge.innerHTML = "📄 Documento guardado — pronto para impressão";
+      badge.innerHTML = _icon("file-text") + " Documento guardado — pronto para impressão";
 
-      mostrarNotificacao("✅ Documento guardado com sucesso!");
+      mostrarNotificacao(_icon("check-circle") + " Documento guardado com sucesso!");
 
       // Se veio de solicitação do portal → marcar solicitação como "concluida"
       if (window._solicitacaoOrigemId) {
@@ -2666,7 +2725,7 @@
           // Notificar no chat do pedido (opcional, mas melhora a experiência)
           try {
             await addDoc(collection(db, "solicitacoes", window._solicitacaoOrigemId, "mensagens"), {
-              texto: `✅ O seu documento (${nomeTipoDocumentoGerado(dadosUltimoDocumento.tipo)}) foi gerado e está pronto para levantamento/impressão.`,
+              texto: `${_icon("check-circle")} O seu documento (${nomeTipoDocumentoGerado(dadosUltimoDocumento.tipo)}) foi gerado e está pronto para levantamento/impressão.`,
               remetenteUid: utilizadorActual.uid,
               remetenteNome: "Sistema RH",
               criadaEm: serverTimestamp(),
@@ -2683,15 +2742,15 @@
 
     } catch(e) {
       console.error("Erro ao submeter:", e);
-      mostrarNotificacao("❌ Erro ao submeter. Tente novamente.");
+      mostrarNotificacao(_icon("x-circle") + " Erro ao submeter. Tente novamente.");
       btnSub.disabled = false;
-      btnSub.innerHTML = "&#128228; Guardar Documento";
+      btnSub.innerHTML = _icon("save") + " Guardar Documento";
     }
   }
 
   function renderizarPreviewArquivo(d) {
     if (!d || !d.htmlArquivo) {
-      mostrarNotificacao("⚠️ Este documento ainda nao tem arquivo visual disponivel.", "aviso");
+      mostrarNotificacao(_icon("alert") + " Este documento ainda nao tem arquivo visual disponivel.", "aviso");
       return;
     }
     const areaPreview = document.getElementById("area-preview");
@@ -2721,12 +2780,12 @@
     const btnSubArquivo = document.getElementById("btn-submeter");
     btnSubArquivo.style.display = "";          // tornar visível (estava none após submissão)
     btnSubArquivo.disabled    = true;           // arquivo é só leitura — não se pode re-submeter
-    btnSubArquivo.innerHTML   = "&#128228; Guardar Documento"; // repor texto
+    btnSubArquivo.innerHTML   = _icon("save") + " Guardar Documento"; // repor texto
     dadosUltimoDocumento = null;
     documentoGerado      = false;
     documentoSubmetido   = false;
     document.querySelector(".painel-preview")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    mostrarNotificacao(`📄 Arquivo de ${nomeTipo} aberto na pre-visualizacao.`);
+    mostrarNotificacao(_icon("file-text") + ` Arquivo de ${nomeTipo} aberto na pre-visualizacao.`);
   }
 
   function renderizarListaGuiasEmitidas() {
@@ -2883,7 +2942,7 @@
     if (!lista) return;
     if (unsubGuiasEmitidas) { unsubGuiasEmitidas(); unsubGuiasEmitidas = null; }
     // F1-F: classe arquivo-vazio-loading aplica animação pulse enquanto o onSnapshot não responde
-    lista.innerHTML = `<div class="arquivo-vazio arquivo-vazio-loading">⏳ A carregar arquivo de documentos...</div>`;
+    lista.innerHTML = `<div class="arquivo-vazio arquivo-vazio-loading">${_icon("clock")} A carregar arquivo de documentos...</div>`;
     unsubGuiasEmitidas = onSnapshot(
       collection(db, "documentos"),
       snap => {
@@ -2914,7 +2973,7 @@
   window.abrirGuiaEmitida = function(id) {
     const docSel = guiasEmitidasCache.find(d => d.id === id);
     if (!docSel) {
-      mostrarNotificacao("❌ Documento arquivado nao encontrado.", "erro");
+      mostrarNotificacao(_icon("x-circle") + " Documento arquivado nao encontrado.", "erro");
       return;
     }
     renderizarPreviewArquivo(docSel);
@@ -2952,7 +3011,7 @@
 
   function mostrarNotificacao(msg, tipo) {
     const el = document.getElementById("notificacao");
-    el.textContent = msg;
+    el.innerHTML = msg; // iconografia SVG suportada — apenas strings internas
     el.className = "notificacao" + (tipo ? " notif-" + tipo : "");
     el.style.display = "block";
     clearTimeout(el._t);
