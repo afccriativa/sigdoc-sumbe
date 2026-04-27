@@ -75,7 +75,52 @@
     a { text-decoration: none; color: inherit; }
     input, textarea, button, select { font-family: var(--font); }
 
-    /* ── Material Symbols integration fixes ── */
+
+    /* ── Iconografia SVG (estilo Lucide – consistente com index.html) ──────── */
+    svg.ic {
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+    .home-action-icon svg.ic { width:26px;height:26px; }
+    .kpi-total-icon svg.ic   { width:40px;height:40px; }
+    .kpi-mini svg.ic         { width:36px;height:36px; }
+    .desk-kpi-icon svg.ic    { width:24px;height:24px; }
+    .btn-ent svg.ic          { width:18px;height:18px; }
+    .sino-btn svg.ic         { width:20px;height:20px;color:white; }
+    .dt-sino-btn svg.ic      { width:18px;height:18px;color:rgba(255,255,255,.8); }
+    .portal-hero-btn svg.ic  { width:18px;height:18px; }
+    .perfil-card-btn svg.ic  { width:17px;height:17px; }
+    .ds-nav-btn svg.ic       { width:15px;height:15px;flex-shrink:0; }
+    .ds-logout svg.ic        { width:14px;height:14px; }
+    .btn-logout-confirmar svg.ic { width:18px;height:18px; }
+    .chat-enviar svg.ic      { width:18px;height:18px;color:white; }
+    .bpi-icone svg.ic        { width:13px;height:13px; }
+    .bpi-btn svg.ic          { width:15px;height:15px; }
+    .chip-ic svg.ic          { width:15px;height:15px; }
+    .btn-ver-senha svg.ic    { color:var(--txt-3); }
+    .btn-ver-senha:hover svg.ic { color:var(--txt); }
+    .tdico svg.ic            { width:28px;height:28px; }
+    .mu-header-icon svg.ic,.ru-header-icon svg.ic { width:20px;height:20px; }
+    .mu-row-icon svg.ic,.ru-row-icon svg.ic       { width:18px;height:18px; }
+    .verif-card-ic svg.ic    { width:28px;height:28px; }
+    .verif-metodo-chip-ic svg.ic { width:16px;height:16px; }
+    .sino-drop-titulo svg.ic { width:18px;height:18px; }
+    .sino-drop-fechar svg.ic,.chat-header-fechar svg.ic,.viewer-close svg.ic { width:20px;height:20px; }
+    .chat-header-av svg.ic   { width:16px;height:16px;color:white; }
+    .logout-modal-ic svg.ic  { width:28px;height:28px;color:var(--red); }
+    .perfil-av-overlay svg.ic { width:18px;height:18px;color:white; }
+    .sino-vazio-ic svg.ic    { width:40px;height:40px; }
+    .sino-marcar-lidas svg.ic{ width:14px;height:14px; }
+    .revisao-aviso-ic svg.ic { width:14px;height:14px; }
+    .docs-carr-titulo svg.ic,.perfil-edit-titulo svg.ic { width:16px;height:16px; }
+    .mu-loading svg.ic       { width:16px;height:16px; }
+    .vi svg.ic               { width:40px;height:40px;opacity:.5; }
+    .bn-btn svg.ic           { width:22px;height:22px; }
+    .portal-section-kicker svg.ic { width:12px;height:12px; }
+
+    /* ── Material Symbols integration fixes (estilos legados) ── */
 
     /* Chip de método de verificação */
     .verif-metodo-chip-ic {
@@ -2452,9 +2497,9 @@
     <div class="entrada-titulo">Portal do<br><em>Funcionário</em></div>
     <p class="entrada-sub">Acesso exclusivo aos funcionários da Direcção Municipal da Saúde do Sumbe. Consulte e solicite documentos sem se deslocar.</p>
     <div class="chips">
-      <div class="chip"><span class="chip-ic" style="font-size:15px">📄</span> Solicitar Guias de Férias e outros documentos</div>
-      <div class="chip"><span class="chip-ic" style="font-size:15px">🔄</span> Acompanhar o estado em tempo real</div>
-      <div class="chip"><span class="chip-ic" style="font-size:15px">👤</span> Consultar e actualizar o seu perfil</div>
+      <div class="chip"><span class="chip-ic"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span> Solicitar Guias de Férias e outros documentos</div>
+      <div class="chip"><span class="chip-ic"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></span> Acompanhar o estado em tempo real</div>
+      <div class="chip"><span class="chip-ic"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="8" r="4"/></svg></span> Consultar e actualizar o seu perfil</div>
     </div>
     <div class="entrada-rodape">SIGDOC-SUMBE · Kwanza Sul, Angola · 2026</div>
   </div>
@@ -2469,9 +2514,9 @@
       <h2>SIGDOC-SUMBE</h2>
       <p>Sistema Integrado de Gestão Documental e RH</p>
     </div>
-    <button class="btn-ent btn-ent-prim" onclick="mostrarEcra('ecra-verificacao')"><span style="font-size:18px">🔍</span> Verificar pré-registo</button>
+    <button class="btn-ent btn-ent-prim" onclick="mostrarEcra('ecra-verificacao')"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg> Verificar pré-registo</button>
     <div class="sep"><span>Já tem conta?</span></div>
-    <button class="btn-ent btn-ent-sec" onclick="mostrarEcra('ecra-login-func')"><span style="font-size:18px">🔑</span> Entrar com a minha conta</button>
+    <button class="btn-ent btn-ent-sec" onclick="mostrarEcra('ecra-login-func')"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/></svg> Entrar com a minha conta</button>
     <div class="sep" style="margin-top:20px"></div>
     <p class="link-admin">Administração? <a href="index.html">Aceder ao painel →</a></p>
   </div>
@@ -2498,16 +2543,16 @@
         <p class="verif-escolha-label">Como pretende identificar-se?</p>
         <div class="verif-cards">
           <button class="verif-card" id="verif-card-numero" onclick="selecionarMetodoVerif('numero')" type="button">
-            <span class="verif-card-ic"><span style="font-size:28px">🪪</span></span>
+            <span class="verif-card-ic"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><path d="M7 15h.01"/><path d="M11 15h2"/></svg></span>
             <span class="verif-card-titulo">Nº de Agente</span>
             <span class="verif-card-sub">8 dígitos numéricos</span>
-            <span class="verif-card-check">✅</span>
+            <span class="verif-card-check"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M20 6 9 17l-5-5"/></svg></span>
           </button>
           <button class="verif-card" id="verif-card-bi" onclick="selecionarMetodoVerif('bi')" type="button">
-            <span class="verif-card-ic"><span style="font-size:28px">🪪</span></span>
+            <span class="verif-card-ic"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><path d="M7 15h.01"/><path d="M11 15h2"/></svg></span>
             <span class="verif-card-titulo">Bilhete de Identidade</span>
             <span class="verif-card-sub">14 caracteres</span>
-            <span class="verif-card-check">✅</span>
+            <span class="verif-card-check"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M20 6 9 17l-5-5"/></svg></span>
           </button>
         </div>
       </div>
@@ -2517,7 +2562,7 @@
 
         <!-- Chip do método escolhido + botão mudar -->
         <div class="verif-metodo-chip" id="verif-metodo-chip">
-          <span class="verif-metodo-chip-ic" id="verif-chip-ic">🪪</span>
+          <span class="verif-metodo-chip-ic" id="verif-chip-ic"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><path d="M7 15h.01"/><path d="M11 15h2"/></svg></span>
           <span id="verif-chip-label">Nº de Agente</span>
           <button type="button" class="verif-chip-mudar" onclick="selecionarMetodoVerif(null)">Mudar</button>
         </div>
@@ -2597,9 +2642,7 @@
           <input type="password" id="cc-senha" class="campo-inp" placeholder="Mínimo 8 caracteres"
             oninput="avaliarForca();validarCampoSenha();validarCriarConta()" autocomplete="new-password"/>
           <span class="campo-icone" id="ico-senha"></span>
-          <button type="button" class="btn-ver-senha" onclick="toggleVerSenha('cc-senha',this)" aria-label="Mostrar ou ocultar senha" title="Mostrar/Ocultar senha">
-            👁️
-          </button>
+          <button type="button" class="btn-ver-senha" onclick="toggleVerSenha('cc-senha',this)" aria-label="Mostrar ou ocultar senha" title="Mostrar/Ocultar senha"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
         <div class="forca-senha" id="forca-wrap" style="display:none">
           <div class="forca-barras" id="forca-barras"><div class="forca-barra"></div><div class="forca-barra"></div><div class="forca-barra"></div><div class="forca-barra"></div></div>
@@ -2618,9 +2661,7 @@
           <input type="password" id="cc-senha2" class="campo-inp" placeholder="Repita a senha"
             oninput="validarCampoSenha2();validarCriarConta()" autocomplete="new-password"/>
           <span class="campo-icone" id="ico-senha2"></span>
-          <button type="button" class="btn-ver-senha" onclick="toggleVerSenha('cc-senha2',this)" aria-label="Mostrar ou ocultar confirmação de senha" title="Mostrar/Ocultar senha">
-            👁️
-          </button>
+          <button type="button" class="btn-ver-senha" onclick="toggleVerSenha('cc-senha2',this)" aria-label="Mostrar ou ocultar confirmação de senha" title="Mostrar/Ocultar senha"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
         <div class="campo-err-msg" aria-live="polite" id="erro-senha2"></div>
         <div class="campo-ok-msg"  id="ok-senha2"></div>
@@ -2668,9 +2709,7 @@
         <label>Senha</label>
         <div class="campo-inp-wrap">
           <input type="password" id="lf-senha" class="campo-inp" placeholder="A sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')fazerLoginFuncionario()"/>
-          <button type="button" class="btn-ver-senha" onclick="toggleVerSenha('lf-senha',this)" aria-label="Mostrar ou ocultar senha" title="Mostrar/Ocultar senha">
-            👁️
-          </button>
+          <button type="button" class="btn-ver-senha" onclick="toggleVerSenha('lf-senha',this)" aria-label="Mostrar ou ocultar senha" title="Mostrar/Ocultar senha"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
       </div>
       <div id="msg-login-func"></div>
@@ -2696,7 +2735,7 @@
       <div class="caixa-sub">Introduza o e-mail da conta ou localize-o pelo N.º de Agente / BI. Depois enviaremos o link para redefinir a senha.</div>
     </div>
     <div class="caixa-corpo">
-      <div class="alerta alerta-info">ℹ️ Se já não tiver acesso ao e-mail registado, peça à Secção de RH para o actualizar antes de redefinir a senha.</div>
+      <div class="alerta alerta-info"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Se já não tiver acesso ao e-mail registado, peça à Secção de RH para o actualizar antes de redefinir a senha.</div>
       <div class="campo-g">
         <label>E-mail da conta</label>
         <div class="campo-inp-wrap">
@@ -2791,21 +2830,21 @@
     <nav class="ds-nav">
       <div class="ds-nav-grupo">Menu Principal</div>
       <button class="ds-nav-btn activo" id="dsn-inicio" onclick="navegarAba('aba-docs',this)">
-        🏠 Início
+        <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Início
       </button>
       <button class="ds-nav-btn" id="dsn-docs" onclick="navegarAba('aba-meus-docs',this)">
-        📄 Documentos
+        <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg> Documentos
         <span class="ds-nav-badge" id="ds-badge-pendentes">0</span>
       </button>
       <div class="ds-nav-grupo">Acções</div>
       <button class="ds-nav-btn" id="dsn-pedir" onclick="navegarAba('aba-solicitar',this)">
-        ➕ Novo pedido
+        <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Novo pedido
       </button>
       <button class="ds-nav-btn" id="dsn-secretaria" onclick="navegarAba('aba-secretaria',this)">
-        💬 Secretaria
+        <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg> Secretaria
       </button>
       <button class="ds-nav-btn" id="dsn-perfil" onclick="navegarAba('aba-perfil',this)">
-        👤 Perfil
+        <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="8" r="4"/></svg> Perfil
       </button>
     </nav>
     <div class="ds-rodape">
@@ -2828,7 +2867,7 @@
     <div class="dt-live"><span class="dt-live-dot"></span> Documentos actualizados em tempo real</div>
     <div class="dt-actions">
       <button class="dt-sino-btn" id="dt-sino-btn" onclick="abrirSinoPortal()" title="Notificações" aria-label="Notificações">
-        🔔
+        <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
         <span class="dt-sino-badge" id="dt-sino-badge"></span>
       </button>
       <div class="dt-avatar" id="dt-avatar" onclick="navegarAba('aba-perfil')">?</div>
@@ -2844,7 +2883,7 @@
       </div>
       <div class="portal-header-actions">
         <button class="sino-btn" id="ph-sino-btn" onclick="abrirSinoPortal()" title="Notificações" aria-label="Notificações">
-          🔔
+          <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
           <span class="sino-badge" id="ph-sino-badge"></span>
         </button>
         <div class="ph-avatar" id="pt-avatar" onclick="navegarAba('aba-perfil')">?</div>
@@ -2859,12 +2898,11 @@
   <!-- ── BANNER PERFIL INCOMPLETO ── -->
   <div class="banner-perfil-inc" id="banner-completar">
     <div class="bpi-topo">
-      <div class="bpi-icone">⚠️</div>
+      <div class="bpi-icone"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
       <div class="bpi-titulo">O seu perfil está incompleto</div>
     </div>
     <div class="bpi-texto">Preencha o formulário profissional para que os seus documentos sejam processados correctamente.</div>
-    <button class="bpi-btn" onclick="window.location.href='formulario.html'">
-      📝 Completar Perfil
+    <button class="bpi-btn" onclick="window.location.href='formulario.html'"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg> Completar Perfil
     </button>
   </div>
 
@@ -2882,12 +2920,10 @@
           </div>
           <div class="portal-hero-actions">
             <button class="portal-hero-btn portal-hero-btn-prim" onclick="navegarAba('aba-solicitar')">
-              ➕
-              Novo pedido
+              <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Novo pedido
             </button>
             <button class="portal-hero-btn portal-hero-btn-sec" onclick="navegarAba('aba-meus-docs')">
-              📂
-              Ver documentos
+              <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg> Ver documentos
             </button>
           </div>
         </div>
@@ -2895,19 +2931,19 @@
 
       <div class="portal-home-actions">
         <button class="home-action-card primary" onclick="navegarAba('aba-solicitar')">
-          <div class="home-action-icon">📝</div>
+          <div class="home-action-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h6"/><path d="M12 18v-6"/></svg></div>
           <div class="home-action-eyebrow">Ação principal</div>
           <div class="home-action-title">Criar um novo pedido</div>
           <div class="home-action-desc">Escolha o documento, preencha os dados e acompanhe a resposta em tempo real.</div>
         </button>
         <button class="home-action-card" onclick="navegarAba('aba-secretaria')">
-          <div class="home-action-icon">💬</div>
+          <div class="home-action-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></div>
           <div class="home-action-eyebrow">Apoio</div>
           <div class="home-action-title">Falar com a secretaria</div>
           <div class="home-action-desc">Envie mensagens e acompanhe conversas sem sair do portal.</div>
         </button>
         <button class="home-action-card" onclick="navegarAba('aba-perfil')">
-          <div class="home-action-icon">✏️</div>
+          <div class="home-action-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg></div>
           <div class="home-action-eyebrow">Perfil</div>
           <div class="home-action-title">Atualizar os seus dados</div>
           <div class="home-action-desc">Mantenha o perfil e os contactos corretos para evitar atrasos nos pedidos.</div>
@@ -2916,13 +2952,13 @@
 
       <!-- KPIs mobile (escondidos no desktop) -->
       <div class="kpi-total-card">
-        <div class="kpi-total-icon">📋</div>
+        <div class="kpi-total-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></div>
         <div class="kpi-total-num" id="pk-total">—</div>
         <div class="kpi-total-lbl">Total de Solicitações</div>
       </div>
       <div class="kpi-grid">
         <div class="kpi-mini kpi-verde">
-          ✅
+          <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="36" height="36"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
           <div class="kpi-mini-num" id="pk-aprovados">—</div>
           <div class="kpi-mini-lbl">Aprovados</div>
         </div>
@@ -2936,15 +2972,15 @@
       <!-- KPIs desktop (escondidos em mobile via CSS) -->
       <div class="desk-kpi-row">
         <div class="desk-kpi-card">
-          <div class="desk-kpi-icon azul">📋</div>
+          <div class="desk-kpi-icon azul"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></div>
           <div><div class="desk-kpi-num" id="dk-total">—</div><div class="desk-kpi-lbl">Total de Solicitações</div></div>
         </div>
         <div class="desk-kpi-card">
-          <div class="desk-kpi-icon verde">✅</div>
+          <div class="desk-kpi-icon verde"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></div>
           <div><div class="desk-kpi-num" id="dk-aprovados">—</div><div class="desk-kpi-lbl">Aprovados</div></div>
         </div>
         <div class="desk-kpi-card">
-          <div class="desk-kpi-icon amber">⏰</div>
+          <div class="desk-kpi-icon amber"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           <div><div class="desk-kpi-num" id="dk-pendentes">—</div><div class="desk-kpi-lbl">Pendentes</div></div>
         </div>
       </div>
@@ -2961,7 +2997,7 @@
           </div>
         </div>
         <div id="lista-docs-portal">
-          <div class="vazio-portal"><div class="vi"><span style="font-size:44px">⏳</span></div><p>A carregar os seus documentos…</p></div>
+          <div class="vazio-portal"><div class="vi"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg></div><p>A carregar os seus documentos…</p></div>
         </div>
       </div>
 
@@ -2977,11 +3013,9 @@
           </div>
           <div class="perfil-card-acoes">
             <button class="perfil-card-btn" onclick="navegarAba('aba-perfil')" title="Ver perfil" aria-label="Ver perfil completo">
-              🪪
-            </button>
+              <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><path d="M7 15h.01"/><path d="M11 15h2"/></svg></button>
             <button class="perfil-card-btn" onclick="navegarAba('aba-solicitar')" title="Novo pedido" aria-label="Criar novo pedido">
-              ➕
-            </button>
+              <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
           </div>
         </div>
         <div class="perfil-campos-lista">
@@ -3029,7 +3063,7 @@
           </div>
         </div>
         <div id="lista-docs-meus">
-          <div class="vazio-portal"><div class="vi"><span style="font-size:44px">⏳</span></div><p>A carregar…</p></div>
+          <div class="vazio-portal"><div class="vi"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg></div><p>A carregar…</p></div>
         </div>
       </div>
     </div>
@@ -3044,16 +3078,16 @@
         </div>
         <div class="tipo-grid" id="tipos-doc-grid">
           <div class="tipo-card" onclick="seleccionarTipo('guia-ferias',this)">
-            <div class="tdico"><span style="font-size:28px">🌴</span></div><div class="tdnome">Guia de Férias</div><div class="tdsub">Autorização de férias anuais</div>
+            <div class="tdico"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg></div><div class="tdnome">Guia de Férias</div><div class="tdsub">Autorização de férias anuais</div>
           </div>
           <div class="tipo-card" onclick="seleccionarTipo('declaracao-servico',this)">
-            <div class="tdico"><span style="font-size:28px">🧾</span></div><div class="tdnome">Declaração de Adiantamento Salarial</div><div class="tdsub">Pedido para adiantamento junto do BPC</div>
+            <div class="tdico"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="tdnome">Declaração de Adiantamento Salarial</div><div class="tdsub">Pedido para adiantamento junto do BPC</div>
           </div>
           <div class="tipo-card" onclick="seleccionarTipo('guia-medica',this)">
-            <div class="tdico"><span style="font-size:28px">🏥</span></div><div class="tdnome">Guia Médica</div><div class="tdsub">Para consultas médicas</div>
+            <div class="tdico"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg></div><div class="tdnome">Guia Médica</div><div class="tdsub">Para consultas médicas</div>
           </div>
           <div class="tipo-card" onclick="seleccionarTipo('oficio',this)">
-            <div class="tdico"><span style="font-size:28px">📋</span></div><div class="tdnome">Ofício / Nota</div><div class="tdsub">Comunicação oficial</div>
+            <div class="tdico"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></div><div class="tdnome">Ofício / Nota</div><div class="tdsub">Comunicação oficial</div>
           </div>
         </div>
       </div>
@@ -3103,7 +3137,7 @@
             </div>
           </div>
           <button class="btn-submeter" id="btn-submeter-sol" onclick="abrirRevisaoPedido()">
-            ✍️ Rever e enviar
+            <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg> Rever e enviar
           </button>
         </div>
         <div id="msg-solicitacao" style="margin-top:12px"></div>
@@ -3121,9 +3155,9 @@
                onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('perf-foto-input').click()}">
             <div class="perfil-av-wrap">
               <div class="perfil-card-av" id="perf-avatar">?</div>
-              <div class="perfil-av-overlay" aria-hidden="true"><span style="font-size:18px">📷</span></div>
+              <div class="perfil-av-overlay" aria-hidden="true"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></div>
             </div>
-            <span class="perfil-foto-label" aria-hidden="true"><span style="font-size:12px">📷</span> Alterar foto</span>
+            <span class="perfil-foto-label" aria-hidden="true"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> Alterar foto</span>
             <input type="file" id="perf-foto-input" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="previewFotoPerfil(this)">
           </div>
           <div>
@@ -3144,21 +3178,19 @@
       <div>
         <!-- A MINHA UNIDADE -->
         <div class="minha-unidade" id="minha-unidade-card">
-          <div class="mu-loading"><span style="font-size:16px">🏥</span>A carregar informações da unidade…</div>
+          <div class="mu-loading"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 6v4"/><path d="M14 14h-4"/><path d="M14 18h-4"/><path d="M14 8h-4"/><path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"/><path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18"/></svg>A carregar informações da unidade…</div>
         </div>
 
         <!-- UNIDADE SOB RESPONSABILIDADE — revelado por JS quando aplicável -->
         <div class="resp-unidade" id="resp-unidade-card"></div>
 
         <div class="docs-carr">
-          <div class="docs-carr-titulo" style="display:flex;align-items:center;gap:6px"><span style="font-size:16px">📎</span>Os meus documentos carregados</div>
+          <div class="docs-carr-titulo" style="display:flex;align-items:center;gap:6px"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Os meus documentos carregados</div>
           <div id="zona-docs-carregados"><div class="doc-fich-vazio">A verificar documentos...</div></div>
         </div>
         <div class="perfil-edit-sec" style="margin-top:12px">
-          <div class="perfil-edit-titulo" style="display:flex;align-items:center;gap:6px"><span style="font-size:16px">⚙️</span>Edição rápida</div>
-          <a href="formulario.html" class="perfil-link-principal">
-            📝
-            Completar ou atualizar formulário
+          <div class="perfil-edit-titulo" style="display:flex;align-items:center;gap:6px"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Edição rápida</div>
+          <a href="formulario.html" class="perfil-link-principal"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg> Completar ou atualizar formulário
           </a>
           <div class="campo-g">
             <label>Telefone de contacto</label>
@@ -3306,20 +3338,20 @@
   <!-- ── BOTTOM NAV MOBILE ── -->
   <nav class="bottom-nav">
     <button class="bn-btn activo" id="bn-inicio" onclick="navegarAba('aba-docs',this)">
-      🏠<span class="bn-lbl">Início</span>
+      <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="bn-lbl">Início</span>
     </button>
     <button class="bn-btn" id="bn-docs" onclick="navegarAba('aba-meus-docs',this)">
-      📄<span class="bn-lbl">Documentos</span>
+      <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg><span class="bn-lbl">Documentos</span>
       <span class="bn-badge" id="badge-pendentes">0</span>
     </button>
     <button class="bn-btn bn-btn-destaque" id="bn-pedir" onclick="navegarAba('aba-solicitar',this)">
-      <span class="bn-icon-wrap">➕</span><span class="bn-lbl">Novo</span>
+      <span class="bn-icon-wrap"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M5 12h14"/><path d="M12 5v14"/></svg></span><span class="bn-lbl">Novo</span>
     </button>
     <button class="bn-btn" id="bn-secretaria" onclick="navegarAba('aba-secretaria',this)">
-      💬<span class="bn-lbl">Secretaria</span>
+      <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg><span class="bn-lbl">Secretaria</span>
     </button>
     <button class="bn-btn" id="bn-perfil" onclick="navegarAba('aba-perfil',this)">
-      👤<span class="bn-lbl">Perfil</span>
+      <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="8" r="4"/></svg><span class="bn-lbl">Perfil</span>
     </button>
   </nav>
 
@@ -3345,9 +3377,7 @@
       <!-- preenchido por JS -->
     </div>
     <div class="modal-revisao-acoes">
-      <button class="btn-confirmar-envio" id="btn-confirmar-envio" onclick="confirmarEnvioSolicitacao()">
-        📤
-        Confirmar envio
+      <button class="btn-confirmar-envio" id="btn-confirmar-envio" onclick="confirmarEnvioSolicitacao()"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg> Confirmar envio
       </button>
       <button class="btn-rever-pedido" onclick="fecharRevisaoPedido()">← Rever pedido</button>
     </div>
@@ -3360,7 +3390,7 @@
         <div class="viewer-titulo" id="viewer-doc-titulo">Guia Medica</div>
         <div class="viewer-sub" id="viewer-doc-sub">Visualizacao apenas de leitura</div>
       </div>
-      <button class="viewer-close" onclick="fecharVisualizacaoPortal()" aria-label="Fechar visualizacao" title="Fechar"><span style="font-size:20px">✕</span></button>
+      <button class="viewer-close" onclick="fecharVisualizacaoPortal()" aria-label="Fechar visualizacao" title="Fechar"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
     </div>
     <div class="viewer-aviso">Documento disponivel apenas para consulta visual no portal do funcionario.</div>
     <div class="viewer-body">
@@ -3392,10 +3422,10 @@
   let _sessaoToken=null,_unsubSessao=null;
 
   const LABELS_TIPO={
-    "guia-ferias":{"nome":"Guia de Férias","icone":`<span style="font-size:22px">🌴</span>`,"bg":"#fef9e7"},
-    "declaracao-servico":{"nome":"Declaração de Adiantamento Salarial","icone":`<span style="font-size:22px">🧾</span>`,"bg":"#eff6ff"},
-    "guia-medica":{"nome":"Guia Médica","icone":`<span style="font-size:22px">🏥</span>`,"bg":"var(--primary-xl,#d1fae5)"},
-    "oficio":{"nome":"Ofício / Nota","icone":`<span style="font-size:22px">📋</span>`,"bg":"#e0e7ff"}
+    "guia-ferias":{"nome":"Guia de Férias","icone":`<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>`,"bg":"#fef9e7"},
+    "declaracao-servico":{"nome":"Declaração de Adiantamento Salarial","icone":`<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,"bg":"#eff6ff"},
+    "guia-medica":{"nome":"Guia Médica","icone":`<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg>`,"bg":"var(--primary-xl,#d1fae5)"},
+    "oficio":{"nome":"Ofício / Nota","icone":`<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>`,"bg":"#e0e7ff"}
   };
   const LABELS_ESTADO={nova:{texto:"Recebida",classe:"est-nova"},processando:{texto:"Em processamento",classe:"est-processando"},concluida:{texto:"Disponível",classe:"est-aprovado"},rejeitada:{texto:"Anulada",classe:"est-rejeitado"},pendente:{texto:"Em validação",classe:"est-processando"},aprovado:{texto:"Disponível",classe:"est-aprovado"},gerado:{texto:"Em validação",classe:"est-processando"}};
 
@@ -3467,7 +3497,7 @@
     const lista = typeof limit === "number" ? itens.slice(0, limit) : itens;
     if (lista.length === 0) {
       return `<div class="vazio-portal">
-        <div class="vi"><span style="font-size:44px">📂</span></div>
+        <div class="vi"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg></div>
         <p>${escapeHtml(tituloVazio || "Ainda não existem registos.")}</p>
         ${detalheVazio ? `<small>${escapeHtml(detalheVazio)}</small>` : ""}
         ${mostrarAcao ? `<button class="btn-vazio-acao" onclick="navegarAba('aba-solicitar')">Novo pedido</button>` : ""}
@@ -3475,7 +3505,7 @@
     }
     return `<div class="lista-docs">${lista.map(s => {
       const tipo = s.tipo || s.tipoDocumento || "outro";
-      const info = LABELS_TIPO[tipo] || { nome: tipo, icone: `<span style="font-size:22px">📄</span>`, bg: "var(--bg,#f3f4f6)" };
+      const info = LABELS_TIPO[tipo] || { nome: tipo, icone: `<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>`, bg: "var(--bg,#f3f4f6)" };
       const estInfo = LABELS_ESTADO[s.estado || "nova"] || { texto: s.estado, classe: "est-nova" };
       const ts = s.criadaEm?.toDate ? s.criadaEm.toDate() : (s.geradoEm?.toDate ? s.geradoEm.toDate() : null);
       const data = ts ? ts.toLocaleDateString("pt-AO", { day: "2-digit", month: "short", year: "numeric" }) : "—";
@@ -3701,7 +3731,7 @@
       cardNum && cardNum.classList.add('activo');
       cardBi  && cardBi.classList.remove('activo');
       chipLabel.textContent = 'Nº de Agente';
-      chipIc.innerHTML = '<span style="font-size:16px">🪪</span>';
+      chipIc.innerHTML = '<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><path d="M7 15h.01"/><path d="M11 15h2"/></svg>';
       inpBi.value = ''; // garantir campo inactivo limpo
       setTimeout(() => inpNum.focus(), 80);
     } else {
@@ -3710,7 +3740,7 @@
       cardBi  && cardBi.classList.add('activo');
       cardNum && cardNum.classList.remove('activo');
       chipLabel.textContent = 'Bilhete de Identidade';
-      chipIc.innerHTML = '<span style="font-size:16px">🪪</span>';
+      chipIc.innerHTML = '<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><path d="M7 15h.01"/><path d="M11 15h2"/></svg>';
       inpNum.value = ''; // garantir campo inactivo limpo
       setTimeout(() => inpBi.focus(), 80);
     }
@@ -4131,7 +4161,7 @@
     const div = document.getElementById("lista-docs-portal");
     const docsDiv = document.getElementById("lista-docs-meus");
     [div, docsDiv].forEach(el => {
-      if (el) el.innerHTML = `<div class="vazio-portal"><div class="vi"><span style="font-size:44px">⏳</span></div><p>A carregar…</p></div>`;
+      if (el) el.innerHTML = `<div class="vazio-portal"><div class="vi"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg></div><p>A carregar…</p></div>`;
     });
 
     // Cancelar listeners anteriores se existirem
@@ -4139,7 +4169,7 @@
     if (_unsubDocs) { _unsubDocs(); _unsubDocs = null; }
 
     if (!funcionarioId) {
-      const vazioHtml = `<div class="vazio-portal"><div class="vi"><span style="font-size:44px">📂</span></div><p>Ainda não tem documentos ou solicitações.</p><small>Assim que o perfil estiver associado corretamente, os seus registos vão aparecer aqui.</small></div>`;
+      const vazioHtml = `<div class="vazio-portal"><div class="vi"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg></div><p>Ainda não tem documentos ou solicitações.</p><small>Assim que o perfil estiver associado corretamente, os seus registos vão aparecer aqui.</small></div>`;
       if (div) div.innerHTML = vazioHtml;
       if (docsDiv) docsDiv.innerHTML = vazioHtml;
       return;
@@ -4223,7 +4253,7 @@
       },
       err => {
         console.error(err);
-        const erroHtml = `<div class="vazio-portal"><div class="vi">⚠️</div><p>Não foi possível carregar os registos.</p><small>Verifique a ligação e tente novamente.</small></div>`;
+        const erroHtml = `<div class="vazio-portal"><div class="vi"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg></div><p>Não foi possível carregar os registos.</p><small>Verifique a ligação e tente novamente.</small></div>`;
         if (div) div.innerHTML = erroHtml;
         if (docsDiv) docsDiv.innerHTML = erroHtml;
       }
@@ -4256,7 +4286,7 @@
   window.abrirDetalheDoc=function(id,origem){
     const s=(window._minhasSolicitacoes||[]).find(x=>x.id===id);if(!s)return;
     const tipo=s.tipo||s.tipoDocumento||"outro";
-    const info=LABELS_TIPO[tipo]||{nome:tipo,icone:`<span style="font-size:22px">📄</span>`};
+    const info=LABELS_TIPO[tipo]||{nome:tipo,icone:`<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>`};
     const estInfo=LABELS_ESTADO[s.estado||"nova"]||{texto:s.estado,classe:"est-nova"};
     const ts=s.criadaEm?.toDate?s.criadaEm.toDate():(s.geradoEm?.toDate?s.geradoEm.toDate():null);
     const detalhePrincipal = obterDetalheCurtoPortal(s);
@@ -4529,33 +4559,33 @@
       const dataInicio=_tipoSel==="guia-ferias"?document.getElementById("sol-data-inicio").value:"";
       if(_tipoSel==="guia-ferias"&&!dataInicio){
         msg.innerHTML=`<div class="alerta alerta-aviso">Por favor, indique a <strong>data de início das férias</strong>.</div>`;
-        if(btn){btn.disabled=false;btn.innerHTML='✍️ Rever e enviar';}
+        if(btn){btn.disabled=false;btn.innerHTML='<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg> Rever e enviar';}
         return;
       }
 
       // Validação para Guia Médica — unidade sanitária obrigatória
       if(_tipoSel==="guia-medica"&&!motivo){
         msg.innerHTML=`<div class="alerta alerta-aviso">Por favor, indique a <strong>unidade sanitária</strong> onde vai fazer a consulta.</div>`;
-        if(btn){btn.disabled=false;btn.innerHTML='✍️ Rever e enviar';}
+        if(btn){btn.disabled=false;btn.innerHTML='<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg> Rever e enviar';}
         return;
       }
       if(_tipoSel==="declaracao-servico"){
         if(!Number.isInteger(mesesAdiantamento) || mesesAdiantamento<=0){
           msg.innerHTML=`<div class="alerta alerta-aviso">Indique o <strong>número de meses</strong> do adiantamento.</div>`;
           document.getElementById("sol-meses-adiantamento")?.focus();
-          if(btn){btn.disabled=false;btn.innerHTML='✍️ Rever e enviar';}
+          if(btn){btn.disabled=false;btn.innerHTML='<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg> Rever e enviar';}
           return;
         }
         if(!numeroConta){
           msg.innerHTML=`<div class="alerta alerta-aviso">Indique o <strong>número de conta</strong> para o adiantamento.</div>`;
           document.getElementById("sol-numero-conta")?.focus();
-          if(btn){btn.disabled=false;btn.innerHTML='✍️ Rever e enviar';}
+          if(btn){btn.disabled=false;btn.innerHTML='<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg> Rever e enviar';}
           return;
         }
         if(!Number.isFinite(salarioLiquido) || salarioLiquido<=0){
           msg.innerHTML=`<div class="alerta alerta-aviso">Indique o <strong>salário líquido</strong> em AKZ.</div>`;
           document.getElementById("sol-salario-liquido")?.focus();
-          if(btn){btn.disabled=false;btn.innerHTML='✍️ Rever e enviar';}
+          if(btn){btn.disabled=false;btn.innerHTML='<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg> Rever e enviar';}
           return;
         }
       }
@@ -4576,7 +4606,7 @@
             <strong>Já tem um pedido activo de ${nomeTipo}.</strong><br>
             Aguarde o processamento do pedido existente antes de submeter um novo.
           </div>`;
-          if(btn){btn.disabled=false;btn.innerHTML='✍️ Rever e enviar';}
+          if(btn){btn.disabled=false;btn.innerHTML='<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg> Rever e enviar';}
           return;
         }
       }
@@ -4615,7 +4645,7 @@
       await addDoc(collection(db,"solicitacoes"), dadosSolicitacao);
 
       msg.innerHTML=`<div class="alerta alerta-sucesso"><strong>Solicitação enviada!</strong> A Secção de RH irá processar o seu pedido brevemente. Pode acompanhar o andamento na área "Documentos".</div>`;
-      if(btn){btn.innerHTML='✍️ Rever e enviar';btn.disabled=false;}
+      if(btn){btn.innerHTML='<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg> Rever e enviar';btn.disabled=false;}
       _tipoSel=null;
       document.querySelectorAll(".tipo-card").forEach(c=>c.classList.remove("seleccionado"));
       document.getElementById("form-solicitacao-extra").style.display="none";
@@ -4629,7 +4659,7 @@
       let m="Erro ao enviar. Verifique a ligação e tente novamente.";
       if(e.code==="permission-denied")m="Sem permissão. Feche a sessão, entre novamente e tente outra vez.";
       msg.innerHTML=`<div class="alerta alerta-erro">${m}</div>`;
-      if(btn){btn.disabled=false;btn.innerHTML='✍️ Rever e enviar';}
+      if(btn){btn.disabled=false;btn.innerHTML='<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg> Rever e enviar';}
     }
   };
 
@@ -4772,7 +4802,7 @@
         ${linhasTipo}
       </div>
       <div class="revisao-aviso">
-        <span class="revisao-aviso-ic">ℹ️</span>
+        <span class="revisao-aviso-ic"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
         <span>Após confirmar, o pedido é enviado imediatamente ao RH e não poderá ser editado. Verifique os dados acima.</span>
       </div>
     `;
@@ -4850,7 +4880,7 @@
         // Unidade sem ficha ainda — mostrar só o nome
         card.innerHTML = `
           <div class="mu-header">
-            <div class="mu-header-icon"><span style="font-size:20px">🏥</span></div>
+            <div class="mu-header-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 6v4"/><path d="M14 14h-4"/><path d="M14 18h-4"/><path d="M14 8h-4"/><path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"/><path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18"/></svg></div>
             <div>
               <div class="mu-header-titulo">${nomeUnidade}</div>
               <div class="mu-header-tipo">A minha unidade</div>
@@ -4873,7 +4903,7 @@
       // Responsável
       const respHTML = u.responsavel?.nome
         ? `<div class="mu-row">
-            <span class="mu-row-icon"><span style="font-size:18px">👤</span></span>
+            <span class="mu-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="8" r="4"/></svg></span>
             <div class="mu-row-info">
               <div class="mu-row-label">Responsável</div>
               <div class="mu-row-val"><strong>${u.responsavel.nome}</strong>${u.responsavel.cargo ? ' · ' + u.responsavel.cargo : ''}</div>
@@ -4883,12 +4913,12 @@
       // Contacto emergência
       const emergHTML = u.contactos?.emergencia
         ? `<div class="mu-row">
-            <span class="mu-row-icon"><span style="font-size:18px">🚨</span></span>
+            <span class="mu-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg></span>
             <div class="mu-row-info">
               <div class="mu-row-label">Emergência</div>
               <div class="mu-row-val">
                 <a href="tel:${u.contactos.emergencia}" class="mu-contacto-btn" style="display:inline-flex;align-items:center;gap:4px">
-                  <span style="font-size:14px">📞</span>${u.contactos.emergencia}
+                  <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.79 9.13 19.79 19.79 0 0 1 1.71.5A2 2 0 0 1 3.69.18l3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>${u.contactos.emergencia}
                 </a>
               </div>
             </div>
@@ -4897,7 +4927,7 @@
       // Telefone geral
       const telHTML = u.contactos?.telefone
         ? `<div class="mu-row">
-            <span class="mu-row-icon"><span style="font-size:18px">📞</span></span>
+            <span class="mu-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.79 9.13 19.79 19.79 0 0 1 1.71.5A2 2 0 0 1 3.69.18l3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
             <div class="mu-row-info">
               <div class="mu-row-label">Telefone</div>
               <div class="mu-row-val">${u.contactos.telefone}</div>
@@ -4915,7 +4945,7 @@
               Seg–Sex: ${u.horario.semana}
               ${u.horario.sabado ? `<br>Sáb: ${u.horario.sabado}` : ''}
               ${u.horario.domingo ? `<br>Dom: ${u.horario.domingo}` : ''}
-              ${u.horario.urgencia24h ? `<br><span class="mu-urgencia"><span style="font-size:12px">🚨</span> Urgência 24h</span>` : ''}
+              ${u.horario.urgencia24h ? `<br><span class="mu-urgencia"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg> Urgência 24h</span>` : ''}
             </div>
           </div>
         </div>`;
@@ -4925,7 +4955,7 @@
       let servHTML = '';
       if((u.servicos||[]).length){
         servHTML = `<div class="mu-row">
-          <span class="mu-row-icon"><span style="font-size:18px">⚕️</span></span>
+          <span class="mu-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
           <div class="mu-row-info">
             <div class="mu-row-label">Serviços Disponíveis</div>
             <div class="mu-servicos">
@@ -4937,7 +4967,7 @@
 
       card.innerHTML = `
         <div class="mu-header">
-          <div class="mu-header-icon"><span style="font-size:20px">🏥</span></div>
+          <div class="mu-header-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 6v4"/><path d="M14 14h-4"/><path d="M14 18h-4"/><path d="M14 8h-4"/><path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"/><path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18"/></svg></div>
           <div>
             <div class="mu-header-titulo">${u.nome}</div>
             <div class="mu-header-tipo">${tipoLabel}</div>
@@ -4955,7 +4985,7 @@
       console.warn('Erro ao carregar unidade:', e);
       card.innerHTML = `
         <div class="mu-header">
-          <div class="mu-header-icon"><span style="font-size:20px">🏥</span></div>
+          <div class="mu-header-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 6v4"/><path d="M14 14h-4"/><path d="M14 18h-4"/><path d="M14 8h-4"/><path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"/><path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18"/></svg></div>
           <div>
             <div class="mu-header-titulo">${nomeUnidade}</div>
             <div class="mu-header-tipo">A minha unidade</div>
@@ -5005,11 +5035,11 @@
 
       const cargoHTML = cargo ? `
         <div class="ru-row">
-          <span class="ru-row-icon"><span style="font-size:18px">🏅</span></span>
+          <span class="ru-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></svg></span>
           <div class="ru-row-info">
             <div class="ru-row-label">Cargo exercido</div>
             <div class="ru-row-val">
-              <span class="ru-badge-cargo">🏅 ${cargo}</span>
+              <span class="ru-badge-cargo"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></svg> ${cargo}</span>
               ${dtInicio ? `<div style="font-size:11px;color:#6b7280;margin-top:4px">Em funções desde ${fmtData(dtInicio)}</div>` : ''}
             </div>
           </div>
@@ -5017,7 +5047,7 @@
 
       const telHTML = u.contactos?.telefone ? `
         <div class="ru-row">
-          <span class="ru-row-icon"><span style="font-size:18px">📞</span></span>
+          <span class="ru-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.79 9.13 19.79 19.79 0 0 1 1.71.5A2 2 0 0 1 3.69.18l3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
           <div class="ru-row-info">
             <div class="ru-row-label">Contacto da unidade</div>
             <div class="ru-row-val">${u.contactos.telefone}</div>
@@ -5026,7 +5056,7 @@
 
       const localHTML = u.localizacao?.descricao ? `
         <div class="ru-row">
-          <span class="ru-row-icon">📍</span>
+          <span class="ru-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
           <div class="ru-row-info">
             <div class="ru-row-label">Localização</div>
             <div class="ru-row-val">${u.localizacao.descricao}</div>
@@ -5035,7 +5065,7 @@
 
       const servHTML = (u.servicos||[]).length ? `
         <div class="ru-row">
-          <span class="ru-row-icon"><span style="font-size:18px">🏥</span></span>
+          <span class="ru-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 6v4"/><path d="M14 14h-4"/><path d="M14 18h-4"/><path d="M14 8h-4"/><path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"/><path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18"/></svg></span>
           <div class="ru-row-info">
             <div class="ru-row-label">Serviços disponíveis</div>
             <div class="ru-row-val" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:3px">
@@ -5046,7 +5076,7 @@
 
       card.innerHTML = `
         <div class="ru-header">
-          <div class="ru-header-icon">🏅</div>
+          <div class="ru-header-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></svg></div>
           <div>
             <div class="ru-header-titulo">${u.nome}</div>
             <div class="ru-header-tipo">Sob a minha responsabilidade</div>
@@ -5054,7 +5084,7 @@
         </div>
         <div class="ru-body">
           <div class="ru-row">
-            <span class="ru-row-icon">🏷️</span>
+            <span class="ru-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg></span>
             <div class="ru-row-info">
               <div class="ru-row-label">Tipo de unidade</div>
               <div class="ru-row-val">${tipoLabel}</div>
@@ -5062,7 +5092,7 @@
           </div>
           ${cargoHTML}
           <div class="ru-row">
-            <span class="ru-row-icon">👥</span>
+            <span class="ru-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
             <div class="ru-row-info">
               <div class="ru-row-label">Efectivo registado</div>
               <div class="ru-row-val">
@@ -5125,8 +5155,8 @@
     const zona=document.getElementById("zona-docs-carregados");if(!zona)return;
     const f=funcDoc||{};
     const lista=[];
-    if(f.urlBI)   lista.push({ tipo:'bi',   local: f.urlBI==='local',   url: f.urlBI,   icone:'<span style="font-size:18px">🪪</span>', nome:'Bilhete de Identidade', sub:'Documento de identificação civil' });
-    if(f.urlCert) lista.push({ tipo:'cert', local: f.urlCert==='local', url: f.urlCert, icone:'🎓', nome:'Certificado / Diploma',  sub:'Habilitações académicas' });
+    if(f.urlBI)   lista.push({ tipo:'bi',   local: f.urlBI==='local',   url: f.urlBI,   icone:'<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><path d="M7 15h.01"/><path d="M11 15h2"/></svg>', nome:'Bilhete de Identidade', sub:'Documento de identificação civil' });
+    if(f.urlCert) lista.push({ tipo:'cert', local: f.urlCert==='local', url: f.urlCert, icone:'<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></svg>', nome:'Certificado / Diploma',  sub:'Habilitações académicas' });
     if(lista.length===0){
       zona.innerHTML=`<div class="doc-fich-vazio">Ainda não carregou nenhum documento.<br><a href="formulario.html" style="color:var(--c-700);font-weight:700">Preencha o formulário profissional</a> para carregar o seu BI e certificados.</div>`;
       return;
@@ -5479,7 +5509,7 @@
         const idxsFunc = msgs.map((mm,ii)=>mm.autor==='funcionario'?ii:-1).filter(ii=>ii>=0);
         const isUltimaFunc = isFunc && i === idxsFunc[idxsFunc.length-1];
         const visto = isUltimaFunc
-          ? `<i class="chat-visto ${lido?'lido':'enviado'}">${lido?'✔✔':'✔'}</i>`
+          ? `<i class="chat-visto ${lido?'lido':'enviado'}">${lido?'<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M20 6 9 17l-5-5"/></svg><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M20 6 9 17l-5-5"/></svg>':'<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M20 6 9 17l-5-5"/></svg>'}</i>`
           : '';
         const initials = isFunc
           ? (_funcDoc?.nome||_utilizador?.email||'V').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()
@@ -5501,7 +5531,7 @@
       if ((p.naoLidasFuncionario||0) > 0) {
         updateDoc(doc(db,'pedidos_secretaria',pedidoId),{naoLidasFuncionario:0}).catch(()=>{});
       }
-    }, err => { console.error('Chat:',err); msgsEl.innerHTML='<div class="chat-vazio">⚠️ Erro ao carregar.</div>'; });
+    }, err => { console.error('Chat:',err); msgsEl.innerHTML='<div class="chat-vazio"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg> Erro ao carregar.</div>'; });
   };
 
   window.fecharChatPortal = function() {
@@ -5790,7 +5820,7 @@
     if (_notifCache.length === 0) {
       body.innerHTML =
         '<div class="sino-vazio">' +
-          '<div class="sino-vazio-ic"><span style="font-size:44px">🔔</span></div>' +
+          '<div class="sino-vazio-ic"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>' +
           '<div class="sino-vazio-txt">Sem notificações</div>' +
         '</div>';
       return;
@@ -5798,18 +5828,18 @@
 
     // Mapas de ícone e classe por tipo
     const IC = {
-      doc_aprovado:         { ic: '<span style="font-size:20px">✅</span>', cls: 'conf'   },
-      doc_rejeitado:        { ic: '✕', cls: 'recus'  },
-      doc_gerado:           { ic: '<span style="font-size:20px">📄</span>', cls: 'resp'   },
-      reuniao_confirmada:   { ic: '✅', cls: 'conf'   },
-      reuniao_recusada:     { ic: '❌', cls: 'recus'  },
-      mensagem_secretaria:  { ic: '💬', cls: 'resp'   },
+      doc_aprovado:         { ic: '<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>', cls: 'conf'   },
+      doc_rejeitado:        { ic: '<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>', cls: 'recus'  },
+      doc_gerado:           { ic: '<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>', cls: 'resp'   },
+      reuniao_confirmada:   { ic: '<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>', cls: 'conf'   },
+      reuniao_recusada:     { ic: '<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>', cls: 'recus'  },
+      mensagem_secretaria:  { ic: '<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>', cls: 'resp'   },
       sistema:              { ic: 'ℹ️', cls: 'remarc' },
     };
 
     body.innerHTML = _notifCache.map(n => {
       const lida    = !!n.lida;
-      const icObj   = IC[n.tipo] || { ic: '<span style="font-size:20px">🔔</span>', cls: '' };
+      const icObj   = IC[n.tipo] || { ic: '<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>', cls: '' };
       const data    = n.criadaEm?.toDate?.() || null;
       const dataStr = data
         ? data.toLocaleDateString('pt-AO', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })
@@ -5891,17 +5921,17 @@
 <div class="sino-drop-overlay" id="sino-overlay" onclick="fecharSinoPortal()"></div>
 <div class="sino-drop" id="sino-drop">
   <div class="sino-drop-header">
-    <span class="sino-drop-titulo" style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">🔔</span>Notificações</span>
-    <button class="sino-drop-fechar" onclick="fecharSinoPortal()" aria-label="Fechar notificações" title="Fechar"><span style="font-size:20px">✕</span></button>
+    <span class="sino-drop-titulo" style="display:flex;align-items:center;gap:8px"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>Notificações</span>
+    <button class="sino-drop-fechar" onclick="fecharSinoPortal()" aria-label="Fechar notificações" title="Fechar"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
   </div>
   <div class="sino-drop-body" id="sino-drop-body">
     <div class="sino-vazio">
-      <div class="sino-vazio-ic"><span style="font-size:44px">🔔</span></div>
+      <div class="sino-vazio-ic"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
       <div class="sino-vazio-txt">Sem notificações</div>
     </div>
   </div>
   <div class="sino-drop-footer">
-    <button class="sino-marcar-lidas" onclick="marcarTodasLidas()" style="display:flex;align-items:center;gap:6px;">✔✔ Marcar todas como lidas</button>
+    <button class="sino-marcar-lidas" onclick="marcarTodasLidas()" style="display:flex;align-items:center;gap:6px;"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M20 6 9 17l-5-5"/></svg> Marcar todas como lidas</button>
   </div>
 </div>
 
@@ -5948,11 +5978,12 @@
 <script>
   function toggleVerSenha(inputId, btn) {
     const inp  = document.getElementById(inputId);
-    const icon = btn.querySelector('.material-symbols-outlined');
-    if (!inp || !icon) return;
+    if (!inp) return;
     const visivel = inp.type === 'text';
-    inp.type  = visivel ? 'password' : 'text';
-    icon.textContent = visivel ? 'visibility' : 'visibility_off';
+    inp.type = visivel ? 'password' : 'text';
+    btn.innerHTML = visivel
+      ? '<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>'
+      : '<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>';
     btn.setAttribute('aria-label', visivel ? 'Mostrar senha' : 'Ocultar senha');
   }
 </script>
@@ -5961,19 +5992,19 @@
 <div class="chat-overlay" id="chat-overlay" onclick="if(event.target===this)fecharChatPortal()">
   <div class="chat-box">
     <div class="chat-header">
-      <div class="chat-header-av">📧</div>
+      <div class="chat-header-av"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
       <div class="chat-header-info">
         <div class="chat-header-titulo" id="chat-titulo">Conversa</div>
         <div class="chat-header-sub" id="chat-sub">Secretaria · DMS Sumbe</div>
       </div>
-      <button class="chat-header-fechar" onclick="fecharChatPortal()" aria-label="Fechar chat" title="Fechar"><span style="font-size:20px">✕</span></button>
+      <button class="chat-header-fechar" onclick="fecharChatPortal()" aria-label="Fechar chat" title="Fechar"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
     </div>
     <div class="chat-estado-bar aberto" id="chat-estado-bar"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;vertical-align:middle;margin-right:5px"></span>Conversa aberta</div>
     <div class="chat-msgs" id="chat-msgs"></div>
     <div class="chat-input-row" id="chat-input-row">
       <textarea class="chat-input" id="chat-input" rows="1" placeholder="Escreva a sua mensagem…"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemChatPortal();}"></textarea>
-      <button class="chat-enviar" onclick="enviarMensagemChatPortal()" id="btn-chat-enviar" title="Enviar" aria-label="Enviar mensagem"><span style="font-size:20px">📤</span></button>
+      <button class="chat-enviar" onclick="enviarMensagemChatPortal()" id="btn-chat-enviar" title="Enviar" aria-label="Enviar mensagem"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
     </div>
   </div>
 </div>
