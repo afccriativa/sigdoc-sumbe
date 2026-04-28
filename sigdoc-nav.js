@@ -12,49 +12,26 @@ window.SIGDOC_NAV = (function () {
   /* ─────────────────────────────────────────
      ESTRUTURA DE NAVEGAÇÃO
   ───────────────────────────────────────── */
-  /* ── Helper interno: gera SVG string para item de navegação ── */
-  function _svg(name, size, sw) {
-    size = size || 16; sw = sw || '1.75';
-    var paths = {
-      'dashboard':    '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>',
-      'users':        '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
-      'file-text':    '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
-      'check-square': '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
-      'shield':       '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
-      'activity':     '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
-      'building':     '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18"/><path d="M6 12H4a2 2 0 0 0-2 2v8"/><path d="M18 9h2a2 2 0 0 1 2 2v11"/><line x1="10" y1="6" x2="14" y2="6"/><line x1="10" y1="10" x2="14" y2="10"/><line x1="10" y1="14" x2="14" y2="14"/><line x1="10" y1="18" x2="14" y2="18"/>',
-      'pie-chart':    '<path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>',
-      'book-open':    '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
-      'calendar':     '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
-      'settings':     '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
-      'layers':       '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
-      'log-out':      '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
-      'menu':         '<line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>',
-      'x':            '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
-    };
-    return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (paths[name] || '') + '</svg>';
-  }
-
   const GRUPOS = [
     {
       label: 'PRINCIPAL',
       itens: [
-        { id: 'index',        icon: _svg('dashboard'),    texto: 'Dashboard',         href: 'index.html',              perfis: ['admin','director','chefe','tecnico','funcionario'] },
-        { id: 'cadastro',     icon: _svg('users'),        texto: 'Cadastro',          href: 'cadastro.html',           perfis: ['admin','director','chefe','tecnico'] },
-        { id: 'portal',       icon: _svg('file-text'),    texto: 'Documentos',        href: 'documentos.html',         perfis: ['admin','director','chefe','tecnico'] },
-        { id: 'aprovacoes',   icon: _svg('check-square'), texto: 'Aprovações',        href: 'aprovacao.html',          perfis: ['admin','director','chefe'] },
+        { id: 'index',       icon: '📊', texto: 'Dashboard',    href: 'index.html',       perfis: ['admin','director','chefe','tecnico','funcionario','chefe_unidade'] },
+        { id: 'cadastro',    icon: '👤', texto: 'Cadastro',     href: 'cadastro.html',    perfis: ['admin','director','chefe','tecnico'] },
+        { id: 'portal',      icon: '📄', texto: 'Documentos',   href: 'documentos.html',  perfis: ['admin','director','chefe','tecnico','chefe_unidade'] },
+        { id: 'aprovacoes',  icon: '✅', texto: 'Aprovações',   href: 'aprovacao.html',  perfis: ['admin','director','chefe'] },
       ]
     },
     {
       label: 'GESTÃO',
       itens: [
-        { id: 'auditoria',    icon: _svg('shield'),       texto: 'Auditoria',         href: 'auditoria.html',          perfis: ['admin','director','chefe'] },
-        { id: 'painel',       icon: _svg('activity'),     texto: 'Painel RH',         href: 'painel.html',             perfis: ['admin','director'] },
-        { id: 'unidades',     icon: _svg('building'),     texto: 'Unidades',          href: 'unidades.html',           perfis: ['admin','director','chefe','tecnico','secretaria'] },
-        { id: 'estatisticas', icon: _svg('pie-chart'),    texto: 'Estatísticas',      href: 'estatisticas.html',       perfis: ['admin','director','chefe','tecnico'] },
-        { id: 'relatorios',   icon: _svg('book-open'),    texto: 'Relatórios',        href: 'relatorios.html',         perfis: ['admin','director','chefe','tecnico'] },
-        { id: 'ferias',       icon: _svg('calendar'),     texto: 'Férias/Ausências',  href: 'ferias.html',             perfis: ['admin','director','chefe','tecnico'] },
-        { id: 'utilizadores', icon: _svg('settings'),     texto: 'Utilizadores',      href: 'index.html#utilizadores', perfis: ['admin'] },
+        { id: 'auditoria',   icon: '🔍', texto: 'Auditoria',    href: 'auditoria.html',   perfis: ['admin','director','chefe'] },
+        { id: 'painel',      icon: '📈', texto: 'Painel RH',    href: 'painel.html',      perfis: ['admin','director'] },
+        { id: 'unidades',    icon: '🏥', texto: 'Unidades',     href: 'unidades.html',    perfis: ['admin','director','chefe','tecnico','secretaria','chefe_unidade'] },
+        { id: 'estatisticas', icon: '📊', texto: 'Estatísticas',  href: 'estatisticas.html', perfis: ['admin','director','chefe','tecnico'] },
+        { id: 'relatorios',  icon: '📋', texto: 'Relatórios',   href: 'relatorios.html',  perfis: ['admin','director','chefe','tecnico'] },
+        { id: 'ferias',      icon: '🌴', texto: 'Férias/Ausências', href: 'ferias.html', perfis: ['admin','director','chefe','tecnico','chefe_unidade'] },
+        { id: 'utilizadores',icon: '⚙️', texto: 'Utilizadores', href: 'index.html#utilizadores', perfis: ['admin'] },
       ]
     }
   ];
@@ -120,12 +97,7 @@ window.SIGDOC_NAV = (function () {
       background: linear-gradient(135deg, #064e35, #10c886);
       border-radius: 9px;
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      color: #fff;
-    }
-    .snav-brand-icon svg {
-      width: 18px; height: 18px;
-      display: block;
+      font-size: 17px; flex-shrink: 0;
     }
     .snav-brand-nome {
       font-family: 'Plus Jakarta Sans', 'DM Sans', sans-serif;
@@ -182,15 +154,8 @@ window.SIGDOC_NAV = (function () {
       border-radius: 0 3px 3px 0;
     }
     .snav-item-icon {
-      width: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .snav-item-icon svg {
-      width: 16px; height: 16px;
-      display: block;
+      width: 20px; text-align: center;
+      font-size: 14px; flex-shrink: 0;
     }
     .snav-item-texto { line-height: 1; }
 
@@ -237,15 +202,9 @@ window.SIGDOC_NAV = (function () {
     }
     .snav-logout-btn {
       background: none; border: none;
-      color: rgba(255,255,255,.3);
+      color: rgba(255,255,255,.3); font-size: 15px;
       cursor: pointer; padding: 4px; border-radius: 6px;
       transition: all .18s; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      width: 28px; height: 28px;
-    }
-    .snav-logout-btn svg {
-      width: 15px; height: 15px;
-      display: block;
     }
     .snav-logout-btn:hover { color: #ef4444; background: rgba(239,68,68,.1); }
 
@@ -257,11 +216,10 @@ window.SIGDOC_NAV = (function () {
       background: #111827;
       border: 1px solid rgba(255,255,255,.12);
       color: #fff; width: 36px; height: 36px;
-      border-radius: 8px;
+      border-radius: 8px; font-size: 17px;
       align-items: center; justify-content: center;
       cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,.4);
     }
-    #sigdoc-nav-toggle svg { width: 18px; height: 18px; display: block; }
 
     /* ── Overlay mobile ── */
     #sigdoc-nav-overlay {
@@ -348,7 +306,7 @@ window.SIGDOC_NAV = (function () {
 
     return `
       <!-- TOGGLE MOBILE -->
-      <button id="sigdoc-nav-toggle" onclick="SIGDOC_NAV.toggle()" aria-label="Menu">${_svg('menu', 18, '2')}</button>
+      <button id="sigdoc-nav-toggle" onclick="SIGDOC_NAV.toggle()" aria-label="Menu">☰</button>
       <div id="sigdoc-nav-overlay" onclick="SIGDOC_NAV.toggle()"></div>
 
       <!-- SIDEBAR -->
@@ -356,7 +314,7 @@ window.SIGDOC_NAV = (function () {
 
         <!-- Brand -->
         <div class="snav-brand">
-          <div class="snav-brand-icon">${_svg('layers', 18, '1.5')}</div>
+          <div class="snav-brand-icon">📋</div>
           <div>
             <div class="snav-brand-nome">SIGDOC-SUMBE</div>
             <div class="snav-brand-sub">Gestão Documental e RH</div>
@@ -378,7 +336,7 @@ window.SIGDOC_NAV = (function () {
             <div class="snav-user-nome" id="snav-nome">${config.nome || '—'}</div>
             <div class="snav-user-perfil" id="snav-perfil">${perfilLabel}</div>
           </div>
-          <button class="snav-logout-btn" onclick="SIGDOC_NAV.logout()" title="Terminar sessão">${_svg('log-out', 15, '2')}</button>
+          <button class="snav-logout-btn" onclick="SIGDOC_NAV.logout()" title="Terminar sessão">⇥</button>
         </div>
 
       </aside>`;
@@ -487,7 +445,7 @@ window.SIGDOC_NAV = (function () {
       _aberto = !_aberto;
       sidebar.classList.toggle('snav-aberto', _aberto);
       overlay.classList.toggle('snav-aberto', _aberto);
-      if (toggle) toggle.innerHTML = _aberto ? _svg('x', 18, '2') : _svg('menu', 18, '2');
+      if (toggle) toggle.textContent = _aberto ? '✕' : '☰';
     },
 
     fechar() {
@@ -497,7 +455,7 @@ window.SIGDOC_NAV = (function () {
       _aberto = false;
       sidebar.classList.remove('snav-aberto');
       overlay.classList.remove('snav-aberto');
-      if (toggle) toggle.innerHTML = _svg('menu', 18, '2');
+      if (toggle) toggle.textContent = '☰';
     },
 
     logout() {
