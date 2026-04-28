@@ -3752,7 +3752,7 @@
   }
 
   function obterTextoUnidadeVisual(d) {
-    return _chefeUnidadeActual?.unidade?.nome || d?.unidade || d?.seccao || "â€”";
+    return _chefeUnidadeActual?.unidade?.nome || d?.unidade || d?.seccao || "—";
   }
 
   function actualizarCabecalhoPainel(u, d) {
@@ -3762,8 +3762,8 @@
 
     const sub = document.getElementById("dash-subtitulo");
     if (sub && lblPerfil) {
-      if (_chefeUnidadeActual?.unidade?.nome) sub.textContent = `${lblPerfil} Â· ${_chefeUnidadeActual.unidade.nome}`;
-      else sub.textContent = `${lblPerfil} Â· DirecÃ§Ã£o Municipal da SaÃºde do Sumbe`;
+      if (_chefeUnidadeActual?.unidade?.nome) sub.textContent = `${lblPerfil} · ${_chefeUnidadeActual.unidade.nome}`;
+      else sub.textContent = `${lblPerfil} · DirecÃ§Ã£o Municipal da SaÃºde do Sumbe`;
     }
   }
 
@@ -3789,7 +3789,7 @@
     if (painelDefault) painelDefault.style.display = "";
     if (total) total.textContent = "0";
     if (badge) badge.textContent = "0 colaboradores";
-    if (nome) nome.textContent = "â€”";
+    if (nome) nome.textContent = "—";
     if (meta) meta.textContent = "Sem unidade sob responsabilidade identificada.";
     if (lista) {
       lista.innerHTML = `<div class="vazio-estado" style="padding:32px 18px"><div class="icone" style="color:var(--pri)">ðŸ“„</div><p style="color:var(--txt-2)">Nenhuma equipa carregada.</p></div>`;
@@ -3864,7 +3864,7 @@
     if (painelDefault) painelDefault.style.display = "none";
     if (nomeEl) nomeEl.textContent = unidade.nome || "Unidade sem nome";
     if (metaEl) {
-      const cargo = unidade.responsavel?.cargo ? ` Â· ${unidade.responsavel.cargo}` : "";
+      const cargo = unidade.responsavel?.cargo ? ` · ${unidade.responsavel.cargo}` : "";
       metaEl.textContent = `Identificado a partir do responsavel da unidade${cargo}.`;
     }
     if (totalEl) totalEl.textContent = String(equipa.length);
@@ -4134,6 +4134,11 @@
       director: [
         { href:"auditoria.html",  ic:IC.search,   txt:"Auditoria"        },
         { href:"painel.html",     ic:IC.barChart, txt:"Painel RH"        },
+      ],
+      chefe_unidade: [
+        { href:"documentos.html", ic:IC.fileText,  txt:"Documentos"      },
+        { href:"ferias.html",     ic:IC.calendar,  txt:"Férias/Ausências" },
+        { href:"portal.html",     ic:IC.smartphone, txt:"Portal"         },
       ],
     };
     const grid = document.getElementById("quick-actions-grid");
