@@ -59,11 +59,11 @@ window.SIGDOC_CONFIG = (function () {
   const ROLE_LABELS = {
     admin: 'Administrador do Sistema',
     director: 'Director Municipal',
-    chefe: 'Chefe de SecÃ§Ã£o',
+    chefe: 'Chefe de Secção',
     chefe_unidade: 'Chefe de Unidade',
-    tecnico: 'TÃ©cnico de RH',
+    tecnico: 'Técnico de RH',
     secretaria: 'Secretaria',
-    funcionario: 'FuncionÃ¡rio de Unidade'
+    funcionario: 'Funcionário de Unidade'
   };
 
   function normalizarRole(valor) {
