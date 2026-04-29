@@ -3753,6 +3753,34 @@ window.pesquisarResponsavel = function(){
 window.selecionarResponsavel = function(fObj){
   const u    = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
   const nomU = u?.nome||'';
+
+  // ── BLOQUEIO: verificar se já é responsável de outra unidade ──
+  const jaResponsavelEm = TODAS_UNIDADES.find(x =>
+    x.id !== MODAL_FICHA_ID &&
+    x.responsavel?.funcionarioId &&
+    x.responsavel.funcionarioId === (fObj.id || fObj.funcionarioId)
+  );
+
+  if (jaResponsavelEm) {
+    const avisoWrap = document.getElementById('resp-aviso-wrap');
+    const avisoTxt  = document.getElementById('resp-aviso-txt');
+    avisoTxt.innerHTML =
+      '🚫 <strong>' + fObj.nome.split(' ')[0] + '</strong>'
+      + ' já é responsável de <strong>' + (jaResponsavelEm.nome || 'outra unidade') + '</strong>.'
+      + ' Um funcionário não pode ser responsável de duas unidades em simultâneo.'
+      + ' Remova primeiro o responsável nessa unidade.';
+    avisoWrap.style.display = 'flex';
+    avisoWrap.style.background = 'var(--erro-bg, #fef2f2)';
+    avisoWrap.style.borderColor = 'var(--erro, #dc2626)';
+    avisoWrap.style.color = '#991b1b';
+    // Limpar selecção — não deixar prosseguir
+    RESP_SELECIONADO = null;
+    document.getElementById('resp-selecionado-wrap').style.display = 'none';
+    document.getElementById('resp-pesquisa').value = '';
+    document.getElementById('resp-resultados').style.display = 'none';
+    return; // sair sem atribuir
+  }
+
   RESP_SELECIONADO = normalizarResponsavelSelecionado(fObj);
   document.getElementById('resp-sel-av').textContent    = fObj.nome[0].toUpperCase();
   document.getElementById('resp-sel-nome').textContent  = fObj.nome;
@@ -3761,14 +3789,18 @@ window.selecionarResponsavel = function(fObj){
   document.getElementById('resp-pesquisa').value        = '';
   document.getElementById('resp-resultados').style.display = 'none';
   marcarSecaoDirty('resp');
-  // Aviso se o funcionário pertence a outra unidade
+
+  // Aviso informativo: funcionário colocado noutra unidade (não é bloqueio)
   const avisoWrap = document.getElementById('resp-aviso-wrap');
   const avisoTxt  = document.getElementById('resp-aviso-txt');
   if(fObj.unidade && fObj.unidade !== nomU){
-    avisoTxt.innerHTML = '<strong>' + fObj.nome.split(' ')[0] + '</strong>'
+    avisoTxt.innerHTML = '⚠️ <strong>' + fObj.nome.split(' ')[0] + '</strong>'
       + ' está actualmente colocado(a) em <strong>' + fObj.unidade + '</strong>.'
       + ' Confirme a nomeação — a colocação no cadastro não é alterada automaticamente.';
     avisoWrap.style.display = 'flex';
+    avisoWrap.style.background = '';
+    avisoWrap.style.borderColor = '';
+    avisoWrap.style.color = '';
   } else {
     avisoWrap.style.display = 'none';
   }
@@ -4012,6 +4044,24 @@ const _SECCAO_DADOS = {
 window.guardarSeccao = async function(seccao){
   if(!MODAL_FICHA_ID || !_SECCAO_DADOS[seccao]) return;
 
+  // ── BLOQUEIO PRÉ-ESCRITA: verificação dupla de responsável único ──
+  if (seccao === 'resp' && RESP_SELECIONADO) {
+    const funcId = RESP_SELECIONADO.funcionarioId || RESP_SELECIONADO.id || '';
+    if (funcId) {
+      const conflito = TODAS_UNIDADES.find(x =>
+        x.id !== MODAL_FICHA_ID &&
+        x.responsavel?.funcionarioId === funcId
+      );
+      if (conflito) {
+        mostrarToast(
+          `🚫 ${RESP_SELECIONADO.nome.split(' ')[0]} já é responsável de "${conflito.nome || 'outra unidade'}". Operação cancelada.`,
+          '#dc2626'
+        );
+        return;
+      }
+    }
+  }
+
   const btnId  = `save-btn-${seccao}`;
   const btn    = document.getElementById(btnId);
   const btnEstado = document.getElementById('btn-guardar-estado');
@@ -4023,7 +4073,45 @@ window.guardarSeccao = async function(seccao){
   const dados = { ..._SECCAO_DADOS[seccao](), actualizadoEm: serverTimestamp() };
 
   try{
-    await updateDoc(doc(db,'unidades_sanitarias',MODAL_FICHA_ID), dados);
+    // ── Escrita: secção de responsável usa batch atómico ──
+    // Garante que responsaveis_unidade/{funcionarioId} é actualizado
+    // em simultâneo, servindo como índice de unicidade no Firestore.
+    if (seccao === 'resp') {
+      const { writeBatch: wb, doc: wDoc, collection: wCol, deleteDoc } =
+        await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+
+      const batch = wb(db);
+
+      // 1. Remover entrada anterior do índice (se havia outro responsável)
+      const unidadeActual = TODAS_UNIDADES.find(x => x.id === MODAL_FICHA_ID);
+      const idAnterior = unidadeActual?.responsavel?.funcionarioId;
+      if (idAnterior && idAnterior !== (RESP_SELECIONADO?.funcionarioId || RESP_SELECIONADO?.id)) {
+        batch.delete(wDoc(db, 'responsaveis_unidade', idAnterior));
+      }
+
+      // 2. Escrever nova entrada no índice (se há responsável seleccionado)
+      const novoId = RESP_SELECIONADO?.funcionarioId || RESP_SELECIONADO?.id || '';
+      if (novoId) {
+        batch.set(wDoc(db, 'responsaveis_unidade', novoId), {
+          unidadeId:   MODAL_FICHA_ID,
+          unidadeNome: unidadeActual?.nome || '',
+          nome:        RESP_SELECIONADO.nome,
+          cargo:       dados.responsavel?.cargo || '',
+          actualizadoEm: serverTimestamp()
+        });
+      } else if (idAnterior) {
+        // Responsável foi removido — apagar índice
+        batch.delete(wDoc(db, 'responsaveis_unidade', idAnterior));
+      }
+
+      // 3. Escrever na unidade
+      batch.update(wDoc(db, 'unidades_sanitarias', MODAL_FICHA_ID), dados);
+
+      await batch.commit();
+
+    } else {
+      await updateDoc(doc(db,'unidades_sanitarias',MODAL_FICHA_ID), dados);
+    }
 
     // Actualizar cache local
     const u = TODAS_UNIDADES.find(x=>x.id===MODAL_FICHA_ID);
