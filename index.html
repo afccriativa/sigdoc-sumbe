@@ -815,47 +815,71 @@
 
     /* ── Portal banner ───────────────────────────────────────── */
     .portal-banner {
-      background: var(--pri); border-radius: var(--r-lg);
-      padding: 24px; display: flex; flex-direction: column;
-      position: relative; overflow: hidden; margin-bottom: 20px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--sh-xs);
+      transition: border-color .18s, box-shadow .18s;
     }
 
-    .portal-banner::after {
-      content: "✚"; font-size: 110px; opacity: .07;
-      position: absolute; right: -14px; top: -14px;
-      line-height: 1; pointer-events: none; color: #fff;
+    .portal-banner:hover {
+      border-color: var(--pri);
+      box-shadow: 0 0 0 3px rgba(var(--pri-rgb, 13,110,79),.07), var(--sh-xs);
     }
+
+    /* Ícone lateral */
+    .portal-banner-ic {
+      width: 38px; height: 38px; border-radius: var(--r-md);
+      background: var(--pri); color: #fff; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .portal-banner-ic svg { width: 18px; height: 18px; }
+
+    /* Texto */
+    .portal-banner-txt { flex: 1; min-width: 0; }
 
     .portal-banner h4 {
-      font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 8px;
+      font-size: 13px; font-weight: 700; color: var(--txt-1);
+      margin: 0 0 2px; line-height: 1.3;
     }
 
     .portal-banner p {
-      font-size: 13px; color: rgba(255,255,255,.76); line-height: 1.55;
-      margin-bottom: 20px; margin-top: 0; max-width: 340px;
+      font-size: 11px; color: var(--txt-3); line-height: 1.4;
+      margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
-    .portal-banner-acoes { display: flex; gap: 10px; flex-wrap: wrap; }
+    .portal-banner-acoes { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
     .portal-banner-url   { display: none; }
 
     .btn-pb-abrir {
-      background: #fff; color: var(--pri); border: none;
-      border-radius: var(--r-md); padding: 10px 18px;
-      font-size: 13px; font-weight: 700; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 6px;
-      text-decoration: none; transition: background .14s;
+      background: var(--pri); color: #fff; border: none;
+      border-radius: var(--r-md); padding: 8px 14px;
+      font-size: 12px; font-weight: 700; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 5px;
+      text-decoration: none; white-space: nowrap;
+      transition: opacity .16s, transform .12s;
     }
 
-    .btn-pb-abrir:hover { background: #eef2ff; }
+    .btn-pb-abrir:hover { opacity: .88; transform: translateY(-1px); }
 
     .btn-pb-copiar {
-      background: rgba(255,255,255,.14); color: #fff;
-      border: 1px solid rgba(255,255,255,.26); border-radius: var(--r-md);
-      padding: 10px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
-      transition: background .14s; font-family: var(--font);
+      background: var(--surface-2); color: var(--txt-2);
+      border: 1.5px solid var(--border); border-radius: var(--r-md);
+      padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 5px;
+      transition: background .14s, border-color .14s; font-family: var(--font);
+      white-space: nowrap;
     }
 
-    .btn-pb-copiar:hover { background: rgba(255,255,255,.22); }
+    .btn-pb-copiar:hover { background: var(--border); border-color: var(--txt-3); }
 
     /* ── Quick actions ───────────────────────────────────────── */
     .quick-actions-grid {
@@ -3142,13 +3166,22 @@
 
         <!-- Banner Portal -->
         <div class="portal-banner secção-restrita" id="banner-portal" style="display:none">
-          <div style="position:relative;z-index:1">
-            <h4>Portal do Funcionário</h4>
-            <p>Gerencie solicitações administrativas, documentos e comunicações com os funcionários das unidades sanitárias em um único lugar.</p>
+          <!-- Ícone -->
+          <div class="portal-banner-ic">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></svg>
           </div>
-          <div class="portal-banner-acoes" style="position:relative;z-index:1">
+          <!-- Texto -->
+          <div class="portal-banner-txt">
+            <h4>Portal do Funcionário</h4>
+            <p>Solicitações, documentos e comunicações com funcionários das unidades sanitárias.</p>
+          </div>
+          <!-- Acções -->
+          <div class="portal-banner-acoes">
+            <button class="btn-pb-copiar" onclick="copiarLinkPortal()">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              Copiar link
+            </button>
             <a href="portal.html" target="_blank" class="btn-pb-abrir">Aceder ao Portal →</a>
-            <button class="btn-pb-copiar" onclick="copiarLinkPortal()" style="display:inline-flex;align-items:center;gap:6px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copiar link</button>
           </div>
         </div>
 
@@ -3964,7 +3997,7 @@
     const sub = document.getElementById("dash-subtitulo");
     if (sub && lblPerfil) {
       if (_chefeUnidadeActual?.unidade?.nome) sub.textContent = `${lblPerfil} · ${_chefeUnidadeActual.unidade.nome}`;
-      else sub.textContent = `${lblPerfil} · DirecÃ§Ã£o Municipal da SaÃºde do Sumbe`;
+      else sub.textContent = `${lblPerfil} · Direcção Municipal da Saúde do Sumbe`;
     }
   }
 
