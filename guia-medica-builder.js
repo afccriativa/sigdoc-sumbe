@@ -109,7 +109,8 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria, opcoes) {
       }
       .gm-label {
         font-weight: bold;
-        width: 32mm;
+        width: auto;
+        flex: 0 0 auto;
       }
       .gm-valor {
         flex: 1;
