@@ -397,17 +397,20 @@ function renderFicha(){
             return '<div class="muted-box">Dados de infraestrutura física ainda não registados para esta unidade. Actualize a ficha no módulo de unidades.</div>';
           }
           function simNao(v){
-            if(v === undefined || v === null) return 'Não registado';
-            return v ? '✅ Sim' : '❌ Não';
+            if(v === undefined || v === null)
+              return '<span class="badge badge-muted">Não registado</span>';
+            return v
+              ? '<span class="badge badge-ok">Sim</span>'
+              : '<span class="badge badge-bad">Não</span>';
           }
           const itens = [
             inf.camas !== null && inf.camas !== undefined
-              ? infoItem('💊 Camas de internamento', `<strong style="font-size:22px;font-family:var(--mono)">${esc(String(inf.camas))}</strong>`)
+              ? infoItem('Camas de internamento', `<strong style="font-size:22px;font-family:var(--mono)">${esc(String(inf.camas))}</strong>`)
               : '',
-            infoItem('💧 Água potável', esc(simNao(inf.aguaPotavel))),
-            infoItem('⚡ Energia eléctrica', esc(simNao(inf.energiaElectrica))),
-            infoItem('🔬 Laboratório funcional', esc(simNao(inf.laboratorio))),
-            infoItem('💉 Posto fixo de vacinação', esc(simNao(inf.postoVacinacao))),
+            infoItem('Água potável', simNao(inf.aguaPotavel)),
+            infoItem('Energia eléctrica', simNao(inf.energiaElectrica)),
+            infoItem('Laboratório funcional', simNao(inf.laboratorio)),
+            infoItem('Posto fixo de vacinação', simNao(inf.postoVacinacao)),
           ].filter(Boolean).join('');
           return '<div class="info-grid">' + itens + '</div>';
         })()}
