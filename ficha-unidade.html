@@ -336,27 +336,16 @@ function renderFicha(){
     </section>
     <div class="sections-grid">
       <section class="panel">
-        <div class="panel-head"><div><h3 class="panel-title">Identificação completa</h3><p class="panel-sub">Dados principais da unidade para resposta oficial imediata.</p></div></div>
+        <div class="panel-head"><div><h3 class="panel-title">Localização e referências</h3><p class="panel-sub">Dados territoriais e identificadores de referência da unidade.</p></div></div>
         <div class="info-grid">
-          ${infoItem('Nome da unidade', `<strong>${esc(unidade?.nome || 'Não informado')}</strong>`)}
           ${infoItem('Nome abreviado', esc(abreviado))}
           ${infoItem('Código interno', esc(valorOuFallback(unidade?.codigo)))}
-          ${infoItem('Tipo de unidade', esc(tipoLabel(unidade?.tipo)))}
-          ${infoItem('Estado operacional', esc(estado.label))}
-          ${infoItem('Está em funcionamento?', `<strong>${esc(funcionamento.curto)}</strong><br>${esc(funcionamento.detalhe)}`)}
-        </div>
-      </section>
-      <section class="panel">
-        <div class="panel-head"><div><h3 class="panel-title">Localização detalhada</h3><p class="panel-sub">Descrição territorial e distância em relação à sede.</p></div></div>
-        <div class="info-grid">
           ${infoItem('Município', esc(valorOuFallback(local.municipio || 'Sumbe')))}
           ${infoItem('Província', esc(valorOuFallback(local.provincia || 'Cuanza Sul')))}
           ${infoItem('Comuna', esc(valorOuFallback(local.comuna)))}
           ${infoItem('Bairro', esc(valorOuFallback(local.bairro)))}
-          ${infoItem('Descrição da localização', esc(valorOuFallback(local.descricao, localizacaoCurta(unidade))))}
           ${infoItem('Ponto de referência', esc(valorOuFallback(local.referencia)))}
           ${infoItem('Distância da sede', `<strong>${esc(formatarDistancia(local.distanciaSedeKm))}</strong>`)}
-          ${infoItem('Resumo territorial', esc(localizacaoCurta(unidade)))}
         </div>
       </section>
       <section class="panel">
