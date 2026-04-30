@@ -4009,7 +4009,18 @@
 
     if (wrap) wrap.style.display = "block";
     if (painelDefault) painelDefault.style.display = "none";
-    if (nomeEl) nomeEl.textContent = unidade.nome || "Unidade sem nome";
+    if (nomeEl) {
+      const nomeTexto = unidade.nome || "Unidade sem nome";
+      if (unidade.id) {
+        nomeEl.innerHTML = `<a href="ficha-unidade.html?id=${encodeURIComponent(unidade.id)}"
+          style="color:inherit;text-decoration:none;border-bottom:1.5px solid rgba(255,255,255,.35);padding-bottom:1px;transition:border-color .15s"
+          onmouseover="this.style.borderColor='rgba(255,255,255,.8)'"
+          onmouseout="this.style.borderColor='rgba(255,255,255,.35)'"
+          title="Ver ficha da unidade">${nomeTexto}</a>`;
+      } else {
+        nomeEl.textContent = nomeTexto;
+      }
+    }
     if (metaEl) {
       const cargo = unidade.responsavel?.cargo ? ` · ${unidade.responsavel.cargo}` : "";
       metaEl.textContent = `Identificado a partir do responsavel da unidade${cargo}.`;
