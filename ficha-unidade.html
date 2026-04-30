@@ -340,8 +340,7 @@ function renderFicha(){
         <div class="info-grid">
           ${infoItem('Nome abreviado', esc(abreviado))}
           ${infoItem('Código interno', esc(valorOuFallback(unidade?.codigo)))}
-          ${infoItem('Município', esc(valorOuFallback(local.municipio || 'Sumbe')))}
-          ${infoItem('Província', esc(valorOuFallback(local.provincia || 'Cuanza Sul')))}
+          ${infoItem('Município / Província', esc(`${valorOuFallback(local.municipio || 'Sumbe')}, ${valorOuFallback(local.provincia || 'Cuanza Sul')}`))}
           ${infoItem('Comuna', esc(valorOuFallback(local.comuna)))}
           ${infoItem('Bairro', esc(valorOuFallback(local.bairro)))}
           ${infoItem('Ponto de referência', esc(valorOuFallback(local.referencia)))}
