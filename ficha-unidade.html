@@ -73,7 +73,6 @@ a{text-decoration:none;color:inherit}button,input{font:inherit}button{cursor:poi
       <h1 class="page-title">Ficha da Unidade</h1>
       <p class="page-sub" id="page-sub">Documento sintético para resposta institucional e exportação.</p>
     </div>
-    <a class="btn btn-secondary" href="unidades.html">Voltar para unidades</a>
   </div>
   <div id="content">
     <div class="loading-card">
@@ -411,7 +410,6 @@ function renderFicha(){
         <div class="panel-head"><div><h3 class="panel-title">Ações</h3><p class="panel-sub">Preparado para impressão ou gravação em PDF a partir do navegador.</p></div></div>
         <div class="action-row">
           <button class="btn btn-primary" onclick="exportarFichaPDF()">Exportar PDF</button>
-          <a class="btn btn-secondary" href="unidades.html">Voltar para unidades</a>
           ${chefe?.funcionarioId ? `<a class="btn btn-secondary" href="cadastro.html?abrir=${encodeURIComponent(chefe.funcionarioId)}">Abrir cadastro do chefe</a>` : ''}
         </div>
       </section>
