@@ -89,6 +89,10 @@
       '</div>';
 
     return '<style>' +
+      '.documento-oficial, .documento-oficial * {' +
+        'font-family: Arial, sans-serif !important;' +
+        'font-size: 12pt !important;' +
+      '}' +
       '@media print {' +
         '@page { size: A4 landscape; margin: 0; }' +
         'html, body {' +
