@@ -93,6 +93,9 @@
         'font-family: Arial, sans-serif !important;' +
         'font-size: 12pt !important;' +
       '}' +
+      '.doc-local-data {' +
+        'font-size: 11pt !important;' +
+      '}' +
       '@media print {' +
         '@page { size: A4 landscape; margin: 0; }' +
         'html, body {' +
