@@ -89,6 +89,10 @@
       '</div>';
 
     return '<style>' +
+      '.doc-metade {' +
+        'padding: 1cm !important;' +
+        'box-sizing: border-box !important;' +
+      '}' +
       '.documento-oficial, .documento-oficial * {' +
         'font-family: "Times New Roman", serif !important;' +
         'font-size: 11pt !important;' +
