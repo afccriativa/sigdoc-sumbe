@@ -90,8 +90,8 @@
 
     return '<style>' +
       '.documento-oficial, .documento-oficial * {' +
-        'font-family: Arial, sans-serif !important;' +
-        'font-size: 12pt !important;' +
+        'font-family: "Times New Roman", serif !important;' +
+        'font-size: 11pt !important;' +
       '}' +
       '.doc-local-data {' +
         'font-size: 11pt !important;' +
