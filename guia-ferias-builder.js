@@ -92,6 +92,8 @@
       '.doc-metade {' +
         'padding: 1cm !important;' +
         'box-sizing: border-box !important;' +
+        'height: fit-content !important;' +
+        'align-self: flex-start !important;' +
       '}' +
       '.documento-oficial, .documento-oficial * {' +
         'font-family: "Times New Roman", serif !important;' +
