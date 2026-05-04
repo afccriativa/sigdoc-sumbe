@@ -97,18 +97,18 @@
         'font-size: 11pt !important;' +
       '}' +
       '@media print {' +
-        '@page { size: A4 landscape; margin: 0.5cm; }' +
+        '@page { size: A4 landscape; margin: 0; }' +
         'html, body {' +
-          'width: 287mm !important;' +
-          'height: 200mm !important;' +
-          'max-height: 200mm !important;' +
+          'width: 297mm !important;' +
+          'height: 210mm !important;' +
+          'max-height: 210mm !important;' +
           'overflow: hidden !important;' +
           'margin: 0 !important;' +
           'padding: 0 !important;' +
         '}' +
         '.documento-oficial {' +
-          'width: 287mm !important;' +
-          'height: 200mm !important;' +
+          'width: 297mm !important;' +
+          'height: 210mm !important;' +
           'overflow: hidden !important;' +
           'page-break-after: avoid !important;' +
           'page-break-inside: avoid !important;' +
