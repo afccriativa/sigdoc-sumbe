@@ -35,7 +35,7 @@
     const numFmt = d.numGuia && d.anoGuia ? d.numGuia + "/" + d.anoGuia : "___/____";
     const nome = d.nomeFuncionario || "___________________________";
     const cat = d.categoria || "___________________________";
-    const dias = d.numDias || "___";
+    const dias = "22";
     const inicioFmt = d.dataInicio ? fmtSimples(d.dataInicio) : "__.__.____";
     const emissaoExt = d.dataEmissao ? fmtExtenso(d.dataEmissao) : "___ DE __________ DE ____";
     const apFmt = d.dataApresentacao ? fmtSimples(d.dataApresentacao) : "__.__.____";
