@@ -63,6 +63,8 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria, opcoes) {
       }
       .gm-cabecalho {
         text-align: center;
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
         margin-bottom: 5mm;
         line-height: 1.2;
         display: flex;
@@ -89,10 +91,11 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria, opcoes) {
         text-align: center;
         font-size: 12pt;
         font-weight: bold;
+        text-decoration: none !important;
         margin: 5mm 0;
       }
       .gm-cabecalho p:last-of-type {
-        text-decoration: underline;
+        text-decoration: underline !important;
       }
       .gm-apresentacao {
         font-weight: bold;
