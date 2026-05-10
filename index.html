@@ -4691,14 +4691,27 @@
       snap.forEach(d=>{ if(d.data().activo) activos++; });
       document.getElementById("total-utilizadores").textContent = snap.size;
       document.getElementById("total-activos").textContent = activos;
-    } catch(e) { console.error(e); mostrarNotif("⚠️ Erro ao carregar indicadores.","aviso"); }
+    } catch(e) {
+      console.error("carregarIndicadores - utilizadores:", e);
+      mostrarNotif("⚠️ Erro ao carregar indicadores.","aviso");
+      // FIX 2a: mostrar "—" explícito em vez de valor indefinido
+      const elU = document.getElementById("total-utilizadores");
+      const elA = document.getElementById("total-activos");
+      if(elU) elU.textContent = "—";
+      if(elA) elA.textContent = "—";
+    }
     try {
       const snapF = await getDocs(collection(db,"funcionarios"));
       const uns = new Set();
       snapF.forEach(d=>{ const u=d.data().unidade; if(u) uns.add(u); });
       document.getElementById("total-funcionarios").textContent = snapF.size;
       document.getElementById("total-unidades").textContent = uns.size || 16;
-    } catch(e) {}
+    } catch(e) {
+      // FIX 2b: catch deixa de ser silencioso
+      console.error("carregarIndicadores - funcionarios:", e);
+      const elF = document.getElementById("total-funcionarios");
+      if(elF) elF.textContent = "—";
+    }
   }
 
   async function carregarUtilizadores() {
@@ -4823,7 +4836,14 @@
       lista.innerHTML=html;
       const mini_el=document.getElementById("lista-sessoes-mini");
       if(mini_el) mini_el.innerHTML=htmlMini;
-    }catch(e){ console.error(e); lista.innerHTML=`<div class="vazio-estado"><p>⚠️ Erro ao carregar sessões.</p></div>`; mostrarNotif("❌ Não foi possível carregar os acessos recentes.","erro"); }
+    }catch(e){
+      console.error(e);
+      lista.innerHTML=`<div class="vazio-estado"><p>⚠️ Erro ao carregar sessões.</p></div>`;
+      mostrarNotif("❌ Não foi possível carregar os acessos recentes.","erro");
+      // FIX 1: actualizar mini-card também para não ficar em "A carregar..."
+      const mini_el=document.getElementById("lista-sessoes-mini");
+      if(mini_el) mini_el.innerHTML=`<div class="vazio-estado" style="padding:12px 8px"><p style="font-size:12px">⚠️ Sem dados disponíveis.</p></div>`;
+    }
   }
 
   window.abrirModalPerfil=function(){
@@ -6079,12 +6099,22 @@
     _unsubPedidosSec = onSnapshot(
       query(collection(db,'pedidos_secretaria'), where('naoLidasSecretaria','>',0)),
       snap => { _pedidosNovos = snap.docs.map(d=>({id:d.id,...d.data()})); actualizarSinoSecretaria(); },
-      err => console.error('Watcher pedidos sec:',err)
+      err => {
+        console.error('Watcher pedidos sec:',err);
+        // FIX 3a: limpar estado de loading no painel de pedidos
+        const listaPed = document.getElementById('sh-fila-pedidos-lista');
+        if(listaPed) listaPed.innerHTML = '<div class="sec-home-fila-vazio">⚠️ Erro ao carregar pedidos.</div>';
+      }
     );
     _unsubReunioesSec = onSnapshot(
       query(collection(db,'reunioes'), where('estado','==','pendente')),
       snap => { _reunioesPend = snap.docs.map(d=>({id:d.id,...d.data()})); actualizarSinoSecretaria(); },
-      err => console.error('Watcher reunioes sec:',err)
+      err => {
+        console.error('Watcher reunioes sec:',err);
+        // FIX 3b: limpar estado de loading no painel de reuniões
+        const listaReu = document.getElementById('sh-fila-reunioes-lista');
+        if(listaReu) listaReu.innerHTML = '<div class="sec-home-fila-vazio">⚠️ Erro ao carregar reuniões.</div>';
+      }
     );
     // Watcher para reuniões confirmadas (para calcular agenda de hoje)
     _unsubReunioesConf = onSnapshot(
