@@ -1785,7 +1785,7 @@
     const dataStr = new Date().toISOString().slice(0,10);
 
     // 1. Aba RH (Funcionários)
-    const funcs = _funcsFiltrados.length ? _funcsFiltrados : _todosOsFuncs;
+    const funcs = Array.isArray(_funcsFiltrados) ? _funcsFiltrados : _todosOsFuncs;
     const wsRH = XLSX.utils.json_to_sheet(funcs.map(f => ({
       'Nº': f.numero || '',
       'Nome Completo': f.nome || '',
@@ -1888,7 +1888,8 @@
 
   window.onbeforeprint = function() {
     document.getElementById('ph-data').textContent = new Date().toLocaleString();
-    document.getElementById('ph-total').textContent = `${_funcsFiltrados.length || _todosOsFuncs.length} funcionários`;
+    const totalImpressao = Array.isArray(_funcsFiltrados) ? _funcsFiltrados.length : _todosOsFuncs.length;
+    document.getElementById('ph-total').textContent = `${totalImpressao} funcionários`;
     document.getElementById('ph-user').textContent = _nomeUtilizador;
 
     const LABEL_FILTROS = {
