@@ -338,6 +338,7 @@
     .campo-g { margin-bottom:var(--sp-4); }
     .campo-g label { display:block;font-size:12px;font-weight:700;color:var(--txt-2);margin-bottom:6px;letter-spacing:.2px; }
     .campo-g label em { color:var(--red);font-style:normal; }
+    .row2 { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
     .campo-inp { width:100%;padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--txt);transition:border-color .18s,box-shadow .18s;outline:none; }
     .campo-inp:focus { border-color:var(--primary-l);box-shadow:0 0 0 3px rgba(16,200,134,.12); }
     .campo-inp.campo-erro { border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,.10)!important; }
@@ -2324,7 +2325,10 @@
         height: 50px;
       }
       .bottom-nav {
-        width: calc(100% - 12px);
+        left: 6px;
+        right: 6px;
+        width: auto;
+        transform: none;
       }
       .modal-viewer {
         width: 100%;
@@ -4472,7 +4476,7 @@
       const msg=document.getElementById("msg-solicitacao");
       msg.innerHTML=`<div class="alerta alerta-aviso">
         <strong>O seu perfil está incompleto.</strong><br>
-        Preencha o <a href="formulario.html" style="color:var(--c-700);font-weight:700">formulário profissional</a>
+        Preencha o <a href="formulario.html" style="color:var(--primary-d);font-weight:700">formulário profissional</a>
         antes de pedir documentos. Os seus dados são necessários para emitir documentos oficiais.
       </div>`;
       return;
@@ -4588,7 +4592,7 @@
       const msg=document.getElementById("msg-solicitacao");
       msg.innerHTML=`<div class="alerta alerta-aviso">
         <strong>Perfil incompleto.</strong>
-        <a href="formulario.html" style="color:var(--c-700);font-weight:700">Preencha o formulário</a> antes de continuar.
+        <a href="formulario.html" style="color:var(--primary-d);font-weight:700">Preencha o formulário</a> antes de continuar.
       </div>`;
       return;
     }
@@ -4725,7 +4729,7 @@
     if (_perfilIncompleto(_funcDoc)) {
       msg.innerHTML=`<div class="alerta alerta-aviso">
         <strong>O seu perfil está incompleto.</strong>
-        <a href="formulario.html" style="color:var(--c-700);font-weight:700">Preencha o formulário</a> antes de continuar.
+        <a href="formulario.html" style="color:var(--primary-d);font-weight:700">Preencha o formulário</a> antes de continuar.
       </div>`;
       return;
     }
@@ -4776,12 +4780,12 @@
 
     // 4. Tudo válido — construir resumo
     const NOMES = {
-      "guia-ferias":         { nome:"Guia de Férias",       icone:"beach_access", sub:"Autorização de férias anuais" },
-      "declaracao-servico":  { nome:"Declaração de Adiantamento Salarial", icone:"receipt_long", sub:"Pedido para adiantamento salarial junto do BPC" },
-      "guia-medica":         { nome:"Guia Médica",           icone:"local_hospital", sub:"Para consultas médicas" },
-      "oficio":              { nome:"Ofício / Nota",         icone:"assignment", sub:"Comunicação oficial" }
+      "guia-ferias":         { nome:"Guia de Férias",       icone:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>', sub:"Autorização de férias anuais" },
+      "declaracao-servico":  { nome:"Declaração de Adiantamento Salarial", icone:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M14 8H8"/><path d="M16 12H8"/><path d="M13 16H8"/></svg>', sub:"Pedido para adiantamento salarial junto do BPC" },
+      "guia-medica":         { nome:"Guia Médica",           icone:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>', sub:"Para consultas médicas" },
+      "oficio":              { nome:"Ofício / Nota",         icone:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>', sub:"Comunicação oficial" }
     };
-    const info = NOMES[_tipoSel] || { nome: _tipoSel, icone:"description", sub:"" };
+    const info = NOMES[_tipoSel] || { nome: _tipoSel, icone:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>', sub:"" };
 
     const nomeFuncionario = _funcDoc?.nome || _utilizador?.email || "—";
     const unidade         = _funcDoc?.unidade || "—";
@@ -5210,23 +5214,23 @@
     if(f.urlBI)   lista.push({ tipo:'bi',   local: f.urlBI==='local',   url: f.urlBI,   icone:'<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><path d="M7 15h.01"/><path d="M11 15h2"/></svg>', nome:'Bilhete de Identidade', sub:'Documento de identificação civil' });
     if(f.urlCert) lista.push({ tipo:'cert', local: f.urlCert==='local', url: f.urlCert, icone:'<svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></svg>', nome:'Certificado / Diploma',  sub:'Habilitações académicas' });
     if(lista.length===0){
-      zona.innerHTML=`<div class="doc-fich-vazio">Ainda não carregou nenhum documento.<br><a href="formulario.html" style="color:var(--c-700);font-weight:700">Preencha o formulário profissional</a> para carregar o seu BI e certificados.</div>`;
+      zona.innerHTML=`<div class="doc-fich-vazio">Ainda não carregou nenhum documento.<br><a href="formulario.html" style="color:var(--primary-d);font-weight:700">Preencha o formulário profissional</a> para carregar o seu BI e certificados.</div>`;
       return;
     }
     zona.innerHTML = lista.map(function(d) {
       if (d.local) {
         // Documento na sub-colecção — abre via fetch
         return `<div class="doc-fich" style="cursor:pointer" onclick="_abrirDocSubcoleccao('${_funcDocId}','${d.tipo}',this.querySelector('.doc-fich-nome'))">
-          <div class="doc-fich-ic" style="background:var(--c-100)">${d.icone}</div>
+          <div class="doc-fich-ic" style="background:var(--primary-xl)">${d.icone}</div>
           <div><div class="doc-fich-nome">${d.nome}</div><div class="doc-fich-sub">${d.sub}</div></div>
-          <span style="margin-left:auto;color:var(--c-600);font-size:16px">↗</span>
+          <span style="margin-left:auto;color:var(--primary-l);font-size:16px">↗</span>
         </div>`;
       } else {
         // URL directa (Storage legado ou externo)
         return `<a href="${d.url}" target="_blank" class="doc-fich">
-          <div class="doc-fich-ic" style="background:var(--c-100)">${d.icone}</div>
+          <div class="doc-fich-ic" style="background:var(--primary-xl)">${d.icone}</div>
           <div><div class="doc-fich-nome">${d.nome}</div><div class="doc-fich-sub">${d.sub}</div></div>
-          <span style="margin-left:auto;color:var(--c-600);font-size:16px">↗</span>
+          <span style="margin-left:auto;color:var(--primary-l);font-size:16px">↗</span>
         </a>`;
       }
     }).join('');
