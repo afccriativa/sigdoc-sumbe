@@ -1501,6 +1501,20 @@
         grid-column: 2; grid-row: 1 / 10;
         display: flex; flex-direction: column; gap: 14px;
       }
+      /* Avatar do card Início — indica que navega para o Perfil */
+      .desk-col-dir .perfil-card-av {
+        cursor: pointer;
+        transition: opacity .18s, transform .18s, box-shadow .18s;
+        outline: none;
+      }
+      .desk-col-dir .perfil-card-av:hover {
+        opacity: .82;
+        transform: scale(1.07);
+        box-shadow: 0 0 0 3px rgba(255,255,255,.35);
+      }
+      .desk-col-dir .perfil-card-av:focus-visible {
+        box-shadow: 0 0 0 3px rgba(255,255,255,.6);
+      }
       .portal-home-actions { grid-template-columns: repeat(3, minmax(0,1fr)); }
       .home-action-card.primary { grid-column: auto; }
       .perfil-card-verde { margin-bottom: 0; }
@@ -3068,7 +3082,11 @@
       <div class="desk-col-dir">
         <div class="perfil-card-verde">
           <div class="perfil-card-topo">
-            <div class="perfil-card-av" id="pcv-avatar">?</div>
+            <div class="perfil-card-av" id="pcv-avatar"
+                 onclick="navegarAba('aba-perfil')"
+                 title="Ir para o Perfil"
+                 role="button" tabindex="0"
+                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();navegarAba('aba-perfil')}">?</div>
             <div>
               <div class="perfil-card-nome"  id="pcv-nome">—</div>
               <div class="perfil-card-cargo" id="pcv-cargo">—</div>
@@ -5288,8 +5306,8 @@
     notif('⏳ A processar foto…', 'notif-ok');
     _comprimirFotoPerfil(file).then(function(base64) {
       _perfilFotoNovaBase64 = base64;
-      // Actualizar todos os avatares visíveis na página
-      ['perf-avatar','pt-avatar','dt-avatar','ds-av'].forEach(function(id) {
+      // Actualizar todos os avatares visíveis na página (inclui card verde do Início no desktop)
+      ['perf-avatar','pt-avatar','dt-avatar','ds-av','pcv-avatar'].forEach(function(id) {
         var av = document.getElementById(id); if (!av) return;
         var imgAnt = av.querySelector('img'); if (imgAnt) imgAnt.remove();
         av.textContent = '';
@@ -5351,8 +5369,33 @@
 
   function fmtData(str){if(!str)return"—";const[a,m,d]=str.split("-");const ms=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];return`${d} de ${ms[parseInt(m)-1]} de ${a}`;}
 
-  function notif(msg,cls){const el=document.getElementById("notif");el.textContent=msg;el.className="notif "+cls;el.style.display="block";setTimeout(()=>el.style.display="none",3500);}
-  window.mostrarNotif=notif;
+  // ── Sistema de notificações com fila — evita que toasts rápidos se cancelem mutuamente ──
+  let _notifFila = [], _notifTimer = null, _notifActivo = false;
+
+  function _notifDespachar() {
+    if (_notifActivo || _notifFila.length === 0) return;
+    const { msg, cls } = _notifFila.shift();
+    const el = document.getElementById('notif');
+    if (!el) return;
+    _notifActivo = true;
+    el.textContent = msg;
+    el.className = 'notif ' + cls;
+    el.style.display = 'block';
+    if (_notifTimer) clearTimeout(_notifTimer);
+    _notifTimer = setTimeout(() => {
+      el.style.display = 'none';
+      _notifActivo = false;
+      _notifTimer = null;
+      // Pequeno intervalo entre mensagens consecutivas para legibilidade
+      if (_notifFila.length > 0) setTimeout(_notifDespachar, 160);
+    }, 3200);
+  }
+
+  function notif(msg, cls) {
+    _notifFila.push({ msg, cls });
+    _notifDespachar();
+  }
+  window.mostrarNotif = notif;
 
   // ── Navegação (mobile bottom-nav + desktop sidebar) ──
   window.navegarAba = function(abaId) {
