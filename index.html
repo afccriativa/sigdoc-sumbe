@@ -4847,8 +4847,8 @@
         const item=`<div class="sessao-item">
           <div class="sessao-dot ${ent?"dot-in":"dot-out"}"></div>
           <div class="sessao-info">
-            <div class="sessao-nome">${s.nome||s.email}</div>
-            <div class="sessao-det">${etiquetasPerfil[s.perfil]||s.perfil} · ${ent?"Entrou":"Saiu"}</div>
+            <div class="sessao-nome">${escaparHtml(s.nome||s.email||'—')}</div>
+            <div class="sessao-det">${etiquetasPerfil[s.perfil]||escaparHtml(s.perfil||'—')} · ${ent?"Entrou":"Saiu"}</div>
           </div>
           <div class="sessao-hora">${h}</div>
         </div>`;
@@ -5126,17 +5126,23 @@
   window.abrirFicha = async function(id, tipo) {
     fecharPesquisa();
     if (tipo === 'funcionario') {
-      // Navegar para secção utilizadores e abrir perfil
       mostrarSecção('utilizadores');
       await carregarUtilizadores();
-      // Tentar abrir o modal de perfil se existir
-      if (typeof abrirModalPerfil === 'function') {
-        try {
-          const snap = await getDoc(doc(db, 'funcionarios', id));
-          if (snap.exists()) abrirModalPerfil(id, snap.data());
-        } catch(e) {}
-      } else {
-        mostrarNotif('📌 A mostrar secção de utilizadores — registo: ' + id, 'info');
+      // C12 fix: abrirModalPerfil() ignora argumentos (mostra o utilizador actual).
+      // Mostrar um toast com os dados do funcionário encontrado é o comportamento correcto.
+      try {
+        const snap = await getDoc(doc(db, 'funcionarios', id));
+        if (snap.exists()) {
+          const f = snap.data();
+          const nome   = escaparHtml(f.nomeCompleto || f.nome || '—');
+          const cargo  = escaparHtml(f.categoria || f.cargo || '—');
+          const unidade = escaparHtml(f.unidade || '—');
+          mostrarNotif(`👤 ${nome} · ${cargo} · ${unidade}`, 'info');
+        } else {
+          mostrarNotif('📌 Funcionário encontrado — sem dados adicionais.', 'info');
+        }
+      } catch(e) {
+        mostrarNotif('❌ Erro ao carregar dados do funcionário.', 'erro');
       }
     } else if (tipo === 'documento' || tipo === 'solicitacao') {
       const col = tipo === 'documento' ? 'documentos' : 'solicitacoes';
@@ -6314,12 +6320,16 @@
         const isSelf = uid === utilizadorActual?.uid;
         const btnExpulsar = isSelf
           ? `<span style="font-size:11px;color:var(--neu-400)">Tu</span>`
-          : `<button class="btn-expulsar" onclick="expulsarSessao('${uid}','${(u.nome||u.email||'').replace(/'/g,"\'")}')" style=\"display:inline-flex;align-items:center;gap:5px\"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/><polyline points='16 17 21 12 16 7'/><line x1='21' x2='9' y1='12' y2='12'/></svg> Expulsar</button>`;
+          : `<button class="btn-expulsar"
+               data-uid="${uid}"
+               data-nome="${escaparHtml(u.nome||u.email||'—')}"
+               onclick="expulsarSessao(this.dataset.uid, this.dataset.nome)"
+               style="display:inline-flex;align-items:center;gap:5px"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/><polyline points='16 17 21 12 16 7'/><line x1='21' x2='9' y1='12' y2='12'/></svg> Expulsar</button>`;
         html += `<div class="sa-item">
           <div class="sa-pulse"></div>
           <div class="sa-info">
-            <div class="sa-nome">${u.nome||u.email||uid}</div>
-            <div class="sa-det">${etiquetasPerfil[u.perfil]||u.perfil} · ${disp} · ${acesso}</div>
+            <div class="sa-nome">${escaparHtml(u.nome||u.email||uid)}</div>
+            <div class="sa-det">${etiquetasPerfil[u.perfil]||escaparHtml(u.perfil||'—')} · ${disp} · ${acesso}</div>
           </div>
           ${btnExpulsar}
         </div>`;
