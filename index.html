@@ -2829,7 +2829,7 @@
 
     <div class="sidebar-footer">
       <div class="sidebar-user" onclick="abrirModalPerfil()">
-        <div class="sidebar-avatar" id="avatar-utilizador">?</div>
+        <div class="sidebar-avatar" id="avatar-sb">?</div>
         <div class="sidebar-user-info">
           <div class="sidebar-user-nome" id="nome-utilizador-topo">—</div>
           <div class="sidebar-user-cargo" id="perfil-utilizador-topo">—</div>
@@ -4103,12 +4103,22 @@
   document.getElementById("senha-login").addEventListener("keydown", e => { if(e.key==="Enter") window.fazerLogin(); });
   document.getElementById("email-login").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("senha-login").focus(); });
 
-  window.fazerLogout = async function() {
-    if (!confirm("Tem a certeza que deseja sair?")) return;
-    if (utilizadorActual && perfilActual) await registarSessao(utilizadorActual, perfilActual, "saída");
-    SIGDOC_SESSION.parar();
-    SIGDOC_SESSION.limparToken();
-    await signOut(auth);
+  window.fazerLogout = function() {
+    mostrarNotif(
+      "Tem a certeza que deseja sair do sistema?",
+      "aviso",
+      {
+        label: "Sair agora →",
+        timeout: 7000,
+        fn: async () => {
+          if (utilizadorActual && perfilActual)
+            await registarSessao(utilizadorActual, perfilActual, "saída");
+          SIGDOC_SESSION.parar();
+          SIGDOC_SESSION.limparToken();
+          await signOut(auth);
+        }
+      }
+    );
   };
 
   async function carregarPerfil(u) {
@@ -4191,7 +4201,9 @@
     const roles = perfilDoc.roles || [];
     document.getElementById("ecrã-login").style.display = "none";
     document.getElementById("ecrã-painel").style.display = "flex";
-    document.getElementById("avatar-utilizador").textContent = (perfilDoc.nome||u.email)[0].toUpperCase();
+    const _avatarInic = (perfilDoc.nome||u.email)[0].toUpperCase();
+    document.getElementById("avatar-utilizador").textContent = _avatarInic;
+    document.getElementById("avatar-sb").textContent = _avatarInic;
     document.getElementById("nome-utilizador-topo").textContent = perfilDoc.nome || u.email;
     limparPainelChefeUnidade();
     actualizarCabecalhoPainel(u, perfilDoc);
@@ -5620,6 +5632,8 @@
   }
 
   // ── Acções rápidas do menu contextual ───────────────────────
+  // C2 fix: exposta aqui para que os onchange dos filtros HTML a encontrem no scope global
+  window.carregarPedidosSecretaria = carregarPedidosSecretaria;
   window.marcarEmAnalise = async function(id, btnEl) {
     if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<span class="ctx-ic"><span class="spinner" style="width:11px;height:11px;border-width:2px;border-top-color:var(--warn)"></span></span> A marcar…'; }
     try {
