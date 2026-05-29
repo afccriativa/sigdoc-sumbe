@@ -913,6 +913,20 @@
     .badge-ok     { background: var(--ok-bg);   color: var(--ok); }
     .badge-breve  { background: var(--warn-bg);  color: var(--warn); }
 
+    /* ── Badges de perfil (tabela de utilizadores) ── */
+    .badge-perfil { font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: var(--r-full); display: inline-flex; align-items: center; white-space: nowrap; }
+    .perfil-admin       { background: rgba(139,92,246,.12); color: #7c3aed;    border: 1px solid rgba(139,92,246,.22); }
+    .perfil-director    { background: var(--pri-10);        color: var(--pri);  border: 1px solid var(--pri-20); }
+    .perfil-chefe       { background: var(--hlth-10);       color: var(--hlth); border: 1px solid rgba(13,110,79,.22); }
+    .perfil-tecnico     { background: var(--info-bg);       color: var(--info); border: 1px solid var(--info-border); }
+    .perfil-secretaria  { background: var(--warn-bg);       color: var(--warn); border: 1px solid var(--warn-border); }
+    .perfil-funcionario { background: var(--surface-2);     color: var(--txt-2);border: 1px solid var(--border); }
+    .perfil-chefe_unidade { background: var(--hlth-10);     color: var(--hlth); border: 1px solid rgba(13,110,79,.18); }
+
+    /* ── Estado activo/inactivo (tabela de utilizadores) ── */
+    .b-activo   { font-size: 12px; font-weight: 700; color: var(--ok); }
+    .b-inactivo { font-size: 12px; font-weight: 700; color: var(--txt-3); }
+
     /* ── Painel card genérico ─────────────────────────────────── */
     .painel-card {
       background: var(--surface); border-radius: var(--r-lg);
@@ -4065,9 +4079,15 @@
   }
 
 
+  const _SVG_OLHO_ABERTO = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  const _SVG_OLHO_FECHADO = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`;
+
   window.toggleSenha = function() {
-    const i = document.getElementById("senha-login");
-    i.type = i.type === "password" ? "text" : "password";
+    const i   = document.getElementById("senha-login");
+    const btn = document.querySelector(".toggle-senha");
+    const mostrar = i.type === "password";
+    i.type = mostrar ? "text" : "password";
+    if (btn) btn.innerHTML = mostrar ? _SVG_OLHO_FECHADO : _SVG_OLHO_ABERTO;
   };
 
   onAuthStateChanged(auth, async u => {
@@ -4944,9 +4964,9 @@
     document.getElementById('sp-resultados').innerHTML =
       `<div class="sp-vazio" id="sp-estado-inicial">
         <div style="font-size:32px;margin-bottom:8px">🔍</div>
-        Escreva para pesquisar em <strong style="color:rgba(255,255,255,.5)">funcionários</strong>,
-        <strong style="color:rgba(255,255,255,.5)">documentos</strong> e
-        <strong style="color:rgba(255,255,255,.5)">solicitações</strong>
+        Escreva para pesquisar em <strong style="color:var(--pri)">funcionários</strong>,
+        <strong style="color:var(--pri)">documentos</strong> e
+        <strong style="color:var(--pri)">solicitações</strong>
       </div>`;
   }
 
@@ -5009,7 +5029,7 @@
     if (total === 0) {
       el.innerHTML = `<div class="sp-vazio">
         <div style="font-size:32px;margin-bottom:8px">😶</div>
-        Sem resultados para <strong style="color:rgba(255,255,255,.5)">"${termo}"</strong>
+        Sem resultados para <strong style="color:var(--pri)">"${termo}"</strong>
       </div>`;
       return;
     }
@@ -6363,9 +6383,9 @@
     <div class="sp-resultados" id="sp-resultados">
       <div class="sp-vazio" id="sp-estado-inicial">
         <div style="font-size:32px;margin-bottom:8px">🔍</div>
-        Escreva para pesquisar em <strong style="color:rgba(255,255,255,.5)">funcionários</strong>,
-        <strong style="color:rgba(255,255,255,.5)">documentos</strong> e
-        <strong style="color:rgba(255,255,255,.5)">solicitações</strong>
+        Escreva para pesquisar em <strong style="color:var(--pri)">funcionários</strong>,
+        <strong style="color:var(--pri)">documentos</strong> e
+        <strong style="color:var(--pri)">solicitações</strong>
       </div>
     </div>
     <div class="sp-rodape">
