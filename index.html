@@ -2910,7 +2910,7 @@
           style="width:38px;height:38px;border-radius:50%;background:var(--pri-20);border:2px solid var(--pri-30);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;font-weight:800;color:var(--pri)"
           id="avatar-utilizador">?</div>
         <!-- Botão novo — só desktop -->
-        <button class="topbar-btn-new hero-data" onclick="mostrarSecção('utilizadores')" style="white-space:nowrap">+ Novo Registo</button>
+        <button class="topbar-btn-new hero-data" id="topbar-btn-new" onclick="mostrarSecção('utilizadores')" style="white-space:nowrap">+ Novo Registo</button>
         <div class="hero-data"><div class="hero-data-txt" id="data-hora-actual">—</div></div>
       </div>
     </div>
@@ -4226,7 +4226,6 @@
     document.getElementById("avatar-sb").textContent = _avatarInic;
     document.getElementById("nome-utilizador-topo").textContent = perfilDoc.nome || u.email;
     limparPainelChefeUnidade();
-    actualizarCabecalhoPainel(u, perfilDoc);
     (()=>{
       const h=new Date().getHours();
       const s=h<12?"Bom dia":h<18?"Boa tarde":"Boa noite";
@@ -4391,6 +4390,10 @@
       const el = document.getElementById(id);
       if(el) el.style.display = visCards.includes(id) ? "" : "none";
     });
+
+    // C9 fix: "+ Novo Registo" restrito a admin — único perfil que cria utilizadores
+    const _btnNovo = document.getElementById("topbar-btn-new");
+    if (_btnNovo) _btnNovo.style.display = roles.includes("admin") ? "" : "none";
 
     // Activar notificações em tempo real conforme perfil
     if (["admin","chefe","director"].includes(p)) {
@@ -5562,6 +5565,8 @@
       if (_chatSecId) {
         const idxActual = _secListaIds.indexOf(_chatSecId);
         _secIdxActual = idxActual >= 0 ? idxActual : -1;
+        // C8 fix: sincronizar a barra de navegação com a lista actualizada
+        _actualizarNavSeq();
       }
 
       el.innerHTML = docs.map((p, idx) => {
