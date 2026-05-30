@@ -436,6 +436,93 @@
       #area-impressao .doc-ass-col.direita { padding-left: 8pt; margin-left: 6pt; align-items: center; }
       #area-impressao .doc-ass-linha { margin: 14pt 0 3pt; }
       #area-impressao .doc-ass-data { font-size: 8.5pt; }
+      /* D7 fix: regras da Guia Médica movidas para este bloco — evitar duplicação das regras base */
+      /* Regras base (body * visibility, #area-impressao) já declaradas acima, aplicam-se a todos os tipos */
+      .documento-gm {
+        background: white;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .gm-pagina {
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+        padding: 12mm 15mm;
+        page-break-after: always;
+        page-break-inside: avoid;
+        box-shadow: none;
+        display: flex;
+        flex-direction: column;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        line-height: 1.35;
+      }
+      .gm-cabecalho {
+        border-bottom: 1px solid #000;
+        padding-bottom: 6mm;
+        margin-bottom: 6mm;
+      }
+      .gm-logo {
+        width: 30mm;
+        height: auto;
+        margin: 0 auto 4mm;
+      }
+      .gm-titulo {
+        font-size: 11px;
+        font-weight: bold;
+        margin: 4mm 0 5mm;
+      }
+      .gm-apresentacao {
+        font-size: 10px;
+        font-weight: bold;
+        margin: 4mm 0 6mm;
+      }
+      .gm-campo {
+        margin-bottom: 3mm;
+        line-height: 1.2;
+      }
+      .gm-label {
+        font-weight: bold;
+        width: 80mm;
+        padding-right: 2mm;
+        display: inline-block;
+        flex-shrink: 0;
+      }
+      .gm-valor {
+        border-bottom: 1px solid #000;
+        padding: 0 1mm;
+        display: inline-block;
+        width: calc(100% - 82mm);
+      }
+      .gm-rodape {
+        margin-top: 6mm;
+        text-align: center;
+        font-size: 9px;
+        page-break-inside: avoid;
+      }
+      .gm-linha-assinatura {
+        border-top: 1px solid #000;
+        width: 65mm;
+        height: 1px;
+        margin: 0 auto 1.5mm;
+      }
+      .gm-prescricao {
+        margin-top: 6mm;
+        page-break-inside: avoid;
+      }
+      .gm-linha {
+        border-bottom: 1px solid #666;
+        height: 12px;
+        margin-bottom: 3px;
+      }
+      .gm-linha-assinatura-medico {
+        border-top: 1px solid #000;
+        width: 40mm;
+        height: 1px;
+        margin: 8mm 0 0;
+      }
+    }
     }
     #area-impressao { display: none; }
 
@@ -608,97 +695,7 @@
       margin: 8mm 0 0;
     }
     
-    /* PRINT — Guia Médica (orientação injectada dinamicamente por JS) */
-    @media print {
-      body * { visibility: hidden; }
-      #area-impressao, #area-impressao * { visibility: visible !important; }
-      #area-impressao { position: absolute; top: 0; left: 0; width: 100%; display: block !important; }
-      
-      .documento-gm {
-        background: white;
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-      }
-      .gm-pagina {
-        width: 210mm;
-        height: 297mm;
-        margin: 0;
-        padding: 12mm 15mm;
-        page-break-after: always;
-        page-break-inside: avoid;
-        box-shadow: none;
-        display: flex;
-        flex-direction: column;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 11px;
-        line-height: 1.35;
-      }
-      .gm-cabecalho {
-        border-bottom: 1px solid #000;
-        padding-bottom: 6mm;
-        margin-bottom: 6mm;
-      }
-      .gm-logo {
-        width: 30mm;
-        height: auto;
-        margin: 0 auto 4mm;
-      }
-      .gm-titulo {
-        font-size: 11px;
-        font-weight: bold;
-        margin: 4mm 0 5mm;
-      }
-      .gm-apresentacao {
-        font-size: 10px;
-        font-weight: bold;
-        margin: 4mm 0 6mm;
-      }
-      .gm-campo {
-        margin-bottom: 3mm;
-        line-height: 1.2;
-      }
-      .gm-label {
-        font-weight: bold;
-        width: 80mm;
-        padding-right: 2mm;
-        display: inline-block;
-        flex-shrink: 0;
-      }
-      .gm-valor {
-        border-bottom: 1px solid #000;
-        padding: 0 1mm;
-        display: inline-block;
-        width: calc(100% - 82mm);
-      }
-      .gm-rodape {
-        margin-top: 6mm;
-        text-align: center;
-        font-size: 9px;
-        page-break-inside: avoid;
-      }
-      .gm-linha-assinatura {
-        border-top: 1px solid #000;
-        width: 65mm;
-        height: 1px;
-        margin: 0 auto 1.5mm;
-      }
-      .gm-prescricao {
-        margin-top: 6mm;
-        page-break-inside: avoid;
-      }
-      .gm-linha {
-        border-bottom: 1px solid #666;
-        height: 12px;
-        margin-bottom: 3px;
-      }
-      .gm-linha-assinatura-medico {
-        border-top: 1px solid #000;
-        width: 40mm;
-        height: 1px;
-        margin: 8mm 0 0;
-      }
-    }
+
 
     /* ================================================
        F1-F — INDICADORES DE LOADING
@@ -1543,6 +1540,10 @@
     const params = new URLSearchParams(window.location.search);
     const origem = params.get('origem');
     const tipo = params.get('tipo');
+
+    // D6 fix: limpar params da URL imediatamente (como verificarParamSecretaria faz).
+    // Evita que um refresh re-importe os parâmetros e re-preencha o formulário.
+    if (origem === 'portal') history.replaceState(null, '', location.pathname);
 
     if (origem === 'portal' && tipo === 'declaracao-servico') {
       const solId = params.get('sol') || '';
@@ -2942,13 +2943,19 @@
     if (btnProx) btnProx.disabled = pag >= totalPags;
 
     // Números de página com reticências (máximo 7 botões visíveis)
-    if (nums) nums.innerHTML = _gerarBotoesNumeroPagina(pag, totalPags);
+    if (nums) {
+      nums.innerHTML = _gerarBotoesNumeroPagina(pag, totalPags);
+      // D8 fix: event delegation nos botões data-page (sem onclick inline)
+      nums.querySelectorAll(".pag-num[data-page]").forEach(btn => {
+        btn.addEventListener("click", () => window.arquivoIrPagina(Number(btn.dataset.page)));
+      });
+    }
   }
 
   // Gera o HTML dos botões numéricos com reticências quando há muitas páginas.
   // Janela: sempre mostra 1ª, última, página actual, e ±1 vizinhas.
+  // D8 fix: substituído onclick inline por data-page + event delegation (padrão do módulo)
   function _gerarBotoesNumeroPagina(pag, totalPags) {
-    // Calcular o conjunto de páginas a mostrar
     const mostrar = new Set([1, totalPags]);
     for (let i = Math.max(1, pag - 1); i <= Math.min(totalPags, pag + 1); i++) {
       mostrar.add(i);
@@ -2958,14 +2965,13 @@
     let html = "";
     let anterior = 0;
     for (const n of ordenadas) {
-      // Inserir reticências quando há salto
       if (n - anterior > 1) {
         html += `<button class="pag-num pag-num--reticencias" tabindex="-1" aria-hidden="true" disabled>…</button>`;
       }
       const ativo = n === pag ? " pag-num--ativo" : "";
       const aria  = n === pag ? ` aria-current="page"` : "";
       html += `<button class="pag-num${ativo}" ${aria}
-                 onclick="window.arquivoIrPagina(${n})"
+                 data-page="${n}"
                  aria-label="Página ${n}">${n}</button>`;
       anterior = n;
     }
