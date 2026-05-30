@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SIGDOC-SUMBE — Geração de Documentos</title>
-  <meta name="theme-color" content="#1a4f7a"/>
+  <meta name="theme-color" content="#0b4f3a"/>
   <script src="sigdoc-config.js"></script>
   <script src="sigdoc-nav.js"></script>
   <script src="sigdoc-session.js"></script>
@@ -13,981 +13,1160 @@
   <script src="guia-medica-builder.js"></script>
   <script src="declaracao-servico-builder.js"></script>
   <style>
-    :root {
-      --font: 'Plus Jakarta Sans', sans-serif; --mono: 'DM Mono', monospace;
-      --verde-primario: #0b4f3a; --verde-acento: #12a372; --verde: #0d6e4f;
-      --vermelho: #c0392b; --cinza-fundo: #f0f2f5;
-      --texto: #2c3e50; --borda: #dde3ea; --sombra: 0 2px 12px rgba(0,0,0,0.08);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: var(--font); background: var(--cinza-fundo); color: var(--texto); min-height: 100vh; }
+/* ════════════════════════════════════════════════════════════════
+   SIGDOC-SUMBE · documentos.html — Design System v2
+   Princípio: Autoridade Institucional Refinada
+   Verde floresta como âncora · Espaço generoso · Tipografia clara
+   ════════════════════════════════════════════════════════════════ */
 
-    /* ===== INTERFACE ===== */
-    .barra-topo { background: linear-gradient(135deg, var(--verde-primario) 0%, var(--verde-acento) 100%); color: white; padding: 0 24px; height: 60px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-    .btn-voltar { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; text-decoration: none; }
-    .btn-voltar:hover { background: rgba(255,255,255,0.25); }
-    .titulo-pagina { font-size: 16px; font-weight: 700; }
-    .titulo-pagina span { font-size: 11px; font-weight: 400; opacity: 0.8; display: block; }
+:root {
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
 
-    .layout { display: grid; grid-template-columns: 400px 1fr; gap: 24px; padding: 24px 20px; max-width: 1500px; margin: 0 auto; }
+  /* ── Verde institucional ── */
+  --g-950: #021408;
+  --g-900: #0b4f3a;
+  --g-800: #0d6547;
+  --g-700: #059669;
+  --g-600: #10b981;
+  --g-400: #34d399;
+  --g-200: #a7f3d0;
+  --g-100: #d1fae5;
+  --g-50:  #ecfdf5;
 
-    .painel-form { display: flex; flex-direction: column; gap: 16px; }
-    .cartao { background: white; border-radius: 12px; box-shadow: var(--sombra); overflow: hidden; }
-    .cartao-cabecalho { padding: 16px 20px; border-bottom: 1px solid #eef0f3; font-size: 14px; font-weight: 700; color: var(--verde-primario); }
-    .cartao-corpo { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  /* ── Slate neutro ── */
+  --s-900: #0f172a;
+  --s-800: #1e293b;
+  --s-700: #334155;
+  --s-600: #475569;
+  --s-500: #64748b;
+  --s-400: #94a3b8;
+  --s-300: #cbd5e1;
+  --s-200: #e2e8f0;
+  --s-100: #f1f5f9;
+  --s-50:  #f8fafc;
 
-    label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px; }
-    input, select { width: 100%; padding: 10px 12px; border: 2px solid var(--borda); border-radius: 8px; font-size: 13px; outline: none; font-family: inherit; transition: border-color 0.2s; background: white; }
-    input:focus, select:focus { border-color: var(--verde-acento); }
-    input[readonly] { background: #f8f9fa; color: #555; }
-    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .info-calc { font-size: 11px; background: #e8f8f0; color: #1e8449; padding: 6px 10px; border-radius: 6px; margin-top: 4px; font-weight: 600; display: none; }
-    .info-ferias { font-size: 11px; background: #fef9e7; color: #7d6608; padding: 6px 10px; border-radius: 6px; margin-top: 4px; display: none; }
+  /* ── Semântico ── */
+  --danger:  #dc2626;
+  --warning: #d97706;
+  --info:    #2563eb;
 
-    /* ================================================
-       F2-A — VALIDAÇÃO INLINE
-       ================================================ */
-    /* Borda vermelha aplicada ao campo inválido */
-    .campo-erro-input {
-      border-color: var(--vermelho) !important;
-      background: #fff8f8 !important;
-    }
-    /* Mensagem de erro exibida imediatamente abaixo do campo */
-    .campo-erro-msg {
-      font-size: 11px;
-      color: var(--vermelho);
-      font-weight: 600;
-      margin-top: 5px;
-      display: none;
-      align-items: flex-start;
-      gap: 4px;
-      line-height: 1.4;
-    }
-    .campo-erro-msg::before {
-      content: "";
-      display: inline-block;
-      width: 13px;
-      height: 13px;
-      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c0392b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/%3E%3Cline x1='12' y1='9' x2='12' y2='13'/%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'/%3E%3C/svg%3E") no-repeat center;
-      background-size: contain;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
+  /* ── Surfaces ── */
+  --surface: #ffffff;
+  --bg:      #eef2f7;
+  --border:  rgba(15,23,42,.07);
+  --border-s: rgba(15,23,42,.11);
 
-    .campo-pesquisa-func { position: relative; }
-    .resultados-pesquisa { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 2px solid var(--verde-acento); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 50; max-height: 220px; overflow-y: auto; display: none; }
-    .resultado-item { padding: 10px 14px; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f0f2f4; }
-    .resultado-item:hover { background: #e8f4f8; }
-    .resultado-item .func-nome { font-weight: 600; color: var(--verde-primario); }
-    .resultado-item .func-info { font-size: 11px; color: #888; margin-top: 2px; }
+  /* ── Shadows ── */
+  --sh-xs: 0 1px 3px rgba(0,0,0,.04);
+  --sh-sm: 0 2px 8px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+  --sh-md: 0 4px 18px rgba(0,0,0,.09), 0 1px 4px rgba(0,0,0,.04);
+  --sh-lg: 0 8px 32px rgba(0,0,0,.11), 0 2px 8px rgba(0,0,0,.06);
+  --sh-xl: 0 16px 48px rgba(0,0,0,.13), 0 4px 16px rgba(0,0,0,.07);
 
-    .btn-gerar { background: linear-gradient(135deg, var(--verde-primario), var(--verde-acento)); color: white; border: none; padding: 13px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-gerar:hover { opacity: 0.9; }
-    .btn-gerar:disabled { opacity: 0.5; cursor: not-allowed; } /* F1-F */
-    .btn-imprimir { background: var(--verde); color: white; border: none; padding: 13px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-imprimir:hover { opacity: 0.9; }
-    .btn-imprimir:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-submeter { background: linear-gradient(135deg, #7d3c98, #9b59b6); color: white; border: none; padding: 13px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 2px; }
-    .btn-submeter:hover { opacity: 0.9; }
-    .btn-submeter:disabled { opacity: 0.4; cursor: not-allowed; }
-    .badge-estado { display: none; text-align: center; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; margin-top: 4px; }
-    .badge-pendente { background: #fef9e7; color: #7d6608; border: 1.5px solid #f0c030; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .badge-aprovado { background: #e8f8f0; color: #1e8449; border: 1.5px solid #27ae60; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    /* D5 fix: .badge-gerado não estava definido — badge dependia exclusivamente de style.cssText inline */
-    .badge-gerado   { background: #eff6ff; color: #1d4ed8; border: 1.5px solid #93c5fd; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  /* ── Radii ── */
+  --r-sm:   6px;
+  --r-md:   10px;
+  --r-lg:   14px;
+  --r-xl:   18px;
+  --r-2xl:  22px;
+  --r-full: 9999px;
+}
 
-    .painel-preview { }
-    .preview-cabecalho { background: white; border-radius: 12px 12px 0 0; padding: 14px 20px; border-bottom: 1px solid #eef0f3; font-size: 14px; font-weight: 700; color: var(--verde-primario); display: flex; align-items: center; justify-content: space-between; box-shadow: var(--sombra); }
-    .badge-preview { font-size: 11px; background: #e8f4f8; color: var(--verde-primario); padding: 3px 10px; border-radius: 10px; font-weight: 600; }
-    .area-preview { background: #b0b3b8; border-radius: 0 0 12px 12px; padding: 20px 12px; display: flex; align-items: flex-start; justify-content: center; min-height: 560px; overflow: visible; }
-    .vazio-preview { text-align: center; color: #777; padding: 80px 20px; }
-    .vazio-preview .icone { font-size: 48px; margin-bottom: 12px; }
-    .vazio-preview p { font-size: 13px; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Wrapper escalado */
-    .doc-wrapper {
-      transform-origin: top left;
-      transform: scale(0.67);
-      width: 1122px;
-      display: none;
-      margin-bottom: -258px;
-    }
-    .doc-wrapper-centrado {
-      width: 752px;   /* 1122 × 0.67 ≈ 752 */
-      margin: 0 auto;
-      overflow: visible;
-    }
+html { scroll-behavior: smooth; }
 
-    /* F1-G: Wrapper da Guia Médica (A4 retrato, 2 páginas empilhadas ~794×2251px)
-       Substitui os magic numbers inline: scale(0.6) e margin-bottom:-400px.
-       transform-origin:top center centra o documento horizontalmente sem div extra. */
-    .doc-wrapper-gm {
-      transform: scale(0.6);
-      transform-origin: top center;
-      /* Sem esta margem o painel teria 2251px de altura (layout ignora transform).
-         -400px mantém espaço respirável; o excesso extravasa via overflow:visible. */
-      margin-bottom: -400px;
-    }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--s-900);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
 
-    @media (max-width: 760px) {
-      .arquivo-topo { align-items:stretch; }
-      .arquivo-filtro { max-width:none; }
-      .guia-emitida-item { flex-direction:column; align-items:flex-start; }
-      .guia-emitida-acoes { width:100%; justify-content:space-between; }
-      .btn-arquivo-acao { width:100%; }
-    }
-    /* ================================================
-       DOCUMENTO OFICIAL — fiel ao modelo físico
-       Dimensões A4 paisagem: 297mm x 210mm
-       ================================================ */
-    .documento-oficial {
-      width: 1122px;   /* 297mm @ 96dpi */
-      background: #d8d8d8;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 3px;
-      font-family: Arial, Helvetica, sans-serif;
-    }
+button, input, select, textarea { font-family: inherit; }
 
-    /* Cada metade tem a sua borda como no modelo físico */
-    .doc-metade {
-      background: white;
-      border: 2px solid #333;
-      padding: 16px 18px 16px 18px;
-      display: flex;
-      flex-direction: column;
-    }
+/* ════ TOPBAR ════════════════════════════════════════════════════ */
+.barra-topo {
+  height: 58px;
+  background: var(--g-900);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 1px 0 rgba(255,255,255,.05), 0 4px 18px rgba(2,20,8,.28);
+}
 
-    /* CABEÇALHO INSTITUCIONAL */
-    .doc-cabecalho {
-      text-align: center;
-      margin-bottom: 8px;
-      line-height: 1.30;
-    }
-    .doc-insignia {
-      width: 52px; height: 52px;
-      object-fit: contain;
-      display: block;
-      margin: 0 auto 5px;
-    }
-    .doc-cabecalho p {
-      font-size: 9.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.1px;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-    .doc-cabecalho .negrito { font-weight: bold; }
+.btn-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.13);
+  color: rgba(255,255,255,.88);
+  padding: 5px 12px 5px 9px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .15s, border-color .15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-voltar:hover { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.22); }
 
-    /* TÍTULO */
-    .doc-titulo {
-      text-align: center;
-      font-size: 11px;
-      font-weight: bold;
-      text-decoration: underline;
-      text-transform: uppercase;
-      margin: 7px 0 13px;
-      letter-spacing: 0.2px;
-      font-family: Arial, Helvetica, sans-serif;
-    }
+.barra-topo-sep {
+  width: 1px;
+  height: 20px;
+  background: rgba(255,255,255,.14);
+  flex-shrink: 0;
+}
 
-    /* CORPO DO TEXTO — flex:1 empurra rodapé para baixo */
-    .doc-corpo {
-      font-size: 12px;
-      text-align: justify;
-      line-height: 1.80;
-      font-family: Arial, Helvetica, sans-serif;
-    }
+.titulo-pagina {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
 
-    /* RODAPÉ — margem superior automática = fica sempre no fundo */
-    .doc-rodape {
-      margin-top: 20px;
-      padding-top: 0;
-    }
+.titulo-pagina-icon {
+  width: 32px; height: 32px;
+  background: rgba(255,255,255,.09);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: rgba(255,255,255,.88);
+}
 
-    .doc-local-data {
-      font-size: 10px;
-      text-transform: uppercase;
-      font-weight: bold;
-      margin-bottom: 10px;
-      line-height: 1.4;
-      font-family: Arial, Helvetica, sans-serif;
-    }
+.titulo-pagina-txt { min-width: 0; }
 
-    /* Linha de assinaturas com separador vertical */
-    .doc-assinaturas {
-      display: flex;
-      align-items: flex-start;
-      font-size: 10.5px;
-      font-family: Arial, Helvetica, sans-serif;
-    }
+.titulo-pagina-nome {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-    .doc-ass-col {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      flex: 1;
-    }
+.titulo-pagina-sub {
+  font-size: 10.5px;
+  color: rgba(255,255,255,.5);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
 
-    /* A coluna da direita tem separador vertical à esquerda */
-    .doc-ass-col.direita {
-      border-left: 1px solid #444;
-      padding-left: 14px;
-      margin-left: 10px;
-      align-items: center;
-    }
+/* ════ LAYOUT ════════════════════════════════════════════════════ */
+.layout {
+  display: grid;
+  grid-template-columns: 390px 1fr;
+  gap: 20px;
+  padding: 20px;
+  max-width: 1640px;
+  margin: 0 auto;
+  align-items: start;
+}
 
-    .doc-ass-titulo {
-      font-weight: bold;
-      text-transform: uppercase;
-      font-size: 10.5px;
-      margin-bottom: 3px;
-    }
+/* ════ PAINEL FORMULÁRIO ═════════════════════════════════════════ */
+.painel-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-    .doc-ass-data {
-      font-weight: bold;
-      font-size: 11px;
-    }
+/* ════ CARTÕES ═══════════════════════════════════════════════════ */
+.cartao {
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  border: 1px solid var(--border);
+  box-shadow: var(--sh-sm);
+  overflow: hidden;
+}
 
-    .doc-ass-linha {
-      border-bottom: 1px solid #333;
-      width: 90%;
-      margin: 20px 0 3px;
-    }
+.cartao-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 18px;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--s-600);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  background: var(--s-50);
+}
+.cartao-cabecalho .sigdoc-icon { color: var(--g-700); width: 14px; height: 14px; }
 
-    .doc-ass-nome {
-      font-size: 10.5px;
-    }
+.cartao-corpo {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
 
-    /* ================================================
-       NOTIFICAÇÃO
-       ================================================ */
-    .notificacao {
-      position: fixed; bottom: 24px; right: 24px;
-      background: var(--verde); color: white;
-      padding: 14px 20px; border-radius: 10px;
-      font-size: 13px; font-weight: 600;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      display: none; z-index: 500;
-      max-width: 340px;
-    }
-    .notif-erro  { background: #c0392b !important; }
-    .notif-aviso { background: #d97706 !important; }
-    .notif-info  { background: #2563eb !important; }
+/* ════ CAMPOS ════════════════════════════════════════════════════ */
+label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--s-600);
+  margin-bottom: 5px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
 
-    .arquivo-wrap { max-width: 1500px; margin: 0 auto 24px; padding: 0 20px; }
-    .arquivo-topo { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
-    .arquivo-sub { font-size:12px; color:#6b7280; line-height:1.5; }
-    .arquivo-badge { font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; background:#e8f4f8; color:var(--verde-primario); }
-    .arquivo-filtro { width:100%; max-width:340px; }
-    .lista-guias-emitidas { display:flex; flex-direction:column; gap:10px; max-height:420px; overflow:auto; }
-    .guia-emitida-item {
-      display:flex; align-items:center; justify-content:space-between; gap:14px;
-      padding:14px 16px; border:1px solid #e5e7eb; border-radius:12px; background:#fbfcfd;
-    }
-    .guia-emitida-main { min-width:0; flex:1; }
-    .guia-emitida-titulo { font-size:13px; font-weight:800; color:#0f172a; }
-    .guia-emitida-meta { font-size:12px; color:#6b7280; margin-top:4px; line-height:1.45; }
-    .guia-emitida-acoes { display:flex; align-items:center; gap:8px; flex-shrink:0; }
-    .guia-estado {
-      font-size:11px; font-weight:700; padding:5px 9px; border-radius:999px;
-      background:#eef6ff; color:#1d4ed8;
-    }
-    .guia-estado.concluida, .guia-estado.aprovado { background:#e8f8f0; color:#1e8449; }
-    .guia-estado.gerado, .guia-estado.pendente { background:#fff7ed; color:#c2410c; }
-    .btn-arquivo-acao {
-      border:none; border-radius:10px; background:var(--verde-primario); color:white;
-      padding:9px 12px; font-size:12px; font-weight:700; cursor:pointer;
-    }
-    .btn-arquivo-acao:disabled { opacity:.45; cursor:not-allowed; }
-    .arquivo-vazio {
-      padding:20px; text-align:center; border:1px dashed #d1d5db; border-radius:12px;
-      font-size:13px; color:#6b7280; background:#fafafa;
-    }
+input, select {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1.5px solid var(--s-200);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font);
+  color: var(--s-900);
+  background: var(--surface);
+  outline: none;
+  transition: border-color .18s, box-shadow .18s, background .18s;
+}
 
-    /* ================================================
-       F3-C — PAGINAÇÃO DO ARQUIVO
-       Controlo de página exibido abaixo da lista
-       quando o número de documentos excede PAGE_SIZE.
-       ================================================ */
-    .arquivo-paginacao {
-      display: none; /* oculto por JS quando há apenas 1 página */
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding-top: 12px;
-      border-top: 1px solid var(--borda);
-      margin-top: 6px;
-      flex-wrap: wrap;
-    }
-    .arquivo-paginacao.visivel { display: flex; }
+input:focus, select:focus {
+  border-color: var(--g-700);
+  box-shadow: 0 0 0 3px rgba(5,150,105,.13);
+}
 
-    /* Grupo de botões anterior / próximo */
-    .pag-navegacao {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .pag-btn {
-      border: 1.5px solid var(--borda);
-      background: white;
-      color: var(--verde-primario);
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-      font-family: inherit;
-      line-height: 1;
-    }
-    .pag-btn:hover:not(:disabled) {
-      background: #e8f4ef;
-      border-color: var(--verde-acento);
-    }
-    .pag-btn:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-    }
+input[readonly], input[readonly]:focus {
+  background: var(--s-50);
+  color: var(--s-500);
+  border-color: var(--s-200);
+  box-shadow: none;
+  cursor: default;
+}
 
-    /* Números de página */
-    .pag-nums {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .pag-num {
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      border: 1.5px solid transparent;
-      color: #6b7280;
-      transition: all 0.15s;
-      font-family: inherit;
-      background: none;
-    }
-    .pag-num:hover:not(.pag-num--ativo) {
-      background: #f3f4f6;
-      border-color: var(--borda);
-      color: var(--verde-primario);
-    }
-    .pag-num--ativo {
-      background: var(--verde-primario);
-      color: white;
-      border-color: var(--verde-primario);
-      cursor: default;
-    }
-    .pag-num--reticencias {
-      cursor: default;
-      color: #9ca3af;
-      width: auto;
-      padding: 0 2px;
-    }
-    .pag-num--reticencias:hover { background: none; border-color: transparent; }
+input::placeholder { color: var(--s-400); font-weight: 400; }
 
-    /* Contador "X–Y de Z" */
-    .pag-info {
-      font-size: 11px;
-      color: #6b7280;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    @media (max-width: 1000px) {
-      .layout { grid-template-columns: 1fr; }
-      .doc-wrapper { transform: scale(0.34); margin-bottom: -520px; }
-      .doc-wrapper-centrado { width: 382px; }  /* 1122 × 0.34 ≈ 382 */
-      /* F1-G: Guia Médica em ecrã estreito — escala reduzida para caber no painel */
-      .doc-wrapper-gm { transform: scale(0.42); margin-bottom: -1060px; }
-      /* 794 × 0.42 ≈ 333px de largura visual; 2251 × 0.42 ≈ 945px de altura visual */
-    }
+select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  background-size: 15px;
+  padding-right: 34px;
+}
 
-    /* ================================================
-       IMPRESSÃO — regras comuns (orientação injectada dinamicamente por JS)
-       ================================================ */
-    @media print {
-      /* Esconder absolutamente tudo — incluindo sidebar injectada pelo sigdoc-nav.js */
-      body * { visibility: hidden; }
-      /* Mostrar apenas o conteúdo do documento */
-      #area-impressao,
-      #area-impressao * { visibility: visible; }
-      #area-impressao { position: absolute; top: 0; left: 0; width: 100%; display: block !important; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-      #area-impressao .documento-oficial {
-        width: 291mm; height: 204mm;
-        gap: 3mm; background: white;
-        font-family: Arial, Helvetica, sans-serif;
-      }
-      #area-impressao .doc-metade {
-        border: 1.5pt solid #333;
-        padding: 5mm 5mm 5mm 5mm;
-      }
-      #area-impressao .doc-insignia { width: 14mm; height: 14mm; }
-      #area-impressao .doc-cabecalho { margin-bottom: 4pt; }
-      #area-impressao .doc-cabecalho p { font-size: 7.5pt; }
-      #area-impressao .doc-titulo { font-size: 9pt; margin: 5pt 0 9pt; }
-      #area-impressao .doc-corpo { font-size: 9pt; line-height: 1.75; }
-      #area-impressao .doc-local-data { font-size: 8pt; margin-bottom: 10pt; }
-      #area-impressao .doc-assinaturas { font-size: 8pt; }
-      #area-impressao .doc-ass-col.direita { padding-left: 8pt; margin-left: 6pt; align-items: center; }
-      #area-impressao .doc-ass-linha { margin: 14pt 0 3pt; }
-      #area-impressao .doc-ass-data { font-size: 8.5pt; }
-      /* D7 fix: regras da Guia Médica movidas para este bloco — evitar duplicação das regras base */
-      /* Regras base (body * visibility, #area-impressao) já declaradas acima, aplicam-se a todos os tipos */
-      .documento-gm {
-        background: white;
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-      }
-      .gm-pagina {
-        width: 210mm;
-        height: 297mm;
-        margin: 0;
-        padding: 12mm 15mm;
-        page-break-after: always;
-        page-break-inside: avoid;
-        box-shadow: none;
-        display: flex;
-        flex-direction: column;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 11px;
-        line-height: 1.35;
-      }
-      .gm-cabecalho {
-        border-bottom: 1px solid #000;
-        padding-bottom: 6mm;
-        margin-bottom: 6mm;
-      }
-      .gm-logo {
-        width: 30mm;
-        height: auto;
-        margin: 0 auto 4mm;
-      }
-      .gm-titulo {
-        font-size: 11px;
-        font-weight: bold;
-        margin: 4mm 0 5mm;
-      }
-      .gm-apresentacao {
-        font-size: 10px;
-        font-weight: bold;
-        margin: 4mm 0 6mm;
-      }
-      .gm-campo {
-        margin-bottom: 3mm;
-        line-height: 1.2;
-      }
-      .gm-label {
-        font-weight: bold;
-        width: 80mm;
-        padding-right: 2mm;
-        display: inline-block;
-        flex-shrink: 0;
-      }
-      .gm-valor {
-        border-bottom: 1px solid #000;
-        padding: 0 1mm;
-        display: inline-block;
-        width: calc(100% - 82mm);
-      }
-      .gm-rodape {
-        margin-top: 6mm;
-        text-align: center;
-        font-size: 9px;
-        page-break-inside: avoid;
-      }
-      .gm-linha-assinatura {
-        border-top: 1px solid #000;
-        width: 65mm;
-        height: 1px;
-        margin: 0 auto 1.5mm;
-      }
-      .gm-prescricao {
-        margin-top: 6mm;
-        page-break-inside: avoid;
-      }
-      .gm-linha {
-        border-bottom: 1px solid #666;
-        height: 12px;
-        margin-bottom: 3px;
-      }
-      .gm-linha-assinatura-medico {
-        border-top: 1px solid #000;
-        width: 40mm;
-        height: 1px;
-        margin: 8mm 0 0;
-      }
-    }
-    }
-    #area-impressao { display: none; }
+.info-calc {
+  font-size: 11px;
+  background: var(--g-50);
+  color: var(--g-800);
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  margin-top: 6px;
+  font-weight: 600;
+  display: none;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--g-100);
+  line-height: 1.4;
+}
 
-    /* ===== BANNER ORIGEM PORTAL ===== */
-    .banner-portal-origem {
-      display: none;
-      background: linear-gradient(135deg, #1e8449, #27ae60);
-      border-radius: 10px;
-      padding: 14px 18px;
-      color: white;
-      margin-bottom: 4px;
-    }
-    .banner-portal-origem .bp-titulo { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-    .banner-portal-origem .bp-info { font-size: 12px; opacity: 0.85; line-height: 1.6; }
-    .banner-portal-origem .bp-badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 20px; padding: 3px 10px;
-      font-size: 11px; font-weight: 700; margin-top: 6px;
-    }
-    .campo-preenchido {
-      background: #f0fdf4 !important;
-      border-color: #86efac !important;
-      color: #166534 !important;
-      font-weight: 600 !important;
-    }
+.info-ferias {
+  font-size: 11px;
+  background: #fffbeb;
+  color: #92400e;
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  margin-top: 4px;
+  display: none;
+  border: 1px solid #fde68a;
+  line-height: 1.4;
+}
 
-    /* ══════════════════════════════════════════════════════════════ */
-    /* GUIA MÉDICA — A4 RETRATO */
-    /* ══════════════════════════════════════ */
-    
-    .documento-gm {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    
-    .gm-pagina {
-      width: 210mm;
-      height: 297mm;
-      background: white;
-      padding: 12mm 15mm;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      page-break-after: always;
-      page-break-inside: avoid;
-      font-size: 11px;
-      line-height: 1.35;
-    }
-    
-    .gm-cabecalho {
-      text-align: center;
-      border-bottom: 1px solid #000;
-      padding-bottom: 6mm;
-      margin-bottom: 6mm;
-    }
-    
-    .gm-logo {
-      width: 30mm;
-      height: auto;
-      display: block;
-      margin: 0 auto 4mm;
-      object-fit: contain;
-      background: transparent;
-    }
-    
-    .gm-cabecalho p {
-      font-size: 9px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-      margin: 0.8mm 0;
-      line-height: 1.3;
-    }
-    
-    .gm-titulo {
-      text-align: center;
-      font-size: 11px;
-      font-weight: bold;
-      text-decoration: underline;
-      text-transform: uppercase;
-      margin: 4mm 0 5mm;
-    }
-    
-    .gm-apresentacao {
-      text-align: center;
-      font-size: 10px;
-      font-weight: bold;
-      text-transform: uppercase;
-      margin: 4mm 0 6mm;
-    }
-    
-    .gm-campos {
-      margin-bottom: 6mm;
-    }
-    
-    .gm-campo {
-      display: flex;
-      margin-bottom: 3mm;
-      line-height: 1.2;
-    }
-    
-    .gm-label {
-      font-weight: bold;
-      width: 80mm;
-      padding-right: 2mm;
-      flex-shrink: 0;
-    }
-    
-    .gm-valor {
-      flex: 1;
-      border-bottom: 1px solid #000;
-      padding: 0 1mm;
-    }
-    
-    .gm-rodape {
-      margin-top: 6mm;
-      text-align: center;
-      font-size: 9px;
-      page-break-inside: avoid;
-    }
-    
-    .gm-rodape-texto {
-      font-weight: bold;
-      line-height: 1.3;
-      margin-bottom: 6mm;
-    }
-    
-    .gm-assinatura {
-      margin-top: 8mm;
-    }
-    
-    .gm-linha-assinatura {
-      border-top: 1px solid #000;
-      width: 65mm;
-      height: 1px;
-      margin: 0 auto 1.5mm;
-    }
-    
-    .gm-prescricao {
-      margin-top: 6mm;
-      page-break-inside: avoid;
-    }
-    
-    .gm-linhas {
-      margin-bottom: 3mm;
-    }
-    
-    .gm-linha {
-      border-bottom: 1px solid #666;
-      height: 12px;
-      margin-bottom: 3px;
-    }
-    
-    .gm-prescricao-rodape {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      font-size: 9px;
-      margin-top: 2mm;
-    }
-    
-    .gm-linha-assinatura-medico {
-      border-top: 1px solid #000;
-      width: 40mm;
-      height: 1px;
-      margin: 8mm 0 0;
-    }
-    
+/* ════ VALIDAÇÃO ═════════════════════════════════════════════════ */
+.campo-erro-input {
+  border-color: var(--danger) !important;
+  background: #fff5f5 !important;
+  box-shadow: 0 0 0 3px rgba(220,38,38,.1) !important;
+}
 
+.campo-erro-msg {
+  font-size: 11px;
+  color: var(--danger);
+  font-weight: 600;
+  margin-top: 5px;
+  display: none;
+  align-items: flex-start;
+  gap: 4px;
+  line-height: 1.4;
+}
 
-    /* ================================================
-       F1-F — INDICADORES DE LOADING
-       ================================================ */
+.campo-erro-msg::before {
+  content: "";
+  display: inline-block;
+  width: 13px; height: 13px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23dc2626' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/%3E%3Cline x1='12' y1='9' x2='12' y2='13'/%3E%3Cline x1='12' y1='17' x2='12.01' y2='17'/%3E%3C/svg%3E") no-repeat center;
+  background-size: contain;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
 
-    /* Spinner de rotação — usado em botões durante operações assíncronas */
-    @keyframes sigdoc-spin {
-      to { transform: rotate(360deg); }
-    }
-    .sigdoc-spinner {
-      width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,0.35);
-      border-top-color: white;
-      border-radius: 50%;
-      display: inline-block;
-      animation: sigdoc-spin 0.7s linear infinite;
-      flex-shrink: 0;
-    }
+/* ════ PESQUISA DE FUNCIONÁRIO ═══════════════════════════════════ */
+.campo-pesquisa-func { position: relative; }
 
-    /* Pulse — usado na área do arquivo enquanto o onSnapshot ainda não respondeu */
-    @keyframes sigdoc-pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.35; }
-    }
-    .arquivo-vazio-loading {
-      animation: sigdoc-pulse 1.4s ease-in-out infinite;
-    }
+.resultados-pesquisa {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--g-700);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-xl);
+  z-index: 100;
+  max-height: 230px;
+  overflow-y: auto;
+  display: none;
+}
 
-    /* ================================================
-       F3-B — ESTADO VAZIO: GUIA VISUAL DE 3 PASSOS
-       Substitui o placeholder estático por um guia
-       reactivo que orienta o utilizador passo a passo.
-       ================================================ */
-    .guia-passos-wrap {
-      width: 100%;
-      max-width: 420px;
-      margin: 0 auto;
-      padding: 28px 16px 16px;
-    }
-    .gp-cabecalho {
-      text-align: center;
-      margin-bottom: 22px;
-    }
-    .gp-cabecalho-icone {
-      font-size: 34px;
-      display: block;
-      margin-bottom: 8px;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
-    }
-    .gp-cabecalho-titulo {
-      font-size: 15px;
-      font-weight: 800;
-      color: #1a2332;
-    }
-    .gp-cabecalho-sub {
-      font-size: 11px;
-      color: #4b5563;
-      margin-top: 3px;
-      font-weight: 500;
-    }
-    .gp-lista {
-      display: flex;
-      flex-direction: column;
-    }
-    .gp-passo {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding-bottom: 18px;
-      position: relative;
-    }
-    .gp-passo:last-child { padding-bottom: 0; }
-    /* Linha vertical que liga um passo ao seguinte */
-    .gp-passo:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      left: 17px;           /* centro do círculo de 36px */
-      top: 36px;            /* imediatamente abaixo do círculo */
-      height: calc(100% - 36px);
-      width: 2px;
-      background: #d1d5db;
-      transition: background 0.3s ease;
-    }
-    .gp-passo--concluido:not(:last-child)::after {
-      background: var(--verde-acento);
-    }
-    /* Círculo numerado */
-    .gp-num {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 800;
-      flex-shrink: 0;
-      transition: all 0.3s ease;
-      background: #e2e8f0;
-      color: #94a3b8;
-      border: 2px solid #cbd5e1;
-      position: relative;
-      z-index: 1;           /* fica à frente da linha conectora */
-    }
-    /* Número exibido via pseudo-elemento — permite trocar por ✓ no estado concluído */
-    .gp-num::before { content: attr(data-num); }
-    .gp-passo--ativo .gp-num {
-      background: var(--verde-acento);
-      color: white;
-      border-color: var(--verde-acento);
-      box-shadow: 0 0 0 4px rgba(18,163,114,0.20);
-    }
-    .gp-passo--concluido .gp-num {
-      background: var(--verde-primario);
-      color: white;
-      border-color: var(--verde-primario);
-    }
-    .gp-passo--concluido .gp-num::before {
-      content: "";
-      display: block;
-      width: 16px;
-      height: 16px;
-      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") no-repeat center;
-      background-size: contain;
-      margin: auto;
-    }
-    /* Cartão de cada passo */
-    .gp-card {
-      flex: 1;
-      background: white;
-      border-radius: 10px;
-      padding: 12px 14px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-      border: 1.5px solid #e2e8f0;
-      transition: all 0.3s ease;
-      opacity: 0.55;        /* passos pendentes ficam esmaecidos */
-    }
-    .gp-passo--ativo .gp-card {
-      border-color: var(--verde-acento);
-      box-shadow: 0 2px 12px rgba(18,163,114,0.14);
-      opacity: 1;
-    }
-    .gp-passo--concluido .gp-card {
-      background: #f0fdf4;
-      border-color: #86efac;
-      opacity: 1;
-    }
-    .gp-card-titulo {
-      font-size: 12px;
-      font-weight: 700;
-      color: #374151;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .gp-passo--ativo .gp-card-titulo   { color: var(--verde-primario); }
-    .gp-passo--concluido .gp-card-titulo { color: #166534; }
-    .gp-card-desc {
-      font-size: 11px;
-      color: #9ca3af;
-      margin-top: 3px;
-      line-height: 1.45;
-      font-weight: 500;
-    }
-    .gp-passo--ativo .gp-card-desc   { color: #4b5563; }
-    .gp-passo--concluido .gp-card-desc { color: #16a34a; font-weight: 600; }
-    /* Badge inferior: indica o tipo de documento actualmente seleccionado */
-    .gp-tipo-badge {
-      margin-top: 18px;
-      text-align: center;
-    }
-    .gp-tipo-badge-inner {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(255,255,255,0.82);
-      border: 1.5px solid rgba(255,255,255,0.55);
-      backdrop-filter: blur(4px);
-      border-radius: 20px;
-      padding: 5px 14px;
-      font-size: 11px;
-      font-weight: 600;
-      color: #374151;
-    }
-    .gp-tipo-badge-inner strong { color: var(--verde-primario); font-weight: 800; }
+.resultado-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  border-bottom: 1px solid var(--s-100);
+  transition: background .12s;
+}
+.resultado-item:last-child { border-bottom: none; }
+.resultado-item:hover { background: var(--g-50); }
+.resultado-item .func-nome { font-weight: 700; color: var(--g-900); }
+.resultado-item .func-info { font-size: 11px; color: var(--s-500); margin-top: 2px; }
 
-    /* ================================================
-       F3-D — INDICADOR DE PROGRESSO DO FORMULÁRIO
-       Barra + contador de campos obrigatórios preenchidos.
-       Posicionado abaixo do cabeçalho do 2º cartão;
-       mostra X de Y campos preenchidos por tipo de doc.
-       ================================================ */
-    .form-progresso-wrap {
-      padding: 10px 20px 12px;
-      border-bottom: 1px solid #eef0f3;
-      background: #fafbfc;
-    }
-    .form-progresso-topo {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 7px;
-    }
-    .form-progresso-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: #6b7280;
-      letter-spacing: 0.1px;
-    }
-    .form-progresso-contador {
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--verde-primario);
-      font-variant-numeric: tabular-nums;
-      transition: color 0.3s;
-    }
-    .form-progresso-contador--completo { color: #16a34a; }
-    /* Trilho da barra */
-    .form-progresso-trilho {
-      height: 5px;
-      background: #e5e7eb;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-    /* Preenchimento animado */
-    .form-progresso-barra {
-      height: 100%;
-      border-radius: 999px;
-      background: var(--verde-acento);
-      width: 0%;
-      transition: width 0.35s ease, background 0.35s ease;
-    }
-    .form-progresso-barra--completo {
-      background: #16a34a;  /* verde mais escuro quando tudo preenchido */
-    }
+/* ════ PROGRESSO ═════════════════════════════════════════════════ */
+.form-progresso-wrap {
+  padding: 11px 18px 13px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #fafbfc, #f6f8fa);
+}
 
+.form-progresso-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
 
-    /* ================================================
-       ICONOGRAFIA SVG INLINE
-       Substitui todos os emojis por ícones vectoriais.
-       stroke:currentColor herda a cor do elemento pai
-       (branco em botões, verde em cabeçalhos, etc.).
-       ================================================ */
-    .sigdoc-icon {
-      width: 15px;
-      height: 15px;
-      display: inline-block;
-      vertical-align: -2px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      flex-shrink: 0;
-      pointer-events: none;
-    }
-    /* Nos botões os ícones ficam ligeiramente maiores */
-    .btn-gerar .sigdoc-icon,
-    .btn-submeter .sigdoc-icon,
-    .btn-imprimir .sigdoc-icon { width: 16px; height: 16px; vertical-align: -3px; }
-  </style>
-  <!-- F2-E: preconnect — elimina latência de DNS + TLS para o Google Fonts em redes lentas -->
+.form-progresso-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--s-500);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.form-progresso-contador {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--g-700);
+  font-family: var(--mono);
+  letter-spacing: -.02em;
+}
+.form-progresso-contador--completo { color: var(--g-600); }
+
+.form-progresso-trilho {
+  height: 4px;
+  background: var(--s-200);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+
+.form-progresso-barra {
+  height: 100%;
+  border-radius: var(--r-full);
+  background: linear-gradient(90deg, var(--g-900), var(--g-700));
+  width: 0%;
+  transition: width .4s cubic-bezier(.4,0,.2,1);
+}
+.form-progresso-barra--completo {
+  background: linear-gradient(90deg, var(--g-700), var(--g-600));
+}
+
+/* ════ BOTÕES DE ACÇÃO ═══════════════════════════════════════════ */
+.acoes-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-gerar {
+  background: linear-gradient(145deg, var(--g-900) 0%, var(--g-700) 100%);
+  color: #fff;
+  border: none;
+  height: 48px;
+  padding: 0 20px;
+  border-radius: var(--r-xl);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform .15s, box-shadow .18s, opacity .15s;
+  box-shadow: 0 4px 16px rgba(11,79,58,.3), 0 1px 4px rgba(11,79,58,.2);
+  letter-spacing: .01em;
+}
+.btn-gerar:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(11,79,58,.36), 0 2px 6px rgba(11,79,58,.2);
+}
+.btn-gerar:active:not(:disabled) { transform: translateY(0); }
+.btn-gerar:disabled { opacity: .48; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-submeter {
+  background: transparent;
+  color: var(--g-900);
+  border: 1.5px solid rgba(11,79,58,.35);
+  height: 43px;
+  padding: 0 18px;
+  border-radius: var(--r-xl);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all .18s;
+}
+.btn-submeter:hover:not(:disabled) {
+  background: var(--g-50);
+  border-color: var(--g-700);
+}
+.btn-submeter:disabled { opacity: .38; cursor: not-allowed; }
+
+.btn-imprimir {
+  background: transparent;
+  color: var(--s-600);
+  border: 1.5px solid var(--s-200);
+  height: 43px;
+  padding: 0 18px;
+  border-radius: var(--r-xl);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all .18s;
+}
+.btn-imprimir:hover:not(:disabled) {
+  background: var(--s-50);
+  border-color: var(--s-300);
+  color: var(--s-800);
+}
+.btn-imprimir:disabled { opacity: .38; cursor: not-allowed; }
+
+/* ════ BADGE ESTADO ══════════════════════════════════════════════ */
+.badge-estado {
+  display: none;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 2px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.badge-pendente { background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; }
+.badge-aprovado { background: var(--g-50); color: var(--g-900); border: 1px solid var(--g-200); }
+.badge-gerado   { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+/* ════ PAINEL PREVIEW ════════════════════════════════════════════ */
+.painel-preview { }
+
+.preview-cabecalho {
+  background: var(--surface);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: 13px 18px;
+  border: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--s-600);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.preview-cabecalho-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.badge-preview {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--r-full);
+  background: var(--g-50);
+  color: var(--g-800);
+  border: 1px solid var(--g-100);
+  white-space: nowrap;
+}
+
+.area-preview {
+  background: #d5dbe4;
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: 28px 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 580px;
+  overflow: visible;
+}
+
+.vazio-preview { text-align: center; color: var(--s-500); width: 100%; }
+
+/* ════ GUIDE STEPS ═══════════════════════════════════════════════ */
+.guia-passos-wrap {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px 12px 16px;
+}
+
+.gp-cabecalho { text-align: center; margin-bottom: 24px; }
+
+.gp-cabecalho-icone {
+  font-size: 34px;
+  display: block;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.18));
+}
+
+.gp-cabecalho-titulo {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--s-800);
+}
+
+.gp-cabecalho-sub {
+  font-size: 11px;
+  color: var(--s-500);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.gp-lista { display: flex; flex-direction: column; }
+
+.gp-passo {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 18px;
+  position: relative;
+}
+.gp-passo:last-child { padding-bottom: 0; }
+
+.gp-passo:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 17px;
+  top: 36px;
+  height: calc(100% - 36px);
+  width: 2px;
+  background: rgba(255,255,255,.35);
+  border-radius: 2px;
+  transition: background .3s;
+}
+.gp-passo--concluido:not(:last-child)::after {
+  background: rgba(5,150,105,.55);
+}
+
+.gp-num {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  flex-shrink: 0;
+  transition: all .25s ease;
+  background: rgba(255,255,255,.18);
+  color: rgba(255,255,255,.45);
+  border: 2px solid rgba(255,255,255,.2);
+  position: relative;
+  z-index: 1;
+}
+.gp-num::before { content: attr(data-num); }
+
+.gp-passo--ativo .gp-num {
+  background: var(--g-700);
+  color: #fff;
+  border-color: var(--g-600);
+  box-shadow: 0 0 0 4px rgba(16,185,129,.25), 0 2px 8px rgba(5,150,105,.3);
+}
+.gp-passo--concluido .gp-num {
+  background: var(--g-900);
+  color: #fff;
+  border-color: var(--g-800);
+  box-shadow: 0 2px 8px rgba(11,79,58,.3);
+}
+.gp-passo--concluido .gp-num::before {
+  content: "";
+  width: 14px; height: 14px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") no-repeat center;
+  background-size: contain;
+}
+
+.gp-card {
+  flex: 1;
+  background: rgba(255,255,255,.12);
+  border-radius: var(--r-md);
+  padding: 11px 14px;
+  border: 1.5px solid rgba(255,255,255,.15);
+  transition: all .25s ease;
+  opacity: .5;
+  backdrop-filter: blur(4px);
+}
+.gp-passo--ativo .gp-card {
+  background: rgba(255,255,255,.22);
+  border-color: rgba(255,255,255,.35);
+  box-shadow: 0 2px 12px rgba(0,0,0,.12);
+  opacity: 1;
+}
+.gp-passo--concluido .gp-card {
+  background: rgba(5,150,105,.18);
+  border-color: rgba(5,150,105,.3);
+  opacity: 1;
+}
+
+.gp-card-titulo {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,.6);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.gp-passo--ativo .gp-card-titulo   { color: #fff; }
+.gp-passo--concluido .gp-card-titulo { color: rgba(255,255,255,.9); }
+
+.gp-card-desc {
+  font-size: 11px;
+  color: rgba(255,255,255,.38);
+  margin-top: 3px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.gp-passo--ativo .gp-card-desc   { color: rgba(255,255,255,.7); }
+.gp-passo--concluido .gp-card-desc { color: rgba(255,255,255,.65); font-weight: 600; }
+
+.gp-tipo-badge { margin-top: 20px; text-align: center; }
+.gp-tipo-badge-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.13);
+  border: 1.5px solid rgba(255,255,255,.2);
+  backdrop-filter: blur(6px);
+  border-radius: var(--r-full);
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,.7);
+}
+.gp-tipo-badge-inner strong { color: #fff; font-weight: 800; }
+
+/* ════ DOC WRAPPERS (escalados) ══════════════════════════════════ */
+.doc-wrapper {
+  transform-origin: top left;
+  transform: scale(0.67);
+  width: 1122px;
+  display: none;
+  margin-bottom: -258px;
+}
+.doc-wrapper-centrado {
+  width: 752px;
+  margin: 0 auto;
+  overflow: visible;
+}
+.doc-wrapper-gm {
+  transform: scale(0.6);
+  transform-origin: top center;
+  margin-bottom: -400px;
+}
+
+/* ════ DOCUMENTO OFICIAL ════════════════════════════════════════ */
+.documento-oficial {
+  width: 1122px;
+  background: #d8d8d8;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.doc-metade {
+  background: white;
+  border: 2px solid #333;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+}
+.doc-cabecalho { text-align: center; margin-bottom: 8px; line-height: 1.30; }
+.doc-insignia { width: 52px; height: 52px; object-fit: contain; display: block; margin: 0 auto 5px; }
+.doc-cabecalho p { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.1px; font-family: Arial, Helvetica, sans-serif; }
+.doc-cabecalho .negrito { font-weight: bold; }
+.doc-titulo { text-align: center; font-size: 11px; font-weight: bold; text-decoration: underline; text-transform: uppercase; margin: 7px 0 13px; letter-spacing: 0.2px; font-family: Arial, Helvetica, sans-serif; }
+.doc-corpo { font-size: 12px; text-align: justify; line-height: 1.80; font-family: Arial, Helvetica, sans-serif; }
+.doc-rodape { margin-top: 20px; }
+.doc-local-data { font-size: 10px; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; line-height: 1.4; font-family: Arial, Helvetica, sans-serif; }
+.doc-assinaturas { display: flex; align-items: flex-start; font-size: 10.5px; font-family: Arial, Helvetica, sans-serif; }
+.doc-ass-col { display: flex; flex-direction: column; align-items: flex-start; flex: 1; }
+.doc-ass-col.direita { border-left: 1px solid #444; padding-left: 14px; margin-left: 10px; align-items: center; }
+.doc-ass-titulo { font-weight: bold; text-transform: uppercase; font-size: 10.5px; margin-bottom: 3px; }
+.doc-ass-data { font-weight: bold; font-size: 11px; }
+.doc-ass-linha { border-bottom: 1px solid #333; width: 90%; margin: 20px 0 3px; }
+.doc-ass-nome { font-size: 10.5px; }
+
+/* ════ GUIA MÉDICA ═══════════════════════════════════════════════ */
+.documento-gm { font-family: Arial, Helvetica, sans-serif; background: #f0f0f0; display: flex; flex-direction: column; gap: 3px; }
+.gm-pagina { width: 210mm; height: 297mm; background: white; padding: 12mm 15mm; box-sizing: border-box; display: flex; flex-direction: column; page-break-after: always; page-break-inside: avoid; font-size: 11px; line-height: 1.35; }
+.gm-cabecalho { text-align: center; border-bottom: 1px solid #000; padding-bottom: 6mm; margin-bottom: 6mm; }
+.gm-logo { width: 30mm; height: auto; display: block; margin: 0 auto 4mm; object-fit: contain; }
+.gm-cabecalho p { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.3px; margin: 0.8mm 0; line-height: 1.3; }
+.gm-titulo { text-align: center; font-size: 11px; font-weight: bold; text-decoration: underline; text-transform: uppercase; margin: 4mm 0 5mm; }
+.gm-apresentacao { text-align: center; font-size: 10px; font-weight: bold; text-transform: uppercase; margin: 4mm 0 6mm; }
+.gm-campos { margin-bottom: 6mm; }
+.gm-campo { display: flex; margin-bottom: 3mm; line-height: 1.2; }
+.gm-label { font-weight: bold; width: 80mm; padding-right: 2mm; flex-shrink: 0; }
+.gm-valor { flex: 1; border-bottom: 1px solid #000; padding: 0 1mm; }
+.gm-rodape { margin-top: 6mm; text-align: center; font-size: 9px; page-break-inside: avoid; }
+.gm-rodape-texto { font-weight: bold; line-height: 1.3; margin-bottom: 6mm; }
+.gm-assinatura { margin-top: 8mm; }
+.gm-linha-assinatura { border-top: 1px solid #000; width: 65mm; height: 1px; margin: 0 auto 1.5mm; }
+.gm-prescricao { margin-top: 6mm; page-break-inside: avoid; }
+.gm-linhas { margin-bottom: 3mm; }
+.gm-linha { border-bottom: 1px solid #666; height: 12px; margin-bottom: 3px; }
+.gm-prescricao-rodape { display: flex; justify-content: space-between; align-items: flex-end; font-size: 9px; margin-top: 2mm; }
+.gm-linha-assinatura-medico { border-top: 1px solid #000; width: 40mm; height: 1px; margin: 8mm 0 0; }
+
+/* ════ NOTIFICAÇÃO ═══════════════════════════════════════════════ */
+.notificacao {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--g-900);
+  color: white;
+  padding: 13px 18px;
+  border-radius: var(--r-2xl);
+  font-size: 13px;
+  font-weight: 600;
+  display: none;
+  z-index: 600;
+  max-width: 360px;
+  box-shadow: var(--sh-xl), 0 0 0 1px rgba(255,255,255,.06);
+  align-items: center;
+  gap: 8px;
+}
+.notif-erro  { background: #7f1d1d !important; }
+.notif-aviso { background: #78350f !important; }
+.notif-info  { background: #1e3a8a !important; }
+
+/* ════ ARQUIVO ═══════════════════════════════════════════════════ */
+.arquivo-wrap {
+  max-width: 1640px;
+  margin: 0 auto 28px;
+  padding: 0 20px;
+}
+
+.arquivo-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.arquivo-sub {
+  font-size: 12px;
+  color: var(--s-500);
+  line-height: 1.5;
+}
+
+.arquivo-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--r-full);
+  background: var(--g-50);
+  color: var(--g-800);
+  border: 1px solid var(--g-100);
+  white-space: nowrap;
+}
+
+.arquivo-filtro {
+  width: 100%;
+  max-width: 360px;
+  height: 40px;
+  padding: 0 14px;
+  border: 1.5px solid var(--s-200);
+  border-radius: var(--r-full);
+  font-size: 13px;
+  font-family: var(--font);
+  color: var(--s-900);
+  background: var(--surface);
+  outline: none;
+  transition: border-color .18s, box-shadow .18s;
+  margin-bottom: 14px;
+}
+.arquivo-filtro:focus {
+  border-color: var(--g-700);
+  box-shadow: 0 0 0 3px rgba(5,150,105,.1);
+}
+
+.lista-guias-emitidas {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-height: 460px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.lista-guias-emitidas::-webkit-scrollbar { width: 4px; }
+.lista-guias-emitidas::-webkit-scrollbar-track { background: transparent; }
+.lista-guias-emitidas::-webkit-scrollbar-thumb { background: var(--s-300); border-radius: 4px; }
+
+.guia-emitida-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  transition: background .14s, border-color .14s, transform .14s;
+}
+.guia-emitida-item:hover {
+  background: var(--s-50);
+  border-color: var(--s-300);
+  transform: translateX(2px);
+}
+.guia-emitida-main { min-width: 0; flex: 1; }
+.guia-emitida-titulo {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--s-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.guia-emitida-meta {
+  font-size: 11px;
+  color: var(--s-400);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.guia-emitida-acoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.guia-estado {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  background: #eff6ff;
+  color: #1d4ed8;
+  white-space: nowrap;
+}
+.guia-estado.concluida, .guia-estado.aprovado { background: var(--g-50); color: var(--g-800); }
+.guia-estado.gerado, .guia-estado.pendente { background: #fff7ed; color: #c2410c; }
+
+.btn-arquivo-acao {
+  border: none;
+  border-radius: var(--r-md);
+  background: var(--g-900);
+  color: white;
+  padding: 7px 13px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: opacity .15s, transform .12s;
+  white-space: nowrap;
+}
+.btn-arquivo-acao:hover:not(:disabled) { opacity: .85; transform: translateY(-1px); }
+.btn-arquivo-acao:disabled { opacity: .38; cursor: not-allowed; transform: none; }
+
+.arquivo-vazio {
+  padding: 24px;
+  text-align: center;
+  border: 1px dashed var(--s-300);
+  border-radius: var(--r-lg);
+  font-size: 13px;
+  color: var(--s-500);
+  background: var(--s-50);
+}
+
+/* ════ PAGINAÇÃO ═════════════════════════════════════════════════ */
+.arquivo-paginacao {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.arquivo-paginacao.visivel { display: flex; }
+
+.pag-navegacao { display: flex; align-items: center; gap: 6px; }
+
+.pag-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1.5px solid var(--s-200);
+  background: var(--surface);
+  color: var(--s-600);
+  border-radius: var(--r-full);
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all .15s;
+}
+.pag-btn:hover:not(:disabled) { background: var(--g-50); border-color: var(--g-700); color: var(--g-800); }
+.pag-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+.pag-nums { display: flex; align-items: center; gap: 3px; }
+
+.pag-num {
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-md);
+  font-size: 12px; font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  color: var(--s-500);
+  transition: all .15s;
+  font-family: var(--font);
+  background: none;
+}
+.pag-num:hover:not(.pag-num--ativo) { background: var(--s-100); border-color: var(--s-200); color: var(--s-900); }
+.pag-num--ativo { background: var(--g-900); color: white; border-color: var(--g-900); cursor: default; }
+.pag-num--reticencias { cursor: default; color: var(--s-400); width: auto; padding: 0 2px; }
+.pag-num--reticencias:hover { background: none; border-color: transparent; }
+
+.pag-info { font-size: 11px; color: var(--s-500); font-weight: 600; white-space: nowrap; font-family: var(--mono); }
+
+/* ════ BANNER PORTAL ═════════════════════════════════════════════ */
+.banner-portal-origem {
+  display: none;
+  background: linear-gradient(135deg, var(--g-900), var(--g-700));
+  border-radius: var(--r-xl);
+  padding: 14px 16px;
+  color: white;
+  box-shadow: var(--sh-md);
+}
+.banner-portal-origem .bp-titulo { font-size: 12px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.banner-portal-origem .bp-info { font-size: 11px; opacity: .82; line-height: 1.6; }
+.banner-portal-origem .bp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: var(--r-full);
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+.campo-preenchido {
+  background: var(--g-50) !important;
+  border-color: var(--g-200) !important;
+  color: #166534 !important;
+  font-weight: 600;
+}
+
+/* ════ LOADING ═══════════════════════════════════════════════════ */
+@keyframes sigdoc-spin { to { transform: rotate(360deg); } }
+.sigdoc-spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: white;
+  border-radius: 50%;
+  display: inline-block;
+  animation: sigdoc-spin .7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes sigdoc-pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+.arquivo-vazio-loading { animation: sigdoc-pulse 1.4s ease-in-out infinite; }
+
+/* ════ ICONOGRAFIA ═══════════════════════════════════════════════ */
+.sigdoc-icon {
+  width: 15px; height: 15px;
+  display: inline-block;
+  vertical-align: -2px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+.btn-gerar .sigdoc-icon,
+.btn-submeter .sigdoc-icon,
+.btn-imprimir .sigdoc-icon { width: 16px; height: 16px; vertical-align: -3px; }
+
+/* ════ PRINT ═════════════════════════════════════════════════════ */
+@media print {
+  body * { visibility: hidden; }
+  #area-impressao, #area-impressao * { visibility: visible !important; }
+  #area-impressao { position: absolute; top: 0; left: 0; width: 100%; display: block !important; }
+
+  #area-impressao .documento-oficial { width: 291mm; height: 204mm; gap: 3mm; background: white; font-family: Arial, Helvetica, sans-serif; }
+  #area-impressao .doc-metade { border: 1.5pt solid #333; padding: 5mm; }
+  #area-impressao .doc-insignia { width: 14mm; height: 14mm; }
+  #area-impressao .doc-cabecalho { margin-bottom: 4pt; }
+  #area-impressao .doc-cabecalho p { font-size: 7.5pt; }
+  #area-impressao .doc-titulo { font-size: 9pt; margin: 5pt 0 9pt; }
+  #area-impressao .doc-corpo { font-size: 9pt; line-height: 1.75; }
+  #area-impressao .doc-local-data { font-size: 8pt; margin-bottom: 10pt; }
+  #area-impressao .doc-assinaturas { font-size: 8pt; }
+  #area-impressao .doc-ass-col.direita { padding-left: 8pt; margin-left: 6pt; align-items: center; }
+  #area-impressao .doc-ass-linha { margin: 14pt 0 3pt; }
+  #area-impressao .doc-ass-data { font-size: 8.5pt; }
+
+  .documento-gm { background: white; display: flex; flex-direction: column; gap: 0; }
+  .gm-pagina { width: 210mm; height: 297mm; margin: 0; padding: 12mm 15mm; page-break-after: always; page-break-inside: avoid; box-shadow: none; display: flex; flex-direction: column; font-family: Arial, Helvetica, sans-serif; font-size: 11px; line-height: 1.35; }
+  .gm-cabecalho { border-bottom: 1px solid #000; padding-bottom: 6mm; margin-bottom: 6mm; }
+  .gm-logo { width: 30mm; height: auto; margin: 0 auto 4mm; }
+  .gm-titulo { font-size: 11px; font-weight: bold; margin: 4mm 0 5mm; }
+  .gm-apresentacao { font-size: 10px; font-weight: bold; margin: 4mm 0 6mm; }
+  .gm-campo { margin-bottom: 3mm; line-height: 1.2; }
+  .gm-label { font-weight: bold; width: 80mm; padding-right: 2mm; display: inline-block; flex-shrink: 0; }
+  .gm-valor { border-bottom: 1px solid #000; padding: 0 1mm; display: inline-block; width: calc(100% - 82mm); }
+  .gm-rodape { margin-top: 6mm; text-align: center; font-size: 9px; page-break-inside: avoid; }
+  .gm-linha-assinatura { border-top: 1px solid #000; width: 65mm; height: 1px; margin: 0 auto 1.5mm; }
+  .gm-prescricao { margin-top: 6mm; page-break-inside: avoid; }
+  .gm-linha { border-bottom: 1px solid #666; height: 12px; margin-bottom: 3px; }
+  .gm-linha-assinatura-medico { border-top: 1px solid #000; width: 40mm; height: 1px; margin: 8mm 0 0; }
+}
+
+#area-impressao { display: none; }
+
+/* ════ RESPONSIVE ════════════════════════════════════════════════ */
+@media (max-width: 1040px) {
+  .layout { grid-template-columns: 1fr; }
+  .doc-wrapper { transform: scale(0.34); margin-bottom: -520px; }
+  .doc-wrapper-centrado { width: 382px; }
+  .doc-wrapper-gm { transform: scale(0.42); margin-bottom: -1060px; }
+}
+@media (max-width: 760px) {
+  .layout, .arquivo-wrap { padding: 14px; }
+  .layout { gap: 14px; }
+  .guia-emitida-item { flex-direction: column; align-items: flex-start; }
+  .guia-emitida-acoes { width: 100%; justify-content: space-between; }
+  .btn-arquivo-acao { width: 100%; text-align: center; justify-content: center; }
+  .arquivo-topo { flex-direction: column; align-items: flex-start; }
+  .arquivo-filtro { max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+  <!-- preconnect: elimina latência de DNS + TLS para Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <!-- display=swap já presente: evita FOIT — texto visível com fonte de sistema enquanto carrega -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 </head>
 <body>
 
-<div class="barra-topo">
-  <!-- F1-H: Botão de regresso — o CSS .btn-voltar já existia mas o elemento estava ausente do HTML -->
-  <a href="index.html" class="btn-voltar"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Voltar</a>
+<header class="barra-topo">
+  <a href="index.html" class="btn-voltar">
+    <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Voltar
+  </a>
+  <div class="barra-topo-sep"></div>
   <div class="titulo-pagina">
-    <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Geração de Documentos
-    <span>Direcção Municipal da Saúde do Sumbe</span>
+    <div class="titulo-pagina-icon">
+      <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    </div>
+    <div class="titulo-pagina-txt">
+      <div class="titulo-pagina-nome">Geração de Documentos</div>
+      <div class="titulo-pagina-sub">Direcção Municipal da Saúde do Sumbe</div>
+    </div>
   </div>
-</div>
+</header>
 
 <div class="layout">
 
-  <!-- FORMULÁRIO -->
+  <!-- ══ FORMULÁRIO ══════════════════════════════════════════════ -->
   <div class="painel-form">
 
-    <!-- Banner aparece quando vem do portal -->
+    <!-- Banner portal -->
     <div class="banner-portal-origem" id="banner-portal-origem">
-      <div class="bp-titulo"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg> Solicitação do Portal do Funcionário</div>
+      <div class="bp-titulo">
+        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
+        Solicitação do Portal do Funcionário
+      </div>
       <div class="bp-info" id="bp-info-texto">Os dados foram importados automaticamente da solicitação do funcionário.</div>
-      <div class="bp-badge"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Dados pré-preenchidos — apenas insira o Nº da Guia e gere</div>
+      <div class="bp-badge">
+        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Dados pré-preenchidos — apenas insira o Nº da Guia e gere
+      </div>
     </div>
 
+    <!-- Tipo de documento -->
     <div class="cartao">
-      <div class="cartao-cabecalho"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> Tipo de Documento</div>
+      <div class="cartao-cabecalho">
+        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+        Tipo de Documento
+      </div>
       <div class="cartao-corpo">
         <div>
           <label for="tipo-documento">Seleccione o documento a gerar</label>
@@ -1001,10 +1180,13 @@
       </div>
     </div>
 
+    <!-- Dados do documento -->
     <div class="cartao">
-      <div class="cartao-cabecalho" id="titulo-dados-documento"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> Dados da Guia de Férias</div>
+      <div class="cartao-cabecalho" id="titulo-dados-documento">
+        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        Dados da Guia de Férias
+      </div>
 
-      <!-- F3-D: Indicador de progresso — actualizado por actualizarProgressoFormulario() -->
       <div class="form-progresso-wrap" id="form-progresso-wrap">
         <div class="form-progresso-topo">
           <span class="form-progresso-label">Campos obrigatórios</span>
@@ -1017,6 +1199,7 @@
 
       <div class="cartao-corpo">
 
+        <!-- Número da Guia -->
         <div>
           <label for="num-guia">Número da Guia</label>
           <div class="row2" id="linha-numero-guia">
@@ -1033,6 +1216,7 @@
           </div>
         </div>
 
+        <!-- Funcionário -->
         <div>
           <label for="pesquisa-func">Funcionário</label>
           <div class="campo-pesquisa-func">
@@ -1045,71 +1229,74 @@
           <div id="alerta-bi" style="display:none;margin-top:6px;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:600;line-height:1.4"></div>
         </div>
 
-        <!-- ✅ CAMPO DINÂMICO: Unidade Sanitária (aparece para guia-medica) -->
+        <!-- Unidade sanitária (guia médica) -->
         <div id="campo-unidade-sanitaria" style="display:none">
-          <label for="unidade-sanitaria">Unidade Sanitária a Consultar <span style="color:var(--c-700)" aria-hidden="true">*</span></label>
-          <input type="text" id="unidade-sanitaria" placeholder="Ex: Hospital Municipal do Sumbe, Centro Médico..."
+          <label for="unidade-sanitaria">Unidade Sanitária a Consultar <span style="color:var(--warning)" aria-hidden="true">*</span></label>
+          <input type="text" id="unidade-sanitaria" placeholder="Ex: Hospital Municipal do Sumbe..."
                  aria-required="true" aria-invalid="false"
                  oninput="actualizarPreview()"/>
-          <div style="font-size:10px;color:#6b7280;margin-top:4px;font-style:italic">Será preenchido automaticamente na guia: "Vai apresentar-se ao..."</div>
+          <div style="font-size:10px;color:var(--s-400);margin-top:5px;font-style:italic">Será preenchido automaticamente na guia: "Vai apresentar-se ao..."</div>
         </div>
 
+        <!-- Campos declaração de serviço -->
         <div id="campos-declaracao-servico" style="display:none">
           <div class="row2">
             <div>
-              <label for="declaracao-meses">Número de meses do adiantamento <span style="color:var(--c-700)" aria-hidden="true">*</span></label>
+              <label for="declaracao-meses">Meses do adiantamento <span style="color:var(--warning)" aria-hidden="true">*</span></label>
               <input type="number" id="declaracao-meses" min="1" max="12" step="1" placeholder="Ex: 4"
                      aria-required="true" aria-invalid="false"
                      oninput="actualizarPreview()"/>
-              <div style="font-size:10px;color:#6b7280;margin-top:4px;font-style:italic">Usado na observação final da declaração: "(4) quatro meses".</div>
+              <div style="font-size:10px;color:var(--s-400);margin-top:5px;font-style:italic">Ex: "(4) quatro meses"</div>
             </div>
             <div>
-              <label for="declaracao-salario">Salário líquido em AKZ <span style="color:var(--c-700)" aria-hidden="true">*</span></label>
+              <label for="declaracao-salario">Salário líquido (AKZ) <span style="color:var(--warning)" aria-hidden="true">*</span></label>
               <input type="text" id="declaracao-salario" inputmode="decimal" placeholder="Ex: 205.082,30"
                      aria-required="true" aria-invalid="false"
                      oninput="mascaraValorKzDocumentos(this); actualizarPreview()"/>
-              <div style="font-size:10px;color:#6b7280;margin-top:4px;font-style:italic">Valor a constar no corpo da declaração.</div>
             </div>
           </div>
-          <div style="margin-top:14px">
-            <label for="declaracao-conta">Número de conta / IBAN <span style="color:var(--c-700)" aria-hidden="true">*</span></label>
+          <div style="margin-top:12px">
+            <label for="declaracao-conta">Número de conta / IBAN <span style="color:var(--warning)" aria-hidden="true">*</span></label>
             <input type="text" id="declaracao-conta" maxlength="40" placeholder="Ex: 0282-N41339-011"
                    aria-required="true" aria-invalid="false"
                    oninput="this.value=this.value.toUpperCase(); actualizarPreview()"/>
-            <div style="font-size:10px;color:#6b7280;margin-top:4px;font-style:italic">Conta indicada no compromisso de depósito/credito ao BPC.</div>
           </div>
         </div>
 
+        <!-- Cargo / Categoria -->
         <div id="campo-cargo-categoria">
           <label for="cargo-func">Cargo / Categoria</label>
           <input type="text" id="cargo-func" placeholder="Preenchido automaticamente"
                  aria-label="Cargo ou categoria do funcionário" aria-readonly="true" readonly/>
           <input type="text" id="categoria-func" aria-hidden="true" style="display:none" readonly/>
-          <div id="hint-cargo-cat" style="display:none;font-size:10px;color:#6b7280;margin-top:4px;font-style:italic"></div>
+          <div id="hint-cargo-cat" style="display:none;font-size:10px;color:var(--s-400);margin-top:5px;font-style:italic"></div>
         </div>
 
+        <!-- Local de Colocação -->
         <div id="campo-local-colocacao">
           <label for="local-func">Local de Colocação</label>
           <input type="text" id="local-func" placeholder="Preenchido automaticamente"
                  aria-label="Local de colocação do funcionário" aria-readonly="true" readonly/>
         </div>
 
+        <!-- Dias úteis + Data de início -->
         <div class="row2" id="linha-ferias-periodo">
           <div id="campo-num-dias">
             <label for="num-dias">Dias úteis com direito</label>
             <input type="number" id="num-dias" placeholder="Auto calculado"
-                   aria-label="Número de dias úteis de férias com direito — calculado automaticamente"
-                   aria-readonly="true" aria-required="true" aria-invalid="false" readonly/>
+                   aria-label="Número de dias úteis de férias" aria-readonly="true"
+                   aria-required="true" aria-invalid="false" readonly/>
             <div id="info-dias" class="info-calc"></div>
           </div>
           <div id="campo-data-inicio">
-            <label for="data-inicio">Data de início das férias</label>
+            <label for="data-inicio">Início das férias</label>
             <input type="date" id="data-inicio"
                    aria-required="true" aria-invalid="false"
                    oninput="calcularApresentacao(); actualizarPreview()"/>
           </div>
         </div>
 
+        <!-- Data emissão + Data apresentação -->
         <div class="row2" id="linha-ferias-datas">
           <div id="campo-data-emissao">
             <label for="data-emissao">Data de emissão</label>
@@ -1122,12 +1309,16 @@
             <input type="date" id="data-apresentacao"
                    aria-label="Data de apresentação ao serviço — calculada automaticamente"
                    aria-readonly="true" readonly/>
-            <div id="info-apresentacao" class="info-calc"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Calculada (excluindo fins-de-semana e feriados)</div>
+            <div id="info-apresentacao" class="info-calc">
+              <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Calculada (excluindo fins-de-semana e feriados)
+            </div>
           </div>
         </div>
 
         <div id="info-feriados" class="info-ferias"></div>
 
+        <!-- Nome do responsável -->
         <div>
           <label id="label-nome-chefe" for="nome-chefe">Nome do Chefe de Secção</label>
           <input type="text" id="nome-chefe" value="Hildebrando M.T. Cassacula"
@@ -1135,38 +1326,52 @@
                  oninput="actualizarPreview()"/>
         </div>
 
-      </div>
+      </div><!-- /.cartao-corpo -->
+    </div><!-- /.cartao -->
+
+    <!-- Acções -->
+    <div class="acoes-wrap">
+      <button class="btn-gerar" onclick="gerarDocumento()">
+        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Gerar Pré-visualização
+      </button>
+      <button class="btn-submeter" id="btn-submeter" onclick="submeterDocumento()" disabled>
+        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Guardar Documento
+      </button>
+      <button class="btn-imprimir" id="btn-imprimir" onclick="imprimirDocumento()" disabled>
+        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir / Exportar PDF
+      </button>
+      <div class="badge-estado" id="badge-estado"></div>
     </div>
 
-    <button class="btn-gerar" onclick="gerarDocumento()"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Gerar Pré-visualização</button>
-    <button class="btn-submeter" id="btn-submeter" onclick="submeterDocumento()" disabled><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Guardar Documento</button>
-    <button class="btn-imprimir" id="btn-imprimir" onclick="imprimirDocumento()" disabled><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Imprimir / Exportar PDF</button>
-    <div class="badge-estado" id="badge-estado"></div>
+  </div><!-- /.painel-form -->
 
-  </div>
-
-  <!-- PRÉ-VISUALIZAÇÃO -->
+  <!-- ══ PRÉ-VISUALIZAÇÃO ═════════════════════════════════════════ -->
   <div class="painel-preview">
     <div class="preview-cabecalho">
-      <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Pré-visualização do Documento
+      <div class="preview-cabecalho-left">
+        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Pré-visualização
+      </div>
       <span class="badge-preview" id="badge-preview-documento">Guia de Férias</span>
     </div>
     <div class="area-preview" id="area-preview">
 
-      <!-- F3-B: Guia visual de 3 passos — substituiu o placeholder estático.
-           É removido automaticamente quando gerarDocumento() substitui o innerHTML. -->
       <div class="vazio-preview" id="vazio-preview">
         <div class="guia-passos-wrap">
 
           <div class="gp-cabecalho">
-            <span class="gp-cabecalho-icone"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
-            <div class="gp-cabecalho-titulo">Como gerar um documento</div>
-            <div class="gp-cabecalho-sub">Siga os 3 passos abaixo para emitir o documento oficial</div>
+            <span class="gp-cabecalho-icone">
+              <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true" style="width:34px;height:34px;stroke:rgba(255,255,255,.7)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </span>
+            <div class="gp-cabecalho-titulo" style="color:rgba(255,255,255,.88)">Como gerar um documento</div>
+            <div class="gp-cabecalho-sub" style="color:rgba(255,255,255,.5)">Siga os 3 passos para emitir o documento oficial</div>
           </div>
 
           <div class="gp-lista">
 
-            <!-- Passo 1: Tipo — sempre concluído (há sempre uma selecção predefinida) -->
             <div class="gp-passo gp-passo--concluido" id="gp-passo-1">
               <div class="gp-num" data-num="1"></div>
               <div class="gp-card">
@@ -1175,78 +1380,89 @@
               </div>
             </div>
 
-            <!-- Passo 2: Funcionário — activo até selecção, depois concluído -->
             <div class="gp-passo gp-passo--ativo" id="gp-passo-2">
               <div class="gp-num" data-num="2"></div>
               <div class="gp-card">
-                <div class="gp-card-titulo"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Pesquisar funcion&#225;rio</div>
+                <div class="gp-card-titulo">
+                  <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  Pesquisar funcion&#225;rio
+                </div>
                 <div class="gp-card-desc" id="gp-desc-2">Pesquise e seleccione o funcion&#225;rio no formul&#225;rio &#224; esquerda</div>
               </div>
             </div>
 
-            <!-- Passo 3: Gerar — activo após funcionário seleccionado -->
             <div class="gp-passo" id="gp-passo-3">
               <div class="gp-num" data-num="3"></div>
               <div class="gp-card">
-                <div class="gp-card-titulo"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Gerar pr&#233;-visualiza&#231;&#227;o</div>
-                <div class="gp-card-desc">Clique em <strong style="color:var(--verde-primario)">"Gerar Pr&#233;-visualiza&#231;&#227;o"</strong> para ver o documento</div>
+                <div class="gp-card-titulo">
+                  <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  Gerar pr&#233;-visualiza&#231;&#227;o
+                </div>
+                <div class="gp-card-desc">Clique em <strong style="color:rgba(255,255,255,.9)">"Gerar Pr&#233;-visualiza&#231;&#227;o"</strong> para ver o documento</div>
               </div>
             </div>
 
-          </div><!-- /.gp-lista -->
+          </div>
 
-          <!-- Badge: tipo de documento actualmente seleccionado no formulário -->
           <div class="gp-tipo-badge">
             <div class="gp-tipo-badge-inner">
-              <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Documento activo:&nbsp;<strong id="gp-tipo-nome">Guia de F&#233;rias</strong>
+              <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Documento activo:&nbsp;<strong id="gp-tipo-nome">Guia de F&#233;rias</strong>
             </div>
           </div>
 
-        </div><!-- /.guia-passos-wrap -->
-      </div><!-- /.vazio-preview -->
+        </div>
+      </div>
 
     </div>
   </div>
 
-</div>
+</div><!-- /.layout -->
 
+<!-- ══ ARQUIVO ═════════════════════════════════════════════════════ -->
 <div class="arquivo-wrap">
   <div class="cartao">
-    <div class="cartao-cabecalho"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg> Arquivo de Documentos Emitidos</div>
+    <div class="cartao-cabecalho">
+      <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+      Arquivo de Documentos Emitidos
+    </div>
     <div class="cartao-corpo">
       <div class="arquivo-topo">
         <div>
-          <div class="arquivo-sub">Consulte os documentos já gerados a partir da colecção <strong>documentos</strong> e abra qualquer um directamente no painel de pré-visualização.</div>
+          <div class="arquivo-sub">
+            Consulte os documentos já gerados a partir da colecção <strong>documentos</strong> e abra qualquer um directamente no painel de pré-visualização.
+          </div>
         </div>
         <span class="arquivo-badge" id="arquivo-guias-total">0 documentos</span>
       </div>
       <input class="arquivo-filtro" type="text" id="pesquisa-guia-emitida"
              placeholder="Pesquisar por referência, funcionário ou detalhe..."
-             aria-label="Filtrar documentos emitidos por referência, funcionário ou detalhe"
+             aria-label="Filtrar documentos emitidos"
              oninput="filtrarGuiasEmitidas()"/>
       <div class="lista-guias-emitidas" id="lista-guias-emitidas">
         <div class="arquivo-vazio">A carregar arquivo de documentos...</div>
       </div>
-
-      <!-- F3-C: Barra de paginação — ocultada por JS quando há só 1 página -->
-      <div class="arquivo-paginacao" id="arquivo-paginacao" role="navigation" aria-label="Paginação do arquivo de documentos">
-        <!-- Contador "1–10 de 43" -->
+      <div class="arquivo-paginacao" id="arquivo-paginacao" role="navigation" aria-label="Paginação do arquivo">
         <span class="pag-info" id="pag-info" aria-live="polite"></span>
-        <!-- Números de página -->
         <div class="pag-nums" id="pag-nums"></div>
-        <!-- Botões anterior / próximo -->
         <div class="pag-navegacao">
-          <button class="pag-btn" id="pag-btn-ant" aria-label="Página anterior" onclick="window.arquivoIrPagina(window._arquivoPaginaActual - 1)"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Anterior</button>
-          <button class="pag-btn" id="pag-btn-prox" aria-label="Página seguinte" onclick="window.arquivoIrPagina(window._arquivoPaginaActual + 1)"><svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> Seguinte</button>
+          <button class="pag-btn" id="pag-btn-ant" aria-label="Página anterior"
+                  onclick="window.arquivoIrPagina(window._arquivoPaginaActual - 1)">
+            <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Anterior
+          </button>
+          <button class="pag-btn" id="pag-btn-prox" aria-label="Página seguinte"
+                  onclick="window.arquivoIrPagina(window._arquivoPaginaActual + 1)">
+            Seguinte
+            <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
         </div>
       </div>
-
     </div>
   </div>
 </div>
 
 <div id="area-impressao"></div>
-<!-- F1-C: role="status" + aria-live="polite" para que leitores de ecrã anunciem o feedback -->
 <div class="notificacao" id="notificacao" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <script type="module">
