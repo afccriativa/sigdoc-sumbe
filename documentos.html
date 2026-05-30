@@ -93,6 +93,8 @@
     .badge-estado { display: none; text-align: center; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; margin-top: 4px; }
     .badge-pendente { background: #fef9e7; color: #7d6608; border: 1.5px solid #f0c030; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .badge-aprovado { background: #e8f8f0; color: #1e8449; border: 1.5px solid #27ae60; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    /* D5 fix: .badge-gerado não estava definido — badge dependia exclusivamente de style.cssText inline */
+    .badge-gerado   { background: #eff6ff; color: #1d4ed8; border: 1.5px solid #93c5fd; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
     .painel-preview { }
     .preview-cabecalho { background: white; border-radius: 12px 12px 0 0; padding: 14px 20px; border-bottom: 1px solid #eef0f3; font-size: 14px; font-weight: 700; color: var(--verde-primario); display: flex; align-items: center; justify-content: space-between; box-shadow: var(--sombra); }
@@ -2740,15 +2742,17 @@
         await criarNotificacao(
           _funcUid,
           'doc_gerado',
-          _icon('file-text') + ' ' + _tipoLabel + ' submetido para aprovação',
+          // D3 fix: campo titulo deve ser texto limpo — SVG não deve ser gravado no Firestore
+          _tipoLabel + ' submetido para aprovação',
           'O seu ' + _tipoLabel + ' foi gerado e segue agora para validação do responsável.',
           { docId: docRef.id, tipoDoc: dadosUltimoDocumento?.tipo }
         );
       }
 
       const badge = document.getElementById("badge-estado");
+      // D5 fix: style.cssText hardcoded removido — .badge-gerado está agora definido no CSS
       badge.className = "badge-estado badge-gerado";
-      badge.style.cssText = "display:flex;background:#eff6ff;color:#1d4ed8;border:1.5px solid #93c5fd;padding:10px;border-radius:8px;font-size:13px;font-weight:700;margin-top:4px;";
+      badge.style.cssText = ""; // limpar qualquer inline anterior
       badge.innerHTML = _icon("file-text") + " Documento guardado — pronto para impressão";
 
       mostrarNotificacao(_icon("check-circle") + " Documento guardado com sucesso!");
@@ -2776,7 +2780,8 @@
           // Notificar no chat do pedido (opcional, mas melhora a experiência)
           try {
             await addDoc(collection(db, "solicitacoes", window._solicitacaoOrigemId, "mensagens"), {
-              texto: `${_icon("check-circle")} O seu documento (${nomeTipoDocumentoGerado(dadosUltimoDocumento.tipo)}) foi gerado e está pronto para levantamento/impressão.`,
+              // D3 fix: campo texto do chat deve ser texto limpo — SVG não pertence ao Firestore
+              texto: `O seu documento (${nomeTipoDocumentoGerado(dadosUltimoDocumento.tipo)}) foi gerado e está pronto para levantamento/impressão. ✓`,
               remetenteUid: utilizadorActual.uid,
               remetenteNome: "Sistema RH",
               criadaEm: serverTimestamp(),
@@ -3084,13 +3089,28 @@
     }
   };
 
-  function mostrarNotificacao(msg, tipo) {
+  // D4 fix: sistema de fila para toasts — evita sobreposição de mensagens
+  const _notifFila = [];
+  let   _notifActivo = false;
+
+  function _notifDespachar() {
+    if (_notifActivo || _notifFila.length === 0) return;
+    _notifActivo = true;
+    const { msg, tipo } = _notifFila.shift();
     const el = document.getElementById("notificacao");
-    el.innerHTML = msg; // iconografia SVG suportada — apenas strings internas
+    el.innerHTML = msg; // iconografia SVG suportada — apenas strings internas seguras
     el.className = "notificacao" + (tipo ? " notif-" + tipo : "");
     el.style.display = "block";
-    clearTimeout(el._t);
-    el._t = setTimeout(() => { el.style.display = "none"; }, 4500);
+    setTimeout(() => {
+      el.style.display = "none";
+      _notifActivo = false;
+      setTimeout(_notifDespachar, 160);
+    }, 3500);
+  }
+
+  function mostrarNotificacao(msg, tipo) {
+    _notifFila.push({ msg, tipo });
+    _notifDespachar();
   }
 </script>
 </body>
