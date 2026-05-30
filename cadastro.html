@@ -464,6 +464,25 @@
     .campo textarea{resize:vertical;min-height:88px}
     .campo-obrig label::after{content:" *";color:var(--r-600)}
     .campo-oculto{display:none!important}
+
+    /* K4 fix: classes campo-edicao/campo-label/campo-input/campo-mono — antes não definidas */
+    .campo-edicao { display:grid; gap:14px; margin-top:12px; }
+    .campo-label  {
+      font-size:10px; font-weight:800; color:var(--neu-500);
+      text-transform:uppercase; letter-spacing:.14em;
+      display:block; margin-bottom:6px;
+    }
+    .campo-input  {
+      width:100%; padding:12px 14px; border:1.5px solid var(--line-soft);
+      border-radius:16px; font-size:13px; font-family:var(--font);
+      outline:none; min-height:48px; color:var(--neu-900);
+      background:rgba(248,250,252,.88); transition:border-color .2s,box-shadow .2s,background .2s;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.7); box-sizing:border-box;
+    }
+    .campo-input:focus {
+      border-color:rgba(29,169,114,.42); box-shadow:var(--glow); background:var(--white);
+    }
+    .campo-mono { font-family:var(--mono); letter-spacing:.5px; }
     .campo-hint{
       font-size:11px;color:var(--c-700);background:var(--c-50);border:1px solid var(--c-200);
       padding:8px 11px;border-radius:14px;margin-top:4px;line-height:1.55;
@@ -1110,8 +1129,8 @@
               <option value="__outra__">— Outra (inserir manualmente) —</option>
             </select>
             <input type="text" id="f-categoria-manual"
-              placeholder="Escreva a categoria profissional..."
-              style="display:none;margin-top:6px;width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;box-sizing:border-box"/>
+              class="campo-input" placeholder="Escreva a categoria profissional..."
+              style="display:none;margin-top:6px"/>
           </div>
           <div class="campo">
             <label>Cargo / Função Hierárquica</label>
@@ -1137,8 +1156,8 @@
               <option value="__outro_cargo__">— Outro (inserir manualmente) —</option>
             </select>
             <input type="text" id="f-cargo-manual"
-              placeholder="Escreva o cargo / função..."
-              style="display:none;margin-top:6px;width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;box-sizing:border-box"/>
+              class="campo-input" placeholder="Escreva o cargo / função..."
+              style="display:none;margin-top:6px"/>
             <span class="campo-hint"><i data-lucide="info" style="width:11px;height:11px;stroke-width:2.5"></i> Só preencher se o cargo for diferente da categoria. Usado nos documentos oficiais.</span>
           </div>
           <div class="campo campo-obrig col-2">
@@ -1260,12 +1279,13 @@
             <textarea id="f-observacoes" placeholder="Informações adicionais relevantes..."></textarea>
           </div>
         </div>
-            <div class="campo-edicao col-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-              <div>
+            <!-- K5 fix: inline styles substituídos por classes do design system -->
+            <div class="campo-edicao" style="grid-template-columns:1fr 1fr">
+              <div class="campo">
                 <label class="campo-label">Nº de Assegurado INSS</label>
                 <input type="text" id="f-inss" class="campo-input campo-mono" placeholder="Nº INSS" maxlength="20"/>
               </div>
-              <div>
+              <div class="campo">
                 <label class="campo-label">Banco de Domiciliação</label>
                 <select id="f-banco" class="campo-input">
                   <option value="">Seleccionar...</option>
@@ -1283,40 +1303,33 @@
               </div>
             </div>
             <!-- Número de Conta -->
-            <div style="margin-top:10px">
-              <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:6px">Número de Conta / IBAN</label>
+            <div class="campo" style="margin-top:10px">
+              <label class="campo-label">Número de Conta / IBAN</label>
               <input type="text" id="f-numeroConta"
+                class="campo-input campo-mono"
                 placeholder="AO06 0000 0000 0000 0000 0000 0"
                 maxlength="34"
-                oninput="validarNumeroConta(this)"
-                style="width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:var(--mono,'DM Mono',monospace);box-sizing:border-box;letter-spacing:.5px"/>
-              <div id="hint-numero-conta" style="display:none;font-size:11px;padding:5px 10px;border-radius:8px;margin-top:5px;border:1px solid"></div>
+                oninput="validarNumeroConta(this)"/>
+              <div id="hint-numero-conta" style="display:none" class="campo-hint"></div>
             </div>
             <!-- Naturalidade -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-              <div>
-                <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:6px">Província de Naturalidade</label>
-                <input type="text" id="f-provinciaNatal"
-                  placeholder="ex: Cuanza Sul"
-                  style="width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;box-sizing:border-box"/>
+            <div class="campo-edicao" style="grid-template-columns:1fr 1fr">
+              <div class="campo">
+                <label class="campo-label">Província de Naturalidade</label>
+                <input type="text" id="f-provinciaNatal" class="campo-input" placeholder="ex: Cuanza Sul"/>
               </div>
-              <div>
-                <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:6px">Município de Naturalidade</label>
-                <input type="text" id="f-municipioNatal"
-                  placeholder="ex: Sumbe"
-                  style="width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;box-sizing:border-box"/>
+              <div class="campo">
+                <label class="campo-label">Município de Naturalidade</label>
+                <input type="text" id="f-municipioNatal" class="campo-input" placeholder="ex: Sumbe"/>
               </div>
             </div>
             <!-- Salário Base -->
-            <div id="campo-salario-wrap" style="display:none;margin-top:12px">
-              <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:6px">Salário Base (Kz)</label>
-              <input type="text" id="f-salario-base" inputmode="decimal" maxlength="24"
-                placeholder="Ex: 150.000,00 Kz"
-                style="width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;box-sizing:border-box"/>
+            <div id="campo-salario-wrap" class="campo" style="display:none;margin-top:12px">
+              <label class="campo-label">Salário Base (Kz)</label>
+              <input type="text" id="f-salario-base" class="campo-input campo-mono"
+                inputmode="decimal" maxlength="24" placeholder="Ex: 150.000,00 Kz"/>
               <span class="campo-hint">Aceita 150000, 150.000 ou 150.000,00 Kz. O sistema normaliza automaticamente.</span>
-              <div style="font-size:11px;color:var(--c-700);background:var(--c-50);border:1px solid var(--c-100);padding:6px 10px;border-radius:8px;margin-top:6px">
-                <i data-lucide="lock-keyhole" style="width:11px;height:11px;stroke-width:2.5"></i> Campo visível apenas para perfis admin, chefe e técnico
-              </div>
+              <span class="campo-hint"><i data-lucide="lock-keyhole" style="width:11px;height:11px;stroke-width:2.5"></i> Campo visível apenas para perfis admin, chefe e técnico</span>
             </div>
       </div>
       <!-- Formação Académica (recolhível) -->
@@ -3293,10 +3306,28 @@
     document.getElementById("tab-"+tab).classList.add("activo");
   };
 
-  function notif(msg,tipo="sucesso"){
-    const el=document.getElementById("notificacao");
-    el.textContent=msg; el.className=`toast toast-${tipo}`; el.style.display="block";
-    setTimeout(()=>el.style.display="none",4000);
+  // K6 fix: sistema de fila para toasts — evita sobreposição de mensagens
+  const _notifFila = [];
+  let   _notifActivo = false;
+
+  function _notifDespachar() {
+    if (_notifActivo || _notifFila.length === 0) return;
+    _notifActivo = true;
+    const { msg, tipo } = _notifFila.shift();
+    const el = document.getElementById("notificacao");
+    el.textContent = msg;
+    el.className = `toast toast-${tipo}`;
+    el.style.display = "block";
+    setTimeout(() => {
+      el.style.display = "none";
+      _notifActivo = false;
+      setTimeout(_notifDespachar, 160);
+    }, 3200);
+  }
+
+  function notif(msg, tipo = "sucesso") {
+    _notifFila.push({ msg, tipo });
+    _notifDespachar();
   }
   function fmtData(str){
     if(!str)return"—";const [a,m,d]=str.split("-");
