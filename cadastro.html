@@ -774,7 +774,7 @@
       *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
     }
   </style>
-  <script src="sigdoc-config.js"></script>
+  <!-- K1 fix: sigdoc-config.js já carregado no início do <head> — duplicado removido -->
 </head>
 <body>
 
@@ -2611,8 +2611,9 @@
     _dadosPendentesDup = null;
   }
 
-  function abrirFichaConflito() { window.abrirFichaConflito(); }
-  function fecharModalDup()     { fecharModalDupInterno(); }
+  // K3 fix: funções locais abrirFichaConflito() e fecharModalDup() removidas —
+  // eram dead code que apenas delegavam para window.abrirFichaConflito e fecharModalDupInterno.
+  // Todas as chamadas internas ao módulo usam directamente window.* ou fecharModalDupInterno().
 
   // Chamado quando o utilizador clica "Guardar mesmo assim" no modal BI/nome
   window.confirmarGravacaoDup = async function() {
@@ -2925,76 +2926,8 @@
       ?`Sim — ${f.curso||""}${f.anoCurso?" ("+f.anoCurso+"º ano)":""}${f.instituicao?", "+f.instituicao:""}${_modalLabel?" · "+_modalLabel:""}`
       :(f.estudando===false||f.estudando==='false'?"Não":"—");
     const temDocs=f.urlBI||f.urlCert;
-    const campos=[
-      {r:"Nome Completo",v:f.nome,span2:true},
-      {r:"Nº de Agente",v:f.numero},{r:"Sexo",v:f.sexo},
-      {r:"Bilhete de Identidade",v:f.bi},
-      {r:"Data de Emissão do BI",v:f.biEmissao?fmtData(f.biEmissao):null},
-      {r:"Data de Nascimento",v:f.nascimento?fmtData(f.nascimento):null},
-      {r:"Estado Civil",v:f.estadoCivil},{r:"Nome do Pai",v:f.nomePai},
-      {r:"Nome da Mãe",v:f.nomeMae},{r:"Morada",v:f.morada,span2:true},
-      {r:"Telefone",v:f.telefone},{r:"E-mail",v:f.email},
-      {r:"Categoria Profissional",v:f.categoria,span2:true},
-      ...(f.cargo ? [{r:"Cargo / Função", v:f.cargo, span2:true}] : []),
-      {r:"Local de Colocação",
-       v:unidadeNomeFicha && unidadeNomeFicha !== "—"
-         ? unidadeNomeFicha + `&nbsp;<a href="unidades.html" title="Ver ficha da unidade"
-             style="display:inline-flex;align-items:center;gap:4px;
-                    padding:2px 8px;border-radius:99px;
-                    background:rgba(18,65,161,.10);color:#1241a1;
-                    font-size:11px;font-weight:700;text-decoration:none;
-                    vertical-align:middle;margin-left:4px;
-                    border:1px solid rgba(18,65,161,.15)"
-             onclick="event.stopPropagation()"><i data-lucide=\"hospital\" style=\"width:11px;height:11px;stroke-width:2.5\"></i> Ver unidade</a>`
-         : null,
-       span2:true, html:true},
-      ...(subLocal?[{r:eDirFicha?"Secção":"Área / Serviço",v:subLocal,span2:true}]:[]),
-      // ── Campo derivado: responsabilidade de direcção ──────────────────────
-      ...(_unidadesRespMap[f.id] ? [{
-        r: 'Responsável pela Unidade',
-        v: _unidadesRespMap[f.id].nomeUnidade
-           + `&nbsp;<span style="display:inline-flex;align-items:center;gap:4px;
-                padding:2px 9px;border-radius:99px;
-                background:rgba(5,150,105,.12);color:#059669;
-                font-size:11px;font-weight:700;vertical-align:middle;
-                margin-left:6px;border:1px solid rgba(5,150,105,.22)">
-                <i data-lucide=\"crown\" style=\"width:11px;height:11px;stroke-width:2.5\"></i> Em funções${_unidadesRespMap[f.id].dataInicio
-                  ? ' desde ' + fmtData(_unidadesRespMap[f.id].dataInicio)
-                  : ''}
-              </span>`
-           + (_unidadesRespMap[f.id].cargo
-                ? `<br><span style="font-size:11px;color:var(--neu-400);margin-top:3px;display:block">${_unidadesRespMap[f.id].cargo}</span>`
-                : ''),
-        span2:true, html:true
-      }] : []),
-      {r:"Tipo de Vínculo",v:{"quadro":"Pessoal do Quadro","provisorio":"Provimento Provisório"}[f.vinculo]||f.vinculo||null},
-      {r:"Regime de Trabalho",v:{"geral":"Regime Geral","especial":"Regime Especial"}[f.regime]||f.regime||null},
-      {r:"Data de Admissão",v:f.admissao?fmtData(f.admissao):null},
-      {r:"Anos de Serviço",v:anos!==null?anos+" anos":"—",badge:true,bval:anos},
-      {r:"Dias de Férias com Direito",v:dias+" dias úteis"},
-      {r:"Estado Actual",v:{activo:"Em Serviço Activo",inactivo:"Inactivo",licenca:"De Licença"}[f.estado]||f.estado},
-      {r:"Escolaridade",v:f.escolaridade},{r:"A frequentar curso?",v:acadInfo},
-      ...(temDocs?[{r:"Documentos do Formulário",v:
-        (f.urlBI
-          ? (f.urlBI==='local'
-              ? `<a href="#" onclick="event.preventDefault();abrirDocFicha('${f.id}','bi',this)" style="color:var(--c-700);font-weight:700;"><i data-lucide=\"id-card\" style=\"width:12px;height:12px;stroke-width:2.5\"></i> Ver BI</a>  `
-              : `<a href="${f.urlBI}" target="_blank" style="color:var(--c-700);font-weight:700;"><i data-lucide=\"id-card\" style=\"width:12px;height:12px;stroke-width:2.5\"></i> Ver BI</a>  `)
-          : "") +
-        (f.urlCert
-          ? (f.urlCert==='local'
-              ? `<a href="#" onclick="event.preventDefault();abrirDocFicha('${f.id}','cert',this)" style="color:var(--c-700);font-weight:700;"><i data-lucide=\"graduation-cap\" style=\"width:12px;height:12px;stroke-width:2.5\"></i> Ver Certificado</a>`
-              : `<a href="${f.urlCert}" target="_blank" style="color:var(--c-700);font-weight:700;"><i data-lucide=\"graduation-cap\" style=\"width:12px;height:12px;stroke-width:2.5\"></i> Ver Certificado</a>`)
-          : ""),
-        span2:true,html:true}]:[]),
-      {r:"Naturalidade",v:(f.municipioNatal&&f.provinciaNatal)?f.municipioNatal+', '+f.provinciaNatal:(f.provinciaNatal||f.municipioNatal||null)},
-      {r:"Nº de Assegurado INSS",v:f.inss||null},
-      {r:"Banco de Domiciliação",v:f.banco||null},
-      {r:"Número de Conta / IBAN",v:f.numeroConta||null},
-      ...(temAlgumRoleCadastro(_perfilActual, ['admin','chefe','tecnico']) && obterNumeroMoedaKz(f.salarioBase) > 0
-        ? [{r:"Salário Base",v:formatarMoedaKz(f.salarioBase)}]
-        : []),
-      {r:"Observações",v:f.observacoes,span2:true},
-    ];
+    // K2 fix: array 'campos' (dead code com template literals XSS) removido.
+    // A renderização usa exclusivamente 'camposSeguro' com DOM API seguro (abaixo).
     const grid=document.getElementById("ficha-grid-dados");
     const camposSeguro=[
       {r:"Nome Completo",v:f.nome,span2:true},
