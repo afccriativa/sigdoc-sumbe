@@ -1977,13 +1977,16 @@
     };
   }
 
+  // D2 fix: fallback anterior retornava 'tipo' bruto do Firestore, que poderia conter HTML.
+  // Agora o fallback retorna sempre "Documento" (texto estático seguro).
+  // O caller é responsável por escaparHTML() se inserir o resultado em innerHTML.
   function nomeTipoDocumentoGerado(tipo) {
     return {
       "guia-ferias": "Guia de Férias",
       "guia-medica": "Guia Médica",
       "declaracao-servico": "Declaração de Adiantamento Salarial",
       "oficio": "Ofício"
-    }[tipo] || tipo || "Documento";
+    }[tipo] || "Documento";
   }
 
   function referenciaDocumentoArquivo(d) {
@@ -2672,8 +2675,9 @@
             : "recentemente";
 
           // Mostrar aviso e pedir confirmação explícita
+          // D1 fix: funcionarioNome e dataDoc vêm do Firestore — escaparHTML() obrigatório antes de innerHTML
           mostrarNotificacao(
-            `${_icon("alert")} Já existe um documento deste tipo para ${dadosUltimoDocumento.funcionarioNome} (${estadoTxt} em ${dataDoc}). Submeta novamente para confirmar.`,
+            `${_icon("alert")} Já existe um documento deste tipo para ${escaparHTML(dadosUltimoDocumento.funcionarioNome)} (${escaparHTML(estadoTxt)} em ${escaparHTML(dataDoc)}). Submeta novamente para confirmar.`,
             "aviso"
           );
           btnSub.disabled = false;
@@ -2833,7 +2837,8 @@
     documentoGerado      = false;
     documentoSubmetido   = false;
     document.querySelector(".painel-preview")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    mostrarNotificacao(_icon("file-text") + ` Arquivo de ${nomeTipo} aberto na pre-visualizacao.`);
+    // D1 fix: nomeTipo pode conter o valor bruto do Firestore — escaparHTML() necessário
+    mostrarNotificacao(_icon("file-text") + ` Arquivo de ${escaparHTML(nomeTipo)} aberto na pre-visualizacao.`);
   }
 
   function renderizarListaGuiasEmitidas() {
