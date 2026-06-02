@@ -1328,6 +1328,20 @@ select {
   visibility: hidden;
   user-select: none;
 }
+
+/* ── Fix: dropdown de pesquisa não clippado pelo cartão ─────────────
+   .cartao tem overflow:hidden para clipar border-radius.
+   No step-card-2 (Funcionário), o resultados-pesquisa é absoluto e
+   precisa de sair fora do cartão. Resolvemos com overflow:visible
+   e border-radius explícito no cabeçalho para manter o visual. */
+#step-card-2 {
+  overflow: visible;
+}
+#step-card-2 .cartao-cabecalho {
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+}
+/* O último elemento do corpo não tem conteúdo nos cantos,
+   então o overflow:visible não causa artefactos visuais. */
 </style>
   <!-- preconnect: elimina latência de DNS + TLS para Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
