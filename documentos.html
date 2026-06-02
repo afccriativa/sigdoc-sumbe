@@ -1118,6 +1118,216 @@ select {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   UX MELHORIA v3 — Assistente Guiado de Emissão
+   Blocos visuais por etapa · Cartão de resumo do funcionário
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Step Badge ─────────────────────────────────────────────────── */
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--s-300);
+  color: var(--s-500);
+  font-size: 10px;
+  font-weight: 800;
+  flex-shrink: 0;
+  transition: background .25s, color .25s, box-shadow .25s;
+  font-family: var(--mono);
+}
+.step-num::before { content: attr(data-step); }
+
+.step-card--ativo .step-num {
+  background: var(--g-700);
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(16,185,129,.2);
+}
+.step-card--ativo .cartao-cabecalho {
+  background: #f0fdf6;
+  border-bottom-color: rgba(5,150,105,.12);
+}
+.step-card--completo .step-num {
+  background: var(--g-900);
+  color: #fff;
+}
+.step-card--completo .step-num::before {
+  content: '';
+  width: 11px; height: 11px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") no-repeat center;
+  background-size: contain;
+}
+.step-card--completo .cartao-cabecalho {
+  background: var(--g-50);
+  border-bottom-color: var(--g-100);
+}
+
+/* ── Step Status badge no cabeçalho ─────────────────────────────── */
+.step-status {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  background: var(--g-50);
+  color: var(--g-800);
+  border: 1px solid var(--g-100);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.step-status--visivel { opacity: 1; pointer-events: auto; }
+
+/* ── Conector vertical entre etapas ─────────────────────────────── */
+.step-conector {
+  height: 12px;
+  display: flex;
+  align-items: stretch;
+  padding-left: 27px;   /* alinha com centro dos badges (18px padding + 22/2 = ~27) */
+}
+.step-conector::before {
+  content: '';
+  width: 2px;
+  background: var(--s-200);
+  border-radius: 2px;
+  flex-shrink: 0;
+  transition: background .3s;
+}
+.step-conector--completo::before { background: var(--g-200); }
+
+/* ── Funcionário Resumo Cartão ───────────────────────────────────── */
+.func-resumo-cartao {
+  display: none;
+  background: var(--g-50);
+  border: 1.5px solid var(--g-200);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  margin-top: 4px;
+  animation: funcResumoIn .2s ease;
+}
+@keyframes funcResumoIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.func-resumo-topo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--g-800);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--g-100);
+}
+.func-resumo-grid {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 5px 10px;
+  align-items: baseline;
+}
+.func-resumo-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--s-400);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding-top: 1px;
+}
+.func-resumo-valor {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--g-900);
+  word-break: break-word;
+  min-width: 0;
+}
+.func-resumo-valor--nome { font-size: 14px; font-weight: 800; }
+.func-resumo-rodape {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--g-100);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.func-resumo-dias-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--g-800);
+  background: var(--g-100);
+  border: 1px solid var(--g-200);
+  border-radius: var(--r-full);
+  padding: 3px 10px;
+}
+.func-resumo-alterar {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--g-700);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+  transition: color .15s;
+}
+.func-resumo-alterar:hover { color: var(--g-900); }
+
+/* ── Campos auto-preenchidos/calculados (num-dias, data-apresentacao) */
+.campo-auto label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.campo-auto .auto-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--g-700);
+  background: var(--g-50);
+  border: 1px solid var(--g-100);
+  padding: 1px 6px;
+  border-radius: var(--r-full);
+  flex-shrink: 0;
+}
+.campo-auto input[readonly] {
+  background: var(--g-50) !important;
+  border-color: var(--g-100) !important;
+  color: var(--g-800) !important;
+  font-weight: 600 !important;
+  cursor: default;
+  border-style: dashed !important;
+}
+.campo-auto input[readonly]:focus {
+  box-shadow: none !important;
+  border-color: var(--g-200) !important;
+}
+
+/* ── Campos readonly invisíveis (no DOM, não no ecrã) ───────────── */
+.campos-ocultos-auto {
+  position: absolute;
+  width: 0; height: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  user-select: none;
+}
 </style>
   <!-- preconnect: elimina latência de DNS + TLS para Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -1145,10 +1355,10 @@ select {
 
 <div class="layout">
 
-  <!-- ══ FORMULÁRIO ══════════════════════════════════════════════ -->
+  <!-- ══ FORMULÁRIO (Assistente Guiado) ════════════════════════════ -->
   <div class="painel-form">
 
-    <!-- Banner portal -->
+    <!-- Banner portal origem -->
     <div class="banner-portal-origem" id="banner-portal-origem">
       <div class="bp-titulo">
         <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
@@ -1161,15 +1371,17 @@ select {
       </div>
     </div>
 
-    <!-- Tipo de documento -->
-    <div class="cartao">
+    <!-- ── ETAPA 1 · Documento ─────────────────────────────────── -->
+    <div class="cartao step-card step-card--completo" id="step-card-1">
       <div class="cartao-cabecalho">
+        <span class="step-num" data-step="1" aria-hidden="true"></span>
         <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
-        Tipo de Documento
+        Documento
+        <span class="step-status step-status--visivel" id="step-status-1">Guia de Férias</span>
       </div>
       <div class="cartao-corpo">
         <div>
-          <label for="tipo-documento">Seleccione o documento a gerar</label>
+          <label for="tipo-documento">Tipo de documento a emitir</label>
           <select id="tipo-documento" onchange="actualizarCamposFormulario()" aria-label="Tipo de documento a gerar">
             <option value="guia-ferias">Guia de Férias</option>
             <option value="declaracao-servico">Declaração de Adiantamento Salarial</option>
@@ -1177,29 +1389,6 @@ select {
             <option value="oficio" disabled>Ofício (em breve)</option>
           </select>
         </div>
-      </div>
-    </div>
-
-    <!-- Dados do documento -->
-    <div class="cartao">
-      <div class="cartao-cabecalho" id="titulo-dados-documento">
-        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        Dados da Guia de Férias
-      </div>
-
-      <div class="form-progresso-wrap" id="form-progresso-wrap">
-        <div class="form-progresso-topo">
-          <span class="form-progresso-label">Campos obrigatórios</span>
-          <span class="form-progresso-contador" id="form-progresso-contador">0 de 5</span>
-        </div>
-        <div class="form-progresso-trilho">
-          <div class="form-progresso-barra" id="form-progresso-barra"></div>
-        </div>
-      </div>
-
-      <div class="cartao-corpo">
-
-        <!-- Número da Guia -->
         <div>
           <label for="num-guia">Número da Guia</label>
           <div class="row2" id="linha-numero-guia">
@@ -1215,10 +1404,24 @@ select {
             </div>
           </div>
         </div>
+      </div>
+    </div>
 
-        <!-- Funcionário -->
-        <div>
-          <label for="pesquisa-func">Funcionário</label>
+    <div class="step-conector step-conector--completo" id="conector-1-2"></div>
+
+    <!-- ── ETAPA 2 · Funcionário ───────────────────────────────── -->
+    <div class="cartao step-card step-card--ativo" id="step-card-2">
+      <div class="cartao-cabecalho">
+        <span class="step-num" data-step="2" aria-hidden="true"></span>
+        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Funcionário
+        <span class="step-status" id="step-status-2"></span>
+      </div>
+      <div class="cartao-corpo">
+
+        <!-- Campo de pesquisa -->
+        <div id="pesquisa-func-container">
+          <label for="pesquisa-func">Pesquisar funcionário</label>
           <div class="campo-pesquisa-func">
             <input type="text" id="pesquisa-func" placeholder="Nome ou número de agente..."
                    aria-label="Pesquisar funcionário" aria-required="true" aria-invalid="false"
@@ -1229,13 +1432,59 @@ select {
           <div id="alerta-bi" style="display:none;margin-top:6px;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:600;line-height:1.4"></div>
         </div>
 
+        <!-- Cartão de resumo (substituí os campos readonly após selecção) -->
+        <div class="func-resumo-cartao" id="func-resumo-cartao"></div>
+
+        <!-- Campos readonly — invisíveis no ecrã mas acessíveis ao JS ──
+             O JS lê cargo-func, local-func, categoria-func para gerar o documento.
+             Ficam em .campos-ocultos-auto para não aparecerem visualmente. -->
+        <div class="campos-ocultos-auto" aria-hidden="true">
+          <div id="campo-cargo-categoria">
+            <input type="text" id="cargo-func" placeholder="Preenchido automaticamente"
+                   aria-label="Cargo ou categoria do funcionário" aria-readonly="true" readonly/>
+            <input type="text" id="categoria-func" aria-hidden="true" style="display:none" readonly/>
+            <div id="hint-cargo-cat" style="display:none"></div>
+          </div>
+          <div id="campo-local-colocacao">
+            <input type="text" id="local-func" placeholder="Preenchido automaticamente"
+                   aria-label="Local de colocação do funcionário" aria-readonly="true" readonly/>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="step-conector" id="conector-2-3"></div>
+
+    <!-- ── ETAPA 3 · Informações Complementares ───────────────── -->
+    <div class="cartao step-card" id="step-card-3">
+      <div class="cartao-cabecalho">
+        <span class="step-num" data-step="3" aria-hidden="true"></span>
+        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        Informações Complementares
+        <span class="step-status" id="step-status-3"></span>
+      </div>
+
+      <!-- Barra de progresso do formulário -->
+      <div class="form-progresso-wrap" id="form-progresso-wrap">
+        <div class="form-progresso-topo">
+          <span class="form-progresso-label">Campos obrigatórios</span>
+          <span class="form-progresso-contador" id="form-progresso-contador">0 de 5</span>
+        </div>
+        <div class="form-progresso-trilho">
+          <div class="form-progresso-barra" id="form-progresso-barra"></div>
+        </div>
+      </div>
+
+      <div class="cartao-corpo">
+
         <!-- Unidade sanitária (guia médica) -->
         <div id="campo-unidade-sanitaria" style="display:none">
           <label for="unidade-sanitaria">Unidade Sanitária a Consultar <span style="color:var(--warning)" aria-hidden="true">*</span></label>
           <input type="text" id="unidade-sanitaria" placeholder="Ex: Hospital Municipal do Sumbe..."
                  aria-required="true" aria-invalid="false"
                  oninput="actualizarPreview()"/>
-          <div style="font-size:10px;color:var(--s-400);margin-top:5px;font-style:italic">Será preenchido automaticamente na guia: "Vai apresentar-se ao..."</div>
+          <div style="font-size:10px;color:var(--s-400);margin-top:5px;font-style:italic">Será preenchido na guia: "Vai apresentar-se ao..."</div>
         </div>
 
         <!-- Campos declaração de serviço -->
@@ -1263,27 +1512,14 @@ select {
           </div>
         </div>
 
-        <!-- Cargo / Categoria -->
-        <div id="campo-cargo-categoria">
-          <label for="cargo-func">Cargo / Categoria</label>
-          <input type="text" id="cargo-func" placeholder="Preenchido automaticamente"
-                 aria-label="Cargo ou categoria do funcionário" aria-readonly="true" readonly/>
-          <input type="text" id="categoria-func" aria-hidden="true" style="display:none" readonly/>
-          <div id="hint-cargo-cat" style="display:none;font-size:10px;color:var(--s-400);margin-top:5px;font-style:italic"></div>
-        </div>
-
-        <!-- Local de Colocação -->
-        <div id="campo-local-colocacao">
-          <label for="local-func">Local de Colocação</label>
-          <input type="text" id="local-func" placeholder="Preenchido automaticamente"
-                 aria-label="Local de colocação do funcionário" aria-readonly="true" readonly/>
-        </div>
-
-        <!-- Dias úteis + Data de início -->
+        <!-- Dias úteis + Data de início (só férias) -->
         <div class="row2" id="linha-ferias-periodo">
-          <div id="campo-num-dias">
-            <label for="num-dias">Dias úteis com direito</label>
-            <input type="number" id="num-dias" placeholder="Auto calculado"
+          <div id="campo-num-dias" class="campo-auto">
+            <label for="num-dias">
+              Dias úteis com direito
+              <span class="auto-tag">Auto</span>
+            </label>
+            <input type="number" id="num-dias" placeholder="—"
                    aria-label="Número de dias úteis de férias" aria-readonly="true"
                    aria-required="true" aria-invalid="false" readonly/>
             <div id="info-dias" class="info-calc"></div>
@@ -1304,8 +1540,11 @@ select {
                    aria-required="true" aria-invalid="false"
                    oninput="actualizarPreview()"/>
           </div>
-          <div id="campo-data-apresentacao">
-            <label for="data-apresentacao">Data de apresentação</label>
+          <div id="campo-data-apresentacao" class="campo-auto">
+            <label for="data-apresentacao">
+              Data de apresentação
+              <span class="auto-tag">Auto</span>
+            </label>
             <input type="date" id="data-apresentacao"
                    aria-label="Data de apresentação ao serviço — calculada automaticamente"
                    aria-readonly="true" readonly/>
@@ -1326,25 +1565,39 @@ select {
                  oninput="actualizarPreview()"/>
         </div>
 
-      </div><!-- /.cartao-corpo -->
-    </div><!-- /.cartao -->
-
-    <!-- Acções -->
-    <div class="acoes-wrap">
-      <button class="btn-gerar" onclick="gerarDocumento()">
-        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        Gerar Pré-visualização
-      </button>
-      <button class="btn-submeter" id="btn-submeter" onclick="submeterDocumento()" disabled>
-        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Guardar Documento
-      </button>
-      <button class="btn-imprimir" id="btn-imprimir" onclick="imprimirDocumento()" disabled>
-        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        Imprimir / Exportar PDF
-      </button>
-      <div class="badge-estado" id="badge-estado"></div>
+      </div>
     </div>
+
+    <div class="step-conector" id="conector-3-4"></div>
+
+    <!-- ── ETAPA 4 · Emissão ───────────────────────────────────── -->
+    <div class="cartao step-card" id="step-card-4">
+      <div class="cartao-cabecalho">
+        <span class="step-num" data-step="4" aria-hidden="true"></span>
+        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Emissão do Documento
+      </div>
+      <div class="cartao-corpo">
+        <div class="acoes-wrap">
+          <button class="btn-gerar" onclick="gerarDocumento()">
+            <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Gerar Pré-visualização
+          </button>
+          <button class="btn-submeter" id="btn-submeter" onclick="submeterDocumento()" disabled>
+            <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Guardar Documento
+          </button>
+          <button class="btn-imprimir" id="btn-imprimir" onclick="imprimirDocumento()" disabled>
+            <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Imprimir / Exportar PDF
+          </button>
+          <div class="badge-estado" id="badge-estado"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Elemento fantasma para compatibilidade com actualizarCamposFormulario() -->
+    <span id="titulo-dados-documento" aria-hidden="true" style="display:none"></span>
 
   </div><!-- /.painel-form -->
 
@@ -1366,8 +1619,8 @@ select {
             <span class="gp-cabecalho-icone">
               <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true" style="width:34px;height:34px;stroke:rgba(255,255,255,.7)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
             </span>
-            <div class="gp-cabecalho-titulo" style="color:rgba(255,255,255,.88)">Como gerar um documento</div>
-            <div class="gp-cabecalho-sub" style="color:rgba(255,255,255,.5)">Siga os 3 passos para emitir o documento oficial</div>
+            <div class="gp-cabecalho-titulo" style="color:rgba(255,255,255,.88)">Pronto para emitir</div>
+            <div class="gp-cabecalho-sub" style="color:rgba(255,255,255,.5)">Complete as etapas no painel à esquerda</div>
           </div>
 
           <div class="gp-lista">
@@ -1387,7 +1640,7 @@ select {
                   <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                   Pesquisar funcion&#225;rio
                 </div>
-                <div class="gp-card-desc" id="gp-desc-2">Pesquise e seleccione o funcion&#225;rio no formul&#225;rio &#224; esquerda</div>
+                <div class="gp-card-desc" id="gp-desc-2">Escreva o nome ou número de agente no campo de pesquisa à esquerda</div>
               </div>
             </div>
 
@@ -1398,7 +1651,7 @@ select {
                   <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   Gerar pr&#233;-visualiza&#231;&#227;o
                 </div>
-                <div class="gp-card-desc">Clique em <strong style="color:rgba(255,255,255,.9)">"Gerar Pr&#233;-visualiza&#231;&#227;o"</strong> para ver o documento</div>
+                <div class="gp-card-desc">Preencha os detalhes e clique em <strong style="color:rgba(255,255,255,.9)">&#171;Gerar Pr&#233;-visualiza&#231;&#227;o&#187;</strong></div>
               </div>
             </div>
 
@@ -1721,6 +1974,7 @@ select {
     await verificarParamsPortal();
     await verificarParamSecretaria();
     actualizarProgressoFormulario(); // F3-D: estado inicial (data-emissao já preenchida)
+    actualizarEstadoStepCards();     // UX v3: estado inicial dos step cards
     carregarGuiasEmitidas();
   });
 
@@ -1859,6 +2113,8 @@ select {
         if (!Number.isFinite(obterNumeroKzDocumentos(document.getElementById('declaracao-salario').value)) && Number(funcObj.salarioBase) > 0) {
           document.getElementById('declaracao-salario').value = formatarMoedaKzDocumentos(funcObj.salarioBase, { sufixo: false });
         }
+        // UX v3: mostrar cartão de resumo e actualizar step cards
+        setTimeout(() => { actualizarCartaoResumoFuncionario(); actualizarEstadoStepCards(); }, 50);
       }
 
       window._solicitacaoOrigemId = solId || null;
@@ -1938,6 +2194,8 @@ select {
         document.getElementById('cargo-func').classList.add('campo-preenchido');
         document.getElementById('categoria-func').value = funcObj.categoria || cat || '';
         document.getElementById('local-func').value = funcObj.unidade || unid || '';
+        // UX v3: mostrar cartão de resumo e actualizar step cards
+        setTimeout(() => { actualizarCartaoResumoFuncionario(); actualizarEstadoStepCards(); }, 50);
       }
 
       window._solicitacaoOrigemId = solId || null;
@@ -2041,6 +2299,8 @@ select {
         infoEl.innerHTML = _icon('check-circle') + ' ' + msg;
         infoEl.style.display = 'block';
       }
+      // UX v3: mostrar cartão de resumo e actualizar step cards
+      setTimeout(() => { actualizarCartaoResumoFuncionario(); actualizarEstadoStepCards(); }, 50);
     } else if (adm) {
       // Calcular mesmo sem encontrar o funcionário, usando data de admissão da URL
       const anos = calcularAnos(adm);
@@ -2363,6 +2623,9 @@ select {
     actualizarPreview();
     actualizarPassosGuia();      // F3-B: reflectir tipo seleccionado no guia de passos
     actualizarProgressoFormulario(); // F3-D: recalcular campos obrigatórios para o novo tipo
+    // UX v3: actualizar badge de tipo no step card 1 e re-renderizar cartão do funcionário
+    actualizarEstadoStepCards();
+    if (funcionarioSeleccionado) actualizarCartaoResumoFuncionario();
   };
 
   // F2-D: variável de controlo do debounce — partilhada entre chamadas
@@ -2486,6 +2749,8 @@ select {
     if (documentoGerado) window.gerarDocumento(true);
     actualizarPassosGuia();          // F3-B: marcar passo 2 como concluído e activar passo 3
     actualizarProgressoFormulario(); // F3-D: funcionário seleccionado conta como campo preenchido
+    actualizarCartaoResumoFuncionario(); // UX v3: mostrar cartão de resumo
+    actualizarEstadoStepCards();         // UX v3: avançar estado dos step cards
   };
 
   document.addEventListener("click", e => {
@@ -2529,8 +2794,135 @@ select {
     } else {
       // Ainda sem funcionário: passo 2 activo, passo 3 neutro
       passo2.className = "gp-passo gp-passo--ativo";
-      if (desc2) desc2.textContent = "Pesquise e seleccione o funcionário no formulário à esquerda";
+      if (desc2) desc2.textContent = "Escreva o nome ou número de agente no campo de pesquisa";
       passo3.className = "gp-passo";
+    }
+
+    // Sincronizar step cards com o estado actual
+    actualizarEstadoStepCards();
+  }
+
+
+  // ── UX v3: Actualizar estado visual dos Step Cards ─────────────────────────
+  // Reflecte as 4 etapas (Documento, Funcionário, Informações, Emissão) com
+  // feedback progressivo baseado no estado real do formulário.
+  function actualizarEstadoStepCards() {
+    const sc1    = document.getElementById("step-card-1");
+    const sc2    = document.getElementById("step-card-2");
+    const sc3    = document.getElementById("step-card-3");
+    const sc4    = document.getElementById("step-card-4");
+    const conn12 = document.getElementById("conector-1-2");
+    const conn23 = document.getElementById("conector-2-3");
+    const conn34 = document.getElementById("conector-3-4");
+    const st1    = document.getElementById("step-status-1");
+
+    // Passo 1 — sempre completo (há sempre um tipo seleccionado)
+    const tipo = document.getElementById("tipo-documento")?.value || "";
+    const nomesTipo = {
+      "guia-ferias":        "Guia de Férias",
+      "guia-medica":        "Guia Médica",
+      "declaracao-servico": "Declaração"
+    };
+    if (st1) {
+      st1.textContent = nomesTipo[tipo] || "Documento";
+      st1.classList.add("step-status--visivel");
+    }
+    if (sc1)    sc1.className    = "cartao step-card step-card--completo";
+    if (conn12) conn12.className = "step-conector step-conector--completo";
+
+    const temFunc = !!funcionarioSeleccionado;
+
+    if (temFunc) {
+      if (sc2)    sc2.className    = "cartao step-card step-card--completo";
+      if (conn23) conn23.className = "step-conector step-conector--completo";
+      if (sc3)    sc3.className    = "cartao step-card step-card--ativo";
+      if (conn34) conn34.className = "step-conector";
+      if (sc4)    sc4.className    = "cartao step-card step-card--ativo";
+    } else {
+      if (sc2)    sc2.className    = "cartao step-card step-card--ativo";
+      if (conn23) conn23.className = "step-conector";
+      if (sc3)    sc3.className    = "cartao step-card";
+      if (conn34) conn34.className = "step-conector";
+      if (sc4)    sc4.className    = "cartao step-card";
+    }
+  }
+
+  // ── UX v3: Cartão de resumo do funcionário seleccionado ─────────────────────
+  // Substitui visualmente os campos readonly (cargo, local) por um cartão
+  // de confirmação após o funcionário ser seleccionado.
+  // Os inputs reais permanecem no DOM (em .campos-ocultos-auto) para uso pelo JS.
+  function actualizarCartaoResumoFuncionario() {
+    const cartao = document.getElementById("func-resumo-cartao");
+    if (!cartao) return;
+
+    if (!funcionarioSeleccionado) {
+      cartao.style.display = "none";
+      return;
+    }
+
+    const f = funcionarioSeleccionado;
+    const cargo    = f.cargo || f.categoria || "—";
+    const local    = f.unidade || "—";
+    const anos     = calcularAnos(f.admissao);
+    const dias     = calcularDiasDireito(anos);
+    const tipoDoc  = document.getElementById("tipo-documento")?.value || "";
+    const mostrarDias = tipoDoc === "guia-ferias" && anos !== null;
+
+    cartao.innerHTML = `
+      <div class="func-resumo-topo">
+        ${_icon("check-circle")} Funcionário Seleccionado
+      </div>
+      <div class="func-resumo-grid">
+        <span class="func-resumo-label">Nome</span>
+        <span class="func-resumo-valor func-resumo-valor--nome">${escaparHTML(f.nome || "—")}</span>
+        <span class="func-resumo-label">Cargo</span>
+        <span class="func-resumo-valor">${escaparHTML(cargo)}</span>
+        <span class="func-resumo-label">Local</span>
+        <span class="func-resumo-valor">${escaparHTML(local)}</span>
+      </div>
+      <div class="func-resumo-rodape">
+        ${mostrarDias
+          ? `<span class="func-resumo-dias-badge">${_icon("calendar")} ${anos} anos · ${dias} dias de férias</span>`
+          : `<span></span>`}
+        <button class="func-resumo-alterar" id="btn-alterar-func" type="button">Alterar funcionário</button>
+      </div>
+    `;
+
+    cartao.style.display = "block";
+
+    // Bind do botão "Alterar funcionário"
+    const btnAlt = document.getElementById("btn-alterar-func");
+    if (btnAlt) {
+      btnAlt.addEventListener("click", function() {
+        funcionarioSeleccionado = null;
+        // Limpar campo de pesquisa e dar foco
+        const pesquisa = document.getElementById("pesquisa-func");
+        if (pesquisa) { pesquisa.value = ""; pesquisa.focus(); }
+        // Limpar inputs auto
+        ["cargo-func", "local-func", "categoria-func"].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = "";
+        });
+        // Limpar dias/apresentação calculados
+        const elDias = document.getElementById("num-dias");
+        if (elDias) elDias.value = "";
+        const elDiasInfo = document.getElementById("info-dias");
+        if (elDiasInfo) elDiasInfo.style.display = "none";
+        const elApres = document.getElementById("data-apresentacao");
+        if (elApres) elApres.value = "";
+        const elApresInfo = document.getElementById("info-apresentacao");
+        if (elApresInfo) elApresInfo.style.display = "none";
+        const elFeriados = document.getElementById("info-feriados");
+        if (elFeriados) elFeriados.style.display = "none";
+        const elAlertaBi = document.getElementById("alerta-bi");
+        if (elAlertaBi) elAlertaBi.style.display = "none";
+        // Ocultar cartão de resumo
+        cartao.style.display = "none";
+        // Actualizar UI
+        actualizarEstadoStepCards();
+        actualizarPassosGuia();
+        actualizarProgressoFormulario();
+      });
     }
   }
 
