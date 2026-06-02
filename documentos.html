@@ -1340,8 +1340,393 @@ select {
 #step-card-2 .cartao-cabecalho {
   border-radius: var(--r-xl) var(--r-xl) 0 0;
 }
-/* O último elemento do corpo não tem conteúdo nos cantos,
-   então o overflow:visible não causa artefactos visuais. */
+
+/* ════════════════════════════════════════════════════════════════
+   PREVIEW REDESIGN v2 — Folha Oficial / Micro-estados
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Sticky para desktop: o documento permanece visível ─────── */
+@media (min-width: 1041px) {
+  .painel-preview {
+    position: sticky;
+    top: 78px; /* 58px topbar + 20px gap */
+    align-self: start;
+  }
+}
+
+/* ── Header dinâmico ────────────────────────────────────────── */
+.preview-cabecalho {
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  background: var(--surface);
+  padding: 12px 18px 11px;
+  border: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: background .3s;
+}
+.preview-cabecalho--gerado {
+  background: linear-gradient(135deg, var(--g-50), #fff);
+}
+
+.preview-cabecalho-left { display: flex; align-items: center; gap: 8px; }
+
+.preview-cabecalho-txt { display: flex; flex-direction: column; gap: 1px; }
+.preview-titulo-txt {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--s-700);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  transition: color .3s;
+}
+.preview-subtitulo-txt {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--s-400);
+  letter-spacing: 0;
+  text-transform: none;
+  transition: color .3s;
+}
+
+/* ── Área de pré-visualização — novo background ─────────────── */
+.area-preview {
+  background: linear-gradient(155deg, #bec8d4 0%, #aab5c3 60%, #9faec0 100%);
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+  border: 1px solid var(--border);
+  border-top: none;
+  padding: 28px 20px 36px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 580px;
+  overflow: visible;
+  position: relative;
+}
+/* Sutil padrão de fundo (grelha de pontos) */
+.area-preview::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+  background-image: radial-gradient(rgba(255,255,255,.12) 1px, transparent 1px);
+  background-size: 18px 18px;
+  pointer-events: none;
+}
+
+/* ── Wrapper da folha (gera a ilusão de camadas de papel) ────── */
+.doc-folha-wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 400px;
+}
+/* Terceira folha (mais atrás) */
+.doc-folha-wrap::before {
+  content: '';
+  position: absolute;
+  bottom: -8px; right: -8px;
+  width: 100%; height: 100%;
+  background: rgba(255,255,255,.38);
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+  pointer-events: none;
+}
+/* Segunda folha (atrás) */
+.doc-folha-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; right: -4px;
+  width: 100%; height: 100%;
+  background: rgba(255,255,255,.6);
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+  pointer-events: none;
+}
+
+/* ── A folha principal ──────────────────────────────────────── */
+.doc-folha {
+  position: relative;
+  z-index: 2;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow:
+    0 12px 40px rgba(0,0,0,.22),
+    0 4px 12px rgba(0,0,0,.1),
+    0 0 0 1px rgba(0,0,0,.05);
+  padding: 18px 20px 22px;
+  transition: box-shadow .4s ease;
+}
+/* Linha de acento de cor no topo da folha */
+.doc-folha::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--s-200);
+  border-radius: 4px 4px 0 0;
+  transition: background .4s ease;
+}
+.doc-folha-wrap[data-estado="funcionario"] .doc-folha::before {
+  background: linear-gradient(90deg, var(--g-600), var(--g-400));
+}
+.doc-folha-wrap[data-estado="pronto"] .doc-folha {
+  box-shadow:
+    0 12px 40px rgba(0,0,0,.22),
+    0 4px 12px rgba(0,0,0,.1),
+    0 0 0 2px var(--g-600),
+    0 0 22px rgba(16,185,129,.18);
+}
+.doc-folha-wrap[data-estado="pronto"] .doc-folha::before {
+  background: linear-gradient(90deg, var(--g-900), var(--g-600), var(--g-400));
+}
+
+/* ── Cabeçalho institucional da folha ───────────────────────── */
+.doc-folha-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding-bottom: 12px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid var(--s-100);
+}
+.doc-folha-brasao {
+  width: 36px; height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--g-50), var(--g-100));
+  border: 1.5px solid var(--g-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--g-700);
+}
+.doc-folha-inst { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.doc-folha-inst-rep {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--s-600);
+}
+
+/* ── Linhas skeleton animadas ───────────────────────────────── */
+@keyframes skelShimmer {
+  0%   { background-position: -240% center; }
+  100% { background-position:  240% center; }
+}
+.skel {
+  height: 7px;
+  border-radius: 4px;
+  background: linear-gradient(90deg,
+    var(--s-100) 0%,
+    rgba(255,255,255,.9) 40%,
+    rgba(255,255,255,.9) 60%,
+    var(--s-100) 100%
+  );
+  background-size: 240% 100%;
+  animation: skelShimmer 2.4s linear infinite;
+}
+.skel--xs   { width: 45%; }
+.skel--sm   { width: 65%; }
+.skel--md   { width: 78%; }
+.skel--lg   { width: 88%; }
+.skel--full { width: 100%; }
+.skel--40   { width: 40%; }
+.skel--50   { width: 50%; }
+.skel--55   { width: 55%; }
+.skel--60   { width: 60%; }
+.skel--70   { width: 70%; }
+.skel--75   { width: 75%; }
+.skel--center { margin: 0 auto; }
+.skel--title  { height: 9px; width: 60%; margin: 0 auto; }
+/* Skeleton mais sólido quando dado confirmado */
+.skel--solid  { background: var(--s-200); animation: none; }
+
+/* ── Título do documento (skeleton) ────────────────────────── */
+.doc-folha-titulo-skel {
+  text-align: center;
+  margin: 8px 0 12px;
+}
+
+/* ── Área de estado dinâmico ────────────────────────────────── */
+.doc-folha-estado-wrap {
+  margin: 6px 0 10px;
+  min-height: 52px;
+}
+.doc-estado { display: none; }
+.doc-estado--ativo {
+  display: block;
+  animation: docEstadoIn .25s ease;
+}
+@keyframes docEstadoIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Estado 1 — aguardar funcionário */
+.doc-e1 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 11px;
+  background: var(--s-50);
+  border: 1.5px dashed var(--s-300);
+  border-radius: var(--r-sm);
+}
+.doc-e1-ico {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--s-100);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--s-400);
+  flex-shrink: 0;
+}
+.doc-e1-titulo { font-size: 10.5px; font-weight: 700; color: var(--s-600); }
+.doc-e1-sub    { font-size: 9.5px;  font-weight: 500; color: var(--s-400); margin-top: 1px; }
+
+/* Estado 2 — funcionário identificado */
+.doc-e2 {
+  padding: 9px 11px;
+  background: #f0fdf6;
+  border: 1.5px solid var(--g-100);
+  border-radius: var(--r-sm);
+}
+.doc-e2-nome {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--g-900);
+  display: flex; align-items: center; gap: 5px;
+}
+.doc-e2-detalhe {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--g-700);
+  margin-top: 2px;
+}
+
+/* Estado 3 — pronto */
+.doc-e3 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 11px;
+  background: linear-gradient(135deg, #f0fdf6, #ecfdf5);
+  border: 1.5px solid var(--g-300);
+  border-radius: var(--r-sm);
+  animation: readyGlow 2.2s ease-in-out infinite;
+}
+@keyframes readyGlow {
+  0%,100% { border-color: var(--g-200); }
+  50%      { border-color: var(--g-500); box-shadow: 0 0 12px rgba(16,185,129,.15); }
+}
+.doc-e3-ico {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--g-700);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+.doc-e3-titulo { font-size: 10.5px; font-weight: 800; color: var(--g-900); }
+.doc-e3-sub    { font-size: 9.5px;  font-weight: 500; color: var(--g-700); margin-top: 1px; }
+
+/* ── Corpo do documento (linhas de conteúdo) ────────────────── */
+.doc-folha-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 8px 0;
+}
+.doc-folha-corpo .skel-row {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Rodapé (assinaturas) ───────────────────────────────────── */
+.doc-folha-rodape {
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1px solid var(--s-100);
+}
+.doc-folha-data { margin-bottom: 14px; }
+.doc-folha-assinaturas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.doc-ass-bloco {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.doc-ass-linha-assinatura {
+  width: 100%;
+  height: 1px;
+  background: var(--s-200);
+  margin-bottom: 4px;
+}
+
+/* ── Badge label flutuante acima da folha ───────────────────── */
+.doc-folha-badge {
+  text-align: center;
+  margin-bottom: 10px;
+}
+.doc-folha-badge-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(15,23,42,.55);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: var(--r-full);
+  padding: 4px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,.88);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  transition: all .3s ease;
+}
+.doc-folha-wrap[data-estado="pronto"] .doc-folha-badge-inner {
+  background: rgba(11,79,58,.75);
+  border-color: rgba(52,211,153,.3);
+  color: #fff;
+}
+
+/* ── Elementos de guia ocultos (mantidos no DOM para o JS) ─── */
+.doc-guia-oculto { display: none !important; }
+
+/* ── Animação de entrada do documento real ──────────────────── */
+@keyframes docReveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+    filter: blur(1px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+.doc-wrapper-centrado,
+.doc-wrapper-gm {
+  animation: docReveal .45s cubic-bezier(.23,.84,.47,1) both;
+}
+
+/* ── Responsive ajustamentos ────────────────────────────────── */
+@media (max-width: 1040px) {
+  .doc-folha-wrap { max-width: 360px; }
+}
+@media (max-width: 760px) {
+  .area-preview { padding: 20px 14px 28px; }
+  .doc-folha-wrap { max-width: 100%; }
+  .doc-folha { padding: 14px 16px 18px; }
+}
 </style>
   <!-- preconnect: elimina latência de DNS + TLS para Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -1595,7 +1980,7 @@ select {
         <div class="acoes-wrap">
           <button class="btn-gerar" onclick="gerarDocumento()">
             <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            Gerar Pré-visualização
+            Preparar documento para emissão
           </button>
           <button class="btn-submeter" id="btn-submeter" onclick="submeterDocumento()" disabled>
             <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -1617,72 +2002,201 @@ select {
 
   <!-- ══ PRÉ-VISUALIZAÇÃO ═════════════════════════════════════════ -->
   <div class="painel-preview">
-    <div class="preview-cabecalho">
+
+    <!-- Cabeçalho dinâmico -->
+    <div class="preview-cabecalho" id="preview-cabecalho">
       <div class="preview-cabecalho-left">
-        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        Pré-visualização
+        <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true" id="preview-cabecalho-icon">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        <div class="preview-cabecalho-txt">
+          <span class="preview-titulo-txt" id="preview-titulo-txt">Documento em preparação</span>
+          <span class="preview-subtitulo-txt" id="preview-subtitulo-txt">Seleccione o funcionário para continuar</span>
+        </div>
       </div>
       <span class="badge-preview" id="badge-preview-documento">Guia de Férias</span>
     </div>
+
+    <!-- Área principal -->
     <div class="area-preview" id="area-preview">
 
+      <!-- ── Estado vazio: folha mockup ─────────────────────── -->
       <div class="vazio-preview" id="vazio-preview">
-        <div class="guia-passos-wrap">
 
-          <div class="gp-cabecalho">
-            <span class="gp-cabecalho-icone">
-              <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true" style="width:34px;height:34px;stroke:rgba(255,255,255,.7)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <div class="doc-folha-wrap" id="doc-folha-wrap" data-estado="aguardar">
+
+          <!-- Badge flutuante acima da folha -->
+          <div class="doc-folha-badge">
+            <span class="doc-folha-badge-inner" id="doc-folha-badge-txt">
+              <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true" style="width:11px;height:11px">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              <span id="doc-badge-tipo-nome">Guia de Férias</span>
             </span>
-            <div class="gp-cabecalho-titulo" style="color:rgba(255,255,255,.88)">Pronto para emitir</div>
-            <div class="gp-cabecalho-sub" style="color:rgba(255,255,255,.5)">Complete as etapas no painel à esquerda</div>
           </div>
 
-          <div class="gp-lista">
+          <!-- A folha -->
+          <div class="doc-folha">
 
-            <div class="gp-passo gp-passo--concluido" id="gp-passo-1">
-              <div class="gp-num" data-num="1"></div>
-              <div class="gp-card">
-                <div class="gp-card-titulo">&#128203; Seleccionar tipo de documento</div>
-                <div class="gp-card-desc" id="gp-desc-1">Guia de F&#233;rias seleccionada</div>
+            <!-- Cabeçalho institucional -->
+            <div class="doc-folha-cabecalho">
+              <div class="doc-folha-brasao" aria-hidden="true">
+                <!-- Sol estilizado — símbolo da bandeira angolana -->
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                  <circle cx="12" cy="12" r="4" fill="var(--g-200)" stroke="var(--g-600)"/>
+                  <line x1="12" y1="2" x2="12" y2="5"/>
+                  <line x1="12" y1="19" x2="12" y2="22"/>
+                  <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/>
+                  <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+                  <line x1="2" y1="12" x2="5" y2="12"/>
+                  <line x1="19" y1="12" x2="22" y2="12"/>
+                  <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/>
+                  <line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+                </svg>
+              </div>
+              <div class="doc-folha-inst">
+                <div class="doc-folha-inst-rep">República de Angola</div>
+                <div class="skel skel--md" style="margin-top:3px"></div>
+                <div class="skel skel--60" style="margin-top:3px"></div>
               </div>
             </div>
 
+            <!-- Título do documento (skeleton) -->
+            <div class="doc-folha-titulo-skel">
+              <div class="skel skel--title skel--center"></div>
+            </div>
+
+            <!-- Zona de estado dinâmico -->
+            <div class="doc-folha-estado-wrap">
+
+              <!-- Estado 1: aguardar funcionário -->
+              <div class="doc-estado doc-estado--ativo" id="doc-estado-1">
+                <div class="doc-e1">
+                  <div class="doc-e1-ico" aria-hidden="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="doc-e1-titulo">Funcionário não identificado</div>
+                    <div class="doc-e1-sub">Seleccione o funcionário para pré-visualizar</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Estado 2: funcionário seleccionado -->
+              <div class="doc-estado" id="doc-estado-2">
+                <div class="doc-e2">
+                  <div class="doc-e2-nome" id="doc-e2-nome">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--g-600)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                      <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    <span id="doc-e2-nome-txt">—</span>
+                  </div>
+                  <div class="doc-e2-detalhe" id="doc-e2-detalhe">Preencha as informações complementares</div>
+                </div>
+              </div>
+
+              <!-- Estado 3: pronto para emitir -->
+              <div class="doc-estado" id="doc-estado-3">
+                <div class="doc-e3">
+                  <div class="doc-e3-ico" aria-hidden="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="doc-e3-titulo">Pronto para emitir</div>
+                    <div class="doc-e3-sub">Clique em «Preparar documento para emissão»</div>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /.doc-folha-estado-wrap -->
+
+            <!-- Corpo: linhas de conteúdo skeleton -->
+            <div class="doc-folha-corpo">
+              <div class="skel skel--full"></div>
+              <div class="skel skel--full"></div>
+              <div class="skel skel--md"></div>
+              <div style="height:5px"></div>
+              <div class="skel skel--full"></div>
+              <div class="skel skel--75"></div>
+              <div class="skel skel--full"></div>
+              <div class="skel skel--60"></div>
+            </div>
+
+            <!-- Rodapé: local, data e assinaturas -->
+            <div class="doc-folha-rodape">
+              <div class="doc-folha-data">
+                <div class="skel skel--55"></div>
+              </div>
+              <div class="doc-folha-assinaturas">
+                <div class="doc-ass-bloco">
+                  <div class="doc-ass-linha-assinatura"></div>
+                  <div class="skel skel--50 skel--center"></div>
+                </div>
+                <div class="doc-ass-bloco">
+                  <div class="doc-ass-linha-assinatura"></div>
+                  <div class="skel skel--50 skel--center"></div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /.doc-folha -->
+
+        </div><!-- /.doc-folha-wrap -->
+
+        <!-- ── Elementos de guia mantidos no DOM para o JS ──────
+             Ocultos visualmente, geridos por actualizarPassosGuia() -->
+        <div class="doc-guia-oculto" aria-hidden="true">
+          <div class="gp-lista">
+            <div class="gp-passo gp-passo--concluido" id="gp-passo-1">
+              <div class="gp-num" data-num="1"></div>
+              <div class="gp-card">
+                <div class="gp-card-titulo">&#128203; Tipo de documento</div>
+                <div class="gp-card-desc" id="gp-desc-1">Guia de F&#233;rias seleccionada</div>
+              </div>
+            </div>
             <div class="gp-passo gp-passo--ativo" id="gp-passo-2">
               <div class="gp-num" data-num="2"></div>
               <div class="gp-card">
                 <div class="gp-card-titulo">
                   <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                  Pesquisar funcion&#225;rio
+                  Localizar funcion&#225;rio
                 </div>
-                <div class="gp-card-desc" id="gp-desc-2">Escreva o nome ou número de agente no campo de pesquisa à esquerda</div>
+                <div class="gp-card-desc" id="gp-desc-2">Escreva o nome ou n&#250;mero de agente</div>
               </div>
             </div>
-
             <div class="gp-passo" id="gp-passo-3">
               <div class="gp-num" data-num="3"></div>
               <div class="gp-card">
                 <div class="gp-card-titulo">
                   <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  Gerar pr&#233;-visualiza&#231;&#227;o
+                  Preparar e emitir
                 </div>
-                <div class="gp-card-desc">Preencha os detalhes e clique em <strong style="color:rgba(255,255,255,.9)">&#171;Gerar Pr&#233;-visualiza&#231;&#227;o&#187;</strong></div>
+                <div class="gp-card-desc">Preencha os detalhes e clique em &#171;Preparar documento para emiss&#227;o&#187;</div>
               </div>
             </div>
-
           </div>
-
           <div class="gp-tipo-badge">
             <div class="gp-tipo-badge-inner">
               <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               Documento activo:&nbsp;<strong id="gp-tipo-nome">Guia de F&#233;rias</strong>
             </div>
           </div>
+        </div><!-- /.doc-guia-oculto -->
 
-        </div>
-      </div>
+      </div><!-- /.vazio-preview -->
 
-    </div>
-  </div>
+    </div><!-- /#area-preview -->
+  </div><!-- /.painel-preview -->
 
 </div><!-- /.layout -->
 
@@ -1933,6 +2447,7 @@ select {
   document.addEventListener("input", e => {
     if (e.target && e.target.id) limparErro(e.target.id);
     actualizarProgressoFormulario(); // F3-D: reflectir preenchimento em tempo real
+    actualizarMockupDocumento();     // UX v2: actualizar micro-estado da folha mockup
   });
 
   const PERFIS_ACESSO = ["admin","director","chefe","tecnico"];
@@ -1989,6 +2504,7 @@ select {
     await verificarParamSecretaria();
     actualizarProgressoFormulario(); // F3-D: estado inicial (data-emissao já preenchida)
     actualizarEstadoStepCards();     // UX v3: estado inicial dos step cards
+    actualizarMockupDocumento();     // UX v2: estado inicial da folha mockup
     carregarGuiasEmitidas();
   });
 
@@ -2640,6 +3156,7 @@ select {
     // UX v3: actualizar badge de tipo no step card 1 e re-renderizar cartão do funcionário
     actualizarEstadoStepCards();
     if (funcionarioSeleccionado) actualizarCartaoResumoFuncionario();
+    actualizarMockupDocumento(); // UX v2: actualizar micro-estado (tipo alterado)
   };
 
   // F2-D: variável de controlo do debounce — partilhada entre chamadas
@@ -2765,6 +3282,7 @@ select {
     actualizarProgressoFormulario(); // F3-D: funcionário seleccionado conta como campo preenchido
     actualizarCartaoResumoFuncionario(); // UX v3: mostrar cartão de resumo
     actualizarEstadoStepCards();         // UX v3: avançar estado dos step cards
+    actualizarMockupDocumento();         // UX v2: actualizar micro-estado da folha mockup
   };
 
   document.addEventListener("click", e => {
@@ -2936,12 +3454,109 @@ select {
         actualizarEstadoStepCards();
         actualizarPassosGuia();
         actualizarProgressoFormulario();
+        _reporCabecalhoPreview(); // UX v2: repor cabeçalho
       });
     }
   }
 
 
-  // ── Iconografia SVG inline — helper JS ─────────────────────────────────────
+  // ── UX v2: Mockup da folha — actualiza estado visual da pré-visualização ──
+  // Gere os 3 micro-estados da folha oficial mockup:
+  //   Estado 1 (aguardar): sem funcionário → linha dashed + msg
+  //   Estado 2 (funcionario): nome+cargo identificados → linha verde
+  //   Estado 3 (pronto): todos os campos preenchidos → folha com glow verde
+  // Não actua quando documentoGerado = true (documento real está em exibição).
+  function actualizarMockupDocumento() {
+    if (documentoGerado) return;
+
+    const folhaWrap  = document.getElementById("doc-folha-wrap");
+    const estado1    = document.getElementById("doc-estado-1");
+    const estado2    = document.getElementById("doc-estado-2");
+    const estado3    = document.getElementById("doc-estado-3");
+    const nomeEl     = document.getElementById("doc-e2-nome-txt");
+    const detalheEl  = document.getElementById("doc-e2-detalhe");
+    const tituloPrev = document.getElementById("preview-titulo-txt");
+    const subPrev    = document.getElementById("preview-subtitulo-txt");
+    const badgeTipo  = document.getElementById("doc-badge-tipo-nome");
+    if (!folhaWrap) return;
+
+    // Actualizar badge de tipo de documento
+    const tipo = document.getElementById("tipo-documento")?.value || "guia-ferias";
+    const nomesTipo = {
+      "guia-ferias":        "Guia de Férias",
+      "guia-medica":        "Guia Médica",
+      "declaracao-servico": "Declaração"
+    };
+    if (badgeTipo) badgeTipo.textContent = nomesTipo[tipo] || "Documento";
+
+    // Verificar se formulário está completo
+    const campos = _CAMPOS_OBRIGATORIOS[tipo] || _CAMPOS_OBRIGATORIOS["guia-ferias"];
+    let preenchidos = 0;
+    campos.forEach(id => {
+      if (id === "pesquisa-func") {
+        if (funcionarioSeleccionado) preenchidos++;
+      } else {
+        const el = document.getElementById(id);
+        if (el && String(el.value ?? "").trim() !== "") preenchidos++;
+      }
+    });
+    const pronto   = preenchidos === campos.length;
+    const temFunc  = !!funcionarioSeleccionado;
+
+    // Activar o estado correcto
+    const estados = [estado1, estado2, estado3];
+    let estadoActivo = 0; // Estado 1 por omissão
+    if (pronto)        estadoActivo = 2; // Estado 3
+    else if (temFunc)  estadoActivo = 1; // Estado 2
+
+    estados.forEach((el, i) => {
+      if (!el) return;
+      el.classList.toggle("doc-estado--ativo", i === estadoActivo);
+    });
+
+    // Actualizar data-estado no wrapper da folha
+    const nomeEstado = pronto ? "pronto" : (temFunc ? "funcionario" : "aguardar");
+    folhaWrap.dataset.estado = nomeEstado;
+
+    // Preencher nome e detalhe no estado 2
+    if (temFunc && funcionarioSeleccionado) {
+      const f = funcionarioSeleccionado;
+      if (nomeEl) nomeEl.textContent = f.nome || "—";
+      const cargo = f.cargo || f.categoria || "";
+      const local = f.unidade || "";
+      const linhaDetalhe = [cargo, local].filter(Boolean).join(" · ");
+      if (detalheEl) detalheEl.textContent = linhaDetalhe || "Preencha os dados complementares";
+    }
+
+    // Actualizar textos do cabeçalho de pré-visualização
+    if (pronto) {
+      if (tituloPrev) tituloPrev.textContent = "Pronto para emitir";
+      if (subPrev)    subPrev.textContent    = "Todos os campos preenchidos";
+    } else if (temFunc) {
+      if (tituloPrev) tituloPrev.textContent = "Documento em preparação";
+      if (subPrev)    subPrev.textContent    = "Preencha os dados complementares";
+    } else {
+      if (tituloPrev) tituloPrev.textContent = "Documento em preparação";
+      if (subPrev)    subPrev.textContent    = "Seleccione o funcionário para continuar";
+    }
+  }
+
+  // ── UX v2: Actualizar cabeçalho de pré-visualização quando documento gerado ──
+  function _actualizarCabecalhoPreviewGerado() {
+    const tituloPrev = document.getElementById("preview-titulo-txt");
+    const subPrev    = document.getElementById("preview-subtitulo-txt");
+    const cabecalho  = document.getElementById("preview-cabecalho");
+    if (tituloPrev) tituloPrev.textContent = "Documento gerado";
+    if (subPrev)    subPrev.textContent    = "Revise o documento antes de guardar";
+    if (cabecalho)  cabecalho.classList.add("preview-cabecalho--gerado");
+  }
+
+  // ── UX v2: Repor cabeçalho quando volta ao estado de edição ──────────────
+  function _reporCabecalhoPreview() {
+    const cabecalho = document.getElementById("preview-cabecalho");
+    if (cabecalho) cabecalho.classList.remove("preview-cabecalho--gerado");
+    actualizarMockupDocumento();
+  }
   // Retorna HTML de ícone SVG para uso em contextos innerHTML.
   // Os mesmos caminhos do CSS estão aqui duplicados para uso em strings JS.
   const _JS_SVG = {
@@ -3228,7 +3843,10 @@ select {
       btnSubGerar.disabled      = false;
     }
 
-    if (!silencioso) mostrarNotificacao(_icon("check-circle") + " Documento gerado! Clique em 'Guardar Documento' para arquivar e enviar para validação.");
+    if (!silencioso) mostrarNotificacao(_icon("check-circle") + " Documento preparado! Clique em 'Guardar Documento' para arquivar e enviar para validação.");
+
+    // UX v2: actualizar cabeçalho e indicar que o documento está gerado
+    if (!silencioso) _actualizarCabecalhoPreviewGerado();
   };
 
 
@@ -3465,6 +4083,13 @@ select {
     documentoGerado      = false;
     documentoSubmetido   = false;
     document.querySelector(".painel-preview")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // UX v2: actualizar cabeçalho para mostrar que é uma consulta de arquivo
+    const tituloPrevArq = document.getElementById("preview-titulo-txt");
+    const subPrevArq    = document.getElementById("preview-subtitulo-txt");
+    const cabArq        = document.getElementById("preview-cabecalho");
+    if (tituloPrevArq) tituloPrevArq.textContent = "Consulta de arquivo";
+    if (subPrevArq)    subPrevArq.textContent    = "Documento histórico — apenas leitura";
+    if (cabArq)        cabArq.classList.add("preview-cabecalho--gerado");
     // D1 fix: nomeTipo pode conter o valor bruto do Firestore — escaparHTML() necessário
     mostrarNotificacao(_icon("file-text") + ` Arquivo de ${escaparHTML(nomeTipo)} aberto na pre-visualizacao.`);
   }
