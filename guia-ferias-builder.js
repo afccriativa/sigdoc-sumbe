@@ -89,37 +89,67 @@
       '</div>';
 
     return '<style>' +
+
+      /* ── Estilos base (ecrã e impressão) ── */
+      '.documento-oficial {' +
+        'display: flex !important;' +
+        'flex-direction: row !important;' +
+        'width: 100% !important;' +
+        'box-sizing: border-box !important;' +
+      '}' +
+
       '.doc-metade {' +
+        'flex: 1 !important;' +
         'padding: 1cm !important;' +
         'box-sizing: border-box !important;' +
         'height: fit-content !important;' +
         'align-self: flex-start !important;' +
       '}' +
+
       '.documento-oficial, .documento-oficial * {' +
         'font-family: "Times New Roman", serif !important;' +
         'font-size: 11pt !important;' +
       '}' +
+
       '.doc-local-data {' +
         'font-size: 11pt !important;' +
       '}' +
+
+      /* ── Impressão: margens seguras para qualquer impressora ── */
       '@media print {' +
-        '@page { size: A4 landscape; margin: 0; }' +
+
+        /* 10mm de margem garante área segura em todas as impressoras de escritório */
+        '@page { size: A4 landscape; margin: 10mm; }' +
+
         'html, body {' +
-          'width: 297mm !important;' +
-          'height: 210mm !important;' +
-          'max-height: 210mm !important;' +
-          'overflow: hidden !important;' +
+          'width: 100% !important;' +
+          'height: auto !important;' +
+          'overflow: visible !important;' +
           'margin: 0 !important;' +
           'padding: 0 !important;' +
         '}' +
+
         '.documento-oficial {' +
-          'width: 297mm !important;' +
-          'height: 210mm !important;' +
-          'overflow: hidden !important;' +
+          'width: 100% !important;' +
+          'height: auto !important;' +
+          'overflow: visible !important;' +
+          'display: flex !important;' +
+          'flex-direction: row !important;' +
           'page-break-after: avoid !important;' +
           'page-break-inside: avoid !important;' +
         '}' +
+
+        /* Padding reduzido na impressão para compensar as margens da página */
+        '.doc-metade {' +
+          'flex: 1 !important;' +
+          'padding: 0.5cm !important;' +
+          'box-sizing: border-box !important;' +
+          'height: auto !important;' +
+          'overflow: visible !important;' +
+        '}' +
+
       '}' +
+
       '</style>' +
       '<div class="documento-oficial">' + metade + metade + '</div>';
   };
