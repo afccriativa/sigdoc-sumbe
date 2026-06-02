@@ -90,7 +90,7 @@
 
     return '<style>' +
 
-      /* ── Estilos base (ecrã e impressão) ── */
+      /* ── Estilos base (ecrã) ── */
       '.documento-oficial {' +
         'display: flex !important;' +
         'flex-direction: row !important;' +
@@ -111,41 +111,51 @@
         'font-size: 11pt !important;' +
       '}' +
 
+      /* CORRECÇÃO 1: Rodapé justificado + fonte reduzida
+         Elimina o espaço irregular após "RECURSOS" */
       '.doc-local-data {' +
-        'font-size: 11pt !important;' +
+        'font-size: 10pt !important;' +
+        'text-align: justify !important;' +
       '}' +
 
-      /* ── Impressão: margens seguras para qualquer impressora ── */
+      /* ── Impressão ── */
       '@media print {' +
 
-        /* 10mm de margem garante área segura em todas as impressoras de escritório */
+        /* 10mm de margem = área segura em todas as impressoras de escritório     */
+        /* Área imprimível resultante: 277mm × 190mm (297mm e 210mm - 2×10mm)    */
         '@page { size: A4 landscape; margin: 10mm; }' +
 
+        /* CORRECÇÃO 2: height:100vh + overflow:hidden no html/body
+           Impede que elementos fora do documento (formulários, botões)
+           contribuam para a altura e gerem páginas em branco               */
         'html, body {' +
           'width: 100% !important;' +
-          'height: auto !important;' +
-          'overflow: visible !important;' +
+          'height: 100vh !important;' +
+          'overflow: hidden !important;' +
           'margin: 0 !important;' +
           'padding: 0 !important;' +
         '}' +
 
+        /* max-height: 190mm garante que o documento não ultrapassa
+           a área imprimível e não gera páginas extras                       */
         '.documento-oficial {' +
           'width: 100% !important;' +
           'height: auto !important;' +
-          'overflow: visible !important;' +
+          'max-height: 190mm !important;' +
+          'overflow: hidden !important;' +
           'display: flex !important;' +
           'flex-direction: row !important;' +
           'page-break-after: avoid !important;' +
           'page-break-inside: avoid !important;' +
         '}' +
 
-        /* Padding reduzido na impressão para compensar as margens da página */
+        /* Padding reduzido na impressão compensa as margens da página       */
         '.doc-metade {' +
           'flex: 1 !important;' +
           'padding: 0.5cm !important;' +
           'box-sizing: border-box !important;' +
           'height: auto !important;' +
-          'overflow: visible !important;' +
+          'overflow: hidden !important;' +
         '}' +
 
       '}' +
