@@ -1084,8 +1084,20 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
   font-family: var(--font); cursor: pointer; border: none; transition: opacity .12s;
 }
 
-.btn-desat  { background: var(--err-bg);  color: var(--err); }
-.btn-ativar { background: var(--ok-bg);   color: var(--ok); }
+.btn-desat   { background: var(--err-bg);  color: var(--err); }
+.btn-ativar  { background: var(--ok-bg);   color: var(--ok);  }
+.btn-eliminar {
+  background: transparent;
+  color: var(--txt-3);
+  border: 1px solid var(--border);
+  opacity: .7;
+}
+.btn-eliminar:hover {
+  background: var(--err-bg);
+  color: var(--err);
+  border-color: var(--err);
+  opacity: 1;
+}
 
 /* ── Estado vazio ─────────────────────────────────────────── */
 .vazio-estado { text-align: center; padding: 48px 20px; color: var(--txt-3); }
