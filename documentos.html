@@ -172,7 +172,7 @@ button, input, select, textarea { font-family: inherit; }
 /* ════ LAYOUT ════════════════════════════════════════════════════ */
 .layout {
   display: grid;
-  grid-template-columns: 390px 1fr;
+  grid-template-columns: 440px 1fr;
   gap: 20px;
   padding: 20px;
   max-width: 1640px;
@@ -1566,26 +1566,56 @@ select {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Estado 1 — aguardar funcionário */
+/* ── Estado 1 redesenhado — directivo, não passivo ──────────────
+   Versão anterior: "Funcionário não identificado" (informa)
+   Versão nova: aponta para a acção com seta + pulse suave       */
 .doc-e1 {
   display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 9px 11px;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
   background: var(--s-50);
   border: 1.5px dashed var(--s-300);
   border-radius: var(--r-sm);
+  animation: e1BorderPulse 3s ease-in-out infinite;
+}
+@keyframes e1BorderPulse {
+  0%, 100% { border-color: var(--s-300); background: var(--s-50); }
+  50%       { border-color: var(--s-400); background: #f0f4f8; }
 }
 .doc-e1-ico {
-  width: 26px; height: 26px;
+  width: 30px; height: 30px;
   border-radius: 50%;
   background: var(--s-100);
   display: flex; align-items: center; justify-content: center;
   color: var(--s-400);
   flex-shrink: 0;
+  margin-top: 1px;
+  transition: background .3s;
 }
-.doc-e1-titulo { font-size: 10.5px; font-weight: 700; color: var(--s-600); }
-.doc-e1-sub    { font-size: 9.5px;  font-weight: 500; color: var(--s-400); margin-top: 1px; }
+.doc-e1-titulo { font-size: 10.5px; font-weight: 700; color: var(--s-700); }
+.doc-e1-sub    { font-size: 9.5px;  font-weight: 500; color: var(--s-500); margin-top: 2px; line-height: 1.4; }
+
+/* Chip directivo "← Etapa 2" abaixo do texto */
+.doc-e1-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 7px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  color: var(--g-700);
+  background: var(--g-50);
+  border: 1px solid var(--g-200);
+  border-radius: var(--r-full);
+  padding: 3px 9px;
+  animation: e1CtaPulse 3s ease-in-out infinite;
+}
+@keyframes e1CtaPulse {
+  0%, 100% { opacity: .85; }
+  50%       { opacity: 1; }
+}
 
 /* Estado 2 — funcionário identificado */
 .doc-e2 {
@@ -1726,6 +1756,49 @@ select {
   .area-preview { padding: 20px 14px 28px; }
   .doc-folha-wrap { max-width: 100%; }
   .doc-folha { padding: 14px 16px 18px; }
+}
+
+/* ── Mobile: CTA sticky para aceder à pré-visualização ──────────
+   Em mobile o preview aparece abaixo do formulário — o utilizador
+   não sabe que existe um documento preparado para ver.
+   Este botão sticky resolve: contraste alto + alvo 48px (WCAG). */
+.preview-mobile-cta { display: none; }
+
+@media (max-width: 1040px) {
+  .preview-mobile-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--g-800);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: var(--font);
+    padding: 13px 28px;
+    border-radius: var(--r-full);
+    border: 2px solid var(--g-600);
+    cursor: pointer;
+    box-shadow: 0 4px 24px rgba(11,79,58,.5), 0 2px 8px rgba(0,0,0,.25);
+    z-index: 60;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease, transform .3s ease, background .15s;
+  }
+  .preview-mobile-cta--visivel {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+  .preview-mobile-cta:active {
+    background: var(--g-900);
+    transform: translateX(-50%) scale(.97) translateY(0);
+  }
 }
 </style>
   <!-- preconnect: elimina latência de DNS + TLS para Google Fonts -->
@@ -2073,18 +2146,21 @@ select {
             <!-- Zona de estado dinâmico -->
             <div class="doc-folha-estado-wrap">
 
-              <!-- Estado 1: aguardar funcionário -->
+              <!-- Estado 1: aguardar funcionário — versão directiva -->
               <div class="doc-estado doc-estado--ativo" id="doc-estado-1">
                 <div class="doc-e1">
                   <div class="doc-e1-ico" aria-hidden="true">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                      <circle cx="12" cy="7" r="4"/>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
                   </div>
                   <div>
-                    <div class="doc-e1-titulo">Funcionário não identificado</div>
-                    <div class="doc-e1-sub">Seleccione o funcionário para pré-visualizar</div>
+                    <div class="doc-e1-titulo">Pesquise o funcionário</div>
+                    <div class="doc-e1-sub">Escreva o nome ou número de agente no campo ao lado para pré-visualizar o documento</div>
+                    <div class="doc-e1-cta" aria-hidden="true">
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                      Etapa 2 · Funcionário
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2199,6 +2275,22 @@ select {
   </div><!-- /.painel-preview -->
 
 </div><!-- /.layout -->
+
+<!-- ── CTA sticky mobile — visível apenas em ecrãs ≤1040px ──────
+     Aparece quando o documento está pronto (estado 2 ou gerado).
+     Scroll suave para a área de pré-visualização.               -->
+<button class="preview-mobile-cta" id="preview-mobile-cta" type="button" aria-label="Ver pré-visualização do documento" onclick="document.getElementById('area-preview').scrollIntoView({behavior:'smooth',block:'start'});this.classList.remove('preview-mobile-cta--visivel');">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+  </svg>
+  <span id="preview-mobile-cta-txt">Ver pré-visualização</span>
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
+  </svg>
+</button>
 
 <!-- ══ ARQUIVO ═════════════════════════════════════════════════════ -->
 <div class="arquivo-wrap">
@@ -3283,6 +3375,7 @@ select {
     actualizarCartaoResumoFuncionario(); // UX v3: mostrar cartão de resumo
     actualizarEstadoStepCards();         // UX v3: avançar estado dos step cards
     actualizarMockupDocumento();         // UX v2: actualizar micro-estado da folha mockup
+    _actualizarPreviewMobileCta();       // Ref.3: mostrar CTA mobile se necessário
   };
 
   document.addEventListener("click", e => {
@@ -3454,7 +3547,8 @@ select {
         actualizarEstadoStepCards();
         actualizarPassosGuia();
         actualizarProgressoFormulario();
-        _reporCabecalhoPreview(); // UX v2: repor cabeçalho
+        _reporCabecalhoPreview();        // UX v2: repor cabeçalho
+        _actualizarPreviewMobileCta();   // Ref.3: esconder CTA (sem funcionário)
       });
     }
   }
@@ -3557,6 +3651,45 @@ select {
     if (cabecalho) cabecalho.classList.remove("preview-cabecalho--gerado");
     actualizarMockupDocumento();
   }
+  // ── UX refinamento 3: CTA sticky mobile ────────────────────────────────────
+  // Em ecrãs ≤1040px mostra um botão fixo no fundo do ecrã quando o utilizador
+  // tem funcionário seleccionado (estado 2) ou documento gerado (estado 3).
+  function _actualizarPreviewMobileCta() {
+    const btn = document.getElementById("preview-mobile-cta");
+    const txt = document.getElementById("preview-mobile-cta-txt");
+    if (!btn) return;
+    if (window.innerWidth > 1040) {
+      btn.classList.remove("preview-mobile-cta--visivel");
+      return;
+    }
+    if (documentoGerado) {
+      if (txt) txt.textContent = "Ver documento preparado";
+      btn.classList.add("preview-mobile-cta--visivel");
+    } else if (funcionarioSeleccionado) {
+      if (txt) txt.textContent = "Ver pré-visualização";
+      btn.classList.add("preview-mobile-cta--visivel");
+    } else {
+      btn.classList.remove("preview-mobile-cta--visivel");
+    }
+  }
+
+  // IntersectionObserver: esconder o CTA quando o preview já está no viewport
+  (function _setupMobileCtaObserver() {
+    const preview = document.getElementById("area-preview");
+    if (!preview || typeof IntersectionObserver === "undefined") return;
+    const obs = new IntersectionObserver(entries => {
+      const btn = document.getElementById("preview-mobile-cta");
+      if (!btn) return;
+      if (entries[0].intersectionRatio > 0.4) {
+        btn.classList.remove("preview-mobile-cta--visivel");
+      } else if (funcionarioSeleccionado || documentoGerado) {
+        btn.classList.add("preview-mobile-cta--visivel");
+      }
+    }, { threshold: [0, 0.4] });
+    obs.observe(preview);
+    window.addEventListener("resize", _actualizarPreviewMobileCta, { passive: true });
+  })();
+
   // Retorna HTML de ícone SVG para uso em contextos innerHTML.
   // Os mesmos caminhos do CSS estão aqui duplicados para uso em strings JS.
   const _JS_SVG = {
@@ -3847,6 +3980,8 @@ select {
 
     // UX v2: actualizar cabeçalho e indicar que o documento está gerado
     if (!silencioso) _actualizarCabecalhoPreviewGerado();
+    // Ref.3: actualizar CTA mobile (muda texto para "Ver documento preparado")
+    _actualizarPreviewMobileCta();
   };
 
 
