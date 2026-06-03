@@ -5,10 +5,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut,
          createUserWithEmailAndPassword, onAuthStateChanged,
+         sendPasswordResetEmail,
          setPersistence, browserLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, getDocs, collection, addDoc,
-         updateDoc, deleteDoc, serverTimestamp, query, orderBy, limit, onSnapshot, where }
+         updateDoc, serverTimestamp, query, orderBy, limit, onSnapshot, where }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = window.SIGDOC_CONFIG.config;
@@ -318,6 +319,50 @@ window.fazerLogin = async function() {
 
 document.getElementById("senha-login").addEventListener("keydown", e => { if(e.key==="Enter") window.fazerLogin(); });
 document.getElementById("email-login").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("senha-login").focus(); });
+
+/**
+ * Recuperação de senha — envia email de redefinição via Firebase Auth.
+ * Lê o email já preenchido no campo de login.
+ * Sucesso: toast verde + mensagem inline.
+ * Erro: mensagem inline vermelha (mesmo padrão dos erros de login).
+ */
+window.recuperarSenha = async function() {
+  const email   = document.getElementById("email-login").value.trim();
+  const errEl   = document.getElementById("msg-erro");
+  const linkBtn = document.querySelector(".link-recuperar-senha");
+
+  if (!email) {
+    mostrarErro("Insira o seu e-mail no campo acima para receber o link de recuperação.");
+    document.getElementById("email-login").focus();
+    return;
+  }
+
+  // Feedback visual no link
+  if (linkBtn) { linkBtn.textContent = "A enviar..."; linkBtn.style.pointerEvents = "none"; }
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+
+    // Mostrar confirmação inline com estilo de sucesso
+    errEl.textContent = "✅ Instruções enviadas para " + email + ". Verifique a caixa de entrada e a pasta de spam.";
+    errEl.style.display      = "block";
+    errEl.style.color        = "var(--ok, #059669)";
+    errEl.style.background   = "var(--ok-bg, #ecfdf5)";
+    errEl.style.borderColor  = "var(--ok, #059669)";
+
+    if (linkBtn) { linkBtn.textContent = "Reenviar instruções"; linkBtn.style.pointerEvents = ""; }
+
+  } catch(e) {
+    const m = {
+      "auth/user-not-found":        "Não existe conta com este e-mail.",
+      "auth/invalid-email":         "E-mail inválido.",
+      "auth/too-many-requests":     "Muitos pedidos seguidos. Aguarde alguns minutos.",
+      "auth/network-request-failed":"Sem ligação à Internet."
+    };
+    mostrarErro(m[e.code] || "Não foi possível enviar. Verifique o e-mail.");
+    if (linkBtn) { linkBtn.textContent = "Esqueceu a senha?"; linkBtn.style.pointerEvents = ""; }
+  }
+};
 
 window.fazerLogout = function() {
   mostrarNotif(
@@ -946,10 +991,7 @@ async function carregarUtilizadores() {
       const bge = u.activo?`<span class="b-activo">● Activo</span>`:`<span class="b-inactivo">○ Inactivo</span>`;
       const acs = u.ultimoAcesso?.toDate ? fmtData(u.ultimoAcesso.toDate()) : "—";
       const btn = !temAlgumRoleLocal(u, ["admin"])
-        ? `<div style="display:flex;gap:6px;align-items:center">
-             <button class="btn-acao-ln ${u.activo?"btn-desat":"btn-ativar"}" onclick="toggleUser('${uid}',${u.activo})">${u.activo?"Desactivar":"Activar"}</button>
-             <button class="btn-acao-ln btn-eliminar" onclick="eliminarUtilizador('${uid}','${(u.nome||'').replace(/'/g,"\\'")}',this)" title="Eliminar permanentemente">Eliminar</button>
-           </div>`
+        ? `<button class="btn-acao-ln ${u.activo?"btn-desat":"btn-ativar"}" onclick="toggleUser('${uid}',${u.activo})">${u.activo?"Desactivar":"Activar"}</button>`
         : `<span style="font-size:11px;color:var(--neu-300)">—</span>`;
       html+=`<tr>
         <td><strong>${u.nome||"—"}</strong><br><small style="color:var(--neu-400)">${u.unidade||""}</small></td>
@@ -966,49 +1008,16 @@ async function carregarUtilizadores() {
 
 window.toggleUser = async function(uid, actual) {
   if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: toggleUser");return;}
-  const accao = actual ? "Desactivar" : "Activar";
-  const msg   = actual
-    ? "Desactivar este utilizador? Perderá acesso imediatamente."
-    : "Reactivar acesso deste utilizador?";
-  mostrarNotif(msg, "aviso", { label: accao + " →", timeout: 7000, fn: async () => {
-    try{
-      await updateDoc(doc(db,"utilizadores",uid),{activo:!actual});
-      mostrarNotif(!actual?"✅ Utilizador activado.":"🔴 Utilizador desactivado.");
-      carregarUtilizadores(); carregarIndicadores();
-    }catch(e){ console.error(e); mostrarNotif("❌ Erro ao actualizar o utilizador.","erro"); }
-  }});
+  if(!confirm(actual?"Desactivar?":"Activar?")) return;
+  try{
+    await updateDoc(doc(db,"utilizadores",uid),{activo:!actual});
+    mostrarNotif(!actual?"✅ Utilizador activado!":"🔴 Utilizador desactivado.");
+    carregarUtilizadores(); carregarIndicadores();
+  }catch(e){ console.error(e); mostrarNotif("❌ Erro ao actualizar o utilizador.","erro"); }
 };
 
 // Manter compatibilidade com chamadas antigas
 window.toggleEstadoUtilizador = window.toggleUser;
-
-/**
- * Elimina um utilizador do Firestore (utilizadores/{uid}).
- * NOTA: a conta Firebase Auth fica orphã — use o script de limpeza
- * ou o Firebase Console para a remover completamente.
- */
-window.eliminarUtilizador = function(uid, nome) {
-  if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: eliminarUtilizador");return;}
-  mostrarNotif(
-    `⚠️ Eliminar "${nome}" permanentemente? O acesso ao sistema será revogado de imediato.`,
-    "aviso",
-    {
-      label: "Eliminar →",
-      timeout: 8000,
-      fn: async () => {
-        try {
-          await deleteDoc(doc(db, "utilizadores", uid));
-          mostrarNotif(`🗑️ "${nome}" removido do sistema.`);
-          carregarUtilizadores();
-          carregarIndicadores();
-        } catch(e) {
-          console.error("eliminarUtilizador:", e);
-          mostrarNotif(`❌ Erro ao eliminar: ${e.message}`, "erro");
-        }
-      }
-    }
-  );
-};
 
 window.abrirModalNovoUtilizador = ()=>{ if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: abrirModalNovoUtilizador");return;} document.getElementById("overlay-novo-utilizador").classList.add("activo"); };
 window.fecharModal = ()=>{
