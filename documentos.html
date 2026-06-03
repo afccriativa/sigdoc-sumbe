@@ -1146,6 +1146,7 @@ select {
    overflow:hidden do .cartao garante clip nos cantos arredondados. */
 .step-card {
   position: relative;
+  transition: border-color .25s ease;
 }
 .step-card::before {
   content: '';
@@ -1157,12 +1158,19 @@ select {
   transition: opacity .3s ease;
   border-radius: var(--r-xl) var(--r-xl) 0 0;
 }
+/* Stripe: cor exacta conforme Figma (#22C55E active, #15803D complete) */
+.step-card--ativo {
+  border-color: var(--g-300) !important; /* #86efac */
+}
 .step-card--ativo::before {
-  background: linear-gradient(90deg, var(--g-700) 0%, var(--g-500) 100%);
+  background: #22c55e;
   opacity: 1;
 }
+.step-card--completo {
+  border-color: var(--g-200) !important; /* #bbf7d0 */
+}
 .step-card--completo::before {
-  background: var(--g-800);
+  background: #15803d;
   opacity: 1;
 }
 
@@ -1190,7 +1198,27 @@ select {
   border-bottom-color: var(--g-100);
 }
 
-/* ── Step Status badge no cabeçalho ─────────────────────────────── */
+/* ── Step 3 colapsável — mostra só o cabeçalho quando inactivo ──────
+   Quando nenhum funcionário está seleccionado, o step 3 colapsa
+   automaticamente (igual ao Figma). O JS já chama
+   actualizarEstadoStepCards() que adiciona .step-card--ativo quando
+   o funcionário é seleccionado — o corpo reaparece nesse momento.
+   Transição suave via max-height para evitar salto brusco.        */
+#step-card-3:not(.step-card--ativo):not(.step-card--completo) .cartao-corpo,
+#step-card-3:not(.step-card--ativo):not(.step-card--completo) .form-progresso-wrap {
+  display: none;
+}
+/* Subtítulo descritivo visível apenas no estado colapsado */
+#step-card-3 .step-subtitulo-colapsado {
+  display: none;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--s-400);
+  margin-left: 2px;
+}
+#step-card-3:not(.step-card--ativo):not(.step-card--completo) .step-subtitulo-colapsado {
+  display: block;
+}
 .step-status {
   margin-left: auto;
   font-size: 10px;
@@ -1958,7 +1986,10 @@ select {
       <div class="cartao-cabecalho">
         <span class="step-num" data-step="3" aria-hidden="true"></span>
         <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        Informações Complementares
+        <div>
+          Informações Complementares
+          <div class="step-subtitulo-colapsado">Datas, período de férias, nome do responsável</div>
+        </div>
         <span class="step-status" id="step-status-3"></span>
       </div>
 
