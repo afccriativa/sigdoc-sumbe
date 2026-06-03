@@ -142,75 +142,122 @@ body {
 
 /* Layout centrado — cartão único (showcase removido por ser ruído puro para utilizadores diários) */
 .login-shell {
-  width: min(460px, 100%);
+  width: min(840px, 96%);
   display: block;
   position: relative; z-index: 1;
 }
 
-/* [C1 resolvido] Painel showcase removido — era ruído puro para utilizadores diários.
-   O layout split foi substituído por cartão único centrado, eliminando
-   o colapso estranho em ecrãs estreitos e máquinas lentas. */
-
-
-
-/* Cartão de login (lado direito) */
+/* ── Card split dois painéis ───────────────────────────── */
 .login-card {
-  background: var(--surface);
-  border-radius: 28px;
-  padding: 22px 28px 24px;
+  display: flex;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.15);
   width: 100%;
-  box-shadow: var(--sh-lg);
+}
+
+/* ── Painel esquerdo — branding verde ─────────────────── */
+.login-panel-esq {
+  width: 340px; flex-shrink: 0;
+  background: #0b3d28;
   position: relative; overflow: hidden;
-  display: flex; flex-direction: column; justify-content: space-between;
-  max-height: calc(100vh - 48px);
-  overflow-y: auto;
+  display: flex; align-items: stretch;
 }
 
-/* Faixa de cor no topo do cartão */
-.login-card::before {
+/* Padrão de pontos decorativos */
+.login-panel-esq::before {
   content: '';
-  position: absolute; inset: 0 0 auto 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--hlth) 0%, #10c886 50%, var(--pri) 100%);
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.07) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
-.login-brand-row {
-  display: flex; align-items: flex-start;
-  justify-content: space-between; gap: 16px; margin-bottom: 14px;
+/* Gradiente diagonal subtil */
+.login-panel-esq::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(145deg, rgba(16,200,134,.12) 0%, transparent 60%);
 }
 
-.login-seal { display: flex; align-items: center; gap: 10px; }
+.login-panel-esq-inner {
+  position: relative; z-index: 1;
+  padding: 44px 32px;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.login-panel-brand {
+  display: flex; align-items: center; gap: 14px;
+}
 
 .login-emblema {
-  width: 46px; height: 46px; border-radius: 13px;
-  background: linear-gradient(145deg, var(--hlth), #10c886);
+  width: 52px; height: 52px; border-radius: 14px;
+  background: rgba(16,200,134,.18);
+  border: 1px solid rgba(16,200,134,.3);
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px; flex-shrink: 0;
-  box-shadow: 0 6px 16px rgba(13,110,79,.22);
+  font-size: 24px; flex-shrink: 0;
 }
 
-.login-mini-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 6px 12px; border-radius: var(--r-full);
-  background: var(--info-bg); color: var(--info);
-  font-size: 10px; font-weight: 800;
-  text-transform: uppercase; letter-spacing: .06em; white-space: nowrap;
+.login-panel-brand h1 {
+  font-size: 18px; font-weight: 800; color: #fff;
+  letter-spacing: -.03em; line-height: 1.2;
+}
+.login-panel-brand p {
+  font-size: 11px; color: rgba(255,255,255,.55);
+  margin-top: 3px; line-height: 1.4;
 }
 
-.login-titulo { text-align: left; margin-bottom: 0; }
-
-.login-titulo h1 {
-  font-size: 19px; font-weight: 800;
-  letter-spacing: -.04em; color: var(--txt-1); line-height: 1.2;
+.login-panel-info {
+  display: flex; flex-direction: column; gap: 3px;
+  padding-top: 16px; border-top: 1px solid rgba(255,255,255,.1);
+}
+.login-panel-info span {
+  font-size: 11px; color: rgba(255,255,255,.45);
+  line-height: 1.5;
+}
+.login-panel-info span:first-child {
+  font-size: 12px; font-weight: 600;
+  color: rgba(255,255,255,.75);
 }
 
-.login-titulo p {
-  font-size: 11px; color: var(--txt-3); margin-top: 4px; line-height: 1.5;
+/* ── Painel direito — formulário ──────────────────────── */
+.login-panel-dir {
+  flex: 1;
+  background: #fff;
+  padding: 44px 40px;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
 }
 
-.login-form { display: flex; flex-direction: column; gap: 10px; }
+.login-welcome { margin-bottom: 28px; }
+.login-welcome h2 {
+  font-size: 28px; font-weight: 800;
+  color: var(--txt-1); letter-spacing: -.04em;
+  line-height: 1.15; margin-bottom: 6px;
+}
+.login-welcome p {
+  font-size: 13px; color: var(--txt-2); line-height: 1.5;
+}
 
-/* Label de secção — "Identificação" / "Informações" */
+.login-form { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+
+.rodape-login {
+  font-size: 10px; color: var(--txt-3); line-height: 1.6;
+  border-top: 1px solid var(--border); padding-top: 12px; margin-top: auto;
+}
+
+/* ── Mobile: empilhar os dois painéis ─────────────────── */
+@media (max-width: 640px) {
+  .login-card        { flex-direction: column; }
+  .login-panel-esq   { width: 100%; }
+  .login-panel-esq-inner { padding: 24px 24px 20px; flex-direction: row; align-items: center; gap: 16px; }
+  .login-panel-brand h1  { font-size: 15px; }
+  .login-panel-info  { display: none; }
+  .login-panel-dir   { padding: 28px 24px 24px; }
+  .login-welcome h2  { font-size: 22px; }
+}
 .login-sec-label {
   font-size: 10px; font-weight: 700;
   text-transform: uppercase; letter-spacing: .07em;
@@ -297,29 +344,7 @@ body {
 
 .btn-entrar:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
-.login-meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-
-.login-meta-pill {
-  flex: 1 1 150px; padding: 10px 12px;
-  border-radius: var(--r-md);
-  background: var(--surface-2); border: 1px solid var(--border);
-  font-size: 11px; line-height: 1.5; color: var(--txt-2);
-  display: flex; align-items: flex-start; gap: 8px;
-}
-
-.pill-icon {
-  width: 24px; height: 24px; border-radius: 7px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
-}
-.pill-icon-blue { background: var(--pri-10); color: var(--pri); }
-.pill-icon-teal { background: #ccfbf1; color: #0d9488; }
-
-.pill-content { flex: 1; }
-
-.login-meta-pill strong {
-  display: block; font-size: 11px; color: var(--txt-1); margin-bottom: 2px;
-}
+.login-meta-row { display: none; } /* removido — substituído pelo painel esquerdo */
 
 .msg-erro-login {
   display: none; margin-top: 12px;
