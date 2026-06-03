@@ -997,8 +997,15 @@ window.criarNovoUtilizador = async function() {
   const perfilPrincipal=obterEtiquetaPerfilPrincipalLocal({ roles:["funcionario"].concat(roles), perfilBase:"funcionario" });
   const perfil=perfilPrincipal;
   const unidade=document.getElementById("novo-unidade").value;
-  if(!nome||!email||!senha){mostrarNotif("⚠️ Preencha todos os campos obrigatórios.","aviso");return;}
-  if(senha.length<6){mostrarNotif("⚠️ A senha deve ter pelo menos 6 caracteres.","aviso");return;}
+  if(!nome||!email){mostrarNotif("⚠️ Preencha o nome e o e-mail.","aviso");return;}
+  if(senha && senha.length<6){mostrarNotif("⚠️ A senha deve ter pelo menos 6 caracteres.","aviso");return;}
+  if(!senha){
+    // Sem senha: só possível se o email já existir (promoção).
+    // Tentar promoção directamente sem tentar criar conta Auth.
+    const roles=obterRolesNovoUtilizador();
+    await _promoverFuncionarioExistente({ nome, email, unidade, roles });
+    return;
+  }
   try{
     // Usar app secundária para NÃO substituir a sessão do admin
     const appSec = initializeApp(firebaseConfig, `criar-user-${Date.now()}`);
@@ -1023,10 +1030,88 @@ window.criarNovoUtilizador = async function() {
     limparRolesNovoUtilizador();
   }catch(e){
     console.error("criarNovoUtilizador:",e);
-    const m={"auth/email-already-in-use":"❌ E-mail já está registado.","auth/invalid-email":"❌ E-mail inválido.","auth/weak-password":"❌ Senha fraca (mínimo 6 caracteres)."};
-    mostrarNotif(m[e.code]||`❌ Erro: ${e.message}`,"erro");
+    if (e.code === "auth/email-already-in-use") {
+      // Email já existe no Firebase Auth (utilizador registado no portal).
+      // Em vez de erro, tentar promover: encontrar o portalUid em 'funcionarios'
+      // e criar/actualizar o documento 'utilizadores/{uid}' directamente.
+      await _promoverFuncionarioExistente({ nome, email, unidade, roles });
+    } else {
+      const m={"auth/invalid-email":"❌ E-mail inválido.","auth/weak-password":"❌ Senha fraca (mínimo 6 caracteres)."};
+      mostrarNotif(m[e.code]||`❌ Erro: ${e.message}`,"erro");
+    }
   }
 };
+
+/**
+ * Promove um funcionário do portal para utilizador do sistema.
+ * Usado quando o email já existe no Firebase Auth (conta do portal).
+ * Procura o portalUid em 'funcionarios' e cria 'utilizadores/{uid}'
+ * sem criar nova conta Auth — o funcionário usa a senha que já tem.
+ */
+async function _promoverFuncionarioExistente({ nome, email, unidade, roles }) {
+  try {
+    let uid = null;
+
+    // 1. Procurar o funcionário pelo email na colecção 'funcionarios'
+    //    (requer que o campo 'email' esteja guardado no documento — ver nota abaixo)
+    try {
+      const qEmail = query(
+        collection(db, "funcionarios"),
+        where("email", "==", email),
+        limit(1)
+      );
+      const snapEmail = await getDocs(qEmail);
+      if (!snapEmail.empty) {
+        uid = snapEmail.docs[0].data().portalUid || null;
+      }
+    } catch(e) { console.warn("_promover: busca por email em funcionarios:", e); }
+
+    // 2. Fallback: procurar em 'utilizadores' (pode já existir com email guardado)
+    if (!uid) {
+      try {
+        const qUtil = query(
+          collection(db, "utilizadores"),
+          where("email", "==", email),
+          limit(1)
+        );
+        const snapUtil = await getDocs(qUtil);
+        if (!snapUtil.empty) uid = snapUtil.docs[0].id;
+      } catch(e) { console.warn("_promover: busca em utilizadores:", e); }
+    }
+
+    // 3. UID não encontrado — instruir o admin
+    if (!uid) {
+      mostrarNotif(
+        "⚠️ Este e-mail pertence ao portal do funcionário, mas o seu UID não foi localizado. " +
+        "Confirme que o funcionário activou o acesso ao portal no módulo Cadastro.",
+        "aviso"
+      );
+      return;
+    }
+
+    // 4. Criar ou actualizar o documento em 'utilizadores/{uid}'
+    //    merge:true preserva campos existentes (ex: ultimoAcesso)
+    await setDoc(doc(db, "utilizadores", uid), {
+      nome, email, unidade, activo: true,
+      criadoEm:    serverTimestamp(),
+      ultimoAcesso: null,
+      criadoPor:   utilizadorActual.uid,
+      ...payloadPerfilLocal({ roles })
+    }, { merge: true });
+
+    fecharModal();
+    mostrarNotif(
+      `✅ "${nome}" promovido com acesso ao sistema. ` +
+      `Pode entrar com o e-mail e a senha que já usa no portal.`
+    );
+    carregarUtilizadores();
+    carregarIndicadores();
+
+  } catch(err) {
+    console.error("_promoverFuncionarioExistente:", err);
+    mostrarNotif(`❌ Erro ao promover utilizador: ${err.message}`, "erro");
+  }
+}
 
 async function registarSessao(u,d,tipo){
   try{ await setDoc(doc(db,"sessoes",`${u.uid}_${Date.now()}`),{uid:u.uid,nome:d.nome||u.email,perfil:d.perfil,email:u.email,tipo,timestamp:serverTimestamp()}); }catch(e){ console.warn("Sessão não registada:",e); }
