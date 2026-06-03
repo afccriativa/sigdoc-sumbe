@@ -157,12 +157,12 @@ body {
 .login-card {
   background: var(--surface);
   border-radius: 28px;
-  padding: 34px 30px;
+  padding: 22px 28px 24px;
   width: 100%;
   box-shadow: var(--sh-lg);
   position: relative; overflow: hidden;
   display: flex; flex-direction: column; justify-content: space-between;
-  max-height: calc(100vh - 64px);
+  max-height: calc(100vh - 48px);
   overflow-y: auto;
 }
 
@@ -176,17 +176,17 @@ body {
 
 .login-brand-row {
   display: flex; align-items: flex-start;
-  justify-content: space-between; gap: 16px; margin-bottom: 22px;
+  justify-content: space-between; gap: 16px; margin-bottom: 14px;
 }
 
-.login-seal { display: flex; align-items: center; gap: 12px; }
+.login-seal { display: flex; align-items: center; gap: 10px; }
 
 .login-emblema {
-  width: 56px; height: 56px; border-radius: 16px;
+  width: 46px; height: 46px; border-radius: 13px;
   background: linear-gradient(145deg, var(--hlth), #10c886);
   display: flex; align-items: center; justify-content: center;
-  font-size: 26px; flex-shrink: 0;
-  box-shadow: 0 8px 20px rgba(13,110,79,.22);
+  font-size: 22px; flex-shrink: 0;
+  box-shadow: 0 6px 16px rgba(13,110,79,.22);
 }
 
 .login-mini-badge {
@@ -208,7 +208,7 @@ body {
   font-size: 11px; color: var(--txt-3); margin-top: 4px; line-height: 1.5;
 }
 
-.login-form { display: flex; flex-direction: column; gap: 14px; }
+.login-form { display: flex; flex-direction: column; gap: 10px; }
 
 /* Label de secção — "Identificação" / "Informações" */
 .login-sec-label {
@@ -233,7 +233,7 @@ body {
 /* Divisor entre form e informações */
 .login-sec-divider {
   display: flex; align-items: center; gap: 10px;
-  margin-top: 16px;
+  margin-top: 10px;
 }
 .login-sec-divider::before,
 .login-sec-divider::after {
@@ -297,7 +297,7 @@ body {
 
 .btn-entrar:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
-.login-meta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.login-meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 
 .login-meta-pill {
   flex: 1 1 150px; padding: 10px 12px;
@@ -344,9 +344,9 @@ body {
 .link-recuperar-senha:active { opacity: .5; }
 
 .rodape-login {
-  text-align: left; margin-top: 22px;
-  font-size: 11px; color: var(--txt-3); line-height: 1.6;
-  border-top: 1px solid var(--border); padding-top: 16px;
+  text-align: left; margin-top: 12px;
+  font-size: 10px; color: var(--txt-3); line-height: 1.6;
+  border-top: 1px solid var(--border); padding-top: 10px;
 }
 
 /* ═══════════════════════════════════════════════════════════
