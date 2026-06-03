@@ -323,43 +323,42 @@ document.getElementById("email-login").addEventListener("keydown", e => { if(e.k
 /**
  * Recuperação de senha — envia email de redefinição via Firebase Auth.
  * Lê o email já preenchido no campo de login.
- * Sucesso: toast verde + mensagem inline.
- * Erro: mensagem inline vermelha (mesmo padrão dos erros de login).
  */
 window.recuperarSenha = async function() {
   const email   = document.getElementById("email-login").value.trim();
   const errEl   = document.getElementById("msg-erro");
   const linkBtn = document.querySelector(".link-recuperar-senha");
 
+  // Sem email — instrução directiva
   if (!email) {
-    mostrarErro("Insira o seu e-mail no campo acima para receber o link de recuperação.");
+    mostrarErro("Insira o seu e-mail no campo acima e clique em 'Esqueceu a senha?'.");
     document.getElementById("email-login").focus();
     return;
   }
 
-  // Feedback visual no link
+  // Feedback visual no link enquanto envia
   if (linkBtn) { linkBtn.textContent = "A enviar..."; linkBtn.style.pointerEvents = "none"; }
 
   try {
     await sendPasswordResetEmail(auth, email);
 
-    // Mostrar confirmação inline com estilo de sucesso
-    errEl.textContent = "✅ Instruções enviadas para " + email + ". Verifique a caixa de entrada e a pasta de spam.";
-    errEl.style.display      = "block";
-    errEl.style.color        = "var(--ok, #059669)";
-    errEl.style.background   = "var(--ok-bg, #ecfdf5)";
-    errEl.style.borderColor  = "var(--ok, #059669)";
+    // Mostrar confirmação com estilo de sucesso (verde)
+    errEl.textContent  = "✅ Instruções enviadas para " + email + ". Verifique a caixa de entrada e a pasta de spam.";
+    errEl.style.display     = "block";
+    errEl.style.color       = "#059669";
+    errEl.style.background  = "#ecfdf5";
+    errEl.style.borderColor = "#059669";
 
     if (linkBtn) { linkBtn.textContent = "Reenviar instruções"; linkBtn.style.pointerEvents = ""; }
 
   } catch(e) {
     const m = {
-      "auth/user-not-found":        "Não existe conta com este e-mail.",
-      "auth/invalid-email":         "E-mail inválido.",
-      "auth/too-many-requests":     "Muitos pedidos seguidos. Aguarde alguns minutos.",
-      "auth/network-request-failed":"Sem ligação à Internet."
+      "auth/user-not-found":         "Não existe conta registada com este e-mail.",
+      "auth/invalid-email":          "E-mail inválido.",
+      "auth/too-many-requests":      "Muitos pedidos seguidos. Aguarde alguns minutos.",
+      "auth/network-request-failed": "Sem ligação à Internet."
     };
-    mostrarErro(m[e.code] || "Não foi possível enviar. Verifique o e-mail.");
+    mostrarErro(m[e.code] || "Não foi possível enviar. Verifique o e-mail inserido.");
     if (linkBtn) { linkBtn.textContent = "Esqueceu a senha?"; linkBtn.style.pointerEvents = ""; }
   }
 };
@@ -1119,7 +1118,7 @@ window.fecharModalPerfil=()=>{document.getElementById("overlay-perfil").style.di
 document.getElementById("overlay-perfil").addEventListener("click",function(e){if(e.target===this)window.fecharModalPerfil();});
 document.getElementById("overlay-novo-utilizador").addEventListener("click",function(e){if(e.target===this)window.fecharModal();});
 
-function mostrarErro(msg){const e=document.getElementById("msg-erro");e.textContent=msg;e.style.display="block";}
+function mostrarErro(msg){const e=document.getElementById("msg-erro");e.textContent=msg;e.style.display="block";e.style.color="";e.style.background="";e.style.borderColor="";}
 
 // ─────────────────────────────────────────────────────────────
 //  mostrarNotif — Toast contextual com botão de acção opcional
