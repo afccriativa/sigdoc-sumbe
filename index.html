@@ -29,21 +29,34 @@
   <div class="login-shell">
 
     <div class="login-card">
-      <div>
-        <div class="login-brand-row">
-          <div class="login-seal">
+
+      <!-- PAINEL ESQUERDO — Branding institucional -->
+      <div class="login-panel-esq">
+        <div class="login-panel-esq-inner">
+          <div class="login-panel-brand">
             <div class="login-emblema">🏥</div>
-            <div class="login-titulo">
+            <div>
               <h1>SIGDOC-SUMBE</h1>
-              <p>Direcção Municipal da Saúde do Sumbe<br>Cuanza Sul, Angola</p>
+              <p>Gestão Documental e RH</p>
             </div>
           </div>
-          <div class="login-mini-badge">Acesso Seguro</div>
+          <div class="login-panel-info">
+            <span>Direcção Municipal da Saúde do Sumbe</span>
+            <span>Cuanza Sul · Angola</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAINEL DIREITO — Formulário -->
+      <div class="login-panel-dir">
+        <div class="login-welcome">
+          <h2>Bem-vindo</h2>
+          <p>Introduza as suas credenciais para aceder ao sistema</p>
         </div>
 
         <div class="login-form">
-          <div class="login-sec-label">Identificação</div>
           <div class="campo-login">
+            <label for="email-login">E-mail</label>
             <div class="input-wrap">
               <span class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
               <input type="email" id="email-login" placeholder="utilizador@saude.gov.ao" autocomplete="email"/>
@@ -64,32 +77,12 @@
           <div class="msg-erro-login" id="msg-erro"></div>
         </div>
 
-        <div class="login-sec-divider">
-          <span class="login-sec-label">Informações</span>
-        </div>
-
-        <div class="login-meta-row">
-          <div class="login-meta-pill">
-            <div class="pill-icon pill-icon-blue">i</div>
-            <div class="pill-content">
-              <strong>Acesso institucional</strong>
-              Reservado a perfis autorizados. Não partilhe as suas credenciais.
-            </div>
-          </div>
-          <div class="login-meta-pill">
-            <div class="pill-icon pill-icon-teal">?</div>
-            <div class="pill-content">
-              <strong>Suporte operacional</strong>
-              Falha de acesso? Contacte o administrador.
-            </div>
-          </div>
+        <div class="rodape-login">
+          Sistema Integrado de Gestão Documental e Recursos Humanos<br>
+          © 2026 · Governo Provincial do Cuanza Sul · afccriativa
         </div>
       </div>
 
-      <div class="rodape-login">
-        Sistema Integrado de Gestão Documental e Recursos Humanos<br>
-        © 2026 · Governo Provincial do Cuanza Sul ©afccriativa
-      </div>
     </div>
   </div>
 </div>
