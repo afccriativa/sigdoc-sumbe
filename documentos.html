@@ -1141,6 +1141,31 @@ select {
 }
 .step-num::before { content: attr(data-step); }
 
+/* ── Risca de acento 3px no topo — indica estado activo/concluído
+   Usa position:relative no .step-card + ::before absoluto.
+   overflow:hidden do .cartao garante clip nos cantos arredondados. */
+.step-card {
+  position: relative;
+}
+.step-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity .3s ease;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+}
+.step-card--ativo::before {
+  background: linear-gradient(90deg, var(--g-700) 0%, var(--g-500) 100%);
+  opacity: 1;
+}
+.step-card--completo::before {
+  background: var(--g-800);
+  opacity: 1;
+}
+
 .step-card--ativo .step-num {
   background: var(--g-700);
   color: #fff;
