@@ -158,33 +158,25 @@ body {
 
 /* ── Painel esquerdo — branding verde ─────────────────── */
 .login-panel-esq {
-  width: 340px; flex-shrink: 0;
+  width: 360px; flex-shrink: 0;
   background: #0b3d28;
   position: relative; overflow: hidden;
   display: flex; align-items: stretch;
 }
 
-/* Padrão de pontos decorativos */
-.login-panel-esq::before {
-  content: '';
-  position: absolute; inset: 0;
-  background-image:
-    radial-gradient(circle, rgba(255,255,255,.07) 1px, transparent 1px);
-  background-size: 28px 28px;
-}
-
-/* Gradiente diagonal subtil */
+/* Gradiente diagonal subtil — sem pontos (mais limpo) */
 .login-panel-esq::after {
   content: '';
   position: absolute; inset: 0;
-  background: linear-gradient(145deg, rgba(16,200,134,.12) 0%, transparent 60%);
+  background: linear-gradient(160deg, rgba(16,200,134,.1) 0%, transparent 55%);
 }
 
 .login-panel-esq-inner {
   position: relative; z-index: 1;
-  padding: 44px 32px;
+  padding: 48px 36px;
   display: flex; flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;        /* centrado verticalmente */
+  gap: 28px;
   width: 100%;
 }
 
@@ -193,70 +185,80 @@ body {
 }
 
 .login-emblema {
-  width: 52px; height: 52px; border-radius: 14px;
-  background: rgba(16,200,134,.18);
-  border: 1px solid rgba(16,200,134,.3);
+  width: 54px; height: 54px; border-radius: 15px;
+  background: rgba(16,200,134,.16);
+  border: 1px solid rgba(16,200,134,.28);
   display: flex; align-items: center; justify-content: center;
-  font-size: 24px; flex-shrink: 0;
+  font-size: 26px; flex-shrink: 0;
 }
 
 .login-panel-brand h1 {
-  font-size: 18px; font-weight: 800; color: #fff;
+  font-size: 19px; font-weight: 800; color: #fff;
   letter-spacing: -.03em; line-height: 1.2;
 }
 .login-panel-brand p {
-  font-size: 11px; color: rgba(255,255,255,.55);
+  font-size: 11px; color: rgba(255,255,255,.5);
   margin-top: 3px; line-height: 1.4;
 }
 
 .login-panel-info {
   display: flex; flex-direction: column; gap: 3px;
-  padding-top: 16px; border-top: 1px solid rgba(255,255,255,.1);
+  padding-left: 4px;
 }
 .login-panel-info span {
-  font-size: 11px; color: rgba(255,255,255,.45);
+  font-size: 11px; color: rgba(255,255,255,.38);
   line-height: 1.5;
 }
 .login-panel-info span:first-child {
   font-size: 12px; font-weight: 600;
-  color: rgba(255,255,255,.75);
+  color: rgba(255,255,255,.65);
 }
 
 /* ── Painel direito — formulário ──────────────────────── */
 .login-panel-dir {
   flex: 1;
   background: #fff;
-  padding: 44px 40px;
+  padding: 48px 44px;
   display: flex; flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;          /* centrado verticalmente */
+  gap: 0;
 }
 
-.login-welcome { margin-bottom: 28px; }
+.login-welcome { margin-bottom: 32px; }
 .login-welcome h2 {
-  font-size: 28px; font-weight: 800;
+  font-size: 30px; font-weight: 800;
   color: var(--txt-1); letter-spacing: -.04em;
-  line-height: 1.15; margin-bottom: 6px;
+  line-height: 1.1; margin-bottom: 8px;
 }
 .login-welcome p {
-  font-size: 13px; color: var(--txt-2); line-height: 1.5;
+  font-size: 14px; color: var(--txt-2); line-height: 1.5;
 }
 
-.login-form { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+/* Labels em sentence case no contexto do login */
+.login-panel-dir .campo-login label {
+  font-size: 13px; font-weight: 600;
+  text-transform: none; letter-spacing: 0;
+  color: var(--txt-1); margin-bottom: 8px;
+}
+
+.login-form { display: flex; flex-direction: column; gap: 16px; margin-bottom: 0; }
 
 .rodape-login {
   font-size: 10px; color: var(--txt-3); line-height: 1.6;
-  border-top: 1px solid var(--border); padding-top: 12px; margin-top: auto;
+  border-top: 1px solid var(--border); padding-top: 12px;
+  margin-top: 28px;
 }
 
 /* ── Mobile: empilhar os dois painéis ─────────────────── */
 @media (max-width: 640px) {
   .login-card        { flex-direction: column; }
   .login-panel-esq   { width: 100%; }
-  .login-panel-esq-inner { padding: 24px 24px 20px; flex-direction: row; align-items: center; gap: 16px; }
+  .login-panel-esq-inner { padding: 22px 24px; flex-direction: row; align-items: center; gap: 14px; justify-content: flex-start; }
   .login-panel-brand h1  { font-size: 15px; }
   .login-panel-info  { display: none; }
-  .login-panel-dir   { padding: 28px 24px 24px; }
+  .login-panel-dir   { padding: 28px 24px; justify-content: flex-start; }
   .login-welcome h2  { font-size: 22px; }
+  .login-welcome     { margin-bottom: 20px; }
 }
 .login-sec-label {
   font-size: 10px; font-weight: 700;
@@ -326,12 +328,12 @@ body {
 }
 
 .btn-entrar {
-  width: 100%; padding: 13px;
+  width: 100%; padding: 14px;
   background: var(--pri); color: #fff; border: none;
   border-radius: var(--r-md);
   font-size: 15px; font-weight: 700; font-family: var(--font);
-  cursor: pointer; transition: background .18s, transform .14s, box-shadow .18s;
-  margin-top: 4px;
+  cursor: pointer; transition: background .18s, transform .14s;
+  margin-top: 6px;
   display: flex; align-items: center; justify-content: center; gap: 8px;
   letter-spacing: .01em;
 }
@@ -339,7 +341,6 @@ body {
 .btn-entrar:hover {
   background: var(--pri-h);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(18,65,161,.26);
 }
 
 .btn-entrar:disabled { opacity: .6; cursor: not-allowed; transform: none; }
