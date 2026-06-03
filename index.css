@@ -210,6 +210,37 @@ body {
 
 .login-form { display: flex; flex-direction: column; gap: 14px; }
 
+/* Label de secção — "Identificação" / "Informações" */
+.login-sec-label {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--txt-3); margin-bottom: 2px;
+}
+
+/* Header do campo de senha — label + "Esqueceu a senha?" em linha */
+.campo-login-header {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 7px;
+}
+.campo-login-header label { margin-bottom: 0; }
+
+/* Seta no botão de entrar */
+.btn-entrar-arrow {
+  font-size: 16px; font-weight: 400;
+  margin-left: 4px; opacity: .85;
+}
+
+/* Divisor entre form e informações */
+.login-sec-divider {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 16px;
+}
+.login-sec-divider::before,
+.login-sec-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.login-sec-divider .login-sec-label { margin-bottom: 0; white-space: nowrap; }
+
 .campo-login { margin-bottom: 0; }
 
 .campo-login label {
@@ -266,17 +297,28 @@ body {
 
 .btn-entrar:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
-.login-meta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.login-meta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
 
 .login-meta-pill {
-  flex: 1 1 150px; padding: 11px 14px;
+  flex: 1 1 150px; padding: 10px 12px;
   border-radius: var(--r-md);
   background: var(--surface-2); border: 1px solid var(--border);
-  font-size: 11px; line-height: 1.55; color: var(--txt-2);
+  font-size: 11px; line-height: 1.5; color: var(--txt-2);
+  display: flex; align-items: flex-start; gap: 8px;
 }
 
+.pill-icon {
+  width: 24px; height: 24px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+}
+.pill-icon-blue { background: var(--pri-10); color: var(--pri); }
+.pill-icon-teal { background: #ccfbf1; color: #0d9488; }
+
+.pill-content { flex: 1; }
+
 .login-meta-pill strong {
-  display: block; font-size: 12px; color: var(--txt-1); margin-bottom: 3px;
+  display: block; font-size: 11px; color: var(--txt-1); margin-bottom: 2px;
 }
 
 .msg-erro-login {
@@ -289,15 +331,12 @@ body {
   transition: background .2s, color .2s, border-color .2s;
 }
 
-/* Link de recuperação de senha */
+/* Link de recuperação de senha — inline na linha do label "Senha" */
 .link-recuperar-senha {
-  display: block;
-  text-align: right;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--pri);
   text-decoration: none;
-  margin-top: 10px;
   cursor: pointer;
   transition: opacity .15s;
 }
