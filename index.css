@@ -285,7 +285,24 @@ body {
   border: 1px solid var(--err-border);
   border-radius: var(--r-md); padding: 10px 14px;
   font-size: 13px; font-weight: 500;
+  /* Transição suave para o estado de sucesso (recuperação de senha) */
+  transition: background .2s, color .2s, border-color .2s;
 }
+
+/* Link de recuperação de senha */
+.link-recuperar-senha {
+  display: block;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--pri);
+  text-decoration: none;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.link-recuperar-senha:hover  { opacity: .7; }
+.link-recuperar-senha:active { opacity: .5; }
 
 .rodape-login {
   text-align: left; margin-top: 22px;
@@ -1084,20 +1101,8 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
   font-family: var(--font); cursor: pointer; border: none; transition: opacity .12s;
 }
 
-.btn-desat   { background: var(--err-bg);  color: var(--err); }
-.btn-ativar  { background: var(--ok-bg);   color: var(--ok);  }
-.btn-eliminar {
-  background: transparent;
-  color: var(--txt-3);
-  border: 1px solid var(--border);
-  opacity: .7;
-}
-.btn-eliminar:hover {
-  background: var(--err-bg);
-  color: var(--err);
-  border-color: var(--err);
-  opacity: 1;
-}
+.btn-desat  { background: var(--err-bg);  color: var(--err); }
+.btn-ativar { background: var(--ok-bg);   color: var(--ok); }
 
 /* ── Estado vazio ─────────────────────────────────────────── */
 .vazio-estado { text-align: center; padding: 48px 20px; color: var(--txt-3); }
