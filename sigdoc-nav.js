@@ -230,7 +230,7 @@ window.SIGDOC_NAV = (function () {
       backdrop-filter: blur(2px);
     }
 
-    /* ── Tooltip para modo colapsado (futuro) ── */
+    /* ── Tooltip para modo colapsado ── */
     .snav-tooltip {
       position: absolute;
       left: calc(100% + 10px); top: 50%;
@@ -243,6 +243,85 @@ window.SIGDOC_NAV = (function () {
       opacity: 0; transition: opacity .15s;
       z-index: 999;
     }
+
+    /* ══════════════════════════════════════════════════
+       SIDEBAR COLAPSADA — desktop
+       Activado por .snav-colapsado no #sigdoc-sidebar
+       Estado guardado em localStorage('sigdoc-sidebar-colapsada')
+    ══════════════════════════════════════════════════ */
+
+    /* Transição suave na largura */
+    #sigdoc-sidebar {
+      transition: width .28s cubic-bezier(.4,0,.2,1),
+                  min-width .28s cubic-bezier(.4,0,.2,1),
+                  transform .3s cubic-bezier(.4,0,.2,1);
+    }
+    #sigdoc-page-content {
+      transition: margin-left .28s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* Dimensões colapsadas */
+    #sigdoc-sidebar.snav-colapsado {
+      width: 60px;
+      min-width: 60px;
+    }
+    #sigdoc-page-content.snav-conteudo-colapsado {
+      margin-left: 60px;
+    }
+
+    /* Ocultar textos quando colapsado */
+    #sigdoc-sidebar.snav-colapsado .snav-brand-nome,
+    #sigdoc-sidebar.snav-colapsado .snav-brand-sub,
+    #sigdoc-sidebar.snav-colapsado .snav-grupo-label,
+    #sigdoc-sidebar.snav-colapsado .snav-item-texto,
+    #sigdoc-sidebar.snav-colapsado .snav-badge,
+    #sigdoc-sidebar.snav-colapsado .snav-user-info,
+    #sigdoc-sidebar.snav-colapsado .snav-logout-btn {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+      pointer-events: none;
+      transition: opacity .15s, width .15s;
+    }
+
+    /* Centrar elementos quando colapsado */
+    #sigdoc-sidebar.snav-colapsado .snav-brand   { justify-content: center; padding: 20px 0 18px; }
+    #sigdoc-sidebar.snav-colapsado .snav-item    { justify-content: center; padding: 9px 0; margin: 1px 4px; }
+    #sigdoc-sidebar.snav-colapsado .snav-footer  { justify-content: center; padding: 14px 0; }
+    #sigdoc-sidebar.snav-colapsado .snav-divider { margin: 8px 8px; }
+
+    /* Indicator bar do item activo: ajustar posição */
+    #sigdoc-sidebar.snav-colapsado .snav-item.snav-activo::before { left: -4px; }
+
+    /* Activar tooltip quando colapsado + hover */
+    #sigdoc-sidebar.snav-colapsado .snav-item:hover .snav-tooltip { opacity: 1; }
+
+    /* ── Botão de colapso (só visível em desktop) ── */
+    .snav-collapse-wrap {
+      display: flex;
+      justify-content: flex-end;
+      padding: 6px 10px 2px;
+    }
+    #sigdoc-sidebar.snav-colapsado .snav-collapse-wrap {
+      justify-content: center;
+      padding: 6px 0 2px;
+    }
+    .snav-collapse-btn {
+      background: rgba(255,255,255,.06);
+      border: none;
+      color: rgba(255,255,255,.35);
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .18s, color .18s, transform .18s;
+      flex-shrink: 0;
+    }
+    .snav-collapse-btn:hover { background: rgba(255,255,255,.12); color: rgba(255,255,255,.8); }
+    /* Ícone roda 180° quando colapsado */
+    #sigdoc-sidebar.snav-colapsado .snav-collapse-btn { transform: rotate(180deg); }
+    /* Esconder botão em mobile (tem o toggle próprio) */
+    @media (max-width: 768px) { .snav-collapse-wrap { display: none; } }
 
     /* ── Responsivo ── */
     @media (max-width: 768px) {
@@ -293,6 +372,7 @@ window.SIGDOC_NAV = (function () {
               <span class="snav-item-icon">${item.icon}</span>
               <span class="snav-item-texto">${item.texto}</span>
               ${badge}
+              <span class="snav-tooltip" aria-hidden="true">${item.texto}</span>
             </a>`;
         }).join('');
 
@@ -319,6 +399,14 @@ window.SIGDOC_NAV = (function () {
             <div class="snav-brand-nome">SIGDOC-SUMBE</div>
             <div class="snav-brand-sub">Gestão Documental e RH</div>
           </div>
+        </div>
+
+        <!-- Botão de colapso (desktop) -->
+        <div class="snav-collapse-wrap">
+          <button class="snav-collapse-btn" onclick="SIGDOC_NAV.toggleColapso()"
+                  aria-label="Colapsar/Expandir navegação" title="Colapsar navegação">
+            ◀
+          </button>
         </div>
 
         <!-- Nav items -->
@@ -388,6 +476,14 @@ window.SIGDOC_NAV = (function () {
       // Preparar layout body
       document.body.classList.add('sigdoc-nav-ready');
 
+      // Restaurar estado de colapso guardado
+      if (localStorage.getItem('sigdoc-sidebar-colapsada') === '1') {
+        const sidebar = document.getElementById('sigdoc-sidebar');
+        const content = document.getElementById('sigdoc-page-content');
+        if (sidebar) sidebar.classList.add('snav-colapsado');
+        if (content) content.classList.add('snav-conteudo-colapsado');
+      }
+
       // Fechar sidebar ao clicar num link (mobile)
       document.querySelectorAll('.snav-item').forEach(el => {
         el.addEventListener('click', () => {
@@ -456,6 +552,36 @@ window.SIGDOC_NAV = (function () {
       sidebar.classList.remove('snav-aberto');
       overlay.classList.remove('snav-aberto');
       if (toggle) toggle.textContent = '☰';
+    },
+
+    /** Colapsa/expande a sidebar em desktop. Estado persiste via localStorage. */
+    toggleColapso() {
+      const sidebar = document.getElementById('sigdoc-sidebar');
+      const content = document.getElementById('sigdoc-page-content');
+      if (!sidebar) return;
+      const estaColapsado = sidebar.classList.toggle('snav-colapsado');
+      if (content) content.classList.toggle('snav-conteudo-colapsado', estaColapsado);
+      localStorage.setItem('sigdoc-sidebar-colapsada', estaColapsado ? '1' : '0');
+    },
+
+    /** Colapsa a sidebar programaticamente. */
+    colapsar() {
+      const sidebar = document.getElementById('sigdoc-sidebar');
+      const content = document.getElementById('sigdoc-page-content');
+      if (!sidebar) return;
+      sidebar.classList.add('snav-colapsado');
+      if (content) content.classList.add('snav-conteudo-colapsado');
+      localStorage.setItem('sigdoc-sidebar-colapsada', '1');
+    },
+
+    /** Expande a sidebar programaticamente. */
+    expandir() {
+      const sidebar = document.getElementById('sigdoc-sidebar');
+      const content = document.getElementById('sigdoc-page-content');
+      if (!sidebar) return;
+      sidebar.classList.remove('snav-colapsado');
+      if (content) content.classList.remove('snav-conteudo-colapsado');
+      localStorage.setItem('sigdoc-sidebar-colapsada', '0');
     },
 
     logout() {
