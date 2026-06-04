@@ -482,6 +482,9 @@ async function mostrarPainel(u, d) {
     // Esconder card Acessos Recentes — tecnico não tem permissão na colecção sessoes
     const secSessoes = document.getElementById("secção-sessoes-mini");
     if (secSessoes) secSessoes.style.display = "none";
+    // Sem coluna lateral — converter grid para coluna única (elimina espaço vazio)
+    const dashGrid = document.getElementById("menu-modulos");
+    if (dashGrid) dashGrid.classList.add("dash-grid-single");
   } else if (p==="secretaria") {
     // ── M1 fix: Secretaria vê imediatamente a sua fila de trabalho ──
     // Ocultar KPIs de sistema (métricas de admin sem relevância operacional)
