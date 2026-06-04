@@ -409,7 +409,7 @@
         <!-- Banner Portal -->
 
         <!-- Grid Principal -->
-        <div class="dash-grid" id="menu-modulos">
+        <div class="dash-grid dash-grid-single" id="menu-modulos">
           <!-- Módulos -->
           <div class="dash-main-column">
             <!-- Acções Rápidas -->
@@ -566,21 +566,26 @@
             </section>
           </div>
 
-          <!-- Painel direito (desktop) -->
-          <div class="dash-side-column">
-            <div class="d-card" id="secção-sessoes-mini">
-              <div class="d-card-header">
-                <div class="d-card-titulo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Acessos Recentes</div>
-                <a class="d-card-link" onclick="mostrarSecção('sessoes')">Ver todos</a>
-              </div>
-              <div id="lista-sessoes-mini" style="padding:8px 0">
-                <div class="vazio-estado" style="padding:24px 18px">
-                  <div class="icone" style="color:var(--pri)">📋</div><p style="color:var(--txt-2)">A carregar…</p>
-                </div>
+        </div><!-- /#menu-modulos -->
+
+        <!-- ══ ACESSOS RECENTES — abaixo dos módulos (full width) ══
+             Visível apenas para admin/gestão. Oculto por JS para outros perfis. -->
+        <section class="sessoes-rodape-secção">
+          <div class="sessoes-rodape-header">
+            <div class="dash-sec-titulo">
+              <span class="sec-ic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+              Acessos Recentes
+            </div>
+            <a class="sessoes-ver-todos" onclick="mostrarSecção('sessoes')">Ver todos →</a>
+          </div>
+          <div id="secção-sessoes-mini">
+            <div id="lista-sessoes-mini" class="sessoes-rodape-grid">
+              <div class="vazio-estado" style="padding:24px 18px">
+                <div class="icone" style="color:var(--pri)">📋</div><p style="color:var(--txt-2)">A carregar…</p>
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         <!-- Secção funcionário -->
         <div id="secção-funcionario" style="display:none">
