@@ -534,21 +534,21 @@ async function mostrarPainel(u, d) {
   // ── Acções Rápidas — filtradas por perfil ──
   const ACCOES_POR_PERFIL = {
     admin:    [
-      { href:"cadastro.html",   ic:IC.user,      txt:"Novo Funcionário" },
-      { href:"documentos.html", ic:IC.fileText,  txt:"Gerar Documento"  },
-      { href:"auditoria.html",  ic:IC.search,    txt:"Auditoria"        },
-      { href:"painel.html",     ic:IC.barChart,  txt:"Painel RH"        },
+      { href:"cadastro.html",   ic:IC.user,      txt:"Novo Funcionário",  sub:"Adicionar ao sistema"     },
+      { href:"documentos.html", ic:IC.fileText,  txt:"Gerar Documento",   sub:"Modelos pré-definidos"    },
+      { href:"auditoria.html",  ic:IC.search,    txt:"Auditoria",         sub:"Rastreio de actividade"   },
+      { href:"painel.html",     ic:IC.barChart,  txt:"Painel RH",         sub:"Indicadores de gestão"    },
     ],
     chefe:    [
-      { href:"cadastro.html",   ic:IC.user,      txt:"Novo Funcionário" },
-      { href:"documentos.html", ic:IC.fileText,  txt:"Gerar Documento"  },
-      { href:"auditoria.html",  ic:IC.search,    txt:"Auditoria"        },
+      { href:"cadastro.html",   ic:IC.user,      txt:"Novo Funcionário",  sub:"Adicionar ao sistema"     },
+      { href:"documentos.html", ic:IC.fileText,  txt:"Gerar Documento",   sub:"Modelos pré-definidos"    },
+      { href:"auditoria.html",  ic:IC.search,    txt:"Auditoria",         sub:"Rastreio de actividade"   },
     ],
     tecnico:  [
-      { href:"cadastro.html",   ic:IC.user,       txt:"Novo Funcionário" },
-      { href:"documentos.html", ic:IC.fileText,   txt:"Gerar Documento"  },
-      { href:"aprovacao.html",  ic:IC.checkCircle,txt:"Solicitações"     },
-      { onclick:"mostrarSecção('secretaria')", ic:IC.mail, txt:"Secretaria" },
+      { href:"cadastro.html",   ic:IC.user,       txt:"Novo Funcionário", sub:"Adicionar ao sistema"     },
+      { href:"documentos.html", ic:IC.fileText,   txt:"Gerar Documento",  sub:"Modelos pré-definidos"    },
+      { href:"aprovacao.html",  ic:IC.checkCircle,txt:"Solicitações",     sub:"Aprovar pendentes"        },
+      { onclick:"mostrarSecção('secretaria')", ic:IC.mail, txt:"Secretaria", sub:"Gestão de expediente"  },
     ],
     secretaria: [
       { href:"index.html#secretaria", ic:IC.mail,     txt:"Pedidos"   },
@@ -578,7 +578,10 @@ async function mostrarPainel(u, d) {
       const click = a.onclick ? `onclick="${a.onclick};return false;"` : "";
       return `<a ${dest} ${click} class="qa-btn">
         <div class="qa-ic-wrap"><span class="qa-ic">${a.ic}</span></div>
-        <span class="qa-txt">${a.txt}</span>
+        <div class="qa-txt-wrap">
+          <span class="qa-txt">${a.txt}</span>
+          ${a.sub ? `<span class="qa-sub">${a.sub}</span>` : ''}
+        </div>
       </a>`;
     }).join("");
   }
