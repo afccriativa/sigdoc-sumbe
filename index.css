@@ -948,9 +948,18 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
   gap: 20px; align-items: start;
 }
 
-/* Técnico de RH e perfis sem coluna lateral: ocupa toda a largura */
+/* Técnico de RH e perfis sem coluna lateral — coluna única
+   Usa ID + classe para especificidade (1,1,0) que bate qualquer media query */
+#menu-modulos.dash-grid-single,
 .dash-grid.dash-grid-single {
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr !important;
+}
+
+/* CSS puro: quando a coluna lateral tem display:none (estilo inline do JS),
+   colapsar automaticamente sem depender de classe adicional */
+.dash-grid:has(> .dash-side-column[style*="display: none"]),
+.dash-grid:has(> .dash-side-column[style*="display:none"]) {
+  grid-template-columns: 1fr !important;
 }
 
 .dash-main-column,
@@ -2354,7 +2363,7 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
    ═══════════════════════════════════════════════════════════ */
 @media (min-width: 769px) {
   .kpi-grid    { grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  .dash-grid   { grid-template-columns: minmax(0, 1.4fr) minmax(280px, 320px); }
+  .dash-grid:not(.dash-grid-single)   { grid-template-columns: minmax(0, 1.4fr) minmax(280px, 320px); }
   .modulos-grid{ grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
   .quick-actions-grid { grid-template-columns: repeat(4, 1fr); } /* 4 em desktop */
 }
