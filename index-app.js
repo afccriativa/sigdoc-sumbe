@@ -479,12 +479,11 @@ async function mostrarPainel(u, d) {
     carregarSessoes(); carregarIndicadores();
   } else if (p==="tecnico") {
     carregarIndicadores(); // sessoes: só gestão tem acesso
-    // Esconder card Acessos Recentes — tecnico não tem permissão na colecção sessoes
+    // Esconder secção Acessos Recentes — tecnico não tem permissão na colecção sessoes
     const secSessoes = document.getElementById("secção-sessoes-mini");
-    if (secSessoes) secSessoes.style.display = "none";
-    // Sem coluna lateral — converter grid para coluna única (elimina espaço vazio)
-    const dashGrid = document.getElementById("menu-modulos");
-    if (dashGrid) dashGrid.classList.add("dash-grid-single");
+    const secSessoesWrap = secSessoes?.closest(".sessoes-rodape-secção");
+    if (secSessoes)     secSessoes.style.display = "none";
+    if (secSessoesWrap) secSessoesWrap.style.display = "none";
   } else if (p==="secretaria") {
     // ── M1 fix: Secretaria vê imediatamente a sua fila de trabalho ──
     // Ocultar KPIs de sistema (métricas de admin sem relevância operacional)
@@ -495,7 +494,9 @@ async function mostrarPainel(u, d) {
     if (menuMods) menuMods.style.display = "none";
     // Ocultar card de sessões recentes
     const secSessoes2 = document.getElementById("secção-sessoes-mini");
-    if (secSessoes2) secSessoes2.style.display = "none";
+    const secSessoesWrap2 = secSessoes2?.closest(".sessoes-rodape-secção");
+    if (secSessoes2)     secSessoes2.style.display = "none";
+    if (secSessoesWrap2) secSessoesWrap2.style.display = "none";
     // Mostrar o dashboard específico da secretaria
     const dashSec = document.getElementById("dash-home-secretaria");
     if (dashSec) dashSec.style.display = "block";
@@ -509,7 +510,9 @@ async function mostrarPainel(u, d) {
     const menuModsF = document.getElementById("menu-modulos");
     if (menuModsF) menuModsF.style.display = "none";
     const secSessoesF = document.getElementById("secção-sessoes-mini");
-    if (secSessoesF) secSessoesF.style.display = "none";
+    const secSessoesWrapF = secSessoesF?.closest(".sessoes-rodape-secção");
+    if (secSessoesF)     secSessoesF.style.display = "none";
+    if (secSessoesWrapF) secSessoesWrapF.style.display = "none";
     // O painel de chefia (chefe_unidade) usa secção-funcionario.
     // O funcionário simples usa dash-home-funcionario.
     document.getElementById("secção-funcionario").style.display="block";
