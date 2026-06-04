@@ -950,6 +950,11 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
   gap: 14px; margin-bottom: 28px;
 }
 
+/* Técnico de RH: 4 colunas → 8 módulos em 2 linhas (menos scroll) */
+.modulos-grid-4col {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 .modulo-card {
   background: var(--surface); border-radius: var(--r-lg);
   padding: 20px; text-decoration: none; color: var(--txt-1);
