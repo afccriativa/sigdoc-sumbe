@@ -384,9 +384,9 @@ body {
 /* ── Sidebar ────────────────────────────────────────────── */
 .sidebar {
   width: 220px; min-height: 100vh;
-  background: var(--sb-bg);
+  background: linear-gradient(180deg, #131b2e 0%, #0d121f 100%);
   display: flex; flex-direction: column;
-  border-right: 1px solid var(--sb-line);
+  border-right: 1px solid rgba(255,255,255,.06);
   position: sticky; top: 0; height: 100vh;
   overflow-y: auto; flex-shrink: 0;
 }
@@ -767,7 +767,101 @@ body {
 .sino-badge-svg.visivel { display: block; }
 
 /* ── Conteúdo principal ──────────────────────────────────── */
-.conteudo { padding: 28px; flex: 1; }
+.conteudo {
+  padding: 28px; flex: 1;
+  /* Padrão de pontos subtil — inspiração Stitch */
+  background-color: #f7f9fb;
+  background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
+}
+
+/* ── Hero Banner — gradiente institucional ──────────────── */
+.hero-banner {
+  position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #0058be 0%, #131b2e 100%);
+  border-radius: 24px; padding: 32px 36px;
+  margin-bottom: 24px; min-height: 130px;
+  display: flex; align-items: center;
+  box-shadow: 0 8px 32px rgba(0,88,190,.28);
+}
+
+.hero-banner-content { position: relative; z-index: 2; }
+
+.hero-sessao-pill {
+  display: inline-flex; align-items: center;
+  background: rgba(255,255,255,.12);
+  color: rgba(255,255,255,.9);
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .1em;
+  padding: 4px 12px; border-radius: 99px;
+  margin-bottom: 10px;
+  backdrop-filter: blur(4px);
+}
+
+.hero-titulo {
+  font-size: clamp(22px, 2.8vw, 32px) !important;
+  font-weight: 800 !important; color: #fff !important;
+  letter-spacing: -.04em; line-height: 1.15;
+  margin: 0 0 6px !important;
+}
+
+.hero-subtitulo {
+  font-size: 14px !important; color: rgba(255,255,255,.72) !important;
+  line-height: 1.5; margin: 0 !important;
+  max-width: 520px;
+}
+
+/* Círculos decorativos */
+.hero-deco-1, .hero-deco-2 {
+  position: absolute; border-radius: 50%;
+  pointer-events: none;
+}
+.hero-deco-1 {
+  width: 280px; height: 280px;
+  background: rgba(255,255,255,.05);
+  right: -60px; top: -80px;
+  filter: blur(40px);
+}
+.hero-deco-2 {
+  width: 200px; height: 200px;
+  background: rgba(37,99,235,.2);
+  right: 80px; bottom: -60px;
+  filter: blur(30px);
+}
+
+/* ── KPI Cards — glass morphism + sparklines ─────────────── */
+.kpi-card {
+  background: rgba(255,255,255,.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.4);
+  border-radius: var(--r-lg); padding: 20px 20px 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  transition: transform .18s, box-shadow .18s;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,.12);
+}
+
+.kpi-middle {
+  display: flex; align-items: flex-end;
+  justify-content: space-between; margin-top: 4px;
+}
+
+.kpi-sub {
+  font-size: 10px; color: var(--txt-3);
+  margin-top: 8px; margin-bottom: 8px;
+}
+
+.kpi-sparkline {
+  width: 100%; height: 32px;
+  margin-top: auto;
+  opacity: .6;
+}
 
 /* Na Secretaria, o master-detail usa altura calculada do viewport,
    por isso reduzimos o padding inferior para não criar scroll desnecessário */
@@ -820,7 +914,7 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
 
 .kpi-top {
   display: flex; align-items: flex-start;
-  justify-content: space-between; margin-bottom: 14px;
+  justify-content: space-between; margin-bottom: 4px;
 }
 
 .kpi-icon {
@@ -831,7 +925,7 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
 
 .kpi-label {
   font-size: 11px; font-weight: 700; color: var(--txt-3);
-  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px;
+  text-transform: uppercase; letter-spacing: .06em;
 }
 
 .kpi-num {
@@ -901,46 +995,57 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
 }
 
 .qa-btn {
-  background: var(--surface);
-  border: 1px solid var(--border);           /* 1px — igual ao Figma */
-  border-radius: 10px;                        /* 10px — igual ao Figma */
-  padding: 11px 14px;
+  background: rgba(255,255,255,.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.4);
+  border-radius: 14px;
+  padding: 14px 16px;
   display: flex;
-  flex-direction: row;                        /* horizontal: ícone | texto */
+  flex-direction: row;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   cursor: pointer;
-  transition: border-color .15s, box-shadow .15s, transform .15s;
+  transition: border-color .18s, box-shadow .18s, transform .18s;
   text-decoration: none; color: var(--txt-1);
-  box-shadow: 0 2px 6px rgba(0,0,0,.06);      /* sombra suave — igual ao Figma */
-  min-height: 50px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
 }
 
 .qa-btn:hover {
-  border-color: var(--pri);
-  box-shadow: var(--sh-md);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  transform: translateY(-3px);
+  border-color: rgba(255,255,255,.6);
 }
 
 .qa-ic-wrap {
-  width: 28px; height: 28px;                 /* 28×28 — igual ao Figma */
-  border-radius: 8px;                         /* quadrado arredondado, não círculo */
+  width: 44px; height: 44px;
+  border-radius: 12px;
   background: var(--pri-10);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  transition: background .14s;
+  transition: background .18s, transform .18s;
 }
 
-.qa-btn:hover .qa-ic-wrap { background: var(--pri-20); }
+.qa-btn:hover .qa-ic-wrap {
+  background: var(--pri);
+  transform: scale(1.05);
+}
+.qa-btn:hover .qa-ic-wrap svg,
+.qa-btn:hover .qa-ic-wrap .qa-ic { color: #fff !important; stroke: #fff !important; }
 
-.qa-ic  { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; }
-.qa-ic svg { width: 16px; height: 16px; }
+.qa-ic  { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
+.qa-ic svg { width: 20px; height: 20px; }
+
+.qa-txt-wrap { display: flex; flex-direction: column; gap: 2px; }
 
 .qa-txt {
-  font-size: 11px; font-weight: 600;         /* 11px Semi Bold — igual ao Figma */
+  font-size: 13px; font-weight: 700;
   color: var(--txt-1);
-  text-align: left;                           /* alinhado à esquerda (era center) */
-  line-height: 1.3;
+  text-align: left; line-height: 1.2;
+}
+
+.qa-sub {
+  font-size: 10px; font-weight: 400;
+  color: var(--txt-3); line-height: 1.3;
 }
 
 /* ── Módulos ─────────────────────────────────────────────── */
@@ -956,35 +1061,32 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
 }
 
 .modulo-card {
-  background: var(--surface); border-radius: var(--r-lg);
+  background: rgba(255,255,255,.82);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
   padding: 20px; text-decoration: none; color: var(--txt-1);
   display: flex; flex-direction: column; gap: 12px;
-  transition: border-color .15s, box-shadow .15s, transform .15s;
-  border: 1.5px solid var(--border); cursor: pointer;
-  box-shadow: var(--sh-xs);
-  position: relative; /* necessário para o ::before */
-  overflow: hidden;   /* garante clip da risca nos cantos arredondados */
+  transition: border-color .2s, box-shadow .2s, transform .2s;
+  border: 1px solid rgba(255,255,255,.5); cursor: pointer;
+  box-shadow: 0 1px 8px rgba(0,0,0,.06);
+  position: relative;
+  overflow: hidden;
 }
 
-/* Risca de 3px no topo — cor do acento de cada módulo */
+/* Risca de 3px no topo — sempre visível (cor do acento) */
 .modulo-card::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
   background: var(--mod-accent, var(--pri));
-  border-radius: var(--r-lg) var(--r-lg) 0 0;
-  opacity: 0;
-  transition: opacity .2s ease;
+  border-radius: 16px 16px 0 0;
 }
-.modulo-card:hover::before { opacity: 1; }
-/* Mantém a risca visível em módulos com estilo próprio */
-[style*="--mod-accent"]::before { opacity: .85; }
 
 .modulo-card:hover {
-  border-color: var(--pri);
-  box-shadow: var(--sh-md);
-  transform: translateY(-2px);
+  border-color: var(--mod-accent, var(--pri));
+  box-shadow: 0 8px 28px rgba(0,0,0,.12);
+  transform: translateY(-4px);
 }
 
 .modulo-card.desactivado { opacity: .4; cursor: not-allowed; pointer-events: none; }
