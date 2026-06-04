@@ -948,6 +948,11 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
   gap: 20px; align-items: start;
 }
 
+/* Técnico de RH e perfis sem coluna lateral: ocupa toda a largura */
+.dash-grid.dash-grid-single {
+  grid-template-columns: 1fr;
+}
+
 .dash-main-column,
 .dash-side-column {
   display: flex; flex-direction: column; gap: 20px; min-width: 0;
@@ -1055,9 +1060,9 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
   gap: 14px; margin-bottom: 28px;
 }
 
-/* Técnico de RH: 4 colunas → 8 módulos em 2 linhas (menos scroll) */
+/* Técnico de RH: auto-fill com min 240px → ~4 colunas na largura total */
 .modulos-grid-4col {
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
 
 .modulo-card {
