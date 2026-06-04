@@ -5,7 +5,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut,
          createUserWithEmailAndPassword, onAuthStateChanged,
-         sendPasswordResetEmail,
          setPersistence, browserLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, getDocs, collection, addDoc,
@@ -122,6 +121,42 @@ function actualizarCabecalhoPainel(u, d) {
   if (sub && lblPerfil) {
     if (_chefeUnidadeActual?.unidade?.nome) sub.textContent = `${lblPerfil} · ${_chefeUnidadeActual.unidade.nome}`;
     else sub.textContent = `${lblPerfil} · Direcção Municipal da Saúde do Sumbe`;
+  }
+
+  // Chip de perfil visual — aparece junto ao nome para perfis não-admin
+  const roles = Array.isArray(d?.roles) ? d.roles : [d?.perfil].filter(Boolean);
+  const p = d?.perfil || "";
+  const chipCores = {
+    tecnico:     { bg:"#dbeafe", txt:"#1241a1", brd:"#1241a1" },
+    chefe:       { bg:"#dcfce7", txt:"#166534", brd:"#166534" },
+    director:    { bg:"#fef9c3", txt:"#713f12", brd:"#ca8a04" },
+    secretaria:  { bg:"#f5f3ff", txt:"#5b21b6", brd:"#7c3aed" },
+    chefe_unidade:{ bg:"#ccfbf1", txt:"#0f766e", brd:"#0d9488" },
+  };
+  let chipEl = document.getElementById("dash-perfil-chip");
+  if (!chipEl) {
+    const hdr = document.getElementById("msg-boas-vindas");
+    if (hdr) {
+      chipEl = document.createElement("span");
+      chipEl.id = "dash-perfil-chip";
+      chipEl.className = "dash-perfil-chip";
+      hdr.parentNode.insertBefore(chipEl, hdr.nextSibling);
+    }
+  }
+  if (chipEl) {
+    const cor = chipCores[p];
+    if (cor && p !== "admin") {
+      chipEl.textContent = lblPerfil;
+      chipEl.style.cssText = `
+        display:inline-flex;align-items:center;
+        font-size:11px;font-weight:700;letter-spacing:.02em;
+        background:${cor.bg};color:${cor.txt};
+        border:1px solid ${cor.brd};
+        padding:3px 10px;border-radius:20px;margin-top:4px;
+      `;
+    } else {
+      chipEl.style.display = "none";
+    }
   }
 }
 
@@ -320,49 +355,6 @@ window.fazerLogin = async function() {
 document.getElementById("senha-login").addEventListener("keydown", e => { if(e.key==="Enter") window.fazerLogin(); });
 document.getElementById("email-login").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("senha-login").focus(); });
 
-/**
- * Recuperação de senha — envia email de redefinição via Firebase Auth.
- * Lê o email já preenchido no campo de login.
- */
-window.recuperarSenha = async function() {
-  const email   = document.getElementById("email-login").value.trim();
-  const errEl   = document.getElementById("msg-erro");
-  const linkBtn = document.querySelector(".link-recuperar-senha");
-
-  // Sem email — instrução directiva
-  if (!email) {
-    mostrarErro("Insira o seu e-mail no campo acima e clique em 'Esqueceu a senha?'.");
-    document.getElementById("email-login").focus();
-    return;
-  }
-
-  // Feedback visual no link enquanto envia
-  if (linkBtn) { linkBtn.textContent = "A enviar..."; linkBtn.style.pointerEvents = "none"; }
-
-  try {
-    await sendPasswordResetEmail(auth, email);
-
-    // Mostrar confirmação com estilo de sucesso (verde)
-    errEl.textContent  = "✅ Instruções enviadas para " + email + ". Verifique a caixa de entrada e a pasta de spam.";
-    errEl.style.display     = "block";
-    errEl.style.color       = "#059669";
-    errEl.style.background  = "#ecfdf5";
-    errEl.style.borderColor = "#059669";
-
-    if (linkBtn) { linkBtn.textContent = "Reenviar instruções"; linkBtn.style.pointerEvents = ""; }
-
-  } catch(e) {
-    const m = {
-      "auth/user-not-found":         "Não existe conta registada com este e-mail.",
-      "auth/invalid-email":          "E-mail inválido.",
-      "auth/too-many-requests":      "Muitos pedidos seguidos. Aguarde alguns minutos.",
-      "auth/network-request-failed": "Sem ligação à Internet."
-    };
-    mostrarErro(m[e.code] || "Não foi possível enviar. Verifique o e-mail inserido.");
-    if (linkBtn) { linkBtn.textContent = "Esqueceu a senha?"; linkBtn.style.pointerEvents = ""; }
-  }
-};
-
 window.fazerLogout = function() {
   mostrarNotif(
     "Tem a certeza que deseja sair do sistema?",
@@ -553,11 +545,10 @@ async function mostrarPainel(u, d) {
       { href:"auditoria.html",  ic:IC.search,    txt:"Auditoria"        },
     ],
     tecnico:  [
-      { href:"cadastro.html",   ic:IC.user,      txt:"Novo Funcionário" },
-      { href:"documentos.html", ic:IC.fileText,  txt:"Gerar Documento"  },
-      { href:"aprovacao.html",  ic:IC.checkCircle,txt:"Solicitações"    },
-      { onclick:"mostrarSecção('secretaria')", ic:IC.mail,   txt:"Secretaria"  },
-      { href:"portal.html",     ic:IC.smartphone, txt:"Portal"          },
+      { href:"cadastro.html",   ic:IC.user,       txt:"Novo Funcionário" },
+      { href:"documentos.html", ic:IC.fileText,   txt:"Gerar Documento"  },
+      { href:"aprovacao.html",  ic:IC.checkCircle,txt:"Solicitações"     },
+      { onclick:"mostrarSecção('secretaria')", ic:IC.mail, txt:"Secretaria" },
     ],
     secretaria: [
       { href:"index.html#secretaria", ic:IC.mail,     txt:"Pedidos"   },
@@ -634,6 +625,13 @@ async function mostrarPainel(u, d) {
   // C9 fix: "+ Novo Registo" restrito a admin — único perfil que cria utilizadores
   const _btnNovo = document.getElementById("topbar-btn-new");
   if (_btnNovo) _btnNovo.style.display = roles.includes("admin") ? "" : "none";
+
+  // Grelha de módulos em 4 colunas para técnico (8 cards → 2 linhas em vez de 4)
+  const modulosGrid = document.querySelector(".modulos-grid");
+  if (modulosGrid) {
+    if (p === "tecnico") modulosGrid.classList.add("modulos-grid-4col");
+    else modulosGrid.classList.remove("modulos-grid-4col");
+  }
 
   // Activar notificações em tempo real conforme perfil
   if (["admin","chefe","director"].includes(p)) {
@@ -1118,7 +1116,7 @@ window.fecharModalPerfil=()=>{document.getElementById("overlay-perfil").style.di
 document.getElementById("overlay-perfil").addEventListener("click",function(e){if(e.target===this)window.fecharModalPerfil();});
 document.getElementById("overlay-novo-utilizador").addEventListener("click",function(e){if(e.target===this)window.fecharModal();});
 
-function mostrarErro(msg){const e=document.getElementById("msg-erro");e.textContent=msg;e.style.display="block";e.style.color="";e.style.background="";e.style.borderColor="";}
+function mostrarErro(msg){const e=document.getElementById("msg-erro");e.textContent=msg;e.style.display="block";}
 
 // ─────────────────────────────────────────────────────────────
 //  mostrarNotif — Toast contextual com botão de acção opcional
