@@ -2568,7 +2568,7 @@ window.carregarSessoesActivas = async function() {
       const u = d.data(), uid = d.id;
       const acesso = u.ultimoAcesso?.toDate ? fmtData(u.ultimoAcesso.toDate()) : '—';
       const disp = u.dispositivo
-        ? u.dispositivo.includes('Mobile') ? `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='14' height='20' x='5' y='2' rx='2' ry='2'/><path d='M12 18h.01'/></svg> Móvel` : `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='20' height='14' x='2' y='3' rx='2'/><path d='M8 21h8'/><path d='M12 17v4'/></svg> Computador`
+        ? u.dispositivo.includes('Mobile') ? `<svg width="14" height="14" xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='14' height='20' x='5' y='2' rx='2' ry='2'/><path d='M12 18h.01'/></svg> Móvel` : `<svg width="14" height="14" xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='20' height='14' x='2' y='3' rx='2'/><path d='M8 21h8'/><path d='M12 17v4'/></svg> Computador`
         : '—';
       const isSelf = uid === utilizadorActual?.uid;
       const btnExpulsar = isSelf
@@ -2577,7 +2577,7 @@ window.carregarSessoesActivas = async function() {
              data-uid="${uid}"
              data-nome="${escaparHtml(u.nome||u.email||'—')}"
              onclick="expulsarSessao(this.dataset.uid, this.dataset.nome)"
-             style="display:inline-flex;align-items:center;gap:5px"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/><polyline points='16 17 21 12 16 7'/><line x1='21' x2='9' y1='12' y2='12'/></svg> Expulsar</button>`;
+             style="display:inline-flex;align-items:center;gap:5px"><svg width="13" height="13" xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/><polyline points='16 17 21 12 16 7'/><line x1='21' x2='9' y1='12' y2='12'/></svg> Expulsar</button>`;
       html += `<div class="sa-item">
         <div class="sa-pulse"></div>
         <div class="sa-info">
