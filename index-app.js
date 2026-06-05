@@ -423,6 +423,10 @@ window.mostrarSecção = function(id) {
   const tt = document.getElementById("topbar-titulo");
   if(tt) tt.textContent = titulos[id] || "Dashboard";
   document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("activo"));
+  if(id === "sessoes") {
+    carregarSessoes();
+    carregarSessoesActivas();
+  }
   if(id === "secretaria") {
     carregarPedidosSecretaria();
     // Se o chat inline estava aberto por outro item, fechar ao navegar para a secretaria de novo
