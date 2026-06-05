@@ -941,6 +941,17 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
 .trend-up     { background: var(--ok-bg);    color: var(--ok);   }
 .trend-stable { background: var(--surface-2); color: var(--txt-3); }
 
+/* Isolamento de secções — evita artefactos de composição
+   do backdrop-filter a vazar entre secções hidden/visible */
+#secção-dashboard,
+#secção-sessoes,
+#secção-secretaria,
+#secção-utilizadores,
+#secção-funcionario {
+  isolation: isolate;
+  contain: layout style;
+}
+
 /* ── Dashboard grid ──────────────────────────────────────── */
 .dash-grid {
   display: grid;
@@ -1290,7 +1301,20 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
 .sessao-det  { font-size: 11px; color: var(--txt-3); margin-top: 2px; }
 .sessao-hora { font-size: 11px; color: var(--txt-3); font-family: var(--mono); }
 
-/* ── Sessões activas ──────────────────────────────────────── */
+/* ── Sessões activas e históricas — limitadas em altura ───── */
+#lista-sessoes {
+  max-height: 420px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+#lista-sessoes-activas {
+  max-height: 280px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
 .sa-item {
   display: flex; align-items: center; gap: 14px;
   padding: 13px 20px; border-bottom: 1px solid var(--border);
