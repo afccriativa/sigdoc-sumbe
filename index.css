@@ -1319,6 +1319,8 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
   display: flex; align-items: center; gap: 14px;
   padding: 13px 20px; border-bottom: 1px solid var(--border);
 }
+/* Segurança: todos os SVGs dentro de sa-item limitados a 24px max */
+.sa-item svg { max-width: 24px; max-height: 24px; }
 
 .sa-item:last-child { border-bottom: none; }
 
@@ -1337,7 +1339,8 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
 
 .sa-info { flex: 1; }
 .sa-nome { font-size: 13px; font-weight: 600; color: var(--txt-1); }
-.sa-det  { font-size: 11px; color: var(--txt-3); margin-top: 2px; }
+.sa-det  { font-size: 11px; color: var(--txt-3); margin-top: 2px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.sa-det svg  { width: 14px; height: 14px; flex-shrink: 0; vertical-align: middle; }
 
 .btn-expulsar {
   padding: 5px 12px; border-radius: 7px;
