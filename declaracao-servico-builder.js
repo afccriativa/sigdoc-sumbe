@@ -299,7 +299,7 @@
               creditados na conta nº <strong>${escapeHtml(contaFmt)}</strong>, até à totalidade do referido adiantamento.
             </p>
             <p>
-              2- A Direcção acima citada compromete-se a comunicar ao Banco quaisquer alterações que vierem
+              A Direcção acima citada compromete-se a comunicar ao Banco quaisquer alterações que vierem
               a verificar-se no vínculo jurídico entre o funcionário e a Instituição.
             </p>
             <p>
