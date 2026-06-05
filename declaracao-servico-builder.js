@@ -293,8 +293,6 @@
             </p>
           </div>
 
-          <div class="ds-subtitulo">COMPROMISSO</div>
-
           <div class="ds-corpo">
             <p>
               A Direcção acima citada compromete-se a depositar/creditar os salários do seu funcionário,
