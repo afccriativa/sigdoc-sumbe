@@ -345,8 +345,6 @@ body {
 
 .btn-entrar:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
-.login-meta-row { display: none; } /* removido — substituído pelo painel esquerdo */
-
 .msg-erro-login {
   display: none; margin-top: 12px;
   background: var(--err-bg); color: var(--err);
