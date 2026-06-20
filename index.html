@@ -29,21 +29,35 @@
   <div class="login-shell">
 
     <div class="login-card">
-      <div>
-        <div class="login-brand-row">
-          <div class="login-seal">
+
+      <!-- PAINEL ESQUERDO — IDENTIDADE INSTITUCIONAL -->
+      <div class="login-panel-esq">
+        <div class="login-panel-esq-inner">
+          <div class="login-panel-brand">
             <div class="login-emblema">🏥</div>
-            <div class="login-titulo">
+            <div>
               <h1>SIGDOC-SUMBE</h1>
               <p>Direcção Municipal da Saúde do Sumbe<br>Cuanza Sul, Angola</p>
             </div>
           </div>
-          <div class="login-mini-badge">Acesso Seguro</div>
+          <div class="login-panel-info">
+            <span>Acesso Seguro</span>
+            <span>Acesso reservado a perfis autorizados da plataforma SIGDOC.</span>
+            <span>Em caso de falha de acesso, contacte a equipa administrativa.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAINEL DIREITO — FORMULÁRIO -->
+      <div class="login-panel-dir">
+        <div class="login-welcome">
+          <h2>Bem-vindo</h2>
+          <p>Insira as suas credenciais para aceder ao sistema</p>
         </div>
 
         <div class="login-form">
           <div class="campo-login">
-            <label for="email-login">Endereço de E-mail</label>
+            <label for="email-login">Endereço de e-mail</label>
             <div class="input-wrap">
               <span class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
               <input type="email" id="email-login" placeholder="utilizador@saude.gov.ao" autocomplete="email"/>
@@ -57,26 +71,16 @@
               <button class="toggle-senha" type="button" onclick="toggleSenha()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
             </div>
           </div>
-          <button class="btn-entrar" id="btn-entrar" onclick="fazerLogin()">Entrar no Sistema</button>
+          <button class="btn-entrar" id="btn-entrar" onclick="fazerLogin()">Entrar no Sistema →</button>
           <div class="msg-erro-login" id="msg-erro"></div>
         </div>
 
-        <div class="login-meta-row">
-          <div class="login-meta-pill">
-            <strong>Ambiente institucional</strong>
-            Acesso reservado a perfis autorizados da plataforma SIGDOC.
-          </div>
-          <div class="login-meta-pill">
-            <strong>Suporte operacional</strong>
-            Em caso de falha de acesso, contacte a equipa administrativa.
-          </div>
+        <div class="rodape-login">
+          Sistema Integrado de Gestão Documental e Recursos Humanos<br>
+          © 2026 · Governo Provincial do Cuanza Sul ©afccriativa
         </div>
       </div>
 
-      <div class="rodape-login">
-        Sistema Integrado de Gestão Documental e Recursos Humanos<br>
-        © 2026 · Governo Provincial do Cuanza Sul ©afccriativa
-      </div>
     </div>
   </div>
 </div>
