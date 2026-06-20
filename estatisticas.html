@@ -380,6 +380,18 @@
     .reforma-stat-val { font-size: 15px; font-weight: 800; color: #e2e8f0; font-family: 'DM Mono', monospace; line-height: 1; }
     .reforma-stat-lbl { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
     .reforma-badge { padding: 3px 10px; border-radius: 99px; font-size: 10px; font-weight: 800; flex-shrink: 0; white-space: nowrap; }
+    .reforma-excedido-msg {
+      display: flex; align-items: center; gap: 5px;
+      margin-top: 7px; font-size: 11px; font-weight: 700;
+      color: #fca5a5;
+    }
+    .reforma-excedido-msg svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .reforma-excedido-msg strong { color: #fff; font-family: 'DM Mono', monospace; font-weight: 800; }
+    @keyframes reforma-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,.4); }
+      50%      { box-shadow: 0 0 0 5px rgba(220,38,38,0); }
+    }
+    .reforma-badge.atraso-critico { animation: reforma-pulse 2.2s ease-in-out infinite; }
     @media (max-width: 600px) {
       .reforma-stats { gap: 10px; }
       .reforma-stat-val { font-size: 13px; }
@@ -2106,45 +2118,106 @@
   // ════════════════════════════════════════════════════════
 
   /**
-   * Calcula anos trabalhados a partir da dataAdmissao (string "YYYY-MM-DD"
-   * ou Timestamp Firestore) e renderiza o painel de proximidade de reforma.
+   * Calcula tempo de serviço e distância ao limite de reforma com
+   * precisão diária (ano + mês + dia), a partir da dataAdmissao
+   * (string "YYYY-MM-DD" ou Timestamp Firestore).
    *
    * Lógica Angola — Função Pública:
-   *   anosRestantes = 35 − (anoAtual − anoAdmissao)
+   *   dataLimite = dataAdmissao + 35 anos
+   *   emReforma  = hoje ≥ dataLimite
    *
-   * Classificação visual:
-   *   🔴 Crítico  → anosRestantes ≤ 1
-   *   🟡 Atenção  → anosRestantes ≤ 3
-   *   🟢 Normal   → anosRestantes > 3
+   * Para quem ainda não chegou ao limite, "distancia" é o tempo QUE FALTA.
+   * Para quem já passou, "distancia" é o tempo EXCEDIDO — esta é a correcção
+   * central: antes, qualquer funcionário com 35+ anos aparecia com
+   * "0 restantes", apagando a diferença entre alguém a 1 mês do prazo e
+   * alguém 5 anos fora do prazo. Essa diferença é precisamente o que indica
+   * risco institucional (atraso administrativo, exposição legal/auditoria).
+   *
+   * Classificação visual (4 escalões, do mais ao menos urgente):
+   *   🔴 Atraso crítico → já em reforma há ≥ 1 ano   (processo parado — agir já)
+   *   🔴 Em reforma     → já em reforma há < 1 ano   (processo a iniciar)
+   *   🟠 Crítico        → falta ≤ 1 ano               (preparar substituição)
+   *   🟡 Atenção        → falta ≤ 3 anos              (planeamento antecipado)
+   *   🟢 Normal         → falta > 3 anos
+   *
+   * Ordenação: por distância contínua ao limite (dias), não por anos
+   * inteiros — garante que, entre vários "em reforma", o mais atrasado
+   * fica sempre no topo da lista.
    */
   function renderReforma(funcs) {
     const el = document.getElementById('reforma-wrap');
     if (!el) return;
 
     const ANOS_REFORMA = 35;
-    const LIMITE       = 10;
-    const anoAtual     = new Date().getFullYear();
+    const LIMITE        = 10;
+    const hoje          = new Date();
 
-    // ── Utilitário: extrair ano de admissão independente do formato ──
+    // ── Parsing de data independente do formato (string, Timestamp, segundos) ──
     // O campo no Firestore é "admissao" (guardado em cadastro.html linha ~2644)
-    function anoAdmissao(f) {
+    function dataAdmissao(f) {
       const raw = f.admissao || f.dataAdmissao || f.dataEntrada;
       if (!raw) return null;
-      if (typeof raw === 'string') return parseInt(raw.slice(0, 4), 10);
-      if (raw.toDate)              return raw.toDate().getFullYear();   // Firestore Timestamp
-      if (raw.seconds)             return new Date(raw.seconds * 1000).getFullYear();
-      return new Date(raw).getFullYear();
+      if (typeof raw === 'string') {
+        const d = new Date(raw.length <= 10 ? raw + 'T00:00:00' : raw);
+        return isNaN(d.getTime()) ? null : d;
+      }
+      if (raw.toDate)  return raw.toDate();                       // Firestore Timestamp
+      if (raw.seconds) return new Date(raw.seconds * 1000);
+      const d = new Date(raw);
+      return isNaN(d.getTime()) ? null : d;
     }
 
-    // ── Classificação visual ──
-    function classificar(anosRestantes) {
-      if (anosRestantes === 0)
-        return { cor: '#ef4444', bg: 'rgba(239,68,68,.18)', dot: '<span class="status-dot" style="background:#ef4444"></span>', label: 'Em reforma' };
-      if (anosRestantes <= 1)
-        return { cor: '#ef4444', bg: 'rgba(239,68,68,.14)', dot: '<span class="status-dot" style="background:#ef4444"></span>', label: 'Crítico' };
-      if (anosRestantes <= 3)
-        return { cor: '#f59e0b', bg: 'rgba(245,158,11,.14)', dot: '<span class="status-dot" style="background:#f59e0b"></span>', label: 'Atenção' };
-      return   { cor: '#10c886', bg: 'rgba(16,200,134,.12)', dot: '<span class="status-dot" style="background:#10c886"></span>', label: 'Normal' };
+    function somarAnos(data, anos) {
+      const d = new Date(data);
+      d.setFullYear(d.getFullYear() + anos);
+      return d;
+    }
+
+    // Diferença calendárica exacta entre duas datas (assume de ≤ para)
+    function diferencaCalendar(de, para) {
+      let anos  = para.getFullYear() - de.getFullYear();
+      let meses = para.getMonth() - de.getMonth();
+      let dias  = para.getDate() - de.getDate();
+      if (dias < 0) {
+        meses--;
+        dias += new Date(para.getFullYear(), para.getMonth(), 0).getDate();
+      }
+      if (meses < 0) { anos--; meses += 12; }
+      return { anos, meses, dias };
+    }
+
+    // "5 anos, 2 meses e 24 dias" — para o destaque de tempo excedido
+    function formatarDuracaoExtensa({ anos, meses, dias }) {
+      const partes = [];
+      if (anos)  partes.push(anos + (anos === 1 ? ' ano' : ' anos'));
+      if (meses) partes.push(meses + (meses === 1 ? ' mês' : ' meses'));
+      if (dias)  partes.push(dias + (dias === 1 ? ' dia' : ' dias'));
+      if (!partes.length) return 'desde hoje';
+      if (partes.length === 1) return partes[0];
+      return partes.slice(0, -1).join(', ') + ' e ' + partes[partes.length - 1];
+    }
+
+    // "2a 4m" — versão compacta para a coluna de estatística "restantes"
+    function formatarCompacto({ anos, meses }) {
+      if (anos > 0 && meses > 0) return `${anos}a ${meses}m`;
+      if (anos > 0) return `${anos}a`;
+      if (meses > 0) return `${meses}m`;
+      return '<1m';
+    }
+
+    // ── Classificação visual (4 escalões) ──
+    function classificar(f) {
+      const distAnosDec = f.distancia.anos + f.distancia.meses / 12;
+      if (f.emReforma) {
+        if (distAnosDec >= 1)
+          return { cor: '#dc2626', bg: 'rgba(220,38,38,.22)', dot: '<span class="status-dot" style="background:#dc2626"></span>', label: 'Atraso crítico', urgente: true };
+        return   { cor: '#ef4444', bg: 'rgba(239,68,68,.18)', dot: '<span class="status-dot" style="background:#ef4444"></span>', label: 'Em reforma', urgente: false };
+      }
+      if (distAnosDec <= 1)
+        return { cor: '#f59e0b', bg: 'rgba(245,158,11,.18)', dot: '<span class="status-dot" style="background:#f59e0b"></span>', label: 'Crítico', urgente: false };
+      if (distAnosDec <= 3)
+        return { cor: '#f59e0b', bg: 'rgba(245,158,11,.14)', dot: '<span class="status-dot" style="background:#f59e0b"></span>', label: 'Atenção', urgente: false };
+      return    { cor: '#10c886', bg: 'rgba(16,200,134,.12)', dot: '<span class="status-dot" style="background:#10c886"></span>', label: 'Normal', urgente: false };
     }
 
     // ── Abreviatura de unidade (reutiliza padrão existente no ficheiro) ──
@@ -2155,17 +2228,20 @@
         .replace('Posto de Saúde', 'PS');
     }
 
-    // ── Calcular e ordenar ──
+    // ── Calcular e ordenar por urgência real (dias até ao limite, negativo = vencido) ──
     const candidatos = funcs
       .map(f => {
-        const ano = anoAdmissao(f);
-        if (!ano) return null;
-        const anosTrabalhados = anoAtual - ano;
-        const anosRestantes   = Math.max(0, ANOS_REFORMA - anosTrabalhados);
-        return { ...f, anosTrabalhados, anosRestantes };
+        const dAdm = dataAdmissao(f);
+        if (!dAdm || dAdm > hoje) return null;     // sem data válida ou data futura (registo inconsistente)
+        const dLimite       = somarAnos(dAdm, ANOS_REFORMA);
+        const emReforma     = hoje >= dLimite;
+        const servico        = diferencaCalendar(dAdm, hoje);
+        const distancia      = emReforma ? diferencaCalendar(dLimite, hoje) : diferencaCalendar(hoje, dLimite);
+        const diasAteLimite  = Math.round((dLimite.getTime() - hoje.getTime()) / 86400000);
+        return { ...f, emReforma, servico, distancia, diasAteLimite };
       })
-      .filter(f => f !== null && f.anosTrabalhados > 0)   // exclui só registos sem data válida
-      .sort((a, b) => a.anosRestantes - b.anosRestantes)
+      .filter(f => f !== null)
+      .sort((a, b) => a.diasAteLimite - b.diasAteLimite)   // mais vencido primeiro, depois mais próximo
       .slice(0, LIMITE);
 
     if (!candidatos.length) {
@@ -2178,20 +2254,49 @@
     }
 
     // ── Contadores de estado para o resumo ──
-    const nCriticos = candidatos.filter(f => f.anosRestantes <= 1).length;
-    const nAtencao  = candidatos.filter(f => f.anosRestantes > 1 && f.anosRestantes <= 3).length;
+    const nVencidos = candidatos.filter(f => f.emReforma).length;
+    const nCriticos = candidatos.filter(f => !f.emReforma && (f.distancia.anos + f.distancia.meses / 12) <= 1).length;
+    const nAtencao  = candidatos.filter(f => !f.emReforma && (f.distancia.anos + f.distancia.meses / 12) > 1 && (f.distancia.anos + f.distancia.meses / 12) <= 3).length;
 
+    const badgeVencidos = nVencidos > 0
+      ? `<span style="padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(220,38,38,.20);color:#fca5a5;border:1px solid rgba(220,38,38,.35);display:inline-flex;align-items:center;gap:5px"><span class="status-dot" style="background:#dc2626"></span> ${nVencidos} com reforma vencida</span>`
+      : '';
     const badgesCriticos = nCriticos > 0
-      ? `<span style="padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(239,68,68,.14);color:#ef4444;border:1px solid rgba(239,68,68,.25);display:inline-flex;align-items:center;gap:5px"><span class="status-dot" style="background:#ef4444"></span> ${nCriticos} crítico${nCriticos > 1 ? 's' : ''}</span>`
+      ? `<span style="padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(245,158,11,.14);color:#f59e0b;border:1px solid rgba(245,158,11,.25);display:inline-flex;align-items:center;gap:5px"><span class="status-dot" style="background:#f59e0b"></span> ${nCriticos} crítico${nCriticos > 1 ? 's' : ''} (≤ 1 ano)</span>`
       : '';
     const badgesAtencao = nAtencao > 0
-      ? `<span style="padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(245,158,11,.14);color:#f59e0b;border:1px solid rgba(245,158,11,.25);display:inline-flex;align-items:center;gap:5px"><span class="status-dot" style="background:#f59e0b"></span> ${nAtencao} em atenção</span>`
+      ? `<span style="padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(245,158,11,.14);color:#f59e0b;border:1px solid rgba(245,158,11,.25);display:inline-flex;align-items:center;gap:5px"><span class="status-dot" style="background:#f59e0b"></span> ${nAtencao} em atenção (≤ 3 anos)</span>`
       : '';
 
     // ── Gerar itens da lista ──
     const itemsHtml = candidatos.map((f, i) => {
-      const { cor, bg, dot, label } = classificar(f.anosRestantes);
-      const barra = Math.round((f.anosTrabalhados / ANOS_REFORMA) * 100);
+      const { cor, bg, dot, label, urgente } = classificar(f);
+      const barra = Math.min(100, Math.round((f.servico.anos / ANOS_REFORMA) * 100));
+
+      const linhaExcedido = f.emReforma ? `
+            <div class="reforma-excedido-msg">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+              Tempo excedido: <strong>${formatarDuracaoExtensa(f.distancia)}</strong>
+            </div>` : '';
+
+      const blocoStats = f.emReforma ? `
+          <div class="reforma-stats">
+            <div class="reforma-stat">
+              <span class="reforma-stat-val">${f.servico.anos}</span>
+              <span class="reforma-stat-lbl">anos serviço</span>
+            </div>
+          </div>` : `
+          <div class="reforma-stats">
+            <div class="reforma-stat">
+              <span class="reforma-stat-val">${f.servico.anos}</span>
+              <span class="reforma-stat-lbl">anos serviço</span>
+            </div>
+            <div class="reforma-stat">
+              <span class="reforma-stat-val" style="color:${cor}">${formatarCompacto(f.distancia)}</span>
+              <span class="reforma-stat-lbl">restantes</span>
+            </div>
+          </div>`;
+
       return `
         <div class="reforma-item" style="--reforma-cor:${cor};--reforma-bg:${bg}">
           <div class="reforma-rank">${i + 1}</div>
@@ -2200,19 +2305,9 @@
             <div class="reforma-unidade">${abrvUnidade(f.unidade)}</div>
             <div style="margin-top:6px;height:4px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden">
               <div style="height:100%;width:${barra}%;background:${cor};border-radius:99px;transition:width .4s ease"></div>
-            </div>
-          </div>
-          <div class="reforma-stats">
-            <div class="reforma-stat">
-              <span class="reforma-stat-val">${f.anosTrabalhados}</span>
-              <span class="reforma-stat-lbl">anos serviço</span>
-            </div>
-            <div class="reforma-stat">
-              <span class="reforma-stat-val" style="color:${cor}">${f.anosRestantes}</span>
-              <span class="reforma-stat-lbl">anos restantes</span>
-            </div>
-          </div>
-          <span class="reforma-badge" style="background:${bg};color:${cor};display:inline-flex;align-items:center;gap:4px">${dot} ${label}</span>
+            </div>${linhaExcedido}
+          </div>${blocoStats}
+          <span class="reforma-badge${urgente ? ' atraso-critico' : ''}" style="background:${bg};color:${cor};display:inline-flex;align-items:center;gap:4px">${dot} ${label}</span>
         </div>`;
     }).join('');
 
@@ -2225,6 +2320,7 @@
             <div class="gc-sub">Regra: 35 anos de contribuição · Top ${candidatos.length} mais próximos</div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            ${badgeVencidos}
             ${badgesCriticos}
             ${badgesAtencao}
           </div>
