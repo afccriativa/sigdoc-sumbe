@@ -3034,3 +3034,105 @@ body:has(#secção-secretaria[style*="block"]) .conteudo {
   .chefia-kpis { gap: 14px; }
   .chefia-kpi-num { font-size: 22px; }
 }
+
+/* ── Mapa de Efectividade Mensal ─────────────────────────────── */
+.efmensal-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; margin-top: 20px; overflow: hidden;
+}
+.efmensal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; gap: 10px;
+}
+.efmensal-titulo {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 700; color: var(--txt-1);
+}
+.efmensal-titulo svg { width: 16px; height: 16px; color: var(--hlth); }
+.efmensal-header-acoes { display: flex; align-items: center; gap: 10px; }
+.efmensal-select-mes {
+  font-size: 12.5px; font-weight: 600; color: var(--txt-1);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 7px 10px; background: var(--surface-2); cursor: pointer;
+}
+
+.efmensal-estado-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700; letter-spacing: .02em;
+  padding: 4px 10px; border-radius: 20px; white-space: nowrap;
+}
+.efmensal-estado-rascunho { background: #fef3c7; color: #92400e; border: 1px solid #d97706; }
+.efmensal-estado-submetido { background: #dcfce7; color: #166534; border: 1px solid #16a34a; }
+
+.efmensal-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; gap: 12px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--border); background: var(--surface-2);
+}
+.efmensal-toolbar-info { font-size: 12px; color: var(--txt-2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.efmensal-toolbar-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.efmensal-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12.5px; font-weight: 700; border-radius: 9px;
+  padding: 8px 14px; cursor: pointer; border: 1px solid transparent;
+  transition: filter .12s, opacity .12s;
+}
+.efmensal-btn svg { width: 13px; height: 13px; }
+.efmensal-btn:disabled { opacity: .45; cursor: not-allowed; }
+.efmensal-btn-primario { background: var(--pri); color: #fff; }
+.efmensal-btn-primario:hover:not(:disabled) { filter: brightness(1.08); }
+.efmensal-btn-secundario { background: var(--surface); color: var(--txt-1); border-color: var(--border); }
+.efmensal-btn-secundario:hover:not(:disabled) { background: var(--surface-2); }
+.efmensal-btn-exportar { background: var(--hlth); color: #fff; }
+.efmensal-btn-exportar:hover:not(:disabled) { filter: brightness(1.08); }
+
+.efmensal-tabela-scroll { overflow-x: auto; }
+.efmensal-tabela { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 760px; }
+.efmensal-tabela th {
+  text-align: left; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .03em; color: var(--txt-3); padding: 10px 12px;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.efmensal-tabela td {
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+  color: var(--txt-1); vertical-align: middle;
+}
+.efmensal-tabela tbody tr:hover { background: var(--surface-2); }
+.efmensal-tabela tbody tr:last-child td { border-bottom: none; }
+.efmensal-col-auto { color: var(--auto-red, #dc2626); font-weight: 600; }
+.efmensal-col-nome { font-weight: 700; color: var(--txt-1); }
+.efmensal-col-categoria { color: var(--txt-2); font-size: 11.5px; }
+.efmensal-badge-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 26px; height: 22px; padding: 0 6px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 6px; font-weight: 700; font-size: 12px;
+}
+.efmensal-btn-editar {
+  font-size: 11.5px; font-weight: 700; color: var(--pri);
+  background: var(--pri-10); border: 1px solid var(--pri-20);
+  border-radius: 7px; padding: 5px 10px; cursor: pointer;
+}
+.efmensal-btn-editar:hover { background: var(--pri-20); }
+.efmensal-btn-editar:disabled { opacity: .4; cursor: not-allowed; }
+
+.efmensal-modal-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.efmensal-subsidios-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px;
+}
+.efmensal-subsidio-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; font-size: 12.5px; color: var(--txt-1);
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 10px;
+}
+.efmensal-subsidio-toggle input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--pri); cursor: pointer; }
+
+@media (max-width: 600px) {
+  .efmensal-modal-grid, .efmensal-subsidios-grid { grid-template-columns: 1fr; }
+  .efmensal-toolbar { flex-direction: column; align-items: stretch; }
+}
