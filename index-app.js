@@ -1007,13 +1007,14 @@ async function carregarUtilizadores() {
       const btn = !temAlgumRoleLocal(u, ["admin"])
         ? `<button class="btn-acao-ln ${u.activo?"btn-desat":"btn-ativar"}" onclick="toggleUser('${uid}',${u.activo})">${u.activo?"Desactivar":"Activar"}</button>`
         : `<span style="font-size:11px;color:var(--neu-300)">—</span>`;
+      const btnRoles = `<button class="btn-acao-ln" style="margin-left:6px" onclick="abrirModalEditarRoles('${uid}')">Editar roles</button>`;
       html+=`<tr>
         <td><strong>${u.nome||"—"}</strong><br><small style="color:var(--neu-400)">${u.unidade||""}</small></td>
         <td style="font-family:var(--mono);font-size:12px">${u.email||"—"}</td>
         <td>${badgesRolesHtml(u) || `<span class="badge-perfil perfil-funcionario">${etiquetasPerfil.funcionario}</span>`}</td>
         <td>${bge}</td>
         <td style="font-size:12px;color:var(--neu-400)">${acs}</td>
-        <td>${btn}</td>
+        <td>${btn}${btnRoles}</td>
       </tr>`;
     });
     tb.innerHTML=html;
@@ -1030,8 +1031,54 @@ window.toggleUser = async function(uid, actual) {
   }catch(e){ console.error(e); mostrarNotif("❌ Erro ao actualizar o utilizador.","erro"); }
 };
 
+// ── Edição de roles de um utilizador existente (admin) ──────────────────
+let _uidEditandoRoles = null;
+
+window.abrirModalEditarRoles = async function(uid) {
+  if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: abrirModalEditarRoles");return;}
+  try {
+    const snap = await getDoc(doc(db,"utilizadores",uid));
+    if (!snap.exists()) { mostrarNotif("❌ Utilizador não encontrado.","erro"); return; }
+    const u = normalizarPerfilDocLocal(snap.data());
+    _uidEditandoRoles = uid;
+    document.getElementById("editar-roles-nome").textContent = u.nome || u.email || uid;
+    document.querySelectorAll("[data-role-editar]").forEach(el => {
+      el.checked = u.roles.includes(el.value);
+    });
+    document.getElementById("overlay-editar-roles").classList.add("activo");
+  } catch(e) {
+    console.error("abrirModalEditarRoles:",e);
+    mostrarNotif("❌ Erro ao carregar utilizador.","erro");
+  }
+};
+
+window.fecharModalEditarRoles = function() {
+  document.getElementById("overlay-editar-roles").classList.remove("activo");
+  _uidEditandoRoles = null;
+};
+
+window.guardarRolesEditados = async function() {
+  if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: guardarRolesEditados");return;}
+  if (!_uidEditandoRoles) return;
+  const rolesSelecionados = Array.from(document.querySelectorAll("[data-role-editar]:checked")).map(el => el.value);
+  // 'funcionario' é sempre o perfil base — mantém-se mesmo que nenhuma checkbox extra esteja marcada.
+  try {
+    await updateDoc(doc(db,"utilizadores",_uidEditandoRoles), {
+      ...payloadPerfilLocal({ roles: rolesSelecionados }),
+      actualizadoEm: serverTimestamp()
+    });
+    mostrarNotif("✅ Roles actualizados com sucesso!");
+    fecharModalEditarRoles();
+    carregarUtilizadores();
+  } catch(e) {
+    console.error("guardarRolesEditados:",e);
+    mostrarNotif("❌ Erro ao actualizar roles: " + (e.code||e.message),"erro");
+  }
+};
+
 // Manter compatibilidade com chamadas antigas
 window.toggleEstadoUtilizador = window.toggleUser;
+
 
 window.abrirModalNovoUtilizador = ()=>{ if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: abrirModalNovoUtilizador");return;} document.getElementById("overlay-novo-utilizador").classList.add("activo"); };
 window.fecharModal = ()=>{
