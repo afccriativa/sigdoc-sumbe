@@ -635,6 +635,26 @@
               </div>
             </div>
 
+            <!-- Mapa de Efectividade Mensal -->
+            <div class="efmensal-card">
+              <div class="efmensal-header">
+                <div class="efmensal-titulo">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                  Mapa de Efectividade Mensal
+                </div>
+                <div class="efmensal-header-acoes">
+                  <select id="efmensal-select-mes" class="efmensal-select-mes" onchange="EFM.mudarMes(this.value)"></select>
+                </div>
+              </div>
+
+              <div class="efmensal-body" id="efmensal-body">
+                <div class="vazio-estado" style="padding:32px 18px">
+                  <div class="icone">⏳</div>
+                  <p style="color:var(--txt-2)">A carregar mapa de efectividade…</p>
+                </div>
+              </div>
+            </div>
+
           </div><!-- /#painel-chefe-unidade -->
 
           <!-- Estado por defeito — funcionário sem chefia (nunca visível para chefe_unidade) -->
@@ -1111,6 +1131,8 @@
 </div>
 
 <script type="module" src="index-app.js"></script>
+<script type="module" src="efectividade-export.js"></script>
+<script type="module" src="efectividade-mensal.js"></script>
 
 <!-- ════ OVERLAY PESQUISA GLOBAL ════ -->
 <div class="sp-overlay" id="sp-overlay" onclick="if(event.target===this)fecharPesquisa()">
@@ -1139,6 +1161,74 @@
   </div>
 </div>
 
+
+<!-- ── Modal: editar linha do funcionário no Mapa de Efectividade ── -->
+<div id="modal-efm-func" class="modal-sec" style="display:none" onclick="if(event.target===this)EFM.fecharModalFunc()">
+  <div class="modal-sec-card" style="max-width:560px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+      <div>
+        <div class="modal-sec-titulo" id="efm-mf-nome">—</div>
+        <div class="modal-sec-sub" id="efm-mf-meta" style="margin-bottom:0">—</div>
+      </div>
+      <button onclick="EFM.fecharModalFunc()" style="background:none;border:none;color:var(--txt-3);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px" title="Fechar">×</button>
+    </div>
+
+    <div class="efmensal-modal-grid">
+      <div>
+        <div class="modal-sec-label">Faltas Justificadas (Fal. Jus.)</div>
+        <input type="number" id="efm-mf-faljus" min="0" max="31" step="1" value="0">
+      </div>
+      <div>
+        <div class="modal-sec-label">Faltas Injustificadas (F. Inj.)</div>
+        <input type="number" id="efm-mf-falinj" min="0" max="31" step="1" value="0" oninput="EFM.recalcularDiasModal()">
+      </div>
+      <div>
+        <div class="modal-sec-label">Dias Trabalhados <span style="font-weight:400;opacity:.6">(automático: 24 − F. Inj.)</span></div>
+        <input type="text" id="efm-mf-diastrab" value="24" disabled style="background:var(--surface-2);font-weight:700;color:var(--pri)">
+      </div>
+      <div>
+        <div class="modal-sec-label">Trabalho Acrescido <span style="font-weight:400;opacity:.6">(horas)</span></div>
+        <input type="number" id="efm-mf-acrescido" min="0" step="1" value="0">
+      </div>
+    </div>
+
+    <div class="modal-sec-label" style="margin-top:14px">Subsídios e suplementos com direito</div>
+    <div class="efmensal-subsidios-grid" id="efm-mf-subsidios"></div>
+
+    <div class="modal-sec-label" style="margin-top:14px">Férias no mês <span style="font-weight:400;opacity:.6">(opcional)</span></div>
+    <div style="display:flex;gap:10px">
+      <select id="efm-mf-ferias-estado" style="flex:0 0 160px">
+        <option value="nao">Sem férias</option>
+        <option value="sim">Em férias</option>
+      </select>
+      <input type="text" id="efm-mf-ferias-periodo" placeholder="Período (ex: 01 a 15 de Junho)" style="flex:1">
+    </div>
+
+    <div class="modal-sec-btns">
+      <button class="btn-sec-sm btn-sec-fech" onclick="EFM.fecharModalFunc()">Cancelar</button>
+      <button class="btn-sec-sm btn-sec-conf" onclick="EFM.guardarModalFunc()"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: submeter / aprovar Mapa de Efectividade ── -->
+<div id="modal-efm-submeter" class="modal-sec" style="display:none" onclick="if(event.target===this)EFM.fecharModalSubmeter()">
+  <div class="modal-sec-card" style="max-width:480px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+      <div class="modal-sec-titulo">Submeter Mapa de Efectividade</div>
+      <button onclick="EFM.fecharModalSubmeter()" style="background:none;border:none;color:var(--txt-3);font-size:22px;cursor:pointer;line-height:1;padding:2px 4px" title="Fechar">×</button>
+    </div>
+    <div class="modal-sec-texto" style="margin-bottom:16px" id="efm-sub-info">
+      Ao submeter, o mapa fica bloqueado para edição e disponível para envio à Direcção Municipal de Saúde do Sumbe. Esta acção fica registada com o seu nome e a data/hora.
+    </div>
+    <div class="modal-sec-label">Nome de quem elaborou o mapa <span style="color:#f87171">*</span></div>
+    <input type="text" id="efm-sub-elaborado-por" placeholder="Nome completo de quem elaborou (ex: técnico administrativo da unidade)">
+    <div class="modal-sec-btns">
+      <button class="btn-sec-sm btn-sec-fech" onclick="EFM.fecharModalSubmeter()">Cancelar</button>
+      <button class="btn-sec-sm btn-sec-conf" onclick="EFM.confirmarSubmissao()"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Aprovar e submeter</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
