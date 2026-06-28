@@ -70,22 +70,21 @@ function construirHtmlMapa(mapa, unidade) {
   body { font-family: Arial, Helvetica, sans-serif; color: #111827; margin: 0; }
   .cabecalho { text-align: center; margin-bottom: 4mm; }
   .cabecalho p { margin: 1px 0; font-size: 11.5px; }
-  .cabecalho .unidade { font-weight: 700; font-size: 13px; color: #c0392b; }
+  .cabecalho .unidade { font-weight: 700; font-size: 13px; color: #111827; }
   .titulo { text-align: center; font-weight: 700; font-size: 14.5px; margin: 5mm 0 4mm; }
   table { width: 100%; border-collapse: collapse; font-size: 10px; }
   th, td { border: 1px solid #94a3b8; padding: 4px 5px; }
   th { background: #eef2f7; font-weight: 700; text-align: center; font-size: 9px; }
   td.centro { text-align: center; }
   td.esq { text-align: left; }
-  td.auto { color: #c0392b; }
+  td.auto { color: #111827; }
   td.neg { font-weight: 700; }
-  .obs { font-size: 9.5px; font-style: italic; margin: 4mm 0; color: #334155; }
-  .fecho { text-align: center; font-weight: 700; color: #c0392b; font-size: 11px; margin: 5mm 0 7mm; }
+  .fecho { text-align: center; font-weight: 700; color: #111827; font-size: 11px; margin: 5mm 0 7mm; }
   .assinaturas { display: flex; justify-content: space-between; margin-top: 4mm; }
   .assinaturas > div { width: 46%; text-align: center; font-size: 11px; }
   .assinaturas .label { margin-bottom: 10mm; }
   .assinaturas .nome { border-top: 1px solid #111827; padding-top: 3px; font-weight: 600; }
-  .assinaturas .nome.auto { color: #c0392b; }
+  .assinaturas .nome.auto { color: #111827; }
   @media print {
     .acoes-no-print { display: none; }
   }
@@ -118,19 +117,16 @@ function construirHtmlMapa(mapa, unidade) {
         <th rowspan="2">Dias Trab.</th>
         <th rowspan="2">F. Inj.</th>
         <th rowspan="2">Fal. Jus.</th>
-        <th colspan="7">Subsídios e outros Suplementos que têm direito</th>
+        <th colspan="8">Subsídios e outros Suplementos que têm direito</th>
       </tr>
       <tr>
-        <th>Atávio 5%</th><th>R.E.Dta 7%</th><th>Turno 5%</th><th>Noct. 7%</th><th>Diut. 3%</th><th>Trab. Acresc.</th><th>E.Ind. 5%</th>
-        <th rowspan="1">Férias</th>
+        <th>Atávio 5%</th><th>R.E.Dta 7%</th><th>Turno 5%</th><th>Noct. 7%</th><th>Diut. 3%</th><th>Trab. Acresc.</th><th>E.Ind. 5%</th><th>Férias</th>
       </tr>
     </thead>
     <tbody>
       ${linhas}${linhaVaziaSeNecessario}
     </tbody>
   </table>
-
-  <p class="obs">OBS: F. Inj. = Faltas Injustificadas · Fal. Jus. = Faltas Justificadas. Os serviços de Horas Acrescidas foram feitos em função de reforços e atendimentos aos pacientes na Unidade Sanitária, nas diferentes áreas.</p>
 
   <p class="fecho">${nomeUnidade}, AOS ${escaparHtml(dataLongaPt().toUpperCase())}</p>
 
