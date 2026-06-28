@@ -170,6 +170,8 @@ function pertenceAUnidade(funcionario, unidade) {
 
 function limparPainelChefeUnidade() {
   _chefeUnidadeActual = null;
+  window.SIGDOC_CHEFIA = null;
+  document.dispatchEvent(new CustomEvent("sigdoc:chefia-limpa"));
   const wrap = document.getElementById("painel-chefe-unidade");
   const lista = document.getElementById("chefia-lista-funcionarios");
   const total = document.getElementById("chefia-total-func");
@@ -244,6 +246,8 @@ async function carregarPainelChefeUnidade(u, d) {
   if (reqId !== _carregamentoChefiaSeq) return false;
 
   _chefeUnidadeActual = { funcionario: func, unidade, equipa };
+  window.SIGDOC_CHEFIA = { db, utilizadorActual, perfilActual, unidade, equipa, funcionario: func };
+  document.dispatchEvent(new CustomEvent("sigdoc:chefia-carregada", { detail: window.SIGDOC_CHEFIA }));
 
   const wrap = document.getElementById("painel-chefe-unidade");
   const painelDefault = document.getElementById("painel-funcionario-default");
