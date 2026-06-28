@@ -1067,6 +1067,39 @@
   </div>
 </div>
 
+<!-- MODAL EDITAR ROLES -->
+<div class="overlay" id="overlay-editar-roles">
+  <div class="modal-card">
+    <div class="modal-titulo" style="display:flex;align-items:center;gap:8px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Editar Roles</div>
+    <div class="campo-modal">
+      <label>Utilizador</label>
+      <div id="editar-roles-nome" style="padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--neu-50);font-size:13px;font-weight:700;color:var(--txt-1)">—</div>
+    </div>
+    <div class="campo-modal">
+      <label>Perfil Base</label>
+      <div style="padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:rgba(18,65,161,.05);font-size:13px;font-weight:700;color:var(--txt-1)">
+        Funcionário de Unidade Sanitária <small style="font-weight:400;opacity:.7">(sempre incluído)</small>
+      </div>
+    </div>
+    <div class="campo-modal">
+      <label>Roles Adicionais</label>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:12px;font-weight:600;color:var(--txt-1)"><input type="checkbox" data-role-editar value="tecnico"/>Técnico de RH</label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:12px;font-weight:600;color:var(--txt-1)"><input type="checkbox" data-role-editar value="secretaria"/>Secretaria</label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:12px;font-weight:600;color:var(--txt-1)"><input type="checkbox" data-role-editar value="chefe"/>Chefe de Secção</label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:12px;font-weight:600;color:var(--txt-1)"><input type="checkbox" data-role-editar value="chefe_unidade"/>Chefe de Unidade</label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:12px;font-weight:600;color:var(--txt-1)"><input type="checkbox" data-role-editar value="director"/>Director Municipal</label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:12px;font-weight:600;color:var(--txt-1)"><input type="checkbox" data-role-editar value="admin"/>Administrador do Sistema</label>
+      </div>
+      <small style="display:block;margin-top:8px;color:var(--txt-3);font-size:11px">Desmarque um role para removê-lo. O sistema mantém <strong>funcionário</strong> como base sempre.</small>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:10px">
+      <button onclick="fecharModalEditarRoles()" class="btn-cancelar" style="flex:1;">Cancelar</button>
+      <button onclick="guardarRolesEditados()" class="btn-primario" style="flex:1;">Guardar Roles</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL NOVO UTILIZADOR -->
 <div class="overlay" id="overlay-novo-utilizador">
   <div class="modal-card">
