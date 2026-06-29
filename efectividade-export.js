@@ -191,8 +191,10 @@ function construirHtmlMapa(mapa, unidade) {
      páginas — o importante é que nenhuma linha da tabela seja cortada a
      meio, que o cabeçalho da tabela se repita em cada página nova, e que
      o bloco de assinaturas finais nunca fique dividido entre páginas. */
-  thead { display: table-header-group; }
-  tfoot { display: table-footer-group; }
+  /* Cabeçalho da tabela (N/O, Nº Agente, Nome...) aparece só na 1ª página —
+     não repete nas páginas seguintes, ao contrário do comportamento por
+     defeito do browser. */
+  thead { display: table-row-group; }
   tr { page-break-inside: avoid; break-inside: avoid; }
   .fecho, .assinaturas { page-break-inside: avoid; break-inside: avoid; }
 
