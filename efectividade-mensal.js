@@ -377,7 +377,16 @@ function mudarMes(mes) {
 async function exportarPdf() {
   if (!_mapaActual || !_unidade) return;
   try {
-    window.SIGDOC_EXPORT_PDF(_mapaActual, _unidade);
+    const chefia = window.SIGDOC_CHEFIA;
+    const nomeChefeSessao = chefia?.funcionario?.nomeCompleto || chefia?.funcionario?.nome || chefia?.utilizadorActual?.displayName || "";
+    // Usa o nome gravado no mapa (caso já submetido por alguém) e, se ainda
+    // não existir (mapa em rascunho), usa o chefe da sessão actual — que é
+    // sempre quem está a ver/exportar este painel.
+    const mapaParaExportar = {
+      ..._mapaActual,
+      verificadoPor: _mapaActual.verificadoPor || nomeChefeSessao,
+    };
+    window.SIGDOC_EXPORT_PDF(mapaParaExportar, _unidade);
   } catch (e) {
     console.error("Exportar efectividade:", e);
     window.mostrarNotif?.("Não foi possível gerar o PDF.", "erro");
