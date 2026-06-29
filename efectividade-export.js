@@ -17,6 +17,16 @@ function dataLongaPt(d = new Date()) {
   return d.toLocaleDateString("pt-AO", { day: "2-digit", month: "long", year: "numeric" });
 }
 
+// Resolve a fonte da insígnia de Angola, seguindo o mesmo padrão usado em
+// guia-medica-builder.js — usa SIGDOCBuilderUtils quando disponível (carrega
+// a Base64 embutida) e cai num fallback local sem depender de outro módulo.
+function obterInsigniaSrc() {
+  if (window.SIGDOCBuilderUtils && typeof window.SIGDOCBuilderUtils.obterInsigniaSrc === "function") {
+    return window.SIGDOCBuilderUtils.obterInsigniaSrc();
+  }
+  return "insignia.jpeg";
+}
+
 function escaparHtml(valor) {
   return String(valor ?? "").replace(/[&<>"']/g, ch => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
@@ -159,6 +169,7 @@ function construirHtmlMapa(mapa, unidade) {
   * { box-sizing: border-box; }
   body { font-family: Arial, Helvetica, sans-serif; color: #111827; margin: 0; }
   .cabecalho { text-align: center; margin-bottom: 4mm; }
+  .cabecalho-insignia { width: 16mm; height: 16mm; object-fit: contain; display: block; margin: 0 auto 1.5mm; }
   .cabecalho p { margin: 1px 0; font-size: 11.5px; }
   .cabecalho .unidade { font-weight: 700; font-size: 13px; color: #111827; }
   .titulo { text-align: center; font-weight: 700; font-size: 14.5px; margin: 5mm 0 4mm; }
@@ -175,6 +186,16 @@ function construirHtmlMapa(mapa, unidade) {
   .assinaturas .label { margin-bottom: 10mm; }
   .assinaturas .nome { border-top: 1px solid #111827; padding-top: 3px; font-weight: 600; }
   .assinaturas .nome.auto { color: #111827; }
+
+  /* Quebra de página: documentos com muitos funcionários ocupam várias
+     páginas — o importante é que nenhuma linha da tabela seja cortada a
+     meio, que o cabeçalho da tabela se repita em cada página nova, e que
+     o bloco de assinaturas finais nunca fique dividido entre páginas. */
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+  tr { page-break-inside: avoid; break-inside: avoid; }
+  .fecho, .assinaturas { page-break-inside: avoid; break-inside: avoid; }
+
   @media print {
     .acoes-no-print { display: none; }
   }
@@ -188,6 +209,7 @@ function construirHtmlMapa(mapa, unidade) {
   </div>
 
   <div class="cabecalho">
+    <img class="cabecalho-insignia" src="${obterInsigniaSrc()}" alt="Insígnia de Angola"/>
     <p>REPÚBLICA DE ANGOLA</p>
     <p>GOVERNO DA PROVÍNCIA DO CUANZA SUL</p>
     <p style="font-size:13px">ADMINISTRAÇÃO MUNICIPAL DO SUMBE</p>
