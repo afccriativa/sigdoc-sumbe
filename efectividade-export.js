@@ -23,6 +23,96 @@ function escaparHtml(valor) {
   })[ch]);
 }
 
+// Partículas que ficam em minúscula no meio do nome (mas capitalizadas se forem a 1ª palavra)
+const PARTICULAS_MINUSCULAS = new Set(["de","da","do","das","dos","e"]);
+
+// Correcções de acentuação para nomes próprios comuns em Angola/Portugal,
+// escritos sem acento (ex: digitação rápida, teclado sem acentos).
+// Cada chave já está em minúsculas — a comparação ignora acentos/maiúsculas.
+const CORRECOES_NOMES = {
+  "joao":"João","joaquim":"Joaquim","jose":"José","antonio":"António",
+  "luis":"Luís","luisa":"Luísa","maria":"Maria","isabel":"Isabel",
+  "ines":"Inês","ana":"Ana","andre":"André","raquel":"Raquel",
+  "monica":"Mónica","veronica":"Verónica","vitor":"Vítor","victor":"Victor",
+  "marcio":"Márcio","helio":"Hélio","helder":"Hélder","catia":"Cátia",
+  "barbara":"Bárbara","debora":"Débora","jeronimo":"Jerónimo",
+  "domingos":"Domingos","gloria":"Glória","gracinda":"Gracinda",
+  "graca":"Graça","leonor":"Leonor","cesar":"César","tomas":"Tomás",
+  "tomasia":"Tomásia","amelia":"Amélia","cecilia":"Cecília",
+  "lucia":"Lúcia","natalia":"Natália","sonia":"Sónia",
+  "ze":"Zé","irene":"Irene","albertina":"Albertina","virgilia":"Virgília",
+  "elvio":"Élvio","aurelio":"Aurélio","ruben":"Rúben","sergio":"Sérgio",
+  "erica":"Érica","monise":"Monise","aida":"Aida","raul":"Raul",
+  "abilio":"Abílio","aurelia":"Aurélia","gregorio":"Gregório",
+  "anibal":"Aníbal","candida":"Cândida","eufrasio":"Eufrásio",
+  "ezequiel":"Ezequiel","gabriel":"Gabriel","heitor":"Heitor",
+  "messias":"Messias","nazare":"Nazaré","otilia":"Otília",
+  "rogerio":"Rogério","teofilo":"Teófilo","valerio":"Valério",
+  "vania":"Vânia","wania":"Wânia","ximena":"Ximena","zulmira":"Zulmira",
+  // Sobrenomes / nomes de família comuns em Angola e Portugal
+  "goncalves":"Gonçalves","conceicao":"Conceição","assuncao":"Assunção",
+  "fatima":"Fátima","aparecida":"Aparecida","ramao":"Ramão",
+  "simao":"Simão","caetano":"Caetano","sebastiao":"Sebastião",
+  "estevao":"Estêvão","macedo":"Macedo","araujo":"Araújo",
+  "aragao":"Aragão","cipriano":"Cipriano","damiao":"Damião",
+  "feliciano":"Feliciano","bernardino":"Bernardino","custodio":"Custódio",
+  "leandro":"Leandro","leticia":"Letícia","patricia":"Patrícia",
+  "felicia":"Felícia","felix":"Félix","mateus":"Mateus","tobias":"Tobias",
+  "ezequias":"Ezequias","ananias":"Ananias","zacarias":"Zacarias",
+};
+
+function corrigirAcentoPalavra(palavra) {
+  const chave = palavra
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // remove acentos p/ comparar
+  return CORRECOES_NOMES[chave] || null;
+}
+
+/**
+ * Formata um nome próprio para Title Case (cada palavra com Inicial
+ * Maiúscula), preservando partículas em minúscula ("de", "da", "dos"...)
+ * e corrigindo acentuação para um conjunto de nomes comuns conhecidos
+ * (ex: "Joao" -> "João", "Jose" -> "José").
+ *
+ * Não inventa acentos para palavras fora do dicionário — nesses casos
+ * só normaliza a capitalização, mantendo a grafia original.
+ */
+function formatarNomeProprio(nome) {
+  if (!nome) return "";
+  const palavras = String(nome).trim().toLowerCase().split(/\s+/);
+
+  return palavras.map((palavra, i) => {
+    // Mantém hífens e apóstrofos capitalizando cada segmento (ex: "sa-carneiro" -> "Sá-Carneiro")
+    return palavra.split(/([-'])/).map(parte => {
+      if (parte === "-" || parte === "'") return parte;
+      if (!parte) return parte;
+
+      // Partícula em minúscula, excepto se for a primeira palavra do nome completo
+      if (i > 0 && PARTICULAS_MINUSCULAS.has(parte)) return parte;
+
+      const corrigida = corrigirAcentoPalavra(parte);
+      if (corrigida) return corrigida;
+
+      return parte.charAt(0).toUpperCase() + parte.slice(1);
+    }).join("");
+  }).join(" ");
+}
+
+/**
+ * Title Case genérico, sem correcção de acentos — usado para categorias
+ * profissionais (ex: "FIEL DE ARMAZÉM DE 1ª CLASSE" -> "Fiel de Armazém
+ * de 1ª Classe"), que já vêm com acentuação correcta no cadastro e só
+ * precisam de capitalização uniforme.
+ */
+function formatarTituloGenerico(texto) {
+  if (!texto) return "";
+  const palavras = String(texto).trim().toLowerCase().split(/\s+/);
+  return palavras.map((palavra, i) => {
+    if (i > 0 && PARTICULAS_MINUSCULAS.has(palavra)) return palavra;
+    return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+  }).join(" ");
+}
+
 function pct(valor) {
   return valor ? `${Math.round(valor * 100)}%` : "—";
 }
@@ -33,8 +123,8 @@ function linhaFuncionarioHtml(f, ordem) {
     <tr>
       <td class="centro">${ordem}</td>
       <td class="centro auto">${escaparHtml(f.numeroAgente || "—")}</td>
-      <td class="esq auto">${escaparHtml(f.nomeCompleto || "")}</td>
-      <td class="esq auto">${escaparHtml(f.categoria || "")}</td>
+      <td class="esq auto">${escaparHtml(formatarNomeProprio(f.nomeCompleto))}</td>
+      <td class="esq auto">${escaparHtml(formatarTituloGenerico(f.categoria))}</td>
       <td class="centro auto neg">${f.diasTrab ?? 24}</td>
       <td class="centro">${f.falInj || 0}</td>
       <td class="centro">${f.falJus || 0}</td>
