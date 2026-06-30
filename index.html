@@ -10,6 +10,7 @@
   <script src="sigdoc-config.js"></script>
   <script src="sigdoc-nav.js"></script>
   <script src="sigdoc-session.js"></script>
+  <script src="sigdoc-builder-utils.js"></script>
   <link rel="stylesheet" href="index.css">
 </head>
 <body>
@@ -597,7 +598,7 @@
           <!-- ══ PAINEL CHEFE DE UNIDADE ══ -->
           <div id="painel-chefe-unidade" class="chefia-wrap">
 
-            <!-- Banner de identidade da unidade -->
+            <!-- Banner de identidade da unidade (sempre visível, fora das abas) -->
             <div class="chefia-banner">
               <div class="chefia-banner-topo">
                 <div>
@@ -618,39 +619,55 @@
               </div>
             </div>
 
-            <!-- Lista da equipa -->
-            <div class="chefia-equipa-card">
-              <div class="chefia-equipa-header">
-                <div class="chefia-equipa-titulo">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  Equipa da Unidade
+            <!-- Navegação por abas -->
+            <div class="chefia-tabs">
+              <button class="chefia-tab activo" data-chefia-tab="equipa" onclick="trocarAbaChefia('equipa')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Equipa da Unidade
+              </button>
+              <button class="chefia-tab" data-chefia-tab="efectividade" onclick="trocarAbaChefia('efectividade')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                Efectividade Mensal
+              </button>
+            </div>
+
+            <!-- Aba: Equipa -->
+            <div class="chefia-tab-painel activo" data-chefia-painel="equipa">
+              <div class="chefia-equipa-card">
+                <div class="chefia-equipa-header">
+                  <div class="chefia-equipa-titulo">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Equipa da Unidade
+                  </div>
+                  <span class="chefia-equipa-badge" id="chefia-lista-badge">0 colaboradores</span>
                 </div>
-                <span class="chefia-equipa-badge" id="chefia-lista-badge">0 colaboradores</span>
-              </div>
-              <div class="chefia-lista" id="chefia-lista-funcionarios">
-                <div class="chefia-vazio">
-                  <div class="chefia-vazio-ic">⏳</div>
-                  <div class="chefia-vazio-txt">A carregar a equipa…</div>
+                <div class="chefia-lista" id="chefia-lista-funcionarios">
+                  <div class="chefia-vazio">
+                    <div class="chefia-vazio-ic">⏳</div>
+                    <div class="chefia-vazio-txt">A carregar a equipa…</div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Mapa de Efectividade Mensal -->
-            <div class="efmensal-card">
-              <div class="efmensal-header">
-                <div class="efmensal-titulo">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-                  Mapa de Efectividade Mensal
+            <!-- Aba: Mapa de Efectividade Mensal -->
+            <div class="chefia-tab-painel" data-chefia-painel="efectividade" style="display:none">
+              <div class="efmensal-card">
+                <div class="efmensal-header">
+                  <div class="efmensal-titulo">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                    Mapa de Efectividade Mensal
+                  </div>
+                  <div class="efmensal-header-acoes">
+                    <select id="efmensal-select-mes" class="efmensal-select-mes" onchange="EFM.mudarMes(this.value)"></select>
+                  </div>
                 </div>
-                <div class="efmensal-header-acoes">
-                  <select id="efmensal-select-mes" class="efmensal-select-mes" onchange="EFM.mudarMes(this.value)"></select>
-                </div>
-              </div>
 
-              <div class="efmensal-body" id="efmensal-body">
-                <div class="vazio-estado" style="padding:32px 18px">
-                  <div class="icone">⏳</div>
-                  <p style="color:var(--txt-2)">A carregar mapa de efectividade…</p>
+                <div class="efmensal-body" id="efmensal-body">
+                  <div class="vazio-estado" style="padding:32px 18px">
+                    <div class="icone">⏳</div>
+                    <p style="color:var(--txt-2)">A carregar mapa de efectividade…</p>
+                  </div>
                 </div>
               </div>
             </div>
