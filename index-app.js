@@ -1079,6 +1079,16 @@ window.guardarRolesEditados = async function() {
 // Manter compatibilidade com chamadas antigas
 window.toggleEstadoUtilizador = window.toggleUser;
 
+// ── Abas do painel de Chefe de Unidade (Equipa / Efectividade) ──────────
+window.trocarAbaChefia = function(aba) {
+  document.querySelectorAll("[data-chefia-tab]").forEach(btn => {
+    btn.classList.toggle("activo", btn.dataset.chefiaTab === aba);
+  });
+  document.querySelectorAll("[data-chefia-painel]").forEach(painel => {
+    painel.style.display = painel.dataset.chefiaPainel === aba ? "" : "none";
+  });
+};
+
 
 window.abrirModalNovoUtilizador = ()=>{ if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: abrirModalNovoUtilizador");return;} document.getElementById("overlay-novo-utilizador").classList.add("activo"); };
 window.fecharModal = ()=>{
