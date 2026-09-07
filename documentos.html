@@ -271,6 +271,8 @@ select {
 }
 
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+@media (max-width: 640px) { .row3 { grid-template-columns: 1fr; } }
 
 .info-calc {
   font-size: 11px;
@@ -2040,17 +2042,27 @@ select {
           </div>
         </div>
 
-        <!-- Dias úteis + Data de início (só férias) -->
-        <div class="row2" id="linha-ferias-periodo">
+        <!-- Dias úteis + Dias adicionais (manual) + Data de início (só férias) -->
+        <div class="row3" id="linha-ferias-periodo">
           <div id="campo-num-dias" class="campo-auto">
             <label for="num-dias">
-              Dias úteis com direito
+              Total de dias úteis
               <span class="auto-tag">Auto</span>
             </label>
             <input type="number" id="num-dias" placeholder="—"
-                   aria-label="Número de dias úteis de férias" aria-readonly="true"
+                   aria-label="Número total de dias úteis de férias" aria-readonly="true"
                    aria-required="true" aria-invalid="false" readonly/>
             <div id="info-dias" class="info-calc"></div>
+          </div>
+          <div id="campo-dias-adicionais">
+            <label for="dias-adicionais">Dias adicionais (manual)</label>
+            <select id="dias-adicionais" aria-label="Dias adicionais de férias"
+                    onchange="recalcularDiasTotal(); actualizarPreview()">
+              <option value="0">0 dias</option>
+              <option value="3">3 dias</option>
+              <option value="6">6 dias</option>
+              <option value="9">9 dias</option>
+            </select>
           </div>
           <div id="campo-data-inicio">
             <label for="data-inicio">Início das férias</label>
@@ -2963,27 +2975,22 @@ select {
     if (funcObj) {
       funcionarioSeleccionado = funcObj;
       const anos = calcularAnos(funcObj.admissao || adm);
-      const dias = calcularDiasDireito(anos);
-      document.getElementById('num-dias').value = dias;
+      window.recalcularDiasTotal();
       document.getElementById('num-dias').classList.add('campo-preenchido');
 
+      // "X anos de serviço" mantém-se como informação de apoio ao preenchimento
+      // manual dos dias adicionais — já não determina automaticamente o total.
       const infoEl = document.getElementById('info-dias');
-      if (anos !== null) {
-        let msg = '';
-        if (anos >= 30) msg = anos + ' anos → 22 + 9 = 31 dias úteis';
-        else if (anos >= 20) msg = anos + ' anos → 22 + 6 = 28 dias úteis';
-        else if (anos >= 10) msg = anos + ' anos → 22 + 3 = 25 dias úteis';
-        else msg = anos + ' anos → 22 dias úteis';
-        infoEl.innerHTML = _icon('check-circle') + ' ' + msg;
+      if (anos !== null && infoEl) {
+        infoEl.innerHTML = _icon('check-circle') + ' ' + anos + ' anos de serviço · ' +
+          document.getElementById('num-dias').value + ' dias úteis';
         infoEl.style.display = 'block';
       }
       // UX v3: mostrar cartão de resumo e actualizar step cards
       setTimeout(() => { actualizarCartaoResumoFuncionario(); actualizarEstadoStepCards(); }, 50);
     } else if (adm) {
-      // Calcular mesmo sem encontrar o funcionário, usando data de admissão da URL
-      const anos = calcularAnos(adm);
-      const dias = calcularDiasDireito(anos);
-      document.getElementById('num-dias').value = dias;
+      // Sem funcionário encontrado, ainda assim inicializa o total (22 + adicionais)
+      window.recalcularDiasTotal();
     }
 
     // Calcular data de apresentação automaticamente
@@ -3181,13 +3188,35 @@ select {
       : bruto.replace(/[^\d,.\s]/g, "");
   };
 
-  function calcularDiasDireito(anos) {
-    if (anos === null) return 22;
-    if (anos >= 30) return 31;
-    if (anos >= 20) return 28;
-    if (anos >= 10) return 25;
-    return 22;
+  // NOTA: a atribuição automática de dias adicionais por tempo de serviço foi
+  // desactivada (novo regime legal). Os 22 dias úteis de base mantêm-se fixos;
+  // os dias adicionais passam a ser inseridos manualmente em #dias-adicionais.
+  const DIAS_BASE_FERIAS = 22;
+
+  function obterDiasAdicionaisSeleccionados() {
+    const el = document.getElementById("dias-adicionais");
+    const v = el ? parseInt(el.value, 10) : 0;
+    return Number.isFinite(v) ? v : 0;
   }
+
+  window.recalcularDiasTotal = function() {
+    const adicionais = obterDiasAdicionaisSeleccionados();
+    const total = DIAS_BASE_FERIAS + adicionais;
+    const elNumDias = document.getElementById("num-dias");
+    if (elNumDias) {
+      elNumDias.value = total;
+      elNumDias.classList.add('campo-preenchido');
+    }
+    const infoEl = document.getElementById("info-dias");
+    if (infoEl) {
+      infoEl.innerHTML = adicionais > 0
+        ? _icon('check-circle') + ' ' + DIAS_BASE_FERIAS + ' + ' + adicionais + ' = ' + total + ' dias úteis'
+        : _icon('check-circle') + ' ' + total + ' dias úteis (base)';
+      infoEl.style.display = 'block';
+    }
+    calcularApresentacao();
+    return total;
+  };
 
   window.calcularApresentacao = function() {
     const inicio = document.getElementById("data-inicio").value;
@@ -3410,21 +3439,17 @@ select {
     })();
 
     const anos = calcularAnos(f.admissao);
-    const dias = calcularDiasDireito(anos);
-    document.getElementById("num-dias").value = dias;
+    // Novo funcionário seleccionado → reinicia dias adicionais para 0 (insere-se manualmente)
+    const elAdicionais = document.getElementById("dias-adicionais");
+    if (elAdicionais) elAdicionais.value = "0";
+    window.recalcularDiasTotal();
 
     const infoEl = document.getElementById("info-dias");
-    if (anos !== null) {
-      let msg = "";
-      if (anos >= 30) msg = anos + " anos de serviço → 22 + 9 = 31 dias úteis";
-      else if (anos >= 20) msg = anos + " anos de serviço → 22 + 6 = 28 dias úteis";
-      else if (anos >= 10) msg = anos + " anos de serviço → 22 + 3 = 25 dias úteis";
-      else msg = anos + " anos de serviço → 22 dias úteis";
-      infoEl.innerHTML = _icon("check-circle") + " " + msg;
+    if (anos !== null && infoEl) {
+      infoEl.innerHTML = _icon("check-circle") + " " + anos + " anos de serviço · " +
+        document.getElementById("num-dias").value + " dias úteis";
       infoEl.style.display = "block";
     }
-
-    calcularApresentacao();
     if (documentoGerado) window.gerarDocumento(true);
     actualizarPassosGuia();          // F3-B: marcar passo 2 como concluído e activar passo 3
     actualizarProgressoFormulario(); // F3-D: funcionário seleccionado conta como campo preenchido
@@ -3545,7 +3570,7 @@ select {
     const cargo    = f.cargo || f.categoria || "—";
     const local    = f.unidade || "—";
     const anos     = calcularAnos(f.admissao);
-    const dias     = calcularDiasDireito(anos);
+    const dias     = parseInt(document.getElementById("num-dias")?.value, 10) || DIAS_BASE_FERIAS;
     const tipoDoc  = document.getElementById("tipo-documento")?.value || "";
     const mostrarDias = tipoDoc === "guia-ferias" && anos !== null;
 
@@ -3587,6 +3612,8 @@ select {
         // Limpar dias/apresentação calculados
         const elDias = document.getElementById("num-dias");
         if (elDias) elDias.value = "";
+        const elAdicionaisReset = document.getElementById("dias-adicionais");
+        if (elAdicionaisReset) elAdicionaisReset.value = "0";
         const elDiasInfo = document.getElementById("info-dias");
         if (elDiasInfo) elDiasInfo.style.display = "none";
         const elApres = document.getElementById("data-apresentacao");
