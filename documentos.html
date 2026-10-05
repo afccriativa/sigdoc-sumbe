@@ -1855,6 +1855,31 @@ select {
     transform: translateX(-50%) scale(.97) translateY(0);
   }
 }
+
+/* ════ AVISO WHATSAPP (aditivo) ═════════════════════════════════ */
+.btn-whatsapp {
+  display: none;
+  background: #25d366;
+  color: #fff;
+  border: none;
+  height: 43px;
+  padding: 0 18px;
+  border-radius: var(--r-xl);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: filter .15s, transform .12s;
+}
+.btn-whatsapp:hover { filter: brightness(.94); transform: translateY(-1px); }
+.btn-whatsapp svg { width: 17px; height: 17px; fill: currentColor; }
+.btn-arquivo-acao.btn-arquivo-wa { background: #25d366; display: inline-flex; align-items: center; gap: 5px; }
+.btn-arquivo-acao.btn-arquivo-wa svg { width: 13px; height: 13px; fill: currentColor; }
+.btn-arquivo-acao.btn-arquivo-wa.avisado { background: var(--g-50); color: var(--g-800); border: 1px solid var(--g-200); }
 </style>
   <!-- preconnect: elimina latência de DNS + TLS para Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -2130,6 +2155,10 @@ select {
           <button class="btn-imprimir" id="btn-imprimir" onclick="imprimirDocumento()" disabled>
             <svg class="sigdoc-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
             Imprimir / Exportar PDF
+          </button>
+          <button class="btn-whatsapp" id="btn-whatsapp-doc" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-1.7-.8-2.8-1.5-3.9-3.4-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 1.8.8 2.5.8 3.4.7.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2z"/></svg>
+            Avisar funcionário no WhatsApp
           </button>
           <div class="badge-estado" id="badge-estado"></div>
         </div>
@@ -4057,6 +4086,9 @@ select {
       const btnSubGerar = document.getElementById("btn-submeter");
       btnSubGerar.style.display = "";
       btnSubGerar.disabled      = false;
+      const _waGerar = document.getElementById("btn-whatsapp-doc");
+      if (_waGerar) _waGerar.style.display = "none";
+      _ultimoDocGuardadoId = null;
     }
 
     if (!silencioso) mostrarNotificacao(_icon("check-circle") + " Documento preparado! Clique em 'Guardar Documento' para arquivar e enviar para validação.");
@@ -4189,6 +4221,11 @@ select {
       documentoSubmetido = true;
       btnSub.style.display = "none";
 
+      // Aviso WhatsApp: mostrar botão para o documento acabado de guardar
+      _ultimoDocGuardadoId = docRef.id;
+      const _btnWa = document.getElementById("btn-whatsapp-doc");
+      if (_btnWa) _btnWa.style.display = "flex";
+
       // ── Notificar funcionário que o documento foi submetido ───────
       const _funcUid = dadosUltimoDocumento?.funcionarioUid || funcionarioSeleccionado?.uidUtilizador || window._solicitacaoOrigemFuncionarioUid || null;
       if (_funcUid) {
@@ -4263,6 +4300,80 @@ select {
     }
   }
 
+
+  // ════════════════════════════════════════════════════════════════
+  // AVISO WHATSAPP — "o seu documento está disponível"
+  // Aditivo: não altera a lógica existente. O número NÃO é copiado para
+  // o documento; é lido da ficha do funcionário no momento do clique.
+  // ════════════════════════════════════════════════════════════════
+  const WA_LOCAL_LEVANTAMENTO = "na Secção de Recursos Humanos da DMS Sumbe"; // ← ajustar
+  const WA_CAMPOS_TELEFONE    = ["telefone", "telemovel", "telemóvel", "contacto", "contato", "celular", "whatsapp", "tel"];
+  const WA_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-1.7-.8-2.8-1.5-3.9-3.4-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 1.8.8 2.5.8 3.4.7.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2z"/></svg>';
+  let _ultimoDocGuardadoId = null;
+
+  // Devolve só dígitos com indicativo 244, ou null se o número não for utilizável
+  function normalizarTelefoneAO(bruto) {
+    let n = String(bruto || "").replace(/\D/g, "");
+    if (n.startsWith("00")) n = n.slice(2);
+    if (n.length === 9 && n.startsWith("9")) n = "244" + n;
+    return (n.length === 12 && n.startsWith("2449")) ? n : null;
+  }
+
+  function obterTelefoneFuncionario(func) {
+    if (!func) return null;
+    for (const c of WA_CAMPOS_TELEFONE) {
+      if (func[c]) { const n = normalizarTelefoneAO(func[c]); if (n) return n; }
+    }
+    return null;
+  }
+
+  function mensagemAvisoWhatsApp(nomeCompleto, tipo) {
+    const primeiro = String(nomeCompleto || "").trim().split(/\s+/)[0] || "";
+    return `Olá${primeiro ? " " + primeiro : ""}, o seu documento (${nomeTipoDocumentoGerado(tipo)}) já está disponível. ` +
+           `Pode levantá-lo ${WA_LOCAL_LEVANTAMENTO}.\n\n— DMS Sumbe · SIGDOC`;
+  }
+
+  // docId: id em /documentos · d: dados do documento (cache ou recém-gerado)
+  async function avisarFuncionarioWhatsApp(docId, d) {
+    if (!docId || !d) return;
+    const func = todosFuncionarios.find(f => f.id === d.funcionarioId);
+    if (!func) {
+      mostrarNotificacao(_icon("alert") + " Funcionário não encontrado na lista. Recarregue a página.", "aviso");
+      return;
+    }
+    const tel = obterTelefoneFuncionario(func);
+    if (!tel) {
+      mostrarNotificacao(_icon("alert") + " Este funcionário não tem um telefone válido na ficha (esperado: 9 dígitos a começar por 9).", "aviso");
+      return;
+    }
+    const texto = mensagemAvisoWhatsApp(d.funcionarioNome || func.nome, d.tipo || d.tipoDocumento);
+    const url   = "https://wa.me/" + tel + "?text=" + encodeURIComponent(texto);
+    window.open(url, "_blank", "noopener");
+
+    // Registo: quem clicou e quando (um clique abre o WhatsApp; o envio final é manual)
+    try {
+      await updateDoc(doc(db, "documentos", docId), {
+        avisoWhatsApp: {
+          abertoEm: serverTimestamp(),
+          abertoPor: utilizadorActual?.uid || null,
+          abertoPorEmail: utilizadorActual?.email || null
+        }
+      });
+      const c = guiasEmitidasCache.find(x => x.id === docId);
+      if (c) c.avisoWhatsApp = { abertoEm: { toDate: () => new Date() } };
+      if (document.getElementById("lista-guias-emitidas")) renderizarListaGuiasEmitidas();
+    } catch (e) {
+      console.warn("Registo do aviso WhatsApp falhou:", e);
+      mostrarNotificacao(_icon("alert") + " WhatsApp aberto, mas não foi possível registar o aviso.", "aviso");
+    }
+  }
+
+  document.getElementById("btn-whatsapp-doc")?.addEventListener("click", () => {
+    if (_ultimoDocGuardadoId && dadosUltimoDocumento) {
+      avisarFuncionarioWhatsApp(_ultimoDocGuardadoId, dadosUltimoDocumento);
+    }
+  });
+
   function renderizarPreviewArquivo(d) {
     if (!d || !d.htmlArquivo) {
       mostrarNotificacao(_icon("alert") + " Este documento ainda nao tem arquivo visual disponivel.", "aviso");
@@ -4300,6 +4411,9 @@ select {
     dadosUltimoDocumento = null;
     documentoGerado      = false;
     documentoSubmetido   = false;
+    const _waArq = document.getElementById("btn-whatsapp-doc");
+    if (_waArq) _waArq.style.display = "none";
+    _ultimoDocGuardadoId = null;
     document.querySelector(".painel-preview")?.scrollIntoView({ behavior: "smooth", block: "start" });
     // UX v2: actualizar cabeçalho para mostrar que é uma consulta de arquivo
     const tituloPrevArq = document.getElementById("preview-titulo-txt");
@@ -4365,6 +4479,7 @@ select {
           </div>
           <div class="guia-emitida-acoes">
             <span class="guia-estado ${escaparHTML(estado)}">${escaparHTML(estado)}</span>
+            <button class="btn-arquivo-acao btn-arquivo-wa${d.avisoWhatsApp ? " avisado" : ""}" data-wa-id="${escaparHTML(d.id)}" title="${d.avisoWhatsApp ? "Já avisado — clique para reenviar" : "Avisar funcionário no WhatsApp"}">${WA_SVG}${d.avisoWhatsApp ? "Avisado" : "Avisar"}</button>
             <button class="btn-arquivo-acao" data-doc-id="${escaparHTML(d.id)}" ${podeVer ? "" : "disabled"}>Ver no painel</button>
           </div>
         </div>`;
@@ -4373,6 +4488,12 @@ select {
     // Delegar eventos nos botões após injectar o HTML
     lista.querySelectorAll(".btn-arquivo-acao[data-doc-id]").forEach(btn => {
       btn.addEventListener("click", () => window.abrirGuiaEmitida(btn.dataset.docId));
+    });
+    lista.querySelectorAll(".btn-arquivo-wa[data-wa-id]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const dSel = guiasEmitidasCache.find(x => x.id === btn.dataset.waId);
+        avisarFuncionarioWhatsApp(btn.dataset.waId, dSel);
+      });
     });
 
     // Actualizar controlos de paginação
