@@ -1880,6 +1880,23 @@ select {
 .btn-arquivo-acao.btn-arquivo-wa { background: #25d366; display: inline-flex; align-items: center; gap: 5px; }
 .btn-arquivo-acao.btn-arquivo-wa svg { width: 13px; height: 13px; fill: currentColor; }
 .btn-arquivo-acao.btn-arquivo-wa.avisado { background: var(--g-50); color: var(--g-800); border: 1px solid var(--g-200); }
+
+/* ════ MODAL AVISAR FUNCIONÁRIO (aditivo) ═══════════════════════ */
+.aviso-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.55); z-index: 550; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.aviso-overlay[hidden] { display: none; }
+.aviso-modal { background: var(--surface); border-radius: var(--r-2xl); box-shadow: var(--sh-xl); width: 100%; max-width: 420px; overflow: hidden; }
+.aviso-cab { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 16px 18px; background: var(--g-900); color: #fff; }
+.aviso-titulo { font-size: 14px; font-weight: 800; }
+.aviso-sub { font-size: 11.5px; opacity: .75; margin-top: 3px; line-height: 1.4; }
+.aviso-fechar { background: rgba(255,255,255,.12); border: none; color: #fff; width: 30px; height: 30px; border-radius: var(--r-full); font-size: 18px; line-height: 1; cursor: pointer; flex-shrink: 0; }
+.aviso-corpo { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 9px; }
+.aviso-op { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; text-align: left; text-decoration: none; cursor: pointer; border: 1.5px solid var(--s-200); background: var(--surface); color: var(--s-900); border-radius: var(--r-lg); padding: 11px 14px; font-family: var(--font); font-size: 13.5px; font-weight: 700; transition: background .15s, border-color .15s; }
+.aviso-op small { font-size: 11px; font-weight: 500; color: var(--s-500); }
+.aviso-op:hover { background: var(--s-50); border-color: var(--s-300); }
+.aviso-op--wa  { border-color: #25d366; }
+.aviso-op--wa:hover { background: #f0fdf4; border-color: #16a34a; }
+.aviso-op--tel { font-weight: 600; color: var(--s-600); }
+.aviso-nota { font-size: 10.5px; color: var(--s-500); line-height: 1.45; padding: 0 2px; }
 </style>
   <!-- preconnect: elimina latência de DNS + TLS para Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -2157,8 +2174,8 @@ select {
             Imprimir / Exportar PDF
           </button>
           <button class="btn-whatsapp" id="btn-whatsapp-doc" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-1.7-.8-2.8-1.5-3.9-3.4-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 1.8.8 2.5.8 3.4.7.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2z"/></svg>
-            Avisar funcionário no WhatsApp
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+            Avisar funcionário
           </button>
           <div class="badge-estado" id="badge-estado"></div>
         </div>
@@ -2433,6 +2450,18 @@ select {
 </div>
 
 <div id="area-impressao"></div>
+<div class="aviso-overlay" id="aviso-overlay" hidden>
+  <div class="aviso-modal" role="dialog" aria-modal="true" aria-labelledby="aviso-titulo">
+    <div class="aviso-cab">
+      <div>
+        <div class="aviso-titulo" id="aviso-titulo">Avisar funcionário</div>
+        <div class="aviso-sub" id="aviso-sub"></div>
+      </div>
+      <button type="button" class="aviso-fechar" id="aviso-fechar" aria-label="Fechar">&times;</button>
+    </div>
+    <div class="aviso-corpo" id="aviso-corpo"></div>
+  </div>
+</div>
 <div class="notificacao" id="notificacao" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <script type="module">
@@ -4305,14 +4334,19 @@ select {
 
 
   // ════════════════════════════════════════════════════════════════
-  // AVISO WHATSAPP — "o seu documento está disponível"
-  // Aditivo: não altera a lógica existente. O número NÃO é copiado para
-  // o documento; é lido da ficha do funcionário no momento do clique.
+  // AVISO AO FUNCIONÁRIO — "o seu documento está disponível"
+  // Canais: WhatsApp · SMS · Chamada. Aditivo: não altera a lógica existente.
+  // O número NÃO é copiado para o documento; é lido da ficha no momento do clique.
+  // Os canais são links <a> (gesto directo do utilizador): sem bloqueio de pop-up.
   // ════════════════════════════════════════════════════════════════
   const WA_LOCAL_LEVANTAMENTO = "na Secretária da DMS SUMBE";
   const WA_CAMPOS_TELEFONE    = ["telefone", "telemovel", "telemóvel", "contacto", "contato", "celular", "whatsapp", "tel"];
-  const WA_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-1.7-.8-2.8-1.5-3.9-3.4-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 1.8.8 2.5.8 3.4.7.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2z"/></svg>';
+  const AVISO_ICON     = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>';
+  const AVISO_EH_IOS   = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const AVISO_EH_MOVEL = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   let _ultimoDocGuardadoId = null;
+  let _avisoCtx = null;
+  let _avisoAbrir = false;
 
   // Devolve só dígitos com indicativo 244, ou null se o número não for utilizável
   function normalizarTelefoneAO(bruto) {
@@ -4329,6 +4363,9 @@ select {
     }
     return null;
   }
+
+  // "244923456789" → "+244 923 456 789"
+  function telefoneVisivel(n) { return "+" + n.slice(0, 3) + " " + n.slice(3, 6) + " " + n.slice(6, 9) + " " + n.slice(9); }
 
   // "MARIA JÚLIA DOMINGOS DA SILVA" → "Maria Silva" (primeiro e último nome)
   function primeiroUltimoNome(nome) {
@@ -4355,6 +4392,20 @@ select {
            (tec ? `\n\nAss. ${tec}` : "");
   }
 
+  // SMS: sem acentos (com acentos o SMS passa de 160 para 70 caracteres por mensagem)
+  function semAcentos(t) { return String(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[–—]/g, "-"); }
+
+  function mensagemAvisoSMS(nomeFunc, tipo, nomeTecnico) {
+    const func = primeiroUltimoNome(nomeFunc);
+    const tec  = primeiroUltimoNome(nomeTecnico);
+    return semAcentos(
+      `Olá${func ? " " + func : ""}, ${saudacaoPorHora()}! ` +
+      `O seu documento (${nomeTipoDocumentoGerado(tipo)}) já está disponível. ` +
+      `Pode levantá-lo ${WA_LOCAL_LEVANTAMENTO}.` +
+      (tec ? ` Ass. ${tec}` : "")
+    );
+  }
+
   // Técnico que gerou o documento: campo gravado → ficha em /utilizadores → utilizador actual
   async function resolverNomeTecnico(d) {
     if (d?.geradoPorNome) return d.geradoPorNome;
@@ -4367,49 +4418,107 @@ select {
     return nomeUtilizadorActual || "";
   }
 
-  // docId: id em /documentos · d: dados do documento (cache ou recém-gerado)
-  async function avisarFuncionarioWhatsApp(docId, d) {
-    if (!docId || !d) return;
-    const func = todosFuncionarios.find(f => f.id === d.funcionarioId);
-    if (!func) {
-      mostrarNotificacao(_icon("alert") + " Funcionário não encontrado na lista. Recarregue a página.", "aviso");
-      return;
-    }
-    const tel = obterTelefoneFuncionario(func);
-    if (!tel) {
-      mostrarNotificacao(_icon("alert") + " Este funcionário não tem um telefone válido na ficha (esperado: 9 dígitos a começar por 9).", "aviso");
-      return;
-    }
-    // Se o nome do técnico exige consulta assíncrona, abrir a aba já (gesto do clique) e preencher depois
-    const precisaConsulta = !d.geradoPorNome && d.geradoPor && d.geradoPor !== utilizadorActual?.uid;
-    const abaPrevia = precisaConsulta ? window.open("", "_blank") : null;
-    const nomeTecnico = await resolverNomeTecnico(d);
-    const texto = mensagemAvisoWhatsApp(d.funcionarioNome || func.nome, d.tipo || d.tipoDocumento, nomeTecnico);
-    const url   = "https://wa.me/" + tel + "?text=" + encodeURIComponent(texto);
-    if (abaPrevia) abaPrevia.location.href = url;
-    else window.open(url, "_blank", "noopener");
+  // Prepara o contexto (funcionário, número, textos) e abre o modal de canais
+  async function abrirAvisoFuncionario(docId, d) {
+    if (!docId || !d || _avisoAbrir) return;
+    _avisoAbrir = true;
+    try {
+      const func = todosFuncionarios.find(f => f.id === d.funcionarioId);
+      if (!func) {
+        mostrarNotificacao(_icon("alert") + " Funcionário não encontrado na lista. Recarregue a página.", "aviso");
+        return;
+      }
+      const tel = obterTelefoneFuncionario(func);
+      if (!tel) {
+        mostrarNotificacao(_icon("alert") + " Este funcionário não tem um telefone válido na ficha (esperado: 9 dígitos a começar por 9).", "aviso");
+        return;
+      }
+      const tipo = d.tipo || d.tipoDocumento;
+      const nomeTec = await resolverNomeTecnico(d);
+      _avisoCtx = {
+        docId, tel,
+        nomeFunc: d.funcionarioNome || func.nome,
+        textoWA:  mensagemAvisoWhatsApp(d.funcionarioNome || func.nome, tipo, nomeTec),
+        textoSMS: mensagemAvisoSMS(d.funcionarioNome || func.nome, tipo, nomeTec)
+      };
+      renderizarModalAviso();
+    } finally { _avisoAbrir = false; }
+  }
 
-    // Registo: quem clicou e quando (um clique abre o WhatsApp; o envio final é manual)
+  function renderizarModalAviso() {
+    const c = _avisoCtx; if (!c) return;
+    const hrefWA  = "https://wa.me/" + c.tel + "?text=" + encodeURIComponent(c.textoWA);
+    const hrefSMS = "sms:+" + c.tel + (AVISO_EH_IOS ? "&" : "?") + "body=" + encodeURIComponent(c.textoSMS);
+    const hrefTel = "tel:+" + c.tel;
+    const n = c.textoSMS.length;
+    const nSms = n <= 160 ? 1 : Math.ceil(n / 153);
+    const infoSms = `Texto curto, sem acentos · ${n} caracteres (≈ ${nSms} SMS)`;
+
+    document.getElementById("aviso-sub").textContent = primeiroUltimoNome(c.nomeFunc) + " · " + telefoneVisivel(c.tel);
+
+    const opWA = `<a class="aviso-op aviso-op--wa" data-canal="WhatsApp" href="${hrefWA}" target="_blank" rel="noopener">WhatsApp<small>Texto completo, com acentos</small></a>`;
+    const opSMS = AVISO_EH_MOVEL
+      ? `<a class="aviso-op" data-canal="SMS" href="${hrefSMS}">SMS<small>${infoSms}</small></a>`
+      : `<button type="button" class="aviso-op" data-canal="SMS" data-copiar="sms">Copiar texto do SMS<small>${infoSms} · cole na aplicação de mensagens do telemóvel</small></button>`;
+    const opTel = AVISO_EH_MOVEL
+      ? `<a class="aviso-op aviso-op--tel" data-canal="Chamada" href="${hrefTel}">Ligar<small>Último recurso, para quem não responde às mensagens</small></a>`
+      : `<button type="button" class="aviso-op aviso-op--tel" data-copiar="tel">Copiar número<small>${telefoneVisivel(c.tel)}</small></button>`;
+    document.getElementById("aviso-corpo").innerHTML = opWA + opSMS + opTel +
+      `<div class="aviso-nota">O envio é feito por si na aplicação aberta. O sistema regista o canal escolhido, a data e o técnico.</div>`;
+    document.getElementById("aviso-overlay").hidden = false;
+  }
+
+  function fecharModalAviso() {
+    document.getElementById("aviso-overlay").hidden = true;
+    _avisoCtx = null;
+  }
+
+  async function registarAviso(docId, canal) {
     try {
       await updateDoc(doc(db, "documentos", docId), {
-        avisoWhatsApp: {
-          abertoEm: serverTimestamp(),
-          abertoPor: utilizadorActual?.uid || null,
-          abertoPorEmail: utilizadorActual?.email || null
+        aviso: {
+          canal,
+          em: serverTimestamp(),
+          por: utilizadorActual?.uid || null,
+          porEmail: utilizadorActual?.email || null
         }
       });
       const c = guiasEmitidasCache.find(x => x.id === docId);
-      if (c) c.avisoWhatsApp = { abertoEm: { toDate: () => new Date() } };
+      if (c) c.aviso = { canal, em: { toDate: () => new Date() } };
       if (document.getElementById("lista-guias-emitidas")) renderizarListaGuiasEmitidas();
     } catch (e) {
-      console.warn("Registo do aviso WhatsApp falhou:", e);
-      mostrarNotificacao(_icon("alert") + " WhatsApp aberto, mas não foi possível registar o aviso.", "aviso");
+      console.warn("Registo do aviso falhou:", e);
+      mostrarNotificacao(_icon("alert") + " Aviso aberto, mas não foi possível registá-lo.", "aviso");
     }
   }
 
+  document.getElementById("aviso-corpo")?.addEventListener("click", async (ev) => {
+    const op = ev.target.closest(".aviso-op");
+    if (!op || !_avisoCtx) return;
+    const { docId, tel, textoSMS } = _avisoCtx;
+    if (op.dataset.copiar) {
+      const texto = op.dataset.copiar === "sms" ? textoSMS : "+" + tel;
+      try {
+        await navigator.clipboard.writeText(texto);
+        mostrarNotificacao(_icon("check-circle") + (op.dataset.copiar === "sms" ? " Texto do SMS copiado." : " Número copiado."));
+      } catch (e) {
+        mostrarNotificacao(_icon("alert") + " Não foi possível copiar. Copie manualmente.", "aviso");
+        return;
+      }
+      if (op.dataset.copiar === "sms") registarAviso(docId, "SMS");
+    } else if (op.dataset.canal) {
+      registarAviso(docId, op.dataset.canal); // o link <a> segue o seu caminho normal
+    }
+    setTimeout(fecharModalAviso, 250);
+  });
+  document.getElementById("aviso-fechar")?.addEventListener("click", fecharModalAviso);
+  document.getElementById("aviso-overlay")?.addEventListener("click", (ev) => { if (ev.target.id === "aviso-overlay") fecharModalAviso(); });
+  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && _avisoCtx) fecharModalAviso(); });
+
+  // Botão após guardar: documento recém-gravado
   document.getElementById("btn-whatsapp-doc")?.addEventListener("click", () => {
     if (_ultimoDocGuardadoId && dadosUltimoDocumento) {
-      avisarFuncionarioWhatsApp(_ultimoDocGuardadoId, { ...dadosUltimoDocumento, geradoPor: utilizadorActual?.uid, geradoPorNome: nomeUtilizadorActual });
+      abrirAvisoFuncionario(_ultimoDocGuardadoId, { ...dadosUltimoDocumento, geradoPor: utilizadorActual?.uid, geradoPorNome: nomeUtilizadorActual });
     }
   });
 
@@ -4518,7 +4627,7 @@ select {
           </div>
           <div class="guia-emitida-acoes">
             <span class="guia-estado ${escaparHTML(estado)}">${escaparHTML(estado)}</span>
-            <button class="btn-arquivo-acao btn-arquivo-wa${d.avisoWhatsApp ? " avisado" : ""}" data-wa-id="${escaparHTML(d.id)}" title="${d.avisoWhatsApp ? "Já avisado — clique para reenviar" : "Avisar funcionário no WhatsApp"}">${WA_SVG}${d.avisoWhatsApp ? "Avisado" : "Avisar"}</button>
+            <button class="btn-arquivo-acao btn-arquivo-wa${d.aviso ? " avisado" : ""}" data-wa-id="${escaparHTML(d.id)}" title="${d.aviso ? "Avisado por " + escaparHTML(d.aviso.canal || "—") + " — clique para avisar de novo" : "Avisar funcionário"}">${AVISO_ICON}${d.aviso ? "Avisado" : "Avisar"}</button>
             <button class="btn-arquivo-acao" data-doc-id="${escaparHTML(d.id)}" ${podeVer ? "" : "disabled"}>Ver no painel</button>
           </div>
         </div>`;
@@ -4531,7 +4640,7 @@ select {
     lista.querySelectorAll(".btn-arquivo-wa[data-wa-id]").forEach(btn => {
       btn.addEventListener("click", () => {
         const dSel = guiasEmitidasCache.find(x => x.id === btn.dataset.waId);
-        avisarFuncionarioWhatsApp(btn.dataset.waId, dSel);
+        abrirAvisoFuncionario(btn.dataset.waId, dSel);
       });
     });
 
