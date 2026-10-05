@@ -2560,6 +2560,7 @@ select {
   let documentoGerado = false;
   let dadosUltimoDocumento = null; // guarda os dados para submissão
   let utilizadorActual = null;     // utilizador autenticado
+  let nomeUtilizadorActual = "";   // nome do utilizador (assinatura do aviso WhatsApp)
   let documentoSubmetido = false;  // evita dupla submissão
   let guiasEmitidasCache = [];
   let unsubGuiasEmitidas = null;
@@ -2664,6 +2665,7 @@ select {
     try {
       const snapU = await getDoc(doc(db, "utilizadores", u.uid));
       const dadosU = normalizarPerfilDocumentos(snapU.exists() ? snapU.data() : {});
+      nomeUtilizadorActual = dadosU.nome || "";
       const perfil = obterPerfilPrincipalDocumentos(dadosU);
       if (!temAlgumRoleDocumentos(dadosU, PERFIS_ACESSO)) {
         window.location.href = "index.html";
@@ -4201,6 +4203,7 @@ select {
         estado: "gerado",
         geradoPor: utilizadorActual.uid,
         geradoPorEmail: utilizadorActual.email,
+        geradoPorNome: nomeUtilizadorActual || null,
         geradoEm: serverTimestamp(),
         aprovadoPor: null,
         aprovadoEm: null,
@@ -4306,7 +4309,7 @@ select {
   // Aditivo: não altera a lógica existente. O número NÃO é copiado para
   // o documento; é lido da ficha do funcionário no momento do clique.
   // ════════════════════════════════════════════════════════════════
-  const WA_LOCAL_LEVANTAMENTO = "na Secção de Recursos Humanos da DMS Sumbe"; // ← ajustar
+  const WA_LOCAL_LEVANTAMENTO = "na Secretária da DMS SUMBE";
   const WA_CAMPOS_TELEFONE    = ["telefone", "telemovel", "telemóvel", "contacto", "contato", "celular", "whatsapp", "tel"];
   const WA_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-1.7-.8-2.8-1.5-3.9-3.4-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 1.8.8 2.5.8 3.4.7.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2z"/></svg>';
   let _ultimoDocGuardadoId = null;
@@ -4327,10 +4330,41 @@ select {
     return null;
   }
 
-  function mensagemAvisoWhatsApp(nomeCompleto, tipo) {
-    const primeiro = String(nomeCompleto || "").trim().split(/\s+/)[0] || "";
-    return `Olá${primeiro ? " " + primeiro : ""}, o seu documento (${nomeTipoDocumentoGerado(tipo)}) já está disponível. ` +
-           `Pode levantá-lo ${WA_LOCAL_LEVANTAMENTO}.\n\n— DMS Sumbe · SIGDOC`;
+  // "MARIA JÚLIA DOMINGOS DA SILVA" → "Maria Silva" (primeiro e último nome)
+  function primeiroUltimoNome(nome) {
+    const t = String(nome || "").trim().split(/\s+/).filter(Boolean);
+    if (!t.length) return "";
+    const cap = w => w.charAt(0).toLocaleUpperCase("pt-PT") + w.slice(1).toLocaleLowerCase("pt-PT");
+    return t.length === 1 ? cap(t[0]) : cap(t[0]) + " " + cap(t[t.length - 1]);
+  }
+
+  // Saudação pela hora do dispositivo (Angola = WAT): 05–11h manhã · 12–17h tarde · resto noite
+  function saudacaoPorHora(data = new Date()) {
+    const h = data.getHours();
+    if (h >= 5 && h < 12) return "bom dia";
+    if (h >= 12 && h < 18) return "boa tarde";
+    return "boa noite";
+  }
+
+  function mensagemAvisoWhatsApp(nomeFunc, tipo, nomeTecnico) {
+    const func = primeiroUltimoNome(nomeFunc);
+    const tec  = primeiroUltimoNome(nomeTecnico);
+    return `Olá${func ? " " + func : ""}, ${saudacaoPorHora()}! ` +
+           `O seu documento (${nomeTipoDocumentoGerado(tipo)}) já está disponível. ` +
+           `Pode levantá-lo ${WA_LOCAL_LEVANTAMENTO}.` +
+           (tec ? `\n\nAss. ${tec}` : "");
+  }
+
+  // Técnico que gerou o documento: campo gravado → ficha em /utilizadores → utilizador actual
+  async function resolverNomeTecnico(d) {
+    if (d?.geradoPorNome) return d.geradoPorNome;
+    if (d?.geradoPor && d.geradoPor !== utilizadorActual?.uid) {
+      try {
+        const sn = await getDoc(doc(db, "utilizadores", d.geradoPor));
+        if (sn.exists() && sn.data().nome) return sn.data().nome;
+      } catch (e) { console.warn("Nome do técnico:", e); }
+    }
+    return nomeUtilizadorActual || "";
   }
 
   // docId: id em /documentos · d: dados do documento (cache ou recém-gerado)
@@ -4346,9 +4380,14 @@ select {
       mostrarNotificacao(_icon("alert") + " Este funcionário não tem um telefone válido na ficha (esperado: 9 dígitos a começar por 9).", "aviso");
       return;
     }
-    const texto = mensagemAvisoWhatsApp(d.funcionarioNome || func.nome, d.tipo || d.tipoDocumento);
+    // Se o nome do técnico exige consulta assíncrona, abrir a aba já (gesto do clique) e preencher depois
+    const precisaConsulta = !d.geradoPorNome && d.geradoPor && d.geradoPor !== utilizadorActual?.uid;
+    const abaPrevia = precisaConsulta ? window.open("", "_blank") : null;
+    const nomeTecnico = await resolverNomeTecnico(d);
+    const texto = mensagemAvisoWhatsApp(d.funcionarioNome || func.nome, d.tipo || d.tipoDocumento, nomeTecnico);
     const url   = "https://wa.me/" + tel + "?text=" + encodeURIComponent(texto);
-    window.open(url, "_blank", "noopener");
+    if (abaPrevia) abaPrevia.location.href = url;
+    else window.open(url, "_blank", "noopener");
 
     // Registo: quem clicou e quando (um clique abre o WhatsApp; o envio final é manual)
     try {
@@ -4370,7 +4409,7 @@ select {
 
   document.getElementById("btn-whatsapp-doc")?.addEventListener("click", () => {
     if (_ultimoDocGuardadoId && dadosUltimoDocumento) {
-      avisarFuncionarioWhatsApp(_ultimoDocGuardadoId, dadosUltimoDocumento);
+      avisarFuncionarioWhatsApp(_ultimoDocGuardadoId, { ...dadosUltimoDocumento, geradoPor: utilizadorActual?.uid, geradoPorNome: nomeUtilizadorActual });
     }
   });
 
