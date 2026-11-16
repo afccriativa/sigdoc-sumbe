@@ -10,7 +10,7 @@ import { getAuth, signInWithEmailAndPassword, signOut,
          sendPasswordResetEmail,
          setPersistence, browserLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, setDoc, doc, query, where, orderBy, serverTimestamp, onSnapshot, arrayUnion, increment, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, setDoc, doc, query, where, orderBy, limit, serverTimestamp, onSnapshot, arrayUnion, increment, runTransaction, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 const firebaseConfig = window.SIGDOC_CONFIG.config;
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 setPersistence(auth,browserLocalPersistence).catch(e=>console.warn(e));
@@ -193,26 +193,28 @@ async function resolverPerfilPortalAutenticado(user){
   if(!dadosBrutos && !funcAssoc) return null;
 
   const base = normalizarPerfilPortal(dadosBrutos || {});
-  const reparo = !dadosBrutos ? {
-    ...payloadPerfilPortal([]),
-    nome: funcAssoc?.nome || user.displayName || user.email || "Funcionario",
-    email: user.email || "",
-    unidade: funcAssoc?.unidade || "",
-    activo: true,
-    criadoEm: serverTimestamp(),
-    ultimoAcesso: serverTimestamp(),
-    ...(funcAssoc?.id ? { funcionarioId: funcAssoc.id } : {})
-  } : (
-    funcAssoc?.id && base.funcionarioId !== funcAssoc.id
-      ? { funcionarioId: funcAssoc.id }
-      : {}
-  );
-
-  if(Object.keys(reparo).length){
+  if(!dadosBrutos){
     try{
-      await setDoc(refUtilizador, reparo, { merge:true });
+      await setDoc(refUtilizador, {
+        ...payloadPerfilPortal([]),
+        nome: funcAssoc?.nome || user.displayName || user.email || "Funcionario",
+        email: user.email || "",
+        unidade: funcAssoc?.unidade || "",
+        activo: true,
+        criadoEm: serverTimestamp(),
+        ultimoAcesso: serverTimestamp()
+      });
+      if(funcAssoc?.id){
+        await updateDoc(refUtilizador, { funcionarioId: funcAssoc.id });
+      }
     }catch(eReparo){
       console.warn("Reparo do perfil do portal:", eReparo);
+    }
+  } else if(!base.funcionarioId && funcAssoc?.id){
+    try{
+      await updateDoc(refUtilizador, { funcionarioId: funcAssoc.id });
+    }catch(eReparo){
+      console.warn("Reparo do funcionarioId do portal:", eReparo);
     }
   }
   const dadosCalculados = {
@@ -377,6 +379,58 @@ window.validarVerificacao = function() {
   sincronizarBtnVerificar();
 };
 
+async function consultarIndicePreRegistoPortal(num, bi){
+  const numNorm = String(num || "").replace(/\s+/g, "").trim();
+  const biNorm  = String(bi || "").replace(/\s+/g, "").trim().toUpperCase();
+  if(numNorm && numNorm.length === 8){
+    try{
+      const snapNum = await getDoc(doc(db, "funcionarios_indices", "numero_" + numNorm));
+      if(snapNum.exists() && snapNum.data()?.funcionarioId){
+        return { funcionarioId: snapNum.data().funcionarioId, chaveLabel: "Nº " + numNorm };
+      }
+    }catch(eIdxNum){
+      console.warn("Índice numero_" + numNorm + ":", eIdxNum);
+    }
+    try{
+      const snapNumFicha = await getDocs(query(
+        collection(db, "funcionarios"),
+        where("numero", "==", numNorm),
+        limit(1)
+      ));
+      if(!snapNumFicha.empty){
+        const d = snapNumFicha.docs[0];
+        return { funcionarioId: d.id, chaveLabel: "Nº " + numNorm, dadosFicha: d.data() };
+      }
+    }catch(eQNum){
+      console.warn("Fallback numero " + numNorm + ":", eQNum);
+    }
+  }
+  if(biNorm && biNorm.length >= 8){
+    try{
+      const snapBi = await getDoc(doc(db, "funcionarios_indices", "bi_" + biNorm));
+      if(snapBi.exists() && snapBi.data()?.funcionarioId){
+        return { funcionarioId: snapBi.data().funcionarioId, chaveLabel: "BI " + biNorm };
+      }
+    }catch(eIdxBi){
+      console.warn("Índice bi_" + biNorm + ":", eIdxBi);
+    }
+    try{
+      const snapBiFicha = await getDocs(query(
+        collection(db, "funcionarios"),
+        where("bi", "==", biNorm),
+        limit(1)
+      ));
+      if(!snapBiFicha.empty){
+        const d = snapBiFicha.docs[0];
+        return { funcionarioId: d.id, chaveLabel: "BI " + biNorm, dadosFicha: d.data() };
+      }
+    }catch(eQBi){
+      console.warn("Fallback BI " + biNorm + ":", eQBi);
+    }
+  }
+  return null;
+}
+
 window.fazerVerificacao=async function(){
   const num=document.getElementById("input-numero").value.trim();
   const bi=document.getElementById("input-bi").value.trim();
@@ -387,11 +441,22 @@ window.fazerVerificacao=async function(){
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A verificar…';
   try{
     if(!auth.currentUser)await signInAnonymously(auth);
-    let enc=null,encId=null;
-    if(num&&num.length===8){const snap=await getDocs(query(collection(db,"funcionarios"),where("numero","==",num)));if(!snap.empty){enc=snap.docs[0].data();encId=snap.docs[0].id;}}
-    if(!enc&&bi&&bi.length>=8){const snap=await getDocs(query(collection(db,"funcionarios"),where("bi","==",bi.toUpperCase())));if(!snap.empty){enc=snap.docs[0].data();encId=snap.docs[0].id;}}
-    if(!enc){msg.innerHTML=`<div class="alerta alerta-erro"><strong>Não encontrado.</strong> Os seus dados não estão no sistema. Por favor, contacte a Secção de RH.</div>`;btn.disabled=false;btn.innerHTML="Verificar →";return;}
-    if(enc.portalUid){msg.innerHTML=`<div class="alerta alerta-aviso"><strong>Conta já existe.</strong> Este registo já tem uma conta. Por favor, faça login.</div>`;btn.disabled=false;btn.innerHTML="Verificar →";setTimeout(()=>mostrarEcra("ecra-login-func"),2500);return;}
+    const idx = await consultarIndicePreRegistoPortal(num, bi);
+    if(!idx){msg.innerHTML=`<div class="alerta alerta-erro"><strong>Não encontrado.</strong> Os seus dados não estão no sistema. Por favor, contacte a Secção de RH.</div>`;btn.disabled=false;btn.innerHTML="Verificar →";return;}
+    const encId = idx.funcionarioId;
+    let enc = idx.dadosFicha || null;
+    if(!enc){
+      try{
+        const snapF = await getDoc(doc(db, "funcionarios", encId));
+        if(snapF.exists()) enc = snapF.data();
+      }catch(_){}
+    }
+    if(enc && enc.portalUid){
+      msg.innerHTML=`<div class="alerta alerta-aviso"><strong>Conta já existente.</strong> Já foi criada uma conta para este registo. Volte atrás e escolha "Já tenho conta".</div>`;
+      btn.disabled=false;btn.innerHTML="Verificar →";
+      return;
+    }
+    if(!enc) enc = { nome: "Registo Verificado", unidade: "Direcção Municipal de Saúde", categoria: idx.chaveLabel };
     _funcDoc=enc; _funcDocId=encId;
     preencherCC(enc); mostrarEcra("ecra-criar-conta");
   }catch(e){console.error(e);msg.innerHTML=`<div class="alerta alerta-erro">Erro de ligação. Verifique a internet e tente novamente.</div>`;btn.disabled=false;btn.innerHTML="Verificar →";}
@@ -428,14 +493,39 @@ window.avaliarForca=function(){
   if(rq("req-num"))  rq("req-num").classList.toggle("ok",temNum);
 };
 
+const COMUNS = ['12345678','123456789','senha123','password','admin123','sumbe2026','angola2026','qwerty123'];
+function senhaFraca(s, ctx = {}) {
+  const l = s.toLowerCase();
+  if (COMUNS.some(p => l.includes(p))) return 'Senha demasiado comum.';
+  if (/^(.)\1+$/.test(s)) return 'Não repita o mesmo carácter.';
+  if (/(0123|1234|2345|3456|4567|5678|6789|abcd|qwer)/i.test(s)) return 'Evite sequências como 1234.';
+  if (/(0[1-9]|[12]\d|3[01])(0[1-9]|1[0-2])((19|20)\d{2}|\d{2})/.test(s) ||
+      /(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])/.test(s)) return 'Não use datas.';
+  const e = (ctx.email || '').split('@')[0].toLowerCase();
+  if (e.length >= 4 && l.includes(e)) return 'Não use o seu email.';
+  if ((ctx.numero && s.includes(ctx.numero)) || (ctx.bi && l.includes(ctx.bi.toLowerCase()))) return 'Não use o seu BI ou n.º de agente.';
+  return '';
+}
+
+function obterContextoSenhaPortal() {
+  return {
+    email:  document.getElementById("cc-email")?.value?.trim() || "",
+    numero: document.getElementById("input-numero")?.value?.trim() || _funcDoc?.numero || "",
+    bi:     document.getElementById("input-bi")?.value?.trim() || _funcDoc?.bi || ""
+  };
+}
+
 window.validarCampoSenha = function() {
   const s = document.getElementById("cc-senha").value;
-  const valido = s.length>=8 && /[A-Z]/.test(s) && /[0-9]/.test(s);
+  const erroFraca = s.length >= 8 ? senhaFraca(s, obterContextoSenhaPortal()) : "";
+  const valido = s.length>=8 && /[A-Z]/.test(s) && /[0-9]/.test(s) && !erroFraca;
   const inp = document.getElementById("cc-senha");
   const ico = document.getElementById("ico-senha");
+  const txt = document.getElementById("forca-texto");
   inp.classList.toggle("campo-erro", s.length>0 && !valido);
   inp.classList.toggle("campo-ok",   s.length>0 &&  valido);
   if(ico){ico.innerHTML=s.length===0?'':(valido ? ICO_OK : ICO_ERR);ico.style.display=s.length?'block':'none';}
+  if(erroFraca && txt){txt.textContent=erroFraca;txt.style.color="#ef4444";}
 };
 
 window.validarCampoSenha2 = function() {
@@ -453,6 +543,7 @@ window.validarCampoEmail = function() {
     RE_EMAIL.test(v),
     "Endereço de e-mail inválido (ex: nome@dominio.com).",
     "E-mail válido");
+  if (document.getElementById("cc-senha")?.value) window.validarCampoSenha();
   validarCriarConta();
 };
 
@@ -461,7 +552,8 @@ window.validarCriarConta=function(){
   const senha = document.getElementById("cc-senha").value;
   const s2    = document.getElementById("cc-senha2").value;
   const emailOk = RE_EMAIL.test(email);
-  const senhaOk = senha.length>=8 && /[A-Z]/.test(senha) && /[0-9]/.test(senha);
+  const erroFraca = senhaFraca(senha, obterContextoSenhaPortal());
+  const senhaOk = senha.length>=8 && /[A-Z]/.test(senha) && /[0-9]/.test(senha) && !erroFraca;
   const s2Ok    = s2===senha && s2.length>0;
   document.getElementById("btn-criar").disabled = !(emailOk && senhaOk && s2Ok);
 };
@@ -471,6 +563,12 @@ window.criarConta=async function(){
   const senha=document.getElementById("cc-senha").value;
   const btn=document.getElementById("btn-criar");
   const msg=document.getElementById("msg-criar");
+  const erroFraca = senhaFraca(senha, obterContextoSenhaPortal());
+  if(senha.length < 8 || erroFraca){
+    msg.innerHTML=`<div class="alerta alerta-erro">${escapeHtml(erroFraca || "A senha deve ter pelo menos 8 caracteres.")}</div>`;
+    btn.disabled=false;
+    return;
+  }
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A criar conta…'; msg.innerHTML="";
   try{
     let uid,userFinal;
@@ -478,15 +576,25 @@ window.criarConta=async function(){
     if(auth.currentUser&&auth.currentUser.isAnonymous){const linked=await linkWithCredential(auth.currentUser,cred);uid=linked.user.uid;userFinal=linked.user;}
     else{const c=await createUserWithEmailAndPassword(auth,email,senha);uid=c.user.uid;userFinal=c.user;}
     _utilizador=userFinal;
-    await setDoc(doc(db,"utilizadores",uid),{nome:_funcDoc.nome,email,unidade:_funcDoc.unidade||"",activo:true,funcionarioId:_funcDocId,criadoEm:serverTimestamp(),ultimoAcesso:serverTimestamp(),...payloadPerfilPortal([])});
-    await updateDoc(doc(db,"funcionarios",_funcDocId),{portalUid:uid,portalEmail:email,portalCriadoEm:serverTimestamp()});
-    const nome=(_funcDoc.nome||"").split(" ")[0];
+    const nomeInicial = (_funcDoc?.nome && _funcDoc.nome !== "Registo Verificado") ? _funcDoc.nome : (email.split("@")[0] || "Funcionario");
+    const unidadeInicial = (_funcDoc?.unidade && _funcDoc.unidade !== "Direcção Municipal de Saúde") ? _funcDoc.unidade : "";
+    await setDoc(doc(db,"utilizadores",uid),{nome:nomeInicial,email,unidade:unidadeInicial,activo:true,criadoEm:serverTimestamp(),ultimoAcesso:serverTimestamp(),...payloadPerfilPortal([])});
+    const batch = writeBatch(db);
+    batch.update(doc(db,"funcionarios",_funcDocId),{portalUid:uid,portalEmail:email,portalCriadoEm:serverTimestamp()});
+    batch.update(doc(db,"utilizadores",uid),{funcionarioId:_funcDocId});
+    await batch.commit();
+    try{
+      const snapFicha = await getDoc(doc(db,"funcionarios",_funcDocId));
+      if(snapFicha.exists()) _funcDoc = snapFicha.data();
+    }catch(_){}
+    const nome=(_funcDoc.nome||nomeInicial||"").split(" ")[0];
     document.getElementById("bv-titulo").textContent="Bem-vindo, "+nome+"!";
     document.getElementById("bv-sub").textContent="A sua conta foi criada. Use o e-mail "+email+" para entrar sempre que precisar.";
     mostrarEcra("ecra-bem-vindo");
   }catch(e){
     console.error(e);
     let m="Erro ao criar conta. Tente novamente.";
+    if(e.code==="permission-denied")m="Este registo já possui uma conta vinculada no portal. Por favor, faça login ou recupere a sua senha.";
     if(e.code==="auth/email-already-in-use")m="Este e-mail já está em uso. Tente fazer login.";
     if(e.code==="auth/weak-password")m="Senha demasiado fraca. Use pelo menos 8 caracteres.";
     if(e.code==="auth/invalid-email")m="Endereço de e-mail inválido.";
@@ -612,19 +720,24 @@ window.pesquisarContaRecuperacao = async function() {
   try{
     if(!auth.currentUser) await signInAnonymously(auth);
 
-    let enc=null;
-    if(RE_NUMERO.test(numero)){
-      const snap=await getDocs(query(collection(db,"funcionarios"),where("numero","==",numero)));
-      if(!snap.empty) enc=snap.docs[0].data();
+    const idx = await consultarIndicePreRegistoPortal(numero, bi);
+    if(!idx){
+      limparResultadoRecuperacao();
+      msg.innerHTML=`<div class="alerta alerta-erro">Não encontrámos uma conta associada aos dados informados. Reveja os dados e tente novamente.</div>`;
+      return;
     }
-    if(!enc&&RE_BI.test(bi)){
-      const snap=await getDocs(query(collection(db,"funcionarios"),where("bi","==",bi)));
-      if(!snap.empty) enc=snap.docs[0].data();
+
+    let enc = idx.dadosFicha || null;
+    if(!enc){
+      try{
+        const snapFicha = await getDoc(doc(db, "funcionarios", idx.funcionarioId));
+        if(snapFicha.exists()) enc = snapFicha.data();
+      }catch(_){}
     }
 
     if(!enc){
       limparResultadoRecuperacao();
-      msg.innerHTML=`<div class="alerta alerta-erro">Não encontrámos uma conta associada aos dados informados. Reveja os dados e tente novamente.</div>`;
+      msg.innerHTML=`<div class="alerta alerta-aviso">Localizámos o seu registo (${escapeHtml(idx.chaveLabel)}). Por motivos de privacidade, introduza abaixo o e-mail que usou no registo para receber o link de recuperação, ou contacte a Secção de RH.</div>`;
       return;
     }
 
@@ -1493,6 +1606,7 @@ async function carregarMinhaUnidade(nomeUnidade){
       return;
     }
 
+    const unidadeDocId = snap.docs[0].id;
     const u = snap.docs[0].data();
     const tipoLabel = {
       dms:    'Direcção Municipal de Saúde',
@@ -1613,6 +1727,7 @@ async function carregarUnidadeSobResponsabilidade(funcDocId){
     ));
     if(snap.empty){ card.style.display='none'; return; }
 
+    const unidadeDocId = snap.docs[0].id;
     const u = snap.docs[0].data();
     const tipoLabel = {
       dms:    'Direcção Municipal de Saúde',
@@ -1627,7 +1742,7 @@ async function carregarUnidadeSobResponsabilidade(funcDocId){
     // Contar funcionários cadastrados nesta unidade
     let numFunc = 0;
     try{
-      const qf = query(collection(db,'funcionarios'), where('unidade','==', u.nome||''));
+      const qf = query(collection(db,'funcionarios'), where('unidadeId','==', unidadeDocId));
       const sf = await getDocs(qf);
       numFunc  = sf.size;
     }catch(_){}
@@ -2552,6 +2667,3 @@ window.marcarTodasLidas = async function() {
   );
   // O onSnapshot actualiza automaticamente o cache e re-renderiza
 };
-
-
-
