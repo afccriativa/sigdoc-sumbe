@@ -392,17 +392,18 @@ async function consultarIndicePreRegistoPortal(num, bi){
       console.warn("Índice numero_" + numNorm + ":", eIdxNum);
     }
     try{
-      const snapLivreNum = await getDocs(query(
+      const snapNumFicha = await getDocs(query(
         collection(db, "funcionarios"),
         where("numero", "==", numNorm),
-        where("portalUid", "==", ""),
         limit(1)
       ));
-      if(!snapLivreNum.empty){
-        const d = snapLivreNum.docs[0];
+      if(!snapNumFicha.empty){
+        const d = snapNumFicha.docs[0];
         return { funcionarioId: d.id, chaveLabel: "Nº " + numNorm, dadosFicha: d.data() };
       }
-    }catch(_){}
+    }catch(eQNum){
+      console.warn("Fallback numero " + numNorm + ":", eQNum);
+    }
   }
   if(biNorm && biNorm.length >= 8){
     try{
@@ -414,17 +415,18 @@ async function consultarIndicePreRegistoPortal(num, bi){
       console.warn("Índice bi_" + biNorm + ":", eIdxBi);
     }
     try{
-      const snapLivreBi = await getDocs(query(
+      const snapBiFicha = await getDocs(query(
         collection(db, "funcionarios"),
         where("bi", "==", biNorm),
-        where("portalUid", "==", ""),
         limit(1)
       ));
-      if(!snapLivreBi.empty){
-        const d = snapLivreBi.docs[0];
+      if(!snapBiFicha.empty){
+        const d = snapBiFicha.docs[0];
         return { funcionarioId: d.id, chaveLabel: "BI " + biNorm, dadosFicha: d.data() };
       }
-    }catch(_){}
+    }catch(eQBi){
+      console.warn("Fallback BI " + biNorm + ":", eQBi);
+    }
   }
   return null;
 }
@@ -442,7 +444,19 @@ window.fazerVerificacao=async function(){
     const idx = await consultarIndicePreRegistoPortal(num, bi);
     if(!idx){msg.innerHTML=`<div class="alerta alerta-erro"><strong>Não encontrado.</strong> Os seus dados não estão no sistema. Por favor, contacte a Secção de RH.</div>`;btn.disabled=false;btn.innerHTML="Verificar →";return;}
     const encId = idx.funcionarioId;
-    const enc = idx.dadosFicha || { nome: "Registo Verificado", unidade: "Direcção Municipal de Saúde", categoria: idx.chaveLabel };
+    let enc = idx.dadosFicha || null;
+    if(!enc){
+      try{
+        const snapF = await getDoc(doc(db, "funcionarios", encId));
+        if(snapF.exists()) enc = snapF.data();
+      }catch(_){}
+    }
+    if(enc && enc.portalUid){
+      msg.innerHTML=`<div class="alerta alerta-aviso"><strong>Conta já existente.</strong> Já foi criada uma conta para este registo. Volte atrás e escolha "Já tenho conta".</div>`;
+      btn.disabled=false;btn.innerHTML="Verificar →";
+      return;
+    }
+    if(!enc) enc = { nome: "Registo Verificado", unidade: "Direcção Municipal de Saúde", categoria: idx.chaveLabel };
     _funcDoc=enc; _funcDocId=encId;
     preencherCC(enc); mostrarEcra("ecra-criar-conta");
   }catch(e){console.error(e);msg.innerHTML=`<div class="alerta alerta-erro">Erro de ligação. Verifique a internet e tente novamente.</div>`;btn.disabled=false;btn.innerHTML="Verificar →";}
