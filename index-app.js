@@ -5,6 +5,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut,
          createUserWithEmailAndPassword, onAuthStateChanged,
+         sendPasswordResetEmail,
          setPersistence, browserLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, getDocs, collection, addDoc,
@@ -234,7 +235,10 @@ async function carregarPainelChefeUnidade(u, d) {
 
   let equipa = [];
   try {
-    const snapFuncs = await getDocs(collection(db, "funcionarios"));
+    const consultaUnidade = temAlgumRoleLocal(d, ["admin", "director", "chefe", "tecnico", "secretaria"])
+      ? collection(db, "funcionarios")
+      : query(collection(db, "funcionarios"), where("unidadeId", "==", unidade.id));
+    const snapFuncs = await getDocs(consultaUnidade);
     equipa = snapFuncs.docs
       .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
       .filter(f => pertenceAUnidade(f, unidade))
@@ -395,23 +399,11 @@ async function carregarPerfil(u) {
       await SIGDOC_SESSION.registarLogin(db, u.uid, _sToken, { updateDoc, doc, serverTimestamp });
       await mostrarPainel(u, d);
     } else {
-      const d = {
-        nome: u.email.split("@")[0],
-        email: u.email,
-        unidade:"Direcção Municipal",
-        activo:true,
-        criadoEm: serverTimestamp(),
-        ultimoAcesso: serverTimestamp(),
-        ...payloadPerfilLocal({ roles:["admin"] })
-      };
-      await setDoc(doc(db,"utilizadores",u.uid), d);
-      perfilActual = d;
-      await registarSessao(u, d, "entrada");
-      // ── Gestão de sessão concorrente ──
-      const _sToken = SIGDOC_SESSION.gerarEPersistirToken();
-      await SIGDOC_SESSION.registarLogin(db, u.uid, _sToken, { updateDoc, doc, serverTimestamp });
-      await mostrarPainel(u, d);
-      mostrarNotif("✅ Conta de administrador criada automaticamente!");
+      utilizadorActual = null;
+      perfilActual = null;
+      await signOut(auth);
+      mostrarLogin();
+      setTimeout(() => mostrarErro("Conta sem perfil. Contacte o RH."), 100);
     }
   } catch(e) { console.error("carregarPerfil:",e); mostrarLogin(); setTimeout(()=>mostrarErro("Erro ao carregar perfil. As regras de acesso podem não estar actualizadas. Contacte o administrador."),100); }
 }
@@ -1090,9 +1082,97 @@ window.trocarAbaChefia = function(aba) {
 };
 
 
-window.abrirModalNovoUtilizador = ()=>{ if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: abrirModalNovoUtilizador");return;} document.getElementById("overlay-novo-utilizador").classList.add("activo"); };
+const COMUNS = ['12345678','123456789','senha123','password','admin123','sumbe2026','angola2026','qwerty123'];
+function senhaFraca(s, ctx = {}) {
+  const l = s.toLowerCase();
+  if (COMUNS.some(p => l.includes(p))) return 'Senha demasiado comum.';
+  if (/^(.)\1+$/.test(s)) return 'Não repita o mesmo carácter.';
+  if (/(0123|1234|2345|3456|4567|5678|6789|abcd|qwer)/i.test(s)) return 'Evite sequências como 1234.';
+  if (/(0[1-9]|[12]\d|3[01])(0[1-9]|1[0-2])((19|20)\d{2}|\d{2})/.test(s) ||
+      /(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])/.test(s)) return 'Não use datas.';
+  const e = (ctx.email || '').split('@')[0].toLowerCase();
+  if (e.length >= 4 && l.includes(e)) return 'Não use o seu email.';
+  if ((ctx.numero && s.includes(ctx.numero)) || (ctx.bi && l.includes(ctx.bi.toLowerCase()))) return 'Não use o seu BI ou n.º de agente.';
+  return '';
+}
+
+function gerarSenhaTemporaria(tamanho = 14) {
+  const mai = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const min = "abcdefghijkmnopqrstuvwxyz";
+  const num = "23456789";
+  const esp = "!@#$%&*?";
+  const todos = mai + min + num + esp;
+  const rnd = (max) => {
+    const arr = new Uint32Array(1);
+    crypto.getRandomValues(arr);
+    return arr[0] % max;
+  };
+  for (let tentativa = 0; tentativa < 20; tentativa++) {
+    const chars = [
+      mai[rnd(mai.length)],
+      min[rnd(min.length)],
+      num[rnd(num.length)],
+      esp[rnd(esp.length)]
+    ];
+    while (chars.length < Math.max(12, tamanho)) {
+      chars.push(todos[rnd(todos.length)]);
+    }
+    for (let i = chars.length - 1; i > 0; i--) {
+      const j = rnd(i + 1);
+      [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+    const candidata = chars.join("");
+    if (!senhaFraca(candidata)) return candidata;
+  }
+  return "Sg#" + Date.now().toString(36).toUpperCase() + "!9Km";
+}
+
+function mostrarSenhaUnicaAdmin(nome, email, senhaTemp, resetEnviado) {
+  const antigo = document.getElementById("modal-senha-unica-admin");
+  if (antigo) antigo.remove();
+  const overlay = document.createElement("div");
+  overlay.id = "modal-senha-unica-admin";
+  overlay.className = "overlay activo";
+  overlay.style.cssText = "display:flex;align-items:center;justify-content:center;z-index:10000;";
+  overlay.innerHTML = `
+    <div class="modal-card" style="max-width:440px;">
+      <div class="modal-titulo">🔑 Credenciais Temporárias (Exibição Única)</div>
+      <p style="font-size:13px;color:var(--txt-2);line-height:1.5;margin-bottom:14px;">
+        O utilizador <strong>${escaparHtml(nome)}</strong> (<code>${escaparHtml(email)}</code>) foi criado.
+        ${resetEnviado ? "Foi também enviado um e-mail automático de redefinição de senha." : "Não foi possível enviar o e-mail de redefinição; entregue a senha abaixo."}
+      </p>
+      <div style="background:var(--neu-50);border:1.5px dashed var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--txt-3);text-transform:uppercase;margin-bottom:4px;">Senha Temporária (guarde agora — não voltará a ser mostrada)</div>
+        <div id="texto-senha-unica-admin" style="font-family:var(--mono,monospace);font-size:16px;font-weight:800;letter-spacing:1px;color:var(--txt-1);user-select:all;">${escaparHtml(senhaTemp)}</div>
+      </div>
+      <div class="modal-footer" style="display:flex;gap:10px;">
+        <button type="button" class="btn-cancelar" id="btn-copiar-senha-unica" style="flex:1;">📋 Copiar Senha</button>
+        <button type="button" class="btn-guardar" id="btn-fechar-senha-unica" style="flex:1;">Entendi e Guardei</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector("#btn-copiar-senha-unica")?.addEventListener("click", () => {
+    navigator.clipboard?.writeText(senhaTemp).catch(() => {});
+    mostrarNotif("📋 Senha temporária copiada para a área de transferência.");
+  });
+  overlay.querySelector("#btn-fechar-senha-unica")?.addEventListener("click", () => {
+    overlay.remove();
+  });
+}
+
+window.abrirModalNovoUtilizador = ()=>{
+  if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: abrirModalNovoUtilizador");return;}
+  const campoSenha = document.getElementById("novo-senha");
+  if (campoSenha) {
+    if (campoSenha.value === "Sumbe2026!") campoSenha.value = "";
+    campoSenha.placeholder = "Deixe em branco para gerar senha forte (>=12 caract.)";
+  }
+  document.getElementById("overlay-novo-utilizador").classList.add("activo");
+};
 window.fecharModal = ()=>{
   document.getElementById("overlay-novo-utilizador").classList.remove("activo");
+  const campoSenha = document.getElementById("novo-senha");
+  if (campoSenha) campoSenha.value = "";
   limparRolesNovoUtilizador();
 };
 
@@ -1108,19 +1188,32 @@ window.criarNovoUtilizador = async function() {
   if(!_exigirPerfil(["admin"])){console.warn("Acesso negado: criarNovoUtilizador");return;}
   const nome=document.getElementById("novo-nome").value.trim();
   const email=document.getElementById("novo-email").value.trim();
-  const senha=document.getElementById("novo-senha").value.trim();
+  const campoSenha=document.getElementById("novo-senha");
+  const senhaDigitada=(campoSenha ? campoSenha.value.trim() : "");
+  const senha = (!senhaDigitada || senhaDigitada === "Sumbe2026!")
+    ? gerarSenhaTemporaria(14)
+    : senhaDigitada;
   const roles=obterRolesNovoUtilizador();
   const perfilPrincipal=obterEtiquetaPerfilPrincipalLocal({ roles:["funcionario"].concat(roles), perfilBase:"funcionario" });
   const perfil=perfilPrincipal;
   const unidade=document.getElementById("novo-unidade").value;
-  if(!nome||!email||!senha){mostrarNotif("⚠️ Preencha todos os campos obrigatórios.","aviso");return;}
-  if(senha.length<6){mostrarNotif("⚠️ A senha deve ter pelo menos 6 caracteres.","aviso");return;}
+  if(!nome||!email){mostrarNotif("⚠️ Preencha o nome e o e-mail obrigatórios.","aviso");return;}
+  if(senha.length<8){mostrarNotif("⚠️ A senha deve ter pelo menos 8 caracteres.","aviso");return;}
+  const erroPolitica = senhaFraca(senha, { email });
+  if(erroPolitica){mostrarNotif(`⚠️ ${erroPolitica}`,"aviso");return;}
   try{
     // Usar app secundária para NÃO substituir a sessão do admin
     const appSec = initializeApp(firebaseConfig, `criar-user-${Date.now()}`);
     const authSec = getAuth(appSec);
     const cred = await createUserWithEmailAndPassword(authSec, email, senha);
     const novoUid = cred.user.uid;
+    let resetEnviado = false;
+    try {
+      await sendPasswordResetEmail(authSec, email);
+      resetEnviado = true;
+    } catch(eReset) {
+      console.warn("sendPasswordResetEmail:", eReset);
+    }
     // Fazer sign out da app secundária imediatamente
     await authSec.signOut();
     // Escrever o documento usando a sessão do admin (db principal)
@@ -1132,14 +1225,15 @@ window.criarNovoUtilizador = async function() {
     });
     fecharModal();
     mostrarNotif(`✅ Utilizador "${nome}" (${perfil}) criado com sucesso!`);
+    mostrarSenhaUnicaAdmin(nome, email, senha, resetEnviado);
     carregarUtilizadores(); carregarIndicadores();
     document.getElementById("novo-nome").value="";
     document.getElementById("novo-email").value="";
-    document.getElementById("novo-senha").value="Sumbe2026!";
+    if (campoSenha) campoSenha.value="";
     limparRolesNovoUtilizador();
   }catch(e){
     console.error("criarNovoUtilizador:",e);
-    const m={"auth/email-already-in-use":"❌ E-mail já está registado.","auth/invalid-email":"❌ E-mail inválido.","auth/weak-password":"❌ Senha fraca (mínimo 6 caracteres)."};
+    const m={"auth/email-already-in-use":"❌ E-mail já está registado.","auth/invalid-email":"❌ E-mail inválido.","auth/weak-password":"❌ Senha fraca (mínimo 8 caracteres)."};
     mostrarNotif(m[e.code]||`❌ Erro: ${e.message}`,"erro");
   }
 };
