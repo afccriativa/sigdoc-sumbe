@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Migração de portalUid — Administração SIGDOC-SUMBE</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #0b1410; color: #f1f5f9; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Header -->
+  <header class="border-b border-emerald-900/60 bg-[#071c12]/90 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-extrabold text-sm">
+          SD
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-widest text-emerald-400">SIGDOC · SUMBE</span>
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold">Exclusivo Admin</span>
+          </div>
+          <h1 class="text-base sm:text-lg font-bold text-white leading-tight">Auditoria e Migração de Vínculos <code class="mono text-emerald-300 text-sm">portalUid</code></h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <span id="badge-sessao" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300">
+          A verificar sessão Firebase…
+        </span>
+        <button id="btn-modo-demo" type="button" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-semibold transition">
+          Simular Relatório (Demo)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex-1 space-y-6">
+
+    <!-- Painel de Autenticação Admin (exibido quando não autenticado como admin no Firebase) -->
+    <section id="painel-login-admin" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="space-y-1.5 max-w-xl">
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <span>🔐 Autenticação de Administrador</span>
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+            Esta ferramenta analisa todos os documentos de <code class="mono text-slate-200">utilizadores</code> com <code class="mono text-slate-200">funcionarioId</code> e verifica se a respectiva ficha em <code class="mono text-slate-200">funcionarios/{id}</code> já possui <code class="mono text-emerald-300">portalUid</code> preenchido. Nenhuma escrita é feita sem confirmação explícita.
+          </p>
+        </div>
+
+        <form id="form-login-admin" class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 w-full lg:w-auto">
+          <div>
+            <label for="admin-email" class="block text-xs font-semibold text-slate-400 mb-1">E-mail de Administrador</label>
+            <input id="admin-email" type="email" placeholder="admin@saude.gov.ao" required
+              class="w-full sm:w-56 px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label for="admin-senha" class="block text-xs font-semibold text-slate-400 mb-1">Senha</label>
+            <input id="admin-senha" type="password" placeholder="••••••••" required
+              class="w-full sm:w-44 px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+          <button id="btn-autenticar-admin" type="submit"
+            class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition whitespace-nowrap">
+            Entrar como Admin
+          </button>
+        </form>
+      </div>
+      <div id="msg-auth-erro" class="hidden mt-3 text-xs font-semibold text-rose-300 bg-rose-950/60 border border-rose-800/70 rounded-xl px-3.5 py-2.5"></div>
+    </section>
+
+    <!-- Barra de Controlo e KPIs -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Contas c/ funcionarioId</div>
+        <div id="kpi-total-vinculos" class="text-2xl font-extrabold text-white mt-1 mono">0</div>
+        <div class="text-[11px] text-slate-400 mt-1">Total analisado em <code class="mono">utilizadores</code></div>
+      </div>
+
+      <div class="bg-emerald-950/30 border border-emerald-800/50 rounded-2xl p-4">
+        <div class="text-xs font-semibold text-emerald-300 uppercase tracking-wider">Já Sincronizados (OK)</div>
+        <div id="kpi-sincronizados" class="text-2xl font-extrabold text-emerald-400 mt-1 mono">0</div>
+        <div class="text-[11px] text-emerald-300/70 mt-1"><code class="mono">portalUid === uid</code></div>
+      </div>
+
+      <div class="bg-amber-950/30 border border-amber-700/50 rounded-2xl p-4">
+        <div class="text-xs font-semibold text-amber-300 uppercase tracking-wider">Prontos a Preencher</div>
+        <div id="kpi-pendentes" class="text-2xl font-extrabold text-amber-400 mt-1 mono">0</div>
+        <div class="text-[11px] text-amber-300/70 mt-1"><code class="mono">portalUid</code> vazio e sem conflito</div>
+      </div>
+
+      <div class="bg-rose-950/35 border border-rose-800/60 rounded-2xl p-4">
+        <div class="text-xs font-semibold text-rose-300 uppercase tracking-wider">Conflitos de UID</div>
+        <div id="kpi-conflitos-uid" class="text-2xl font-extrabold text-rose-400 mt-1 mono">0</div>
+        <div class="text-[11px] text-rose-300/70 mt-1"><code class="mono">portalUid !== uid</code> na ficha</div>
+      </div>
+
+      <div class="bg-fuchsia-950/35 border border-fuchsia-800/60 rounded-2xl p-4">
+        <div class="text-xs font-semibold text-fuchsia-300 uppercase tracking-wider">funcionarioId Duplicado</div>
+        <div id="kpi-duplicados" class="text-2xl font-extrabold text-fuchsia-400 mt-1 mono">0</div>
+        <div class="text-[11px] text-fuchsia-300/70 mt-1">Presente em +1 conta de utilizador</div>
+      </div>
+    </section>
+
+    <!-- Barra de Acções -->
+    <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-2.5">
+        <button id="btn-executar-relatorio" type="button"
+          class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm transition flex items-center gap-2 shadow">
+          <span>🔍 1. Gerar Relatório (Modo Leitura — Sem Escrever)</span>
+        </button>
+
+        <button id="btn-abrir-confirmacao" type="button" disabled
+          class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-extrabold text-xs sm:text-sm transition flex items-center gap-2">
+          <span>⚡ 2. Aplicar Migração nos Pendentes…</span>
+        </button>
+
+        <button id="btn-exportar-csv" type="button"
+          class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-xs sm:text-sm transition">
+          📥 Exportar CSV
+        </button>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <label for="filtro-categoria" class="text-xs text-slate-400 font-semibold">Filtrar:</label>
+        <select id="filtro-categoria"
+          class="px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+          <option value="TODOS">Todos os registos</option>
+          <option value="PENDENTE">Prontos a migrar (portalUid vazio)</option>
+          <option value="CONFLITO_UID">Conflito: portalUid diferente do uid</option>
+          <option value="DUPLICADO">Conflito: funcionarioId em +1 conta</option>
+          <option value="FICHA_AUSENTE">Conflito: Ficha inexistente em funcionarios</option>
+          <option value="OK">Já sincronizados (OK)</option>
+        </select>
+
+        <input id="input-pesquisa" type="search" placeholder="Procurar UID, email, nome ou funcionarioId…"
+          class="w-56 sm:w-64 px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-500" />
+      </div>
+    </section>
+
+    <!-- Bloco Especial: funcionarioId partilhado por mais de uma conta -->
+    <section id="sec-duplicados" class="hidden bg-fuchsia-950/20 border border-fuchsia-800/50 rounded-2xl p-4 sm:p-5 space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-fuchsia-300 flex items-center gap-2">
+          <span>⚠️ Atenção: <code class="mono">funcionarioId</code> referenciado em mais de uma conta de <code class="mono">utilizadores</code></span>
+        </h3>
+        <span id="badge-qtd-grupos-dup" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-fuchsia-900/60 text-fuchsia-200 mono">0</span>
+      </div>
+      <p class="text-xs text-fuchsia-200/80">
+        Estes registos são automaticamente excluídos da escrita em lote até que o administrador elimine ou desvincule a conta duplicada.
+      </p>
+      <div id="lista-grupos-duplicados" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+    </section>
+
+    <!-- Tabela de Relatório Detalhado -->
+    <section class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <div class="px-4 sm:px-5 py-3.5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h3 class="text-sm font-bold text-white">Relatório de Auditoria (<span id="lbl-modo-origem" class="text-emerald-400">Modo Leitura</span>)</h3>
+          <p id="subtitulo-relatorio" class="text-xs text-slate-400">A mostrar os resultados da verificação cruzada entre <code class="mono">utilizadores</code> e <code class="mono">funcionarios</code>.</p>
+        </div>
+        <span id="contador-linhas-visiveis" class="text-xs font-semibold text-slate-400 mono">0 registos</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-800 bg-slate-950/60 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <th class="py-3 px-4">Estado</th>
+              <th class="py-3 px-4">Conta (<code class="mono">utilizadores/{uid}</code>)</th>
+              <th class="py-3 px-4">Ficha (<code class="mono">funcionarioId</code>)</th>
+              <th class="py-3 px-4"><code class="mono">portalUid</code> Actual na Ficha</th>
+              <th class="py-3 px-4">Acção Prevista (Modo Relatório)</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-relatorio" class="divide-y divide-slate-800/80 text-xs sm:text-sm"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal de Confirmação Explícita antes de escrever no Firestore -->
+  <div id="modal-confirmar-migracao" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">Confirmação Obrigatória</span>
+          <h3 class="text-lg font-extrabold text-white mt-2">Confirmar aplicação da migração no Firestore?</h3>
+        </div>
+        <button id="btn-fechar-modal-conf" type="button" class="text-slate-400 hover:text-white text-xl font-bold leading-none">×</button>
+      </div>
+
+      <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2 text-xs text-slate-300">
+        <div class="flex justify-between">
+          <span>Fichas prontas a actualizar (<code class="mono text-emerald-300">portalUid</code> vazio):</span>
+          <strong id="modal-resumo-pendentes" class="mono text-amber-300 font-bold">0</strong>
+        </div>
+        <div class="flex justify-between">
+          <span>Conflitos de UID ignorados (não serão tocados):</span>
+          <strong id="modal-resumo-conflitos" class="mono text-rose-400 font-bold">0</strong>
+        </div>
+        <div class="flex justify-between">
+          <span>Contas com <code class="mono">funcionarioId</code> duplicado ignoradas:</span>
+          <strong id="modal-resumo-duplicados" class="mono text-fuchsia-400 font-bold">0</strong>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-400 leading-relaxed">
+        Serão escritos apenas os campos <code class="mono text-slate-200">portalUid</code>, <code class="mono text-slate-200">portalEmail</code> e <code class="mono text-slate-200">portalMigradoEm</code> nos documentos de <code class="mono text-slate-200">funcionarios/{id}</code> cujo <code class="mono text-slate-200">portalUid</code> esteja actualmente vazio e sem duplicação de conta.
+      </p>
+
+      <label class="flex items-start gap-2.5 p-3 rounded-xl bg-amber-950/30 border border-amber-700/40 cursor-pointer select-none">
+        <input id="chk-confirmacao-admin" type="checkbox" class="mt-0.5 rounded border-slate-600 text-amber-500 focus:ring-amber-500" />
+        <span class="text-xs text-amber-200 font-medium">
+          Revisei o relatório acima e confirmo explicitamente a gravação nos registos pendentes sem conflito.
+        </span>
+      </label>
+
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button id="btn-cancelar-modal-conf" type="button"
+          class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs sm:text-sm">
+          Cancelar
+        </button>
+        <button id="btn-confirmar-escrita" type="button" disabled
+          class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-bold text-xs sm:text-sm transition">
+          ✅ Confirmar e Gravar Agora
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de Notificação -->
+  <div id="toast-migracao" class="hidden fixed bottom-5 right-5 z-50 max-w-md px-4 py-3 rounded-xl bg-slate-900 border border-emerald-500/50 text-xs sm:text-sm text-white shadow-2xl"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const FIREBASE_CONFIG = (window.SIGDOC_CONFIG && window.SIGDOC_CONFIG.config) ? window.SIGDOC_CONFIG.config : {
+      apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
+      authDomain: "sigdoc-sumbe.firebaseapp.com",
+      projectId: "sigdoc-sumbe",
+      storageBucket: "sigdoc-sumbe.firebasestorage.app",
+      messagingSenderId: "323467521938",
+      appId: "1:323467521938:web:1e8170bfd3961784241b4b"
+    };
+
+    const app = initializeApp(FIREBASE_CONFIG, "sigdoc-migracao-portaluid");
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let _adminUser = null;
+    let _modoDemo = false;
+    let _linhasRelatorio = [];
+    let _gruposDuplicados = [];
+
+    function esc(v) {
+      return String(v ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function mostrarToast(msg, tipo = "ok") {
+      const el = document.getElementById("toast-migracao");
+      if (!el) return;
+      el.textContent = msg;
+      el.className = "fixed bottom-5 right-5 z-50 max-w-md px-4 py-3 rounded-xl text-xs sm:text-sm font-semibold shadow-2xl border " +
+        (tipo === "erro"
+          ? "bg-rose-950 border-rose-700 text-rose-200"
+          : tipo === "aviso"
+          ? "bg-amber-950 border-amber-700 text-amber-200"
+          : "bg-slate-900 border-emerald-500/60 text-emerald-200");
+      el.classList.remove("hidden");
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => el.classList.add("hidden"), 5000);
+    }
+
+    function temRoleAdmin(dadosUser) {
+      if (!dadosUser) return false;
+      const roles = Array.isArray(dadosUser.roles) ? dadosUser.roles : [];
+      return dadosUser.perfil === "admin" || roles.includes("admin");
+    }
+
+    // Analisa os mapas de utilizadores e funcionarios sem efectuar nenhuma escrita
+    function construirRelatorio(listaUtilizadores, mapaFuncionarios) {
+      const contagemPorFuncId = new Map();
+      for (const u of listaUtilizadores) {
+        const fid = String(u.funcionarioId || "").trim();
+        if (!fid) continue;
+        if (!contagemPorFuncId.has(fid)) contagemPorFuncId.set(fid, []);
+        contagemPorFuncId.get(fid).push(u);
+      }
+
+      const gruposDup = [];
+      for (const [fid, contas] of contagemPorFuncId.entries()) {
+        if (contas.length > 1) {
+          const ficha = mapaFuncionarios.get(fid);
+          gruposDup.push({
+            funcionarioId: fid,
+            nomeFicha: ficha?.nome || "Ficha não localizada",
+            portalUidFicha: String(ficha?.portalUid || "").trim(),
+            contas
+          });
+        }
+      }
+
+      const linhas = [];
+      for (const u of listaUtilizadores) {
+        const fid = String(u.funcionarioId || "").trim();
+        if (!fid) continue;
+
+        const contasMesmoFunc = contagemPorFuncId.get(fid) || [];
+        const isDuplicado = contasMesmoFunc.length > 1;
+        const ficha = mapaFuncionarios.get(fid) || null;
+        const portalUidActual = String(ficha?.portalUid || "").trim();
+
+        let categoria = "OK";
+        let estadoLabel = "Sincronizado (OK)";
+        let acaoTexto = "Nenhuma escrita necessária";
+
+        if (!ficha) {
+          categoria = "FICHA_AUSENTE";
+          estadoLabel = "CONFLITO · Ficha Inexistente";
+          acaoTexto = "Bloqueado: funcionarios/" + fid + " não existe";
+        } else if (isDuplicado) {
+          categoria = "DUPLICADO";
+          estadoLabel = "CONFLITO · funcionarioId Duplicado";
+          acaoTexto = `Bloqueado: partilhado por ${contasMesmoFunc.length} contas em utilizadores`;
+        } else if (!portalUidActual) {
+          categoria = "PENDENTE";
+          estadoLabel = "PENDENTE · Preencher portalUid";
+          acaoTexto = `Gravar portalUid="${u.uid}" e portalEmail="${u.email || ""}"`;
+        } else if (portalUidActual !== u.uid) {
+          categoria = "CONFLITO_UID";
+          estadoLabel = "CONFLITO · portalUid Divergente";
+          acaoTexto = `Bloqueado: ficha aponta para outro UID (${portalUidActual})`;
+        }
+
+        linhas.push({
+          uid: u.uid,
+          nomeUtilizador: u.nome || "—",
+          email: u.email || "",
+          unidade: u.unidade || "—",
+          funcionarioId: fid,
+          nomeFicha: ficha?.nome || "—",
+          numeroAgente: ficha?.numero || "—",
+          portalUidActual,
+          portalEmailActual: ficha?.portalEmail || "",
+          categoria,
+          estadoLabel,
+          acaoTexto
+        });
+      }
+
+      return { linhas, gruposDup };
+    }
+
+    function renderizarRelatorio() {
+      const filtroCat = document.getElementById("filtro-categoria").value;
+      const termo = document.getElementById("input-pesquisa").value.trim().toLowerCase();
+
+      const total = _linhasRelatorio.length;
+      const sincronizados = _linhasRelatorio.filter(r => r.categoria === "OK").length;
+      const pendentes = _linhasRelatorio.filter(r => r.categoria === "PENDENTE").length;
+      const conflitosUid = _linhasRelatorio.filter(r => r.categoria === "CONFLITO_UID" || r.categoria === "FICHA_AUSENTE").length;
+      const duplicados = _linhasRelatorio.filter(r => r.categoria === "DUPLICADO").length;
+
+      document.getElementById("kpi-total-vinculos").textContent = String(total);
+      document.getElementById("kpi-sincronizados").textContent = String(sincronizados);
+      document.getElementById("kpi-pendentes").textContent = String(pendentes);
+      document.getElementById("kpi-conflitos-uid").textContent = String(conflitosUid);
+      document.getElementById("kpi-duplicados").textContent = String(duplicados);
+
+      const btnAplicar = document.getElementById("btn-abrir-confirmacao");
+      btnAplicar.disabled = pendentes === 0;
+
+      // Renderizar secção de grupos com funcionarioId em mais de uma conta
+      const secDup = document.getElementById("sec-duplicados");
+      const listaDup = document.getElementById("lista-grupos-duplicados");
+      document.getElementById("badge-qtd-grupos-dup").textContent = `${_gruposDuplicados.length} funcionarioId(s)`;
+      if (_gruposDuplicados.length > 0) {
+        secDup.classList.remove("hidden");
+        listaDup.innerHTML = _gruposDuplicados.map(g => `
+          <div class="bg-slate-950/90 border border-fuchsia-800/50 rounded-xl p-3.5 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="mono text-xs font-bold text-fuchsia-300">funcionarios/${esc(g.funcionarioId)}</span>
+              <span class="text-[11px] px-2 py-0.5 rounded bg-fuchsia-950 text-fuchsia-200 border border-fuchsia-700/50">${g.contas.length} contas</span>
+            </div>
+            <div class="text-xs text-slate-300 font-semibold">${esc(g.nomeFicha)} <span class="text-slate-400 font-normal">(portalUid na ficha: <code class="mono">${esc(g.portalUidFicha || "vazio")}</code>)</span></div>
+            <ul class="space-y-1 pt-1 border-t border-slate-800 text-[11px] text-slate-300">
+              ${g.contas.map(c => `<li class="mono">• uid: <strong class="text-white">${esc(c.uid)}</strong> · ${esc(c.email || "sem email")} (${esc(c.nome || "—")})</li>`).join("")}
+            </ul>
+          </div>
+        `).join("");
+      } else {
+        secDup.classList.add("hidden");
+        listaDup.innerHTML = "";
+      }
+
+      const filtradas = _linhasRelatorio.filter(r => {
+        if (filtroCat !== "TODOS" && r.categoria !== filtroCat) return false;
+        if (!termo) return true;
+        const alvo = `${r.uid} ${r.nomeUtilizador} ${r.email} ${r.funcionarioId} ${r.nomeFicha} ${r.portalUidActual}`.toLowerCase();
+        return alvo.includes(termo);
+      });
+
+      document.getElementById("contador-linhas-visiveis").textContent = `${filtradas.length} de ${total} registo(s)`;
+
+      const tbody = document.getElementById("tbody-relatorio");
+      if (filtradas.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-10 px-4 text-center text-slate-400 text-xs sm:text-sm">
+              Nenhum registo encontrado para o filtro seleccionado.
+            </td>
+          </tr>`;
+        return;
+      }
+
+      const badgeEstilo = {
+        OK: "bg-emerald-950/80 text-emerald-300 border-emerald-700/50",
+        PENDENTE: "bg-amber-950/80 text-amber-300 border-amber-700/50",
+        CONFLITO_UID: "bg-rose-950/80 text-rose-300 border-rose-700/60",
+        FICHA_AUSENTE: "bg-rose-950/80 text-rose-300 border-rose-700/60",
+        DUPLICADO: "bg-fuchsia-950/80 text-fuchsia-300 border-fuchsia-700/60"
+      };
+
+      tbody.innerHTML = filtradas.map(r => `
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="py-3 px-4 align-top">
+            <span class="inline-block text-[11px] font-bold px-2.5 py-1 rounded-lg border ${badgeEstilo[r.categoria] || ""}">
+              ${esc(r.estadoLabel)}
+            </span>
+          </td>
+          <td class="py-3 px-4 align-top">
+            <div class="font-bold text-white">${esc(r.nomeUtilizador)}</div>
+            <div class="mono text-xs text-slate-300">${esc(r.email || "—")}</div>
+            <div class="mono text-[11px] text-slate-400 mt-0.5">uid: ${esc(r.uid)}</div>
+          </td>
+          <td class="py-3 px-4 align-top">
+            <div class="mono text-xs font-bold text-emerald-300">${esc(r.funcionarioId)}</div>
+            <div class="text-xs text-slate-300">${esc(r.nomeFicha)}</div>
+            <div class="text-[11px] text-slate-400">Agente Nº ${esc(r.numeroAgente)}</div>
+          </td>
+          <td class="py-3 px-4 align-top mono text-xs">
+            ${r.portalUidActual
+              ? `<span class="${r.portalUidActual === r.uid ? "text-emerald-400" : "text-rose-400 font-bold"}">${esc(r.portalUidActual)}</span>`
+              : `<span class="text-amber-400 italic">(vazio)</span>`}
+          </td>
+          <td class="py-3 px-4 align-top text-xs text-slate-300">
+            ${esc(r.acaoTexto)}
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    async function executarModoRelatorioFirestore() {
+      if (!_adminUser && !_modoDemo) {
+        mostrarToast("Autentique-se primeiro como Administrador ou active o Modo Demo.", "aviso");
+        return;
+      }
+      if (_modoDemo) {
+        carregarDadosDemo();
+        return;
+      }
+
+      const btn = document.getElementById("btn-executar-relatorio");
+      btn.disabled = true;
+      btn.textContent = "⏳ A ler utilizadores e funcionarios…";
+
+      try {
+        const [snapUsers, snapFuncs] = await Promise.all([
+          getDocs(collection(db, "utilizadores")),
+          getDocs(collection(db, "funcionarios"))
+        ]);
+
+        const listaUsers = snapUsers.docs.map(d => ({ uid: d.id, ...d.data() }));
+        const mapaFuncs = new Map();
+        snapFuncs.docs.forEach(d => mapaFuncs.set(d.id, { id: d.id, ...d.data() }));
+
+        const resultado = construirRelatorio(listaUsers, mapaFuncs);
+        _linhasRelatorio = resultado.linhas;
+        _gruposDuplicados = resultado.gruposDup;
+
+        document.getElementById("lbl-modo-origem").textContent = "Firestore em Tempo Real (Sem Escritas)";
+        renderizarRelatorio();
+        mostrarToast(`Relatório concluído: ${_linhasRelatorio.length} vínculos analisados (0 escritas efectuadas).`);
+      } catch (e) {
+        console.error("Erro ao gerar relatório:", e);
+        mostrarToast("Erro ao ler colecções do Firestore: " + (e.code || e.message), "erro");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = "<span>🔍 1. Gerar Relatório (Modo Leitura — Sem Escrever)</span>";
+      }
+    }
+
+    async function aplicarMigracaoConfirmada() {
+      const pendentes = _linhasRelatorio.filter(r => r.categoria === "PENDENTE");
+      if (!pendentes.length) {
+        mostrarToast("Não existem registos pendentes para migrar.", "aviso");
+        return;
+      }
+
+      const btnConf = document.getElementById("btn-confirmar-escrita");
+      btnConf.disabled = true;
+      btnConf.textContent = "⏳ A aplicar migração…";
+
+      try {
+        if (_modoDemo) {
+          pendentes.forEach(item => {
+            item.portalUidActual = item.uid;
+            item.portalEmailActual = item.email;
+            item.categoria = "OK";
+            item.estadoLabel = "Sincronizado (Migrado)";
+            item.acaoTexto = "Migrado com sucesso na simulação";
+          });
+          fecharModalConfirmacao();
+          renderizarRelatorio();
+          mostrarToast(`Simulação concluída: ${pendentes.length} fichas preenchidas com portalUid e portalEmail.`);
+          return;
+        }
+
+        // Firestore writeBatch suporta até 500 operações por lote
+        const LOTE_MAX = 400;
+        let migrados = 0;
+        for (let i = 0; i < pendentes.length; i += LOTE_MAX) {
+          const fatia = pendentes.slice(i, i + LOTE_MAX);
+          const batch = writeBatch(db);
+          fatia.forEach(item => {
+            batch.update(doc(db, "funcionarios", item.funcionarioId), {
+              portalUid: item.uid,
+              portalEmail: item.email || "",
+              portalMigradoEm: serverTimestamp()
+            });
+          });
+          await batch.commit();
+          migrados += fatia.length;
+        }
+
+        fecharModalConfirmacao();
+        mostrarToast(`Migração aplicada com sucesso em ${migrados} ficha(s)! A actualizar relatório…`);
+        await executarModoRelatorioFirestore();
+      } catch (e) {
+        console.error("Erro na migração:", e);
+        mostrarToast("Erro ao gravar migração: " + (e.code || e.message), "erro");
+      } finally {
+        btnConf.disabled = false;
+        btnConf.textContent = "✅ Confirmar e Gravar Agora";
+      }
+    }
+
+    function carregarDadosDemo() {
+      _modoDemo = true;
+      document.getElementById("lbl-modo-origem").textContent = "Simulação de Auditoria (Modo Relatório)";
+      document.getElementById("badge-sessao").textContent = "Modo Simulação Activo (Sem Escritas Reais)";
+
+      const mockUsers = [
+        { uid: "uid_augusto_01", nome: "Augusto Faztudo Chinjila", email: "augusto.chinjila@saude.gov.ao", unidade: "Direcção Municipal de Saúde do Sumbe", funcionarioId: "func_dms_001" },
+        { uid: "uid_maria_02", nome: "Maria Teresa Kiala", email: "maria.kiala@saude.gov.ao", unidade: "Centro de Saúde da Assaca", funcionarioId: "func_assaca_014" },
+        { uid: "uid_joao_03", nome: "João Baptista Domingos", email: "joao.domingos@saude.gov.ao", unidade: "Centro de Saúde da Pedra 1", funcionarioId: "func_pedra_022" },
+        { uid: "uid_paulo_04", nome: "Paulo Cassoma", email: "paulo.cassoma@saude.gov.ao", unidade: "Posto de Saúde do Quicombo", funcionarioId: "func_quicombo_009" },
+        { uid: "uid_conta_antiga_05", nome: "Ana Bela Mendes (Conta 1)", email: "anabela1@saude.gov.ao", unidade: "Centro de Saúde do Chingo", funcionarioId: "func_chingo_031" },
+        { uid: "uid_conta_dup_06", nome: "Ana Bela Mendes (Conta 2)", email: "anabela.mendes@saude.gov.ao", unidade: "Centro de Saúde do Chingo", funcionarioId: "func_chingo_031" }
+      ];
+
+      const mockFuncs = new Map([
+        ["func_dms_001", { id: "func_dms_001", nome: "Augusto Faztudo Chinjila", numero: "10020451", portalUid: "uid_augusto_01", portalEmail: "augusto.chinjila@saude.gov.ao" }],
+        ["func_assaca_014", { id: "func_assaca_014", nome: "Maria Teresa Kiala", numero: "10048912", portalUid: "", portalEmail: "" }],
+        ["func_pedra_022", { id: "func_pedra_022", nome: "João Baptista Domingos", numero: "10051108", portalUid: "", portalEmail: "" }],
+        ["func_quicombo_009", { id: "func_quicombo_009", nome: "Paulo Cassoma", numero: "10073390", portalUid: "uid_outro_utilizador_99", portalEmail: "outro@saude.gov.ao" }],
+        ["func_chingo_031", { id: "func_chingo_031", nome: "Ana Bela Mendes", numero: "10089104", portalUid: "", portalEmail: "" }]
+      ]);
+
+      const resultado = construirRelatorio(mockUsers, mockFuncs);
+      _linhasRelatorio = resultado.linhas;
+      _gruposDuplicados = resultado.gruposDup;
+      renderizarRelatorio();
+    }
+
+    function abrirModalConfirmacao() {
+      const pendentes = _linhasRelatorio.filter(r => r.categoria === "PENDENTE").length;
+      const conflitos = _linhasRelatorio.filter(r => r.categoria === "CONFLITO_UID" || r.categoria === "FICHA_AUSENTE").length;
+      const duplicados = _linhasRelatorio.filter(r => r.categoria === "DUPLICADO").length;
+
+      document.getElementById("modal-resumo-pendentes").textContent = String(pendentes);
+      document.getElementById("modal-resumo-conflitos").textContent = String(conflitos);
+      document.getElementById("modal-resumo-duplicados").textContent = String(duplicados);
+
+      const chk = document.getElementById("chk-confirmacao-admin");
+      chk.checked = false;
+      document.getElementById("btn-confirmar-escrita").disabled = true;
+      document.getElementById("modal-confirmar-migracao").classList.remove("hidden");
+    }
+
+    function fecharModalConfirmacao() {
+      document.getElementById("modal-confirmar-migracao").classList.add("hidden");
+    }
+
+    function exportarRelatorioCsv() {
+      if (!_linhasRelatorio.length) {
+        mostrarToast("Gere primeiro o relatório antes de exportar.", "aviso");
+        return;
+      }
+      const cabecalho = ["categoria", "uid", "email", "nomeUtilizador", "funcionarioId", "nomeFicha", "numeroAgente", "portalUidActual", "acaoPrevista"];
+      const linhasCsv = [cabecalho.join(",")].concat(
+        _linhasRelatorio.map(r => [
+          r.categoria, r.uid, r.email, r.nomeUtilizador, r.funcionarioId, r.nomeFicha, r.numeroAgente, r.portalUidActual, r.acaoTexto
+        ].map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(","))
+      );
+      const blob = new Blob(["\uFEFF" + linhasCsv.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `relatorio-migracao-portaluid-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      mostrarToast("Relatório CSV exportado.");
+    }
+
+    // Listeners UI
+    document.getElementById("btn-executar-relatorio").addEventListener("click", executarModoRelatorioFirestore);
+    document.getElementById("btn-abrir-confirmacao").addEventListener("click", abrirModalConfirmacao);
+    document.getElementById("btn-fechar-modal-conf").addEventListener("click", fecharModalConfirmacao);
+    document.getElementById("btn-cancelar-modal-conf").addEventListener("click", fecharModalConfirmacao);
+    document.getElementById("btn-confirmar-escrita").addEventListener("click", aplicarMigracaoConfirmada);
+    document.getElementById("btn-exportar-csv").addEventListener("click", exportarRelatorioCsv);
+    document.getElementById("filtro-categoria").addEventListener("change", renderizarRelatorio);
+    document.getElementById("input-pesquisa").addEventListener("input", renderizarRelatorio);
+    document.getElementById("chk-confirmacao-admin").addEventListener("change", (e) => {
+      document.getElementById("btn-confirmar-escrita").disabled = !e.target.checked;
+    });
+    document.getElementById("btn-modo-demo").addEventListener("click", () => {
+      carregarDadosDemo();
+      mostrarToast("Dados de demonstração carregados em modo de leitura.");
+    });
+
+    document.getElementById("form-login-admin").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("admin-email").value.trim();
+      const senha = document.getElementById("admin-senha").value;
+      const errBox = document.getElementById("msg-auth-erro");
+      const btn = document.getElementById("btn-autenticar-admin");
+      errBox.classList.add("hidden");
+      btn.disabled = true;
+      btn.textContent = "A autenticar…";
+      try {
+        await signInWithEmailAndPassword(auth, email, senha);
+      } catch (err) {
+        errBox.textContent = "Falha na autenticação: verifique o e-mail e a senha de administrador (" + (err.code || err.message) + ").";
+        errBox.classList.remove("hidden");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Entrar como Admin";
+      }
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      const badge = document.getElementById("badge-sessao");
+      const painelLogin = document.getElementById("painel-login-admin");
+      const errBox = document.getElementById("msg-auth-erro");
+
+      if (!user || user.isAnonymous) {
+        _adminUser = null;
+        if (!_modoDemo) carregarDadosDemo();
+        badge.textContent = "Sem sessão Admin activa (Modo Pré-visualização)";
+        painelLogin.classList.remove("hidden");
+        return;
+      }
+
+      try {
+        const snap = await getDoc(doc(db, "utilizadores", user.uid));
+        if (!snap.exists() || !temRoleAdmin(snap.data())) {
+          _adminUser = null;
+          await signOut(auth);
+          errBox.textContent = "Acesso restrito: esta conta não possui o perfil 'admin'.";
+          errBox.classList.remove("hidden");
+          painelLogin.classList.remove("hidden");
+          return;
+        }
+
+        _adminUser = { uid: user.uid, email: user.email, ...snap.data() };
+        _modoDemo = false;
+        painelLogin.classList.add("hidden");
+        badge.textContent = `Admin: ${_adminUser.nome || user.email}`;
+        await executarModoRelatorioFirestore();
+      } catch (e) {
+        console.warn("Verificação de sessão admin:", e);
+        if (!_modoDemo) carregarDadosDemo();
+      }
+    });
+
+    // Inicializar com vista de relatório demonstrativa para inspecção imediata sem escritas
+    carregarDadosDemo();
+  </script>
+</body>
+</html>
