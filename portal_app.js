@@ -10,7 +10,7 @@ import { getAuth, signInWithEmailAndPassword, signOut,
          sendPasswordResetEmail,
          setPersistence, browserLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, setDoc, doc, query, where, orderBy, serverTimestamp, onSnapshot, arrayUnion, increment, runTransaction, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, setDoc, doc, query, where, orderBy, limit, serverTimestamp, onSnapshot, arrayUnion, increment, runTransaction, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 const firebaseConfig = window.SIGDOC_CONFIG.config;
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 setPersistence(auth,browserLocalPersistence).catch(e=>console.warn(e));
@@ -383,16 +383,48 @@ async function consultarIndicePreRegistoPortal(num, bi){
   const numNorm = String(num || "").replace(/\s+/g, "").trim();
   const biNorm  = String(bi || "").replace(/\s+/g, "").trim().toUpperCase();
   if(numNorm && numNorm.length === 8){
-    const snapNum = await getDoc(doc(db, "funcionarios_indices", "numero_" + numNorm));
-    if(snapNum.exists() && snapNum.data()?.funcionarioId){
-      return { funcionarioId: snapNum.data().funcionarioId, chaveLabel: "Nº " + numNorm };
+    try{
+      const snapNum = await getDoc(doc(db, "funcionarios_indices", "numero_" + numNorm));
+      if(snapNum.exists() && snapNum.data()?.funcionarioId){
+        return { funcionarioId: snapNum.data().funcionarioId, chaveLabel: "Nº " + numNorm };
+      }
+    }catch(eIdxNum){
+      console.warn("Índice numero_" + numNorm + ":", eIdxNum);
     }
+    try{
+      const snapLivreNum = await getDocs(query(
+        collection(db, "funcionarios"),
+        where("numero", "==", numNorm),
+        where("portalUid", "==", ""),
+        limit(1)
+      ));
+      if(!snapLivreNum.empty){
+        const d = snapLivreNum.docs[0];
+        return { funcionarioId: d.id, chaveLabel: "Nº " + numNorm, dadosFicha: d.data() };
+      }
+    }catch(_){}
   }
   if(biNorm && biNorm.length >= 8){
-    const snapBi = await getDoc(doc(db, "funcionarios_indices", "bi_" + biNorm));
-    if(snapBi.exists() && snapBi.data()?.funcionarioId){
-      return { funcionarioId: snapBi.data().funcionarioId, chaveLabel: "BI " + biNorm };
+    try{
+      const snapBi = await getDoc(doc(db, "funcionarios_indices", "bi_" + biNorm));
+      if(snapBi.exists() && snapBi.data()?.funcionarioId){
+        return { funcionarioId: snapBi.data().funcionarioId, chaveLabel: "BI " + biNorm };
+      }
+    }catch(eIdxBi){
+      console.warn("Índice bi_" + biNorm + ":", eIdxBi);
     }
+    try{
+      const snapLivreBi = await getDocs(query(
+        collection(db, "funcionarios"),
+        where("bi", "==", biNorm),
+        where("portalUid", "==", ""),
+        limit(1)
+      ));
+      if(!snapLivreBi.empty){
+        const d = snapLivreBi.docs[0];
+        return { funcionarioId: d.id, chaveLabel: "BI " + biNorm, dadosFicha: d.data() };
+      }
+    }catch(_){}
   }
   return null;
 }
@@ -410,7 +442,7 @@ window.fazerVerificacao=async function(){
     const idx = await consultarIndicePreRegistoPortal(num, bi);
     if(!idx){msg.innerHTML=`<div class="alerta alerta-erro"><strong>Não encontrado.</strong> Os seus dados não estão no sistema. Por favor, contacte a Secção de RH.</div>`;btn.disabled=false;btn.innerHTML="Verificar →";return;}
     const encId = idx.funcionarioId;
-    const enc = { nome: "Registo Verificado", unidade: "Direcção Municipal de Saúde", categoria: idx.chaveLabel };
+    const enc = idx.dadosFicha || { nome: "Registo Verificado", unidade: "Direcção Municipal de Saúde", categoria: idx.chaveLabel };
     _funcDoc=enc; _funcDocId=encId;
     preencherCC(enc); mostrarEcra("ecra-criar-conta");
   }catch(e){console.error(e);msg.innerHTML=`<div class="alerta alerta-erro">Erro de ligação. Verifique a internet e tente novamente.</div>`;btn.disabled=false;btn.innerHTML="Verificar →";}
@@ -681,11 +713,13 @@ window.pesquisarContaRecuperacao = async function() {
       return;
     }
 
-    let enc = null;
-    try{
-      const snapFicha = await getDoc(doc(db, "funcionarios", idx.funcionarioId));
-      if(snapFicha.exists()) enc = snapFicha.data();
-    }catch(_){}
+    let enc = idx.dadosFicha || null;
+    if(!enc){
+      try{
+        const snapFicha = await getDoc(doc(db, "funcionarios", idx.funcionarioId));
+        if(snapFicha.exists()) enc = snapFicha.data();
+      }catch(_){}
+    }
 
     if(!enc){
       limparResultadoRecuperacao();
@@ -1679,6 +1713,7 @@ async function carregarUnidadeSobResponsabilidade(funcDocId){
     ));
     if(snap.empty){ card.style.display='none'; return; }
 
+    const unidadeDocId = snap.docs[0].id;
     const u = snap.docs[0].data();
     const tipoLabel = {
       dms:    'Direcção Municipal de Saúde',
