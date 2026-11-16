@@ -1115,11 +1115,26 @@
     if (f.estudando === true)       { toggleEstuda(true); preencher('f-curso', f.curso); preencher('f-instituicao', f.instituicao); preencher('f-ano-curso', f.anoCurso); }
     else if (f.estudando === false) { toggleEstuda(false); }
 
+    // Se o formulário já foi preenchido e revisto pelo RH (formularioPendente !== true),
+    // bloquear os campos funcionais/carreira no ecrã para reflectir rules_2.txt (Ponto 4).
+    const podeEditarFuncionais = (f.formularioPendente === true) || !('formularioPreenchidoEm' in f);
+    window._camposFuncionaisBloqueados = !podeEditarFuncionais;
+
     // Área condicional
     mostrarCampoArea();
     formatarBI(document.getElementById('f-bi'));
     formatarTelefone();
     if (f.admissao) calcularTempo();
+
+    if (!podeEditarFuncionais) {
+      ['f-numero', 'f-admissao', 'f-categoria', 'f-vinculo', 'f-unidade', 'f-seccao', 'f-area', 'f-estado'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.disabled = true;
+          el.title = 'Campo validado pelo RH. Para alterações de carreira ou unidade, solicite à Secção de RH.';
+        }
+      });
+    }
 
     if (f.urlBI) {
       const area = document.getElementById('upload-bi-area');
@@ -1265,14 +1280,16 @@
       if (!validarEmail()) erros.push('f-email');
     }
     if (passo === 2) {
-      erros.push(...validarCampos(['f-numero','f-admissao','f-categoria','f-vinculo','f-unidade','f-estado']));
-      if (document.getElementById('f-numero').value.trim() && !validarNumero()) erros.push('f-numero');
-      if (document.getElementById('f-admissao').value && !validarAdmissao()) erros.push('f-admissao');
-      const un = obterUnidadeSelecionadaFormulario();
-      if (window.SIGDOC_UNIDADES.isDms(un)) {
-        if (!validarCampo(document.getElementById('f-seccao'))) erros.push('f-seccao');
-      } else if (window.SIGDOC_UNIDADES.isCentro(un)) {
-        if (!validarCampo(document.getElementById('f-area'))) erros.push('f-area');
+      if (!window._camposFuncionaisBloqueados) {
+        erros.push(...validarCampos(['f-numero','f-admissao','f-categoria','f-vinculo','f-unidade','f-estado']));
+        if (document.getElementById('f-numero').value.trim() && !validarNumero()) erros.push('f-numero');
+        if (document.getElementById('f-admissao').value && !validarAdmissao()) erros.push('f-admissao');
+        const un = obterUnidadeSelecionadaFormulario();
+        if (window.SIGDOC_UNIDADES.isDms(un)) {
+          if (!validarCampo(document.getElementById('f-seccao'))) erros.push('f-seccao');
+        } else if (window.SIGDOC_UNIDADES.isCentro(un)) {
+          if (!validarCampo(document.getElementById('f-area'))) erros.push('f-area');
+        }
       }
     }
     if (passo === 3) {
@@ -1492,6 +1509,7 @@
     const eDir     = window.SIGDOC_UNIDADES.isDms(un);
     const eCentro  = window.SIGDOC_UNIDADES.isCentro(un);
     const ePostoOuVazio = !eDir && !eCentro;
+    const bloqueado = !!window._camposFuncionaisBloqueados;
 
     const campoDir    = document.getElementById('campo-seccao-dir');
     const campoCentro = document.getElementById('campo-area-centro');
@@ -1500,8 +1518,8 @@
 
     campoDir.classList.toggle('visivel', eDir);
     campoCentro.classList.toggle('visivel', eCentro);
-    selectDir.disabled = !eDir;
-    selectArea.disabled = !eCentro;
+    selectDir.disabled = !eDir || bloqueado;
+    selectArea.disabled = !eCentro || bloqueado;
     if (ePostoOuVazio) {
       campoDir.classList.remove('visivel');
       campoCentro.classList.remove('visivel');
@@ -1739,44 +1757,70 @@
   }
 
   async function actualizarFuncionarioComIndices(funcId, dadosBase) {
-    const numeroNormalizado = normalizarNumeroFormulario(dadosBase.numero);
     const biNormalizado = normBIFormulario(dadosBase.bi);
     const funcRef = doc(db, "funcionarios", funcId);
 
     await runTransaction(db, async function(transaction) {
       const snapActual = await transaction.get(funcRef);
       const actual = snapActual.exists() ? snapActual.data() : {};
+      const podeEditarFuncionais = (actual.formularioPendente === true) || !('formularioPreenchidoEm' in actual);
+      const numeroEfetivo = podeEditarFuncionais ? dadosBase.numero : (actual.numero || dadosBase.numero);
+      const numeroNormalizado = normalizarNumeroFormulario(numeroEfetivo);
       const numeroAnterior = normalizarNumeroFormulario(actual.numeroNormalizado || actual.numero || "");
       const biAnterior = normBIFormulario(actual.biNormalizado || actual.bi || "");
-      const numeroRef = refIndiceFuncionario("numero", numeroNormalizado);
-      const numeroSnap = await transaction.get(numeroRef);
-      let biRef = null;
-      let biSnap = null;
+      const numeroMudou = podeEditarFuncionais && (
+        numeroEfetivo !== (actual.numero || "") ||
+        numeroNormalizado !== (actual.numeroNormalizado || "")
+      );
+      const biMudou = (dadosBase.bi !== (actual.bi || "")) || (biNormalizado !== (actual.biNormalizado || ""));
 
-      if (numeroSnap.exists() && numeroSnap.data().funcionarioId !== funcId) {
-        throw new Error("NUMERO_DUPLICADO_BACKEND");
+      let numeroRef = null;
+      if (numeroMudou || !actual.numeroNormalizado) {
+        numeroRef = refIndiceFuncionario("numero", numeroNormalizado);
+        const numeroSnap = await transaction.get(numeroRef);
+        if (numeroSnap.exists() && numeroSnap.data().funcionarioId !== funcId) {
+          throw new Error("NUMERO_DUPLICADO_BACKEND");
+        }
       }
 
-      if (biNormalizado) {
+      let biRef = null;
+      if (biNormalizado && (biMudou || !actual.biNormalizado)) {
         biRef = refIndiceFuncionario("bi", biNormalizado);
-        biSnap = await transaction.get(biRef);
+        const biSnap = await transaction.get(biRef);
         if (biSnap.exists() && biSnap.data().funcionarioId !== funcId) {
           throw new Error("BI_DUPLICADO_BACKEND");
         }
       }
 
-      transaction.update(funcRef, {
-        ...dadosBase,
-        numeroNormalizado,
-        biNormalizado,
-      });
+      const payloadUpdate = { ...dadosBase, biNormalizado };
 
-      transaction.set(numeroRef, {
-        tipo: "numero",
-        valor: numeroNormalizado,
-        funcionarioId: funcId,
-        actualizadoEm: serverTimestamp()
-      });
+      // Regra (c): preservar formularioPreenchidoEm se já existir no documento
+      if ('formularioPreenchidoEm' in actual) {
+        delete payloadUpdate.formularioPreenchidoEm;
+      }
+
+      // Ponto 4: se já foi revisto pelo RH, preservar todos os campos funcionais/carreira inalterados
+      if (!podeEditarFuncionais) {
+        [
+          'numero', 'numeroNormalizado',
+          'admissao', 'categoria', 'vinculo',
+          'unidade', 'unidadeId', 'unidadeTipo',
+          'seccao', 'area', 'estado'
+        ].forEach(campo => { delete payloadUpdate[campo]; });
+      } else {
+        payloadUpdate.numeroNormalizado = numeroNormalizado;
+      }
+
+      transaction.update(funcRef, payloadUpdate);
+
+      if (numeroRef && podeEditarFuncionais) {
+        transaction.set(numeroRef, {
+          tipo: "numero",
+          valor: numeroNormalizado,
+          funcionarioId: funcId,
+          actualizadoEm: serverTimestamp()
+        });
+      }
 
       if (biRef) {
         transaction.set(biRef, {
@@ -1787,7 +1831,7 @@
         });
       }
 
-      if (numeroAnterior && numeroAnterior !== numeroNormalizado) {
+      if (podeEditarFuncionais && numeroAnterior && numeroAnterior !== numeroNormalizado) {
         transaction.delete(refIndiceFuncionario("numero", numeroAnterior));
       }
       if (biAnterior && biAnterior !== biNormalizado) {
