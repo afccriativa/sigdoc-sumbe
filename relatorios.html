@@ -315,7 +315,7 @@
       <!-- Mapa por Unidade -->
       <div class="rel-card">
         <div class="rel-card-head">
-          <div class="rel-icon" style="background:rgba(16,200,134,.15);color:#10c886"><svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0-2 2v16"/><path d="M9 13h6m-3-3v6"/></svg></div>
+          <div class="rel-icon" style="background:rgba(16,200,134,.15);color:#10c886"><svg class="icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16"/><path d="M9 13h6m-3-3v6"/></svg></div>
           <div class="rel-info">
             <div class="rel-titulo">Mapa por Unidade Sanitária</div>
             <div class="rel-desc">Lista de funcionários de uma unidade específica com dados de colocação.</div>
@@ -624,13 +624,13 @@
   import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut }
                                from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, collection, getDocs, doc, getDoc, query, where, orderBy, Timestamp }
+  import { getFirestore, initializeFirestore, collection, getDocs, doc, getDoc, query, where, orderBy, Timestamp }
                                from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = window.SIGDOC_CONFIG.config;
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const db   = getFirestore(app);
+  const db   = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 
   const PERFIS_ACESSO = ["admin","director","chefe","tecnico"];
   let _funcs = [], _unidades = {}, _perfil = '', _perfilDoc = null;
@@ -665,7 +665,7 @@
     cakeMd:     `<svg class='icon-svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-8a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v8'/><path d='M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2 1 2 1'/><path d='M2 21h20'/><path d='M7 8v2'/><path d='M12 8v2'/><path d='M17 8v2'/><path d='M7 4s0-2 2-2c2 0 2.5 2.5 3 4'/><path d='M17 4s0-2-2-2c-2 0-2.5 2.5-3 4'/></svg>`,
     star:       `<svg class='icon-svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg>`,
     arrowRight: `<svg class='icon-svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg>`,
-    hospital:   `<svg class='icon-svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 21h18'/><path d='M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0-2 2v16'/><path d='M9 13h6m-3-3v6'/></svg>`,
+    hospital:   `<svg class='icon-svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 21h18'/><path d='M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16'/><path d='M9 13h6m-3-3v6'/></svg>`,
     bed:        `<svg class='icon-svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2 4v16'/><path d='M2 8h18a2 2 0 0 1 2 2v10'/><path d='M2 17h20'/><path d='M6 8v9'/></svg>`,
     droplets:   `<svg class='icon-svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z'/><path d='M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97'/></svg>`,
     zap:        `<svg class='icon-svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>`,
