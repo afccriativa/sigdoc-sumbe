@@ -8,7 +8,7 @@ import { getAuth, signInWithEmailAndPassword, signOut,
          sendPasswordResetEmail,
          setPersistence, browserLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, getDocs, collection, addDoc,
+import { getFirestore, initializeFirestore, doc, setDoc, getDoc, getDocs, collection, addDoc,
          updateDoc, serverTimestamp, query, orderBy, limit, onSnapshot, where }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -16,7 +16,7 @@ const firebaseConfig = window.SIGDOC_CONFIG.config;
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db   = getFirestore(app);
+const db   = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 
 setPersistence(auth, browserLocalPersistence).catch(console.warn);
 
@@ -381,9 +381,21 @@ window.fazerLogout = function() {
   );
 };
 
+// Retentativa para falhas de rede transitórias (ligação lenta ou instável)
+async function lerComRetentativa(fn, tentativas = 2) {
+  for (let i = 0; ; i++) {
+    try { return await fn(); }
+    catch (e) {
+      const rede = e && (e.code === "unavailable" || /offline/i.test(e.message || ""));
+      if (!rede || i >= tentativas) throw e;
+      await new Promise(r => setTimeout(r, 2500));
+    }
+  }
+}
+
 async function carregarPerfil(u) {
   try {
-    const snap = await getDoc(doc(db, "utilizadores", u.uid));
+    const snap = await lerComRetentativa(() => getDoc(doc(db, "utilizadores", u.uid)));
     if (snap.exists()) {
       const dadosBrutos = snap.data();
       const d = normalizarPerfilDocLocal(dadosBrutos);
@@ -405,7 +417,7 @@ async function carregarPerfil(u) {
       mostrarLogin();
       setTimeout(() => mostrarErro("Conta sem perfil. Contacte o RH."), 100);
     }
-  } catch(e) { console.error("carregarPerfil:",e); mostrarLogin(); setTimeout(()=>mostrarErro("Erro ao carregar perfil. As regras de acesso podem não estar actualizadas. Contacte o administrador."),100); }
+  } catch(e) { console.error("carregarPerfil:",e); mostrarLogin(); setTimeout(()=>mostrarErro((e && (e.code === "unavailable" || /offline/i.test(e.message || ""))) ? "Sem ligação ao servidor. Verifique a internet e tente novamente." : "Erro ao carregar perfil. Contacte o administrador."),100); }
 }
 
 // Navegação entre secções do dashboard
