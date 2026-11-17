@@ -1890,7 +1890,7 @@
   import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import {
-    getFirestore, collection, getDocs, query,
+    getFirestore, initializeFirestore, collection, getDocs, query,
     orderBy, limit, where, Timestamp, doc, getDoc, onSnapshot,
     setDoc, writeBatch, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -1899,7 +1899,7 @@
 
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const db   = getFirestore(app);
+  const db   = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 
   const PERFIS_ACESSO = ["admin", "director"];
   function normalizarPerfilPainel(docPerfil) {
