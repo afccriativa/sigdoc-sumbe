@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reindexação de funcionários — SIGDOC-SUMBE</title>
+<style>
+  :root { color-scheme: light dark; --bg:#f6f7f8; --fg:#16202a; --mut:#5d6b78; --card:#fff; --bd:#d9dee3; --ac:#0b6e6e; --ok:#1c7a46; --warn:#a15c00; --err:#b3261e; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#12171c; --fg:#e6ebef; --mut:#98a6b3; --card:#1a2128; --bd:#2c3640; --ac:#4fc3c3; --ok:#5ccf8c; --warn:#e5a54b; --err:#f2877f; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; padding:env(safe-area-inset-top,0) 16px env(safe-area-inset-bottom,0); }
+  main { max-width:960px; margin:0 auto; padding:24px 0 48px; }
+  h1 { font-size:1.35rem; margin:0 0 6px; }
+  p { margin:0 0 14px; color:var(--mut); max-width:70ch; }
+  section { background:var(--card); border:1px solid var(--bd); border-radius:10px; padding:16px; margin-bottom:16px; }
+  label { display:block; font-size:.85rem; color:var(--mut); margin-bottom:4px; }
+  input[type=email], input[type=password] { width:100%; padding:9px 10px; border:1px solid var(--bd); border-radius:8px; background:transparent; color:inherit; font:inherit; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+  button { font:inherit; padding:9px 16px; border-radius:8px; border:1px solid var(--ac); background:var(--ac); color:#fff; cursor:pointer; }
+  @media (prefers-color-scheme: dark) { button { color:#0a1a1a; } }
+  button.sec { background:transparent; color:var(--ac); }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  .bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .kpis { display:flex; flex-wrap:wrap; gap:8px 22px; margin:14px 0; }
+  .kpis b { font-size:1.25rem; display:block; }
+  .scroll { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:.85rem; }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--bd); vertical-align:top; }
+  th { color:var(--mut); font-weight:600; }
+  .t-OK { color:var(--ok); } .t-A_CORRIGIR { color:var(--warn); } .t-DUPLICADO, .t-CONFLITO, .t-SEM_NUMERO, .t-REVER { color:var(--err); }
+  #msg { min-height:1.4em; font-size:.9rem; }
+  [hidden] { display:none !important; }
+  @media (max-width:560px) { .row { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Reindexação de funcionários</h1>
+  <p>Cria os campos normalizados e os índices <code>numero_…</code> e <code>bi_…</code> das fichas que ainda não os têm, para que o pré-registo funcione sem leitura aberta da colecção. O relatório não escreve nada. A gravação exige confirmação.</p>
+
+  <section id="login">
+    <div class="row">
+      <div><label for="email">Email do administrador</label><input id="email" type="email" autocomplete="username"></div>
+      <div><label for="senha">Senha</label><input id="senha" type="password" autocomplete="current-password"></div>
+    </div>
+    <button id="btn-entrar" type="button">Entrar</button>
+  </section>
+
+  <section id="painel" hidden>
+    <div class="bar">
+      <button id="btn-relatorio" type="button">Gerar relatório</button>
+      <label style="margin:0;display:flex;gap:8px;align-items:center">
+        <input id="chk" type="checkbox" disabled> Revi o relatório e confirmo a gravação
+      </label>
+      <button id="btn-aplicar" type="button" class="sec" disabled>Aplicar correcções</button>
+      <button id="btn-sair" type="button" class="sec">Sair</button>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div id="msg" role="status"></div>
+    <div class="scroll"><table id="tab" hidden>
+      <thead><tr><th>Estado</th><th>Ficha</th><th>N.º agente</th><th>BI</th><th>Detalhe</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </section>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, getDoc, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const CFG = {
+  apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
+  authDomain: "sigdoc-sumbe.firebaseapp.com",
+  projectId: "sigdoc-sumbe",
+  storageBucket: "sigdoc-sumbe.firebasestorage.app",
+  messagingSenderId: "323467521938",
+  appId: "1:323467521938:web:1e8170bfd3961784241b4b"
+};
+const app = initializeApp(CFG, "sigdoc-reindex");
+const auth = getAuth(app);
+const db = getFirestore(app);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const normNum = v => String(v || "").replace(/\s/g, "").trim();
+const normBI = v => String(v || "").replace(/\s/g, "").toUpperCase();
+const msg = t => { $("msg").textContent = t; };
+let linhas = [];
+
+$("btn-entrar").onclick = async () => {
+  try { await signInWithEmailAndPassword(auth, $("email").value.trim(), $("senha").value); }
+  catch (e) { alert("Não foi possível entrar: " + e.code); }
+};
+$("btn-sair").onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, async u => {
+  $("login").hidden = !!u; $("painel").hidden = true;
+  if (!u) return;
+  const s = await getDoc(doc(db, "utilizadores", u.uid));
+  const d = s.exists() ? s.data() : {};
+  const roles = Array.isArray(d.roles) ? d.roles : [];
+  if (d.perfil === "admin" || roles.includes("admin")) { $("painel").hidden = false; }
+  else { alert("Apenas administradores."); signOut(auth); }
+});
+
+function agrupar(fichas, chave) {
+  const m = new Map();
+  fichas.forEach(f => { const v = chave(f); if (v) { if (!m.has(v)) m.set(v, []); m.get(v).push(f.id); } });
+  return m;
+}
+
+async function classificar(f, mNum, mBi) {
+  const n = normNum(f.numero), b = normBI(f.bi);
+  const base = { id: f.id, nome: f.nome || "", n, b, nota: "" };
+  if (!n) return { ...base, estado: "SEM_NUMERO", nota: "Sem número de agente; as regras não permitem indexar." };
+  if (mNum.get(n).length > 1 || (b && mBi.get(b).length > 1))
+    return { ...base, estado: "DUPLICADO", nota: "Número ou BI repetido noutra ficha. Resolver à mão." };
+  if ((f.numeroNormalizado && f.numeroNormalizado !== n) || (f.biNormalizado && f.biNormalizado !== b))
+    return { ...base, estado: "REVER", nota: "Campos normalizados antigos diferentes dos actuais. Rever à mão." };
+  const [iN, iB] = await Promise.all([
+    getDoc(doc(db, "funcionarios_indices", "numero_" + n)),
+    b ? getDoc(doc(db, "funcionarios_indices", "bi_" + b)) : Promise.resolve(null)
+  ]);
+  if ((iN.exists() && iN.data().funcionarioId !== f.id) || (iB && iB.exists() && iB.data().funcionarioId !== f.id))
+    return { ...base, estado: "CONFLITO", nota: "Um índice existente aponta para outra ficha." };
+  const precisaFicha = f.numeroNormalizado !== n || (f.biNormalizado || "") !== b;
+  const falta = [];
+  if (!iN.exists()) falta.push("numero");
+  if (b && iB && !iB.exists()) falta.push("bi");
+  const aviso = /^\d{8}$/.test(n) ? "" : " N.º fora do padrão de 8 dígitos: só entra pelo BI.";
+  if (!precisaFicha && !falta.length) return { ...base, estado: "OK", nota: aviso.trim() };
+  return { ...base, estado: "A_CORRIGIR", precisaFicha, falta,
+    nota: ("Gravar" + (precisaFicha ? " campos normalizados" : "") + (falta.length ? "; criar índice " + falta.join(" e ") : "") + "." + aviso) };
+}
+
+$("btn-relatorio").onclick = async () => {
+  $("btn-relatorio").disabled = true; $("chk").checked = false; $("chk").disabled = true; $("btn-aplicar").disabled = true;
+  msg("A ler fichas…");
+  try {
+    const snap = await getDocs(collection(db, "funcionarios"));
+    const fichas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const mNum = agrupar(fichas, f => normNum(f.numero));
+    const mBi = agrupar(fichas, f => normBI(f.bi));
+    linhas = [];
+    for (let i = 0; i < fichas.length; i += 20) {
+      msg("A verificar índices… " + Math.min(i + 20, fichas.length) + " de " + fichas.length);
+      linhas.push(...await Promise.all(fichas.slice(i, i + 20).map(f => classificar(f, mNum, mBi))));
+    }
+    desenhar();
+    const n = linhas.filter(l => l.estado === "A_CORRIGIR").length;
+    $("chk").disabled = n === 0; msg(n ? n + " ficha(s) por corrigir." : "Nada para corrigir automaticamente.");
+  } catch (e) { msg("Erro: " + (e.code || e.message)); }
+  $("btn-relatorio").disabled = false;
+};
+
+function desenhar() {
+  const cont = {}; linhas.forEach(l => cont[l.estado] = (cont[l.estado] || 0) + 1);
+  $("kpis").innerHTML = ["OK", "A_CORRIGIR", "DUPLICADO", "CONFLITO", "REVER", "SEM_NUMERO"]
+    .map(k => `<div><b class="t-${k}">${cont[k] || 0}</b>${k.replace("_", " ").toLowerCase()}</div>`).join("");
+  const mostrar = linhas.filter(l => l.estado !== "OK" || l.nota);
+  $("tab").hidden = !mostrar.length;
+  $("tab").querySelector("tbody").innerHTML = mostrar.map(l =>
+    `<tr><td class="t-${l.estado}">${l.estado.replace("_", " ")}</td><td>${esc(l.nome)}<br><small>${esc(l.id)}</small></td><td>${esc(l.n)}</td><td>${esc(l.b)}</td><td>${esc(l.nota)}</td></tr>`).join("");
+}
+
+$("chk").onchange = () => { $("btn-aplicar").disabled = !$("chk").checked; };
+
+$("btn-aplicar").onclick = async () => {
+  const alvo = linhas.filter(l => l.estado === "A_CORRIGIR");
+  if (!alvo.length) return;
+  $("btn-aplicar").disabled = true; $("chk").disabled = true;
+  let ok = 0, falhas = [];
+  for (const l of alvo) {
+    msg("A gravar " + (ok + falhas.length + 1) + " de " + alvo.length + "…");
+    try {
+      const batch = writeBatch(db);
+      if (l.precisaFicha) batch.update(doc(db, "funcionarios", l.id), { numeroNormalizado: l.n, biNormalizado: l.b });
+      if (l.falta.includes("numero")) batch.set(doc(db, "funcionarios_indices", "numero_" + l.n),
+        { tipo: "numero", valor: l.n, funcionarioId: l.id, actualizadoEm: serverTimestamp() });
+      if (l.falta.includes("bi")) batch.set(doc(db, "funcionarios_indices", "bi_" + l.b),
+        { tipo: "bi", valor: l.b, funcionarioId: l.id, actualizadoEm: serverTimestamp() });
+      await batch.commit(); ok++;
+    } catch (e) { falhas.push(l.nome + " (" + (e.code || e.message) + ")"); }
+  }
+  msg("Concluído: " + ok + " ficha(s) corrigida(s)." + (falhas.length ? " Falhas: " + falhas.join("; ") : " Gere o relatório outra vez para confirmar."));
+};
+</script>
+</body>
+</html>
