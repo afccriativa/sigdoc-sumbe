@@ -10,9 +10,9 @@ import { getAuth, signInWithEmailAndPassword, signOut,
          sendPasswordResetEmail,
          setPersistence, browserLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, setDoc, doc, query, where, orderBy, limit, serverTimestamp, onSnapshot, arrayUnion, increment, runTransaction, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, initializeFirestore, collection, getDocs, getDoc, addDoc, updateDoc, setDoc, doc, query, where, orderBy, limit, serverTimestamp, onSnapshot, arrayUnion, increment, runTransaction, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 const firebaseConfig = window.SIGDOC_CONFIG.config;
-const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=initializeFirestore(app,{ experimentalAutoDetectLongPolling: true });
 setPersistence(auth,browserLocalPersistence).catch(e=>console.warn(e));
 
 let _funcDoc=null,_funcDocId=null,_utilizador=null,_tipoSel=null;
