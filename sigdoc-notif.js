@@ -245,6 +245,10 @@ window.SIGDOC_NOTIF = (function () {
     pedido:  { ic:'📨',  cls:'sn-icone-aviso'   },
   };
 
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+
   function fmtData(ts) {
     if (!ts) return '—';
     try {
@@ -275,13 +279,13 @@ window.SIGDOC_NOTIF = (function () {
     }
 
     el.innerHTML = _todas.map(n => {
-      const tipo = TIPO_ICONE[n.tipo] || TIPO_ICONE.info;
+      const tipo = Object.prototype.hasOwnProperty.call(TIPO_ICONE, n.tipo) ? TIPO_ICONE[n.tipo] : TIPO_ICONE.info;
       const lida = n.lida === true;
-      return `<div class="sn-item${lida?'':' nao-lida'}" onclick="SIGDOC_NOTIF._marcarLida('${n.id}')">
+      return `<div class="sn-item${lida?'':' nao-lida'}" onclick="SIGDOC_NOTIF._marcarLida('${esc(String(n.id).replace(/[^\w-]/g,''))}')">
         <div class="sn-icone ${tipo.cls}">${tipo.ic}</div>
         <div class="sn-corpo">
-          <div class="sn-titulo">${n.titulo || 'Notificação'}</div>
-          <div class="sn-mensagem">${n.corpo || ''}</div>
+          <div class="sn-titulo">${esc(n.titulo || 'Notificação')}</div>
+          <div class="sn-mensagem">${esc(n.corpo || '')}</div>
           <div class="sn-data">${fmtData(n.criadaEm)}</div>
         </div>
         ${lida ? '' : '<div class="sn-dot"></div>'}
