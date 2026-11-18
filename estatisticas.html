@@ -563,7 +563,7 @@
   const firebaseConfig = window.SIGDOC_CONFIG.config;
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const db   = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
+  const db   = initializeFirestore(app, { experimentalAutoDetectLongPolling: true }); const escHtml = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   const PERFIS_ACESSO = ["admin", "director", "chefe", "tecnico"];
   function normalizarPerfilEstatisticas(docPerfil) {
@@ -955,7 +955,7 @@
       .replace('Posto de Saúde','PS');
 
     function buildSelect(id, label, opcoes, labelFn) {
-      const opts = opcoes.map(v => `<option value="${v}">${labelFn ? labelFn(v) : v}</option>`).join('');
+      const opts = opcoes.map(v => `<option value="${escHtml(v)}">${escHtml(labelFn ? labelFn(v) : v)}</option>`).join('');
       return `
         <div class="filtro-grupo">
           <label class="filtro-lbl">${label}</label>
@@ -1573,7 +1573,7 @@
     const cm = {}; funcs.forEach(f => { const u = f.unidade || "—"; cm[u] = (cm[u] || 0) + 1; });
     const lista = Object.entries(cm).filter(([n]) => n !== "—").sort((a,b)=>b[1]-a[1]).slice(0,8);
     const max = Math.max(...lista.map(u=>u[1]), 1);
-    el.innerHTML = lista.map(([n,v], i) => `<div class="bh" data-tt="${n}|${v} func.|${Math.round(v/max*100)}%|${CORES[i%CORES.length]}"><div class="bh-head"><span class="bh-lbl">${n}</span><span class="bh-val">${v}</span></div><div class="bh-track"><div class="bh-fill" style="width:${Math.round(v/max*100)}%;background:${CORES[i%CORES.length]}"></div></div></div>`).join("");
+    el.innerHTML = lista.map(([n,v], i) => `<div class="bh" data-tt="${escHtml(n)}|${v} func.|${Math.round(v/max*100)}%|${CORES[i%CORES.length]}"><div class="bh-head"><span class="bh-lbl">${escHtml(n)}</span><span class="bh-val">${v}</span></div><div class="bh-track"><div class="bh-fill" style="width:${Math.round(v/max*100)}%;background:${CORES[i%CORES.length]}"></div></div></div>`).join("");
   }
 
   function renderSalarial(funcs) {
@@ -1680,7 +1680,7 @@
     elUnidade.innerHTML = porUnidade.map(u => `
       <div class="regime-unidade-item">
         <div class="regime-unidade-head">
-          <span class="regime-unidade-nome" title="${u.unidade}">${u.unidade}</span>
+          <span class="regime-unidade-nome" title="${escHtml(u.unidade)}">${escHtml(u.unidade)}</span>
           <span class="regime-unidade-total">${u.total}</span>
         </div>
         <div class="regime-stack">
@@ -1751,7 +1751,7 @@
 
   function renderLollipop(pedidos) {
     const el = document.getElementById('sec-lollipop'); if (!el || !pedidos.length) return;
-    const counts = {}; pedidos.forEach(p => { const a = p.assunto||'outro'; counts[a]=(counts[a]||0)+1; });
+    const counts = {}; pedidos.forEach(p => { const a = String(p.assunto||'outro').replace(/[^\w-]/g,'_'); counts[a]=(counts[a]||0)+1; });
     const dados = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
     const max = Math.max(...dados.map(d=>d[1]), 1);
     el.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px">${dados.map(([k,v],i) => `
@@ -1945,9 +1945,9 @@
           const cor = d.estado === 'fechado' ? '#10c886' : d.estado === 'respondido' ? '#3b82f6' : '#f59e0b';
           html += `<tr>
             <td>${data}</td>
-            <td style="font-weight:700">${assunto}</td>
-            <td>${d.nome || '—'}</td>
-            <td><span class="drill-badge" style="background:${cor}20;color:${cor}">${d.estado || 'novo'}</span></td>
+            <td style="font-weight:700">${escHtml(assunto)}</td>
+            <td>${escHtml(d.nome || '—')}</td>
+            <td><span class="drill-badge" style="background:${cor}20;color:${cor}">${escHtml(d.estado || 'novo')}</span></td>
           </tr>`;
         });
       } else if (tipo === 'reuniao') {
@@ -1957,9 +1957,9 @@
           const cor = d.estado === 'realizada' ? '#8b5cf6' : d.estado === 'confirmada' ? '#10b981' : '#f59e0b';
           html += `<tr>
             <td>${data}</td>
-            <td style="font-weight:700">${d.assunto || '—'}</td>
-            <td>${d.participantes || '—'}</td>
-            <td><span class="drill-badge" style="background:${cor}20;color:${cor}">${d.estado || 'pendente'}</span></td>
+            <td style="font-weight:700">${escHtml(d.assunto || '—')}</td>
+            <td>${escHtml(d.participantes || '—')}</td>
+            <td><span class="drill-badge" style="background:${cor}20;color:${cor}">${escHtml(d.estado || 'pendente')}</span></td>
           </tr>`;
         });
       } else if (tipo === 'documento') {
@@ -1968,8 +1968,8 @@
           const data = new Date(toMs(d.geradoEm)).toLocaleDateString('pt-PT');
           html += `<tr>
             <td>${data}</td>
-            <td style="font-weight:700">${d.tipo || d.nome || 'Documento'}</td>
-            <td>${d.utilizadorNome || '—'}</td>
+            <td style="font-weight:700">${escHtml(d.tipo || d.nome || 'Documento')}</td>
+            <td>${escHtml(d.utilizadorNome || '—')}</td>
           </tr>`;
         });
       }
@@ -2073,11 +2073,11 @@
             <div class="ee-idade" style="color:${cor}">${f.idade}</div>
             <div class="ee-idade-lbl">anos de idade</div>
           </div>
-          <div class="ee-nome">${f.nome || '—'}</div>
+          <div class="ee-nome">${escHtml(f.nome || '—')}</div>
           <div class="ee-meta">
-            <div class="ee-meta-linha"><i data-lucide="building-2" style="width:12px;height:12px;flex-shrink:0"></i> <span>${abrvUnidade(f.unidade)}</span></div>
+            <div class="ee-meta-linha"><i data-lucide="building-2" style="width:12px;height:12px;flex-shrink:0"></i> <span>${escHtml(abrvUnidade(f.unidade))}</span></div>
             <div class="ee-meta-linha"><i data-lucide="cake" style="width:12px;height:12px;flex-shrink:0"></i> <span>${fmtNasc(f.nascimento)}</span></div>
-            ${f.categoria ? `<div class="ee-meta-linha"><i data-lucide="briefcase" style="width:12px;height:12px;flex-shrink:0"></i> <span>${f.categoria}</span></div>` : ''}
+            ${f.categoria ? `<div class="ee-meta-linha"><i data-lucide="briefcase" style="width:12px;height:12px;flex-shrink:0"></i> <span>${escHtml(f.categoria)}</span></div>` : ''}
           </div>
         </div>`;
     }
@@ -2301,8 +2301,8 @@
         <div class="reforma-item" style="--reforma-cor:${cor};--reforma-bg:${bg}">
           <div class="reforma-rank">${i + 1}</div>
           <div class="reforma-info">
-            <div class="reforma-nome">${f.nome || '—'}</div>
-            <div class="reforma-unidade">${abrvUnidade(f.unidade)}</div>
+            <div class="reforma-nome">${escHtml(f.nome || '—')}</div>
+            <div class="reforma-unidade">${escHtml(abrvUnidade(f.unidade))}</div>
             <div style="margin-top:6px;height:4px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden">
               <div style="height:100%;width:${barra}%;background:${cor};border-radius:99px;transition:width .4s ease"></div>
             </div>${linhaExcedido}
@@ -2444,11 +2444,11 @@
 
     function barra(label, count, max, cor, clickFn) {
       const pct = max ? Math.round(count / max * 100) : 0;
-      const clickAttr = clickFn ? `onclick="${clickFn}" style="cursor:pointer"` : '';
+      const clickAttr = clickFn ? `onclick="${escHtml(clickFn)}" style="cursor:pointer"` : '';
       return `
-        <div class="bh" ${clickAttr} data-tt="${label}|${count} registo${count!==1?'s':''}|${pct}% do máx.|${cor}">
+        <div class="bh" ${clickAttr} data-tt="${escHtml(label)}|${count} registo${count!==1?'s':''}|${pct}% do máx.|${cor}">
           <div class="bh-head">
-            <span class="bh-lbl" title="${label}">${label}</span>
+            <span class="bh-lbl" title="${escHtml(label)}">${escHtml(label)}</span>
             <span class="bh-val">${count}</span>
           </div>
           <div class="bh-track">
@@ -2468,12 +2468,12 @@
         const pct = Math.round(count / total * 100);
         segs += `<circle cx="40" cy="40" r="${R}" fill="none" stroke="${cor}" stroke-width="9"
                    stroke-dasharray="${seg} ${circ - seg}" stroke-dashoffset="${offset}"
-                   stroke-linecap="round" data-tt="${label}|${count} registo${count!==1?'s':''}|${pct}%|${cor}" style="cursor:pointer"/>`;
+                   stroke-linecap="round" data-tt="${escHtml(label)}|${count} registo${count!==1?'s':''}|${pct}%|${cor}" style="cursor:pointer"/>`;
         offset -= seg;
         legItems += `
           <div class="donut-item">
             <div class="donut-dot" style="background:${cor}"></div>
-            <span class="donut-txt">${label}</span>
+            <span class="donut-txt">${escHtml(label)}</span>
             <span class="donut-n">${count}<span style="opacity:.4;font-size:10px"> (${pct}%)</span></span>
           </div>`;
       });
@@ -2511,13 +2511,13 @@
     const MAX_TAB = 50;
     const linhasTab = d.listaDetalhada.slice(0, MAX_TAB).map(p => `
       <tr>
-        <td style="font-weight:700;color:#e2e8f0">${p.nome}</td>
-        <td style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.4)">${p.numero}</td>
-        <td>${p.curso}</td>
+        <td style="font-weight:700;color:#e2e8f0">${escHtml(p.nome)}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.4)">${escHtml(p.numero)}</td>
+        <td>${escHtml(p.curso)}</td>
         <td><span class="drill-badge" style="background:rgba(167,139,250,.12);color:#a78bfa">${p.ano}</span></td>
-        <td style="font-size:11px;color:rgba(255,255,255,.5)">${p.inst}</td>
-        <td style="font-size:11px;color:rgba(255,255,255,.4)">${p.modalidade}</td>
-        <td style="font-size:11px;color:rgba(255,255,255,.4)">${p.unidade}</td>
+        <td style="font-size:11px;color:rgba(255,255,255,.5)">${escHtml(p.inst)}</td>
+        <td style="font-size:11px;color:rgba(255,255,255,.4)">${escHtml(p.modalidade)}</td>
+        <td style="font-size:11px;color:rgba(255,255,255,.4)">${escHtml(p.unidade)}</td>
       </tr>`).join('');
 
     const rodapeTab = d.listaDetalhada.length > MAX_TAB
@@ -2640,13 +2640,13 @@
 
     const linhas = lista.map(p => `
       <tr>
-        <td style="font-weight:700;color:#e2e8f0">${p.nome}</td>
-        <td style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.4)">${p.numero}</td>
-        <td>${p.curso}</td>
+        <td style="font-weight:700;color:#e2e8f0">${escHtml(p.nome)}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.4)">${escHtml(p.numero)}</td>
+        <td>${escHtml(p.curso)}</td>
         <td><span class="drill-badge" style="background:rgba(167,139,250,.12);color:#a78bfa">${p.ano}</span></td>
-        <td style="font-size:11px;color:rgba(255,255,255,.5)">${p.inst}</td>
-        <td style="font-size:11px;color:rgba(255,255,255,.4)">${p.modalidade}</td>
-        <td style="font-size:11px;color:rgba(255,255,255,.4)">${p.unidade}</td>
+        <td style="font-size:11px;color:rgba(255,255,255,.5)">${escHtml(p.inst)}</td>
+        <td style="font-size:11px;color:rgba(255,255,255,.4)">${escHtml(p.modalidade)}</td>
+        <td style="font-size:11px;color:rgba(255,255,255,.4)">${escHtml(p.unidade)}</td>
       </tr>`).join('');
 
     const vazio = lista.length === 0
@@ -2689,6 +2689,7 @@
   let hideTimer = null;
 
   /* Renderizar conteúdo a partir de "LABEL|VALOR|PCT|COR" */
+  const _ttEsc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function renderTt(raw) {
     const parts  = raw.split('|');
     const label  = parts[0] || '';
@@ -2697,18 +2698,18 @@
     const cor    = parts[3] || '';
 
     const dotHtml = cor
-      ? `<span class="tt-dot" style="background:${cor}"></span>`
+      ? `<span class="tt-dot" style="background:${_ttEsc(cor)}"></span>`
       : '';
 
     let rowHtml = '';
     if (valTxt || pctTxt) {
-      const valPart = valTxt ? `<span>${valTxt}</span>` : '';
+      const valPart = valTxt ? `<span>${_ttEsc(valTxt)}</span>` : '';
       const sepPart = (valTxt && pctTxt) ? `<span class="tt-sep">·</span>` : '';
-      const pctPart = pctTxt ? `<span class="tt-pct">${pctTxt}</span>` : '';
+      const pctPart = pctTxt ? `<span class="tt-pct">${_ttEsc(pctTxt)}</span>` : '';
       rowHtml = `<div class="tt-row">${valPart}${sepPart}${pctPart}</div>`;
     }
 
-    return `<div class="tt-label">${dotHtml}${label}</div>${rowHtml}`;
+    return `<div class="tt-label">${dotHtml}${_ttEsc(label)}</div>${rowHtml}`;
   }
 
   /* Posicionar o tooltip respeitando os limites do viewport */
