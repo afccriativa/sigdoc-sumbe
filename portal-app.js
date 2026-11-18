@@ -794,14 +794,14 @@ window.enviarRecuperacao = async function() {
     const emailMasc=mascararEmail(email);
     const veioDaLocalizacao=_recContaLocalizada&&email===_recEmailResolvido;
     msg.innerHTML=veioDaLocalizacao
-      ? `<div class="alerta alerta-sucesso"><strong>Link enviado.</strong><br>Enviámos as instruções para <strong>${emailMasc}</strong>. Verifique também a pasta de spam.</div>`
+      ? `<div class="alerta alerta-sucesso"><strong>Link enviado.</strong><br>Enviámos as instruções para <strong>${escapeHtml(emailMasc)}</strong>. Verifique também a pasta de spam.</div>`
       : `<div class="alerta alerta-sucesso"><strong>E-mail enviado.</strong><br>Se este endereço tiver uma conta, receberá as instruções em breve. Verifique também a pasta de spam.</div>`;
     document.getElementById("lf-email").value=email;
     btn.innerHTML="Enviar link →";
     window.sincronizarRecuperacao();
     setTimeout(()=>{
       document.getElementById("msg-login-func").innerHTML=veioDaLocalizacao
-        ? `<div class="alerta alerta-sucesso">Enviámos um link de redefinição para <strong>${emailMasc}</strong>.</div>`
+        ? `<div class="alerta alerta-sucesso">Enviámos um link de redefinição para <strong>${escapeHtml(emailMasc)}</strong>.</div>`
         : `<div class="alerta alerta-sucesso">Se este endereço tiver uma conta, enviámos o link de redefinição.</div>`;
       mostrarEcra("ecra-login-func");
     },3500);
@@ -1015,8 +1015,8 @@ window.abrirDetalheDoc=function(id,origem){
   document.getElementById("modal-sol-titulo").textContent=info.nome;
   document.getElementById("modal-sol-sub").textContent=ts?ts.toLocaleDateString("pt-AO",{day:"2-digit",month:"long",year:"numeric"}):"—";
   let extra="";
-  if(s.observacao)extra+=`<div class="alerta alerta-${s.estado==='rejeitada'||s.estado==='rejeitado'?'erro':'sucesso'}" style="margin-top:12px"><strong>Observação de RH:</strong> ${s.observacao}</div>`;
-  if(s.numGuia)extra+=`<div class="alerta alerta-sucesso" style="margin-top:8px">Referência: Guia Nº ${s.numGuia}/${s.anoGuia}</div>`;
+  if(s.observacao)extra+=`<div class="alerta alerta-${s.estado==='rejeitada'||s.estado==='rejeitado'?'erro':'sucesso'}" style="margin-top:12px"><strong>Observação de RH:</strong> ${escapeHtml(s.observacao)}</div>`;
+  if(s.numGuia)extra+=`<div class="alerta alerta-sucesso" style="margin-top:8px">Referência: Guia Nº ${escapeHtml(s.numGuia)}/${escapeHtml(s.anoGuia)}</div>`;
   const temArquivo = origem==="documento" && s.htmlArquivo &&
     (s.estado === "aprovado" || s.estado === "concluida");
   if(temArquivo){
@@ -1565,7 +1565,7 @@ function carregarPerfil(dados){
     {r:"Secção",v:f.seccao||"N/A"},{r:"Escolaridade",v:f.escolaridade||"—"},
     {r:"E-mail de Acesso",v:_utilizador?.email||dados.email||"—",span2:true},
   ];
-  document.getElementById("perfil-grelha").innerHTML=campos.map(c=>`<div class="perf-campo${c.span2?" span2":""}"><div class="rotulo">${c.r}</div><div class="valor">${c.v}</div></div>`).join("");
+  document.getElementById("perfil-grelha").innerHTML=campos.map(c=>`<div class="perf-campo${c.span2?" span2":""}"><div class="rotulo">${c.r}</div><div class="valor">${escapeHtml(c.v)}</div></div>`).join("");
   // Carregar info da unidade do funcionário
   carregarMinhaUnidade(_funcDoc?.unidade || null);
   // Verificar se este funcionário é responsável por alguma unidade
@@ -1596,7 +1596,7 @@ async function carregarMinhaUnidade(nomeUnidade){
         <div class="mu-header">
           <div class="mu-header-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 6v4"/><path d="M14 14h-4"/><path d="M14 18h-4"/><path d="M14 8h-4"/><path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"/><path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18"/></svg></div>
           <div>
-            <div class="mu-header-titulo">${nomeUnidade}</div>
+            <div class="mu-header-titulo">${escapeHtml(nomeUnidade)}</div>
             <div class="mu-header-tipo">A minha unidade</div>
           </div>
         </div>
@@ -1621,7 +1621,7 @@ async function carregarMinhaUnidade(nomeUnidade){
           <span class="mu-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="8" r="4"/></svg></span>
           <div class="mu-row-info">
             <div class="mu-row-label">Responsável</div>
-            <div class="mu-row-val"><strong>${u.responsavel.nome}</strong>${u.responsavel.cargo ? ' · ' + u.responsavel.cargo : ''}</div>
+            <div class="mu-row-val"><strong>${escapeHtml(u.responsavel.nome)}</strong>${u.responsavel.cargo ? ' · ' + escapeHtml(u.responsavel.cargo) : ''}</div>
           </div>
         </div>` : '';
 
@@ -1632,7 +1632,7 @@ async function carregarMinhaUnidade(nomeUnidade){
           <div class="mu-row-info">
             <div class="mu-row-label">Emergência</div>
             <div class="mu-row-val">
-              <a href="tel:${u.contactos.emergencia}" class="mu-contacto-btn" style="display:inline-flex;align-items:center;gap:4px">
+              <a href="tel:${escapeHtml(String(u.contactos.emergencia).replace(/[^0-9+]/g,""))}" class="mu-contacto-btn" style="display:inline-flex;align-items:center;gap:4px">
                 <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.79 9.13 19.79 19.79 0 0 1 1.71.5A2 2 0 0 1 3.69.18l3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>${u.contactos.emergencia}
               </a>
             </div>
@@ -1645,7 +1645,7 @@ async function carregarMinhaUnidade(nomeUnidade){
           <span class="mu-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.79 9.13 19.79 19.79 0 0 1 1.71.5A2 2 0 0 1 3.69.18l3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
           <div class="mu-row-info">
             <div class="mu-row-label">Telefone</div>
-            <div class="mu-row-val">${u.contactos.telefone}</div>
+            <div class="mu-row-val">${escapeHtml(u.contactos.telefone)}</div>
           </div>
         </div>` : '';
 
@@ -1684,8 +1684,8 @@ async function carregarMinhaUnidade(nomeUnidade){
       <div class="mu-header">
         <div class="mu-header-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 6v4"/><path d="M14 14h-4"/><path d="M14 18h-4"/><path d="M14 8h-4"/><path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"/><path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18"/></svg></div>
         <div>
-          <div class="mu-header-titulo">${u.nome}</div>
-          <div class="mu-header-tipo">${tipoLabel}</div>
+          <div class="mu-header-titulo">${escapeHtml(u.nome)}</div>
+          <div class="mu-header-tipo">${escapeHtml(tipoLabel)}</div>
         </div>
       </div>
       <div class="mu-body">
@@ -1702,7 +1702,7 @@ async function carregarMinhaUnidade(nomeUnidade){
       <div class="mu-header">
         <div class="mu-header-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 6v4"/><path d="M14 14h-4"/><path d="M14 18h-4"/><path d="M14 8h-4"/><path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"/><path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18"/></svg></div>
         <div>
-          <div class="mu-header-titulo">${nomeUnidade}</div>
+          <div class="mu-header-titulo">${escapeHtml(nomeUnidade)}</div>
           <div class="mu-header-tipo">A minha unidade</div>
         </div>
       </div>
@@ -1755,7 +1755,7 @@ async function carregarUnidadeSobResponsabilidade(funcDocId){
         <div class="ru-row-info">
           <div class="ru-row-label">Cargo exercido</div>
           <div class="ru-row-val">
-            <span class="ru-badge-cargo"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></svg> ${cargo}</span>
+            <span class="ru-badge-cargo"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></svg> ${escapeHtml(cargo)}</span>
             ${dtInicio ? `<div style="font-size:11px;color:#6b7280;margin-top:4px">Em funções desde ${fmtData(dtInicio)}</div>` : ''}
           </div>
         </div>
@@ -1766,7 +1766,7 @@ async function carregarUnidadeSobResponsabilidade(funcDocId){
         <span class="ru-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.79 9.13 19.79 19.79 0 0 1 1.71.5A2 2 0 0 1 3.69.18l3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
         <div class="ru-row-info">
           <div class="ru-row-label">Contacto da unidade</div>
-          <div class="ru-row-val">${u.contactos.telefone}</div>
+          <div class="ru-row-val">${escapeHtml(u.contactos.telefone)}</div>
         </div>
       </div>` : '';
 
@@ -1775,7 +1775,7 @@ async function carregarUnidadeSobResponsabilidade(funcDocId){
         <span class="ru-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
         <div class="ru-row-info">
           <div class="ru-row-label">Localização</div>
-          <div class="ru-row-val">${u.localizacao.descricao}</div>
+          <div class="ru-row-val">${escapeHtml(u.localizacao.descricao)}</div>
         </div>
       </div>` : '';
 
@@ -1794,7 +1794,7 @@ async function carregarUnidadeSobResponsabilidade(funcDocId){
       <div class="ru-header">
         <div class="ru-header-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></svg></div>
         <div>
-          <div class="ru-header-titulo">${u.nome}</div>
+          <div class="ru-header-titulo">${escapeHtml(u.nome)}</div>
           <div class="ru-header-tipo">Sob a minha responsabilidade</div>
         </div>
       </div>
@@ -1803,7 +1803,7 @@ async function carregarUnidadeSobResponsabilidade(funcDocId){
           <span class="ru-row-icon"><svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg></span>
           <div class="ru-row-info">
             <div class="ru-row-label">Tipo de unidade</div>
-            <div class="ru-row-val">${tipoLabel}</div>
+            <div class="ru-row-val">${escapeHtml(tipoLabel)}</div>
           </div>
         </div>
         ${cargoHTML}
@@ -1890,7 +1890,7 @@ function mostrarDocsCarregados(funcDoc){
       </div>`;
     } else {
       // URL directa (Storage legado ou externo)
-      return `<a href="${d.url}" target="_blank" class="doc-fich">
+      return `<a href="${/^https?:\/\//i.test(String(d.url)) ? escapeHtml(d.url) : '#'}" target="_blank" class="doc-fich">
         <div class="doc-fich-ic" style="background:var(--primary-xl)">${d.icone}</div>
         <div><div class="doc-fich-nome">${d.nome}</div><div class="doc-fich-sub">${d.sub}</div></div>
         <span style="margin-left:auto;color:var(--primary-l);font-size:16px">↗</span>
@@ -2269,9 +2269,9 @@ window.abrirChatPortal = async function(pedidoId) {
         ? (_funcDoc?.nome||_utilizador?.email||'V').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()
         : 'S';
       return `${dataSep}<div class="chat-msg-row ${isFunc?'enviada':'recebida'}">
-        <div class="chat-msg-av ${isFunc?'func':'sec'}">${initials}</div>
+        <div class="chat-msg-av ${isFunc?'func':'sec'}">${escapeHtml(initials)}</div>
         <div class="chat-balao">
-          ${m.texto}
+          ${escapeHtml(m.texto)}
           <div class="chat-balao-meta">
             <span class="chat-hora">${hora}</span>
             ${visto}
