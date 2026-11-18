@@ -131,19 +131,19 @@ function linhaFuncionarioHtml(f, ordem) {
   const sub = f.subsidios || {};
   return `
     <tr>
-      <td class="centro">${ordem}</td>
+      <td class="centro">${escaparHtml(ordem)}</td>
       <td class="centro auto">${escaparHtml(f.numeroAgente || "—")}</td>
       <td class="esq auto">${escaparHtml(formatarNomeProprio(f.nomeCompleto))}</td>
       <td class="esq auto">${escaparHtml(formatarTituloGenerico(f.categoria))}</td>
-      <td class="centro auto neg">${f.diasTrab ?? 24}</td>
-      <td class="centro">${f.falInj || 0}</td>
-      <td class="centro">${f.falJus || 0}</td>
+      <td class="centro auto neg">${escaparHtml(f.diasTrab ?? 24)}</td>
+      <td class="centro">${escaparHtml(f.falInj || 0)}</td>
+      <td class="centro">${escaparHtml(f.falJus || 0)}</td>
       <td class="centro auto">${sub.atavio ? pct(0.05) : "—"}</td>
       <td class="centro auto">${sub.redta ? pct(0.07) : "—"}</td>
       <td class="centro auto">${sub.turno ? pct(0.05) : "—"}</td>
       <td class="centro auto">${sub.noct ? pct(0.07) : "—"}</td>
       <td class="centro auto">${sub.diut ? pct(0.03) : "—"}</td>
-      <td class="centro auto">${f.acrescido || "—"}</td>
+      <td class="centro auto">${escaparHtml(f.acrescido || "—")}</td>
       <td class="centro auto">${sub.eind ? pct(0.05) : "—"}</td>
       <td class="centro auto">${f.ferias?.estado === "sim" ? escaparHtml(f.ferias.periodo || "Em férias") : "—"}</td>
     </tr>
