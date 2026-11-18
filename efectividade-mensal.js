@@ -227,10 +227,10 @@ function linhaHtml(f, ordem, bloqueado) {
       <td class="efmensal-col-auto">${escaparHtml(f.numeroAgente || "—")}</td>
       <td class="efmensal-col-nome efmensal-col-auto">${escaparHtml(f.nomeCompleto)}</td>
       <td class="efmensal-col-categoria efmensal-col-auto">${escaparHtml(f.categoria)}</td>
-      <td class="efmensal-col-auto">${f.diasTrab}</td>
-      <td>${f.falInj || 0}</td>
-      <td>${f.falJus || 0}</td>
-      <td><button class="efmensal-btn-editar" ${bloqueado ? "disabled" : ""} onclick="EFM.abrirModalFunc('${f.funcionarioId}')">Editar</button></td>
+      <td class="efmensal-col-auto">${escaparHtml(f.diasTrab)}</td>
+      <td>${escaparHtml(f.falInj || 0)}</td>
+      <td>${escaparHtml(f.falJus || 0)}</td>
+      <td><button class="efmensal-btn-editar" ${bloqueado ? "disabled" : ""} onclick="EFM.abrirModalFunc('${escaparHtml(String(f.funcionarioId).replace(/[^\w-]/g,''))}')">Editar</button></td>
     </tr>
   `;
 }
