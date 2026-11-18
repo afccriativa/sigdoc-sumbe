@@ -8,6 +8,10 @@
  */
 
 (function() {
+function esc(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+}
+
 function obterInsigniaSrc(opcoes) {
   if (window.SIGDOCBuilderUtils && typeof window.SIGDOCBuilderUtils.obterInsigniaSrc === "function") {
     return window.SIGDOCBuilderUtils.obterInsigniaSrc(opcoes);
@@ -242,21 +246,21 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria, opcoes) {
           <p class="negrito">SECÇÃO DE PLANEAMENTO, ESTATÍSTICA E RECURSOS HUMANOS</p>
         </div>
 
-        <div class="gm-titulo">GUIA MÉDICA N.º ${numGuia}/${anoAtual}</div>
+        <div class="gm-titulo">GUIA MÉDICA N.º ${esc(numGuia)}/${anoAtual}</div>
 
         <div class="gm-apresentacao">
-          VAI APRESENTAR-SE AO ${unidadeSanitaria.toUpperCase()}
+          VAI APRESENTAR-SE AO ${esc(String(unidadeSanitaria||'').toUpperCase())}
         </div>
 
         <div class="gm-campos">
-          <div class="gm-campo"><div class="gm-label">NOME:</div><div class="gm-valor">${nomeFuncionario.toUpperCase()}</div></div>
-          <div class="gm-campo"><div class="gm-label">PAI:</div><div class="gm-valor">${nomePai.toUpperCase()}</div></div>
-          <div class="gm-campo"><div class="gm-label">MÃE:</div><div class="gm-valor">${nomeMae.toUpperCase()}</div></div>
+          <div class="gm-campo"><div class="gm-label">NOME:</div><div class="gm-valor">${esc(String(nomeFuncionario).toUpperCase())}</div></div>
+          <div class="gm-campo"><div class="gm-label">PAI:</div><div class="gm-valor">${esc(String(nomePai).toUpperCase())}</div></div>
+          <div class="gm-campo"><div class="gm-label">MÃE:</div><div class="gm-valor">${esc(String(nomeMae).toUpperCase())}</div></div>
           <div class="gm-campo"><div class="gm-label">SITUAÇÃO:</div><div class="gm-valor">${situacaoAuto}</div></div>
-          <div class="gm-campo"><div class="gm-label">NATURALIDADE:</div><div class="gm-valor">${naturalidade.toUpperCase()}</div></div>
-          <div class="gm-campo"><div class="gm-label">PROVINCIA:</div><div class="gm-valor">${provincia.toUpperCase()}</div></div>
-          <div class="gm-campo"><div class="gm-label">IDADE:</div><div class="gm-valor">${idade} ANOS</div></div>
-          <div class="gm-campo"><div class="gm-label">SEXO:</div><div class="gm-valor">${sexo.toUpperCase()}</div></div>
+          <div class="gm-campo"><div class="gm-label">NATURALIDADE:</div><div class="gm-valor">${esc(String(naturalidade).toUpperCase())}</div></div>
+          <div class="gm-campo"><div class="gm-label">PROVINCIA:</div><div class="gm-valor">${esc(String(provincia).toUpperCase())}</div></div>
+          <div class="gm-campo"><div class="gm-label">IDADE:</div><div class="gm-valor">${esc(idade)} ANOS</div></div>
+          <div class="gm-campo"><div class="gm-label">SEXO:</div><div class="gm-valor">${esc(String(sexo).toUpperCase())}</div></div>
         </div>
 
         <div class="gm-texto-final">
@@ -265,7 +269,7 @@ window.construirGuiaMedica = function(dados, unidadeSanitaria, opcoes) {
 
         <div class="gm-assinatura-bloco">
           <div class="gm-cargo-chefe">O CHEFE DE SECÇÃO,</div>
-          <div class="gm-nome-chefe">${nomeChefe.toUpperCase()}</div>
+          <div class="gm-nome-chefe">${esc(String(nomeChefe).toUpperCase())}</div>
         </div>
 
         <div class="gm-prescricao-bloco">
