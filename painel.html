@@ -2976,7 +2976,7 @@
       return `
       <div class="cob-item">
         <div class="cob-item-header">
-          <span class="cob-nome" title="${u.nome}">${nomeAbrev}</span>
+          <span class="cob-nome" title="${escapeHtml(u.nome)}">${escapeHtml(nomeAbrev)}</span>
           <div class="cob-nums">
             <span class="cob-num-cad">${u.cadastrados}</span>
             <span class="cob-num-sep">/</span>
@@ -3049,7 +3049,7 @@
       else                cobHTML = `<span class="pill-cob pill-cob-vermelho">↓ ${cob}%</span>`;
 
       return `<tr>
-        <td style="font-weight:600;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${nome}">${nome}</td>
+        <td style="font-weight:600;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escapeHtml(nome)}">${escapeHtml(nome)}</td>
         <td style="font-family:'DM Mono',monospace;font-weight:800;color:#2563eb">${u.cadastrados}</td>
         <td style="font-family:'DM Mono',monospace;color:#94a3b8">${esp||'—'}</td>
         <td>${cobHTML}</td>
