@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Códigos de activação — SIGDOC-SUMBE</title>
+<style>
+  :root { color-scheme: light dark; --bg:#f6f7f8; --fg:#16202a; --mut:#5d6b78; --card:#fff; --bd:#d9dee3; --ac:#0b6e6e; --ok:#1c7a46; --warn:#a15c00; --err:#b3261e; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#12171c; --fg:#e6ebef; --mut:#98a6b3; --card:#1a2128; --bd:#2c3640; --ac:#4fc3c3; --ok:#5ccf8c; --warn:#e5a54b; --err:#f2877f; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; padding:env(safe-area-inset-top,0) 16px env(safe-area-inset-bottom,0); }
+  main { max-width:960px; margin:0 auto; padding:24px 0 48px; }
+  h1 { font-size:1.35rem; margin:0 0 6px; }
+  p { margin:0 0 14px; color:var(--mut); max-width:70ch; }
+  section { background:var(--card); border:1px solid var(--bd); border-radius:10px; padding:16px; margin-bottom:16px; }
+  label { display:block; font-size:.85rem; color:var(--mut); margin-bottom:4px; }
+  input[type=email], input[type=password] { width:100%; padding:9px 10px; border:1px solid var(--bd); border-radius:8px; background:transparent; color:inherit; font:inherit; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+  button { font:inherit; padding:9px 16px; border-radius:8px; border:1px solid var(--ac); background:var(--ac); color:#fff; cursor:pointer; }
+  @media (prefers-color-scheme: dark) { button { color:#0a1a1a; } }
+  button.sec { background:transparent; color:var(--ac); }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  .bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .kpis { display:flex; flex-wrap:wrap; gap:8px 22px; margin:14px 0; }
+  .kpis b { font-size:1.25rem; display:block; }
+  .scroll { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:.85rem; }
+  th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--bd); vertical-align:top; }
+  th { color:var(--mut); font-weight:600; }
+  .t-OK { color:var(--ok); } .t-A_CORRIGIR { color:var(--warn); } .t-DUPLICADO, .t-CONFLITO, .t-SEM_NUMERO, .t-REVER { color:var(--err); }
+  #msg { min-height:1.4em; font-size:.9rem; }
+  [hidden] { display:none !important; }
+  @media (max-width:560px) { .row { grid-template-columns:1fr; } }
+</style>
+<style>
+  .cod { font-family: ui-monospace,Menlo,Consolas,monospace; font-weight:700; letter-spacing:.06em; }
+  .est-livre { color:var(--ok); } .est-usado { color:var(--mut); } .est-sem { color:var(--warn); }
+  #folha { display:none; }
+  @media print {
+    body > main, .noprint { display:none !important; }
+    #folha { display:block !important; }
+    #folha h2 { page-break-before:always; font-size:14pt; margin:0 0 8pt; }
+    #folha h2:first-child { page-break-before:avoid; }
+    #folha table { font-size:10pt; } #folha td, #folha th { border-bottom:1px solid #999; padding:5pt 6pt; color:#000; }
+    #folha .aviso { font-size:9pt; margin-bottom:8pt; }
+    body { background:#fff; color:#000; }
+  }
+</style>
+</head>
+<body>
+<main class="noprint">
+  <h1>Códigos de activação do portal</h1>
+  <p>Cada funcionário sem conta recebe um código de <b>uso único</b>, sem expiração. Sem o código, o registo no portal é recusado. Entregue o código em mão (impressão por unidade) e nunca por canais públicos.</p>
+
+  <section id="login">
+    <div class="row">
+      <div><label for="email">Email do administrador</label><input id="email" type="email" autocomplete="username"></div>
+      <div><label for="senha">Senha</label><input id="senha" type="password" autocomplete="current-password"></div>
+    </div>
+    <button id="btn-entrar" type="button">Entrar</button>
+  </section>
+
+  <section id="painel" hidden>
+    <div class="bar">
+      <button id="btn-carregar" type="button">Carregar / actualizar</button>
+      <button id="btn-gerar" type="button" disabled>Gerar códigos em falta</button>
+      <button id="btn-csv" type="button" class="sec" disabled>Exportar CSV</button>
+      <button id="btn-imprimir" type="button" class="sec" disabled>Imprimir por unidade</button>
+      <button id="btn-sair" type="button" class="sec">Sair</button>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div id="msg" role="status"></div>
+    <div class="scroll"><table id="tab" hidden>
+      <thead><tr><th>Unidade</th><th>N.º agente</th><th>Nome</th><th>Estado</th><th>Código</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </section>
+</main>
+<div id="folha"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const CFG = {
+  apiKey: "AIzaSyCCgn96OJulWh-xhj0jE8y-LtO8uEqwdEE",
+  authDomain: "sigdoc-sumbe.firebaseapp.com",
+  projectId: "sigdoc-sumbe",
+  storageBucket: "sigdoc-sumbe.firebasestorage.app",
+  messagingSenderId: "323467521938",
+  appId: "1:323467521938:web:1e8170bfd3961784241b4b"
+};
+const app = initializeApp(CFG, "sigdoc-codigos");
+const auth = getAuth(app);
+const db = getFirestore(app);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const msg = t => { $("msg").textContent = t; };
+const ALFA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 32 símbolos, sem 0/O/1/I
+const fmt = c => c.slice(0,4) + "-" + c.slice(4);
+let linhas = []; // {id,nome,numero,unidade,portalUid,codigo,usado}
+
+function novoCodigo() {
+  const b = new Uint8Array(8); crypto.getRandomValues(b);
+  return Array.from(b, x => ALFA[x & 31]).join("");
+}
+
+$("btn-entrar").onclick = async () => {
+  try { await signInWithEmailAndPassword(auth, $("email").value.trim(), $("senha").value); }
+  catch (e) { alert("Não foi possível entrar: " + e.code); }
+};
+$("btn-sair").onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, async u => {
+  $("login").hidden = !!u; $("painel").hidden = true;
+  if (!u) return;
+  const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+  const s = await getDoc(doc(db, "utilizadores", u.uid));
+  const d = s.exists() ? s.data() : {};
+  const roles = Array.isArray(d.roles) ? d.roles : [];
+  if (d.perfil === "admin" || roles.includes("admin")) { $("painel").hidden = false; }
+  else { alert("Apenas administradores."); signOut(auth); }
+});
+
+async function carregar() {
+  msg("A carregar…");
+  const [fs, cs] = await Promise.all([getDocs(collection(db, "funcionarios")), getDocs(collection(db, "codigos_activacao"))]);
+  const porFunc = new Map();
+  cs.forEach(c => {
+    const d = c.data(); const prev = porFunc.get(d.funcionarioId);
+    if (!prev || (prev.usado && !d.usado)) porFunc.set(d.funcionarioId, { codigo: c.id, usado: d.usado === true });
+  });
+  linhas = [];
+  fs.forEach(f => {
+    const d = f.data();
+    if (d.portalUid) return; // já tem conta
+    const c = porFunc.get(f.id);
+    linhas.push({ id: f.id, nome: d.nome || "", numero: d.numero || "", unidade: d.unidade || "(sem unidade)", codigo: c?.codigo || "", usado: !!c?.usado });
+  });
+  linhas.sort((a, b) => a.unidade.localeCompare(b.unidade, "pt") || a.nome.localeCompare(b.nome, "pt"));
+  render();
+  msg("Leituras: " + (fs.size + cs.size) + " documentos.");
+}
+
+function render() {
+  const sem = linhas.filter(l => !l.codigo).length;
+  const livres = linhas.filter(l => l.codigo && !l.usado).length;
+  $("kpis").innerHTML = `<div><b>${linhas.length}</b>sem conta</div><div><b>${sem}</b>sem código</div><div><b>${livres}</b>com código por usar</div>`;
+  $("tab").hidden = !linhas.length;
+  $("tab").querySelector("tbody").innerHTML = linhas.map((l, i) => {
+    const est = !l.codigo ? '<span class="est-sem">Sem código</span>' : l.usado ? '<span class="est-usado">Usado</span>' : '<span class="est-livre">Por usar</span>';
+    return `<tr><td>${esc(l.unidade)}</td><td>${esc(l.numero)}</td><td>${esc(l.nome)}</td><td>${est}</td>
+      <td class="cod">${l.codigo && !l.usado ? esc(fmt(l.codigo)) : "—"}</td>
+      <td><button type="button" class="sec" data-i="${i}">${l.codigo ? "Novo código" : "Gerar"}</button></td></tr>`;
+  }).join("");
+  $("btn-gerar").disabled = !sem;
+  $("btn-csv").disabled = $("btn-imprimir").disabled = !livres;
+}
+
+async function gravar(lista) {
+  // lista: [{l, antigo}] ; batches de 200 operações (≤500)
+  const uid = auth.currentUser.uid;
+  let ops = [];
+  for (const { l, antigo } of lista) {
+    const novo = novoCodigo();
+    ops.push({ l, novo, antigo });
+  }
+  for (let i = 0; i < ops.length; i += 150) {
+    const b = writeBatch(db);
+    ops.slice(i, i + 150).forEach(({ l, novo, antigo }) => {
+      if (antigo) b.delete(doc(db, "codigos_activacao", antigo));
+      b.set(doc(db, "codigos_activacao", novo), { funcionarioId: l.id, usado: false, criadoEm: serverTimestamp(), criadoPor: uid });
+    });
+    await b.commit();
+    ops.slice(i, i + 150).forEach(({ l, novo }) => { l.codigo = novo; l.usado = false; });
+    msg("Gravados " + Math.min(i + 150, ops.length) + " de " + ops.length + "…");
+  }
+}
+
+$("btn-carregar").onclick = () => carregar().catch(e => msg("Erro: " + e.code));
+$("btn-gerar").onclick = async () => {
+  const lista = linhas.filter(l => !l.codigo).map(l => ({ l, antigo: "" }));
+  if (!confirm("Gerar " + lista.length + " códigos?")) return;
+  try { await gravar(lista); render(); msg("Concluído: " + lista.length + " códigos gerados."); }
+  catch (e) { msg("Erro: " + e.code + " — recarregue para ver o estado real."); }
+};
+$("tab").onclick = async ev => {
+  const b = ev.target.closest("button[data-i]"); if (!b) return;
+  const l = linhas[+b.dataset.i];
+  if (l.codigo && !l.usado && !confirm("O código actual de " + l.nome + " deixará de funcionar. Continuar?")) return;
+  try { await gravar([{ l, antigo: l.usado ? "" : l.codigo }]); render(); msg("Novo código para " + l.nome + "."); }
+  catch (e) { msg("Erro: " + e.code); }
+};
+
+function descarregar(nome, texto, tipo) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([texto], { type: tipo })); a.download = nome; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+$("btn-csv").onclick = () => {
+  const q = v => '"' + String(v).replace(/"/g, '""').replace(/^([=+\-@])/, "'$1") + '"';
+  const linhasCsv = ["Unidade;N.º agente;Nome;Código"].concat(
+    linhas.filter(l => l.codigo && !l.usado).map(l => [l.unidade, l.numero, l.nome, fmt(l.codigo)].map(q).join(";")));
+  descarregar("codigos-activacao.csv", "\ufeff" + linhasCsv.join("\r\n"), "text/csv;charset=utf-8");
+};
+$("btn-imprimir").onclick = () => {
+  const por = new Map();
+  linhas.filter(l => l.codigo && !l.usado).forEach(l => { if (!por.has(l.unidade)) por.set(l.unidade, []); por.get(l.unidade).push(l); });
+  $("folha").innerHTML = [...por].map(([u, ls]) => `<h2>${esc(u)}</h2>
+    <p class="aviso">Código pessoal e de uso único para criar a conta no Portal do Funcionário. Não partilhe.</p>
+    <table><thead><tr><th>N.º agente</th><th>Nome</th><th>Código</th><th>Assinatura</th></tr></thead><tbody>` +
+    ls.map(l => `<tr><td>${esc(l.numero)}</td><td>${esc(l.nome)}</td><td class="cod">${esc(fmt(l.codigo))}</td><td></td></tr>`).join("") +
+    `</tbody></table>`).join("");
+  window.print();
+};
+</script>
+</body>
+</html>
