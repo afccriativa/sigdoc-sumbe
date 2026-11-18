@@ -427,6 +427,7 @@ import {
 const app  = initializeApp(window.SIGDOC_CONFIG.config);
 const auth = getAuth(app);
 const db   = getFirestore(app);
+const escF = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 // ── Estado global ──
 let _user       = null;
@@ -471,7 +472,7 @@ function podeAprovarRegistoFerias(docPerfil) {
   return temAlgumRoleFerias(docPerfil, PERFIS_APROVACAO);
 }
 function obterNomeFuncionarioFerias(funcionario) {
-  return funcionario?.nomeCompleto || funcionario?.nome || 'â€”';
+  return funcionario?.nomeCompleto || funcionario?.nome || '—';
 }
 function obterUidFuncionarioFerias(funcionario) {
   const uid = String(funcionario?.uidUtilizador || funcionario?.portalUid || '').trim();
@@ -611,7 +612,7 @@ onAuthStateChanged(auth, async (user) => {
     console.error(e);
     document.getElementById('ecra-carregando').innerHTML =
       `<div style="font-size:36px">❌</div>
-       <div style="color:var(--r-600);font-weight:700;font-size:14px">Erro ao carregar: ${e.message||e}</div>
+       <div style="color:var(--r-600);font-weight:700;font-size:14px">Erro ao carregar: ${escF(e.message||e)}</div>
        <a href="index.html" style="padding:9px 22px;border-radius:8px;background:var(--c-800);color:white;font-size:13px;font-weight:700;text-decoration:none;margin-top:8px">← Voltar</a>`;
   }
 });
@@ -716,18 +717,18 @@ function renderLista() {
       : r.estado === 'rejeitado'
       ? '<span class="badge badge-rejeitado">✗ Rejeitado</span>'
       : '<span class="badge badge-pendente">⏳ Pendente</span>';
-    const badgeTipo = `<span class="badge ${TIPO_BADGE[r.tipo]||'badge-tipo-ferias'}">${TIPO_LABEL[r.tipo]||r.tipo||'—'}</span>`;
+    const badgeTipo = `<span class="badge ${TIPO_BADGE[r.tipo]||'badge-tipo-ferias'}">${escF(TIPO_LABEL[r.tipo]||r.tipo||'—')}</span>`;
     const datas = fmtIntervalo(r.dataInicio, r.dataFim);
-    const dias  = r.diasSolicitados ? `<span class="dias">${r.diasSolicitados}d</span>` : '';
+    const dias  = r.diasSolicitados ? `<span class="dias">${escF(r.diasSolicitados)}d</span>` : '';
     return `<div class="registo-item${_registoSelId===r.id?' activo':''}" onclick="verDetalhe('${r.id}')">
       <div class="reg-cabecalho">
         <div>
-          <div class="reg-nome">${r.funcionarioNome||'—'}</div>
+          <div class="reg-nome">${escF(r.funcionarioNome||'—')}</div>
           <div class="reg-tipo">${badgeTipo} ${badgeEstado}</div>
         </div>
       </div>
       <div class="reg-datas">${datas} ${dias}</div>
-      <div class="reg-unidade">${_abrvUnidade(r.unidade||'—')}</div>
+      <div class="reg-unidade">${escF(_abrvUnidade(r.unidade||'—'))}</div>
     </div>`;
   }).join('') + '</div>';
 }
@@ -749,20 +750,20 @@ window.verDetalhe = function(id) {
 
   document.getElementById('detalhe-ref').textContent = `ID: ${r.id.slice(-8).toUpperCase()}`;
   document.getElementById('detalhe-conteudo').innerHTML = `
-    <div class="detalhe-campo"><div class="detalhe-lbl">Funcionário</div><div class="detalhe-val">${r.funcionarioNome||'—'}</div></div>
-    <div class="detalhe-campo"><div class="detalhe-lbl">Unidade</div><div class="detalhe-val">${r.unidade||'—'}</div></div>
+    <div class="detalhe-campo"><div class="detalhe-lbl">Funcionário</div><div class="detalhe-val">${escF(r.funcionarioNome||'—')}</div></div>
+    <div class="detalhe-campo"><div class="detalhe-lbl">Unidade</div><div class="detalhe-val">${escF(r.unidade||'—')}</div></div>
     <div class="detalhe-divider"></div>
     <div class="detalhe-grid">
-      <div class="detalhe-campo"><div class="detalhe-lbl">Tipo</div><div class="detalhe-val"><span class="badge ${TIPO_BADGE[r.tipo]||'badge-tipo-ferias'}">${TIPO_LABEL[r.tipo]||r.tipo||'—'}</span></div></div>
+      <div class="detalhe-campo"><div class="detalhe-lbl">Tipo</div><div class="detalhe-val"><span class="badge ${TIPO_BADGE[r.tipo]||'badge-tipo-ferias'}">${escF(TIPO_LABEL[r.tipo]||r.tipo||'—')}</span></div></div>
       <div class="detalhe-campo"><div class="detalhe-lbl">Estado</div><div class="detalhe-val">${badgeEstado}</div></div>
       <div class="detalhe-campo"><div class="detalhe-lbl">Data Início</div><div class="detalhe-val mono">${fmtData(r.dataInicio)}</div></div>
       <div class="detalhe-campo"><div class="detalhe-lbl">Data Fim</div><div class="detalhe-val mono">${fmtData(r.dataFim)}</div></div>
-      <div class="detalhe-campo"><div class="detalhe-lbl">Dias</div><div class="detalhe-val mono">${r.diasSolicitados||'—'} dias</div></div>
+      <div class="detalhe-campo"><div class="detalhe-lbl">Dias</div><div class="detalhe-val mono">${escF(r.diasSolicitados||'—')} dias</div></div>
       <div class="detalhe-campo"><div class="detalhe-lbl">Registado em</div><div class="detalhe-val mono">${fmtTimestamp(r.criadoEm)}</div></div>
     </div>
-    ${r.observacoes ? `<div class="detalhe-campo"><div class="detalhe-lbl">Observações</div><div class="detalhe-val" style="background:var(--neu-50);padding:10px;border-radius:var(--r-sm);font-size:12px;line-height:1.5">${r.observacoes}</div></div>` : ''}
-    ${r.estado === 'rejeitado' && r.motivoRejeicao ? `<div class="detalhe-campo"><div class="detalhe-lbl">Motivo da Rejeição</div><div style="background:var(--r-100);border:1px solid rgba(220,38,38,.15);border-radius:var(--r-sm);padding:10px;font-size:12px;color:var(--r-600)">${r.motivoRejeicao}</div></div>` : ''}
-    ${r.estado !== 'pendente' ? `<div class="detalhe-campo"><div class="detalhe-lbl">Decisão por</div><div class="detalhe-val">${r.aprovadoPor||'—'} · ${fmtTimestamp(r.aprovadoEm)}</div></div>` : ''}
+    ${r.observacoes ? `<div class="detalhe-campo"><div class="detalhe-lbl">Observações</div><div class="detalhe-val" style="background:var(--neu-50);padding:10px;border-radius:var(--r-sm);font-size:12px;line-height:1.5">${escF(r.observacoes)}</div></div>` : ''}
+    ${r.estado === 'rejeitado' && r.motivoRejeicao ? `<div class="detalhe-campo"><div class="detalhe-lbl">Motivo da Rejeição</div><div style="background:var(--r-100);border:1px solid rgba(220,38,38,.15);border-radius:var(--r-sm);padding:10px;font-size:12px;color:var(--r-600)">${escF(r.motivoRejeicao)}</div></div>` : ''}
+    ${r.estado !== 'pendente' ? `<div class="detalhe-campo"><div class="detalhe-lbl">Decisão por</div><div class="detalhe-val">${escF(r.aprovadoPor||'—')} · ${fmtTimestamp(r.aprovadoEm)}</div></div>` : ''}
     ${podeAprovar ? `
     <div class="acoes-aprovacao">
       <button class="btn btn-aprovar" onclick="aprovarRegisto('${r.id}')">✓ Aprovar</button>
@@ -864,36 +865,12 @@ window.pesquisarFunc = function(termo) {
     const cat  = f.categoria || '';
     const uni  = _abrvUnidade(f.unidade || '');
     return `<div class="pesq-item" onclick="seleccionarFunc('${f.id}')">
-      <div class="pesq-item-nome">${nome}</div>
-      <div class="pesq-item-info">${cat}${cat&&uni?' Â· ':''}${uni}</div>
+      <div class="pesq-item-nome">${escF(nome)}</div>
+      <div class="pesq-item-info">${escF(cat)}${cat&&uni?' · ':''}${escF(uni)}</div>
     </div>`;
   }).join('');
   res.style.display = 'block';
   return;
-
-  if (!matches.length) {
-    res.innerHTML = '<div class="pesq-vazio">Sem resultados</div>';
-  } else {
-    res.innerHTML = matches.map(f => {
-      const nome = f.nomeCompleto || f.nome || '—';
-      const cat  = f.categoria || '';
-      const uni  = _abrvUnidade(f.unidade || '');
-      return `<div class="pesq-item" onclick="seleccionarFunc('${f.id}','${nome.replace(/'/g,"\'")}','${uni.replace(/'/g,"\'")}')">
-        <div class="pesq-item-nome">${nome}</div>
-        <div class="pesq-item-info">${cat}${cat&&uni?' · ':''}${uni}</div>
-      </div>`;
-    }).join('');
-  }
-  res.style.display = 'block';
-};
-
-window.seleccionarFunc = function(uid, nome, unidade) {
-  document.getElementById('func-uid').value = uid;
-  document.getElementById('input-pesquisa-func').value = nome;
-  document.getElementById('func-selecionado-info').textContent = '✓ ' + nome + (unidade?' · '+unidade:'');
-  document.getElementById('func-selecionado-info').className = 'form-hint verde';
-  document.getElementById('pesq-resultados').style.display = 'none';
-  validarFormulario();
 };
 
 // Fechar dropdown ao clicar fora
@@ -902,119 +879,10 @@ document.addEventListener('click', e => {
     document.getElementById('pesq-resultados').style.display = 'none';
 });
 
-// ── Validação ──
-function validarFormulario() {
-  const uid   = document.getElementById('func-uid').value;
-  const tipo  = document.getElementById('tipo-ausencia').value;
-  const dIni  = document.getElementById('data-inicio').value;
-  const dFim  = document.getElementById('data-fim').value;
-  const ok = uid && tipo && dIni && dFim && new Date(dFim) >= new Date(dIni);
-  document.getElementById('btn-registar').disabled = !ok;
-  return ok;
-}
-
-window.onTipoChange = validarFormulario;
-
-window.calcularDias = function() {
-  const dIni = document.getElementById('data-inicio').value;
-  const dFim = document.getElementById('data-fim').value;
-  const grupoInfo = document.getElementById('grupo-dias-info');
-  const diasEl    = document.getElementById('dias-calculados');
-  if (dIni && dFim) {
-    const diff = Math.ceil((new Date(dFim) - new Date(dIni)) / 86400000) + 1;
-    if (diff > 0) {
-      diasEl.textContent = `✓ ${diff} dia${diff!==1?'s':''}`;
-      grupoInfo.style.display = 'block';
-    } else {
-      diasEl.textContent = '⚠ A data de fim não pode ser anterior à de início.';
-      grupoInfo.style.display = 'block';
-      diasEl.className = 'form-hint vermelho';
-    }
-  }
-  validarFormulario();
-};
-
-// ── Submeter registo ──
-window.submeterRegisto = async function() {
-  if (!validarFormulario()) return;
-
-  const uid   = document.getElementById('func-uid').value;
-  const tipo  = document.getElementById('tipo-ausencia').value;
-  const dIni  = document.getElementById('data-inicio').value;
-  const dFim  = document.getElementById('data-fim').value;
-  const obs   = document.getElementById('observacoes').value.trim();
-  const dias  = Math.ceil((new Date(dFim) - new Date(dIni)) / 86400000) + 1;
-
-  // Nome e unidade do funcionário
-  let funcNome = _nome, funcUnidade = '';
-  if (temAlgumRoleFerias(_perfilDoc || _perfil, PERFIS_GESTAO)) {
-    const f = _todosFuncionarios.find(x => x.id === uid);
-    funcNome    = f ? (f.nomeCompleto || f.nome || '—') : '—';
-    funcUnidade = f ? (f.unidade || '') : '';
-  } else {
-    // funcionário comum — buscar do próprio perfil
-    const snap = await getDoc(doc(db, 'funcionarios', uid)).catch(() => null);
-    if (snap?.exists()) {
-      funcNome    = snap.data().nomeCompleto || snap.data().nome || _nome;
-      funcUnidade = snap.data().unidade || '';
-    }
-  }
-
-  const btnTexto = document.getElementById('btn-registar-texto');
-  btnTexto.textContent = '⏳ A registar…';
-  document.getElementById('btn-registar').disabled = true;
-
-  try {
-    const novo = {
-      funcionarioUid:  uid,
-      funcionarioNome: funcNome,
-      unidade:         funcUnidade,
-      tipo,
-      dataInicio:      dIni,
-      dataFim:         dFim,
-      diasSolicitados: dias,
-      observacoes:     obs,
-      estado:          'pendente',
-      criadoPor:       _user.uid,
-      criadoPorNome:   _nome,
-      criadoEm:        serverTimestamp()
-    };
-
-    const ref = await addDoc(collection(db, 'ferias_ausencias'), novo);
-    novo.id        = ref.id;
-    novo.criadoEm  = { seconds: Date.now()/1000 }; // aproximação local
-    _todosRegistos.unshift(novo);
-
-    actualizarKPIs();
-    renderLista();
-    limparFormulario();
-    toast('✅ Registo criado com sucesso.');
-    window.verDetalhe(ref.id);
-
-  } catch(e) {
-    toast('❌ Erro ao guardar: ' + (e.message || e), 'erro');
-  } finally {
-    btnTexto.textContent = '✔ Registar';
-    validarFormulario();
-  }
-};
-
-function limparFormulario() {
-  ['input-pesquisa-func','tipo-ausencia','data-inicio','data-fim','observacoes'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  document.getElementById('func-uid').value = '';
-  document.getElementById('func-selecionado-info').textContent = '';
-  document.getElementById('grupo-dias-info').style.display = 'none';
-  document.getElementById('btn-registar').disabled = true;
-}
-
-window.cancelarForm = limparFormulario;
 window.seleccionarFunc = function(funcionarioId) {
   const funcionario = _mapaFuncPorId.get(funcionarioId);
   if (!funcionario) {
-    toast('âŒ NÃ£o foi possÃ­vel localizar o funcionÃ¡rio seleccionado.', 'erro');
+    toast('❌ Não foi possível localizar o funcionário seleccionado.', 'erro');
     return;
   }
   const nome = obterNomeFuncionarioFerias(funcionario);
@@ -1023,7 +891,7 @@ window.seleccionarFunc = function(funcionarioId) {
   document.getElementById('func-user-uid').value = obterUidFuncionarioFerias(funcionario) || '';
   document.getElementById('func-uid').value = funcionario.id;
   document.getElementById('input-pesquisa-func').value = nome;
-  document.getElementById('func-selecionado-info').textContent = 'âœ“ ' + nome + (unidade ? ' Â· ' + unidade : '');
+  document.getElementById('func-selecionado-info').textContent = '✓ ' + nome + (unidade ? ' · ' + unidade : '');
   document.getElementById('func-selecionado-info').className = 'form-hint verde';
   document.getElementById('pesq-resultados').style.display = 'none';
   validarFormulario();
@@ -1050,11 +918,11 @@ window.calcularDias = function() {
     const diff = Math.ceil((new Date(dFim) - new Date(dIni)) / 86400000) + 1;
     if (diff > 0) {
       diasEl.className = 'form-hint verde';
-      diasEl.textContent = `âœ“ ${diff} dia${diff!==1?'s':''}`;
+      diasEl.textContent = `✓ ${diff} dia${diff!==1?'s':''}`;
       grupoInfo.style.display = 'block';
     } else {
       diasEl.className = 'form-hint vermelho';
-      diasEl.textContent = 'âš  A data de fim nÃ£o pode ser anterior Ã  de inÃ­cio.';
+      diasEl.textContent = '⚠ A data de fim não pode ser anterior à de início.';
       grupoInfo.style.display = 'block';
     }
   }
@@ -1064,7 +932,7 @@ window.calcularDias = function() {
 window.submeterRegisto = async function() {
   if (!validarFormulario()) return;
   if (!podeCriarRegistoFerias(_perfilDoc || _perfil)) {
-    toast('âŒ O seu perfil nÃ£o pode criar novos registos neste mÃ³dulo.', 'erro');
+    toast('❌ O seu perfil não pode criar novos registos neste módulo.', 'erro');
     return;
   }
 
@@ -1077,12 +945,12 @@ window.submeterRegisto = async function() {
   const funcionario = _mapaFuncPorId.get(funcionarioId);
 
   if (!funcionario) {
-    toast('âŒ O funcionÃ¡rio seleccionado deixou de estar disponÃ­vel. Tente pesquisar novamente.', 'erro');
+    toast('❌ O funcionário seleccionado deixou de estar disponível. Tente pesquisar novamente.', 'erro');
     return;
   }
 
   const btnTexto = document.getElementById('btn-registar-texto');
-  btnTexto.textContent = 'â³ A registarâ€¦';
+  btnTexto.textContent = '⏳ A registar…';
   document.getElementById('btn-registar').disabled = true;
 
   try {
@@ -1113,12 +981,12 @@ window.submeterRegisto = async function() {
     actualizarKPIs();
     renderLista();
     limparFormulario();
-    toast('âœ… Registo criado com sucesso.');
+    toast('✅ Registo criado com sucesso.');
     window.verDetalhe(ref.id);
   } catch(e) {
     toast('âŒ Erro ao guardar: ' + (e.message || e), 'erro');
   } finally {
-    btnTexto.textContent = 'âœ” Registar';
+    btnTexto.textContent = '✔ Registar';
     validarFormulario();
   }
 };
