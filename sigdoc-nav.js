@@ -347,6 +347,10 @@ window.SIGDOC_NAV = (function () {
   /* ─────────────────────────────────────────
      RENDER HTML
   ───────────────────────────────────────── */
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+
   function buildSidebar(config) {
     const authz = window.SIGDOC_AUTHZ;
     const perfilInfo = authz
@@ -366,7 +370,7 @@ window.SIGDOC_NAV = (function () {
         .map(item => {
           const activo = item.id === config.pagina ? ' snav-activo' : '';
           const badge = (config.badges && config.badges[item.id])
-            ? `<span class="snav-badge">${config.badges[item.id]}</span>` : '';
+            ? `<span class="snav-badge">${esc(config.badges[item.id])}</span>` : '';
           return `
             <a class="snav-item${activo}" href="${item.href}" data-pagina="${item.id}">
               <span class="snav-item-icon">${item.icon}</span>
@@ -419,9 +423,9 @@ window.SIGDOC_NAV = (function () {
 
         <!-- Footer utilizador -->
         <div class="snav-footer">
-          <div class="snav-avatar" id="snav-avatar">${iniciais}</div>
+          <div class="snav-avatar" id="snav-avatar">${esc(iniciais)}</div>
           <div class="snav-user-info">
-            <div class="snav-user-nome" id="snav-nome">${config.nome || '—'}</div>
+            <div class="snav-user-nome" id="snav-nome">${esc(config.nome || '—')}</div>
             <div class="snav-user-perfil" id="snav-perfil">${perfilLabel}</div>
           </div>
           <button class="snav-logout-btn" onclick="SIGDOC_NAV.logout()" title="Terminar sessão">⇥</button>
