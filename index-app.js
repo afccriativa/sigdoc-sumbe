@@ -963,8 +963,8 @@ function _itemHtml(it, classeBase) {
   return `<a class="notif-item ${classeBase}" ${onclickAttr} data-notif-id="${it.id}">
     <div class="notif-ic ${it.icClasse || 'notif-ic-sol'}">${it.icon}</div>
     <div class="notif-corpo">
-      <div class="notif-titulo">${it.titulo}</div>
-      <div class="notif-sub">${it.sub}</div>
+      <div class="notif-titulo">${escaparHtml(it.titulo)}</div>
+      <div class="notif-sub">${escaparHtml(it.sub)}</div>
     </div>
     <button class="notif-dismiss" onclick="dispensarNotif(event,'${it.id}')" title="Marcar como lida">✕</button>
   </a>`;
@@ -1013,8 +1013,8 @@ async function carregarUtilizadores() {
         : `<span style="font-size:11px;color:var(--neu-300)">—</span>`;
       const btnRoles = `<button class="btn-acao-ln" style="margin-left:6px" onclick="abrirModalEditarRoles('${uid}')">Editar roles</button>`;
       html+=`<tr>
-        <td><strong>${u.nome||"—"}</strong><br><small style="color:var(--neu-400)">${u.unidade||""}</small></td>
-        <td style="font-family:var(--mono);font-size:12px">${u.email||"—"}</td>
+        <td><strong>${escaparHtml(u.nome||"—")}</strong><br><small style="color:var(--neu-400)">${escaparHtml(u.unidade||"")}</small></td>
+        <td style="font-family:var(--mono);font-size:12px">${escaparHtml(u.email||"—")}</td>
         <td>${badgesRolesHtml(u) || `<span class="badge-perfil perfil-funcionario">${etiquetasPerfil.funcionario}</span>`}</td>
         <td>${bge}</td>
         <td style="font-size:12px;color:var(--neu-400)">${acs}</td>
@@ -1440,9 +1440,12 @@ async function executarPesquisa(termo) {
 }
 
 function highlight(texto, termo) {
-  if (!texto || !termo) return texto || '—';
+  if (!texto) return '—';
+  if (!termo) return escaparHtml(texto);
   const re = new RegExp('(' + termo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
-  return String(texto).replace(re, '<span class="sp-highlight">$1</span>');
+  return String(texto).split(re).map((parte, i) =>
+    i % 2 ? '<span class="sp-highlight">' + escaparHtml(parte) + '</span>' : escaparHtml(parte)
+  ).join('');
 }
 
 function renderResultados(res, termo) {
@@ -1452,7 +1455,7 @@ function renderResultados(res, termo) {
   if (total === 0) {
     el.innerHTML = `<div class="sp-vazio">
       <div style="font-size:32px;margin-bottom:8px">😶</div>
-      Sem resultados para <strong style="color:var(--pri)">"${termo}"</strong>
+      Sem resultados para <strong style="color:var(--pri)">"${escaparHtml(termo)}"</strong>
     </div>`;
     return;
   }
@@ -1677,7 +1680,7 @@ window.carregarReunioesSecretaria = async function() {
     const labelPeriodo = { manha:'Manhã', tarde:'Tarde', qualquer:'Qualquer hora' };
 
     el.innerHTML = docs.map(r => {
-      const estado  = r.estado || 'pendente';
+      const estado  = String(r.estado || 'pendente').replace(/[^a-z_]/gi,'');
       const cor     = corEstado[estado] || '#8b5cf6';
       const dest    = DEST_REUNIAO[r.destinatario] || r.destinatario || '—';
       const data    = r.dataPreferida || '—';
@@ -1735,12 +1738,12 @@ window.carregarReunioesSecretaria = async function() {
             <div style="font-size:14px;font-weight:700;color:var(--txt-1)">${escaparHtml(r.funcionarioNome||'—')}</div>
             <div style="font-size:12px;color:var(--txt-2);margin-top:2px">${escaparHtml(r.unidade||'—')}</div>
           </div>
-          <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:${cor}22;color:${cor};border:1px solid ${cor}33;white-space:nowrap">${labelEstado[estado]||estado}</span>
+          <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:${cor}22;color:${cor};border:1px solid ${cor}33;white-space:nowrap">${escaparHtml(labelEstado[estado]||estado)}</span>
         </div>
         <div style="margin-top:8px;font-size:13px;color:var(--txt-2)">
           <div style="display:flex;align-items:center;gap:4px"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='8' height='4' x='8' y='2' rx='1' ry='1'/><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/><path d='M12 11h4'/><path d='M12 16h4'/><path d='M8 11h.01'/><path d='M8 16h.01'/></svg> <strong style="color:var(--txt-1)">${escaparHtml(r.assunto||'—')}</strong></div>
           <div style="margin-top:3px;display:flex;align-items:center;gap:4px"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg> Destinatário: ${escaparHtml(dest)}</div>
-          <div style="margin-top:3px;display:flex;align-items:center;gap:4px"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M8 2v4'/><path d='M16 2v4'/><rect width='18' height='18' x='3' y='4' rx='2'/><path d='M3 10h18'/></svg> Preferência: ${data} · ${periodo}</div>
+          <div style="margin-top:3px;display:flex;align-items:center;gap:4px"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M8 2v4'/><path d='M16 2v4'/><rect width='18' height='18' x='3' y='4' rx='2'/><path d='M3 10h18'/></svg> Preferência: ${escaparHtml(data)} · ${escaparHtml(periodo)}</div>
           <div style="margin-top:3px;font-size:11px;color:var(--txt-3)">Submetido em ${criado}</div>
         </div>
         ${acoes}
@@ -1781,9 +1784,9 @@ window.abrirModalReuniaoAcao = async function(id, modo) {
     const r    = snap.exists() ? snap.data() : {};
     const dest = DEST_REUNIAO[r.destinatario] || r.destinatario || '—';
     document.getElementById('mra-info').innerHTML =
-      `<strong>${r.funcionarioNome||'—'}</strong> · ${r.unidade||'—'}<br>` +
-      `<span style="opacity:.75;display:inline-flex;align-items:center;gap:3px"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='8' height='4' x='8' y='2' rx='1' ry='1'/><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/><path d='M12 11h4'/><path d='M12 16h4'/><path d='M8 11h.01'/><path d='M8 16h.01'/></svg> ${r.assunto||'—'}</span><br>` +
-      `<span style="opacity:.75;display:inline-flex;align-items:center;gap:3px"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg> ${dest} · <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M8 2v4'/><path d='M16 2v4'/><rect width='18' height='18' x='3' y='4' rx='2'/><path d='M3 10h18'/></svg> ${r.dataPreferida||'—'}</span>`;
+      `<strong>${escaparHtml(r.funcionarioNome||'—')}</strong> · ${escaparHtml(r.unidade||'—')}<br>` +
+      `<span style="opacity:.75;display:inline-flex;align-items:center;gap:3px"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='8' height='4' x='8' y='2' rx='1' ry='1'/><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/><path d='M12 11h4'/><path d='M12 16h4'/><path d='M8 11h.01'/><path d='M8 16h.01'/></svg> ${escaparHtml(r.assunto||'—')}</span><br>` +
+      `<span style="opacity:.75;display:inline-flex;align-items:center;gap:3px"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg> ${escaparHtml(dest)} · <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M8 2v4'/><path d='M16 2v4'/><rect width='18' height='18' x='3' y='4' rx='2'/><path d='M3 10h18'/></svg> ${escaparHtml(r.dataPreferida||'—')}</span>`;
   } catch(e) {
     document.getElementById('mra-info').textContent = '—';
   }
@@ -1996,7 +1999,7 @@ async function carregarPedidosSecretaria() {
     }
 
     el.innerHTML = docs.map((p, idx) => {
-      const estado   = p.estado || 'novo';
+      const estado   = String(p.estado || 'novo').replace(/[^a-z_]/gi,'');
       const assunto  = ASSUNTOS_SEC[p.assunto] || p.assunto || '—';
       const msgs     = p.mensagens || [];
       const ultima   = msgs[msgs.length - 1];
@@ -2034,12 +2037,12 @@ async function carregarPedidosSecretaria() {
       return `<div class="ped-item${isActivo ? ' activo' : ''}" id="ped-item-${p.id}" onclick="abrirChatSecretaria('${p.id}', ${idx})">
         <div class="ped-item-bar ${estado}"></div>
         <div class="ped-item-inner">
-          <div class="ped-item-av">${initials}</div>
+          <div class="ped-item-av">${escaparHtml(initials)}</div>
           <div class="ped-item-body">
             <div class="ped-item-top">
               <div class="ped-item-top-left">
                 <span class="ped-item-nome">${escaparHtml(p.funcionarioNome||'—')}</span>
-                <span class="ped-item-badge ${estado}">${LABELS_ESTADO[estado]||estado}</span>
+                <span class="ped-item-badge ${estado}">${escaparHtml(LABELS_ESTADO[estado]||estado)}</span>
                 ${badgeNovas}
               </div>
               <span class="ped-item-ts">${ts}</span>
@@ -2232,19 +2235,19 @@ window.abrirChatSecretaria = async function(pedidoId, idx) {
       detalhesInner.innerHTML = `
         <div class="chat-ped-detalhe-row">
           <span class="chat-ped-detalhe-ic"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg></span>
-          <div class="chat-ped-detalhe-txt"><strong>${p.funcionarioNome||'—'}</strong></div>
+          <div class="chat-ped-detalhe-txt"><strong>${escaparHtml(p.funcionarioNome||'—')}</strong></div>
         </div>
         <div class="chat-ped-detalhe-row">
           <span class="chat-ped-detalhe-ic"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z'/><path d='M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2'/><path d='M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2'/><path d='M10 6h4'/><path d='M10 10h4'/><path d='M10 14h4'/><path d='M10 18h4'/></svg></span>
-          <div class="chat-ped-detalhe-txt">${p.unidade||'—'}</div>
+          <div class="chat-ped-detalhe-txt">${escaparHtml(p.unidade||'—')}</div>
         </div>
         <div class="chat-ped-detalhe-row">
           <span class="chat-ped-detalhe-ic"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='8' height='4' x='8' y='2' rx='1' ry='1'/><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/><path d='M12 11h4'/><path d='M12 16h4'/><path d='M8 11h.01'/><path d='M8 16h.01'/></svg></span>
-          <div class="chat-ped-detalhe-txt">${ASSUNTOS_SEC[p.assunto]||p.assunto||'—'}</div>
+          <div class="chat-ped-detalhe-txt">${escaparHtml(ASSUNTOS_SEC[p.assunto]||p.assunto||'—')}</div>
         </div>
         ${p.mensagem ? `<div class="chat-ped-detalhe-row">
           <span class="chat-ped-detalhe-ic">💬</span>
-          <div class="chat-ped-detalhe-txt" style="opacity:.75;font-style:italic">${p.mensagem.substring(0,120)}</div>
+          <div class="chat-ped-detalhe-txt" style="opacity:.75;font-style:italic">${escaparHtml(p.mensagem.substring(0,120))}</div>
         </div>` : ''}
       `;
     }
@@ -2277,9 +2280,9 @@ window.abrirChatSecretaria = async function(pedidoId, idx) {
           : '';
         const initials = isSec ? 'S' : (m.nomeAutor||'F').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
         return `${dataSep}<div class="chat-msg-row ${isSec?'enviada':'recebida'}">
-          <div class="chat-msg-av ${isSec?'sec':'func'}">${initials}</div>
+          <div class="chat-msg-av ${isSec?'sec':'func'}">${escaparHtml(initials)}</div>
           <div class="chat-sec-balao">
-            ${m.texto}
+            ${escaparHtml(m.texto)}
             <div class="chat-sec-meta">
               <span class="chat-sec-hora">${hora}</span>
               ${visto}
@@ -2504,8 +2507,8 @@ window.verHistoricoPedido = async function(id) {
     const snap = await getDoc(doc(db,'pedidos_secretaria',id));
     const p = snap.data();
     const assunto = ASSUNTOS_SEC[p.assunto]||p.assunto||'—';
-    info.innerHTML = `<strong>${p.funcionarioNome||'—'}</strong> · ${assunto}<br>
-      <span style="opacity:.7;font-size:12px">${p.unidade||'—'} · ${p.criadoEm?.toDate?p.criadoEm.toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}):''}</span>`;
+    info.innerHTML = `<strong>${escaparHtml(p.funcionarioNome||'—')}</strong> · ${escaparHtml(assunto)}<br>
+      <span style="opacity:.7;font-size:12px">${escaparHtml(p.unidade||'—')} · ${p.criadoEm?.toDate?p.criadoEm.toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric'}):''}</span>`;
     const hist = p.historico || [];
     const ICONES = {'Em análise':'🔍','Respondido':'💬','Fechado':'✖','Confirmada':'✅','Recusada':'❌','Remarcada':'🔄'};
     lista.innerHTML = (hist.length === 0
@@ -2516,8 +2519,8 @@ window.verHistoricoPedido = async function(id) {
             <div style="font-size:18px;line-height:1.2">${ICONES[h.acao]||'•'}</div>
             <div style="flex:1">
               <div style="font-size:13px;font-weight:700;color:var(--txt-pri)">${h.acao}</div>
-              ${h.detalhe?`<div style="font-size:12px;color:var(--txt-sec);margin-top:3px">${h.detalhe.substring(0,120)}</div>`:''}
-              <div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:4px">${h.por||'—'} · ${dt}</div>
+              ${h.detalhe?`<div style="font-size:12px;color:var(--txt-sec);margin-top:3px">${escaparHtml(h.detalhe.substring(0,120))}</div>`:''}
+              <div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:4px">${escaparHtml(h.por||'—')} · ${dt}</div>
             </div>
           </div>`;
         }).join('')
@@ -2525,8 +2528,8 @@ window.verHistoricoPedido = async function(id) {
       <div style="font-size:18px;line-height:1.2">📬</div>
       <div>
         <div style="font-size:13px;font-weight:700;color:var(--txt-pri)">Pedido criado</div>
-        <div style="font-size:12px;color:var(--txt-sec);margin-top:3px">${(p.mensagem||'').substring(0,80)}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:4px">${p.funcionarioNome||'—'} · ${p.criadoEm?.toDate?p.criadoEm.toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):''}</div>
+        <div style="font-size:12px;color:var(--txt-sec);margin-top:3px">${escaparHtml((p.mensagem||'').substring(0,80))}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:4px">${escaparHtml(p.funcionarioNome||'—')} · ${p.criadoEm?.toDate?p.criadoEm.toDate().toLocaleDateString('pt-AO',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):''}</div>
       </div>
     </div>`;
   } catch(e){ console.error(e); info.textContent='⚠️ Erro ao carregar histórico.'; }
@@ -2675,8 +2678,8 @@ function actualizarDashHomeSecretaria() {
           onclick="mostrarSecção('secretaria');filtrarSecretaria('pedidos',document.getElementById('tab-sec-pedidos'))">
           <div class="sec-home-item-ic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
           <div class="sec-home-item-corpo">
-            <div class="sec-home-item-nome">${p.funcionarioNome || '—'}</div>
-            <div class="sec-home-item-meta">${assunto} · ${data}</div>
+            <div class="sec-home-item-nome">${escaparHtml(p.funcionarioNome || '—')}</div>
+            <div class="sec-home-item-meta">${escaparHtml(assunto)} · ${escaparHtml(data)}</div>
           </div>
           <span class="sec-home-item-estado estado-novo">Novo</span>
         </div>`;
@@ -2703,8 +2706,8 @@ function actualizarDashHomeSecretaria() {
           onclick="mostrarSecção('secretaria');filtrarSecretaria('reunioes',document.getElementById('tab-sec-reunioes'))">
           <div class="sec-home-item-ic reuniao"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></div>
           <div class="sec-home-item-corpo">
-            <div class="sec-home-item-nome">${r.funcionarioNome || '—'}</div>
-            <div class="sec-home-item-meta">${dest} · ${data}</div>
+            <div class="sec-home-item-nome">${escaparHtml(r.funcionarioNome || '—')}</div>
+            <div class="sec-home-item-meta">${escaparHtml(dest)} · ${escaparHtml(data)}</div>
           </div>
           <span class="sec-home-item-estado estado-pendente">Pendente</span>
         </div>`;
