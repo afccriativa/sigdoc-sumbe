@@ -455,6 +455,21 @@
 </div>
 
 <script type="module">
+// ── Segurança: escape e sanitização de HTML guardado ──
+const escA = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function sanitizarHtmlDoc(html){
+  const t = document.createElement('template');
+  t.innerHTML = String(html ?? '');
+  t.content.querySelectorAll('script,iframe,object,embed,link,meta,base,form,frame,frameset').forEach(n => n.remove());
+  t.content.querySelectorAll('*').forEach(el => {
+    [...el.attributes].forEach(a => {
+      const n = a.name.toLowerCase(), v = a.value.replace(/[\s\u0000-\u001f]/g,'').toLowerCase();
+      if (n.startsWith('on')) el.removeAttribute(a.name);
+      else if (['href','src','xlink:href','action','formaction','srcdoc'].includes(n) && (v.startsWith('javascript:') || v.startsWith('vbscript:') || (v.startsWith('data:') && !v.startsWith('data:image/')))) el.removeAttribute(a.name);
+    });
+  });
+  return t.innerHTML;
+}
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getFirestore, collection, addDoc, query, orderBy, where,
@@ -687,9 +702,9 @@
       const bCls={pendente:"b-pend",aprovado:"b-aprov",rejeitado:"b-rej"}[d.estado];
       const bTxt={pendente:"⏳ Pendente",aprovado:"✅ Aprovado",rejeitado:"❌ Rejeitado"}[d.estado];
       return `<div class="item-doc${selCls}" onclick="selDoc(window._docs['${d.id}'])">
-        <div class="item-nome">${d.funcionarioNome||"—"}</div>
-        <div class="item-meta">${numDoc} · ${dataFmt}</div>
-        <div class="item-meta">Por: ${d.geradoPorEmail||"—"}</div>
+        <div class="item-nome">${escA(d.funcionarioNome||"—")}</div>
+        <div class="item-meta">${escA(numDoc)} · ${escA(dataFmt)}</div>
+        <div class="item-meta">Por: ${escA(d.geradoPorEmail||"—")}</div>
         <span class="item-badge ${bCls}">${bTxt}</span>
       </div>`;
     }).join("");
@@ -710,9 +725,9 @@
       estadoDocumento:   d.estado          || "—"
     });
     document.getElementById("detalhe-titulo").textContent=numDoc+" — "+(d.funcionarioNome||"—");
-    document.getElementById("detalhe-meta").innerHTML=`<span>📅 Gerado em: <strong>${fmtTs(d.geradoEm)}</strong></span><span>👤 Por: <strong>${d.geradoPorEmail||"—"}</strong></span>`;
+    document.getElementById("detalhe-meta").innerHTML=`<span>📅 Gerado em: <strong>${fmtTs(d.geradoEm)}</strong></span><span>👤 Por: <strong>${escA(d.geradoPorEmail||"—")}</strong></span>`;
     document.getElementById("dados-grid").innerHTML=dadosDocumentoDetalheAprovacao(d)
-      .map(x=>`<div class="dado-item"><div class="dado-label">${x.l}</div><div class="dado-valor">${x.v}</div></div>`)
+      .map(x=>`<div class="dado-item"><div class="dado-label">${x.l}</div><div class="dado-valor">${escA(x.v)}</div></div>`)
       .join("");
 
     // ── ARQUIVO: carregar HTML guardado no Storage se disponível ──
@@ -725,11 +740,12 @@
       // Documento tem arquivo guardado no Firestore — usar directamente
       badgeArq.style.display  = "inline-flex";
       btnSegVia.style.display = "inline-block";
-      document.getElementById("preview-doc-html").innerHTML = d.htmlArquivo;
-      document.getElementById("area-impressao").innerHTML   = d.htmlArquivo;
+      const _htmlSeguro = sanitizarHtmlDoc(d.htmlArquivo);
+      document.getElementById("preview-doc-html").innerHTML = _htmlSeguro;
+      document.getElementById("area-impressao").innerHTML   = _htmlSeguro;
     } else {
       // Documento sem arquivo — reconstituir a partir dos metadados
-      const htmlDoc = d.htmlConteudo || reconstruirHtml(d);
+      const htmlDoc = sanitizarHtmlDoc(d.htmlConteudo || reconstruirHtml(d));
       document.getElementById("preview-doc-html").innerHTML = htmlDoc;
       document.getElementById("area-impressao").innerHTML   = htmlDoc;
     }
@@ -746,12 +762,12 @@
     }else if(d.estado==="aprovado"){
       accBt.style.display="none";
       estadoF.className="estado-final aprovado";
-      estadoF.innerHTML=`✅ Aprovado em ${fmtTs(d.aprovadoEm)} por ${d.aprovadoPorEmail||"—"}`;
+      estadoF.innerHTML=`✅ Aprovado em ${fmtTs(d.aprovadoEm)} por ${escA(d.aprovadoPorEmail||"—")}`;
       estadoF.style.display="block";
     }else if(d.estado==="rejeitado"){
       accBt.style.display="none";
       estadoF.className="estado-final rejeitado";
-      estadoF.innerHTML=`❌ Rejeitado em ${fmtTs(d.aprovadoEm)} por ${d.aprovadoPorEmail||"—"}<br><small>Motivo: ${d.observacao||"—"}</small>`;
+      estadoF.innerHTML=`❌ Rejeitado em ${fmtTs(d.aprovadoEm)} por ${escA(d.aprovadoPorEmail||"—")}<br><small>Motivo: ${escA(d.observacao||"—")}</small>`;
       estadoF.style.display="block";
     }
     // mostrar painéis, esconder sol e placeholder
@@ -904,10 +920,10 @@
       const data=ts?ts.toLocaleDateString("pt-AO",{day:"2-digit",month:"short",year:"numeric"}):"—";
       const selCls=solSel&&solSel.id===s.id?" sel":"";
       return `<div class="item-doc${selCls}" onclick="selSol(window._sols['${s.id}'])">
-        <div class="item-nome">${tipo.icone} ${tipo.nome}</div>
-        <div class="item-meta">👤 ${s.funcionarioNome||"—"} · ${s.unidade||"—"}</div>
+        <div class="item-nome">${tipo.icone} ${escA(tipo.nome)}</div>
+        <div class="item-meta">👤 ${escA(s.funcionarioNome||"—")} · ${escA(s.unidade||"—")}</div>
         <div class="item-meta">📅 ${data}</div>
-        <span class="item-badge ${est.cls}">${est.txt}</span>
+        <span class="item-badge ${escA(est.cls)}">${escA(est.txt)}</span>
       </div>`;
     }).join("");
   }
@@ -932,7 +948,7 @@
       {l:"Funcionário",v:s.funcionarioNome||"—"},{l:"Unidade",v:s.unidade||"—"},
       {l:"Categoria",v:s.categoria||"—"},{l:"E-mail",v:s.funcionarioEmail||"—"},
       ...(s.dataInicioFerias?[{l:"📅 Início das Férias",v:fmtData(s.dataInicioFerias)}]:[]),
-    ].map(d=>`<div class="sol-dado"><div class="lbl">${d.l}</div><div class="val">${d.v}</div></div>`).join("");
+    ].map(d=>`<div class="sol-dado"><div class="lbl">${escA(d.l)}</div><div class="val">${escA(d.v)}</div></div>`).join("");
     const mBox=document.getElementById("sol-motivo-box");
     if(s.tipo === "declaracao-servico"){
       const linhasDeclaracao = [
@@ -942,7 +958,7 @@
       ];
       mBox.innerHTML = `📜 <strong>Dados da declaração:</strong>
         <div style="display:grid;gap:8px;margin-top:10px">
-          ${linhasDeclaracao.map(item => `<div style="display:flex;justify-content:space-between;gap:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px"><span style="font-size:12px;color:#64748b">${item.l}</span><span style="font-size:12px;font-weight:700;color:#0f172a;text-align:right">${item.v}</span></div>`).join("")}
+          ${linhasDeclaracao.map(item => `<div style="display:flex;justify-content:space-between;gap:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px"><span style="font-size:12px;color:#64748b">${escA(item.l)}</span><span style="font-size:12px;font-weight:700;color:#0f172a;text-align:right">${escA(item.v)}</span></div>`).join("")}
         </div>`;
       mBox.style.display="block";
     } else {
@@ -951,7 +967,7 @@
         : (s.motivo || "");
       if(detalheSolicitacao){
         const rotuloDetalhe = s.tipo === "guia-medica" ? "Unidade Sanitária" : "Motivo";
-        mBox.innerHTML="💬 <strong>"+rotuloDetalhe+":</strong> "+detalheSolicitacao;
+        mBox.innerHTML="💬 <strong>"+rotuloDetalhe+":</strong> "+escA(detalheSolicitacao);
         mBox.style.display="block";
       }
       else mBox.style.display="none";
@@ -969,7 +985,7 @@
       sfinal.innerHTML="✅ Solicitação concluída."; sfinal.style.display="block";
     }else if(s.estado==="rejeitada"){
       accoes.innerHTML=""; sfinal.className="sol-estado-final rejeitada";
-      sfinal.innerHTML="❌ Rejeitada."+(s.motivoRejeicao?" Motivo: "+s.motivoRejeicao:""); sfinal.style.display="block";
+      sfinal.innerHTML="❌ Rejeitada."+(s.motivoRejeicao?" Motivo: "+escA(s.motivoRejeicao):""); sfinal.style.display="block";
     }
     document.getElementById("placeholder-detalhe").style.display="none";
     document.getElementById("detalhe-card").style.display="none";
@@ -1095,10 +1111,10 @@
         nomeDirector: d.nomeChefe || "António Fernando Afonso"
       });
     }
-    const dataFmt=fmtData(d.dataInicio)||"—",numGuia=d.numGuia||"___",anoGuia=d.anoGuia||"____";
-    const func=d.funcionarioNome||"—",cat=d.categoria||"—",local=d.localColocacao||"—";
-    const dias=d.numDias||"—",bi=d.bi||"—",cargo=d.cargo||cat;
-    const dataEmissao=d.dataEmissao?(()=>{const[a,m,dia]=d.dataEmissao.split("-");return`${dia} de ${nomeMes(m)} de ${a}`;})():"—";
+    const dataFmt=escA(fmtData(d.dataInicio)||"—"),numGuia=escA(d.numGuia||"___"),anoGuia=escA(d.anoGuia||"____");
+    const func=escA(d.funcionarioNome||"—"),cat=escA(d.categoria||"—"),local=escA(d.localColocacao||"—");
+    const dias=escA(d.numDias||"—"),bi=escA(d.bi||"—"),cargo=d.cargo?escA(d.cargo):cat;
+    const dataEmissao=d.dataEmissao?(()=>{const[a,m,dia]=d.dataEmissao.split("-");return escA(`${dia} de ${nomeMes(m)} de ${a}`);})():"—";
     const corpo=`O Director Municipal da Saúde do Sumbe, no uso das suas competências e nos termos da legislação em vigor, <strong>AUTORIZA</strong> o gozo de férias do(a) funcionário(a) <strong>${func}</strong>, portador(a) do B.I. nº <strong>${bi}</strong>, que exerce as funções de <strong>${cargo}</strong>, colocado(a) em <strong>${local}</strong>, pelo período de <strong>${dias} (${dias}) dias úteis</strong>, com início no dia <strong>${dataFmt}</strong>, nos termos do Estatuto do Funcionalismo Público.`;
     const metade=`<div class="doc-metade"><div class="doc-cabecalho"><img src="insignia.png" class="doc-insignia" alt=""/><p class="negrito">REPÚBLICA DE ANGOLA</p><p class="negrito">GOVERNO PROVINCIAL DO KWANZA SUL</p><p class="negrito">DIRECÇÃO MUNICIPAL DA SAÚDE DO SUMBE</p></div><div class="doc-titulo">GUIA DE FÉRIAS Nº ${numGuia}/${anoGuia}</div><div class="doc-corpo">${corpo}</div><div class="doc-rodape"><div class="doc-local-data">Sumbe, ${dataEmissao}</div><div class="doc-assinaturas"><div class="doc-ass-col"><div class="doc-ass-titulo">O Director Municipal da Saúde</div><div class="doc-ass-linha"></div><div class="doc-ass-nome">(assinatura)</div></div><div class="doc-ass-col direita"><div class="doc-ass-titulo">Recebido em:</div><div class="doc-ass-data">___/___/______</div><div class="doc-ass-linha"></div><div class="doc-ass-nome">O(A) Funcionário(a)</div></div></div></div></div>`;
     return`<div class="documento-oficial">${metade}${metade}</div>`;
