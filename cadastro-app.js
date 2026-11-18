@@ -1577,7 +1577,8 @@ async function carregarHistorico(funcId,nome){
 
       if (d.observacao) {
         const obs = criarNo("div","hist-det");
-        obs.innerHTML = '<i data-lucide="message-circle" style="width:11px;height:11px;stroke-width:2.5"></i> "' + d.observacao + '"';
+        obs.innerHTML = '<i data-lucide="message-circle" style="width:11px;height:11px;stroke-width:2.5"></i> ';
+        obs.appendChild(document.createTextNode('"' + d.observacao + '"'));
         obs.style.fontStyle = "italic";
         info.appendChild(obs);
       }
@@ -1666,7 +1667,8 @@ async function carregarSolicitacoesFicha(funcId,nome){
       }
       if (s.motivo) {
         const _detMotivo = criarNo("div","hist-det");
-        _detMotivo.innerHTML = '<i data-lucide="message-circle" style="width:11px;height:11px;stroke-width:2.5"></i> ' + s.motivo;
+        _detMotivo.innerHTML = '<i data-lucide="message-circle" style="width:11px;height:11px;stroke-width:2.5"></i> ';
+        _detMotivo.appendChild(document.createTextNode(String(s.motivo)));
         info.appendChild(_detMotivo);
       }
       item.appendChild(info);
