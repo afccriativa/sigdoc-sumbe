@@ -964,7 +964,7 @@
 
   const app     = initializeApp(firebaseConfig);
   const auth    = getAuth(app);
-  const db      = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
+  const db      = initializeFirestore(app, { experimentalAutoDetectLongPolling: true }); const escF = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   let _utilizador = null;
   let _funcDocId  = null;
@@ -1660,11 +1660,11 @@
   // RESUMO — SECÇÃO 5
   // ════════════════════════════════
   function montarResumo() {
-    const g = id => document.getElementById(id)?.value || '—';
-    const gTxt = id => document.getElementById(id)?.options[document.getElementById(id)?.selectedIndex]?.text || '—';
+    const g = id => escF(document.getElementById(id)?.value || '—');
+    const gTxt = id => escF(document.getElementById(id)?.options[document.getElementById(id)?.selectedIndex]?.text || '—');
 
     const un = obterUnidadeSelecionadaFormulario();
-    const unid = un.nome || '—';
+    const unid = escF(un.nome || '—');
     let areaExtra = '';
     if (window.SIGDOC_UNIDADES.isDms(un)) areaExtra = `<div class="rev-linha"><span>Secção</span><strong>${g('f-seccao') || '—'}</strong></div>`;
     else if (window.SIGDOC_UNIDADES.isCentro(un)) areaExtra = `<div class="rev-linha"><span>Área</span><strong>${g('f-area') || '—'}</strong></div>`;
@@ -1687,10 +1687,10 @@
       ? `<div class="rev-linha"><span>Observações</span><strong>${observacoesResumo}</strong></div>`
       : '';
     const estadoBI = biFile
-      ? '✅ ' + biFile.name
+      ? '✅ ' + escF(biFile.name)
       : (_funcDoc?.urlBI ? 'Já guardado no sistema' : 'Não carregado');
     const estadoCert = certFile
-      ? '✅ ' + certFile.name
+      ? '✅ ' + escF(certFile.name)
       : (_funcDoc?.urlCert ? 'Já guardado no sistema' : 'Não carregado');
     const estadoFoto = _fotoBase64 || _funcDoc?.fotoUrl ? 'Disponível' : 'Não carregada';
 
@@ -1942,7 +1942,7 @@
       if (navForm) navForm.style.display = 'none';
       document.getElementById('pagina-conf').style.display = 'block';
       document.getElementById('conf-texto').innerHTML =
-        `Os dados de <strong>${dados.nome}</strong> foram guardados com sucesso no sistema da Direcção Municipal da Saúde do Sumbe.<br><br>
+        `Os dados de <strong>${escF(dados.nome)}</strong> foram guardados com sucesso no sistema da Direcção Municipal da Saúde do Sumbe.<br><br>
         A equipa de RH irá rever e validar as suas informações. Pode regressar ao portal para consultar as suas solicitações.`;
 
       // Repor botão (embora o formulário já não seja visível)
