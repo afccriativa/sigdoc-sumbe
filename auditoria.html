@@ -1210,6 +1210,7 @@
 
 <!-- FIREBASE -->
 <script type="module">
+const escAud = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -1736,15 +1737,15 @@
         const numAgente = p.funcionarioNumero ? ` (Ag. ${p.funcionarioNumero})` : "";
         const unidade   = p.unidade || "—";
 
-        if (tsAberto) eventos.push({ id: d.id+"_novo", timestamp: tsAberto, accao:"PEDIDO_NOVO", emailUtilizador: p.funcionarioEmail||"—", nomeUtilizador: func+numAgente, perfilUtilizador:"Funcionário", tipoDocumento:"Pedido Secretaria", funcionarioVisado:func, referencia:assunto, observacao:`${func}${numAgente} abriu pedido: "${assunto}" · Unidade: ${unidade}`, modulo:"secretaria", pedidoId:d.id, unidade });
-        if (tsResp && p.estado !== "novo") eventos.push({ id: d.id+"_resp", timestamp:tsResp, accao:"PEDIDO_RESPOSTA", emailUtilizador: p.respondidoPorEmail||"—", nomeUtilizador: p.respondidoPor||"Secretaria", perfilUtilizador:"Secretaria", tipoDocumento:"Pedido Secretaria", funcionarioVisado:func, referencia:assunto, observacao:`Resposta dada ao pedido "${assunto}" de ${func}${numAgente}`, modulo:"secretaria", pedidoId:d.id, unidade });
-        if (tsFechado && p.estado==="fechado") eventos.push({ id: d.id+"_fechado", timestamp:tsFechado, accao:"PEDIDO_FECHADO", emailUtilizador: p.respondidoPorEmail||"—", nomeUtilizador: p.respondidoPor||"Secretaria", perfilUtilizador:"Secretaria", tipoDocumento:"Pedido Secretaria", funcionarioVisado:func, referencia:assunto, observacao:`Pedido "${assunto}" de ${func}${numAgente} encerrado`, modulo:"secretaria", pedidoId:d.id, unidade });
+        if (tsAberto) eventos.push({ id: d.id+"_novo", timestamp: tsAberto, accao:"PEDIDO_NOVO", emailUtilizador: p.funcionarioEmail||"—", nomeUtilizador: func+numAgente, perfilUtilizador:"Funcionário", tipoDocumento:"Pedido Secretaria", funcionarioVisado:func, referencia:assunto, observacao:`${escAud(func)}${numAgente} abriu pedido: "${escAud(assunto)}" · Unidade: ${escAud(unidade)}`, modulo:"secretaria", pedidoId:d.id, unidade });
+        if (tsResp && p.estado !== "novo") eventos.push({ id: d.id+"_resp", timestamp:tsResp, accao:"PEDIDO_RESPOSTA", emailUtilizador: p.respondidoPorEmail||"—", nomeUtilizador: p.respondidoPor||"Secretaria", perfilUtilizador:"Secretaria", tipoDocumento:"Pedido Secretaria", funcionarioVisado:func, referencia:assunto, observacao:`Resposta dada ao pedido "${escAud(assunto)}" de ${escAud(func)}${numAgente}`, modulo:"secretaria", pedidoId:d.id, unidade });
+        if (tsFechado && p.estado==="fechado") eventos.push({ id: d.id+"_fechado", timestamp:tsFechado, accao:"PEDIDO_FECHADO", emailUtilizador: p.respondidoPorEmail||"—", nomeUtilizador: p.respondidoPor||"Secretaria", perfilUtilizador:"Secretaria", tipoDocumento:"Pedido Secretaria", funcionarioVisado:func, referencia:assunto, observacao:`Pedido "${escAud(assunto)}" de ${escAud(func)}${numAgente} encerrado`, modulo:"secretaria", pedidoId:d.id, unidade });
         if (Array.isArray(p.mensagens)) {
           p.mensagens.forEach((m, i) => {
             if (i === 0) return;
             const tmsg = tsToDate(m.em); if (!tmsg) return;
             const isPerfil = m.perfil && m.perfil !== "funcionario";
-            eventos.push({ id: d.id+"_msg_"+i, timestamp:tmsg, accao: isPerfil?"PEDIDO_RESPOSTA":"PEDIDO_NOVO", emailUtilizador: m.email||"—", nomeUtilizador: m.nome||"—", perfilUtilizador: isPerfil?"Secretaria":"Funcionário", tipoDocumento:"Pedido Secretaria", funcionarioVisado:func, referencia:assunto, observacao:`${isPerfil?"Secretaria":func} adicionou mensagem no pedido "${assunto}"`, modulo:"secretaria", pedidoId:d.id, unidade });
+            eventos.push({ id: d.id+"_msg_"+i, timestamp:tmsg, accao: isPerfil?"PEDIDO_RESPOSTA":"PEDIDO_NOVO", emailUtilizador: m.email||"—", nomeUtilizador: m.nome||"—", perfilUtilizador: isPerfil?"Secretaria":"Funcionário", tipoDocumento:"Pedido Secretaria", funcionarioVisado:func, referencia:assunto, observacao:`${isPerfil?"Secretaria":func} adicionou mensagem no pedido "${escAud(assunto)}"`, modulo:"secretaria", pedidoId:d.id, unidade });
           });
         }
       });
@@ -1765,12 +1766,12 @@
         reunioes.push({ id: d.id, ...r });
         const func = r.funcionarioNome||"—", numAgente = r.funcionarioNumero?` (Ag. ${r.funcionarioNumero})`:"", assunto = r.assunto||"—", unidade = r.unidade||"—", dest = r.destinatario||"—";
         const tsCria = tsToDate(r.criadoEm);
-        if (tsCria) eventos.push({ id: d.id+"_reu_novo", timestamp:tsCria, accao:"REUNIAO_PEDIDO", emailUtilizador: r.funcionarioEmail||"—", nomeUtilizador: func+numAgente, perfilUtilizador:"Funcionário", tipoDocumento:"Reunião", funcionarioVisado:func, referencia:`${assunto} · ${dest}`, observacao:`${func}${numAgente} solicitou reunião sobre "${assunto}" com ${dest} · Unidade: ${unidade}`, modulo:"secretaria", reuniaoId:d.id, unidade });
+        if (tsCria) eventos.push({ id: d.id+"_reu_novo", timestamp:tsCria, accao:"REUNIAO_PEDIDO", emailUtilizador: r.funcionarioEmail||"—", nomeUtilizador: func+numAgente, perfilUtilizador:"Funcionário", tipoDocumento:"Reunião", funcionarioVisado:func, referencia:`${escAud(assunto)} · ${escAud(dest)}`, observacao:`${escAud(func)}${numAgente} solicitou reunião sobre "${escAud(assunto)}" com ${escAud(dest)} · Unidade: ${escAud(unidade)}`, modulo:"secretaria", reuniaoId:d.id, unidade });
         const tsAct = tsToDate(r.actualizadoEm);
         if (tsAct && r.estado && r.estado !== "pendente") {
           const accao = ACCOES_REU[r.estado]||"REUNIAO_PEDIDO";
-          const obs = { confirmada:`Reunião "${assunto}" de ${func}${numAgente} confirmada. Local: ${r.local||"—"}, data: ${r.dataSugerida||"a definir"}`, recusada:`Reunião "${assunto}" de ${func}${numAgente} recusada. Motivo: ${r.motivoRecusa||"não especificado"}`, remarcada:`Reunião "${assunto}" de ${func}${numAgente} remarcada para ${r.dataSugerida||"data a definir"}`, realizada:`Reunião "${assunto}" de ${func}${numAgente} marcada como realizada` }[r.estado] || `Reunião "${assunto}" actualizada para: ${ESTADOS_REU[r.estado]||r.estado}`;
-          eventos.push({ id: d.id+"_reu_"+r.estado, timestamp:tsAct, accao, emailUtilizador: r.geridoPorEmail||"—", nomeUtilizador: r.geridoPor||"Secretaria", perfilUtilizador:"Secretaria", tipoDocumento:"Reunião", funcionarioVisado:func, referencia:`${assunto} · ${dest}`, observacao:obs, modulo:"secretaria", reuniaoId:d.id, unidade });
+          const obs = { confirmada:`Reunião "${escAud(assunto)}" de ${escAud(func)}${numAgente} confirmada. Local: ${r.local||"—"}, data: ${r.dataSugerida||"a definir"}`, recusada:`Reunião "${escAud(assunto)}" de ${escAud(func)}${numAgente} recusada. Motivo: ${r.motivoRecusa||"não especificado"}`, remarcada:`Reunião "${escAud(assunto)}" de ${escAud(func)}${numAgente} remarcada para ${r.dataSugerida||"data a definir"}`, realizada:`Reunião "${escAud(assunto)}" de ${escAud(func)}${numAgente} marcada como realizada` }[r.estado] || `Reunião "${escAud(assunto)}" actualizada para: ${ESTADOS_REU[r.estado]||r.estado}`;
+          eventos.push({ id: d.id+"_reu_"+r.estado, timestamp:tsAct, accao, emailUtilizador: r.geridoPorEmail||"—", nomeUtilizador: r.geridoPor||"Secretaria", perfilUtilizador:"Secretaria", tipoDocumento:"Reunião", funcionarioVisado:func, referencia:`${escAud(assunto)} · ${escAud(dest)}`, observacao:obs, modulo:"secretaria", reuniaoId:d.id, unidade });
         }
       });
     } catch(e) { console.warn("reunioes auditoria:", e); }
@@ -1952,15 +1953,15 @@
 
         // ── Linha expand (detalhe inline) ──
         const motivoHtml = (e.accao === "REJEITAR" && e.motivoRejeicao)
-          ? `<div class="expand-obs obs-rejeicao">⚠️ <strong>Motivo da rejeição:</strong> ${e.motivoRejeicao}</div>`
-          : `<div class="expand-obs">${e.observacao || "—"}</div>`;
+          ? `<div class="expand-obs obs-rejeicao">⚠️ <strong>Motivo da rejeição:</strong> ${escAud(e.motivoRejeicao)}</div>`
+          : `<div class="expand-obs">${escAud(e.observacao || "—")}</div>`;
 
         const camposHtml = e.camposAcedidos && e.camposAcedidos.length
-          ? `<div class="expand-campo"><div class="expand-rotulo">Campos Acedidos</div><div class="expand-valor">${e.camposAcedidos.join(", ")}</div></div>`
+          ? `<div class="expand-campo"><div class="expand-rotulo">Campos Acedidos</div><div class="expand-valor">${escAud(e.camposAcedidos.join(", "))}</div></div>`
           : "";
 
         const unidadeHtml = e.unidade
-          ? `<div class="expand-campo"><div class="expand-rotulo">Unidade</div><div class="expand-valor">${e.unidade}</div></div>`
+          ? `<div class="expand-campo"><div class="expand-rotulo">Unidade</div><div class="expand-valor">${escAud(e.unidade)}</div></div>`
           : "";
 
         const expandContent = `
@@ -1969,23 +1970,23 @@
               <div class="expand-grid">
                 <div class="expand-campo">
                   <div class="expand-rotulo">Utilizador</div>
-                  <div class="expand-valor">${e.nomeUtilizador}</div>
+                  <div class="expand-valor">${escAud(e.nomeUtilizador)}</div>
                 </div>
                 <div class="expand-campo">
                   <div class="expand-rotulo">E-mail</div>
-                  <div class="expand-valor" style="font-family:var(--mono);font-size:11px">${e.emailUtilizador}</div>
+                  <div class="expand-valor" style="font-family:var(--mono);font-size:11px">${escAud(e.emailUtilizador)}</div>
                 </div>
                 <div class="expand-campo">
                   <div class="expand-rotulo">Perfil</div>
-                  <div class="expand-valor">${e.perfilUtilizador}</div>
+                  <div class="expand-valor">${escAud(e.perfilUtilizador)}</div>
                 </div>
                 <div class="expand-campo">
                   <div class="expand-rotulo">Funcionário Visado</div>
-                  <div class="expand-valor">${e.funcionarioVisado}</div>
+                  <div class="expand-valor">${escAud(e.funcionarioVisado)}</div>
                 </div>
                 <div class="expand-campo">
                   <div class="expand-rotulo">Referência</div>
-                  <div class="expand-valor">${e.referencia || "—"}</div>
+                  <div class="expand-valor">${escAud(e.referencia || "—")}</div>
                 </div>
                 <div class="expand-campo">
                   <div class="expand-rotulo">ID do Evento</div>
@@ -2010,19 +2011,19 @@
           </td>
           <td>
             <div class="utilizador-linha">
-              <div class="mini-avatar" style="background:${cor}">${inic}</div>
+              <div class="mini-avatar" style="background:${cor}">${escAud(inic)}</div>
               <div>
-                <div class="utilizador-nome">${e.nomeUtilizador}</div>
-                <div class="utilizador-perfil">${e.perfilUtilizador}</div>
+                <div class="utilizador-nome">${escAud(e.nomeUtilizador)}</div>
+                <div class="utilizador-perfil">${escAud(e.perfilUtilizador)}</div>
               </div>
             </div>
           </td>
-          <td><span class="badge badge-${e.accao}">${labelAccao(e.accao)}</span>${badgeAlerta}</td>
+          <td><span class="badge badge-${String(e.accao).replace(/[^\w-]/g,"")}">${escAud(labelAccao(e.accao))}</span>${badgeAlerta}</td>
           <td>
-            <div class="doc-tipo">${e.tipoDocumento !== "—" ? e.tipoDocumento : '<span style="color:rgba(255,255,255,.2)">—</span>'}</div>
-            ${e.funcionarioVisado !== "—" ? `<div class="doc-secundario">${e.funcionarioVisado}${e.referencia ? " · " + e.referencia : ""}</div>` : ""}
+            <div class="doc-tipo">${e.tipoDocumento !== "—" ? escAud(e.tipoDocumento) : '<span style="color:rgba(255,255,255,.2)">—</span>'}</div>
+            ${e.funcionarioVisado !== "—" ? `<div class="doc-secundario">${escAud(e.funcionarioVisado)}${e.referencia ? " · " + e.referencia : ""}</div>` : ""}
           </td>
-          <td><div class="doc-tipo" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:rgba(255,255,255,.4);">${e.observacao}</div></td>
+          <td><div class="doc-tipo" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:rgba(255,255,255,.4);">${escAud(e.observacao)}</div></td>
           <td><button class="btn-detalhe" onclick="event.stopPropagation();abrirDetalhe('${e.id}')">Detalhes</button></td>
         </tr>
         <tr class="linha-expand" id="expand-${e.id}">
@@ -2089,7 +2090,7 @@
       const pct = Math.round((u.docs / max) * 100);
       const nomeAbrev = u.nome.split(" ").slice(0,2).join(" ");
       return `<div class="barra-item">
-        <div class="barra-label" title="${u.nome}">${nomeAbrev}</div>
+        <div class="barra-label" title="${escAud(u.nome)}">${escAud(nomeAbrev)}</div>
         <div class="barra-track"><div class="barra-fill ${coresBarra[i%4]}" style="width:${Math.max(pct,2)}%">${u.docs > 2 ? u.docs : ""}</div></div>
         <div class="barra-valor">${u.docs}</div>
       </div>`;
@@ -2101,11 +2102,11 @@
       const inic = iniciaisNome(u.nome);
       return `<div class="card-utilizador">
         <div class="card-util-topo">
-          <div class="card-util-avatar" style="background:${corAccao("GERAR")}">${inic}</div>
+          <div class="card-util-avatar" style="background:${corAccao("GERAR")}">${escAud(inic)}</div>
           <div>
-            <div class="card-util-nome">${u.nome}</div>
-            <div class="card-util-sub">${u.perfil}</div>
-            <div class="card-util-sub" style="font-size:10px">${email}</div>
+            <div class="card-util-nome">${escAud(u.nome)}</div>
+            <div class="card-util-sub">${escAud(u.perfil)}</div>
+            <div class="card-util-sub" style="font-size:10px">${escAud(email)}</div>
           </div>
         </div>
         <div class="card-util-stats">
@@ -2133,7 +2134,7 @@
     let htmlTipos = Object.entries(porTipo).sort((a,b) => b[1]-a[1]).map(([tipo,qtd], i) => {
       const pct = Math.round((qtd/maxTipo)*100);
       return `<div class="barra-item">
-        <div class="barra-label">${tipo}</div>
+        <div class="barra-label">${escAud(tipo)}</div>
         <div class="barra-track"><div class="barra-fill ${coresBarra[i%4]}" style="width:${Math.max(pct,2)}%">${qtd > 1 ? qtd : ""}</div></div>
         <div class="barra-valor">${qtd}</div>
       </div>`;
@@ -2168,8 +2169,8 @@
         <div class="timeline-dot ${dotClasse[e.accao]||'tl-azul'}">${emojiAccao(e.accao)}</div>
         <div class="timeline-corpo">
           <span class="tl-hora">${fmtData(e.timestamp)} ${fmtHora(e.timestamp)}</span>
-          <div class="tl-titulo">${accaoTexto[e.accao]||e.accao}${e.tipoDocumento !== "—" ? ` — <em>${e.tipoDocumento}</em>` : ""}</div>
-          <div class="tl-sub">Por <strong>${e.nomeUtilizador}</strong>${e.funcionarioVisado !== "—" ? ` · ${e.funcionarioVisado}` : ""}${e.referencia ? ` · ${e.referencia}` : ""}</div>
+          <div class="tl-titulo">${accaoTexto[e.accao]||e.accao}${e.tipoDocumento !== "—" ? ` — <em>${escAud(e.tipoDocumento)}</em>` : ""}</div>
+          <div class="tl-sub">Por <strong>${escAud(e.nomeUtilizador)}</strong>${e.funcionarioVisado !== "—" ? ` · ${escAud(e.funcionarioVisado)}` : ""}${e.referencia ? ` · ${e.referencia}` : ""}</div>
         </div>
       </div>`).join("");
 
@@ -2219,7 +2220,7 @@
     if (e.accao === "REJEITAR" && e.motivoRejeicao) {
       extraHtml = `<div class="detalhe-linha">
         <div class="detalhe-icone">⚠️</div>
-        <div><div class="detalhe-rotulo">Motivo da Rejeição</div><div class="detalhe-valor" style="color:var(--red)">${e.motivoRejeicao}</div></div>
+        <div><div class="detalhe-rotulo">Motivo da Rejeição</div><div class="detalhe-valor" style="color:var(--red)">${escAud(e.motivoRejeicao)}</div></div>
       </div>`;
     }
 
@@ -2230,24 +2231,24 @@
       </div>
       <div class="detalhe-linha">
         <div class="detalhe-icone">👤</div>
-        <div><div class="detalhe-rotulo">Utilizador</div><div class="detalhe-valor">${e.nomeUtilizador} <span style="color:rgba(255,255,255,.35);font-size:12px;">(${e.emailUtilizador})</span></div></div>
+        <div><div class="detalhe-rotulo">Utilizador</div><div class="detalhe-valor">${escAud(e.nomeUtilizador)} <span style="color:rgba(255,255,255,.35);font-size:12px;">(${escAud(e.emailUtilizador)})</span></div></div>
       </div>
       <div class="detalhe-linha">
         <div class="detalhe-icone">🏷</div>
-        <div><div class="detalhe-rotulo">Perfil</div><div class="detalhe-valor">${e.perfilUtilizador}</div></div>
+        <div><div class="detalhe-rotulo">Perfil</div><div class="detalhe-valor">${escAud(e.perfilUtilizador)}</div></div>
       </div>
       <div class="detalhe-linha">
         <div class="detalhe-icone">📄</div>
-        <div><div class="detalhe-rotulo">Tipo de Documento</div><div class="detalhe-valor">${e.tipoDocumento}</div></div>
+        <div><div class="detalhe-rotulo">Tipo de Documento</div><div class="detalhe-valor">${escAud(e.tipoDocumento)}</div></div>
       </div>
       <div class="detalhe-linha">
         <div class="detalhe-icone">🧑‍💼</div>
-        <div><div class="detalhe-rotulo">Funcionário Visado</div><div class="detalhe-valor">${e.funcionarioVisado}${e.referencia ? " — " + e.referencia : ""}</div></div>
+        <div><div class="detalhe-rotulo">Funcionário Visado</div><div class="detalhe-valor">${escAud(e.funcionarioVisado)}${e.referencia ? " — " + e.referencia : ""}</div></div>
       </div>
       ${extraHtml}
       <div class="detalhe-linha">
         <div class="detalhe-icone">📝</div>
-        <div><div class="detalhe-rotulo">Descrição</div><div class="detalhe-valor">${e.observacao}</div></div>
+        <div><div class="detalhe-rotulo">Descrição</div><div class="detalhe-valor">${escAud(e.observacao)}</div></div>
       </div>
       <div class="detalhe-linha">
         <div class="detalhe-icone">🔑</div>
@@ -2364,9 +2365,9 @@
       const msgHtml = msgs.map(m => {
         const isPerfil = m.perfil && m.perfil !== "funcionario";
         return `<div class="msg-bubble ${isPerfil ? "msg-bubble-sec" : "msg-bubble-func"}">
-          <span class="msg-bubble-autor">${isPerfil ? "🏢 Secretaria" : "👤 " + (m.nome||"—")}</span>
+          <span class="msg-bubble-autor">${isPerfil ? "🏢 Secretaria" : "👤 " + escAud(m.nome||"—")}</span>
           <span class="msg-bubble-hora">${fmtTs(m.em)}</span>
-          <div class="msg-bubble-texto">${(m.texto||"").slice(0,140)}${(m.texto||"").length>140?"…":""}</div>
+          <div class="msg-bubble-texto">${escAud((m.texto||"").slice(0,140))}${(m.texto||"").length>140?"…":""}</div>
         </div>`;
       }).join("");
 
@@ -2376,12 +2377,12 @@
       return `<tr class="${trClass}">
         <td class="sec-td-data">${dataCria}</td>
         <td>
-          <div class="sec-func-nome">${func}${num}</div>
-          <div class="sec-func-sub">${unidade}</div>
+          <div class="sec-func-nome">${escAud(func)}${num}</div>
+          <div class="sec-func-sub">${escAud(unidade)}</div>
         </td>
-        <td><span class="badge-assunto">${assunto}</span></td>
+        <td><span class="badge-assunto">${escAud(assunto)}</span></td>
         <td>
-          <span class="badge-estado" style="background:${cor}22;border:1px solid ${cor}44;color:${cor}">${lbl}</span>
+          <span class="badge-estado" style="background:${cor}22;border:1px solid ${cor}44;color:${cor}">${escAud(lbl)}</span>
         </td>
         <td class="sec-td-data">${dataUlt}</td>
         <td class="sec-td-msgs">${nMsg} msg</td>
@@ -2436,16 +2437,16 @@
       return `<tr class="${trClass}">
         <td class="sec-td-data">${dataCria}</td>
         <td>
-          <div class="sec-func-nome">${func}${num}</div>
-          <div class="sec-func-sub">${unidade}</div>
+          <div class="sec-func-nome">${escAud(func)}${num}</div>
+          <div class="sec-func-sub">${escAud(unidade)}</div>
         </td>
-        <td class="sec-td-texto">${r.assunto||"—"}</td>
-        <td class="sec-td-texto">${dest}</td>
-        <td class="sec-td-data">${dataSug}</td>
+        <td class="sec-td-texto">${escAud(r.assunto||"—")}</td>
+        <td class="sec-td-texto">${escAud(dest)}</td>
+        <td class="sec-td-data">${escAud(dataSug)}</td>
         <td>
-          <span class="badge-estado" style="background:${cor}22;border:1px solid ${cor}44;color:${cor}">${lbl}</span>
+          <span class="badge-estado" style="background:${cor}22;border:1px solid ${cor}44;color:${cor}">${escAud(lbl)}</span>
         </td>
-        <td class="sec-td-motivo">${motivo ? "⚠️ " + motivo : '<span class="sec-empty">—</span>'}</td>
+        <td class="sec-td-motivo">${motivo ? "⚠️ " + escAud(motivo) : '<span class="sec-empty">—</span>'}</td>
       </tr>`;
     }).join("");
 
