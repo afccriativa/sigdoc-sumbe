@@ -2413,7 +2413,7 @@ function actualizarBarraFiltrosActivos(){
 
   bar.classList.add('visivel');
   pillsWrap.innerHTML = pills.map(p =>
-    `<span class="pill-filtro">${p.texto}<button class="pill-filtro-x" onclick="${p.acao}" title="Remover filtro" aria-label="Remover filtro ${p.texto}">×</button></span>`
+    `<span class="pill-filtro">${escapeHTMLUnidades(p.texto)}<button class="pill-filtro-x" onclick="${p.acao}" title="Remover filtro" aria-label="Remover filtro ${escapeHTMLUnidades(p.texto)}">×</button></span>`
   ).join('');
 }
 
@@ -3186,8 +3186,8 @@ function cardHTML(u){
         <span class="u-tipo-badge ${tipoClasse(u.tipo)}">${tipoLabel(u.tipo)}</span>
         ${estadoBadgeHTML(u)}
       </div>
-      <div class="u-nome">${u.nome}</div>
-      <div class="u-local">${localizacaoCurta(u)}</div>
+      <div class="u-nome">${escapeHTMLUnidades(u.nome)}</div>
+      <div class="u-local">${escapeHTMLUnidades(localizacaoCurta(u))}</div>
     </div>
     <div class="u-cobertura">
       <div class="u-cob-header">
@@ -3211,8 +3211,8 @@ function cardHTML(u){
     <div class="u-card-footer">
       <div class="u-responsavel">
         ${u.responsavel?.nome ? `
-          <div class="u-resp-av">${u.responsavel.nome[0]}</div>
-          <span class="u-resp-nome">${u.responsavel.nome.split(' ').slice(0,2).join(' ')}</span>
+          <div class="u-resp-av">${escapeHTMLUnidades(u.responsavel.nome[0])}</div>
+          <span class="u-resp-nome">${escapeHTMLUnidades(u.responsavel.nome.split(' ').slice(0,2).join(' '))}</span>
         ` : `<span class="u-resp-nome" style="color:var(--txt-3)">Sem responsável definido</span>`}
       </div>
       <button class="btn-ver" onclick="event.stopPropagation();window.abrirFichaPagina('${u.id}')">Ver Ficha</button>
@@ -3272,11 +3272,11 @@ function renderDrawerDMS(u){
         </div>
         <div class="sec-lista" style="display:none;padding-left:4px">
           ${funcs.length ? funcs.map(f=>`
-            <div class="func-item" onclick="window.open('cadastro.html?abrir=${encodeURIComponent(f.id)}','_self')" title="Ver ficha de ${f.nome||'—'}">
-              <div class="func-av">${(f.nome||'?')[0].toUpperCase()}</div>
+            <div class="func-item" onclick="window.open('cadastro.html?abrir=${encodeURIComponent(f.id)}','_self')" title="Ver ficha de ${escapeHTMLUnidades(f.nome||'—')}">
+              <div class="func-av">${escapeHTMLUnidades((f.nome||'?')[0].toUpperCase())}</div>
               <div class="func-info">
-                <div class="func-nome">${f.nome||'—'}</div>
-                <div class="func-cat">${f.categoria||f.cargo||''}</div>
+                <div class="func-nome">${escapeHTMLUnidades(f.nome||'—')}</div>
+                <div class="func-cat">${escapeHTMLUnidades(f.categoria||f.cargo||'')}</div>
               </div>
               <div class="func-num">${f.numeroBeneficiario||''}</div>
               <span class="func-link-ic">→</span>
@@ -3306,11 +3306,11 @@ function renderDrawerDMS(u){
       </div>
       <div class="sec-lista" style="display:none;padding-left:4px">
         ${semSeccao.map(f=>`
-          <div class="func-item" onclick="window.open('cadastro.html?abrir=${encodeURIComponent(f.id)}','_self')" title="Ver ficha de ${f.nome||'—'}">
-            <div class="func-av">${(f.nome||'?')[0].toUpperCase()}</div>
+          <div class="func-item" onclick="window.open('cadastro.html?abrir=${encodeURIComponent(f.id)}','_self')" title="Ver ficha de ${escapeHTMLUnidades(f.nome||'—')}">
+            <div class="func-av">${escapeHTMLUnidades((f.nome||'?')[0].toUpperCase())}</div>
             <div class="func-info">
-              <div class="func-nome">${f.nome||'—'}</div>
-              <div class="func-cat">${f.categoria||f.cargo||''}</div>
+              <div class="func-nome">${escapeHTMLUnidades(f.nome||'—')}</div>
+              <div class="func-cat">${escapeHTMLUnidades(f.categoria||f.cargo||'')}</div>
             </div>
             <span class="func-link-ic">→</span>
           </div>
@@ -3330,13 +3330,13 @@ function renderDrawerDMS(u){
       </div>
       <div class="ds-row"><span class="ds-key">Tipo</span><span class="ds-val">Direcção Municipal de Saúde</span></div>
       <div class="ds-row"><span class="ds-key">Estado</span><span class="ds-val">${estadoBadgeHTML(u)}</span></div>
-      <div class="ds-row"><span class="ds-key">Localização</span><span class="ds-val">${localizacaoCurta(u)}</span></div>
+      <div class="ds-row"><span class="ds-key">Localização</span><span class="ds-val">${escapeHTMLUnidades(localizacaoCurta(u))}</span></div>
       ${u.localizacao?.distanciaSedeKm !== undefined && u.localizacao?.distanciaSedeKm !== null ? `<div class="ds-row"><span class="ds-key">Distância da sede</span><span class="ds-val">${formatarDistanciaSede(u.localizacao.distanciaSedeKm)}</span></div>` : ''}
       ${u.responsavel?.nome ? `
         <div class="ds-row"><span class="ds-key">Director</span>
-          <span class="ds-val"><strong>${u.responsavel.nome}</strong>${u.responsavel.cargo?' · '+u.responsavel.cargo:''}</span></div>
+          <span class="ds-val"><strong>${escapeHTMLUnidades(u.responsavel.nome)}</strong>${escapeHTMLUnidades(u.responsavel.cargo?' · '+u.responsavel.cargo:'')}</span></div>
       ` : ''}
-      ${u.contactos?.telefone?`<div class="ds-row"><span class="ds-key">Telefone</span><span class="ds-val">${u.contactos.telefone}</span></div>`:''}
+      ${u.contactos?.telefone?`<div class="ds-row"><span class="ds-key">Telefone</span><span class="ds-val">${escapeHTMLUnidades(u.contactos.telefone)}</span></div>`:''}
     </div>
 
     <!-- Efectivo total DMS -->
@@ -3373,7 +3373,7 @@ function renderDrawerDMS(u){
     <!-- Serviços da DMS -->
     <div class="ds">
       <div class="ds-titulo">Serviços da DMS</div>
-      <div class="chips">${(u.servicos||[]).map(s=>`<span class="chip">${s}</span>`).join('')}</div>
+      <div class="chips">${(u.servicos||[]).map(s=>`<span class="chip">${escapeHTMLUnidades(s)}</span>`).join('')}</div>
     </div>
   `;
   document.getElementById('drawer-body').innerHTML = html;
@@ -3412,20 +3412,20 @@ function renderDrawer(u){
           ${podeEd?`<button class="btn-ver" onclick="abrirModalFicha('${u.id}')">✏️ Editar ficha</button>`:''}
         </div>
       </div>
-      <div class="ds-row"><span class="ds-key">Localização</span><span class="ds-val">${localizacaoCurta(u)}</span></div>
+      <div class="ds-row"><span class="ds-key">Localização</span><span class="ds-val">${escapeHTMLUnidades(localizacaoCurta(u))}</span></div>
       ${u.localizacao?.distanciaSedeKm !== undefined && u.localizacao?.distanciaSedeKm !== null ? `<div class="ds-row"><span class="ds-key">Distância da sede</span><span class="ds-val">${formatarDistanciaSede(u.localizacao.distanciaSedeKm)}</span></div>` : ''}
       <div class="ds-row"><span class="ds-key">Tipo</span><span class="ds-val">${tipoLabel(u.tipo)}</span></div>
       <div class="ds-row"><span class="ds-key">Estado</span><span class="ds-val">${estadoBadgeHTML(u)}</span></div>
       ${u.responsavel?.nome ? `
         <div class="ds-row"><span class="ds-key">Responsável</span>
           <span class="ds-val">
-            <strong>${u.responsavel.nome}</strong>${u.responsavel.cargo?' · '+u.responsavel.cargo:''}
+            <strong>${escapeHTMLUnidades(u.responsavel.nome)}</strong>${escapeHTMLUnidades(u.responsavel.cargo?' · '+u.responsavel.cargo:'')}
             ${u.responsavel.dataInicio?`<br><span style="font-size:11px;color:var(--txt-3)">Em funções desde ${new Date(u.responsavel.dataInicio+'T00:00:00').toLocaleDateString('pt-PT',{day:'2-digit',month:'long',year:'numeric'})}</span>`:''}
           </span></div>
       ` : `<div class="ds-row"><span class="ds-key">Responsável</span><span class="ds-val" style="color:var(--txt-3)">Não definido</span></div>`}
-      ${u.contactos?.telefone ? `<div class="ds-row"><span class="ds-key">Telefone</span><span class="ds-val">${u.contactos.telefone}</span></div>` : ''}
-      ${u.contactos?.emergencia ? `<div class="ds-row"><span class="ds-key">Emergência</span><span class="ds-val">📞 ${u.contactos.emergencia}</span></div>` : ''}
-      ${u.horario?.semana ? `<div class="ds-row"><span class="ds-key">Horário</span><span class="ds-val">${u.horario.semana}${u.horario.urgencia24h?' · 🔴 Urgência 24h':''}</span></div>` : ''}
+      ${u.contactos?.telefone ? `<div class="ds-row"><span class="ds-key">Telefone</span><span class="ds-val">${escapeHTMLUnidades(u.contactos.telefone)}</span></div>` : ''}
+      ${u.contactos?.emergencia ? `<div class="ds-row"><span class="ds-key">Emergência</span><span class="ds-val">📞 ${escapeHTMLUnidades(u.contactos.emergencia)}</span></div>` : ''}
+      ${u.horario?.semana ? `<div class="ds-row"><span class="ds-key">Horário</span><span class="ds-val">${escapeHTMLUnidades(u.horario.semana)}${u.horario.urgencia24h?' · 🔴 Urgência 24h':''}</span></div>` : ''}
     </div>
 
     <!-- Efectivo RH -->
@@ -3451,11 +3451,11 @@ function renderDrawer(u){
       ${funcs.length ? `
         <div style="max-height:220px;overflow-y:auto">
           ${funcs.map(f=>`
-            <div class="func-item" onclick="window.open('cadastro.html?abrir=${encodeURIComponent(f.id)}','_self')" title="Ver ficha de ${f.nome||f.nomeCompleto||'—'}">
-              <div class="func-av">${(f.nome||f.nomeCompleto||'?')[0].toUpperCase()}</div>
+            <div class="func-item" onclick="window.open('cadastro.html?abrir=${encodeURIComponent(f.id)}','_self')" title="Ver ficha de ${escapeHTMLUnidades(f.nome||f.nomeCompleto||'—')}">
+              <div class="func-av">${escapeHTMLUnidades((f.nome||f.nomeCompleto||'?')[0].toUpperCase())}</div>
               <div class="func-info">
-                <div class="func-nome">${f.nome||f.nomeCompleto||'—'}</div>
-                <div class="func-cat">${f.categoria||f.cargo||''}</div>
+                <div class="func-nome">${escapeHTMLUnidades(f.nome||f.nomeCompleto||'—')}</div>
+                <div class="func-cat">${escapeHTMLUnidades(f.categoria||f.cargo||'')}</div>
               </div>
               <div class="func-num">${f.numeroBeneficiario||''}</div>
               <span class="func-link-ic">→</span>
@@ -3469,7 +3469,7 @@ function renderDrawer(u){
     ${(u.servicos||[]).length ? `
       <div class="ds">
         <div class="ds-titulo">Serviços Disponíveis</div>
-        <div class="chips">${u.servicos.map(s=>`<span class="chip">${s}</span>`).join('')}</div>
+        <div class="chips">${u.servicos.map(s=>`<span class="chip">${escapeHTMLUnidades(s)}</span>`).join('')}</div>
       </div>` : ''}
 
     <!-- Infraestrutura física -->
@@ -3499,7 +3499,7 @@ function renderDrawer(u){
           ${inf.postoVacinacao !== undefined
             ? `<div class="ds-row"><span class="ds-key">💉 Vacinação (PAV)</span><span class="ds-val">${yn(inf.postoVacinacao)}</span></div>` : ''}
           ${inf.resumo
-            ? `<div class="ds-row" style="flex-direction:column;gap:4px"><span class="ds-key">Observações</span><span class="ds-val" style="color:var(--txt-2)">${inf.resumo}</span></div>` : ''}
+            ? `<div class="ds-row" style="flex-direction:column;gap:4px"><span class="ds-key">Observações</span><span class="ds-val" style="color:var(--txt-2)">${escapeHTMLUnidades(inf.resumo)}</span></div>` : ''}
         </div>`;
     })()}
 
@@ -3740,10 +3740,10 @@ window.pesquisarResponsavel = function(){
       unidade:   f.unidade||''
     }).replace(/"/g,'&quot;');
     return `<div class="resp-item" onclick="selecionarResponsavel(${payload})">
-      <div class="resp-av">${(f.nome||'?')[0].toUpperCase()}</div>
+      <div class="resp-av">${escapeHTMLUnidades((f.nome||'?')[0].toUpperCase())}</div>
       <div class="resp-info" style="flex:1">
-        <b>${f.nome||f.nomeCompleto||'—'}${badge}</b>
-        <small>${f.categoria||f.cargo||'—'} · Nº ${f.numero||f.numeroBeneficiario||'—'}</small>
+        <b>${escapeHTMLUnidades(f.nome||f.nomeCompleto||'—')}${badge}</b>
+        <small>${escapeHTMLUnidades(f.categoria||f.cargo||'—')} · Nº ${escapeHTMLUnidades(f.numero||f.numeroBeneficiario||'—')}</small>
       </div>
     </div>`;
   }).join('');
@@ -3765,8 +3765,8 @@ window.selecionarResponsavel = function(fObj){
     const avisoWrap = document.getElementById('resp-aviso-wrap');
     const avisoTxt  = document.getElementById('resp-aviso-txt');
     avisoTxt.innerHTML =
-      '🚫 <strong>' + fObj.nome.split(' ')[0] + '</strong>'
-      + ' já é responsável de <strong>' + (jaResponsavelEm.nome || 'outra unidade') + '</strong>.'
+      '🚫 <strong>' + escapeHTMLUnidades(fObj.nome.split(' ')[0]) + '</strong>'
+      + ' já é responsável de <strong>' + escapeHTMLUnidades(jaResponsavelEm.nome || 'outra unidade') + '</strong>.'
       + ' Um funcionário não pode ser responsável de duas unidades em simultâneo.'
       + ' Remova primeiro o responsável nessa unidade.';
     avisoWrap.style.display = 'flex';
@@ -3818,7 +3818,7 @@ window.limparResponsavel = function(){
 function renderChipsEdit(){
   document.getElementById('chips-servicos').innerHTML = SERVICOS_EDIT.map((s,i)=>`
     <span class="chip-edit">
-      ${s}
+      ${escapeHTMLUnidades(s)}
       <button onclick="removerServico(${i})" title="Remover">×</button>
     </span>`).join('');
 }
