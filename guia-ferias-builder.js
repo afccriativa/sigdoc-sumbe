@@ -19,9 +19,13 @@
 
     const textoNorm = texto.toLowerCase();
     if (textoNorm.startsWith("dire")) {
-      return "na " + texto;
+      return "na " + esc(texto);
     }
-    return "no " + texto;
+    return "no " + esc(texto);
+  }
+
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
 
   function obterInsigniaSrc(opcoes) {
@@ -32,10 +36,10 @@
   }
 
   window.construirGuiaFerias = function(d, opcoes) {
-    const numFmt = d.numGuia && d.anoGuia ? d.numGuia + "/" + d.anoGuia : "___/____";
-    const nome = d.nomeFuncionario || "___________________________";
-    const cat = d.categoria || "___________________________";
-    const dias = d.numDias || "22";
+    const numFmt = d.numGuia && d.anoGuia ? esc(d.numGuia) + "/" + esc(d.anoGuia) : "___/____";
+    const nome = esc(d.nomeFuncionario || "___________________________");
+    const cat = esc(d.categoria || "___________________________");
+    const dias = esc(d.numDias || "22");
     const inicioFmt = d.dataInicio ? fmtSimples(d.dataInicio) : "__.__.____";
     const emissaoExt = d.dataEmissao ? fmtExtenso(d.dataEmissao) : "___ DE __________ DE ____";
     const apFmt = d.dataApresentacao ? fmtSimples(d.dataApresentacao) : "__.__.____";
@@ -82,7 +86,7 @@
             '<div class="doc-ass-col direita">' +
               '<div class="doc-ass-titulo">O CHEFE DE SEC&Ccedil;&Atilde;O</div>' +
               '<div class="doc-ass-linha"></div>' +
-              '<div class="doc-ass-nome">' + (d.nomeChefe || "___________________________") + '</div>' +
+              '<div class="doc-ass-nome">' + esc(d.nomeChefe || "___________________________") + '</div>' +
             '</div>' +
           '</div>' +
         '</div>' +
