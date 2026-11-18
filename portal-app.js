@@ -555,8 +555,11 @@ window.validarCriarConta=function(){
   const erroFraca = senhaFraca(senha, obterContextoSenhaPortal());
   const senhaOk = senha.length>=8 && /[A-Z]/.test(senha) && /[0-9]/.test(senha) && !erroFraca;
   const s2Ok    = s2===senha && s2.length>0;
-  document.getElementById("btn-criar").disabled = !(emailOk && senhaOk && s2Ok);
+  const codOk = /^[A-Z2-9]{8}$/.test(normCodigoAct(document.getElementById("cc-codigo")?.value));
+  document.getElementById("btn-criar").disabled = !(emailOk && senhaOk && s2Ok && codOk);
 };
+
+function normCodigoAct(v){ return String(v||"").toUpperCase().replace(/[^A-Z0-9]/g,""); }
 
 window.criarConta=async function(){
   const email=document.getElementById("cc-email").value.trim();
@@ -570,6 +573,21 @@ window.criarConta=async function(){
     return;
   }
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span> A criar conta…'; msg.innerHTML="";
+  const codigo = normCodigoAct(document.getElementById("cc-codigo")?.value);
+  try{
+    // Valida o código ANTES de criar a conta (evita contas órfãs)
+    const snapCod = await getDoc(doc(db,"codigos_activacao",codigo));
+    if(!snapCod.exists() || snapCod.data().usado===true || snapCod.data().funcionarioId!==_funcDocId){
+      msg.innerHTML=`<div class="alerta alerta-erro"><strong>Código inválido.</strong> Verifique o código ou peça um novo à Secção de RH.</div>`;
+      btn.disabled=false; btn.innerHTML="Criar Conta →";
+      return;
+    }
+  }catch(eCod){
+    console.error(eCod);
+    msg.innerHTML=`<div class="alerta alerta-erro">Não foi possível validar o código. Verifique a internet e tente novamente.</div>`;
+    btn.disabled=false; btn.innerHTML="Criar Conta →";
+    return;
+  }
   try{
     let uid,userFinal;
     const cred=EmailAuthProvider.credential(email,senha);
@@ -580,7 +598,8 @@ window.criarConta=async function(){
     const unidadeInicial = (_funcDoc?.unidade && _funcDoc.unidade !== "Direcção Municipal de Saúde") ? _funcDoc.unidade : "";
     await setDoc(doc(db,"utilizadores",uid),{nome:nomeInicial,email,unidade:unidadeInicial,activo:true,criadoEm:serverTimestamp(),ultimoAcesso:serverTimestamp(),...payloadPerfilPortal([])});
     const batch = writeBatch(db);
-    batch.update(doc(db,"funcionarios",_funcDocId),{portalUid:uid,portalEmail:email,portalCriadoEm:serverTimestamp()});
+    batch.update(doc(db,"funcionarios",_funcDocId),{portalUid:uid,portalEmail:email,portalCriadoEm:serverTimestamp(),portalCodigo:codigo});
+    batch.update(doc(db,"codigos_activacao",codigo),{usado:true,usadoPor:uid,usadoEm:serverTimestamp()});
     batch.update(doc(db,"utilizadores",uid),{funcionarioId:_funcDocId});
     await batch.commit();
     try{
