@@ -115,6 +115,10 @@ window.SIGDOC_SESSION = (function () {
     document.head.appendChild(s);
   }
 
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+
   function mostrarModal(dispositivoNovo, onConfirm) {
     injectCSS();
 
@@ -131,7 +135,7 @@ window.SIGDOC_SESSION = (function () {
           Foi iniciada uma nova sessão com a sua conta noutro dispositivo ou browser.
           Por segurança, esta sessão foi encerrada.
         </div>
-        <div id="ss-dispositivo">🖥 Nova sessão: ${dispositivoNovo || '—'}</div>
+        <div id="ss-dispositivo">🖥 Nova sessão: ${esc(dispositivoNovo || '—')}</div>
         <button id="ss-btn" onclick="document.getElementById('ss-overlay').remove(); (${onConfirm.toString()})()">
           Ir para o login
         </button>
